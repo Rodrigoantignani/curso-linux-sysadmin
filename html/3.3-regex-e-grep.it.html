@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light dark">
+<title>3.3 · Regex e grep · Corso Linux Sysadmin</title>
+<link rel="alternate" hreflang="pt-BR" href="3.3-regex-e-grep.html"><link rel="alternate" hreflang="it" href="3.3-regex-e-grep.it.html">
+<style>
+:root{color-scheme:light dark;--bg:#f6f1e7;--card:#fffdf8;--ink:#201c16;--muted:#5e564a;--accent:#9a3412;--accent-2:#1f5f4a;--tint:#efe6d4;--line:#ddd2bc;--code:#f1eadb;--shadow:0 1px 2px rgba(60,40,10,.08);--serif:Georgia,"Iowan Old Style","Palatino Linotype",Palatino,serif;--sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--mono:"Cascadia Code",Consolas,"DejaVu Sans Mono",monospace}
+@media (prefers-color-scheme:dark){:root{--bg:#16130f;--card:#201b15;--ink:#f1eadb;--muted:#b9ad98;--accent:#f0a070;--accent-2:#7fd0b0;--tint:#2a231a;--line:#3d3427;--code:#191510;--shadow:none}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:5.5rem}
+body{margin:0;background:var(--bg);color:var(--ink);font:1rem/1.6 var(--sans)}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--accent-2);outline-offset:2px;border-radius:4px}
+.pular{position:absolute;left:-999px;top:0;background:var(--card);padding:.5rem 1rem;z-index:20}
+.pular:focus{left:.5rem;top:.5rem}
+.wrap{width:100%;max-width:84rem;margin:0 auto;padding-inline:max(1rem,env(safe-area-inset-left))}
+.top{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10;border-top:6px solid var(--accent)}
+.top-in{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding-block:.6rem}
+.titles{min-width:0}
+.marca{margin:0;font:700 clamp(1.15rem,1rem + 1vw,1.6rem)/1.15 var(--serif);letter-spacing:-.01em}
+.marca a{text-decoration:none}
+.marca a:hover{color:var(--accent)}
+.meta{margin:.1rem 0 0;color:var(--muted);font-size:.85rem}
+.acoes{display:flex;align-items:center;gap:.9rem;flex:none}
+.acoes>a{font-size:.9rem;font-weight:600;color:var(--muted);text-decoration:none}
+.acoes>a:hover{color:var(--accent);text-decoration:underline}
+.idioma{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--tint)}
+.idioma>*{padding:.35rem .9rem;font-size:.8rem;font-weight:700;letter-spacing:.06em;text-decoration:none;color:var(--muted);min-width:2.75rem;text-align:center}
+.idioma a:hover{color:var(--accent);text-decoration:underline}
+.idioma span{background:var(--accent);color:#fff}
+@media (prefers-color-scheme:dark){.idioma span{color:#16130f}}
+code{font-family:var(--mono);font-size:.9em;background:var(--tint);padding:.1rem .35rem;border-radius:4px;overflow-wrap:anywhere}
+/* índice */
+.capa{max-width:70rem;padding-block:2rem 3rem}
+.stats{border-left:4px solid var(--accent-2);background:var(--card);border-radius:0 10px 10px 0;padding:1rem 1.25rem;margin:0 0 2.5rem;box-shadow:var(--shadow);color:var(--muted)}
+.stats strong{color:var(--ink)}
+.modulo{display:grid;grid-template-columns:15rem minmax(0,1fr);gap:1rem 2rem;padding:1.75rem 0;border-top:1px solid var(--line)}
+.modulo h2{margin:0;font:700 1.25rem/1.25 var(--serif);align-self:start;position:sticky;top:6rem}
+.mn{display:block;font:700 .8rem var(--mono);letter-spacing:.12em;color:var(--accent);margin-bottom:.25rem}
+.sep{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.modulo ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,17rem),1fr));gap:.75rem}
+.modulo li{margin:0}
+.modulo a{display:flex;gap:.45rem;align-items:baseline;height:100%;padding:.85rem 1rem;background:var(--card);border:1px solid var(--line);border-radius:10px;text-decoration:none;font-weight:600;line-height:1.35;box-shadow:var(--shadow);transition:border-color .15s,transform .15s}
+.modulo a:hover{border-color:var(--accent);color:var(--accent)}
+.num{font:700 .85rem var(--mono);color:var(--accent);white-space:nowrap}
+/* aula */
+.doc{display:grid;grid-template-columns:17rem minmax(0,1fr);gap:2.5rem;align-items:start;padding-block:2rem 3rem}
+.lateral{position:sticky;top:5.5rem;max-height:calc(100vh - 6.5rem);overflow:auto;font-size:.875rem;padding-right:.5rem}
+.lateral h2{margin:0 0 .25rem;font:700 .95rem var(--serif);color:var(--muted)}
+.lateral h3{margin:1rem 0 .25rem;font:700 .75rem var(--mono);letter-spacing:.06em;color:var(--accent)}
+.lateral ul{list-style:none;margin:0;padding:0}
+.lateral a{display:flex;gap:.45rem;padding:.25rem .5rem;border-radius:6px;text-decoration:none;color:var(--muted);line-height:1.3}
+.lateral a:hover{background:var(--tint);color:var(--ink)}
+.lateral a[aria-current]{background:var(--tint);color:var(--ink);font-weight:700;box-shadow:inset 3px 0 0 var(--accent)}
+.lateral .num{font-size:.75rem}
+.aula{min-width:0;max-width:56rem;overflow-wrap:break-word;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:clamp(1.25rem,1rem + 2vw,2.75rem);box-shadow:var(--shadow)}
+.aula h1{margin:0 0 1.5rem;font:700 clamp(1.75rem,1.4rem + 1.6vw,2.5rem)/1.15 var(--serif);letter-spacing:-.015em;color:var(--ink)}
+.aula h2{margin:2.5rem 0 .75rem;padding-top:1.25rem;border-top:1px solid var(--line);font:700 1.5rem/1.25 var(--serif)}
+.aula h3{margin:2rem 0 .5rem;font:700 1.15rem/1.3 var(--serif);color:var(--accent)}
+.aula h4,.aula h5,.aula h6{margin:1.5rem 0 .5rem;font-size:1rem}
+.aula p,.aula ul,.aula ol{margin:1rem 0}
+.aula ul,.aula ol{padding-left:1.5rem}
+.aula li{margin:.35rem 0}
+.aula li>ul,.aula li>ol{margin:.35rem 0}
+.aula a{color:var(--accent);text-underline-offset:2px}
+.aula hr{border:0;border-top:1px solid var(--line);margin:2rem 0}
+.tabela{overflow-x:auto;margin:1.25rem 0;border:1px solid var(--line);border-radius:10px}
+.aula table{width:100%;border-collapse:collapse;font-size:.9rem}
+.aula th,.aula td{padding:.55rem .75rem;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+.aula tr:last-child td{border-bottom:0}
+.aula th{background:var(--tint);font-weight:700}
+.aula pre{background:var(--code);border:1px solid var(--line);border-radius:10px;padding:.9rem 1rem;overflow-x:auto;font:.85rem/1.5 var(--mono);margin:1rem 0;tab-size:4}
+.aula pre code{background:none;padding:0;font-size:inherit;overflow-wrap:normal}
+.aula blockquote{margin:1.25rem 0;padding:.75rem 1.25rem;border-left:4px solid var(--accent-2);background:var(--tint);border-radius:0 10px 10px 0}
+.aula blockquote>:first-child{margin-top:0}
+.aula blockquote>:last-child{margin-bottom:0}
+.aula figure{margin:1.75rem 0;text-align:center}
+.aula figure img{display:block;margin:0 auto;max-width:100%;height:auto;border:1px solid var(--line);border-radius:10px;background:#fff}
+.aula figcaption{margin-top:.5rem;color:var(--muted);font-size:.9rem;font-style:italic}
+.paginas{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:2.5rem;padding-top:1.5rem;border-top:1px solid var(--line)}
+.paginas a{display:block;padding:.75rem 1rem;border:1px solid var(--line);border-radius:10px;text-decoration:none;color:var(--ink);font-weight:600;line-height:1.3}
+.paginas a:hover{border-color:var(--accent);color:var(--accent)}
+.paginas small{display:block;color:var(--muted);font-weight:400}
+.paginas .prox{grid-column:2;text-align:right}
+footer{border-top:1px solid var(--line);padding-block:1.5rem;color:var(--muted);font-size:.85rem;text-align:center}
+@media (hover:hover) and (prefers-reduced-motion:no-preference){.modulo a:hover{transform:translateY(-2px)}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+@media (max-width:980px){.doc{grid-template-columns:minmax(0,1fr);padding-top:1rem}.lateral{position:static;max-height:none;order:2}.aula{max-width:none}}
+@media (max-width:860px){.modulo{grid-template-columns:minmax(0,1fr)}.modulo h2{position:static}.mn{display:inline;margin-right:.5rem}}
+@media (max-width:420px){.meta{display:none}.top-in{gap:.5rem}.acoes{gap:.6rem}.capa{padding-top:1.25rem}.paginas{grid-template-columns:minmax(0,1fr)}.paginas .prox{grid-column:1}}
+@media print{.top,.lateral,.paginas{display:none}.aula{border:0;box-shadow:none;padding:0;max-width:none}.doc{display:block}}
+</style>
+</head>
+<body>
+<a class="pular" href="#conteudo">Vai al contenuto</a>
+<header class="top"><div class="wrap top-in"><div class="titles"><p class="marca"><a href="index.it.html">Corso Linux Sysadmin</a></p><p class="meta">Rodrigo Antignani · Lezione 3.3</p></div><div class="acoes"><a href="index.it.html">Indice</a><div class="idioma" role="group" aria-label="Lingua"><a href="3.3-regex-e-grep.html" hreflang="pt-BR" lang="pt-BR">PT</a><span aria-current="true">IT</span></div></div></div></header>
+<div class="wrap doc"><aside class="lateral" aria-label="Lezioni"><h2>Lezioni</h2><h3>M0 · Laboratorio</h3><ul><li><a href="0.1-montar-o-laboratorio.it.html"><span class="num">0.1</span><span>Allestire il laboratorio</span></a></li><li><a href="0.2-acesso-e-protecao.it.html"><span class="num">0.2</span><span>Accesso e protezione</span></a></li></ul><h3>M1 · Riga di comando</h3><ul><li><a href="1.1-o-que-e-linux.it.html"><span class="num">1.1</span><span>Che cos'è Linux</span></a></li><li><a href="1.2-o-shell-e-a-ajuda.it.html"><span class="num">1.2</span><span>La shell e la guida</span></a></li><li><a href="1.3-caminhos-e-navegacao.it.html"><span class="num">1.3</span><span>Percorsi e navigazione</span></a></li><li><a href="1.4-criar-copiar-mover-e-apagar.it.html"><span class="num">1.4</span><span>Creare, copiare, spostare ed eliminare</span></a></li><li><a href="1.5-ler-e-procurar-texto.it.html"><span class="num">1.5</span><span>Leggere e cercare testo</span></a></li><li><a href="1.6-redirecionamentos-e-pipes.it.html"><span class="num">1.6</span><span>Reindirizzamenti e pipe</span></a></li><li><a href="1.7-arquivar-e-compactar.it.html"><span class="num">1.7</span><span>Archiviare e comprimere</span></a></li><li><a href="1.8-primeiro-script.it.html"><span class="num">1.8</span><span>Primo script</span></a></li><li><a href="1.9-decidir-e-repetir.it.html"><span class="num">1.9</span><span>Decidere e ripetere</span></a></li><li><a href="1.10-software-livre-na-pratica.it.html"><span class="num">1.10</span><span>Il software libero in pratica</span></a></li></ul><h3>M2 · Sistema, utenti e permessi</h3><ul><li><a href="2.1-instalacao-e-provisionamento.it.html"><span class="num">2.1</span><span>Installazione e provisioning</span></a></li><li><a href="2.2-hardware-e-dispositivos.it.html"><span class="num">2.2</span><span>Hardware e dispositivi</span></a></li><li><a href="2.3-processos-e-logs.it.html"><span class="num">2.3</span><span>Processi e log</span></a></li><li><a href="2.4-rede-no-dia-a-dia.it.html"><span class="num">2.4</span><span>La rete di tutti i giorni</span></a></li><li><a href="2.5-acesso-remoto-e-privilegios.it.html"><span class="num">2.5</span><span>Accesso remoto e privilegi</span></a></li><li><a href="2.6-usuarios-e-grupos.it.html"><span class="num">2.6</span><span>Utenti e gruppi</span></a></li><li><a href="2.7-permissoes-e-dono.it.html"><span class="num">2.7</span><span>Permessi e proprietario</span></a></li><li><a href="2.8-diretorios-e-arquivos-especiais.it.html"><span class="num">2.8</span><span>Directory e file speciali</span></a></li></ul><h3>M3 · Testo ed editor</h3><ul><li><a href="3.1-fluxos-a-fundo.it.html"><span class="num">3.1</span><span>I flussi in profondità</span></a></li><li><a href="3.2-filtros-de-texto.it.html"><span class="num">3.2</span><span>Filtri di testo</span></a></li><li><a href="3.3-regex-e-grep.it.html" aria-current="page"><span class="num">3.3</span><span>Regex e grep</span></a></li><li><a href="3.4-sed-e-awk.it.html"><span class="num">3.4</span><span>sed e awk</span></a></li><li><a href="3.5-vi-e-vim-de-verdade.it.html"><span class="num">3.5</span><span>vi e vim sul serio</span></a></li></ul><h3>M4 · systemd e boot</h3><ul><li><a href="4.1-como-o-linux-liga.it.html"><span class="num">4.1</span><span>Come si avvia Linux</span></a></li><li><a href="4.2-systemd-servicos-e-units.it.html"><span class="num">4.2</span><span>systemd: servizi e unit</span></a></li><li><a href="4.3-targets-desligar-e-reiniciar.it.html"><span class="num">4.3</span><span>Target: spegnere e riavviare</span></a></li><li><a href="4.4-grub-e-acesso-de-emergencia.it.html"><span class="num">4.4</span><span>GRUB e accesso di emergenza</span></a></li></ul><h3>M5 · Kernel, moduli e VM</h3><ul><li><a href="5.1-hardware-pelo-kernel.it.html"><span class="num">5.1</span><span>L'hardware visto dal kernel</span></a></li><li><a href="5.2-modulos-e-parametros.it.html"><span class="num">5.2</span><span>Moduli e parametri</span></a></li><li><a href="5.3-linux-como-convidado.it.html"><span class="num">5.3</span><span>Linux come guest</span></a></li></ul><h3>M6 · Pacchetti e repository</h3><ul><li><a href="6.1-pacotes-no-debian.it.html"><span class="num">6.1</span><span>Pacchetti su Debian</span></a></li><li><a href="6.2-pacotes-na-rocky.it.html"><span class="num">6.2</span><span>Pacchetti su Rocky</span></a></li><li><a href="6.3-repositorios.it.html"><span class="num">6.3</span><span>Repository</span></a></li><li><a href="6.4-flatpak.it.html"><span class="num">6.4</span><span>Flatpak</span></a></li><li><a href="6.5-bibliotecas-compartilhadas.it.html"><span class="num">6.5</span><span>Librerie condivise</span></a></li></ul></aside><main id="conteudo" class="aula"><article><h1>Lezione 3.3 · Regex e grep</h1>
+<p>Nella lezione 3.2 hai tagliato, ordinato e contato le colonne. Ma quasi ogni vera domanda inizia prima: <strong>quali linee</strong> contano. "I tentativi di password errati", "le righe che non sono commenti", "gli accessi che provenivano da questo IP e non da uno simile". La persona che sceglie le righe è <code translate="no">grep</code>, e il linguaggio che usa per descrivere ciò che sta cercando è l'espressione regolare, regex. Oggi imparerai entrambi in modo approfondito: il punto che corrisponde a qualsiasi cosa, gli ancoraggi, le lezioni, la ripetizione, la differenza tra regex di base ed estesa e le opzioni <code translate="no">grep</code> che separano una ricerca da un report affidabile. Alla fine, uno script mostra cosa <code translate="no">sshd</code> delle due VM effettivamente utilizza e da quale file proviene ciascun valore.</p>
+<div class="tabela"><table><thead><tr><th scope="col">File</th><th scope="col">lezione 3.3</th></tr></thead><tbody><tr><td>Modulo</td><td>M3 · Testo ed editor, lezione 3 di 5</td></tr><tr><td>Quando</td><td>Settimana 7</td></tr><tr><td>Alla fine puoi</td><td>Scrivi espressioni regolari con ancore, lezioni, ripetizioni e gruppi, in BRE ed ERE; sapere quando il punto, l'asterisco e la parentesi fanno ciò che non volevi; cercare il testo fisso con <code translate="no">grep -F</code> e le parole intere con <code translate="no">-w</code>; utilizzare un elenco di modelli con <code translate="no">-f</code> senza cadere nella riga vuota; estrarre solo la sezione che corrisponde a <code translate="no">-o</code>; rimuovere commenti e righe vuote da un file di configurazione; cercare alberi di directory con <code translate="no">-r</code>; leggere l'exit status del <code translate="no">grep</code> e distinguere “non l'ho trovato” da “non sono riuscito a leggerlo”; filtrare il log SSH su entrambe le VM, nel file e nel journal</td></tr><tr><td>Articoli di prova</td><td>LE 3.2 (cercare ed estrarre dati da file) · LPIC-1 103.7 (cercare in file di testo utilizzando espressioni regolari: <code translate="no">grep</code>, <code translate="no">egrep</code>, <code translate="no">fgrep</code>, regex di base ed estese) · RHCSA (utilizzare <code translate="no">grep</code> ed espressioni regolari per analizzare il testo)</td></tr><tr><td>Prerequisiti</td><td>lezione 1.5 (base <code translate="no">grep</code>); lezione 3.1 (pipe, quote, exit status); lezione 3.2 (<code translate="no">cut</code>, <code translate="no">sort</code>, <code translate="no">uniq</code>, <code translate="no">~/lab32/acesso.log</code>)</td></tr><tr><td>Tempo</td><td>Intorno alle 2:30</td></tr><tr><td>Istantanee</td><td>m3a3-start e m3a3-end su entrambe le VM</td></tr></tbody></table></div>
+<h2 id="1-riscaldamento">1 · Riscaldamento</h2>
+<p>Tre domande, fuori dalla mia testa. Scrivi le risposte; la chiave di risposta viene visualizzata alla fine.</p>
+<ol><li>Cercate IP <code translate="no">10.1.0.2</code> in un protocollo con <code translate="no">grep 10.1.0.2 acesso.log</code>. Indovina: appaiono solo le righe per questo IP?</li>
+<li>Un file di configurazione ha commenti con <code translate="no">#</code> all'inizio della riga. Indovina: <code translate="no">grep -v '^#'</code> lascia solo le righe che contano?</li>
+<li>Uno script fa <code translate="no">if ps aux | grep -q backup; then echo "já está rodando"; fi</code>. Indovina: cosa dice quando non è in esecuzione alcun backup?</li></ol>
+<h2 id="2-perche-e-importante">2 · Perché è importante</h2>
+<p><code translate="no">grep</code> è il comando che tutti pensano di sapere già come usare. Proprio per questo tace:</p>
+<div class="tabela"><table><thead><tr><th scope="col">Il cosiddetto</th><th scope="col">La risposta sbagliata</th><th scope="col">Cosa provoca</th></tr></thead><tbody><tr><td>"Blocca IP <code translate="no">10.1.0.2</code>, sta attaccando"</td><td><code translate="no">grep 10.1.0.2 acesso.log</code> verificare</td><td>Compaiono anche le righe <code translate="no">10.1.0.20</code>, <code translate="no">10.1.0.21</code> e <code translate="no">10.1.0.254</code>. Il rapporto incolpa macchine innocenti e il firewall blocca il file server</td></tr><tr><td>"Qual è la configurazione SSH effettiva?"</td><td><code translate="no">grep -v '^#' /etc/ssh/sshd_config</code></td><td>Rimangono righe vuote e commenti rientrati, i file di <code translate="no">/etc/ssh/sshd_config.d/</code> scompaiono. Giuri che la password è disattivata e è attiva</td></tr><tr><td>"Fammi sapere se qualcuno sbaglia la password"</td><td><code translate="no">grep -q 'Failed' log 2&gt;/dev/null</code> in un <code translate="no">if</code></td><td>In Debian il file non esiste nemmeno; senza autorizzazione fallisce anche il <code translate="no">grep</code>. Lo script dice "tutto a posto" per sempre</td></tr><tr><td>"Il backup si avvia solo se non ce n'è nessun altro in esecuzione"</td><td><code translate="no">ps aux | grep -q backup</code></td><td><code translate="no">grep</code> si trova nell'elenco dei processi. Il backup non si riavvia mai e nessuno lo vede perché non è presente alcun errore</td></tr><tr><td>"Cerca chiunque abbia avuto accesso a un IP da questo elenco"</td><td><code translate="no">grep -f lista.txt log</code></td><td>L'elenco termina con una riga vuota e la riga vuota corrisponde a tutto. Il rapporto dice che tutti sono sulla lista</td></tr><tr><td>"Trova dove è configurato <code translate="no">PermitRootLogin</code> sul server"</td><td>Apri file per file nell'editor</td><td>Un <code translate="no">grep -rn PermitRootLogin /etc/ssh/</code> risponde in un secondo, con il numero del file e della riga</td></tr></tbody></table></div>
+<p>Regex è un linguaggio piccolo con poche regole. Chi conosce le regole scrive lo schema che corrisponde a ciò che si deve fare, e solo con quello.</p>
+<h2 id="3-modello-mentale">3 · Modello mentale</h2>
+<blockquote><p><code translate="no">grep</code> legge una riga alla volta e chiede: <strong>c'è qualche parte di questa riga che corrisponde allo schema?</strong> Se c'è, la riga esce tutta intera. Non è necessario che il modello corrisponda all'intera linea, ma solo a una parte di essa, ovunque. Quasi ogni spavento con <code translate="no">grep</code> deriva dal dimenticare questo: il modello corrisponde dove non stavi guardando.</p></blockquote>
+<pre translate="no"><code class="lang-text">  Padrão: 10.1.0.2          Linha: 10.1.0.20 - - [03/Nov/2026...] "GET / ..." 200 5120
+
+  1 0 . 1 . 0 . 2
+  │ │ │ │ │ │ │ │
+  1 0 . 1 . 0 . 2 0 - - [03/Nov...      O trecho existe: a linha sai.
+                  ↑                     O "0" que sobra não importa.
+
+  O ponto casa com QUALQUER caractere:
+
+  1 0 . 1 . 0 . 2
+  │ │ │ │ │ │ │ │
+  1 0 a 1 b 0 c 2 0                     Também casa.
+
+  Como dizer exatamente o que você quer:
+
+  -F '10.1.0.2'          o ponto vira ponto: texto fixo, sem regex
+  -w                     o trecho tem que ser uma palavra inteira: "10.1.0.20" não serve
+  '^10\.1\.0\.2 '        regex: no começo da linha, pontos de verdade, e um espaço depois</code></pre>
+<p>Tre domande per ogni modello, prima di eseguire: <strong>dove può corrispondere</strong> (all'inizio, alla fine, ovunque?), <strong>cosa significa ogni carattere speciale qui</strong> (il punto è un punto o è "qualsiasi"?), e <strong>può non corrispondere a nulla</strong> (un <code translate="no">*</code> o una riga vuota corrisponde a ogni riga)? E una regola pratica: prima di fidarsi di un modello, testarlo con una riga che <strong>dovrebbe</strong> corrispondere e un'altra che <strong>non dovrebbe</strong>.</p>
+<figure><a href="../img/3.3-regex.svg"><img src="../img/3.3-regex.svg" alt="Quale modello corrisponde all&#x27;interno della riga" loading="lazy" decoding="async"></a><figcaption>Il modello corrisponde a un pezzo della linea; grep stampa l'intera riga.</figcaption></figure>
+<h2 id="4-concetto-a-strati">4 · Concetto a strati</h2>
+<h3 id="essenziale">Essenziale</h3>
+<p><strong><code translate="no">grep</code> sceglie le righe.</strong> Le opzioni che utilizzerai ogni giorno:</p>
+<div class="tabela"><table><thead><tr><th scope="col">Opzione</th><th scope="col">Cosa fa</th><th scope="col">Esempio</th></tr></thead><tbody><tr><td><code translate="no">-i</code></td><td>Ignora maiuscole e minuscole</td><td><code translate="no">grep -i 'error' app.log</code></td></tr><tr><td><code translate="no">-v</code></td><td>Inverte: mostra le righe che <strong>non</strong> corrispondono</td><td><code translate="no">grep -v '^#' arquivo</code></td></tr><tr><td><code translate="no">-c</code></td><td>Conta le righe che corrispondono, invece di mostrare</td><td><code translate="no">grep -c 'Failed' secure</code></td></tr><tr><td><code translate="no">-n</code></td><td>Mostra il numero di riga</td><td><code translate="no">grep -n 'Port' sshd_config</code></td></tr><tr><td><code translate="no">-w</code></td><td>Basta casa tutta la parola</td><td><code translate="no">grep -w 'root' /etc/passwd</code></td></tr><tr><td><code translate="no">-x</code></td><td>Corrisponde solo all'intera riga</td><td><code translate="no">grep -x 'ana' nomes.txt</code></td></tr><tr><td><code translate="no">-o</code></td><td>Mostra solo la sezione corrispondente, una per riga</td><td><code translate="no">grep -o 'from [0-9.]*' secure</code></td></tr><tr><td><code translate="no">-l</code></td><td>Mostra solo il nome dei file che contengono una riga</td><td><code translate="no">grep -l 'PermitRootLogin' /etc/ssh/*</code></td></tr><tr><td><code translate="no">-r</code></td><td>Cerca tutti i file in una directory</td><td><code translate="no">grep -rn 'PermitRootLogin' /etc/ssh/</code></td></tr><tr><td><code translate="no">-E</code></td><td>Regex esteso (ERE)</td><td><code translate="no">grep -E '401|403'</code></td></tr><tr><td><code translate="no">-F</code></td><td>Testo corretto, nessuna regex</td><td><code translate="no">grep -F '10.1.0.2'</code></td></tr><tr><td><code translate="no">-q</code></td><td>Non mostra nulla; solo lo stato di uscita</td><td><code translate="no">if grep -q ...; then</code></td></tr></tbody></table></div>
+<p>Inserire sempre il modello tra <strong>virgolette singole</strong>. Senza virgolette, la shell della lezione 3.1 lo modifica per primo: un <code translate="no">*</code> diventa un nome di file, uno spazio separa il modello in due argomenti.</p>
+<p><strong>Caratteri speciali.</strong> Nelle espressioni regolari, quasi ogni carattere corrisponde a se stesso. Coloro che non si sposano:</p>
+<div class="tabela"><table><thead><tr><th scope="col">Carattere</th><th scope="col">Significa</th><th scope="col">Esempio</th><th scope="col">Casa con</th></tr></thead><tbody><tr><td><code translate="no">.</code></td><td>Qualsiasi carattere, esattamente uno</td><td><code translate="no">l.g</code></td><td><code translate="no">log</code>, <code translate="no">lag</code>, <code translate="no">l g</code>, <code translate="no">l.g</code></td></tr><tr><td><code translate="no">^</code></td><td>Inizio riga</td><td><code translate="no">^Port</code></td><td><code translate="no">Port 22</code>, non <code translate="no">#Port 22</code></td></tr><tr><td><code translate="no">$</code></td><td>Fine della riga</td><td><code translate="no">bash$</code></td><td><code translate="no">/bin/bash</code>, non <code translate="no">/bin/bash-old</code></td></tr><tr><td><code translate="no">[abc]</code></td><td>Un personaggio tra quelli elencati</td><td><code translate="no">[Pp]ort</code></td><td><code translate="no">Port</code>, <code translate="no">port</code></td></tr><tr><td><code translate="no">[a-z]</code></td><td>Un personaggio della gamma</td><td><code translate="no">[0-9]</code></td><td>una cifra</td></tr><tr><td><code translate="no">[^abc]</code></td><td>Un carattere che <strong>non</strong> è presente nell'elenco</td><td><code translate="no">[^#]</code></td><td>tutt'altro che <code translate="no">#</code></td></tr><tr><td><code translate="no">*</code></td><td>Il precedente, <strong>zero</strong> o più volte</td><td><code translate="no">ab*c</code></td><td><code translate="no">ac</code>, <code translate="no">abc</code>, <code translate="no">abbbc</code></td></tr><tr><td><code translate="no">\</code></td><td>Togli il potere speciale degli altri</td><td><code translate="no">\.</code></td><td>solo un punto</td></tr></tbody></table></div>
+<p>La coppia di ancoraggi indica dove il modello può corrispondere: <code translate="no">^root</code> solo all'inizio, <code translate="no">nologin$</code> solo alla fine, <code translate="no">^$</code> è una riga vuota e <code translate="no">^root$</code> è una riga che è solo <code translate="no">root</code>.</p>
+<p><strong>Regex di base ed estesa.</strong> <code translate="no">grep</code> senza un'opzione utilizza la regex <strong>basic</strong> (BRE). <code translate="no">grep -E</code> utilizza l'<strong>esteso</strong> (ERE), che aggiunge cinque operatori:</p>
+<div class="tabela"><table><thead><tr><th scope="col">Presso ERE (<code translate="no">grep -E</code>)</th><th scope="col">Significa</th><th scope="col">Esempio</th></tr></thead><tbody><tr><td><code translate="no">+</code></td><td>Il precedente, <strong>una</strong> o più volte</td><td><code translate="no">[0-9]+</code></td></tr><tr><td><code translate="no">?</code></td><td>Il precedente, zero o una volta</td><td><code translate="no">https?</code></td></tr><tr><td><code translate="no">{n,m}</code></td><td>Il precedente, da <code translate="no">n</code> a <code translate="no">m</code> volte</td><td><code translate="no">[0-9]{1,3}</code></td></tr><tr><td><code translate="no">|</code></td><td>Oppure</td><td><code translate="no">401|403</code></td></tr><tr><td><code translate="no">( )</code></td><td>Gruppi</td><td><code translate="no">(ab)+</code>, <code translate="no">(GET|POST) /login</code></td></tr></tbody></table></div>
+<p>In BRE, questi cinque caratteri sono <strong>comuni</strong>: <code translate="no">grep '(401|403)'</code> cerca letteralmente una parentesi, <code translate="no">401</code>, una barra verticale, <code translate="no">403</code> e un'altra parentesi. È la confusione numero uno nella lezione e il Passo 3 mostra.</p>
+<p><strong>Lo stato di uscita.</strong> <code translate="no">grep</code> termina con <code translate="no">0</code> se ha trovato almeno una riga, <code translate="no">1</code> se non ne ha trovata nessuna e <code translate="no">2</code> se ha dato un errore: file che non esiste, autorizzazione negata, regex non valida. In un <code translate="no">if</code>, <code translate="no">1</code> e <code translate="no">2</code> rientrano entrambi nel <code translate="no">else</code>.</p>
+<h3 id="intermedio">Intermedio</h3>
+<p><strong>Testo fisso e parola intera.</strong> Un IP, un nome file puntato, un percorso: questi sono testo, non regex. <code translate="no">-F</code> disattiva tutti i caratteri speciali e di conseguenza è più veloce. <code translate="no">-w</code> richiede che il passaggio sia circondato da qualcosa di diverso da una lettera, cifra o <code translate="no">_</code>, o dall'inizio e dalla fine della riga:</p>
+<pre translate="no"><code class="lang-bash">grep -F '10.1.0.2' acesso.log      # il punto è un punto, ma 10.1.0.20 corrisponde ancora
+grep -Fw '10.1.0.2' acesso.log     # solo 10.1.0.2, come parola
+grep -w 'root' /etc/passwd         # root, non rootkit o chroot</code></pre>
+<p>Per <code translate="no">-w</code>, il punto <strong>separa</strong> le parole: <code translate="no">10.1.0.2</code> sono parole di quattro cifre con punti tra di loro, e <code translate="no">-w</code> esamina ciò che viene prima del primo <code translate="no">1</code> e dopo l'ultimo <code translate="no">2</code>.</p>
+<p><strong>lezioni con nome.</strong> All'interno della parentesi, <code translate="no">[[:digit:]]</code>, <code translate="no">[[:alpha:]]</code>, <code translate="no">[[:space:]]</code>, <code translate="no">[[:upper:]]</code>, <code translate="no">[[:lower:]]</code> e <code translate="no">[[:alnum:]]</code> funzionano in qualsiasi lingua. <code translate="no">[[:space:]]</code> corrisponde allo spazio <strong>e</strong> alle tabulazioni, che è quello che desideri quasi sempre:</p>
+<pre translate="no"><code class="lang-bash">grep -Ev '^[[:space:]]*(#|$)' /etc/ssh/sshd_config    # rimuovere i commenti, con o senza rientro, e le righe vuote</code></pre>
+<p>Leggi questo schema in parti, perché lo utilizzerai per tutta la vita: <code translate="no">^</code> inizio, <code translate="no">[[:space:]]*</code> zero o più spazi o tabulazioni, e poi <code translate="no">#</code> (un commento) <strong>o</strong> <code translate="no">$</code> (la fine, cioè la riga aveva solo spazi). <code translate="no">-v</code> inverte: resta quello che vale.</p>
+<p><strong>Estrai con <code translate="no">-o</code>.</strong> <code translate="no">-o</code> stampa solo la parte corrispondente. È il ponte tra <code translate="no">grep</code> ed i filtri della lezione 3.2:</p>
+<pre translate="no"><code class="lang-bash">grep -oE 'from [0-9.]+' /var/log/secure | cut -d' ' -f2 | sort | uniq -c | sort -rn</code></pre>
+<p><strong>Lista di pattern.</strong> <code translate="no">-f arquivo</code> legge un pattern per riga; <code translate="no">-e</code> aggiunge uno schema alla riga di comando stessa e può essere ripetuto. Entrambi vengono utilizzati per elenchi di IP, utenti o parole:</p>
+<pre translate="no"><code class="lang-bash">grep -Fwf bloqueio.txt acesso.log      # testo fisso, parola intera, modelli di file
+grep -e 'Failed' -e 'Invalid' secure   # uguale a grep -E 'Fallito|Non valido'</code></pre>
+<p><strong>Contesto.</strong> <code translate="no">-A 2</code> mostra 2 righe dopo ciascuna riga corrispondente, <code translate="no">-B 2</code> prima e <code translate="no">-C 2</code> su entrambi i lati. In un log, l'errore raramente è solo sulla riga: la causa è due righe prima. <code translate="no">-m N</code> si ferma dopo <code translate="no">N</code> righe trovate.</p>
+<p><strong>Cerca nelle directory.</strong> <code translate="no">-r</code> scende attraverso le directory, senza seguire collegamenti simbolici lungo il percorso; Segue <code translate="no">-R</code>. Con <code translate="no">--include='*.conf'</code> limiti i file; con <code translate="no">-l</code> mostra solo i nomi; con <code translate="no">-h</code> nascondere il nome di ogni riga; con <code translate="no">-H</code> forza il nome anche con un solo file:</p>
+<pre translate="no"><code class="lang-bash">grep -rn 'PermitRootLogin' /etc/ssh/
+grep -rl --include='*.conf' 'Listen' /etc/</code></pre>
+<p>Le virgolette in <code translate="no">'*.conf'</code> contano: senza di esse la shell scambia <code translate="no">*.conf</code> con i file <code translate="no">.conf</code> della cartella in cui ti trovi.</p>
+<p><strong><code translate="no">egrep</code> e <code translate="no">fgrep</code>.</strong> Questi sono i vecchi nomi di <code translate="no">grep -E</code> e <code translate="no">grep -F</code>. Rientrano ancora nel test LPIC, ma la documentazione GNU li considera obsoleti e il più recente <code translate="no">grep</code> ti avvisa quando li usi. Scrivi <code translate="no">grep -E</code> e <code translate="no">grep -F</code>.</p>
+<h3 id="windows-bridge">Windows Bridge</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Su Windows</th><th scope="col">Su Linux</th><th scope="col">La differenza che conta</th></tr></thead><tbody><tr><td><code translate="no">findstr</code></td><td><code translate="no">grep</code></td><td><code translate="no">findstr</code> ha una regex limitata, senza <code translate="no">+</code>, <code translate="no">?</code>, <code translate="no">{}</code> né <code translate="no">|</code>. <code translate="no">grep -E</code> ha l'espressione regolare completa</td></tr><tr><td><code translate="no">Select-String -Pattern</code></td><td><code translate="no">grep -E</code></td><td><code translate="no">Select-String</code> <strong>ignora le lettere maiuscole per impostazione predefinita</strong>; <code translate="no">grep</code> differenzia. Su Linux, <code translate="no">-i</code> quando si desidera ignorare</td></tr><tr><td><code translate="no">Select-String -SimpleMatch</code></td><td><code translate="no">grep -F</code></td><td>Testo corretto, nessuna regex</td></tr><tr><td><code translate="no">Select-String -NotMatch</code></td><td><code translate="no">grep -v</code></td><td>Idem</td></tr><tr><td><code translate="no">Select-String -Context 2</code></td><td><code translate="no">grep -C 2</code></td><td>Idem</td></tr><tr><td><code translate="no">Get-ChildItem -Recurse | Select-String</code></td><td><code translate="no">grep -r</code></td><td>Un'opzione, invece di una pipe</td></tr><tr><td>PowerShell <code translate="no">-match</code></td><td><code translate="no">[[ $x =~ regex ]]</code> in <code translate="no">bash</code></td><td>Entrambi usano espressioni regolari estese; in <code translate="no">bash</code> la regex è <strong>senza virgolette</strong> a destra</td></tr><tr><td>.NET Regex (<code translate="no">\d</code>, <code translate="no">\s</code>, <code translate="no">.*?</code>)</td><td><code translate="no">grep -P</code></td><td><code translate="no">\d</code> e <code translate="no">.*?</code> non esistono in BRE o ERE. In <code translate="no">grep -E</code>, <code translate="no">\d</code> è solo un <code translate="no">d</code>. Utilizza <code translate="no">[0-9]</code> o <code translate="no">-P</code></td></tr></tbody></table></div>
+<h3 id="avanzato">Avanzato</h3>
+<p><strong>La regex è golosa.</strong> <code translate="no">*</code> e <code translate="no">+</code> prendono lo snippet <strong>più lungo</strong> possibile. Con <code translate="no">-o</code> appare:</p>
+<pre translate="no"><code class="lang-bash">echo 'a="1" b="2"' | grep -o '".*"'       # "1" b="2" (dal primo " all'ultimo ")
+echo 'a="1" b="2"' | grep -o '"[^"]*"'    # "1" e "2" (tutto tranne le virgolette)</code></pre>
+<p>Il trucco <code translate="no">[^"]*</code> funziona con qualsiasi delimitatore: <code translate="no">[^ ]*</code> è "fino al prossimo spazio", <code translate="no">[^]]*</code> è "fino al prossimo <code translate="no">]</code>". <code translate="no">grep -P</code> (Perl regex) ha la versione pigra, <code translate="no">".*?"</code>, ma <code translate="no">[^"]*</code> funziona in qualsiasi <code translate="no">grep</code>, in <code translate="no">sed</code> e in <code translate="no">awk</code>.</p>
+<p><strong>Retrovisor.</strong> Un gruppo <code translate="no">( )</code> mantiene ciò che corrisponde e <code translate="no">\1</code> ripete lo stesso testo in seguito. Trova parole ripetute, un errore di battitura comune nei documenti:</p>
+<pre translate="no"><code class="lang-bash">grep -E '\b([a-z]+) \1\b' texto.txt      # "de de", "o o"</code></pre>
+<p><code translate="no">\b</code> è il bordo della parola, la stessa idea di <code translate="no">-w</code> all'interno del modello. Rearview e <code translate="no">\b</code> sono estensioni GNU: funzionano su <code translate="no">grep</code> di entrambe le VM, ma non su tutti gli Unix.</p>
+<p><strong>La lingua cambia il significato di un carattere.</strong> In una lingua UTF-8, <code translate="no">.</code> corrisponde a <code translate="no">ç</code>, ovvero due byte. Con <code translate="no">LC_ALL=C</code> ogni byte è un carattere e <code translate="no">^.$</code> non corrisponde ad una riga che sia solo <code translate="no">ç</code>. Anche brani come <code translate="no">[a-z]</code> dipendono dalla lingua dei sistemi più vecchi; <code translate="no">[[:lower:]]</code> è sempre sicuro. E <code translate="no">LC_ALL=C grep -F</code> su un log multi-gigabyte è molto più veloce, perché non ha bisogno di decodificare UTF-8.</p>
+<p><strong>L'espressione regolare all'esterno di <code translate="no">grep</code>.</strong> La stessa lingua appare in molti posti, ognuno con un sapore diverso:</p>
+<div class="tabela"><table><thead><tr><th scope="col">Dove</th><th scope="col">Sapore</th><th scope="col">Esempio</th></tr></thead><tbody><tr><td><code translate="no">grep</code>, <code translate="no">sed</code></td><td>BRE per impostazione predefinita; ERE con <code translate="no">-E</code></td><td><code translate="no">sed -E 's/[0-9]+/N/'</code></td></tr><tr><td><code translate="no">awk</code></td><td>ERE</td><td><code translate="no">awk '/Failed/'</code></td></tr><tr><td><code translate="no">[[ =~ ]]</code> in <code translate="no">bash</code></td><td>ERE</td><td><code translate="no">[[ $ip =~ ^[0-9.]+$ ]]</code></td></tr><tr><td><code translate="no">vim</code></td><td>BRE, con i suoi extra</td><td><code translate="no">/\&lt;root\&gt;</code></td></tr><tr><td><code translate="no">journalctl -g</code></td><td>PCRE2 (stile Perl)</td><td><code translate="no">journalctl -u ssh -g 'Failed password'</code></td></tr><tr><td><code translate="no">find -regex</code></td><td>Casa <strong>per tutto il percorso</strong></td><td><code translate="no">find /etc -regex '.*\.conf'</code></td></tr></tbody></table></div>
+<p><code translate="no">sed</code> e <code translate="no">awk</code> appartengono alla lezione 3.4; <code translate="no">vim</code>, a 3,5. Ciò che impari oggi è valido in tutti e tre.</p>
+<p><strong>La regex non è un parser.</strong> Un IP con <code translate="no">([0-9]{1,3}\.){3}[0-9]{1,3}</code> corrisponde anche a <code translate="no">999.999.999.999</code>. Per trovare gli IP in un log basta questo: il log non inventa gli IP. <strong>convalidare</strong> l'input di un utente in uno script non è sufficiente. La regola generale: la regex serve per trovare; per convalidare, utilizzare lo strumento che comprende il formato.</p>
+<h3 id="cosa-e-testato">Cosa è testato</h3>
+<p><strong>Linux Essentials e LPIC-1 (103.7):</strong></p>
+<ul><li>Il significato di <code translate="no">.</code>, <code translate="no">^</code>, <code translate="no">$</code>, <code translate="no">*</code>, <code translate="no">[ ]</code>, <code translate="no">[^ ]</code>, <code translate="no">\</code> in BRE; da <code translate="no">+</code>, <code translate="no">?</code>, <code translate="no">{ }</code>, <code translate="no">|</code>, <code translate="no">( )</code> in ERE; e che, in BRE, questi ultimi sono letterali.</li>
+<li><code translate="no">grep -E</code> equivale a <code translate="no">egrep</code>; <code translate="no">grep -F</code> equivale a <code translate="no">fgrep</code>.</li>
+<li>Le opzioni <code translate="no">-i</code>, <code translate="no">-v</code>, <code translate="no">-c</code>, <code translate="no">-n</code>, <code translate="no">-l</code>, <code translate="no">-r</code>, <code translate="no">-w</code>, <code translate="no">-x</code>, <code translate="no">-o</code>, <code translate="no">-e</code>, <code translate="no">-f</code>.</li>
+<li>Prevedere l'output di un <code translate="no">grep</code> con regex in un piccolo file: è il formato preferito per domande.</li>
+<li><code translate="no">sed</code> con regex di base appare nello stesso elemento (lezione 3.4).</li></ul>
+<p><strong>RHCSA:</strong></p>
+<ul><li>"Trova tutte le righe in un file che contengono una parola e salva in <code translate="no">/root/arquivo</code>, nell'ordine originale": un <code translate="no">grep</code> con <code translate="no">&gt;</code> e nient'altro. Non ordinare, non cambiare il formato.</li>
+<li>"Trova i file di <code translate="no">/etc</code> che contengono una parola": <code translate="no">grep -rl</code>.</li>
+<li>Nel test, il risultato viene controllato da uno script. Una riga in più o in meno è la domanda sbagliata.</li></ul>
+<h2 id="5-rocky-debian">5 · Rocky × Debian</h2>
+<div class="tabela"><table><thead><tr><th scope="col">Cosa</th><th scope="col">laboratorio-roccioso</th><th scope="col">debian-lab</th><th scope="col">Come controllare</th></tr></thead><tbody><tr><td>Versione <code translate="no">grep</code></td><td>GNU grep 3.6</td><td>GNU grep 3.8</td><td><code translate="no">grep --version | head -1</code></td></tr><tr><td><code translate="no">egrep</code> e <code translate="no">fgrep</code></td><td>Funzionano senza preavviso</td><td>Funzionano, ma avvertono: <code translate="no">egrep: warning: egrep is obsolescent</code></td><td><code translate="no">egrep x /dev/null</code></td></tr><tr><td>Barra rovesciata senza significato (<code translate="no">\-</code>, <code translate="no">\ </code>)</td><td>Accetta in silenzio</td><td>Avvertire: <code translate="no">warning: stray \ before -</code></td><td><code translate="no">grep '\-' /dev/null</code></td></tr><tr><td><code translate="no">grep</code> colorato</td><td>Sì: un alias in <code translate="no">/etc/profile.d/colorgrep.sh</code></td><td>No, per impostazione predefinita: l'alias è commentato in <code translate="no">~/.bashrc</code></td><td><code translate="no">type grep</code></td></tr><tr><td>Registro SSH</td><td><code translate="no">/var/log/secure</code>, solo per <code translate="no">root</code></td><td>Solo nella rivista</td><td><code translate="no">sudo ls -l /var/log/secure</code></td></tr><tr><td>Unità SSH in systemd</td><td><code translate="no">sshd.service</code></td><td><code translate="no">ssh.service</code></td><td><code translate="no">systemctl status sshd</code> o <code translate="no">ssh</code></td></tr><tr><td>Configurazione SSH</td><td><code translate="no">/etc/ssh/sshd_config</code> con <code translate="no">Include</code> di <code translate="no">/etc/ssh/sshd_config.d/*.conf</code>; Rocky porta già <code translate="no">50-redhat.conf</code></td><td>Lo stesso <code translate="no">Include</code>; la cartella è solitamente vuota</td><td><code translate="no">sudo ls /etc/ssh/sshd_config.d/</code></td></tr><tr><td><code translate="no">grep -P</code></td><td>Disponibile</td><td>Disponibile</td><td><code translate="no">grep -P '\d' &lt;&lt;&lt; 1</code></td></tr></tbody></table></div>
+<p>La differenza più evidente sul lavoro è quella del log SSH: lo stesso script di alert, che legge <code translate="no">/var/log/secure</code>, non trova nulla in Debian e non si lamenta. Quebra A risolve questo problema.</p>
+<h2 id="6-laboratorio-guidato">6 · Laboratorio guidato</h2>
+<p>Sei <code translate="no">rodrigo</code>, in rocky-lab e raggiungi debian-lab tramite <code translate="no">ssh deb</code>. Tutto avviene in <code translate="no">~/lab33</code>, su entrambe le VM. I file di sistema e i log effettivi vengono <strong>solamente letti</strong>: nessun passaggio modifica la configurazione SSH. Il passaggio 7 è la sfida della lezione.</p>
+<figure><a href="../img/3.3-qual-busca-usar.svg"><img src="../img/3.3-qual-busca-usar.svg" alt="3.3 Quale ricerca utilizzare" loading="lazy" decoding="async"></a><figcaption>Prima di fidarsi del pattern, chiedere dove può corrispondere, cosa significa ciascun carattere speciale e se non può corrispondere a nulla.</figcaption></figure>
+<h3 id="passaggio-0-istantanea-cartella-e-file-di-laboratorio">Passaggio 0 · Istantanea, cartella e file di laboratorio</h3>
+<p>In Proxmox, acquisire l'istantanea <code translate="no">m3a3-inicio</code> di entrambe le VM. In rocky-lab:</p>
+<pre translate="no"><code class="lang-bash">eval "$(ssh-agent -s)"; ssh-add
+ssh -o BatchMode=yes deb hostname
+mkdir -p ~/lab33; ssh deb 'mkdir -p ~/lab33'
+cd ~/lab33
+cp ~/lab32/acesso.log .
+grep --version | head -1; ssh deb 'grep --version | head -1'</code></pre>
+<p>Se <code translate="no">~/lab32/acesso.log</code> non esiste più, ricrealo con il qui-doc del Passaggio 0 della lezione 3.2. Ora un pezzo di log SSH in formato Rocky. Gli IP provengono da blocchi riservati alla documentazione, quindi non appartengono a nessuno:</p>
+<pre translate="no"><code class="lang-bash">cat &gt; ssh.amostra &lt;&lt;'EOF'
+Nov  3 08:10:01 rocky-lab sshd[2101]: Failed password for root from 203.0.113.9 port 51022 ssh2
+Nov  3 08:10:04 rocky-lab sshd[2101]: Failed password for root from 203.0.113.9 port 51022 ssh2
+Nov  3 08:11:20 rocky-lab sshd[2140]: Failed password for invalid user admin from 198.51.100.4 port 40110 ssh2
+Nov  3 08:11:22 rocky-lab sshd[2140]: Failed password for invalid user admin from 198.51.100.4 port 40110 ssh2
+Nov  3 08:12:00 rocky-lab sshd[2177]: Accepted publickey for rodrigo from 10.1.0.20 port 50001 ssh2: ED25519 SHA256:k3Yd9
+Nov  3 08:13:15 rocky-lab sshd[2190]: Failed password for invalid user oracle from 203.0.113.9 port 51200 ssh2
+Nov  3 08:14:02 rocky-lab sshd[2201]: Invalid user test from 192.0.2.66 port 33000
+Nov  3 08:14:05 rocky-lab sshd[2201]: Failed password for invalid user test from 192.0.2.66 port 33000 ssh2
+Nov  3 08:15:30 rocky-lab sshd[2230]: Failed password for rodrigo from 10.1.0.31 port 50110 ssh2
+Nov  3 08:15:40 rocky-lab sshd[2230]: Accepted password for rodrigo from 10.1.0.31 port 50110 ssh2
+Nov  3 08:16:00 rocky-lab sudo[2250]: rodrigo : TTY=pts/0 ; PWD=/home/rodrigo ; USER=root ; COMMAND=/usr/bin/tail -n 20 /var/log/secure
+Nov  3 08:17:12 rocky-lab sshd[2266]: Connection closed by authenticating user root 203.0.113.9 port 51300 [preauth]
+EOF</code></pre>
+<p>E un file di configurazione in stile <code translate="no">sshd_config</code>, con le trappole apposta. Questo va con <code translate="no">printf</code>, e non con here-doc, perché la riga 9 inizia con un <strong>tab</strong>, e un tab incollato nel terminale può trasformarsi in spazi:</p>
+<pre translate="no"><code class="lang-bash">printf '# Exemplo no estilo do sshd_config\nPort 22\n\n#PermitRootLogin prohibit-password\nPermitRootLogin no\n    # MaxSessions 10\nPasswordAuthentication yes\n   \n\t#ListenAddress 0.0.0.0\nMaxAuthTries 3\n#PasswordAuthentication no\n' &gt; conf.amostra
+cat -A conf.amostra
+wc -l acesso.log ssh.amostra conf.amostra</code></pre>
+<pre translate="no"><code class="lang-text"># Exemplo no estilo do sshd_config$
+Port 22$
+$
+#PermitRootLogin prohibit-password$
+PermitRootLogin no$
+    # MaxSessions 10$
+PasswordAuthentication yes$
+   $
+^I#ListenAddress 0.0.0.0$
+MaxAuthTries 3$
+#PasswordAuthentication no$
+  15 acesso.log
+  12 ssh.amostra
+  11 conf.amostra
+  38 total</code></pre>
+<p><code translate="no">cat -A</code>, dalla lezione 3.2, mostra <code translate="no">$</code> alla fine di ogni riga e <code translate="no">^I</code> al posto del tab. Nota la riga 6 (commento con spazi rientrati), la riga 8 (solo spazi) e la riga 9 (commento con rientro di tabulazione). Copiare i tre file in Debian:</p>
+<pre translate="no"><code class="lang-bash">scp acesso.log ssh.amostra conf.amostra deb:lab33/
+ssh deb 'cd ~/lab33 &amp;&amp; wc -l acesso.log ssh.amostra conf.amostra &amp;&amp; cat -A conf.amostra | sed -n 9p'</code></pre>
+<p>L'ultima riga di Debian deve mostrare <code translate="no">^I#ListenAddress 0.0.0.0$</code>. Se mostra spazi, la copia non è il problema: ripeti <code translate="no">printf</code>.</p>
+<h3 id="passo-1-il-punto-che-corrisponde-a-qualsiasi-cosa">Passo 1 · Il punto che corrisponde a qualsiasi cosa</h3>
+<p>Il firewall avverte che <code translate="no">10.1.0.2</code> sta facendo qualcosa di strano. Puoi verificarlo nel registro:</p>
+<p><strong>Decidi 1 · Esegui <code translate="no">grep -c 10.1.0.2 acesso.log</code>. Che numero esce?</strong></p>
+<ul><li><strong>A)</strong> 0</li>
+<li><strong>B)</strong> 4</li>
+<li><strong>C)</strong> 15</li>
+<li><strong>D)</strong> Un errore, perché il modello ha punti e non è racchiuso tra virgolette</li></ul>
+<p>Scegliere la lettera prima di guardare la tabella.</p>
+<pre translate="no"><code class="lang-bash">grep -c 10.1.0.2 acesso.log
+grep 10.1.0.2 acesso.log | cut -d' ' -f1 | sort | uniq -c</code></pre>
+<pre translate="no"><code class="lang-text">4
+      4 10.1.0.20</code></pre>
+<div class="tabela"><table><thead><tr><th scope="col">Se hai selezionato</th><th scope="col">Risultato</th><th scope="col">Perché</th></tr></thead><tbody><tr><td>A</td><td>❌ Sbagliato</td><td>E' il numero che <strong>volevi</strong>: <code translate="no">10.1.0.2</code> non appare nel log. Ma <code translate="no">grep</code> cerca uno snippet e <code translate="no">10.1.0.2</code> è uno snippet di <code translate="no">10.1.0.20</code>.</td></tr><tr><td>B</td><td>✅ Giusto</td><td>Le quattro righe del <code translate="no">10.1.0.20</code> contengono la sezione <code translate="no">10.1.0.2</code>, seguita da un <code translate="no">0</code> che il <code translate="no">grep</code> non ha chiesto di prendere visione. Il rapporto darebbe la colpa alla macchina sbagliata.</td></tr><tr><td>C</td><td>❌ Sbagliato</td><td>Il punto corrisponde a qualsiasi carattere, ma le cifre nel modello sono comunque obbligatorie. Solo quattro righe hanno <code translate="no">10</code>, qualcosa, <code translate="no">1</code>, qualcosa, <code translate="no">0</code>, qualcosa e <code translate="no">2</code> in sequenza.</td></tr><tr><td>D</td><td>❌ Sbagliato</td><td>Il punto non è speciale per la shell, ma solo per la regex. Senza spazi, <code translate="no">*</code>, <code translate="no">?</code> o <code translate="no">$</code>, il modello passa intatto. Le virgolette singole rimangono la giusta abitudine.</td></tr></tbody></table></div>
+<p><strong>Per risolvere:</strong> il modello corrisponde a <strong>un pezzo</strong> della linea. Per <code translate="no">grep</code>, "contiene" non è "è".</p>
+<p>Questi sono due problemi insieme. Il primo è quello della tabella: la sezione in mezzo ad un'altra. Il secondo è il punto, che corrisponde a qualsiasi carattere:</p>
+<pre translate="no"><code class="lang-bash">echo '10a1b0c2' | grep 10.1.0.2</code></pre>
+<pre translate="no"><code class="lang-text">10a1b0c2</code></pre>
+<p>Ora i tre strumenti del Modello Mentale, uno alla volta:</p>
+<pre translate="no"><code class="lang-bash">grep -cF '10.1.0.2' acesso.log        # 4: il punto ora è un punto, ma 10.1.0.20 continua a corrispondere
+grep -cw '10.1.0.2' acesso.log        # 0: parola intera; dopo il 2 c'è uno 0, non un vantaggio
+grep -cFw '10.1.0.2' acesso.log       # 0: testo fisso E parola intera, giusto per IP
+grep -cw '10\.1\.0\.20' acesso.log    # 4: lo stesso, in regex, con i punti sfuggiti</code></pre>
+<p>Per un IP, un nome utente o un percorso, la combinazione quotidiana è <code translate="no">grep -Fw</code>. La regex con <code translate="no">\.</code> è per quando hai bisogno di una vera regex attorno all'IP.</p>
+<h3 id="passo-2-ancoraggi-e-configurazione-che-conta">Passo 2 · Ancoraggi e configurazione che conta</h3>
+<p>Domanda classica: "cosa è attivo in questo file di configurazione?". La risposta che tutti danno per prima è rimuovere le righe che iniziano con <code translate="no">#</code>.</p>
+<p><strong>Decidi 2 · Quante righe rimangono con <code translate="no">grep -v '^#' conf.amostra</code>?</strong></p>
+<ul><li><strong>A)</strong> 4</li>
+<li><strong>B)</strong> 8</li>
+<li><strong>C)</strong> 6</li>
+<li><strong>D)</strong> 11</li></ul>
+<p>Scegli la lettera prima di guardare la tabella.</p>
+<pre translate="no"><code class="lang-bash">grep -vn '^#' conf.amostra | cat -A</code></pre>
+<pre translate="no"><code class="lang-text">2:Port 22$
+3:$
+5:PermitRootLogin no$
+6:    # MaxSessions 10$
+7:PasswordAuthentication yes$
+8:   $
+9:^I#ListenAddress 0.0.0.0$
+10:MaxAuthTries 3$</code></pre>
+<div class="tabela"><table><thead><tr><th scope="col">Se hai selezionato</th><th scope="col">Risultato</th><th scope="col">Perché</th></tr></thead><tbody><tr><td>A</td><td>❌ Sbagliato</td><td>Quattro è il numero delle politiche attive. Ma <code translate="no">^#</code> rimuove solo le righe il cui <strong>primo carattere</strong> è <code translate="no">#</code> e non tutto ciò che è un commento inizia così.</td></tr><tr><td>B</td><td>✅ Giusto</td><td>Le linee 1, 4 e 11 partono. Rimangono la riga vuota, la riga degli spazi e i due commenti rientrati: alla riga 6 il primo carattere è uno spazio; in 9, tab.</td></tr><tr><td>C</td><td>❌ Sbagliato</td><td>Sei sarebbe anche quello di rimuovere le righe vuote o anche i commenti rientrati. <code translate="no">^#</code> non fa nessuna delle due cose.</td></tr><tr><td>D</td><td>❌ Sbagliato</td><td>Undici è l'intero file. <code translate="no">-v</code> ha funzionato: ha rimosso le tre righe il cui primo carattere è <code translate="no">#</code>.</td></tr></tbody></table></div>
+<p><strong>Da risolvere:</strong> l'ancora <code translate="no">^</code> dice "all'inizio della riga", e l'inizio è il primo carattere, anche se è uno spazio. Un commento rientrato, comune nei blocchi <code translate="no">Match</code> e nei file modificati manualmente, passa attraverso <code translate="no">^#</code>.</p>
+<p>La versione che utilizzerai per tutta la vita, dalla sezione 4:</p>
+<pre translate="no"><code class="lang-bash">grep -Ev '^[[:space:]]*(#|$)' conf.amostra</code></pre>
+<pre translate="no"><code class="lang-text">Port 22
+PermitRootLogin no
+PasswordAuthentication yes
+MaxAuthTries 3</code></pre>
+<p>Nota la differenza tra "riga vuota" e "riga vuota":</p>
+<pre translate="no"><code class="lang-bash">grep -c '^$' conf.amostra                # 1: solo la riga 3, che non ha nulla
+grep -c '^[[:space:]]*$' conf.amostra    # 2: riga 3 e riga 8, che ha solo spazi</code></pre>
+<p>Ora nel file reale. In Rocky, <code translate="no">sshd_config</code> è leggibile solo da <code translate="no">root</code>; in Debian, tutti leggono:</p>
+<pre translate="no"><code class="lang-bash">ls -l /etc/ssh/sshd_config; ssh deb 'ls -l /etc/ssh/sshd_config'
+sudo grep -Ev '^[[:space:]]*(#|$)' /etc/ssh/sshd_config
+ssh deb "grep -Ev '^[[:space:]]*(#|$)' /etc/ssh/sshd_config"</code></pre>
+<p>Notare le virgolette nel comando Debian: il default ha virgolette singole all'interno, quindi l'intero comando va tra virgolette doppie, e <code translate="no">$</code> all'interno di <code translate="no">(#|$)</code> non è seguito da un nome, quindi la shell locale non lo modifica. La prima riga attiva, su entrambe le VM, è <code translate="no">Include /etc/ssh/sshd_config.d/*.conf</code>. Salvalo per il passo 7.</p>
+<h3 id="passo-3-regex-di-base-ed-esteso">Passo 3 · Regex di base ed esteso</h3>
+<p>Il capo vuole l'autenticazione e le righe di errore di pagina inesistenti, i codici <code translate="no">401</code> e <code translate="no">404</code>. Scrivi la "o" che conosci da ogni linguaggio di programmazione:</p>
+<p><strong>Decidi 3 · Esegui <code translate="no">grep -c ' (401|404) ' acesso.log</code>. Che numero esce?</strong></p>
+<ul><li><strong>A)</strong> 6</li>
+<li><strong>B)</strong> 0</li>
+<li><strong>C)</strong> 4</li>
+<li><strong>D)</strong> Un errore di sintassi, a causa delle parentesi</li></ul>
+<p>Scegliere la lettera prima di guardare la tabella.</p>
+<pre translate="no"><code class="lang-bash">grep -c ' (401|404) ' acesso.log
+grep -cE ' (401|404) ' acesso.log
+grep -E ' (401|404) ' acesso.log | cut -d' ' -f1,9 | sort | uniq -c</code></pre>
+<pre translate="no"><code class="lang-text">0
+6
+      4 192.168.5.7 401
+      2 203.0.113.9 404</code></pre>
+<div class="tabela"><table><thead><tr><th scope="col">Se hai selezionato</th><th scope="col">Risultato</th><th scope="col">Perché</th></tr></thead><tbody><tr><td>A</td><td>❌ Sbagliato</td><td>Sei è ciò che viene fuori con <code translate="no">-E</code>. Senza di essa, <code translate="no">grep</code> utilizza l'espressione regolare di base, dove le parentesi e la barra sono caratteri comuni.</td></tr><tr><td>B</td><td>✅ Giusto</td><td>In BRE, il modello cerca letteralmente <code translate="no">(401|404)</code> tra due spazi. Nessuna linea ha questo. E <code translate="no">grep</code> non avverte: zero è una risposta valida.</td></tr><tr><td>C</td><td>❌ Sbagliato</td><td>Quattro sarebbero semplicemente <code translate="no">401</code>. <code translate="no">grep</code> non sceglie una delle alternative; alla BRE non vede nemmeno alternative.</td></tr><tr><td>D</td><td>❌ Sbagliato</td><td>Le parentesi sono racchiuse tra virgolette singole: la shell non le vede, e per BRE sono caratteri normali. Non c'è nessun errore, c'è zero.</td></tr></tbody></table></div>
+<p><strong>Per correggere:</strong> senza <code translate="no">-E</code>, i caratteri <code translate="no">+ ? { } | ( )</code> sono testo. Un <code translate="no">grep</code> che dovrebbe trovare e non trova nulla è l'errore peggiore possibile: il rapporto dice "nessun attacco".</p>
+<p>Tre modi per scrivere la stessa cosa:</p>
+<pre translate="no"><code class="lang-bash">grep -cE ' (401|404) ' acesso.log       # 6: ERE, il più leggibile
+grep -c ' \(401\|404\) ' acesso.log     # 6: GNU BRE, con barre; funziona, ma nessuno lo legge
+grep -c ' 40[14] ' acesso.log           # 6: classe; un carattere compreso tra 1 e 4
+grep -c ' 40[134] ' acesso.log          # 7: Entra 403 da /admin</code></pre>
+<p>I <code translate="no">\|</code> e <code translate="no">\(</code> in BRE sono estensioni GNU; in un <code translate="no">grep</code> di un altro Unix non funzionano. La regola pratica: se ti servono <code translate="no">|</code>, <code translate="no">+</code>, <code translate="no">?</code> o <code translate="no">{}</code>, usa <code translate="no">-E</code>.</p>
+<h3 id="passaggio-4-lezioni-ripetizione-e-l-asterisco-che-non-corrisponde-a-nulla">Passaggio 4 · lezioni, ripetizione e l'asterisco che non corrisponde a nulla</h3>
+<p>Domanda: quali righe di <code translate="no">conf.amostra</code> hanno un numero?</p>
+<p><strong>Decidi 4 · Esegui <code translate="no">grep -c '[0-9]*' conf.amostra</code>. Che numero esce?</strong></p>
+<ul><li><strong>A)</strong> 11</li>
+<li><strong>B)</strong> 4</li>
+<li><strong>C)</strong> 0</li>
+<li><strong>D)</strong> Un errore, perché <code translate="no">*</code> da solo diventa un nome di file</li></ul>
+<p>Scegliere la lettera prima di guardare la tabella.</p>
+<pre translate="no"><code class="lang-bash">grep -c '[0-9]*' conf.amostra
+grep -c '[0-9]' conf.amostra
+grep -cE '[0-9]+' conf.amostra
+grep -n '[0-9]' conf.amostra</code></pre>
+<pre translate="no"><code class="lang-text">11
+4
+4
+2:Port 22
+6:    # MaxSessions 10
+9:	#ListenAddress 0.0.0.0
+10:MaxAuthTries 3</code></pre>
+<div class="tabela"><table><thead><tr><th scope="col">Se hai selezionato</th><th scope="col">Risultato</th><th scope="col">Perché</th></tr></thead><tbody><tr><td>A</td><td>✅ Giusto</td><td><code translate="no">*</code> accetta <strong>zero</strong> ripetizioni. Ogni riga ha, da qualche parte, zero cifre di seguito, anche la riga vuota. Lo schema non corrisponde a nulla e nulla è ovunque.</td></tr><tr><td>B</td><td>❌ Sbagliato</td><td>Quattro è la risposta alla domanda, e viene fuori con <code translate="no">'[0-9]'</code> o <code translate="no">-E '[0-9]+'</code>. Con <code translate="no">*</code> il modello non necessita di cifre.</td></tr><tr><td>C</td><td>❌ Sbagliato</td><td>Sposare niente è sposarsi. <code translate="no">grep</code> non richiede il dimensionamento della sezione.</td></tr><tr><td>D</td><td>❌ Sbagliato</td><td>Il valore predefinito è tra virgolette singole: la shell non scambia <code translate="no">*</code> con nomi di file. Senza virgolette, quindi sì, il risultato dipenderebbe dalla cartella.</td></tr></tbody></table></div>
+<p><strong>Per risolvere:</strong> un modello che può corrispondere al vuoto corrisponde a ogni riga. Prima di eseguire, chiedi: "accetta zero caratteri?". Se accettato, c'è un bug. <code translate="no">*</code> non viene quasi mai da solo: ​​<code translate="no">ab*c</code>, <code translate="no">.*</code>, <code translate="no">[^"]*</code>, sempre tra le cose che richiedono qualcosa.</p>
+<p>Ora la vera utilità: togliere solo la sezione. Con <code translate="no">-o</code> ogni pezzo abbinato esce su una riga:</p>
+<pre translate="no"><code class="lang-bash">grep -oE '([0-9]{1,3}\.){3}[0-9]{1,3}' ssh.amostra | sort -u</code></pre>
+<pre translate="no"><code class="lang-text">10.1.0.20
+10.1.0.31
+192.0.2.66
+198.51.100.4
+203.0.113.9</code></pre>
+<p>Leggi lo schema in parti: <code translate="no">[0-9]{1,3}</code> sono da una a tre cifre, <code translate="no">\.</code> un punto di verità, il gruppo <code translate="no">( ){3}</code> ripete queste due tre volte e alla fine un altro numero. I numeri di porta non vengono inseriti perché non hanno punti; nemmeno <code translate="no">SHA256:k3Yd9</code>.</p>
+<h3 id="passo-5-il-log-ssh">Passo 5 · Il log SSH</h3>
+<p>Ora passiamo alle vere domande. Quanti tentativi di password non riusciti?</p>
+<pre translate="no"><code class="lang-bash">grep -c 'Failed password' ssh.amostra</code></pre>
+<pre translate="no"><code class="lang-text">7</code></pre>
+<p>Vuoi separare l'utente da ciascun tentativo e scrivere uno schema più preciso:</p>
+<p><strong>Decidi 5 · Quante righe corrispondono a <code translate="no">grep -c 'Failed password for [a-z]* from' ssh.amostra</code>?</strong></p>
+<ul><li><strong>A)</strong> 7</li>
+<li><strong>B)</strong> 3</li>
+<li><strong>C)</strong> 4</li>
+<li><strong>D)</strong> 0</li></ul>
+<p>Scegli il testo prima di guardare il tabella.</p>
+<pre translate="no"><code class="lang-bash">grep -c 'Failed password for [a-z]* from' ssh.amostra
+grep 'Failed password for [a-z]* from' ssh.amostra | cut -d' ' -f10-12</code></pre>
+<pre translate="no"><code class="lang-text">3
+root from 203.0.113.9
+root from 203.0.113.9
+rodrigo from 10.1.0.31</code></pre>
+<div class="tabela"><table><thead><tr><th scope="col">Se hai selezionato</th><th scope="col">Risultato</th><th scope="col">Perché</th></tr></thead><tbody><tr><td>A</td><td>❌ Sbagliato</td><td>Sette è il numero totale di fallimenti. Ma quattro di loro dicono <code translate="no">for invalid user admin from</code> e <code translate="no">[a-z]*</code> non corrisponde allo spazio.</td></tr><tr><td>B</td><td>✅ Giusto</td><td>Corrispondono solo le righe dove, tra <code translate="no">for </code> e <code translate="no"> from</code> ci sono solo lettere minuscole: <code translate="no">root</code>, <code translate="no">root</code> e <code translate="no">rodrigo</code>. I quattro tentativi con utente inesistente, i più pericolosi, sono scomparsi dal verbale.</td></tr><tr><td>C</td><td>❌ Sbagliato</td><td>Quattro sono proprio quelli che <strong>non</strong> si sposano: quelli del <code translate="no">invalid user</code>.</td></tr><tr><td>D</td><td>❌ Sbagliato</td><td><code translate="no">[a-z]*</code> corrisponde a <code translate="no">root</code> e <code translate="no">rodrigo</code>. Lo schema non è sbagliato per queste linee; È sbagliato per gli altri.</td></tr></tbody></table></div>
+<p><strong>Per risolvere:</strong> un modello troppo preciso nasconde le linee senza preavviso. Dopo aver scritto un filtro, confronta il conteggio con quello del filtro ampio (<code translate="no">Failed password</code>): se il numero è caduto, scopri quali righe sono uscite e perché.</p>
+<p>Lo standard che copre entrambi i formati utilizza <code translate="no">?</code> di ERE, "il gruppo, zero o una volta":</p>
+<pre translate="no"><code class="lang-bash">grep -cE 'Failed password for (invalid user )?[a-z]+ from' ssh.amostra</code></pre>
+<pre translate="no"><code class="lang-text">7</code></pre>
+<p>Ora la domanda che ti arriva ogni lunedì via email: <strong>quali IP hanno sbagliato di più la password?</strong> È il ponte tra <code translate="no">grep -o</code> e lezione 3.2:</p>
+<pre translate="no"><code class="lang-bash">grep 'Failed password' ssh.amostra | grep -oE 'from [0-9.]+' | cut -d' ' -f2 | sort | uniq -c | sort -rn</code></pre>
+<pre translate="no"><code class="lang-text">      3 203.0.113.9
+      2 198.51.100.4
+      1 192.0.2.66
+      1 10.1.0.31</code></pre>
+<p>Il <code translate="no">from</code> nello standard è l'ancora di contesto: l'IP che conta è quello che viene dopo <code translate="no">from</code>, e non un qualsiasi numero sulla riga. E quali utenti inesistenti hanno provato ad accedere?</p>
+<pre translate="no"><code class="lang-bash">grep -oE 'invalid user [a-z]+' ssh.amostra | cut -d' ' -f3 | sort | uniq -c
+grep -oiE 'invalid user [a-z]+' ssh.amostra | cut -d' ' -f3 | sort | uniq -c</code></pre>
+<pre translate="no"><code class="lang-text">      2 admin
+      1 oracle
+      1 test
+      2 admin
+      1 oracle
+      2 test</code></pre>
+<p><code translate="no">test</code> appare due volte con <code translate="no">-i</code>, perché la riga 7 dice <code translate="no">Invalid user</code>, con la lettera maiuscola. Quale sia quello giusto dipende dalla domanda: il primo conta i tentativi di password con un utente inesistente; il secondo conta tutte le menzioni.</p>
+<p><strong>I log reali, di sola lettura.</strong> Presso Rocky, il log è in archivio, solo per <code translate="no">root</code>. In Debian, solo nel journal, e l'unità si chiama <code translate="no">ssh</code>:</p>
+<pre translate="no"><code class="lang-bash">sudo grep -c 'Failed password' /var/log/secure
+sudo grep 'Failed password' /var/log/secure | grep -oE 'from [0-9.]+' | cut -d' ' -f2 | sort | uniq -c | sort -rn | head
+ssh -t deb "sudo journalctl -u ssh -o short --no-pager | grep -c 'Failed password'"
+ssh -t deb "sudo journalctl -u ssh --no-pager -g 'Failed password' | tail -n 3"</code></pre>
+<p>In un laboratorio che comunica solo con la rete locale, è normale dare zero. Per vedere veramente una linea, commetti un errore di proposito. Da Rocky, provare ad accedere a Debian con un utente che non esiste e digitare qualcosa nella password, due volte, quindi <code translate="no">Ctrl+C</code>:</p>
+<pre translate="no"><code class="lang-bash">ssh -o PubkeyAuthentication=no -o PreferredAuthentications=password nao-existe@10.1.0.52
+ssh -t deb "sudo journalctl -u ssh --since '-5min' --no-pager | grep -E 'Invalid user|Failed password'"</code></pre>
+<p>Se l'SSH di Debian risponde <code translate="no">Permission denied (publickey)</code> senza chiedere una password, l'autenticazione della password viene disattivata e non verrà visualizzata alcuna riga <code translate="no">Failed password</code>. Non è un difetto: il passo 7 mostra come confermarlo senza tirare a indovinare.</p>
+<p>Il diario può intervallare righe che iniziano con <code translate="no">-- </code> (il segno di un riavvio, ad esempio). In un report filtrare con <code translate="no">grep -v '^-- '</code>. E <code translate="no">journalctl -g</code> filtra già da solo, con regex in stile Perl, senza pipe.</p>
+<p><strong>Dove è configurato?</strong> In rocky-lab:</p>
+<pre translate="no"><code class="lang-bash">sudo grep -rn 'PermitRootLogin' /etc/ssh/
+sudo grep -rn --include='*.conf' 'PermitRootLogin' /etc/ssh/
+grep -rn 'PermitRootLogin' /etc/ssh/; echo "status: $?"</code></pre>
+<p>Il primo mostra ogni file e riga in cui appare la parola, commentata o meno. Il secondo nasconde sé stesso <code translate="no">sshd_config</code>, perché il suo nome non termina in <code translate="no">.conf</code>: <code translate="no">--include</code> filtra <strong>tutti</strong> i file, compreso quello principale. Il terzo, senza <code translate="no">sudo</code>, mostra <code translate="no">Permission denied</code> per i file che solo <code translate="no">root</code> legge e termina con lo stato <code translate="no">2</code>, anche se ha trovato qualcosa in un altro file. Salva questo <code translate="no">2</code> per l'interruzione A.</p>
+<h3 id="passo-6-elenco-di-modelli-e-riga-vuota">Passo 6 · Elenco di modelli e riga vuota</h3>
+<p>Nella lezione 3.2 è stata fatta la promessa: confrontare un registro con un elenco di IP bloccati. L'elenco è arrivato via email, incollato da un foglio di calcolo, ed è stato salvato così:</p>
+<pre translate="no"><code class="lang-bash">printf '203.0.113.9\n198.51.100.4\n\n' &gt; bloqueio.txt
+cat -A bloqueio.txt</code></pre>
+<pre translate="no"><code class="lang-text">203.0.113.9$
+198.51.100.4$
+$</code></pre>
+<p>Tre righe, l'ultima vuota. Succede ogni volta che qualcuno preme Invio dopo l'ultimo elemento.</p>
+<p><strong>Decidi 6 · Quante righe di <code translate="no">acesso.log</code> corrispondono a <code translate="no">grep -cFf bloqueio.txt acesso.log</code>?</strong></p>
+<ul><li><strong>A)</strong> 3</li>
+<li><strong>B)</strong> 15</li>
+<li><strong>C)</strong> 0</li>
+<li><strong>D)</strong> 4</li></ul>
+<p>Scegli la lettera prima di guardare la tabella.</p>
+<pre translate="no"><code class="lang-bash">grep -cFf bloqueio.txt acesso.log
+grep -cFwf bloqueio.txt acesso.log
+grep -cFwf &lt;(grep . bloqueio.txt) acesso.log
+grep -Fwf &lt;(grep . bloqueio.txt) acesso.log | cut -d' ' -f1 | uniq -c</code></pre>
+<pre translate="no"><code class="lang-text">15
+15
+3
+      3 203.0.113.9</code></pre>
+<div class="tabela"><table><thead><tr><th scope="col">Se hai selezionato</th><th scope="col">Risultato</th><th scope="col">Perché</th></tr></thead><tbody><tr><td>A</td><td>❌ Sbagliato</td><td>Tre è la risposta giusta alla domanda e si lascia con una tabula rasa. Con la riga vuota, il file ha tre modelli e uno di questi è vuoto.</td></tr><tr><td>B</td><td>✅ Giusto</td><td>Ogni riga di <code translate="no">bloqueio.txt</code> è un modello e il modello vuoto corrisponde a ogni riga, come <code translate="no">*</code> del passaggio 4. Il rapporto direbbe che i 15 risultati provenivano da IP bloccati. Nemmeno <code translate="no">-w</code> salva.</td></tr><tr><td>C</td><td>❌ Sbagliato</td><td><code translate="no">198.51.100.4</code> non appare in <code translate="no">acesso.log</code>, ma <code translate="no">203.0.113.9</code> appare tre volte. E la riga vuota corrisponde a tutto.</td></tr><tr><td>D</td><td>❌ Sbagliato</td><td>Non ci sono quattro righe di elenco IP in <code translate="no">acesso.log</code>: <code translate="no">203.0.113.9</code> appare tre volte e <code translate="no">198.51.100.4</code> nessuna. E la riga vuota corrisponde a tutto.</td></tr></tbody></table></div>
+<p><strong>Per risolvere:</strong> prima di utilizzare un file come elenco di pattern, cancellalo. <code translate="no">grep .</code> lascia solo le righe che contengono almeno un carattere e <code translate="no">&lt;( )</code> della lezione 3.1 fornisce il risultato a <code translate="no">-f</code> come se fosse un file. Contare prima: <code translate="no">grep -c . bloqueio.txt</code> dà 2; <code translate="no">grep -c '' bloqueio.txt</code> dà 3.</p>
+<p>E <code translate="no">-F</code> conta tanto quanto la riga vuota. Un elenco con <code translate="no">10.1.0.2</code>, senza <code translate="no">-F</code> e senza <code translate="no">-w</code>, corrisponde a <code translate="no">10.1.0.20</code>, come nel passaggio 1:</p>
+<pre translate="no"><code class="lang-bash">printf '203.0.113.9\n10.1.0.2\n' &gt; b2.txt
+grep -cf b2.txt acesso.log       # 7: il 3 dal 203.0.113.9 e il 4 dal 10.1.0.20
+grep -cFwf b2.txt acesso.log     # 3: solo 203.0.113.9</code></pre>
+<p>Lo stesso elenco, nel registro SSH. Due modi di contare e non vanno d'accordo:</p>
+<pre translate="no"><code class="lang-bash">grep -Fwf &lt;(grep . bloqueio.txt) ssh.amostra | grep -oE 'from [0-9.]+' | sort | uniq -c
+grep -oFwf &lt;(grep . bloqueio.txt) ssh.amostra | sort | uniq -c</code></pre>
+<pre translate="no"><code class="lang-text">      2 from 198.51.100.4
+      3 from 203.0.113.9
+      2 198.51.100.4
+      4 203.0.113.9</code></pre>
+<p>La differenza è la riga 12: <code translate="no">Connection closed by authenticating user root 203.0.113.9 port 51300</code>. Non ha <code translate="no">from</code>. La prima forma conta i “tentativi con <code translate="no">from</code>”; la seconda, con <code translate="no">-o</code> direttamente nella lista, conta le "righe in cui compare l'IP". Sono entrambi adatti a domande diverse e sei tu che devi sapere a quale domanda stai rispondendo.</p>
+<h3 id="passo-7-sfida-cosa-utilizza-effettivamente-sshd">Passo 7 · Sfida: cosa utilizza effettivamente <code translate="no">sshd</code></h3>
+<p>La chiamata: "l'accesso tramite password è disattivato sui server?". Hai già visto che <code translate="no">grep</code> mostra cosa è <strong>scritto</strong> nei file e che possono esserci più file. Ma è <code translate="no">sshd</code> che decide, e ha una regola che sorprende quasi tutti. Innanzitutto, la regola, in un file di prova nella tua cartella. L'here-doc va <strong>senza virgolette</strong> in <code translate="no">EOF</code>, apposta, affinché la shell scambi <code translate="no">$HOME</code> con il percorso reale, perché <code translate="no">sshd</code> non capisce le variabili:</p>
+<pre translate="no"><code class="lang-bash">mkdir -p ~/lab33/teste.d
+cat &gt; ~/lab33/sshd_teste &lt;&lt;EOF
+Include $HOME/lab33/teste.d/*.conf
+PasswordAuthentication no
+PermitRootLogin no
+EOF
+printf 'PasswordAuthentication yes\n' &gt; ~/lab33/teste.d/50-cloud.conf
+cat ~/lab33/sshd_teste
+grep -rn 'PasswordAuthentication' ~/lab33/sshd_teste ~/lab33/teste.d/</code></pre>
+<p><code translate="no">cat</code> mostra <code translate="no">Include /home/rodrigo/lab33/teste.d/*.conf</code>, con il percorso già cambiato. <code translate="no">grep</code> mostra le due righe, una con la scritta <code translate="no">no</code> e l'altra con la scritta <code translate="no">yes</code>. Quale vale?</p>
+<p><strong>Decidi 7 · Esegui <code translate="no">sudo sshd -T -f ~/lab33/sshd_teste | grep -i '^passwordauthentication'</code>. Cosa risulta?</strong></p>
+<ul><li><strong>A)</strong> <code translate="no">passwordauthentication no</code>, perché è la riga nel file principale</li>
+<li><strong>B)</strong> <code translate="no">passwordauthentication yes</code></li>
+<li><strong>C)</strong> Un errore, perché la stessa opzione appare due volte</li>
+<li><strong>D)</strong> Le due righe, <code translate="no">yes</code> e <code translate="no">no</code></li></ul>
+<p>Scegliere la lettera prima di guardare la tabella.</p>
+<pre translate="no"><code class="lang-bash">sudo sshd -T -f ~/lab33/sshd_teste | grep -iE '^(passwordauthentication|permitrootlogin) ' | sort</code></pre>
+<pre translate="no"><code class="lang-text">passwordauthentication yes
+permitrootlogin no</code></pre>
+<p>Eseguire su entrambe VM (copia <code translate="no">sshd_teste</code> e la cartella <code translate="no">teste.d</code> con <code translate="no">scp -r</code> e ripeti <code translate="no">cat &gt; sshd_teste</code> in Debian, in <code translate="no">$HOME</code> lì). Se in Rocky <code translate="no">sshd -T</code> si lamenta di non poter leggere un file nella sua cartella, la causa probabile è SELinux, oggetto di un modulo futuro: fai il Decide in Debian e segui.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se hai selezionato</th><th scope="col">Risultato</th><th scope="col">Perché</th></tr></thead><tbody><tr><td>A</td><td>❌ Sbagliato</td><td>Questo è ciò che quasi tutti presumono: "regole del file principale". In <code translate="no">sshd</code>, la <strong>prima</strong> riga letta è quella in carica, e <code translate="no">Include</code> in alto viene letta per prima.</td></tr><tr><td>B</td><td>✅ Giusto</td><td>Per ogni opzione, <code translate="no">sshd</code> utilizza il primo valore che trova. <code translate="no">Include</code> porta <code translate="no">yes</code> prima di <code translate="no">no</code> e <code translate="no">no</code> viene ignorato. Questo è il motivo per cui <code translate="no">Include</code> è sopra <code translate="no">sshd_config</code> in entrambe le distribuzioni: i file <code translate="no">sshd_config.d/</code> battono quello principale.</td></tr><tr><td>C</td><td>❌ Sbagliato</td><td>La ripetizione di un'opzione non è un errore di sintassi; <code translate="no">sshd -T</code> lamenta solo un'opzione inesistente o un valore non valido. Ecco perché il problema scompare.</td></tr><tr><td>D</td><td>❌ Sbagliato</td><td><code translate="no">sshd -T</code> mostra la configurazione <strong>risolta</strong>: una riga per opzione, con il valore che ha vinto, in minuscolo.</td></tr></tbody></table></div>
+<p><strong>Da correggere:</strong> <code translate="no">grep</code> nei file riporta i candidati; <code translate="no">sshd -T</code> mostra il vincitore. Un <code translate="no">PasswordAuthentication no</code> in <code translate="no">sshd_config</code> non ha valore se un file in <code translate="no">sshd_config.d/</code> dice <code translate="no">yes</code> e alcuni programmi di installazione e immagini cloud inseriscono tale file lì. Nella vita reale, controlla sempre entrambi.</p>
+<p>La stessa idea si applica a quasi tutti i servizi che hanno un file di configurazione: <code translate="no">nginx -T</code>, <code translate="no">postconf -n</code> in Postfix, <code translate="no">testparm -s</code> in Samba, <code translate="no">named-checkconf -p</code> in BIND. Tutti stampano la configurazione così come è stata intesa dal programma.</p>
+<p>Ora lo script della sfida. Mostra, per le opzioni che contano in un audit SSH, dove è scritta ciascuna e il valore utilizzato da <code translate="no">sshd</code>:</p>
+<pre translate="no"><code class="lang-bash">cat &gt; ~/lab33/sshd-efetivo.sh &lt;&lt;'EOF'
+#!/bin/sh
+# sshd-efetivo.sh: onde as opções do SSH estão escritas e o que o sshd usa de fato
+set -u
+opcoes='port|permitrootlogin|passwordauthentication|pubkeyauthentication|maxauthtries|x11forwarding'
+
+echo "== $(hostname): linhas ativas nos arquivos =="
+sudo grep -rHnEv '^[[:space:]]*(#|$)' /etc/ssh/sshd_config /etc/ssh/sshd_config.d/ \
+    | grep -iE ":[0-9]+:[[:space:]]*($opcoes)[[:space:]]"
+
+echo "== $(hostname): o que o sshd usa (sshd -T) =="
+if ! efetivo=$(sudo sshd -T 2&gt;&amp;1); then
+    echo "ERRO: o sshd -T falhou; a configuração tem erro:" &gt;&amp;2
+    printf '%s\n' "$efetivo" &gt;&amp;2
+    exit 2
+fi
+printf '%s\n' "$efetivo" | grep -E "^($opcoes) " | sort
+EOF
+chmod +x ~/lab33/sshd-efetivo.sh
+~/lab33/sshd-efetivo.sh</code></pre>
+<p>Leggi le due righe di <code translate="no">grep</code> dallo script. Il primo è il filtro del passaggio 2, su più cartelle, con <code translate="no">-H</code> (il nome del file) e <code translate="no">-n</code> (la riga): ogni riga risulta come <code translate="no">arquivo:número:texto</code>. Il secondo lascia solo le opzioni nell'elenco, e il <code translate="no">:[0-9]+:</code> all'inizio del modello salta il nome e il numero del file, in modo che il <code translate="no">^</code> dell'opzione inizi nel testo. <code translate="no">-i</code> è necessario perché il file contiene <code translate="no">PermitRootLogin</code> e <code translate="no">sshd -T</code>, <code translate="no">permitrootlogin</code>.</p>
+<p>Lo script inizia con <code translate="no">#!/bin/sh</code> e non utilizza nulla che provenga solo da <code translate="no">bash</code>. Esegui su Debian con <code translate="no">sh</code>, che è <code translate="no">dash</code>:</p>
+<pre translate="no"><code class="lang-bash">scp ~/lab33/sshd-efetivo.sh deb:lab33/
+ssh -t deb 'sh ~/lab33/sshd-efetivo.sh'</code></pre>
+<p>Confronta le due VM. Per ogni opzione nella seconda parte, la domanda è: <strong>appare nella prima parte?</strong> In caso contrario, il valore è quello predefinito di OpenSSH e sai che nessuno l'ha scritto. Se compare in più file, conta ciò che dice <code translate="no">sshd -T</code> e la prima lettura ne spiega il motivo. A Rocky cercate <code translate="no">50-redhat.conf</code>: ha, tra le altre, la linea <code translate="no">X11Forwarding</code>. Se nel programma di installazione di Rocky lasci che <code translate="no">root</code> inserisca la password, potrebbe esserci anche un <code translate="no">01-permitrootlogin.conf</code>.</p>
+<p><strong>Bonus.</strong> Conta, per VM, quante righe attive ci sono in ciascun file di configurazione SSH:</p>
+<pre translate="no"><code class="lang-bash">sudo grep -rcEv '^[[:space:]]*(#|$)' /etc/ssh/sshd_config /etc/ssh/sshd_config.d/
+ssh -t deb "sudo grep -rcEv '^[[:space:]]*(#|\$)' /etc/ssh/sshd_config /etc/ssh/sshd_config.d/"</code></pre>
+<p>Nel secondo comando, <code translate="no">\$</code> protegge <code translate="no">$</code> tra virgolette doppie, per ogni evenienza. <code translate="no">-c</code> con <code translate="no">-r</code> fornisce un numero per file, nel formato <code translate="no">arquivo:contagem</code>.</p>
+<h2 id="7-interrompi-e-correggi">7 · Interrompi e correggi</h2>
+<h3 id="interrompi-a-l-avviso-che-non-si-attiva-mai">Interrompi A · L'avviso che non si attiva mai</h3>
+<p>Lo scenario: uno script di monitoraggio viene eseguito ogni ora e avvisa se qualcuno ha sbagliato la password SSH. È stato scritto in Rocky, testato con un file di esempio e copiato su tutti i server. Sono mesi che dice "tutto chiaro". Assemblare lo script, in rocky-lab:</p>
+<pre translate="no"><code class="lang-bash">cd ~/lab33
+cat &gt; alerta.sh &lt;&lt;'EOF'
+#!/bin/bash
+# alerta.sh: avisa se houve senha errada no SSH
+log=${1:-/var/log/secure}
+if grep -q 'Failed password' "$log" 2&gt;/dev/null; then
+    echo "ALERTA: tentativas de senha errada em $log"
+else
+    echo "tudo limpo"
+fi
+EOF
+chmod +x alerta.sh
+./alerta.sh ~/lab33/ssh.amostra</code></pre>
+<pre translate="no"><code class="lang-text">ALERTA: tentativas de senha errada em /home/rodrigo/lab33/ssh.amostra</code></pre>
+<p>Il test è stato superato. Ora come funziona effettivamente, senza argomenti, con l'utente di monitoraggio, che non è <code translate="no">root</code>:</p>
+<pre translate="no"><code class="lang-bash">./alerta.sh
+scp alerta.sh deb:lab33/
+ssh deb 'lab33/alerta.sh'</code></pre>
+<p><strong>Observe.</strong> Le due VM rispondono <code translate="no">tudo limpo</code>. Su Debian, tu stesso hai sbagliato la password nel passaggio 5 e la riga è nel journal. In Rocky non puoi nemmeno saperlo, perché lo script non legge mai il registro.</p>
+<p><strong>Diagnose.</strong> Rimuovi <code translate="no">2&gt;/dev/null</code> e controlla lo stato:</p>
+<pre translate="no"><code class="lang-bash">grep -q 'Failed password' /var/log/secure; echo "status: $?"
+ssh deb 'grep -q "Failed password" /var/log/secure; echo "status: $?"'</code></pre>
+<pre translate="no"><code class="lang-text">grep: /var/log/secure: Permission denied
+status: 2
+grep: /var/log/secure: No such file or directory
+status: 2</code></pre>
+<p>Status <code translate="no">2</code>: <code translate="no">grep</code> <strong>impossibile</strong> eseguire la ricerca. A Rocky, previo permesso; in Debian, perché il file non esiste nemmeno. Ma il <code translate="no">if</code> chiede solo "zero o non zero", e il <code translate="no">2</code> rientra nel <code translate="no">else</code>, insieme al <code translate="no">1</code>, che è "Ho cercato e non l'ho trovato". <code translate="no">2&gt;/dev/null</code> ha nascosto l'unico indizio.</p>
+<p><strong>Decidi A · La correzione.</strong> Cosa cambi nello script?</p>
+<ul><li><strong>A)</strong> Esegui <code translate="no">grep -q</code> da solo e tratta lo stato con <code translate="no">case $? in 0) ... ;; 1) ... ;; *) ... ;; esac</code></li>
+<li><strong>B)</strong> Rimuovi <code translate="no">2&gt;/dev/null</code></li>
+<li><strong>C)</strong> Sostituisci <code translate="no">2&gt;/dev/null</code> con l'opzione <code translate="no">-s</code> di <code translate="no">grep</code></li>
+<li><strong>D)</strong> Prima <code translate="no">grep</code>, verificare con <code translate="no">[ -r "$log" ]</code> se il file è leggibile</li></ul>
+<p>Scegliere la lettera prima di guardare la tabella.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se hai selezionato</th><th scope="col">Risultato</th><th scope="col">Perché</th></tr></thead><tbody><tr><td>A</td><td>✅ Giusto</td><td>Separare i tre casi che già il <code translate="no">grep</code> informa: ho trovato, non ho trovato, non ho potuto. Il "Non potevo" diventa un errore, con il proprio messaggio e stato, e il monitoraggio inizia a vedere il problema.</td></tr><tr><td>B</td><td>⚠️ Funziona, ma</td><td>Inizia a comparire il messaggio di errore, il che aiuta chi lo esegue manualmente. Ma lo script continua a dire <code translate="no">tudo limpo</code> subito dopo, e in <code translate="no">cron</code> il messaggio arriva a un'e-mail che nessuno legge. Lo stato <code translate="no">2</code> continua a scendere in <code translate="no">else</code>.</td></tr><tr><td>C</td><td>❌ Sbagliato</td><td><code translate="no">-s</code> è esattamente ciò che già fa <code translate="no">2&gt;/dev/null</code>: nasconde i messaggi da file inesistenti o illeggibili. Scambia sei con una mezza dozzina.</td></tr><tr><td>D</td><td>⚠️ Funziona, ma</td><td>Prendiamo i due casi di oggi, permesso e fascicolo inesistente. Ma ci sono altri errori che <code translate="no">[ -r ]</code> non vede (il percorso è una cartella, il disco dà un errore di lettura), e tutto questo <code translate="no">grep</code> sa già dirlo. La lettura dello stato è più semplice e completa.</td></tr></tbody></table></div>
+<p><strong>Per risolvere:</strong> in <code translate="no">if grep</code>, "Non sono riuscito a leggerlo" diventa "Non sono riuscito a trovarlo". Ogni volta che <code translate="no">grep</code> decide qualcosa, tratta lo stato <code translate="no">2</code> separatamente e non inserire mai il suo errore in <code translate="no">/dev/null</code> senza trattarlo.</p>
+<p><strong>Risolvilo.</strong></p>
+<pre translate="no"><code class="lang-bash">cat &gt; alerta.sh &lt;&lt;'EOF'
+#!/bin/bash
+# alerta.sh: avisa se houve senha errada no SSH
+# status: 0 = rodou (com ou sem alerta), 2 = não conseguiu ler o log
+log=${1:-/var/log/secure}
+grep -q 'Failed password' "$log"
+case $? in
+    0) echo "ALERTA: tentativas de senha errada em $log" ;;
+    1) echo "tudo limpo em $log" ;;
+    *) echo "ERRO: não consegui ler $log" &gt;&amp;2; exit 2 ;;
+esac
+EOF
+./alerta.sh ~/lab33/ssh.amostra
+./alerta.sh; echo "status: $?"
+sudo ./alerta.sh
+scp alerta.sh deb:lab33/; ssh deb 'lab33/alerta.sh; echo "status: $?"'</code></pre>
+<pre translate="no"><code class="lang-text">ALERTA: tentativas de senha errada em /home/rodrigo/lab33/ssh.amostra
+grep: /var/log/secure: Permission denied
+ERRO: não consegui ler /var/log/secure
+status: 2
+...
+grep: /var/log/secure: No such file or directory
+ERRO: não consegui ler /var/log/secure
+status: 2</code></pre>
+<p>Con <code translate="no">sudo</code>, in Rocky, lo script legge il registro e dice cosa c'è dentro. In Debian, l'errore ora è onesto: il file non esiste, perché nel journal è presente il registro SSH. Lo script giusto per Debian si legge da un'altra fonte:</p>
+<pre translate="no"><code class="lang-bash">ssh -t deb "sudo journalctl -u ssh --since today --no-pager | grep -c 'Failed password'"</code></pre>
+<p>Un altro trucco in Debian: <code translate="no">journalctl</code> senza <code translate="no">sudo</code> e senza che l'utente sia nel gruppo <code translate="no">adm</code> o <code translate="no">systemd-journal</code>, <strong>non fallisce</strong>. Mostra solo il diario dell'utente, avvisa con <code translate="no">Hint:</code> e termina con lo stato <code translate="no">0</code>. <code translate="no">grep</code> non trova nulla e risponde <code translate="no">1</code> "tutto a posto". Lo stesso errore silenzioso, in un altro modo. Lo script di monitoraggio dei log viene eseguito come <code translate="no">root</code> o con un gruppo di lettura e tu controlli quale, con <code translate="no">id</code>, prima di fidarti del risultato.</p>
+<h3 id="break-b-il-backup-che-non-si-avvia-mai">Break B · Il backup che non si avvia mai</h3>
+<p>Lo scenario: un backup richiede ore e <code translate="no">cron</code> lo richiama ogni ora. Per evitare di eseguirne due contemporaneamente, qualcuno ha firmato un assegno all'inizio. Da allora, i backup si sono interrotti. Imposta il controllo, in rocky-lab:</p>
+<pre translate="no"><code class="lang-bash">cat &gt; ~/lab33/checa.sh &lt;&lt;'EOF'
+#!/bin/bash
+# checa.sh: só começa o backup se não houver outro rodando
+if ps aux | grep -q 'backup-noturno'; then
+    echo "já existe um backup-noturno rodando; saindo"
+    exit 0
+fi
+echo "começando o backup-noturno"
+EOF
+chmod +x ~/lab33/checa.sh
+pgrep -a backup-noturno; echo "pgrep: $?"
+~/lab33/checa.sh</code></pre>
+<p><strong>Observe.</strong> <code translate="no">pgrep</code> non trova alcun <code translate="no">backup-noturno</code> e termina con <code translate="no">1</code>. Anche così, la sceneggiatura dice <code translate="no">já existe um backup-noturno rodando; saindo</code>. Eseguilo ancora qualche volta: quasi sempre la stessa risposta.</p>
+<p><strong>Diagnostique.</strong> Esegui il pezzo da <code translate="no">if</code> senza <code translate="no">-q</code>, per vedere cosa ha trovato <code translate="no">grep</code>:</p>
+<pre translate="no"><code class="lang-bash">ps aux | grep 'backup-noturno'</code></pre>
+<pre translate="no"><code class="lang-text">rodrigo     3412  0.0  0.1 221680  2304 pts/0    S+   10:20   0:00 grep --color=auto backup-noturno</code></pre>
+<p><code translate="no">grep</code> l'ha trovato <strong>lui stesso</strong>. <code translate="no">ps</code> e <code translate="no">grep</code> della pipe iniziano insieme, e quando <code translate="no">ps</code> elenca i processi, <code translate="no">grep backup-noturno</code> è già nell'elenco, con la parola in comando. All'interno dello script non c'è alcun alias di colore e la riga mostra solo <code translate="no">grep backup-noturno</code>, ma l'effetto è lo stesso. Il "quasi sempre" è una gara tra i due: a volte <code translate="no">ps</code> finisce prima che appaia <code translate="no">grep</code>, e il test passa per fortuna.</p>
+<p>Ora un vero backup in esecuzione, per testare le correzioni. Una copia di <code translate="no">sleep</code> con un altro nome fa il lavoro:</p>
+<pre translate="no"><code class="lang-bash">cp /usr/bin/sleep ~/lab33/backup-noturno
+~/lab33/backup-noturno 300 &amp;
+pgrep -a backup-noturno</code></pre>
+<p><strong>Decidi B · La correzione.</strong> Come dovrebbe lo script chiedere se il backup è in esecuzione?</p>
+<ul><li><strong>A)</strong> <code translate="no">pgrep -x backup-noturno &gt; /dev/null</code></li>
+<li><strong>B)</strong> <code translate="no">ps aux | grep -v grep | grep -q backup-noturno</code></li>
+<li><strong>C)</strong> <code translate="no">ps aux | grep -q '[b]ackup-noturno'</code></li>
+<li><strong>D)</strong> <code translate="no">ps aux | grep -c backup-noturno</code></li></ul>
+<p>Scegliere la lettera prima di guardare tabella.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se hai selezionato</th><th scope="col">Risultato</th><th scope="col">Perché</th></tr></thead><tbody><tr><td>A</td><td>✅ Giusto</td><td><code translate="no">pgrep</code> cerca nei nomi dei processi, non nel testo che genera, e non viene mai trovato. <code translate="no">-x</code> richiede il nome esatto: un <code translate="no">vim backup-noturno.conf</code> non conta. Lo stato risponde direttamente: <code translate="no">0</code> funzionante, <code translate="no">1</code> no.</td></tr><tr><td>B</td><td>⚠️ Funziona, ma</td><td>Togliere la riga <code translate="no">grep</code>, ma anche qualunque altra che contenga <code translate="no">grep</code> nel testo. E corrisponde a qualsiasi riga che menzioni il nome: un <code translate="no">tail -f /var/log/backup-noturno.log</code> aperto da qualcuno impedisce il backup.</td></tr><tr><td>C</td><td>⚠️ Funziona, ma</td><td>Il trucco classico: <code translate="no">[b]</code> corrisponde a <code translate="no">b</code>, quindi il modello trova <code translate="no">backup-noturno</code>; ma sulla riga <code translate="no">grep</code> il testo è <code translate="no">[b]ackup-noturno</code>, che il modello non corrisponde. Funziona, nessuno lo capisce in prima lettura, e il problema con <code translate="no">tail -f</code> continua.</td></tr><tr><td>D</td><td>❌ Sbagliato</td><td><code translate="no">-c</code> conta e la riga stessa di <code translate="no">grep</code> viene conteggiata. Senza backup in esecuzione la risposta è <code translate="no">1</code> e non <code translate="no">0</code>. E in un <code translate="no">if</code>, <code translate="no">grep -c</code> termina con lo status <code translate="no">0</code> ogni volta che conta qualcosa.</td></tr></tbody></table></div>
+<p><strong>Per risolvere:</strong> cercare un processo con <code translate="no">ps | grep</code> significa cercare in un testo che include <code translate="no">grep</code> stesso. Per i processi, utilizzare <code translate="no">pgrep</code>: <code translate="no">-x</code> per il nome esatto, <code translate="no">-f</code> per cercare l'intera riga di comando, <code translate="no">-u</code> per un utente.</p>
+<p><strong>Fix.</strong></p>
+<pre translate="no"><code class="lang-bash">cat &gt; ~/lab33/checa.sh &lt;&lt;'EOF'
+#!/bin/bash
+# checa.sh: só começa o backup se não houver outro rodando
+if pgrep -x backup-noturno &gt; /dev/null; then
+    echo "já existe um backup-noturno rodando; saindo"
+    exit 0
+fi
+echo "começando o backup-noturno"
+EOF
+~/lab33/checa.sh
+pkill -x backup-noturno; sleep 1
+~/lab33/checa.sh
+rm ~/lab33/backup-noturno</code></pre>
+<pre translate="no"><code class="lang-text">já existe um backup-noturno rodando; saindo
+começando o backup-noturno</code></pre>
+<p>Con il processo in esecuzione, il controllo lo vede; senza di esso, inizia il backup. Copia <code translate="no">checa.sh</code> su Debian e osserva lo stesso comportamento. Un dettaglio di <code translate="no">-x</code>: il nome confrontato da <code translate="no">pgrep</code> è il nome breve del processo, che il kernel taglia a 15 caratteri. Un programma chiamato <code translate="no">backup-noturno-completo</code> appare come <code translate="no">backup-noturno-</code> e <code translate="no">pgrep -x backup-noturno-completo</code> non lo trova. In questi casi, <code translate="no">pgrep -f</code>, con uno schema ancorato al percorso del programma.</p>
+<h3 id="la-lezione">La lezione</h3>
+<p>Le due pause sono <code translate="no">grep</code> rispondendo, con tutta correttezza, a una domanda diversa da quella che hai posto. Nella pausa A la domanda era "c'è stato un errore?", e <code translate="no">grep</code> ha risposto "Non sono riuscito a leggerlo", che <code translate="no">if</code> ha tradotto con "no". Nella pausa B, la domanda era "il backup è in esecuzione?", e <code translate="no">grep</code> ha risposto "la parola appare nell'elenco dei processi" e appare nello stesso <code translate="no">grep</code>. Gli strumenti sono i soliti: l'<strong>exit status</strong> con i tre valori, <code translate="no">0</code>, <code translate="no">1</code> e <code translate="no">2</code>, trattati separatamente; un test con il caso che <strong>dovrebbe</strong> essere no, e non solo con il caso che dovrebbe essere sì; e, per i processi, lo strumento creato per questo. Nella vita reale, il controllo dei backup va ancora oltre: <code translate="no">flock -n /run/lock/backup.lock comando</code> ne garantisce uno solo alla volta, senza alcuna gara, e per un servizio systemd la domanda giusta è <code translate="no">systemctl is-active --quiet nome</code>.</p>
+<h2 id="8-insidie">8 · Insidie</h2>
+<div class="tabela"><table><thead><tr><th scope="col">Digiti o vedi</th><th scope="col">Cosa succede</th><th scope="col">Quello giusto</th></tr></thead><tbody><tr><td><code translate="no">grep 10.1.0.2 log</code></td><td>Ospita anche <code translate="no">10.1.0.20</code>, <code translate="no">10.1.0.21</code> e <code translate="no">10a1b0c2</code></td><td><code translate="no">grep -Fw '10.1.0.2' log</code></td></tr><tr><td><code translate="no">grep -v '^#' arquivo.conf</code></td><td>Sono rimaste righe vuote e commenti rientrati</td><td><code translate="no">grep -Ev '^[[:space:]]*(#|$)' arquivo.conf</code></td></tr><tr><td><code translate="no">grep '(GET|POST) /login'</code></td><td>Zero righe, nessun errore: in BRE, parentesi e barra sono testo</td><td><code translate="no">grep -E '(GET|POST) /login'</code></td></tr><tr><td><code translate="no">grep '[0-9]*'</code></td><td>Corrisponde a ogni riga, perché <code translate="no">*</code> accetta zero</td><td><code translate="no">grep '[0-9]'</code> o <code translate="no">grep -E '[0-9]+'</code></td></tr><tr><td><code translate="no">grep -E '\d+'</code></td><td><code translate="no">\d</code> non esiste in ERE: cercare la lettera <code translate="no">d</code></td><td><code translate="no">grep -E '[0-9]+'</code>, oppure <code translate="no">grep -P '\d+'</code></td></tr><tr><td><code translate="no">grep -o '".*"'</code></td><td>Va dal primo all'<strong>ultimo</strong> <code translate="no">"</code> della riga</td><td><code translate="no">grep -o '"[^"]*"'</code></td></tr><tr><td><code translate="no">grep -f lista.txt</code> con riga vuota alla fine</td><td>Corrisponde a tutte le righe del file</td><td><code translate="no">grep -Fwf &lt;(grep . lista.txt)</code></td></tr><tr><td><code translate="no">grep padrão *.log</code> senza virgolette nel modello</td><td>La shell può scambiare un <code translate="no">*</code> o <code translate="no">?</code> dal modello con i nomi dei file</td><td>Modello sempre tra virgolette singole</td></tr><tr><td><code translate="no">grep -r --include=*.conf</code> senza virgolette</td><td>La shell scambia <code translate="no">*.conf</code> con i file nella cartella corrente</td><td><code translate="no">--include='*.conf'</code>, e ricorda che nasconde i file senza <code translate="no">.conf</code>, come <code translate="no">sshd_config</code></td></tr><tr><td><code translate="no">if grep -q ... 2&gt;/dev/null</code></td><td>L'errore di lettura diventa "Non l'ho trovato"</td><td><code translate="no">grep -q ...; case $? in 0) ;; 1) ;; *) erro ;; esac</code></td></tr><tr><td><code translate="no">ps aux | grep nome</code></td><td><code translate="no">grep</code> si ritrova</td><td><code translate="no">pgrep -x nome</code>, oppure <code translate="no">pgrep -a nome</code> per vedere</td></tr><tr><td><code translate="no">grep -v padrão</code> "prendere" righe da un file</td><td>Viene visualizzato sullo schermo, il file rimane lo stesso</td><td><code translate="no">grep -v padrão arq &gt; arq.novo</code>, verificare e solo dopo modificare</td></tr><tr><td><code translate="no">grep PasswordAuthentication sshd_config</code> per rispondere "la password è attiva?"</td><td>Mostra ciò che è scritto, non ciò che vale</td><td><code translate="no">sudo sshd -T | grep -i passwordauthentication</code></td></tr><tr><td><code translate="no">egrep</code> e <code translate="no">fgrep</code> nella nuova scrittura</td><td>Avviso di deprecazione in Debian <code translate="no">grep</code> 3.8</td><td><code translate="no">grep -E</code> e <code translate="no">grep -F</code></td></tr></tbody></table></div>
+<h2 id="9-quiz">9 · Quiz</h2>
+<p>Dieci domande, senza consultazione. Scrivere la lettera o rispondere a ciascuna e solo dopo aprire la chiave di risposta.</p>
+<p><strong>1.</strong> Cosa conta <code translate="no">grep -c 'a*' arquivo.txt</code> e perché?</p>
+<p><strong>2.</strong> Quale comando mostra solo le righe attive di <code translate="no">/etc/ssh/sshd_config</code>, senza commenti (con o senza rientro) e senza righe vuote?</p>
+<ul><li><strong>A)</strong> <code translate="no">grep -v '^#' /etc/ssh/sshd_config</code></li>
+<li><strong>B)</strong> <code translate="no">grep -Ev '^[[:space:]]*(#|$)' /etc/ssh/sshd_config</code></li>
+<li><strong>C)</strong> <code translate="no">grep -v '#' /etc/ssh/sshd_config</code></li>
+<li><strong>D)</strong> <code translate="no">grep '^[^#]' /etc/ssh/sshd_config</code></li></ul>
+<p><strong>3.</strong> Nelle espressioni regolari di base, cosa significano <code translate="no">+</code>, <code translate="no">?</code> e <code translate="no">|</code>? Scrivi "401 o 403 tra spazi" in ERE e in BRE con class.</p>
+<p><strong>4.</strong> Quale comando mostra le righe di <code translate="no">/etc/group</code> che contengono l'intera parola <code translate="no">wheel</code>, ignorando le maiuscole?</p>
+<ul><li><strong>A)</strong> <code translate="no">grep -iw wheel /etc/group</code></li>
+<li><strong>B)</strong> <code translate="no">grep -i '^wheel$' /etc/group</code></li>
+<li><strong>C)</strong> <code translate="no">grep -wv wheel /etc/group</code></li>
+<li><strong>D)</strong> <code translate="no">grep -x wheel /etc/group</code></li></ul>
+<p><strong>5.</strong> Quali sono i tre stati di uscita del <code translate="no">grep</code> e cosa significa ciascuno? Cosa mostra <code translate="no">grep -q root /nao/existe; echo $?</code>?</p>
+<p><strong>6.</strong> Cosa mostra <code translate="no">echo 'id="7" nome="ana"' | grep -o '".*"'</code>? Come mostrare <code translate="no">"7"</code> e <code translate="no">"ana"</code>, ciascuno su una riga?</p>
+<p><strong>7.</strong> Hai <code translate="no">lista.txt</code>, un IP per riga, con una riga vuota alla fine. Quale comando conta correttamente le righe di <code translate="no">acesso.log</code> con uno di questi IP?</p>
+<ul><li><strong>A)</strong> <code translate="no">grep -cf lista.txt acesso.log</code></li>
+<li><strong>B)</strong> <code translate="no">grep -cFwf lista.txt acesso.log</code></li>
+<li><strong>C)</strong> <code translate="no">grep -cFwf &lt;(grep . lista.txt) acesso.log</code></li>
+<li><strong>D)</strong> <code translate="no">grep -cvf lista.txt acesso.log</code></li></ul>
+<p><strong>8.</strong> Perché <code translate="no">ps aux | grep sshd</code> mostra una riga in più rispetto al numero di processi <code translate="no">sshd</code>? Quale comando risponde senza questo problema?</p>
+<p><strong>9.</strong> <code translate="no">sshd_config</code> dice <code translate="no">PasswordAuthentication no</code>. <code translate="no">sshd_config.d/50-cloud.conf</code> dice <code translate="no">PasswordAuthentication yes</code>. <code translate="no">Include</code> è sopra <code translate="no">sshd_config</code>. Quale valore utilizza <code translate="no">sshd</code> e quale comando conferma?</p>
+<p><strong>10.</strong> <em>Quale comando elenca i nomi di tutti i file in <code translate="no">/etc</code> che contengono la stringa <code translate="no">PermitRootLogin</code>?</em></p>
+<ul><li><strong><em>A)</em></strong> <em><code translate="no">grep -l PermitRootLogin /etc</code></em></li>
+<li><strong><em>B)</em></strong> <em><code translate="no">grep -rl PermitRootLogin /etc</code></em></li>
+<li><strong><em>C)</em></strong> <em><code translate="no">find /etc -name PermitRootLogin</code></em></li>
+<li><strong><em>D)</em></strong> <em><code translate="no">grep -rc PermitRootLogin /etc</code></em></li></ul>
+<h2 id="10-flashcard-e-colla">10 · Flashcard e colla</h2>
+<h3 id="da-conoscere-a-memoria">Da conoscere a memoria</h3>
+<ul><li><code translate="no">grep</code> mostra l'intera riga quando <strong>una sezione</strong> di essa corrisponde allo schema. "Contiene" non è "è".</li>
+<li>Modello sempre racchiuso tra virgolette singole.</li>
+<li><code translate="no">.</code> qualsiasi carattere · <code translate="no">^</code> inizio · <code translate="no">$</code> fine · <code translate="no">[abc]</code> uno dall'elenco · <code translate="no">[^abc]</code> uno fuori elenco · <code translate="no">*</code> quello precedente zero o più volte · <code translate="no">\</code> toglie il potere speciale.</li>
+<li>In ERE (<code translate="no">grep -E</code>): <code translate="no">+</code> uno o più · <code translate="no">?</code> zero o uno · <code translate="no">{n,m}</code> da n a m · <code translate="no">|</code> oppure · <code translate="no">( )</code> gruppo. In BRE, questi cinque sono testo.</li>
+<li>Un modello che accetta il vuoto (<code translate="no">x*</code>, una riga vuota in <code translate="no">-f</code>) corrisponde a ogni riga.</li>
+<li>IP, nome, percorso: <code translate="no">grep -Fw</code>. Regex solo quando è necessario regex.</li>
+<li>Righe di configurazione attive: <code translate="no">grep -Ev '^[[:space:]]*(#|$)'</code>.</li>
+<li><code translate="no">[[:space:]]</code> è spazio <strong>e</strong> tab.</li>
+<li><code translate="no">-o</code> mostra solo l'estratto; è il ponte verso <code translate="no">cut</code>, <code translate="no">sort</code> e <code translate="no">uniq -c</code>.</li>
+<li>La regex è golosa: <code translate="no">".*"</code> va fino all'ultimo <code translate="no">"</code>. Utilizza <code translate="no">"[^"]*"</code>.</li>
+<li>Stato <code translate="no">grep</code>: <code translate="no">0</code> trovato, <code translate="no">1</code> non trovato, <code translate="no">2</code> non riuscito a trovarlo. Trattare <code translate="no">2</code> separatamente.</li>
+<li><code translate="no">ps | grep nome</code> trova <code translate="no">grep</code> stesso. Usa <code translate="no">pgrep -x nome</code>.</li>
+<li><code translate="no">--include='*.conf'</code> tra virgolette, e nasconde anche i file senza <code translate="no">.conf</code>.</li>
+<li>Il <code translate="no">grep</code> nei file mostra ciò che è scritto; <code translate="no">sshd -T</code> mostra quanto vale. In <code translate="no">sshd</code> vince il primo valore letto.</li>
+<li><code translate="no">egrep</code> e <code translate="no">fgrep</code> sono obsoleti: <code translate="no">grep -E</code> e <code translate="no">grep -F</code>.</li></ul>
+<h3 id="consultare">Consultare</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Domanda</th><th scope="col">Comando</th></tr></thead><tbody><tr><td>Righe con testo</td><td><code translate="no">grep 'texto' arquivo</code></td></tr><tr><td>Ignorando le maiuscole</td><td><code translate="no">grep -i 'texto' arquivo</code></td></tr><tr><td>Righe senza testo</td><td><code translate="no">grep -v 'texto' arquivo</code></td></tr><tr><td>Quante righe</td><td><code translate="no">grep -c 'texto' arquivo</code></td></tr><tr><td>Con numero di riga</td><td><code translate="no">grep -n 'texto' arquivo</code></td></tr><tr><td>Parola intera</td><td><code translate="no">grep -w 'root' /etc/passwd</code></td></tr><tr><td>Intera riga uguale</td><td><code translate="no">grep -x 'ana' nomes.txt</code></td></tr><tr><td>Testo corretto, nessuna regex</td><td><code translate="no">grep -F '10.1.0.2' log</code></td></tr><tr><td>IP esatto</td><td><code translate="no">grep -Fw '10.1.0.2' log</code></td></tr><tr><td>Varie alternative</td><td><code translate="no">grep -E 'Failed|Invalid'</code> o <code translate="no">grep -e Failed -e Invalid</code></td></tr><tr><td>Elenco modelli</td><td><code translate="no">grep -Fwf &lt;(grep . lista.txt) log</code></td></tr><tr><td>Proprio la parte che si è sposata</td><td><code translate="no">grep -oE 'from [0-9.]+' secure</code></td></tr><tr><td>IP da un registro</td><td><code translate="no">grep -oE '([0-9]{1,3}\.){3}[0-9]{1,3}' log | sort -u</code></td></tr><tr><td>Righe attive di un <code translate="no">.conf</code></td><td><code translate="no">grep -Ev '^[[:space:]]*(#|$)' arquivo</code></td></tr><tr><td>Righe vuote</td><td><code translate="no">grep -c '^[[:space:]]*$' arquivo</code></td></tr><tr><td>In tutti i file in una cartella</td><td><code translate="no">grep -rn 'texto' /etc/ssh/</code></td></tr><tr><td>Solo i nomi dei file</td><td><code translate="no">grep -rl 'texto' /etc</code></td></tr><tr><td>File che <strong>non</strong> hanno</td><td><code translate="no">grep -rL 'texto' /etc/cron.d</code></td></tr><tr><td>Un solo tipo di file</td><td><code translate="no">grep -rn --include='*.conf' 'texto' /etc</code></td></tr><tr><td>Contesto intorno</td><td><code translate="no">grep -C 2 'erro' log</code> (o <code translate="no">-A</code>, <code translate="no">-B</code>)</td></tr><tr><td>Fermarsi dopo N</td><td><code translate="no">grep -m 5 'erro' log</code></td></tr><tr><td>Proprio lo stato, in un <code translate="no">if</code></td><td><code translate="no">grep -q ...; case $? in 0) ;; 1) ;; *) ;; esac</code></td></tr><tr><td>Parole ripetute</td><td><code translate="no">grep -E '\b([a-z]+) \1\b' texto</code></td></tr><tr><td>Perl Regex</td><td><code translate="no">grep -P '\d+'</code>, <code translate="no">grep -oP '".*?"'</code></td></tr><tr><td>Accedi al file, Rocky</td><td><code translate="no">sudo grep 'Failed password' /var/log/secure</code></td></tr><tr><td>Accedere al diario, Debian</td><td><code translate="no">sudo journalctl -u ssh --no-pager -g 'Failed password'</code></td></tr><tr><td>IP principali con password errata</td><td><code translate="no">... | grep 'Failed password' | grep -oE 'from [0-9.]+' | cut -d' ' -f2 | sort | uniq -c | sort -rn | head</code></td></tr><tr><td>Configurazione utilizzata da SSH</td><td><code translate="no">sudo sshd -T | grep -i passwordauthentication</code></td></tr><tr><td>Processo in esecuzione</td><td><code translate="no">pgrep -x nome</code>; vedere: <code translate="no">pgrep -a nome</code></td></tr><tr><td>Ricerca rapida nel registro di grandi dimensioni</td><td><code translate="no">LC_ALL=C grep -F 'texto' log</code></td></tr></tbody></table></div>
+<h3 id="flashcard">Flashcard</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Davanti</th><th scope="col">Verso</th></tr></thead><tbody><tr><td><code translate="no">grep 10.1.0.2</code> nel registro con <code translate="no">10.1.0.20</code></td><td>Home: lo schema è allungato e il punto è "qualsiasi"</td></tr><tr><td><code translate="no">grep -F</code></td><td>Testo corretto: nessun carattere è speciale</td></tr><tr><td><code translate="no">grep -w</code></td><td>Parola intera: prima e dopo, qualcosa che non sia una lettera, un numero o <code translate="no">_</code></td></tr><tr><td><code translate="no">grep -x</code></td><td>L'intera riga deve corrispondere a</td></tr><tr><td><code translate="no">^#</code> e <code translate="no">    # x</code></td><td>Non corrisponde: il primo carattere è lo spazio</td></tr><tr><td><code translate="no">[[:space:]]</code></td><td>Spazio e tabulazione</td></tr><tr><td><code translate="no">grep ' (401|404) '</code> senza <code translate="no">-E</code></td><td>Zero: in BRE, parentesi e barra sono testo</td></tr><tr><td><code translate="no">grep -c '[0-9]*'</code></td><td>Ogni riga: <code translate="no">*</code> accetta zero</td></tr><tr><td><code translate="no">[0-9]{1,3}</code></td><td>Da una a tre cifre (ERE)</td></tr><tr><td><code translate="no">(invalid user )?</code></td><td>Il gruppo, zero o una volta</td></tr><tr><td><code translate="no">".*"</code> in <code translate="no">a="1" b="2"</code></td><td><code translate="no">"1" b="2"</code>: la regex è golosa</td></tr><tr><td><code translate="no">"[^"]*"</code></td><td>Dal <code translate="no">"</code> al successivo <code translate="no">"</code></td></tr><tr><td><code translate="no">\1</code></td><td>Ripeti il ​​testo che il gruppo 1 si è sposato</td></tr><tr><td><code translate="no">\d</code> in <code translate="no">grep -E</code></td><td>La lettera <code translate="no">d</code>. Cifra: <code translate="no">[0-9]</code> oppure <code translate="no">grep -P</code></td></tr><tr><td><code translate="no">-f lista</code> con riga vuota</td><td>Casa con tutto</td></tr><tr><td><code translate="no">grep .</code></td><td>Solo le righe con almeno un carattere</td></tr><tr><td><code translate="no">2</code> stato del <code translate="no">grep</code></td><td>Non riuscito: file inesistente, nessuna autorizzazione, regex non valida</td></tr><tr><td><code translate="no">grep -s</code></td><td>Nasconde i messaggi da un file inesistente o illeggibile</td></tr><tr><td><code translate="no">ps aux | grep x</code></td><td>Mostra anche <code translate="no">grep x</code></td></tr><tr><td><code translate="no">pgrep -x</code></td><td>Nome esatto del processo, fino a 15 caratteri</td></tr><tr><td><code translate="no">--include='*.conf'</code> in <code translate="no">/etc/ssh</code></td><td>Nasconde <code translate="no">sshd_config</code></td></tr><tr><td><code translate="no">sshd -T</code></td><td>La configurazione risolveva, in minuscolo, una riga per opzione</td></tr><tr><td>Due righe della stessa opzione in <code translate="no">sshd</code></td><td>Vale la prima lettura</td></tr><tr><td><code translate="no">/var/log/secure</code></td><td>Registro di autenticazione Rocky, solo da <code translate="no">root</code>. In Debian non esiste</td></tr><tr><td><code translate="no">journalctl -g</code></td><td>Filtra il journal con regex, senza pipe</td></tr></tbody></table></div>
+<h2 id="11-checklist-di-output">11 · Checklist di output</h2>
+<ul><li>[ ] Spiego perché <code translate="no">grep 10.1.0.2</code> trova <code translate="no">10.1.0.20</code> e cerco un IP esatto con <code translate="no">grep -Fw</code>.</li>
+<li>[ ] Scrivo pattern con ancore, lezioni e ripetizioni e so quando un pattern corrisponde al void.</li>
+<li>[ ] Utilizzo ERE con <code translate="no">-E</code> fino a <code translate="no">+</code>, <code translate="no">?</code>, <code translate="no">{}</code>, <code translate="no">|</code> e <code translate="no">( )</code>, e riconosco quando un pattern ERE è stato eseguito senza <code translate="no">-E</code>.</li>
+<li>[ ] Rimuovo commenti e righe vuote da qualsiasi file di configurazione con un singolo <code translate="no">grep</code>.</li>
+<li>[ ] Estraggo IP e utenti da un log SSH con <code translate="no">-o</code>, e conto su <code translate="no">sort | uniq -c</code>, in Rocky e Debian.</li>
+<li>[ ] Utilizzo elenchi di pattern con <code translate="no">-Fwf</code>, pulendo prima la riga vuota, e tratto i tre stati di <code translate="no">grep</code> in uno script.</li>
+<li>[ ] Controllo cosa <code translate="no">sshd</code> usa effettivamente con <code translate="no">sshd -T</code>, e cerco processi con <code translate="no">pgrep</code>, non con <code translate="no">ps | grep</code>.</li></ul>
+<p><strong>Ultimo esercizio, senza guardare.</strong> Tutto in debian-lab: inserisci <code translate="no">ssh deb</code> e lavora su <code translate="no">~/lab33</code>. Senza aprire questa lezione:</p>
+<ol><li>Mostra solo le righe attive di <code translate="no">/etc/ssh/ssh_config</code>, il file SSH <strong>client</strong>, senza commenti e senza righe vuote.</li>
+<li>Dal <code translate="no">conf.amostra</code>, mostrare i nomi delle direttive che appaiono <strong>commentate</strong> (con o senza rientro), solo il nome, uno per riga, senza ripetizioni. La frase <code translate="no">Exemplo</code> della prima riga non conta.</li>
+<li>Con <code translate="no">sudo</code> mostrare gli IP che oggi hanno tentato di entrare con un utente inesistente, per giornale, con il conteggio, dal più alto al più basso.</li>
+<li>Scrivere <code translate="no">~/lab33/tem-usuario.sh</code>: riceve un nome e, opzionalmente, un file (il default è <code translate="no">/etc/passwd</code>), e dice <code translate="no">existe</code>, <code translate="no">não existe</code> o <code translate="no">erro</code>, con stato <code translate="no">0</code>, <code translate="no">1</code> e <code translate="no">2</code>. Prova con <code translate="no">root</code>, con <code translate="no">nao-existe</code> e con <code translate="no">root /nao/existe</code>.</li>
+<li>Mostra il PID e la riga di comando di ciascun processo <code translate="no">sshd</code>, senza che il tuo comando appaia nella risposta.</li></ol>
+<p>Apri il modello solo dopo o dopo tre tentativi.</p>
+<p><strong>Riavvia e conferenza.</strong> Prima di riavviare, registra la risposta alla verifica su entrambe le VM, per confrontarla in seguito:</p>
+<pre translate="no"><code class="lang-bash">cd ~/lab33
+./sshd-efetivo.sh &gt; efetivo-rocky-lab.txt 2&gt;&amp;1
+ssh -t deb 'cd ~/lab33 &amp;&amp; sh sshd-efetivo.sh &gt; efetivo-debian-lab.txt 2&gt;&amp;1'
+ssh -t deb 'sudo reboot'
+sudo reboot</code></pre>
+<p>Dopo il ritorno, in rocky-lab:</p>
+<pre translate="no"><code class="lang-bash">eval "$(ssh-agent -s)"; ssh-add
+cd ~/lab33
+./sshd-efetivo.sh 2&gt;&amp;1 | diff - efetivo-rocky-lab.txt &amp;&amp; echo "Rocky: igual"
+ssh -t deb 'cd ~/lab33 &amp;&amp; sh sshd-efetivo.sh 2&gt;&amp;1 | diff - efetivo-debian-lab.txt &amp;&amp; echo "Debian: igual"'
+./alerta.sh ssh.amostra; ./alerta.sh; echo "status: $?"
+./checa.sh</code></pre>
+<p>Entrambe le configurazioni sono identiche a quelle registrate prima, perché <code translate="no">sshd</code> legge il stessi file ad ogni avvio. <code translate="no">alerta.sh</code> con i tre comportamenti corretti e <code translate="no">checa.sh</code> dicendo <code translate="no">começando o backup-noturno</code>, perché dopo il riavvio non viene eseguito alcun backup. Se <code translate="no">diff</code> mostra qualche differenza in <code translate="no">sshd -T</code>, leggi attentamente: qualcosa ha cambiato un file SSH, e questa è esattamente la domanda a cui lo script esiste per rispondere.</p>
+<p><strong>Istantanee di chiusura.</strong> Sono nelle due VM: la cartella <code translate="no">~/lab33</code>, con gli esempi, gli script e le risposte alle sfide; La lezione 3.4 utilizza <code translate="no">ssh.amostra</code> e <code translate="no">acesso.log</code>. I file delle lezioni precedenti sono ancora lì e <code translate="no">/srv/equipe</code> è ancora in <code translate="no">3770 root:equipe</code>:</p>
+<pre translate="no"><code class="lang-bash">sudo find /srv/equipe -maxdepth 0 -printf '%M %m %u:%g %p\n'
+ssh -t deb "sudo find /srv/equipe -maxdepth 0 -printf '%M %m %u:%g %p\n'"</code></pre>
+<p>Nel nodo Proxmox:</p>
+<pre translate="no"><code class="lang-bash">qm snapshot 201 m3a3-fim
+qm snapshot 202 m3a3-fim</code></pre>
+<h2 id="12-nella-vita-reale">12 · Nella vita reale</h2>
+<p><strong>Missione della settimana, sola lettura.</strong> Tre real server che gestisci. In ognuno, senza cambiare nulla:</p>
+<ol><li>La configurazione SSH applicabile: <code translate="no">sudo sshd -T | grep -E '^(port|permitrootlogin|passwordauthentication|pubkeyauthentication|maxauthtries|x11forwarding) ' | sort</code>. Qualche server accetta password o <code translate="no">root</code> direttamente su Internet? Confrontare con quanto scritto: <code translate="no">sudo grep -rHnEv '^[[:space:]]*(#|$)' /etc/ssh/sshd_config /etc/ssh/sshd_config.d/</code>.</li>
+<li>Password errate in SSH da ieri. Su un server con un file: <code translate="no">sudo grep 'Failed password' /var/log/secure</code> (o <code translate="no">/var/log/auth.log</code>). In un giornale: <code translate="no">sudo journalctl -u ssh --since yesterday --no-pager -g 'Failed password'</code> (l'unità può essere <code translate="no">sshd</code>). Quante righe?</li>
+<li>I dieci IP che hanno commesso più errori: la pipeline dal passaggio 5 all'origine del punto 2. Qualcuno di loro proviene dalla tua stessa rete? Un IP interno che sbaglia la password può spesso essere uno script con una vecchia password.</li>
+<li>Ho provato utenti inesistenti: <code translate="no">... | grep -oiE 'invalid user [^ ]+' | cut -d' ' -f3 | sort | uniq -c | sort -rn | head</code>. I nomi raccontano la storia: <code translate="no">admin</code>, <code translate="no">oracle</code>, <code translate="no">test</code> e <code translate="no">postgres</code> sono robot; il nome di un ex dipendente è un'altra conversazione.</li>
+<li>Errori di sistema dell'ultima ora, con contesto: <code translate="no">sudo journalctl -p err --since '-1h' --no-pager | tail -n 20</code>. Se ne viene ripetuto uno, <code translate="no">grep -c</code> su di esso per vedere quante volte.</li>
+<li>Gli script che cercano l'elaborazione nel modo sbagliato: <code translate="no">sudo grep -rnE 'ps (aux|-ef) *\| *grep' /usr/local/bin /usr/local/sbin /etc/cron.d /etc/cron.daily 2&gt;/dev/null</code>. Ogni riga è un candidato per Break B.</li>
+<li>Gli script che nascondono l'errore <code translate="no">grep</code>: <code translate="no">sudo grep -rnE 'grep [^|]*-q[^|]*2&gt; */dev/null' /usr/local/bin /usr/local/sbin /etc/cron.d 2&gt;/dev/null</code>. Ogni riga è candidata per Break A.</li></ol>
+<p><strong>Per il giornale.</strong> Una riga per server: <code translate="no">nome · senha e root no SSH (valor do sshd -T) · falhas de senha desde ontem · top 3 IPs · IPs internos entre eles · usuários inexistentes mais tentados · scripts com ps|grep · scripts com grep -q 2&gt;/dev/null</code>. Accanto a ogni risultato, cosa <strong>vorresti</strong> fare e chi dovrebbe approvarlo. Non aggiustare nulla questa settimana: la missione è vedere.</p>
+<p><strong>Sfida della settimana.</strong> Esegui <code translate="no">sshd-efetivo.sh</code> su tutti i server Linux che gestisci, uno alla volta, e scrivi l'output di ciascuno in <code translate="no">~/auditoria-ssh/NOME.txt</code> sulla tua workstation. Poi, con <code translate="no">grep</code> nei file registrati, rispondi: quali accettano le password? (<code translate="no">grep -l '^passwordauthentication yes' ~/auditoria-ssh/*.txt</code>) In quali rientra il <code translate="no">root</code>? In che valore <strong>non</strong> vale quello che c'è nel <code translate="no">sshd_config</code> principale? Quest'ultima domanda è quella che nessuno si pone ed è quella che rimane.</p>
+<p><strong>Domani, senza guardare.</strong> Prima di aprire il terminale, rispondi a mente aperta: perché non basta <code translate="no">grep 10.1.0.2</code> per trovare un IP, e cosa basta? Perché <code translate="no">grep -v '^#'</code> non lascia solo le linee attive? Cosa cambia tra <code translate="no">grep '(a|b)'</code> e <code translate="no">grep -E '(a|b)'</code>? Cosa corrisponde a <code translate="no">[0-9]*</code> su una riga senza cifre? Quali sono i tre stati nel <code translate="no">grep</code> e perché il <code translate="no">if</code> li confonde? Quindi, in una delle VM, esegui <code translate="no">echo abc | grep -c 'x*'</code> e <code translate="no">ps aux | grep -c sshd; pgrep -c sshd</code> e spiega ogni risultato ad alta voce, dicendo in quale VM ti trovi.</p>
+<h2 id="13-con-deeptutor">13 · Con DeepTutor</h2>
+<p>Usa DeepTutor sulla tua rete locale dopo il laboratorio, non al suo posto. I comandi iniziano con <code translate="no">!</code>:</p>
+<ul><li><code translate="no">!quiz Aula 3.3</code>: dieci nuove domande sulle regex di base ed estese, opzioni <code translate="no">grep</code> e stato di uscita.</li>
+<li><code translate="no">!explica regex gulosa</code>: perché <code translate="no">".*"</code> va all'ultimo <code translate="no">"</code>, con <code translate="no">[^"]*</code> e <code translate="no">-P</code> accanto.</li>
+<li><code translate="no">!feynman BRE e ERE</code>: spieghi la differenza e indica dove è stata lasciata vacante.</li>
+<li><code translate="no">!quebra grep que não acha</code>: descrive un <code translate="no">grep</code> che risponde a zero o risponde a tutto e fornisce, uno alla volta, i risultati di <code translate="no">cat -A</code>, <code translate="no">echo $?</code> e <code translate="no">grep -c</code> fino a trovare la causa.</li>
+<li><code translate="no">!simulado LPIC-1 103.7</code>: domande in stile esame, con schemi e piccoli file per prevedere il risultato.</li>
+<li><code translate="no">!cartoes Aula 3.3</code>: la sezione 10 flashcard, in ordine di revisione.</li>
+<li><code translate="no">!erro</code>: incolla <code translate="no">grep</code> che ha dato un risultato strano, con due o tre righe di input, e ti dice la probabile causa e cosa testare.</li>
+<li><code translate="no">!revisao Aula 3.3</code>: cosa rivedere prima della lezione 3.4, cosa hai sbagliato finora.</li></ul>
+<h2 id="foglio-di-risposte-commentato">Foglio di risposte commentato</h2>
+<h3 id="riscaldamento">Riscaldamento</h3>
+<ol><li>No. Appaiono anche le righe da <code translate="no">10.1.0.20</code>, <code translate="no">10.1.0.21</code> e qualsiasi altro IP che <strong>inizia</strong> con <code translate="no">10.1.0.2</code>, perché <code translate="no">grep</code> cerca una sezione. E il punto corrisponde a qualsiasi carattere. Quello corretto è <code translate="no">grep -Fw '10.1.0.2'</code>. È il passaggio 1.</li>
+<li>No. Rimangono righe vuote e commenti rientrati, il cui primo carattere è uno spazio o una tabulazione. Quello corretto è <code translate="no">grep -Ev '^[[:space:]]*(#|$)'</code>. È il passaggio 2.</li>
+<li>Quasi ogni volta dice "già in esecuzione", perché <code translate="no">grep backup</code> appare nella lista di <code translate="no">ps</code> e si ritrova. Quello corretto è <code translate="no">pgrep -x</code>. È la pausa B.</li></ol>
+<h3 id="quiz">Quiz</h3>
+<ol><li>Tutte le righe nel file. <code translate="no">a*</code> accetta zero <code translate="no">a</code> e zero <code translate="no">a</code> esiste su qualsiasi riga, anche vuota.</li>
+<li><strong>B.</strong> A lascia righe vuote e commenti rientrati. C rimuove anche le righe con <code translate="no">#</code> al centro, come un valore che contiene <code translate="no">#</code>, ed è troppo rigido. D rimuove le righe vuote e quelle che iniziano con <code translate="no">#</code>, ma mantiene i commenti con rientro e le righe con soli spazi, perché lo spazio è un <code translate="no">[^#]</code>.</li>
+<li>In BRE, <code translate="no">+</code>, <code translate="no">?</code> e <code translate="no">|</code> sono caratteri comuni. In ERE: <code translate="no">grep -E ' (401|403) '</code>. Con lezione, che funziona in entrambi: <code translate="no">grep ' 40[13] '</code>.</li>
+<li><strong>A.</strong> B corrisponde solo a una riga che è esattamente <code translate="no">wheel</code> e le righe in <code translate="no">/etc/group</code> sono <code translate="no">wheel:x:10:rodrigo</code>. C mostra le righe <strong>senza</strong> la parola. D richiede l'intera riga uguale a <code translate="no">wheel</code>, come B, e fa ancora distinzione tra maiuscole e minuscole.</li>
+<li><code translate="no">0</code> trovata almeno una riga; <code translate="no">1</code> non ne ha trovati; Errore <code translate="no">2</code> (file inesistente, nessun permesso, regex non valida). Il comando mostra <code translate="no">grep: /nao/existe: No such file or directory</code> e poi <code translate="no">2</code>.</li>
+<li>Mostra <code translate="no">"7" nome="ana"</code>, dal primo all'ultimo <code translate="no">"</code>, perché <code translate="no">.*</code> è goloso. Per ciascuno su una riga: <code translate="no">grep -o '"[^"]*"'</code>.</li>
+<li><strong>C.</strong> A e B corrispondono a tutte le righe a causa della riga vuota e A tratta comunque i punti come "qualsiasi carattere". D mostra l'ordine opposto e con la riga vuota nell'elenco non rimane alcuna riga.</li>
+<li>Perché <code translate="no">grep sshd</code> è in esecuzione anche quando <code translate="no">ps</code> elenca i processi e la sua riga contiene <code translate="no">sshd</code>. <code translate="no">pgrep -a sshd</code> mostra solo i processi <code translate="no">sshd</code>; o <code translate="no">pgrep -c sshd</code> conta.</li>
+<li><code translate="no">yes</code>. <code translate="no">Include</code> in alto viene letto per primo, mentre in <code translate="no">sshd</code> conta il primo valore ottenuto da ciascuna opzione. Confermare con <code translate="no">sudo sshd -T | grep -i passwordauthentication</code>.</li>
+<li>Tabella seguente.</li></ol>
+<div class="tabela"><table><thead><tr><th scope="col">Se hai selezionato</th><th scope="col">Risultato</th><th scope="col">Perché</th></tr></thead><tbody><tr><td>A</td><td>❌ Sbagliato</td><td>Senza <code translate="no">-r</code>, <code translate="no">grep</code> non entra nelle directory: risponde a <code translate="no">grep: /etc: Is a directory</code> e non cerca nulla.</td></tr><tr><td>B</td><td>✅ Giusto</td><td><code translate="no">-r</code> attraversa tutte le sottodirectory di <code translate="no">/etc</code> e <code translate="no">-l</code> mostra solo il nome di ciascun file che contiene almeno una riga di testo.</td></tr><tr><td>C</td><td>❌ Sbagliato</td><td><code translate="no">find -name</code> cerca i file <strong>nominati</strong> <code translate="no">PermitRootLogin</code>, non i file contenenti il ​​testo.</td></tr><tr><td>D</td><td>❌ Sbagliato</td><td><code translate="no">-c</code> con <code translate="no">-r</code> mostra <strong>tutti</strong> i file, ciascuno con il conteggio, compresi quelli con <code translate="no">0</code>. L'elenco richiesto riporta solo i nomi dei soggetti contenuti.</td></tr></tbody></table></div>
+<h3 id="ultimo-esercizio">Ultimo esercizio</h3>
+<p>In Debian-lab, in <code translate="no">~/lab33</code>:</p>
+<pre translate="no"><code class="lang-bash">grep -Ev '^[[:space:]]*(#|$)' /etc/ssh/ssh_config
+grep -E '^[[:space:]]*#' conf.amostra | grep -oE '[A-Z][a-z]+[A-Z][A-Za-z]*' | sort -u</code></pre>
+<p>Il primo mostra <code translate="no">Include</code>, <code translate="no">Host *</code> e le righe rientrate sottostanti, come <code translate="no">SendEnv</code> e <code translate="no">HashKnownHosts</code>, a seconda della versione. Il secondo mostra <code translate="no">ListenAddress</code>, <code translate="no">MaxSessions</code>, <code translate="no">PasswordAuthentication</code> e <code translate="no">PermitRootLogin</code>. Il primo <code translate="no">grep</code> sceglie le righe commentate, con o senza rientro; la seconda elimina solo le parole con due lettere maiuscole, il formato dei nomi delle direttive, e quindi viene tralasciato il <code translate="no">Exemplo</code>. Un'altra soluzione che hai scritto è valida, se fornisce gli stessi quattro.</p>
+<pre translate="no"><code class="lang-bash">sudo journalctl -u ssh --since today --no-pager | grep 'Invalid user' | grep -oE 'from [0-9.]+' | cut -d' ' -f2 | sort | uniq -c | sort -rn</code></pre>
+<p>Se hai sbagliato la password al passaggio 5, viene visualizzato <code translate="no">10.1.0.51</code>, l'IP Rocky-Lab. La riga <code translate="no">Invalid user</code> viene scritta anche con la password disattivata in SSH, perché esce prima dell'autenticazione.</p>
+<pre translate="no"><code class="lang-bash">cat &gt; ~/lab33/tem-usuario.sh &lt;&lt;'EOF'
+#!/bin/bash
+# tem-usuario.sh NOME [ARQUIVO]: existe (0), não existe (1) ou erro (2)
+arq=${2:-/etc/passwd}
+grep -q "^$1:" "$arq"
+case $? in
+    0) echo "existe" ;;
+    1) echo "não existe"; exit 1 ;;
+    *) echo "erro: não consegui ler $arq" &gt;&amp;2; exit 2 ;;
+esac
+EOF
+chmod +x ~/lab33/tem-usuario.sh
+cd ~/lab33
+./tem-usuario.sh root; echo $?
+./tem-usuario.sh nao-existe; echo $?
+./tem-usuario.sh root /nao/existe; echo $?</code></pre>
+<p><code translate="no">existe</code> e <code translate="no">0</code>; <code translate="no">não existe</code> e <code translate="no">1</code>; il messaggio dei <code translate="no">grep</code>, <code translate="no">erro</code> e <code translate="no">2</code>. <code translate="no">^</code> e <code translate="no">:</code> nello standard garantiscono il nome intero, all'inizio della riga: senza di essi, <code translate="no">tem-usuario.sh oot</code> direbbe <code translate="no">existe</code>, a causa di <code translate="no">root</code>.</p>
+<pre translate="no"><code class="lang-bash">pgrep -a sshd</code></pre>
+<p>Una riga per processo <code translate="no">sshd</code>, con il PID e la riga di comando: almeno il processo principale e una per sessione aperta, compresa la tua. Nessun <code translate="no">grep</code> nella risposta, perché non c'è <code translate="no">grep</code>.</p>
+</article><nav class="paginas" aria-label="Lezioni"><a class="ant" href="3.2-filtros-de-texto.it.html"><small>← Precedente</small>3.2 · Filtri di testo</a><a class="prox" href="3.4-sed-e-awk.it.html"><small>Successiva →</small>3.4 · sed e awk</a></nav></main></div>
+<footer><div class="wrap">Generato dal Markdown del corso · Immagini in <code translate="no">img/</code></div></footer>
+</body>
+</html>

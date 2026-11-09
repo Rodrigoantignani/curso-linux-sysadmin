@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light dark">
+<title>6.4 · Flatpak · Corso Linux Sysadmin</title>
+<link rel="alternate" hreflang="pt-BR" href="6.4-flatpak.html"><link rel="alternate" hreflang="it" href="6.4-flatpak.it.html">
+<style>
+:root{color-scheme:light dark;--bg:#f6f1e7;--card:#fffdf8;--ink:#201c16;--muted:#5e564a;--accent:#9a3412;--accent-2:#1f5f4a;--tint:#efe6d4;--line:#ddd2bc;--code:#f1eadb;--shadow:0 1px 2px rgba(60,40,10,.08);--serif:Georgia,"Iowan Old Style","Palatino Linotype",Palatino,serif;--sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--mono:"Cascadia Code",Consolas,"DejaVu Sans Mono",monospace}
+@media (prefers-color-scheme:dark){:root{--bg:#16130f;--card:#201b15;--ink:#f1eadb;--muted:#b9ad98;--accent:#f0a070;--accent-2:#7fd0b0;--tint:#2a231a;--line:#3d3427;--code:#191510;--shadow:none}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:5.5rem}
+body{margin:0;background:var(--bg);color:var(--ink);font:1rem/1.6 var(--sans)}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--accent-2);outline-offset:2px;border-radius:4px}
+.pular{position:absolute;left:-999px;top:0;background:var(--card);padding:.5rem 1rem;z-index:20}
+.pular:focus{left:.5rem;top:.5rem}
+.wrap{width:100%;max-width:84rem;margin:0 auto;padding-inline:max(1rem,env(safe-area-inset-left))}
+.top{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10;border-top:6px solid var(--accent)}
+.top-in{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding-block:.6rem}
+.titles{min-width:0}
+.marca{margin:0;font:700 clamp(1.15rem,1rem + 1vw,1.6rem)/1.15 var(--serif);letter-spacing:-.01em}
+.marca a{text-decoration:none}
+.marca a:hover{color:var(--accent)}
+.meta{margin:.1rem 0 0;color:var(--muted);font-size:.85rem}
+.acoes{display:flex;align-items:center;gap:.9rem;flex:none}
+.acoes>a{font-size:.9rem;font-weight:600;color:var(--muted);text-decoration:none}
+.acoes>a:hover{color:var(--accent);text-decoration:underline}
+.idioma{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--tint)}
+.idioma>*{padding:.35rem .9rem;font-size:.8rem;font-weight:700;letter-spacing:.06em;text-decoration:none;color:var(--muted);min-width:2.75rem;text-align:center}
+.idioma a:hover{color:var(--accent);text-decoration:underline}
+.idioma span{background:var(--accent);color:#fff}
+@media (prefers-color-scheme:dark){.idioma span{color:#16130f}}
+code{font-family:var(--mono);font-size:.9em;background:var(--tint);padding:.1rem .35rem;border-radius:4px;overflow-wrap:anywhere}
+/* índice */
+.capa{max-width:70rem;padding-block:2rem 3rem}
+.stats{border-left:4px solid var(--accent-2);background:var(--card);border-radius:0 10px 10px 0;padding:1rem 1.25rem;margin:0 0 2.5rem;box-shadow:var(--shadow);color:var(--muted)}
+.stats strong{color:var(--ink)}
+.modulo{display:grid;grid-template-columns:15rem minmax(0,1fr);gap:1rem 2rem;padding:1.75rem 0;border-top:1px solid var(--line)}
+.modulo h2{margin:0;font:700 1.25rem/1.25 var(--serif);align-self:start;position:sticky;top:6rem}
+.mn{display:block;font:700 .8rem var(--mono);letter-spacing:.12em;color:var(--accent);margin-bottom:.25rem}
+.sep{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.modulo ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,17rem),1fr));gap:.75rem}
+.modulo li{margin:0}
+.modulo a{display:flex;gap:.45rem;align-items:baseline;height:100%;padding:.85rem 1rem;background:var(--card);border:1px solid var(--line);border-radius:10px;text-decoration:none;font-weight:600;line-height:1.35;box-shadow:var(--shadow);transition:border-color .15s,transform .15s}
+.modulo a:hover{border-color:var(--accent);color:var(--accent)}
+.num{font:700 .85rem var(--mono);color:var(--accent);white-space:nowrap}
+/* aula */
+.doc{display:grid;grid-template-columns:17rem minmax(0,1fr);gap:2.5rem;align-items:start;padding-block:2rem 3rem}
+.lateral{position:sticky;top:5.5rem;max-height:calc(100vh - 6.5rem);overflow:auto;font-size:.875rem;padding-right:.5rem}
+.lateral h2{margin:0 0 .25rem;font:700 .95rem var(--serif);color:var(--muted)}
+.lateral h3{margin:1rem 0 .25rem;font:700 .75rem var(--mono);letter-spacing:.06em;color:var(--accent)}
+.lateral ul{list-style:none;margin:0;padding:0}
+.lateral a{display:flex;gap:.45rem;padding:.25rem .5rem;border-radius:6px;text-decoration:none;color:var(--muted);line-height:1.3}
+.lateral a:hover{background:var(--tint);color:var(--ink)}
+.lateral a[aria-current]{background:var(--tint);color:var(--ink);font-weight:700;box-shadow:inset 3px 0 0 var(--accent)}
+.lateral .num{font-size:.75rem}
+.aula{min-width:0;max-width:56rem;overflow-wrap:break-word;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:clamp(1.25rem,1rem + 2vw,2.75rem);box-shadow:var(--shadow)}
+.aula h1{margin:0 0 1.5rem;font:700 clamp(1.75rem,1.4rem + 1.6vw,2.5rem)/1.15 var(--serif);letter-spacing:-.015em;color:var(--ink)}
+.aula h2{margin:2.5rem 0 .75rem;padding-top:1.25rem;border-top:1px solid var(--line);font:700 1.5rem/1.25 var(--serif)}
+.aula h3{margin:2rem 0 .5rem;font:700 1.15rem/1.3 var(--serif);color:var(--accent)}
+.aula h4,.aula h5,.aula h6{margin:1.5rem 0 .5rem;font-size:1rem}
+.aula p,.aula ul,.aula ol{margin:1rem 0}
+.aula ul,.aula ol{padding-left:1.5rem}
+.aula li{margin:.35rem 0}
+.aula li>ul,.aula li>ol{margin:.35rem 0}
+.aula a{color:var(--accent);text-underline-offset:2px}
+.aula hr{border:0;border-top:1px solid var(--line);margin:2rem 0}
+.tabela{overflow-x:auto;margin:1.25rem 0;border:1px solid var(--line);border-radius:10px}
+.aula table{width:100%;border-collapse:collapse;font-size:.9rem}
+.aula th,.aula td{padding:.55rem .75rem;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+.aula tr:last-child td{border-bottom:0}
+.aula th{background:var(--tint);font-weight:700}
+.aula pre{background:var(--code);border:1px solid var(--line);border-radius:10px;padding:.9rem 1rem;overflow-x:auto;font:.85rem/1.5 var(--mono);margin:1rem 0;tab-size:4}
+.aula pre code{background:none;padding:0;font-size:inherit;overflow-wrap:normal}
+.aula blockquote{margin:1.25rem 0;padding:.75rem 1.25rem;border-left:4px solid var(--accent-2);background:var(--tint);border-radius:0 10px 10px 0}
+.aula blockquote>:first-child{margin-top:0}
+.aula blockquote>:last-child{margin-bottom:0}
+.aula figure{margin:1.75rem 0;text-align:center}
+.aula figure img{display:block;margin:0 auto;max-width:100%;height:auto;border:1px solid var(--line);border-radius:10px;background:#fff}
+.aula figcaption{margin-top:.5rem;color:var(--muted);font-size:.9rem;font-style:italic}
+.paginas{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:2.5rem;padding-top:1.5rem;border-top:1px solid var(--line)}
+.paginas a{display:block;padding:.75rem 1rem;border:1px solid var(--line);border-radius:10px;text-decoration:none;color:var(--ink);font-weight:600;line-height:1.3}
+.paginas a:hover{border-color:var(--accent);color:var(--accent)}
+.paginas small{display:block;color:var(--muted);font-weight:400}
+.paginas .prox{grid-column:2;text-align:right}
+footer{border-top:1px solid var(--line);padding-block:1.5rem;color:var(--muted);font-size:.85rem;text-align:center}
+@media (hover:hover) and (prefers-reduced-motion:no-preference){.modulo a:hover{transform:translateY(-2px)}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+@media (max-width:980px){.doc{grid-template-columns:minmax(0,1fr);padding-top:1rem}.lateral{position:static;max-height:none;order:2}.aula{max-width:none}}
+@media (max-width:860px){.modulo{grid-template-columns:minmax(0,1fr)}.modulo h2{position:static}.mn{display:inline;margin-right:.5rem}}
+@media (max-width:420px){.meta{display:none}.top-in{gap:.5rem}.acoes{gap:.6rem}.capa{padding-top:1.25rem}.paginas{grid-template-columns:minmax(0,1fr)}.paginas .prox{grid-column:1}}
+@media print{.top,.lateral,.paginas{display:none}.aula{border:0;box-shadow:none;padding:0;max-width:none}.doc{display:block}}
+</style>
+</head>
+<body>
+<a class="pular" href="#conteudo">Vai al contenuto</a>
+<header class="top"><div class="wrap top-in"><div class="titles"><p class="marca"><a href="index.it.html">Corso Linux Sysadmin</a></p><p class="meta">Rodrigo Antignani · Lezione 6.4</p></div><div class="acoes"><a href="index.it.html">Indice</a><div class="idioma" role="group" aria-label="Lingua"><a href="6.4-flatpak.html" hreflang="pt-BR" lang="pt-BR">PT</a><span aria-current="true">IT</span></div></div></div></header>
+<div class="wrap doc"><aside class="lateral" aria-label="Lezioni"><h2>Lezioni</h2><h3>M0 · Laboratorio</h3><ul><li><a href="0.1-montar-o-laboratorio.it.html"><span class="num">0.1</span><span>Allestire il laboratorio</span></a></li><li><a href="0.2-acesso-e-protecao.it.html"><span class="num">0.2</span><span>Accesso e protezione</span></a></li></ul><h3>M1 · Riga di comando</h3><ul><li><a href="1.1-o-que-e-linux.it.html"><span class="num">1.1</span><span>Che cos'è Linux</span></a></li><li><a href="1.2-o-shell-e-a-ajuda.it.html"><span class="num">1.2</span><span>La shell e la guida</span></a></li><li><a href="1.3-caminhos-e-navegacao.it.html"><span class="num">1.3</span><span>Percorsi e navigazione</span></a></li><li><a href="1.4-criar-copiar-mover-e-apagar.it.html"><span class="num">1.4</span><span>Creare, copiare, spostare ed eliminare</span></a></li><li><a href="1.5-ler-e-procurar-texto.it.html"><span class="num">1.5</span><span>Leggere e cercare testo</span></a></li><li><a href="1.6-redirecionamentos-e-pipes.it.html"><span class="num">1.6</span><span>Reindirizzamenti e pipe</span></a></li><li><a href="1.7-arquivar-e-compactar.it.html"><span class="num">1.7</span><span>Archiviare e comprimere</span></a></li><li><a href="1.8-primeiro-script.it.html"><span class="num">1.8</span><span>Primo script</span></a></li><li><a href="1.9-decidir-e-repetir.it.html"><span class="num">1.9</span><span>Decidere e ripetere</span></a></li><li><a href="1.10-software-livre-na-pratica.it.html"><span class="num">1.10</span><span>Il software libero in pratica</span></a></li></ul><h3>M2 · Sistema, utenti e permessi</h3><ul><li><a href="2.1-instalacao-e-provisionamento.it.html"><span class="num">2.1</span><span>Installazione e provisioning</span></a></li><li><a href="2.2-hardware-e-dispositivos.it.html"><span class="num">2.2</span><span>Hardware e dispositivi</span></a></li><li><a href="2.3-processos-e-logs.it.html"><span class="num">2.3</span><span>Processi e log</span></a></li><li><a href="2.4-rede-no-dia-a-dia.it.html"><span class="num">2.4</span><span>La rete di tutti i giorni</span></a></li><li><a href="2.5-acesso-remoto-e-privilegios.it.html"><span class="num">2.5</span><span>Accesso remoto e privilegi</span></a></li><li><a href="2.6-usuarios-e-grupos.it.html"><span class="num">2.6</span><span>Utenti e gruppi</span></a></li><li><a href="2.7-permissoes-e-dono.it.html"><span class="num">2.7</span><span>Permessi e proprietario</span></a></li><li><a href="2.8-diretorios-e-arquivos-especiais.it.html"><span class="num">2.8</span><span>Directory e file speciali</span></a></li></ul><h3>M3 · Testo ed editor</h3><ul><li><a href="3.1-fluxos-a-fundo.it.html"><span class="num">3.1</span><span>I flussi in profondità</span></a></li><li><a href="3.2-filtros-de-texto.it.html"><span class="num">3.2</span><span>Filtri di testo</span></a></li><li><a href="3.3-regex-e-grep.it.html"><span class="num">3.3</span><span>Regex e grep</span></a></li><li><a href="3.4-sed-e-awk.it.html"><span class="num">3.4</span><span>sed e awk</span></a></li><li><a href="3.5-vi-e-vim-de-verdade.it.html"><span class="num">3.5</span><span>vi e vim sul serio</span></a></li></ul><h3>M4 · systemd e boot</h3><ul><li><a href="4.1-como-o-linux-liga.it.html"><span class="num">4.1</span><span>Come si avvia Linux</span></a></li><li><a href="4.2-systemd-servicos-e-units.it.html"><span class="num">4.2</span><span>systemd: servizi e unit</span></a></li><li><a href="4.3-targets-desligar-e-reiniciar.it.html"><span class="num">4.3</span><span>Target: spegnere e riavviare</span></a></li><li><a href="4.4-grub-e-acesso-de-emergencia.it.html"><span class="num">4.4</span><span>GRUB e accesso di emergenza</span></a></li></ul><h3>M5 · Kernel, moduli e VM</h3><ul><li><a href="5.1-hardware-pelo-kernel.it.html"><span class="num">5.1</span><span>L'hardware visto dal kernel</span></a></li><li><a href="5.2-modulos-e-parametros.it.html"><span class="num">5.2</span><span>Moduli e parametri</span></a></li><li><a href="5.3-linux-como-convidado.it.html"><span class="num">5.3</span><span>Linux come guest</span></a></li></ul><h3>M6 · Pacchetti e repository</h3><ul><li><a href="6.1-pacotes-no-debian.it.html"><span class="num">6.1</span><span>Pacchetti su Debian</span></a></li><li><a href="6.2-pacotes-na-rocky.it.html"><span class="num">6.2</span><span>Pacchetti su Rocky</span></a></li><li><a href="6.3-repositorios.it.html"><span class="num">6.3</span><span>Repository</span></a></li><li><a href="6.4-flatpak.it.html" aria-current="page"><span class="num">6.4</span><span>Flatpak</span></a></li><li><a href="6.5-bibliotecas-compartilhadas.it.html"><span class="num">6.5</span><span>Librerie condivise</span></a></li></ul></aside><main id="conteudo" class="aula"><article><h1>Lezione 6.4 · Flatpak</h1>
+<p>Finora, ogni pacchetto che hai installato è stato creato <strong>per quella distribuzione</strong>: <code translate="no">.rpm</code> di Rocky non funziona su Debian e viceversa. Flatpak fa il contrario: la stessa applicazione funziona su qualsiasi distribuzione, portando con sé le librerie di cui ha bisogno e girando in un box isolato. È un prodotto desktop, ma è entrato in RHCSA, quindi devi sapere come utilizzarlo. Lezione breve.</p>
+<blockquote><p><strong>Centro di questa lezione:</strong> sapere cosa sono remote, app e runtime; aggiungi Flathub; cercare, installare, aggiornare e rimuovere; comprendere la differenza tra installazione di sistema e installazione utente; e visualizzare e limitare le autorizzazioni di un'app. Il resto è approfondito.</p></blockquote>
+<div class="tabela"><table><thead><tr><th scope="col">File</th><th scope="col"></th></tr></thead><tbody><tr><td><strong>Modulo</strong></td><td>M6 · Software, lezione 4 di 5</td></tr><tr><td><strong>Quando</strong></td><td>Settimana 11</td></tr><tr><td><strong>Alla fine</strong></td><td>Puoi utilizzare Flatpak dalla riga di comando e sapere quando è (e quando non è) lo strumento giusto</td></tr><tr><td><strong>Articoli di prova</strong></td><td>RHCSA, nelle versioni recenti degli obiettivi: configurare i repository Flatpak e gestire le applicazioni Flatpak. LPIC-1 non addebita</td></tr><tr><td><strong>Prerequisiti</strong></td><td>lezione 6.3</td></tr><tr><td><strong>Ora</strong></td><td>intorno all'1:30</td></tr><tr><td><strong>Istantanee</strong></td><td><code translate="no">m6a4-inicio</code> e <code translate="no">m6a4-fim</code> in rocky-lab (la parte Debian è opzionale)</td></tr></tbody></table></div>
+<h2 id="1-riscaldamento">1 · Riscaldamento</h2>
+<p>Rispondi prima di leggere.</p>
+<ol><li>Un'app Flatpak utilizza <code translate="no">glibc</code> dal tuo Rocky o ne prende uno proprio?</li>
+<li>È necessario essere root per installare Flatpak?</li>
+<li>Su un server senza interfaccia grafica, Flatpak ha senso?</li></ol>
+<h2 id="2-perche-e-importante">2 · Perché è importante</h2>
+<div class="tabela"><table><thead><tr><th scope="col">Il cosiddetto</th><th scope="col">La risposta sbagliata</th><th scope="col">Cosa provoca</th></tr></thead><tbody><tr><td>"Ho bisogno della nuova versione dell'app X sulla stazione RHEL, dnf ha solo quella vecchia"</td><td>Aggiungi il repository Fedora su RHEL</td><td>Mix di versioni e un <code translate="no">dnf upgrade</code> che rompe il sistema</td></tr><tr><td>"Ho disinstallato l'app e il disco non si è liberato"</td><td>"Flatpak è così"</td><td>Runtime orfani che occupano giga</td></tr><tr><td>"L'utente ha installato un'app e non la vedo nell'elenco"</td><td>Penso che non sia installato</td><td>Lo ha installato con <code translate="no">--user</code>, nella sua cartella</td></tr><tr><td>"L'app può leggere tutta la mia casa?"</td><td>"È sandbox, non legge nulla"</td><td>Dipende dalle autorizzazioni richieste dall'app stessa. Devi verificarlo</td></tr></tbody></table></div>
+<h2 id="3-modello-mentale">3 · Modello mentale</h2>
+<blockquote><p>Flatpak è un <strong>appartamento ammobiliato all'interno dell'edificio</strong>. L'edificio è la tua distribuzione (kernel, rete, utenti). Il <strong>runtime</strong> è l'arredamento standard (biblioteche di base), condiviso da più appartamenti. L'<strong>app</strong> è il residente, che porta solo ciò che è suo. Il <strong>remoto</strong> è l'agenzia immobiliare. I <strong>permessi</strong> dicono da quali porte può uscire il residente.</p></blockquote>
+<pre translate="no"><code>            remote (ex.: flathub)
+                   │  baixa (OSTree, só o que mudou)
+                   ▼
+  /var/lib/flatpak  (sistema)     ~/.local/share/flatpak  (--user)
+        │
+        ├── runtime  org.gnome.Platform//47     ← bibliotecas, compartilhado
+        └── app      org.gnome.Calculator         ← o programa
+                   │
+                   ▼  flatpak run
+        ┌───── sandbox ───────────────────────────┐
+        │ /usr = runtime   /app = o app        │
+        │ rede, home, X11/Wayland... só se     │
+        │ a permissão deixar                   │
+        └──────────────────────────────────────┘
+              kernel e usuários: os do host</code></pre>
+<p>La risposta alla prima domanda è nel disegno: all'interno della scatola, <code translate="no">/usr</code> è quella del runtime. L'app non vede mai le librerie di Rocky.</p>
+<figure><a href="../img/6.4-apartamento.svg"><img src="../img/6.4-apartamento.svg" alt="Flatpak come appartamento ammobiliato" loading="lazy" decoding="async"></a><figcaption>L'app non vede mai le /usr della distribuzione; il runtime porta mobili condivisi.</figcaption></figure>
+<h2 id="4-gli-elementi-essenziali">4 · Gli elementi essenziali</h2>
+<h3 id="vocabolario">Vocabolario</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Termine</th><th scope="col">Cos'è</th></tr></thead><tbody><tr><td><strong>Telecomando</strong></td><td>Archivio Flatpak. Il più comune è Flathub. In RHEL arriva il telecomando <code translate="no">rhel</code>, da Red Hat</td></tr><tr><td><strong>ID app</strong></td><td>Nome DNS invertito: <code translate="no">org.gnome.Calculator</code>, <code translate="no">org.mozilla.firefox</code></td></tr><tr><td><strong>Durata</strong></td><td>Insieme di librerie di base (<code translate="no">org.freedesktop.Platform</code>, <code translate="no">org.gnome.Platform</code>, <code translate="no">org.kde.Platform</code>), con versione. Diverse app utilizzano lo stesso</td></tr><tr><td><strong>Rif</strong></td><td>Indirizzo completo: <code translate="no">app/org.gnome.Calculator/x86_64/stable</code></td></tr><tr><td><strong>Installazione del sistema</strong></td><td><code translate="no">/var/lib/flatpak</code>, per tutti gli utenti, richiede root (o polkit)</td></tr><tr><td><strong>Installazione utente</strong></td><td><code translate="no">--user</code>, in <code translate="no">~/.local/share/flatpak</code>, solo per te, senza root</td></tr><tr><td><strong>Dati dell'app</strong></td><td><code translate="no">~/.var/app/&lt;App ID&gt;/</code>: configurazione e cache per ogni utente</td></tr></tbody></table></div>
+<h3 id="comandi">Comandi</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Voglio...</th><th scope="col">Comando</th></tr></thead><tbody><tr><td>Installa Flatpak</td><td><code translate="no">sudo dnf install flatpak</code> / <code translate="no">sudo apt install flatpak</code></td></tr><tr><td>Aggiungi FlatHub</td><td><code translate="no">sudo flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo</code></td></tr><tr><td>Visualizza telecomandi</td><td><code translate="no">flatpak remotes</code></td></tr><tr><td>Cerca</td><td><code translate="no">flatpak search calculadora</code> (la ricerca in inglese funziona meglio)</td></tr><tr><td>Elenca cosa ha un telecomando</td><td><code translate="no">flatpak remote-ls flathub --app</code></td></tr><tr><td>Installa</td><td><code translate="no">sudo flatpak install flathub org.gnome.Calculator</code></td></tr><tr><td>Elenco installato</td><td><code translate="no">flatpak list --app</code> / <code translate="no">flatpak list --runtime</code></td></tr><tr><td>Dettagli</td><td><code translate="no">flatpak info org.gnome.Calculator</code></td></tr><tr><td>Corri</td><td><code translate="no">flatpak run org.gnome.Calculator</code></td></tr><tr><td>Aggiorna tutto</td><td><code translate="no">sudo flatpak update</code></td></tr><tr><td>Rimuovi</td><td><code translate="no">sudo flatpak uninstall org.gnome.Calculator</code></td></tr><tr><td>Rimuovere i runtime orfani</td><td><code translate="no">sudo flatpak uninstall --unused</code></td></tr><tr><td>Storia</td><td><code translate="no">flatpak history</code></td></tr><tr><td>Visualizza autorizzazioni</td><td><code translate="no">flatpak info --show-permissions APP</code></td></tr><tr><td>Limitare l'autorizzazione</td><td><code translate="no">flatpak override --user --nofilesystem=home APP</code></td></tr><tr><td>Disconnettere un telecomando</td><td><code translate="no">sudo flatpak remote-modify --disable flathub</code></td></tr></tbody></table></div>
+<p>Senza <code translate="no">--user</code> e senza <code translate="no">--system</code> il valore predefinito è <strong>sistema</strong>. Per utilizzare <code translate="no">--user</code>, il telecomando deve esistere anche nell'ambito dell'utente (<code translate="no">flatpak remote-add --user ...</code>).</p>
+<h3 id="autorizzazioni-la-sandbox">Autorizzazioni (la "sandbox")</h3>
+<p>L'app dichiara ciò che vuole: rete (<code translate="no">network</code>), schermo (<code translate="no">x11</code>, <code translate="no">wayland</code>), suono (<code translate="no">pulseaudio</code>), file (<code translate="no">filesystem=home</code>, <code translate="no">filesystem=host</code>), dispositivi (<code translate="no">devices=all</code>). Flatpak garantisce quanto dichiarato. La sandbox protegge solo quanto questo elenco. Un'app con <code translate="no">filesystem=host</code> legge quasi tutto quello che leggi.</p>
+<p><code translate="no">flatpak override</code> cambia questo aspetto in base all'app, per te (<code translate="no">--user</code>) o per tutti (<code translate="no">sudo flatpak override</code>). <code translate="no">flatpak override --show APP</code> mostra cosa è stato modificato e <code translate="no">--reset</code> lo annulla. Nell'interfaccia grafica, l'app <strong>Flatseal</strong> fa lo stesso.</p>
+<h3 id="flatpak-snap-e-appimage">Flatpak, Snap e AppImage</h3>
+<div class="tabela"><table><thead><tr><th scope="col"></th><th scope="col">Confezione piatta</th><th scope="col">Scatta</th><th scope="col">AppImage</th></tr></thead><tbody><tr><td>Chi spinge</td><td>Comunità, Red Hat, GNOME, KDE</td><td>Canonico (Ubuntu)</td><td>Nessuno in particolare</td></tr><tr><td>Negozio</td><td>Diversi telecomandi (Flathub il più grande)</td><td>Solo uno, da Canonical</td><td>Nessuno, è un file</td></tr><tr><td>Installazione</td><td><code translate="no">flatpak install</code></td><td><code translate="no">snap install</code></td><td>In basso, <code translate="no">chmod +x</code>, eseguire</td></tr><tr><td>Isolamento</td><td>Sì, con le autorizzazioni</td><td>Sì, AppArmor</td><td>No</td></tr><tr><td>Aggiorna</td><td><code translate="no">flatpak update</code></td><td>Automatico</td><td>Manuale</td></tr><tr><td>Messa a fuoco</td><td>Scrivania</td><td>Desktop e server</td><td>Desktop</td></tr></tbody></table></div>
+<h3 id="rocky-debian">Rocky × Debian</h3>
+<p>Flatpak è lo stesso in entrambi: stessi comandi, stessi percorsi, stesso Flathub. Tutto ciò che cambia è l'installazione di <code translate="no">flatpak</code> stesso (dnf o apt) e il telecomando già pronto: nessuno su Rocky e Debian, <code translate="no">rhel</code> su RHEL. In Ubuntu, quello già pronto è Snap.</p>
+<p><strong>Ciò che supera il test.</strong> In RHCSA: configurare un telecomando Flatpak (<code translate="no">flatpak remote-add</code>, di solito con il file <code translate="no">.flatpakrepo</code> come indicato nella dichiarazione), installare e rimuovere un'app ed elencare cosa è installato. Allenarsi senza guardare: <code translate="no">remotes</code>, <code translate="no">remote-add</code>, <code translate="no">search</code>, <code translate="no">install</code>, <code translate="no">list</code>, <code translate="no">uninstall</code>.</p>
+<h2 id="5-laboratorio-guidato">5 · Laboratorio guidato</h2>
+<p><strong>Step 0 · Istantanea e cartella.</strong> In Proxmox: <code translate="no">qm snapshot 201 m6a4-inicio</code>. In rocky-lab: <code translate="no">mkdir -p ~/lab64 &amp;&amp; cd ~/lab64</code>.</p>
+<p><strong>Passaggio 1 · Installa Flatpak e verifica che non sia presente alcun telecomando.</strong></p>
+<pre translate="no"><code class="lang-bash">sudo dnf install -y flatpak
+flatpak --version
+flatpak remotes</code></pre>
+<p>L'elenco è vuoto (o solo con telecomandi del fornitore). Senza telecomando non c'è nessun posto dove installarlo.</p>
+<p><strong>Passaggio 2 · Aggiungi Flathub e guarda il catalogo.</strong></p>
+<pre translate="no"><code class="lang-bash">sudo flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+flatpak remotes -d
+flatpak remote-ls flathub --app | wc -l
+flatpak search calculator | head</code></pre>
+<p><code translate="no">.flatpakrepo</code> è un piccolo file con l'URL del telecomando e la chiave GPG. È l'equivalente di <code translate="no">epel-release</code> dell'ultima lezione.</p>
+<p><strong>Passaggio 3 · Installa e visualizza il runtime in arrivo.</strong></p>
+<pre translate="no"><code class="lang-bash">sudo flatpak install -y flathub org.gnome.Calculator
+flatpak list --app
+flatpak list --runtime
+flatpak info org.gnome.Calculator</code></pre>
+<p>Notare che sono arrivati ​​due o più elementi: l'app e il runtime (ed estensioni, come le traduzioni). La prima volta che il runtime costituisce la parte principale del download. La prossima app che utilizza lo stesso runtime è leggera. Nella riga <code translate="no">Runtime:</code> di <code translate="no">flatpak info</code> è indicato quale utilizza.</p>
+<p><strong>Passaggio 4 · Entra nella casella.</strong> Rocky-lab non ha uno schermo, quindi il normale <code translate="no">flatpak run</code> fallirebbe a causa della mancanza di display. Apri invece una shell <strong>all'interno</strong> della sandbox dell'app:</p>
+<pre translate="no"><code class="lang-bash">flatpak run --command=sh org.gnome.Calculator</code></pre>
+<p>Già all'interno:</p>
+<pre translate="no"><code class="lang-bash">cat /etc/os-release | head -3
+ls /app/bin
+ls /usr/lib64 2&gt;/dev/null | head -3; ls /usr/lib | head -3
+id
+ls ~
+exit</code></pre>
+<p><code translate="no">os-release</code> non è di Rocky: è di runtime. <code translate="no">/app</code> è l'app. <code translate="no">id</code> mostra il tuo utente reale (la sandbox non è un'altra macchina, il kernel e gli utenti sono l'host). <code translate="no">ls ~</code> mostra solo ciò che l'autorizzazione ti consente di vedere.</p>
+<p><strong>Passaggio 5 · Autorizzazioni e override.</strong></p>
+<pre translate="no"><code class="lang-bash">flatpak info --show-permissions org.gnome.Calculator
+flatpak override --user --unshare=network org.gnome.Calculator
+flatpak override --user --show org.gnome.Calculator
+ls ~/.local/share/flatpak/overrides/
+flatpak override --user --reset org.gnome.Calculator</code></pre>
+<p>L'override è semplicemente un file di testo nella tua cartella. <code translate="no">--reset</code> cancella le modifiche.</p>
+<p><strong>Passaggio 6 · Installazione utente, senza root.</strong></p>
+<pre translate="no"><code class="lang-bash">flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+flatpak remotes
+flatpak install --user -y flathub org.gnome.Calculator
+flatpak list --app
+ls ~/.local/share/flatpak/app/</code></pre>
+<p>Ora la colonna <code translate="no">Installation</code> mostra la stessa app due volte: <code translate="no">system</code> e <code translate="no">user</code>. Sono copie indipendenti.</p>
+<p><strong>Passaggio 7 · Cronologia, aggiornamento e rimozione pulita.</strong></p>
+<pre translate="no"><code class="lang-bash">flatpak history | tail
+sudo flatpak update -y
+flatpak uninstall --user -y org.gnome.Calculator
+sudo flatpak uninstall -y org.gnome.Calculator
+flatpak list --runtime
+sudo flatpak uninstall --unused -y
+flatpak uninstall --user --unused -y
+flatpak list --runtime
+ls ~/.var/app/ 2&gt;/dev/null</code></pre>
+<p>Dopo aver rimosso l'app, il runtime <strong>rimane</strong> lì fino al <code translate="no">--unused</code>. E i dati dell'utente sono conservati anche in <code translate="no">~/.var/app/</code> (per questo c'è <code translate="no">--delete-data</code>).</p>
+<p><strong>Passaggio 8 (opzionale) · debian-lab.</strong> Eseguire <code translate="no">sudo apt install -y flatpak</code>, poi lo stesso <code translate="no">remote-add</code> dal Passo 2 e <code translate="no">flatpak remote-ls flathub --app | wc -l</code>. Il numero è lo stesso: il catalogo non dipende dalla distribuzione.</p>
+<h3 id="cleaning">Cleaning</h3>
+<p>Flathub può essere configurato in entrambi gli ambiti. Rimuovere solo il telecomando utente, che non viene più utilizzato: <code translate="no">flatpak remote-delete --user flathub</code>.</p>
+<h3 id="decidere-1">Decidere 1</h3>
+<p>Un collega vuole <code translate="no">jq</code> su un server Rocky di produzione, senza interfaccia grafica, e propone di installarlo tramite Flatpak "perché è isolato". Cosa fai?</p>
+<p>A) Flatpak, è più sicuro. B) <code translate="no">dnf install jq</code>, che si trova nel repository Rocky. C) Scarica il file binario da GitHub e inseriscilo in <code translate="no">/usr/local/bin</code>.</p>
+<p>Seleziona un'opzione prima.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se hai selezionato</th><th scope="col">Risultato</th><th scope="col">Perché</th></tr></thead><tbody><tr><td>A</td><td>Potrebbe anche non esistere così e, se esiste, porta con sé un intero runtime</td><td>Flatpak è realizzato per le app desktop. Su un server, ottieni un secondo sistema di pacchetti da mantenere e controllare</td></tr><tr><td>B</td><td>Giusto</td><td>Pacchetto di distribuzione, firmato, aggiornato con il resto da <code translate="no">dnf upgrade</code></td></tr><tr><td>C</td><td>Funziona, nessun aggiornamento</td><td>Nessuno si ricorda di aggiornare il codice binario sciolto quando esce una correzione</td></tr></tbody></table></div>
+<p><strong>Per correggere:</strong> sul server, prima il pacchetto di distribuzione. Flatpak è per un'app grafica su una workstation.</p>
+<h3 id="decidi-2">Decidi 2</h3>
+<p>Su una workstation RHEL condivisa, un utente senza sudo necessita di un editor di immagini che esiste solo su Flathub. Nessun altro lo utilizzerà. Cosa fai?</p>
+<p>A) Installa con <code translate="no">sudo flatpak install</code> per tutti. B) Lasciaglielo installare con <code translate="no">--user</code>, nella sua cartella. C) Fornire sudo in modo che possa essere installato.</p>
+<p>Verificare prima un'opzione.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se hai selezionato</th><th scope="col">Risultato</th><th scope="col">Perché</th></tr></thead><tbody><tr><td>A</td><td>Funziona e tu diventi responsabile dell'aggiornamento</td><td>L'app appare a tutti, senza bisogno</td></tr><tr><td>B</td><td>Giusto</td><td>Ecco a cosa serve l'installazione utente: senza root e senza toccare il sistema. L'utente remoto deve essere aggiunto prima di</td></tr><tr><td>C</td><td>Peggio ancora</td><td>Root intero per installare un'app</td></tr></tbody></table></div>
+<p><strong>Da risolvere:</strong> <code translate="no">--user</code> è il modo per dare autonomia senza dare sudo.</p>
+<h2 id="6-interrompi-e-correggi">6 · Interrompi e correggi</h2>
+<h3 id="interruzione-1-non-riesco-a-trovare-l-app-nell-ambito-utente">Interruzione 1 · "Non riesco a trovare l'app" nell'ambito utente</h3>
+<p>In Rocky-Lab, senza telecomando utente (l'hai rimosso durante la pulizia):</p>
+<figure><a href="../img/6.4-flatpak-unused.svg"><img src="../img/6.4-flatpak-unused.svg" alt="6.4 Flatpak Non utilizzato" loading="lazy" decoding="async"></a><figcaption>L'app con filesystem=host legge quasi tutto. Prima di fidarsi, esegui flatpak info --show-permissions.</figcaption></figure>
+<pre translate="no"><code class="lang-bash">flatpak install --user flathub org.gnome.Calculator</code></pre>
+<p><strong>Sintomo:</strong> errore che indica che il <code translate="no">flathub</code> remoto non esiste o che non esiste nulla che corrisponda al nome, anche se <code translate="no">sudo flatpak install</code> funziona.</p>
+<p><strong>Diagnosi:</strong> <code translate="no">flatpak remotes</code> mostra la colonna dell'ambito: <code translate="no">flathub</code> è solo in <code translate="no">system</code>.</p>
+<p><strong>Ripara:</strong> <code translate="no">flatpak remote-add --user --if-not-exists flathub &lt;url&gt;</code> o installa sul sistema. Dopo il test, rimuovilo di nuovo.</p>
+<p><strong>Nella vita reale:</strong> è la domanda numero uno per chi inizia con <code translate="no">--user</code>. I due ambiti sono mondi separati: telecomandi, app e runtime.</p>
+<h3 id="interruzione-2-disco-che-non-si-rilascia">Interruzione 2 · Disco che non si rilascia</h3>
+<p>Installa e rimuovi un'app senza <code translate="no">--unused</code>:</p>
+<pre translate="no"><code class="lang-bash">sudo flatpak install -y flathub org.gnome.Calculator
+sudo flatpak uninstall -y org.gnome.Calculator
+du -sh /var/lib/flatpak</code></pre>
+<p><strong>Sintomo:</strong> l'app è scomparsa, ma la cartella è ancora grande.</p>
+<p><strong>Diagnosi:</strong> <code translate="no">flatpak list --runtime</code> mostra i runtime che nessuno utilizza più.</p>
+<p><strong>Correzione:</strong> <code translate="no">sudo flatpak uninstall --unused</code> e verificare di nuovo con <code translate="no">du -sh</code>.</p>
+<p><strong>Nella vita reale:</strong> sulle vecchie stazioni, i vecchi runtime (versioni precedenti di GNOME o KDE) ammontano a molti giga. <code translate="no">flatpak update</code> solitamente avvisa quando un runtime sta per esaurirsi.</p>
+<h3 id="intervallo-3-spegnimento-remoto-narrativa">Intervallo 3 · Spegnimento remoto (narrativa)</h3>
+<p>Qualcuno ha eseguito <code translate="no">flatpak remote-modify --disable flathub</code> durante la manutenzione e se ne è dimenticato. Settimane dopo, <code translate="no">flatpak update</code> dice che non c'è nulla da aggiornare e <code translate="no">install</code> non trova nulla.</p>
+<p><strong>Diagnosi:</strong> <code translate="no">flatpak remotes -d</code> mostra il telecomando con l'opzione <code translate="no">disabled</code>.</p>
+<p><strong>Correzione:</strong> <code translate="no">sudo flatpak remote-modify --enable flathub</code>. È lo stesso schema di <code translate="no">enabled=0</code> della lezione 6.3: spento non dà errore, resta semplicemente silenzioso.</p>
+<h2 id="7-trappole">7 · Trappole</h2>
+<div class="tabela"><table><thead><tr><th scope="col">Trappola</th><th scope="col">Cosa succede</th><th scope="col">Come evitare</th></tr></thead><tbody><tr><td>Pensare che la sandbox sia una protezione totale</td><td>L'app con <code translate="no">filesystem=host</code> legge quasi tutto</td><td><code translate="no">flatpak info --show-permissions</code> prima di confidare</td></tr><tr><td>Rimuovi l'app e dimentica il runtime</td><td>Disco pieno di runtime orfano</td><td><code translate="no">flatpak uninstall --unused</code></td></tr><tr><td>Miscelare <code translate="no">--user</code> e sistema</td><td>L'app "scompare", "duplica" o non si aggiorna</td><td>Vedi colonna <code translate="no">Installation</code> in <code translate="no">flatpak list</code></td></tr><tr><td><code translate="no">flatpak update</code> solo come utente</td><td>Aggiorna l'ambito utente e non quello di sistema (o viceversa)</td><td><code translate="no">sudo flatpak update</code> per il sistema, <code translate="no">flatpak update --user</code> per il vostro</td></tr><tr><td><code translate="no">dnf upgrade</code> non aggiorna Flatpak</td><td>App obsolete per mesi</td><td>Flatpak ha il suo aggiornamento. Includere nella procedura di manutenzione</td></tr><tr><td>Flatpak sul server</td><td>Secondo sistema di pacchetti da mantenere</td><td>Pacchetto di distribuzione o contenitore</td></tr><tr><td>Sbaglia l'ID dell'app</td><td><code translate="no">install</code> non pensa né chiede quale</td><td>Copia l'ID da <code translate="no">flatpak search</code></td></tr></tbody></table></div>
+<h2 id="8-quiz">8 · Quiz</h2>
+<p>Rispondi senza guardare. Il foglio delle risposte si trova alla fine della lezione.</p>
+<ol><li>Cos'è un runtime e perché non scompare quando si rimuove l'app?</li>
+<li>Dove viene installata un'app con <code translate="no">--user</code>? E con <code translate="no">sudo</code>?</li>
+<li>Hai rimosso un'app con <code translate="no">flatpak uninstall</code>. Dov'erano le impostazioni utente e come sarebbero state eliminate?</li>
+<li>Come fai a sapere se un'app può accedere alla rete e alla tua casa?</li>
+<li>Perché <code translate="no">dnf upgrade</code> non è sufficiente su una stazione con app Flatpak?</li>
+<li><em>Which command adds the Flathub remote system-wide? a) <code translate="no">flatpak add flathub URL</code> b) <code translate="no">flatpak remote-add flathub URL</code> c) <code translate="no">dnf config-manager --add-repo URL</code> d) <code translate="no">flatpak install flathub</code></em></li></ol>
+<h2 id="9-colla">9 · Colla</h2>
+<p><strong>Da sapere a memoria:</strong></p>
+<div class="tabela"><table><thead><tr><th scope="col">Voglio...</th><th scope="col">Comando</th></tr></thead><tbody><tr><td>Visualizza telecomandi</td><td><code translate="no">flatpak remotes</code></td></tr><tr><td>Aggiungi telecomando</td><td><code translate="no">sudo flatpak remote-add --if-not-exists NOME URL.flatpakrepo</code></td></tr><tr><td>Cerca</td><td><code translate="no">flatpak search TERMO</code></td></tr><tr><td>Installa/Rimuovi</td><td><code translate="no">sudo flatpak install REMOTE APPID</code> / <code translate="no">sudo flatpak uninstall APPID</code></td></tr><tr><td>Elenco</td><td><code translate="no">flatpak list --app</code></td></tr><tr><td>Aggiorna</td><td><code translate="no">sudo flatpak update</code></td></tr><tr><td>Ripulire gli orfani</td><td><code translate="no">sudo flatpak uninstall --unused</code></td></tr></tbody></table></div>
+<p><strong>Per consultare:</strong></p>
+<div class="tabela"><table><thead><tr><th scope="col">Voglio...</th><th scope="col">Comando</th></tr></thead><tbody><tr><td>Catalogo remoto</td><td><code translate="no">flatpak remote-ls REMOTE --app</code></td></tr><tr><td>Dettagli e durata</td><td><code translate="no">flatpak info APPID</code></td></tr><tr><td>Autorizzazioni</td><td><code translate="no">flatpak info --show-permissions APPID</code></td></tr><tr><td>Limita/visualizza/annulla</td><td><code translate="no">flatpak override --user --nofilesystem=home APPID</code> / <code translate="no">--show</code> / <code translate="no">--reset</code></td></tr><tr><td>Conchiglia all'interno della sandbox</td><td><code translate="no">flatpak run --command=sh APPID</code></td></tr><tr><td>Storia</td><td><code translate="no">flatpak history</code></td></tr><tr><td>Attiva/disattiva il telecomando</td><td><code translate="no">sudo flatpak remote-modify --enable</code> / <code translate="no">--disable REMOTE</code></td></tr><tr><td>Rimuovi telecomando</td><td><code translate="no">sudo flatpak remote-delete REMOTE</code></td></tr><tr><td>Rimuovi con dati</td><td><code translate="no">flatpak uninstall --delete-data APPID</code></td></tr><tr><td>Correggi l'installazione</td><td><code translate="no">sudo flatpak repair</code></td></tr><tr><td>Percorsi</td><td><code translate="no">/var/lib/flatpak</code>, <code translate="no">~/.local/share/flatpak</code>, <code translate="no">~/.var/app/</code></td></tr></tbody></table></div>
+<p><strong>Schede flash:</strong></p>
+<ul><li>Remoto, app, runtime → <em>immobili, residenti, mobili condivisi.</em></li>
+<li>Ambito standard → <em>sistema. <code translate="no">--user</code> necessita dell'utente remoto.</em></li>
+<li>Sandbox protegge tutto? → <em>Solo ciò che le autorizzazioni non consentono.</em></li>
+<li>Rimossa l'app, il disco non si è rilasciato → <em><code translate="no">flatpak uninstall --unused</code>.</em></li>
+<li>Server senza schermo → <em>pacchetto di distribuzione, non Flatpak.</em></li></ul>
+<h2 id="10-lista-di-controllo-e-chiusura">10 · Lista di controllo e chiusura</h2>
+<ul><li>[ ] Spiego telecomando, app, runtime e rif</li>
+<li>[ ] Aggiungo Flathub e installo, elenco, aggiorno e rimuovo un'app</li>
+<li>[ ] Distinguo installazione di sistema e installazione utente</li>
+<li>[ ] Visualizza e limita le autorizzazioni con <code translate="no">info --show-permissions</code> e <code translate="no">override</code></li>
+<li>[ ] Pulisci i runtime orfani</li>
+<li>[ ] So quando <strong>non</strong> usare Flatpak</li></ul>
+<p><strong>Ultimo esercizio, senza guardare la lezione:</strong> in rocky-lab, installa come utente (senza sudo) una qualsiasi piccola app da Flathub, mostra quale runtime utilizza, apri una shell al suo interno e indica da quale distribuzione <code translate="no">/usr</code> proviene. Quindi rimuovere l'app, il runtime orfano e l'utente remoto.</p>
+<p><strong>Riavvio e conferenza:</strong></p>
+<pre translate="no"><code class="lang-bash">sudo reboot
+flatpak remotes
+flatpak list
+sudo flatpak update
+sudo dnf check</code></pre>
+<p>Il <code translate="no">flatpak list</code> dovrebbe essere vuoto o contenere solo ciò che hai deciso di conservare. <code translate="no">dnf check</code> rimane pulito: Flatpak non modifica il database RPM.</p>
+<p><strong>Termina snapshot</strong> (su Proxmox):</p>
+<pre translate="no"><code class="lang-bash">qm snapshot 201 m6a4-fim</code></pre>
+<h2 id="11-nella-vita-reale">11 · Nella vita reale</h2>
+<p><strong>Mission, sola lettura.</strong> Su una stazione Linux (tua o qualcuno da te autorizzato) che utilizza Flatpak, esegui <strong>solo</strong>:</p>
+<pre translate="no"><code class="lang-bash">flatpak remotes -d
+flatpak list --columns=application,version,installation,origin
+flatpak list --runtime --columns=application,branch
+flatpak history | tail -20
+du -sh /var/lib/flatpak ~/.local/share/flatpak 2&gt;/dev/null</code></pre>
+<p>Domande per rispondere:</p>
+<ol><li>Quali telecomandi esistono e in quale ambito?</li>
+<li>Quante app di sistema e quante app utente?</li>
+<li>Qualche runtime con una vecchia versione (ramo) che forse non dispone più di un'app in uso?</li>
+<li>Quando è stato l'ultimo aggiornamento del <code translate="no">history</code>?</li>
+<li>Scegli un'app ed esegui <code translate="no">flatpak info --show-permissions</code> su di essa. Chiede <code translate="no">filesystem=host</code>?</li></ol>
+<p><strong>Diario:</strong> annota se la stazione ha una procedura che aggiorna il Flatpak, oppure se gira solo <code translate="no">dnf</code>/<code translate="no">apt</code>.</p>
+<p><strong>Domani, senza guardare:</strong> scrivi i sei comandi di test: <code translate="no">remotes</code>, <code translate="no">remote-add</code>, <code translate="no">search</code>, <code translate="no">install</code>, <code translate="no">list</code>, <code translate="no">uninstall</code>.</p>
+<h2 id="12-approfondisci-il-tuo-leisure">12 · Approfondisci il tuo leisure</h2>
+<ul><li><strong>OSTree:</strong> il "git for binaries" sotto Flatpak. Spiega perché viene scaricato solo ciò che è cambiato e perché due app con lo stesso runtime non duplicano il disco. Lo stesso OSTree è in Fedora Silverblue e RHEL per Edge.</li>
+<li><strong>Telecomandi privati:</strong> un'azienda può pubblicare le proprie app su un telecomando interno o utilizzare il telecomando <code translate="no">rhel</code> di Red Hat con registrazione.</li>
+<li><strong><code translate="no">flatpak-builder</code> e manifest:</strong> come è confezionata un'app Flatpak.</li>
+<li><strong>Portali (xdg-desktop-portal):</strong> come l'app richiede l'apertura un file senza avere accesso all'intera home.</li>
+<li><strong>Approfondimento:</strong> <code translate="no">snap list</code>, <code translate="no">snap refresh --hold</code>, le pile <code translate="no">squashfs</code> che appaiono in <code translate="no">lsblk</code> di Ubuntu.</li>
+<li><strong>Aggiornamento automatico:</strong> GNOME Software e KDE Discover aggiornano solo Flatpak. Nella flotta, un timer di sistema con <code translate="no">flatpak update -y</code>.</li></ul>
+<p><strong>DeepTutor</strong> (http://10.1.0.149:3782, KB "Linux Sysadmin Course"):</p>
+<ul><li><code translate="no">!explica a diferença entre runtime e app no Flatpak</code></li>
+<li><code translate="no">!feynman por que o sandbox do Flatpak não é proteção total</code></li>
+<li><code translate="no">!quiz Aula 6.4, 5 perguntas sobre Flatpak para a RHCSA</code></li></ul>
+<h2 id="foglio-risposte-commentato">Foglio risposte commentato</h2>
+<h3 id="riscaldamento">Riscaldamento</h3>
+<ol><li><strong>Prendi il tuo.</strong> All'interno della sandbox, <code translate="no">/usr</code> è quella del runtime, con il suo <code translate="no">glibc</code>. Ecco perché la stessa app funziona su qualsiasi distribuzione. Il kernel, questo è l'host.</li>
+<li><strong>Non necessariamente.</strong> L'installazione del sistema richiede root (o autorizzazione tramite polkit in una sessione grafica). Con <code translate="no">--user</code> ogni utente lo installa nella propria cartella.</li>
+<li><strong>Quasi mai.</strong> Flatpak è stato creato per le app grafiche. Sul server utilizzare il pacchetto di distribuzione o il contenitore. L'eccezione è la formazione per il test, come in questa lezione.</li></ol>
+<h3 id="quiz">Quiz</h3>
+<ol><li>Il runtime è l'insieme delle librerie di base che l'app utilizza (ad esempio <code translate="no">org.gnome.Platform</code>). È condiviso: un'altra app potrebbe dipendere da esso. Ecco perché la rimozione dell'app non cancella il runtime e <code translate="no">flatpak uninstall --unused</code>.</li>
+<li>Con <code translate="no">--user</code>: <code translate="no">~/.local/share/flatpak/</code>. Con <code translate="no">sudo</code> (ambito di sistema, predefinito): <code translate="no">/var/lib/flatpak/</code>.</li>
+<li>In <code translate="no">~/.var/app/&lt;App ID&gt;/</code>, nella cartella di ciascun utente che ha utilizzato l'app. Da cancellare insieme: <code translate="no">flatpak uninstall --delete-data APPID</code>.</li>
+<li><code translate="no">flatpak info --show-permissions APPID</code>. Cerca <code translate="no">network</code> in <code translate="no">shared</code> e <code translate="no">home</code> o <code translate="no">host</code> in <code translate="no">filesystems</code>. Le sostituzioni applicate vengono visualizzate con <code translate="no">flatpak override --show APPID</code>.</li>
+<li>Perché le app Flatpak non si trovano nel database RPM o nei repository DNF. Hanno il proprio telecomando e il proprio aggiornamento: <code translate="no">flatpak update</code>.</li>
+<li><strong>b) <code translate="no">flatpak remote-add flathub URL</code></strong> (con <code translate="no">sudo</code> e, in pratica, <code translate="no">--if-not-exists</code>). A) non esiste. La c) è per il repository RPM. d) si installa, ma funziona solo se il telecomando esiste già.</li></ol>
+</article><nav class="paginas" aria-label="Lezioni"><a class="ant" href="6.3-repositorios.it.html"><small>← Precedente</small>6.3 · Repository</a><a class="prox" href="6.5-bibliotecas-compartilhadas.it.html"><small>Successiva →</small>6.5 · Librerie condivise</a></nav></main></div>
+<footer><div class="wrap">Generato dal Markdown del corso · Immagini in <code translate="no">img/</code></div></footer>
+</body>
+</html>

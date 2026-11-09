@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light dark">
+<title>1.4 · Creare, copiare, spostare ed eliminare · Corso Linux Sysadmin</title>
+<link rel="alternate" hreflang="pt-BR" href="1.4-criar-copiar-mover-e-apagar.html"><link rel="alternate" hreflang="it" href="1.4-criar-copiar-mover-e-apagar.it.html">
+<style>
+:root{color-scheme:light dark;--bg:#f6f1e7;--card:#fffdf8;--ink:#201c16;--muted:#5e564a;--accent:#9a3412;--accent-2:#1f5f4a;--tint:#efe6d4;--line:#ddd2bc;--code:#f1eadb;--shadow:0 1px 2px rgba(60,40,10,.08);--serif:Georgia,"Iowan Old Style","Palatino Linotype",Palatino,serif;--sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--mono:"Cascadia Code",Consolas,"DejaVu Sans Mono",monospace}
+@media (prefers-color-scheme:dark){:root{--bg:#16130f;--card:#201b15;--ink:#f1eadb;--muted:#b9ad98;--accent:#f0a070;--accent-2:#7fd0b0;--tint:#2a231a;--line:#3d3427;--code:#191510;--shadow:none}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:5.5rem}
+body{margin:0;background:var(--bg);color:var(--ink);font:1rem/1.6 var(--sans)}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--accent-2);outline-offset:2px;border-radius:4px}
+.pular{position:absolute;left:-999px;top:0;background:var(--card);padding:.5rem 1rem;z-index:20}
+.pular:focus{left:.5rem;top:.5rem}
+.wrap{width:100%;max-width:84rem;margin:0 auto;padding-inline:max(1rem,env(safe-area-inset-left))}
+.top{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10;border-top:6px solid var(--accent)}
+.top-in{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding-block:.6rem}
+.titles{min-width:0}
+.marca{margin:0;font:700 clamp(1.15rem,1rem + 1vw,1.6rem)/1.15 var(--serif);letter-spacing:-.01em}
+.marca a{text-decoration:none}
+.marca a:hover{color:var(--accent)}
+.meta{margin:.1rem 0 0;color:var(--muted);font-size:.85rem}
+.acoes{display:flex;align-items:center;gap:.9rem;flex:none}
+.acoes>a{font-size:.9rem;font-weight:600;color:var(--muted);text-decoration:none}
+.acoes>a:hover{color:var(--accent);text-decoration:underline}
+.idioma{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--tint)}
+.idioma>*{padding:.35rem .9rem;font-size:.8rem;font-weight:700;letter-spacing:.06em;text-decoration:none;color:var(--muted);min-width:2.75rem;text-align:center}
+.idioma a:hover{color:var(--accent);text-decoration:underline}
+.idioma span{background:var(--accent);color:#fff}
+@media (prefers-color-scheme:dark){.idioma span{color:#16130f}}
+code{font-family:var(--mono);font-size:.9em;background:var(--tint);padding:.1rem .35rem;border-radius:4px;overflow-wrap:anywhere}
+/* índice */
+.capa{max-width:70rem;padding-block:2rem 3rem}
+.stats{border-left:4px solid var(--accent-2);background:var(--card);border-radius:0 10px 10px 0;padding:1rem 1.25rem;margin:0 0 2.5rem;box-shadow:var(--shadow);color:var(--muted)}
+.stats strong{color:var(--ink)}
+.modulo{display:grid;grid-template-columns:15rem minmax(0,1fr);gap:1rem 2rem;padding:1.75rem 0;border-top:1px solid var(--line)}
+.modulo h2{margin:0;font:700 1.25rem/1.25 var(--serif);align-self:start;position:sticky;top:6rem}
+.mn{display:block;font:700 .8rem var(--mono);letter-spacing:.12em;color:var(--accent);margin-bottom:.25rem}
+.sep{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.modulo ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,17rem),1fr));gap:.75rem}
+.modulo li{margin:0}
+.modulo a{display:flex;gap:.45rem;align-items:baseline;height:100%;padding:.85rem 1rem;background:var(--card);border:1px solid var(--line);border-radius:10px;text-decoration:none;font-weight:600;line-height:1.35;box-shadow:var(--shadow);transition:border-color .15s,transform .15s}
+.modulo a:hover{border-color:var(--accent);color:var(--accent)}
+.num{font:700 .85rem var(--mono);color:var(--accent);white-space:nowrap}
+/* aula */
+.doc{display:grid;grid-template-columns:17rem minmax(0,1fr);gap:2.5rem;align-items:start;padding-block:2rem 3rem}
+.lateral{position:sticky;top:5.5rem;max-height:calc(100vh - 6.5rem);overflow:auto;font-size:.875rem;padding-right:.5rem}
+.lateral h2{margin:0 0 .25rem;font:700 .95rem var(--serif);color:var(--muted)}
+.lateral h3{margin:1rem 0 .25rem;font:700 .75rem var(--mono);letter-spacing:.06em;color:var(--accent)}
+.lateral ul{list-style:none;margin:0;padding:0}
+.lateral a{display:flex;gap:.45rem;padding:.25rem .5rem;border-radius:6px;text-decoration:none;color:var(--muted);line-height:1.3}
+.lateral a:hover{background:var(--tint);color:var(--ink)}
+.lateral a[aria-current]{background:var(--tint);color:var(--ink);font-weight:700;box-shadow:inset 3px 0 0 var(--accent)}
+.lateral .num{font-size:.75rem}
+.aula{min-width:0;max-width:56rem;overflow-wrap:break-word;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:clamp(1.25rem,1rem + 2vw,2.75rem);box-shadow:var(--shadow)}
+.aula h1{margin:0 0 1.5rem;font:700 clamp(1.75rem,1.4rem + 1.6vw,2.5rem)/1.15 var(--serif);letter-spacing:-.015em;color:var(--ink)}
+.aula h2{margin:2.5rem 0 .75rem;padding-top:1.25rem;border-top:1px solid var(--line);font:700 1.5rem/1.25 var(--serif)}
+.aula h3{margin:2rem 0 .5rem;font:700 1.15rem/1.3 var(--serif);color:var(--accent)}
+.aula h4,.aula h5,.aula h6{margin:1.5rem 0 .5rem;font-size:1rem}
+.aula p,.aula ul,.aula ol{margin:1rem 0}
+.aula ul,.aula ol{padding-left:1.5rem}
+.aula li{margin:.35rem 0}
+.aula li>ul,.aula li>ol{margin:.35rem 0}
+.aula a{color:var(--accent);text-underline-offset:2px}
+.aula hr{border:0;border-top:1px solid var(--line);margin:2rem 0}
+.tabela{overflow-x:auto;margin:1.25rem 0;border:1px solid var(--line);border-radius:10px}
+.aula table{width:100%;border-collapse:collapse;font-size:.9rem}
+.aula th,.aula td{padding:.55rem .75rem;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+.aula tr:last-child td{border-bottom:0}
+.aula th{background:var(--tint);font-weight:700}
+.aula pre{background:var(--code);border:1px solid var(--line);border-radius:10px;padding:.9rem 1rem;overflow-x:auto;font:.85rem/1.5 var(--mono);margin:1rem 0;tab-size:4}
+.aula pre code{background:none;padding:0;font-size:inherit;overflow-wrap:normal}
+.aula blockquote{margin:1.25rem 0;padding:.75rem 1.25rem;border-left:4px solid var(--accent-2);background:var(--tint);border-radius:0 10px 10px 0}
+.aula blockquote>:first-child{margin-top:0}
+.aula blockquote>:last-child{margin-bottom:0}
+.aula figure{margin:1.75rem 0;text-align:center}
+.aula figure img{display:block;margin:0 auto;max-width:100%;height:auto;border:1px solid var(--line);border-radius:10px;background:#fff}
+.aula figcaption{margin-top:.5rem;color:var(--muted);font-size:.9rem;font-style:italic}
+.paginas{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:2.5rem;padding-top:1.5rem;border-top:1px solid var(--line)}
+.paginas a{display:block;padding:.75rem 1rem;border:1px solid var(--line);border-radius:10px;text-decoration:none;color:var(--ink);font-weight:600;line-height:1.3}
+.paginas a:hover{border-color:var(--accent);color:var(--accent)}
+.paginas small{display:block;color:var(--muted);font-weight:400}
+.paginas .prox{grid-column:2;text-align:right}
+footer{border-top:1px solid var(--line);padding-block:1.5rem;color:var(--muted);font-size:.85rem;text-align:center}
+@media (hover:hover) and (prefers-reduced-motion:no-preference){.modulo a:hover{transform:translateY(-2px)}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+@media (max-width:980px){.doc{grid-template-columns:minmax(0,1fr);padding-top:1rem}.lateral{position:static;max-height:none;order:2}.aula{max-width:none}}
+@media (max-width:860px){.modulo{grid-template-columns:minmax(0,1fr)}.modulo h2{position:static}.mn{display:inline;margin-right:.5rem}}
+@media (max-width:420px){.meta{display:none}.top-in{gap:.5rem}.acoes{gap:.6rem}.capa{padding-top:1.25rem}.paginas{grid-template-columns:minmax(0,1fr)}.paginas .prox{grid-column:1}}
+@media print{.top,.lateral,.paginas{display:none}.aula{border:0;box-shadow:none;padding:0;max-width:none}.doc{display:block}}
+</style>
+</head>
+<body>
+<a class="pular" href="#conteudo">Vai al contenuto</a>
+<header class="top"><div class="wrap top-in"><div class="titles"><p class="marca"><a href="index.it.html">Corso Linux Sysadmin</a></p><p class="meta">Rodrigo Antignani · Lezione 1.4</p></div><div class="acoes"><a href="index.it.html">Indice</a><div class="idioma" role="group" aria-label="Lingua"><a href="1.4-criar-copiar-mover-e-apagar.html" hreflang="pt-BR" lang="pt-BR">PT</a><span aria-current="true">IT</span></div></div></div></header>
+<div class="wrap doc"><aside class="lateral" aria-label="Lezioni"><h2>Lezioni</h2><h3>M0 · Laboratorio</h3><ul><li><a href="0.1-montar-o-laboratorio.it.html"><span class="num">0.1</span><span>Allestire il laboratorio</span></a></li><li><a href="0.2-acesso-e-protecao.it.html"><span class="num">0.2</span><span>Accesso e protezione</span></a></li></ul><h3>M1 · Riga di comando</h3><ul><li><a href="1.1-o-que-e-linux.it.html"><span class="num">1.1</span><span>Che cos'è Linux</span></a></li><li><a href="1.2-o-shell-e-a-ajuda.it.html"><span class="num">1.2</span><span>La shell e la guida</span></a></li><li><a href="1.3-caminhos-e-navegacao.it.html"><span class="num">1.3</span><span>Percorsi e navigazione</span></a></li><li><a href="1.4-criar-copiar-mover-e-apagar.it.html" aria-current="page"><span class="num">1.4</span><span>Creare, copiare, spostare ed eliminare</span></a></li><li><a href="1.5-ler-e-procurar-texto.it.html"><span class="num">1.5</span><span>Leggere e cercare testo</span></a></li><li><a href="1.6-redirecionamentos-e-pipes.it.html"><span class="num">1.6</span><span>Reindirizzamenti e pipe</span></a></li><li><a href="1.7-arquivar-e-compactar.it.html"><span class="num">1.7</span><span>Archiviare e comprimere</span></a></li><li><a href="1.8-primeiro-script.it.html"><span class="num">1.8</span><span>Primo script</span></a></li><li><a href="1.9-decidir-e-repetir.it.html"><span class="num">1.9</span><span>Decidere e ripetere</span></a></li><li><a href="1.10-software-livre-na-pratica.it.html"><span class="num">1.10</span><span>Il software libero in pratica</span></a></li></ul><h3>M2 · Sistema, utenti e permessi</h3><ul><li><a href="2.1-instalacao-e-provisionamento.it.html"><span class="num">2.1</span><span>Installazione e provisioning</span></a></li><li><a href="2.2-hardware-e-dispositivos.it.html"><span class="num">2.2</span><span>Hardware e dispositivi</span></a></li><li><a href="2.3-processos-e-logs.it.html"><span class="num">2.3</span><span>Processi e log</span></a></li><li><a href="2.4-rede-no-dia-a-dia.it.html"><span class="num">2.4</span><span>La rete di tutti i giorni</span></a></li><li><a href="2.5-acesso-remoto-e-privilegios.it.html"><span class="num">2.5</span><span>Accesso remoto e privilegi</span></a></li><li><a href="2.6-usuarios-e-grupos.it.html"><span class="num">2.6</span><span>Utenti e gruppi</span></a></li><li><a href="2.7-permissoes-e-dono.it.html"><span class="num">2.7</span><span>Permessi e proprietario</span></a></li><li><a href="2.8-diretorios-e-arquivos-especiais.it.html"><span class="num">2.8</span><span>Directory e file speciali</span></a></li></ul><h3>M3 · Testo ed editor</h3><ul><li><a href="3.1-fluxos-a-fundo.it.html"><span class="num">3.1</span><span>I flussi in profondità</span></a></li><li><a href="3.2-filtros-de-texto.it.html"><span class="num">3.2</span><span>Filtri di testo</span></a></li><li><a href="3.3-regex-e-grep.it.html"><span class="num">3.3</span><span>Regex e grep</span></a></li><li><a href="3.4-sed-e-awk.it.html"><span class="num">3.4</span><span>sed e awk</span></a></li><li><a href="3.5-vi-e-vim-de-verdade.it.html"><span class="num">3.5</span><span>vi e vim sul serio</span></a></li></ul><h3>M4 · systemd e boot</h3><ul><li><a href="4.1-como-o-linux-liga.it.html"><span class="num">4.1</span><span>Come si avvia Linux</span></a></li><li><a href="4.2-systemd-servicos-e-units.it.html"><span class="num">4.2</span><span>systemd: servizi e unit</span></a></li><li><a href="4.3-targets-desligar-e-reiniciar.it.html"><span class="num">4.3</span><span>Target: spegnere e riavviare</span></a></li><li><a href="4.4-grub-e-acesso-de-emergencia.it.html"><span class="num">4.4</span><span>GRUB e accesso di emergenza</span></a></li></ul><h3>M5 · Kernel, moduli e VM</h3><ul><li><a href="5.1-hardware-pelo-kernel.it.html"><span class="num">5.1</span><span>L'hardware visto dal kernel</span></a></li><li><a href="5.2-modulos-e-parametros.it.html"><span class="num">5.2</span><span>Moduli e parametri</span></a></li><li><a href="5.3-linux-como-convidado.it.html"><span class="num">5.3</span><span>Linux come guest</span></a></li></ul><h3>M6 · Pacchetti e repository</h3><ul><li><a href="6.1-pacotes-no-debian.it.html"><span class="num">6.1</span><span>Pacchetti su Debian</span></a></li><li><a href="6.2-pacotes-na-rocky.it.html"><span class="num">6.2</span><span>Pacchetti su Rocky</span></a></li><li><a href="6.3-repositorios.it.html"><span class="num">6.3</span><span>Repository</span></a></li><li><a href="6.4-flatpak.it.html"><span class="num">6.4</span><span>Flatpak</span></a></li><li><a href="6.5-bibliotecas-compartilhadas.it.html"><span class="num">6.5</span><span>Librerie condivise</span></a></li></ul></aside><main id="conteudo" class="aula"><article><h1>Lezione 1.4 · Creare, copiare, spostare ed eliminare</h1>
+<p>Imparerai a creare, copiare, spostare ed eliminare file e directory senza perdere ciò che conta. Il modo non è memorizzare le opzioni. Si tratta di capire cosa fa ogni comando al suo interno e creare tre abitudini: copiare prima di spostare, controllare prima di eliminare e diffidare dei comandi che non chiedono nulla.</p>
+<div class="tabela"><table><thead><tr><th scope="col">File</th><th scope="col">lezione 1.4</th></tr></thead><tbody><tr><td>Modulo</td><td>M1 · Riga di comando, lezione 4 di 10</td></tr><tr><td>Quando</td><td>Settimana 2</td></tr><tr><td>Alla fine puoi</td><td>Crea un albero di directory in un comando; eseguire il backup di una configurazione prima di modificarla; copiare le directory preservando proprietario, permessi e date; rinominare e spostare senza sostituire nulla per errore; cancellare sapendo esattamente cosa scomparirà; spiegare perché non c'è il cestino e perché il disco a volte rimane pieno dopo <code translate="no">rm</code></td></tr><tr><td>Articoli di prova</td><td>LE 012.4 · LPIC-1 103.3 · RHCSA: creare, eliminare, copiare e spostare file e directory</td></tr><tr><td>Prerequisiti</td><td>lezione 1.3, con <code translate="no">~/lab13</code> ancora nelle VM</td></tr><tr><td>Meteo</td><td>Intorno alle 2:30</td></tr><tr><td>Istantanee</td><td>m1a4-start e m1a4-end su entrambe le VM</td></tr></tbody></table></div>
+<h2 id="1-riscaldamento">1 · Riscaldamento</h2>
+<p>Tre domande, a mente fredda, prima di leggere qualsiasi cosa. Scrivi le risposte; la chiave di risposta viene visualizzata alla fine.</p>
+<ol><li>In una directory con <code translate="no">app1.log</code>, <code translate="no">app2.log</code> e <code translate="no">app10.log</code> cosa mostra <code translate="no">echo app?.log</code>?</li>
+<li>Un file si chiama <code translate="no">-rf</code>. Perché <code translate="no">rm "-rf"</code> non lo cancella e quale comando lo cancella?</li>
+<li>Il tuo messaggio dice <code translate="no">/srv/app/current</code>, ma la modifica che hai apportato non l'ha rilevato. Quale comando mostra dove ti trovi realmente?</li></ol>
+<h2 id="2-perche-e-importante">2 · Perché è importante</h2>
+<p>Venerdì, 18:00. Un collega deve liberare spazio sul file server di un cliente e digita <code translate="no">rm -rf /srv/arquivos/ antigo</code>, con uno spazio aggiuntivo dopo la barra. La shell consegna due obiettivi al <code translate="no">rm</code>: l'intero <code translate="no">/srv/arquivos/</code> e un <code translate="no">antigo</code> che lì non esiste nemmeno. <code translate="no">-f</code> mette a tacere l'unico avvertimento che ci sarebbe. Non c'è domanda, nessun messaggio, nessun cestino. Il fine settimana diventa ripristino del backup, se è presente un backup.</p>
+<p>Il secondo caso è più comune e più discreto. Qualcuno ripristina una cartella dal backup con <code translate="no">sudo cp -r</code>. I file ritornano, ma con root come proprietario e la data odierna. Il sistema che utilizzava la cartella smette di scrivervi e nessuno collega qualcosa all'altro fino a lunedì.</p>
+<p>Il terzo accade ogni settimana da qualche parte: un <code translate="no">mv</code> per la cartella condivisa sostituisce, senza chiedere, un file con lo stesso nome che apparteneva a qualcun altro. Nel terminale, <code translate="no">cp</code>, <code translate="no">mv</code> e <code translate="no">rm</code> fanno esattamente quello che hai digitato, senza chiedere conferma. Questa lezione mostra cosa fa ciascuno al suo interno e le abitudini di pochi secondi che ti permettono di utilizzare un server client senza paura.</p>
+<h2 id="3-modello-mentale">3 · Modello mentale</h2>
+<blockquote><p>Una directory è l'elenco dei residenti nell'atrio dell'edificio nella lezione 1.3. Ogni nome nell'elenco punta a un appartamento ed è nell'appartamento che risiede il contenuto.</p></blockquote>
+<ol><li><strong><code translate="no">mv</code> cambia il nome nella lista.</strong> Rinominare, o spostare il nome nella lista su un altro piano, non cambia l'appartamento di nessuno. Quindi è istantaneo all'interno dello stesso edificio, che in Linux è lo stesso file system. In un altro edificio, cioè un altro record, poi è un vero cambiamento: copiare tutto e svuotare il vecchio appartamento.</li>
+<li><strong><code translate="no">cp</code> arreda un appartamento nuovo come quello vecchio.</strong> Il proprietario diventa colui che ha copiato e la data è oggi, a meno che non si chieda <code translate="no">-a</code>, che copia anche proprietario, data e permessi.</li>
+<li><strong><code translate="no">rm</code> cancella il nome dalla lista.</strong> Quando nessun nome punta più all'appartamento e non c'è nessuno all'interno, cioè nessun programma ha il file aperto, lo spazio diventa libero. Non c'è il cestino: il concierge non conserva la lista barrata.</li>
+<li><strong>Nessuno chiede "sei sicuro?".</strong> Per impostazione predefinita, <code translate="no">cp</code> e <code translate="no">mv</code> sostituiscono silenziosamente un nome già esistente nella destinazione e <code translate="no">rm</code> lo elimina senza confermare.</li></ol>
+<p>Da questo piano derivano tre conseguenze:</p>
+<ul><li>Prima di modificare una configurazione, copiarla. <code translate="no">cp -a</code> con l'espansione delle parentesi graffe lo fa in un secondo.</li>
+<li>Prima di cancellare, vedere l'elenco: il protocollo della lezione 1.3, con <code translate="no">pwd -P</code>, <code translate="no">ls -la</code> e <code translate="no">echo</code>.</li>
+<li>La cancellazione non libera spazio mentre un programma sta ancora utilizzando il file. Ecco perché il disco a volte rimane pieno dopo <code translate="no">rm</code>.</li></ul>
+<p>Lo stesso edificio, disegnato:</p>
+<pre translate="no"><code class="lang-text">lista do diretório         nº do apartamento     conteúdo no disco
+notas.txt        ───────→  33711452    ───────→  [ bytes do arquivo ]
+
+mv notas.txt anotacoes.txt   o nome muda; o nº continua 33711452
+cp notas.txt copia.txt       nome novo, nº novo, bytes duplicados
+rm notas.txt                 o nome sai da lista; os bytes ficam livres
+                             quando nenhum nome e nenhum programa os usa</code></pre>
+<p>Il numero dell'appartamento esiste davvero: si chiama inode, e <code translate="no">ls -i</code> lo mostra. Lo vedrai nel passaggio 3.</p>
+<p><strong>Windows Bridge.</strong> In Esplora risorse, l'eliminazione lo invia nel Cestino e la sostituzione di un file apre una finestra di conferma. Nel terminale Linux non c'è nessuno dei due. E un comando fa il lavoro di due: <code translate="no">mv</code> è <code translate="no">move</code> e <code translate="no">ren</code> di <code translate="no">cmd.exe</code> contemporaneamente.</p>
+<figure><a href="../img/1.4-mv-cp-rm-inode.jpg"><img src="../img/1.4-mv-cp-rm-inode.jpg" alt="All&#x27;interno: mv, cp e rm e l&#x27;inode" loading="lazy" decoding="async"></a><figcaption>mv cambia segno, cp arreda un altro appartamento, rm cancella il nome; lo spazio ritorna quando nessuno lo usa più.</figcaption></figure>
+<h2 id="4-concetto-a-strati">4 · Concetto a strati</h2>
+<h3 id="essenziale">Essenziale</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Termine</th><th scope="col">Cos'è</th><th scope="col">Esempio</th></tr></thead><tbody><tr><td><code translate="no">mkdir -p</code></td><td>Crea la directory e i genitori mancanti; non si lamenta se esiste già</td><td><code translate="no">mkdir -p ~/lab14/a/b/c</code></td></tr><tr><td><code translate="no">touch</code></td><td>Crea un file vuoto; se esiste già basta aggiornare la data</td><td><code translate="no">touch index.html</code></td></tr><tr><td><code translate="no">cp</code></td><td>Copia file; la copia acquisisce un nuovo proprietario e data</td><td><code translate="no">cp notas.txt /tmp/</code></td></tr><tr><td><code translate="no">cp -r</code></td><td>Copia una directory e tutto ciò che è all'interno</td><td><code translate="no">cp -r site site-copia</code></td></tr><tr><td><code translate="no">cp -a</code></td><td>Copia di archivio: ricorsiva, preserva proprietario, permessi, date e scorciatoie</td><td><code translate="no">cp -a /etc/ssh ~/ssh-bak</code></td></tr><tr><td><code translate="no">mv</code></td><td>Rinominare o spostare; sullo stesso file system, basta cambiare il nome</td><td><code translate="no">mv velho.txt novo.txt</code></td></tr><tr><td><code translate="no">rm</code></td><td>Elimina file; directory, solo con <code translate="no">-r</code></td><td><code translate="no">rm erro.log</code></td></tr><tr><td><code translate="no">rmdir</code></td><td>Elimina solo la directory vuota</td><td><code translate="no">rmdir img</code></td></tr><tr><td><code translate="no">-i</code></td><td>Domanda prima di ogni sostituzione o rimozione</td><td><code translate="no">mv -i a.txt pasta/</code></td></tr><tr><td><code translate="no">-I</code></td><td>In <code translate="no">rm</code>: chiedere una sola volta, prima di cancellare troppo</td><td><code translate="no">rm -rI copia</code></td></tr><tr><td><code translate="no">-v</code></td><td>Mostra ogni elemento creato, copiato, spostato o eliminato</td><td><code translate="no">rm -v *.tmp</code></td></tr><tr><td><code translate="no">-f</code></td><td>Punto di forza: non chiede e non avvisa se il target non esiste</td><td><code translate="no">rm -f cache.tmp</code></td></tr><tr><td>Inode</td><td>Il numero dell'appartamento: dove si trova effettivamente il contenuto</td><td><code translate="no">ls -i</code></td></tr></tbody></table></div>
+<p>Tre modi di copiare che utilizzerai per tutta la vita:</p>
+<ol><li><code translate="no">cp -a sshd_config sshd_config.bak</code>: la copia di backup prima della modifica. Con tasti, <code translate="no">cp -a sshd_config{,.bak}</code>.</li>
+<li><code translate="no">cp -a origem destino</code>: la copia che conserva tutto, per backup e ripristino.</li>
+<li><code translate="no">cp -a origem/. destino/</code>: copia il contenuto nella destinazione e restituisce lo stesso risultato la prima e la decima volta.</li></ol>
+<h3 id="windows-bridge">Windows Bridge</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Su Windows</th><th scope="col">Su Linux</th></tr></thead><tbody><tr><td><code translate="no">md</code>, che alleva già i genitori</td><td><code translate="no">mkdir -p</code></td></tr><tr><td><code translate="no">copy</code></td><td><code translate="no">cp</code></td></tr><tr><td><code translate="no">xcopy /e</code> o <code translate="no">robocopy /e</code></td><td><code translate="no">cp -r</code></td></tr><tr><td><code translate="no">robocopy /copyall</code></td><td><code translate="no">cp -a</code></td></tr><tr><td><code translate="no">move</code> e <code translate="no">ren</code></td><td><code translate="no">mv</code>, per entrambi</td></tr><tr><td><code translate="no">del</code></td><td><code translate="no">rm</code></td></tr><tr><td><code translate="no">rd /s</code></td><td><code translate="no">rm -r</code></td></tr><tr><td><code translate="no">rd</code></td><td><code translate="no">rmdir</code></td></tr><tr><td>Cestino</td><td>Non esiste nel terminale: backup, snapshot e <code translate="no">.bak</code></td></tr><tr><td>"Sostituire il file?" finestra</td><td>Non esiste per impostazione predefinita; <code translate="no">-i</code> chiede</td></tr></tbody></table></div>
+<h3 id="approfondimento">Approfondimento</h3>
+<p><strong>Cancellare significa scollegare.</strong> <code translate="no">rm</code> rimuove il nome dalla lista; È il sistema che libera lo spazio, quando nessun nome o programma utilizza più il contenuto. Esistono strumenti di ripristino, ma su XFS ed ext4 raramente salvano la situazione. Ciò che viene salvato è il backup, l'istantanea e la copia <code translate="no">.bak</code> fatta in precedenza.</p>
+<p><strong><code translate="no">cp</code> crea, <code translate="no">mv</code> rinomina.</strong> Ecco perché <code translate="no">mv</code> preserva tutto, anche l'etichetta SELinux, e <code translate="no">cp</code> no. Tra file system diversi, <code translate="no">mv</code> diventa una copia seguita da rimozione: richiede tempo e richiede spazio libero nella destinazione.</p>
+<p><strong>Ciò che mantiene <code translate="no">-a</code>.</strong> <code translate="no">cp -a</code> è equivalente a <code translate="no">-dR --preserve=all</code>: entra nelle directory, copia le scorciatoie come scorciatoie e conserva proprietario, gruppo, permessi, date, etichette SELinux e attributi estesi. Come utente normale, non puoi dare file a qualcun altro, quindi ne possiedi la copia. Solo root conserva il proprietario originale.</p>
+<p><strong>La copia cambia man mano che esiste la destinazione.</strong> <code translate="no">cp -r a b</code> crea <code translate="no">b</code> come copia di <code translate="no">a</code> se <code translate="no">b</code> non esiste. Se <code translate="no">b</code> esiste già, creare <code translate="no">b/a</code>. Lo stesso comando, eseguito due volte, dà risultati diversi. <code translate="no">cp -a a/. b/</code> copia sempre il contenuto di <code translate="no">a</code> in <code translate="no">b</code>.</p>
+<p><strong><code translate="no">-f</code> chiude.</strong> Nel <code translate="no">rm</code> il <code translate="no">-f</code> rimuove le domande e anche il messaggio di destinazione inesistente. E vale l'ultima opzione: <code translate="no">rm -f</code> disattiva un alias <code translate="no">rm -i</code>. Chi scrive <code translate="no">rm -rf</code> per abitudine non vede mai la domanda che farebbe l'alias.</p>
+<p><strong><code translate="no">-I</code> è meglio di <code translate="no">-i</code>.</strong> <code translate="no">-i</code> chiede file per file, e dopo il ventesimo <code translate="no">y</code> nessuno legge altro. <code translate="no">-I</code> chiede una volta, quando la rimozione è ricorsiva o contiene più di tre file.</p>
+<p><strong>Un quasi cestino.</strong> <code translate="no">cp</code> e <code translate="no">mv</code> accettano <code translate="no">--backup=numbered</code>: prima di sostituire, salvano il vecchio file come <code translate="no">nome.~1~</code>, <code translate="no">nome.~2~</code> e così via.</p>
+<p><strong><code translate="no">rm -rf /</code> viene rifiutato; <code translate="no">rm -rf /*</code> no.</strong> La protezione predefinita, <code translate="no">--preserve-root</code>, riconosce solo la radice scritta da sola. <code translate="no">/*</code> viene espanso dalla shell in <code translate="no">/bin</code>, <code translate="no">/boot</code>, <code translate="no">/etc</code> e il resto, e ciascuno diventa un argomento comune. Per questo motivo una variabile vuota in uno script è pericolosa, come si vede al punto 7.</p>
+<h3 id="cosa-spetta-al-test">Cosa spetta al test</h3>
+<ul><li><strong>Linux Essentials:</strong> <code translate="no">mkdir</code> e <code translate="no">mkdir -p</code>, <code translate="no">rmdir</code>, <code translate="no">touch</code>, <code translate="no">cp</code> con <code translate="no">-r</code> e <code translate="no">-i</code>, <code translate="no">mv</code> per rinominare e spostare, <code translate="no">rm</code> con <code translate="no">-r</code>, <code translate="no">-i</code> e <code translate="no">-f</code>, e i caratteri jolly utilizzati con questi comandi. Le domande chiedono quale comando o opzione fa cosa.</li>
+<li><strong>LPIC-1 (103.3):</strong> gli stessi comandi con le opzioni preserva (<code translate="no">-p</code>, <code translate="no">-a</code>) e ricorsione; la differenza tra <code translate="no">rmdir</code> e <code translate="no">rm -r</code>; caratteri jolly nelle operazioni di massa. 103.3 copre anche <code translate="no">tar</code>, <code translate="no">gzip</code> e <code translate="no">find</code>, che hanno una propria lezione.</li>
+<li><strong>RHCSA:</strong> “creare, eliminare, copiare e spostare file e directory” è un obiettivo letterale del test. Le attività richiedono, ad esempio, una copia in un percorso esatto preservando proprietario e autorizzazioni. Tieni d'occhio SELinux: un file spostato con <code translate="no">mv</code> in una directory di servizio prende la vecchia etichetta e il servizio non può leggerlo.</li></ul>
+<h2 id="5-rocky-debian">5 · Rocky × Debian</h2>
+<p>I comandi sono gli stessi, dal pacchetto coreutils. Ciò che cambia è ciò che sta intorno a loro, e questo decide se il comando lo chiede prima o lo cancella silenziosamente:</p>
+<div class="tabela"><table><thead><tr><th scope="col"></th><th scope="col">laboratorio-roccioso</th><th scope="col">debian-lab</th></tr></thead><tbody><tr><td>Alias ​​radice</td><td><code translate="no">rm -i</code>, <code translate="no">cp -i</code> e <code translate="no">mv -i</code> attivi in ​​<code translate="no">/root/.bashrc</code>: come root, tutti e tre chiedono</td><td>Le stesse righe esistono in <code translate="no">/root/.bashrc</code>, commentato: non chiedere</td></tr><tr><td>Il tuo utente</td><td>Senza questi alias: nessuna domanda</td><td>Idem</td></tr><tr><td><code translate="no">sudo rm</code>, <code translate="no">sudo cp</code>, <code translate="no">sudo mv</code></td><td><code translate="no">sudo</code> non usa alias: non chiedono mai</td><td>Idem</td></tr><tr><td>versione coreutils</td><td>8,32</td><td>9.x: alcuni messaggi cambiano una parola o l'altra</td></tr><tr><td>File system di installazione</td><td>XFS</td><td>ext4</td></tr><tr><td><code translate="no">mv</code> da casa a <code translate="no">/tmp</code></td><td>Istantanea se entrambi si trovano sullo stesso file system</td><td>Copiare e rimuovere sempre, perché <code translate="no">/tmp</code> è in memoria</td></tr><tr><td>Tag SELinux</td><td><code translate="no">mv</code> riporta l'etichetta; <code translate="no">cp</code> prende il destino. Può interrompere un servizio.</td><td>Senza SELinux: la differenza non esiste</td></tr></tbody></table></div>
+<h2 id="6-laboratorio-guidato">6 · Laboratorio guidato</h2>
+<p>Aprire tre terminali: uno su rock-lab, uno su debian-lab e uno sul nodo Proxmox, per gli snapshot. Ad ogni passaggio, corri, confronta con l'output e solo dopo leggi il Decidi. Gli output sono estratti: numeri, date e nomi saranno diversi sullo schermo.</p>
+<p>Each Decide è un vero caso di lavoro. Scegli la lettera prima di guardare la tabella: sbagliare qui, con la spiegazione a lato, è il modo più economico per sbagliare.</p>
+<p><strong>Step 1 · Snapshot prima di tutto.</strong> Le VM devono essere nello stato <code translate="no">m1a3-fim</code>, con <code translate="no">~/lab13</code> ancora lì. Sul nodo Proxmox dove viene eseguita ciascuna VM:</p>
+<pre translate="no"><code class="lang-bash">qm snapshot 201 m1a4-inicio
+qm snapshot 202 m1a4-inicio
+qm listsnapshot 201</code></pre>
+<p>Output previsto: l'elenco termina con <code translate="no">m1a3-fim</code>, <code translate="no">m1a4-inicio</code> e <code translate="no">current</code>. In entrambe le VM, controlla che 1.3 abbia lasciato il materiale:</p>
+<pre translate="no"><code class="lang-bash">ls -A ~/lab13/logs</code></pre>
+<p><strong>Passaggio 2 · Crea l'intero albero in una volta.</strong> In entrambe le VM:</p>
+<pre translate="no"><code class="lang-bash">mkdir ~/lab14
+cd ~/lab14
+mkdir site/css</code></pre>
+<p>Qualcosa come:</p>
+<pre translate="no"><code class="lang-text">mkdir: cannot create directory 'site/css': No such file or directory</code></pre>
+<p><code translate="no">mkdir</code> crea un singolo livello. Il genitore <code translate="no">site</code> non esiste, quindi rifiuta. Ora con <code translate="no">-p</code> e con <code translate="no">-v</code> per vedere ogni passaggio:</p>
+<pre translate="no"><code class="lang-bash">mkdir -pv site/{css,js,img}
+echo site/{css,js,img}
+mkdir -p site/css
+mkdir site</code></pre>
+<p>Qualcosa come:</p>
+<pre translate="no"><code class="lang-text">mkdir: created directory 'site'
+mkdir: created directory 'site/css'
+mkdir: created directory 'site/js'
+mkdir: created directory 'site/img'
+site/css site/js site/img
+mkdir: cannot create directory 'site': File exists</code></pre>
+<p>Tre cose da vedere lì. Le chiavi non provengono da <code translate="no">mkdir</code>: la shell le espande prima, e <code translate="no">echo</code> mostra cosa ha consegnato, come i caratteri jolly 1.3. Il <code translate="no">mkdir -p site/css</code> ripetuto non dice nulla, perché esiste già e va tutto bene. <code translate="no">mkdir site</code> senza reclami <code translate="no">-p</code>.</p>
+<p><strong>Decidere 1 · La distribuzione che fallisce sul nuovo server.</strong> Scenario: lo script di distribuzione viene eseguito <code translate="no">mkdir /srv/app/releases/$(date +%F)</code> ogni notte. Su un server appena installato fallisce con <code translate="no">No such file or directory</code>. Cosa fare?</p>
+<ul><li><strong>A)</strong> Cambialo in <code translate="no">mkdir -p</code> nello script.</li>
+<li><strong>B)</strong> Inizia a eseguire lo script con <code translate="no">sudo</code>.</li>
+<li><strong>C)</strong> Aggiungi <code translate="no">2&gt;/dev/null</code> alla fine della riga per eliminare l'errore.</li>
+<li><strong>D)</strong> Crea <code translate="no">/srv/app/releases</code> manualmente su questo server e segui.</li></ul>
+<p>Scegli la lettera prima di guardare tabella.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se hai selezionato</th><th scope="col">Risultato</th><th scope="col">Perché</th></tr></thead><tbody><tr><td>A</td><td>✅ Giusto</td><td><code translate="no">-p</code> crea i genitori mancanti e non fallisce se esistono già. Lo script inizia a funzionare sui server nuovi e vecchi, la prima e la centesima notte.</td></tr><tr><td>B</td><td>❌ Sbagliato</td><td>La mancanza di permesso direbbe <code translate="no">Permission denied</code>. L'errore qui è un genitore inesistente e anche root non crea due livelli senza <code translate="no">-p</code>.</td></tr><tr><td>C</td><td>❌ Sbagliato</td><td>Nascondi l'errore e la distribuzione continua senza la directory. La colpa appare più tardi, lontana dalla causa.</td></tr><tr><td>D</td><td>❌ Sbagliato</td><td>Risolvilo oggi e fallisci sul prossimo nuovo server. La correzione appartiene allo script.</td></tr></tbody></table></div>
+<p><strong>Per risolvere:</strong> <code translate="no">-p</code> significa "vai fino in fondo e non lamentarti di ciò che già esiste".</p>
+<p><strong>Passaggio 3 · Il numero dell'appartamento.</strong> Primo <code translate="no">touch</code>, in entrambe le VM:</p>
+<pre translate="no"><code class="lang-bash">touch site/index.html site/css/style.css
+ls -l --time-style=+%T site/index.html</code></pre>
+<p>Attendere una decina di secondi e ripetere i due comandi. La dimensione resta zero, cambia solo il tempo. <code translate="no">touch</code> in un file già esistente non cancella nulla: aggiorna solo la data. Ora l'inode, il numero dell'appartamento del Modello Mentale:</p>
+<pre translate="no"><code class="lang-bash">echo "primeira linha" &gt; notas.txt
+ls -i notas.txt
+mv notas.txt anotacoes.txt
+ls -i anotacoes.txt
+cp anotacoes.txt copia.txt
+ls -i anotacoes.txt copia.txt</code></pre>
+<p>Qualcosa come:</p>
+<pre translate="no"><code class="lang-text">33711452 notas.txt
+33711452 anotacoes.txt
+33711452 anotacoes.txt  33711460 copia.txt</code></pre>
+<p>Il <code translate="no">mv</code> non ha cambiato il numero, solo il nome nell'elenco. La copia ha un nuovo appartamento, con il proprio numero.</p>
+<p><strong>Decidi 2 · Il registro da 40 GB.</strong> Scenario: <code translate="no">app.log</code> ha 40 GB, il disco ha 2 GB liberi e vuoi salvare il file corrente come <code translate="no">app.log.1</code>, nella stessa directory, con <code translate="no">mv app.log app.log.1</code>. L'app continua a funzionare. Cosa succede?</p>
+<ul><li><strong>A)</strong> <code translate="no">mv</code> è istantaneo e non occupa spazio, ma l'app continua a scrivere sul file che ora si chiama <code translate="no">app.log.1</code>.</li>
+<li><strong>B)</strong> <code translate="no">mv</code> fallisce per mancanza di spazio, perché deve copiare i 40 GB.</li>
+<li><strong>C)</strong> <code translate="no">mv</code> è istantaneo e l'app avvia automaticamente la registrazione in un nuovo <code translate="no">app.log</code>.</li>
+<li><strong>D)</strong> <code translate="no">mv</code> richiede alcuni minuti, proporzionali alla dimensione.</li></ul>
+<p>Scegli la lettera prima di guardare la tabella.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se hai selezionato</th><th scope="col">Risultato</th><th scope="col">Perché</th></tr></thead><tbody><tr><td>A</td><td>✅ Giusto</td><td>Nello stesso file system <code translate="no">mv</code> modifica solo il nome nell'elenco. L'app ha già aperto il file e conserva l'appartamento, non il nome: continua a registrare lì. Questo è il motivo per cui <code translate="no">logrotate</code> avvisa il servizio dopo la ridenominazione.</td></tr><tr><td>B</td><td>❌ Sbagliato</td><td>Sarebbe <code translate="no">cp</code> o <code translate="no">mv</code> per un altro disco. Non esiste alcuna copia sullo stesso disco.</td></tr><tr><td>C</td><td>❌ Sbagliato</td><td>Nessuno crea nuovi <code translate="no">app.log</code>. L'app inizia a utilizzare un altro file solo quando riapre il registro, dopo un ricaricamento o un riavvio.</td></tr><tr><td>D</td><td>❌ Sbagliato</td><td>Il tempo proporzionale alla dimensione appare solo tra file system diversi.</td></tr></tbody></table></div>
+<p><strong>Da risolvere:</strong> <code translate="no">mv</code> sullo stesso disco è cambiare la placca della porta. Chi è dentro non se ne accorge nemmeno.</p>
+<p><strong>Passaggio 4 · La copia prima della modifica.</strong> Una configurazione falsa, in entrambe le VM:</p>
+<pre translate="no"><code class="lang-bash">printf 'Port 22\nPermitRootLogin no\n' &gt; sshd_config
+echo cp -a sshd_config{,.bak}
+cp -a sshd_config{,.bak}
+ls -l sshd_config*</code></pre>
+<p>Qualcosa come:</p>
+<pre translate="no"><code class="lang-text">cp -a sshd_config sshd_config.bak
+-rw-r--r--. 1 rodrigo rodrigo 32 Nov  2 10:12 sshd_config
+-rw-r--r--. 1 rodrigo rodrigo 32 Nov  2 10:12 sshd_config.bak</code></pre>
+<p>Il <code translate="no">{,.bak}</code> diventa due parole: il nome senza niente e il nome con <code translate="no">.bak</code>. Ora modifica e confronta:</p>
+<pre translate="no"><code class="lang-bash">echo 'PasswordAuthentication no' &gt;&gt; sshd_config
+diff sshd_config.bak sshd_config
+cp -a sshd_config{,.bak-$(date +%F)}
+ls sshd_config*</code></pre>
+<p>Qualcosa come:</p>
+<pre translate="no"><code class="lang-text">2a3
+&gt; PasswordAuthentication no
+sshd_config  sshd_config.bak  sshd_config.bak-2026-11-02</code></pre>
+<p><code translate="no">diff</code> mostra esattamente cosa hai modificato. Con la data nel nome, il <code translate="no">.bak</code> di oggi non sostituisce quello di ieri. Sul server reale è lo stesso comando, con <code translate="no">sudo</code> e il percorso completo: <code translate="no">sudo cp -a /etc/ssh/sshd_config{,.bak-$(date +%F)}</code>.</p>
+<p><strong>Decidi 3 · Prima di fare confusione con l'SSH del client.</strong> Scenario: disattiverai l'accesso con password in SSH su un server client. Qual è il primo comando?</p>
+<ul><li><strong>A)</strong> <code translate="no">sudo cp -a /etc/ssh/sshd_config{,.bak-$(date +%F)}</code></li>
+<li><strong>B)</strong> <code translate="no">sudo cp /etc/ssh/sshd_config /tmp/</code></li>
+<li><strong>C)</strong> <code translate="no">sudo vi /etc/ssh/sshd_config</code>, attentamente.</li>
+<li><strong>D)</strong> <code translate="no">sudo mv /etc/ssh/sshd_config{,.bak}</code> e scrivere un nuovo file.</li></ul>
+<p>Scegliere la lettera prima di guardare la tabella.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se hai selezionato</th><th scope="col">Risultato</th><th scope="col">Perché</th></tr></thead><tbody><tr><td>A</td><td>✅ Giusto</td><td>Copia accanto all'originale, con proprietario, permessi ed etichetta conservati, e con data. Se il <code translate="no">sshd</code> non sale il giro è un <code translate="no">cp</code>.</td></tr><tr><td>B</td><td>❌ Sbagliato</td><td><code translate="no">/tmp</code> viene cancellato al riavvio e in Debian 13 rimane in memoria. Il backup scompare proprio quando ne hai più bisogno.</td></tr><tr><td>C</td><td>❌ Sbagliato</td><td>La cautela non è una via d'uscita. Se <code translate="no">sshd</code> non sale, potresti perdere l'accesso senza sapere dove si trovava prima.</td></tr><tr><td>D</td><td>❌ Sbagliato</td><td>Per un momento il file non esiste. E quello nuovo nasce senza il contenuto, l'etichetta e i permessi dell'originale.</td></tr></tbody></table></div>
+<p><strong>Per risolvere:</strong> prima di spostarti, scatta una foto. La foto è <code translate="no">.bak</code> con la data, accanto all'originale.</p>
+<p><strong>Passaggio 5 · Chi diventa il proprietario della copia.</strong> Quattro copie dello stesso file root, in entrambe le VM:</p>
+<pre translate="no"><code class="lang-bash">cp /etc/hosts hosts-cp
+cp -a /etc/hosts hosts-a
+sudo cp /etc/hosts hosts-sudo
+sudo cp -a /etc/hosts hosts-sudo-a
+ls -l /etc/hosts hosts-*</code></pre>
+<p>Qualcosa come:</p>
+<pre translate="no"><code class="lang-text">-rw-r--r--. 1 root    root    158 Jun 23  2020 /etc/hosts
+-rw-r--r--. 1 rodrigo rodrigo 158 Jun 23  2020 hosts-a
+-rw-r--r--. 1 rodrigo rodrigo 158 Nov  2 10:15 hosts-cp
+-rw-r--r--. 1 root    root    158 Nov  2 10:15 hosts-sudo
+-rw-r--r--. 1 root    root    158 Jun 23  2020 hosts-sudo-a</code></pre>
+<p>Leggi riga per riga:</p>
+<div class="tabela"><table><thead><tr><th scope="col">Comando</th><th scope="col">Copia proprietario</th><th scope="col">Data della copia</th></tr></thead><tbody><tr><td><code translate="no">cp</code></td><td>Tu</td><td>Adesso</td></tr><tr><td><code translate="no">cp -a</code>, come stai</td><td>Tu, perché un utente comune non dà file a qualcun altro</td><td>L'originale</td></tr><tr><td><code translate="no">sudo cp</code></td><td>radice</td><td>Adesso</td></tr><tr><td><code translate="no">sudo cp -a</code></td><td>Il proprietario originale</td><td>L'originale: copia fedele</td></tr></tbody></table></div>
+<p>Regola: il proprietario della copia è colui che esegue <code translate="no">cp</code>, a meno che non sia root con <code translate="no">-a</code>.</p>
+<p><strong>Decide 4 · Ripristino di venerdì.</strong> Scenario: la cartella <code translate="no">/srv/dados/app</code>, di proprietà dell'utente <code translate="no">app</code>, è stata eliminata. Il backup è in <code translate="no">/backup/app</code>, effettuato con <code translate="no">cp -a</code>. Come ripristinare?</p>
+<ul><li><strong>A)</strong> <code translate="no">sudo cp -a /backup/app /srv/dados/</code></li>
+<li><strong>B)</strong> <code translate="no">sudo cp -r /backup/app /srv/dados/</code></li>
+<li><strong>C)</strong> <code translate="no">cp -a /backup/app /srv/dados/</code>, come utente.</li>
+<li><strong>D)</strong> <code translate="no">sudo mv /backup/app /srv/dados/</code></li></ul>
+<p>Scegli la lettera prima di guardare la tabella.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se hai selezionato</th><th scope="col">Risultato</th><th scope="col">Perché</th></tr></thead><tbody><tr><td>A</td><td>✅ Giusto</td><td>Root con <code translate="no">-a</code> restituisce proprietà, autorizzazioni, date ed etichette così come erano. E il backup è ancora lì.</td></tr><tr><td>B</td><td>❌ Sbagliato</td><td>I file ritornano con il proprietario root e la data odierna. Il servizio, che funziona come <code translate="no">app</code>, non può più registrare. Provocherai questo in Quebra A.</td></tr><tr><td>C</td><td>❌ Sbagliato</td><td>Senza root non consegnerai i file all'utente <code translate="no">app</code> e probabilmente non scriverai nemmeno a <code translate="no">/srv/dados</code>.</td></tr><tr><td>D</td><td>❌ Sbagliato</td><td>Ripristina e scompari con il backup. Se qualcosa va storto, non c'è un secondo tentativo. E se <code translate="no">/backup</code> è un altro disco, <code translate="no">mv</code> copia tutto e cancella la sorgente.</td></tr></tbody></table></div>
+<p><strong>Per risolvere:</strong> il ripristino è <code translate="no">cp -a</code> come root. Il backup rimane dov'è.</p>
+<p><strong>Passaggio 6 · Copia delle directory.</strong> Esegui la stessa copia due volte, su entrambe le VM:</p>
+<pre translate="no"><code class="lang-bash">cp -r site site-copia
+ls site-copia
+cp -r site site-copia
+ls site-copia</code></pre>
+<p>Qualcosa come:</p>
+<pre translate="no"><code class="lang-text">css  img  index.html  js
+css  img  index.html  js  site</code></pre>
+<p>La seconda volta, <code translate="no">site-copia</code> esisteva già, quindi <code translate="no">cp</code> ha creato <code translate="no">site-copia/site</code>. In un backup notturno questa diventa una bambola russa. Ora in questo modo dà sempre lo stesso risultato:</p>
+<pre translate="no"><code class="lang-bash">rm -r site-copia
+cp -a site/. site-bak
+cp -a site/. site-bak
+ls site-bak</code></pre>
+<p>Entrambe le volte dà <code translate="no">css  img  index.html  js</code>. <code translate="no">site/.</code> significa “cosa c'è all'interno del sito web”. Ora quelli nascosti, con i file 1.3:</p>
+<pre translate="no"><code class="lang-bash">mkdir dest-estrela dest-ponto
+cp -a ~/lab13/logs/* dest-estrela/
+cp -a ~/lab13/logs/. dest-ponto/
+ls -A dest-estrela
+ls -A dest-ponto</code></pre>
+<p><code translate="no">.escondido.log</code> compaiono solo in <code translate="no">dest-ponto</code>. <code translate="no">*</code> non rileva quelli nascosti, come hai visto in 1.3. <code translate="no">/.</code> cattura tutto. Se compaiono altri nomi, residui della versione 1.3, va bene: ciò che conta è la differenza.</p>
+<p><strong>Decidi 5 · La casa di Ana sul nuovo disco.</strong> Scenario: sposterai <code translate="no">/home/ana</code> su un nuovo disco montato su <code translate="no">/mnt/novo</code>. Quale comando?</p>
+<ul><li><strong>A)</strong> <code translate="no">sudo cp -a /home/ana/. /mnt/novo/ana/</code></li>
+<li><strong>B)</strong> <code translate="no">sudo cp -a /home/ana/* /mnt/novo/ana/</code></li>
+<li><strong>C)</strong> <code translate="no">sudo cp -r /home/ana /mnt/novo/</code></li>
+<li><strong>D)</strong> <code translate="no">sudo mv /home/ana /mnt/novo/</code></li></ul>
+<p>Scegliere la lettera prima di guardare la tabella.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se hai selezionato</th><th scope="col">Risultato</th><th scope="col">Perché</th></tr></thead><tbody><tr><td>A</td><td>✅ Giusto</td><td>Copia tutto il contenuto, incluso quello nascosto, con proprietario, autorizzazioni e date. L'originale rimane intatto finché non lo controlli.</td></tr><tr><td>B</td><td>❌ Sbagliato</td><td><code translate="no">*</code> lascia indietro <code translate="no">.ssh</code>, <code translate="no">.bashrc</code> e <code translate="no">.config</code>. Ana entra e non ha chiavi o configurazione.</td></tr><tr><td>C</td><td>❌ Sbagliato</td><td>Prende quelli nascosti, ma tutto gira da root e perde le date. <code translate="no">sshd</code> rifiuta le chiavi in ​​un <code translate="no">.ssh</code> con proprietario sbagliato.</td></tr><tr><td>D</td><td>❌ Sbagliato</td><td>Tra i dischi, <code translate="no">mv</code> copia e cancella. Se cade al centro, rimarrai con metà su ciascun lato e senza l'originale.</td></tr></tbody></table></div>
+<p><strong>Da correggere:</strong> l'intera directory è <code translate="no">origem/.</code> con <code translate="no">cp -a</code>.</p>
+<figure><a href="../img/1.4-cp-dono-e-ocultos.jpg"><img src="../img/1.4-cp-dono-e-ocultos.jpg" alt="Copia senza perdere nulla: cp, cp -a, sudo e origin/." loading="lazy" decoding="async"></a><figcaption>L'intera directory è origin/. con cp -a; solo root con -a preserva il proprietario.</figcaption></figure>
+<p><strong>Passaggio 7 · Il <code translate="no">mv</code> che sostituisce silent.</strong> Un caso di cartella condivisa, in entrambe le VM:</p>
+<pre translate="no"><code class="lang-bash">mkdir compartilhada
+echo "versão da Maria" &gt; compartilhada/relatorio.txt
+echo "versão do João" &gt; relatorio.txt
+mv relatorio.txt compartilhada/
+cat compartilhada/relatorio.txt</code></pre>
+<p>Output: <code translate="no">versão do João</code>. La versione di Maria è scomparsa, senza domande e senza bidone della spazzatura. Rifai la scena e prova entrambe le protezioni:</p>
+<pre translate="no"><code class="lang-bash">echo "versão da Maria" &gt; compartilhada/relatorio.txt
+echo "versão do João" &gt; relatorio.txt
+mv -i relatorio.txt compartilhada/</code></pre>
+<p>Qualcosa come <code translate="no">mv: overwrite 'compartilhada/relatorio.txt'?</code>. Rispondi <code translate="no">n</code> e il fascicolo di João resta dov'era. Ora la quasi spazzatura:</p>
+<pre translate="no"><code class="lang-bash">mv --backup=numbered relatorio.txt compartilhada/
+ls compartilhada/
+cat compartilhada/relatorio.txt.~1~</code></pre>
+<p>Qualcosa come <code translate="no">relatorio.txt  relatorio.txt.~1~</code> e <code translate="no">cat</code> mostra <code translate="no">versão da Maria</code>. Il vecchio file è stato salvato con un numero, invece di scomparire.</p>
+<p><strong>Decidi 6 · Il rapporto nella cartella finanziaria.</strong> Scenario: consegni il rapporto mensile al <code translate="no">/srv/financeiro</code>, dove lo registrano anche tre colleghi. Quale comando?</p>
+<ul><li><strong>A)</strong> <code translate="no">mv relatorio.pdf /srv/financeiro/</code></li>
+<li><strong>B)</strong> <code translate="no">mv -i relatorio.pdf /srv/financeiro/</code></li>
+<li><strong>C)</strong> <code translate="no">cp relatorio.pdf /srv/financeiro/</code>, così non perdi la tua.</li>
+<li><strong>D)</strong> <code translate="no">mv -f relatorio.pdf /srv/financeiro/</code></li></ul>
+<p>Scegli la lettera prima di guardare la tabella.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se hai selezionato</th><th scope="col">Risultato</th><th scope="col">Perché</th></tr></thead><tbody><tr><td>A</td><td>❌ Sbagliato</td><td>Se un collega ha già registrato un <code translate="no">relatorio.pdf</code>, il suo scompare silenziosamente.</td></tr><tr><td>B</td><td>✅ Giusto</td><td>Se il nome esiste già, viene chiesto prima <code translate="no">mv</code>. Rinomini il tuo e nessuno perde nulla. In uno script, utilizzare <code translate="no">--backup=numbered</code>.</td></tr><tr><td>C</td><td>❌ Sbagliato</td><td>Il tuo è sicuro, ma <code translate="no">cp</code> sostituisce silenziosamente anche quello del tuo collega.</td></tr><tr><td>D</td><td>❌ Sbagliato</td><td><code translate="no">-f</code> esiste proprio per non chiedere nulla.</td></tr></tbody></table></div>
+<p><strong>Per risolvere:</strong> nelle cartelle di altre persone, <code translate="no">-i</code> in mano e <code translate="no">--backup=numbered</code> nello script.</p>
+<p><strong>Passaggio 8 · Cancella sapendo cosa scomparirà.</strong> Prima i limiti di <code translate="no">rmdir</code> e <code translate="no">rm</code>, in entrambe le VM:</p>
+<pre translate="no"><code class="lang-bash">mkdir vazio
+rmdir vazio
+rmdir site-bak
+rm site-bak
+rm -rIv site-bak</code></pre>
+<p>Qualcosa come:</p>
+<pre translate="no"><code class="lang-text">rmdir: failed to remove 'site-bak': Directory not empty
+rm: cannot remove 'site-bak': Is a directory
+rm: remove 1 argument recursively? y
+removed 'site-bak/index.html'
+...
+removed directory 'site-bak'</code></pre>
+<p><code translate="no">rmdir</code> cancella solo una directory vuota, <code translate="no">rm</code> senza <code translate="no">-r</code> non cancella la directory e <code translate="no">-I</code> lo chiede solo una volta. Ora guarda cosa consegna la shell a <code translate="no">rm</code> quando rimane uno spazio, senza cancellare nulla:</p>
+<pre translate="no"><code class="lang-bash">printf '[%s]\n' rm -rf ~/lab14/ site-copia</code></pre>
+<p>Qualcosa come:</p>
+<pre translate="no"><code class="lang-text">[rm]
+[-rf]
+[/home/rodrigo/lab14/]
+[site-copia]</code></pre>
+<p>Ci sono quattro argomenti. <code translate="no">rm</code> cancellerebbe l'intero <code translate="no">lab14</code>. <code translate="no">printf '[%s]\n'</code> mette ogni argomento tra parentesi quadre, ed è la radiografia di ogni comando pericoloso. Infine il caso peggiore di script, anche solo con <code translate="no">echo</code>:</p>
+<pre translate="no"><code class="lang-bash">ALVO=""
+echo rm -rf "$ALVO"/*
+echo rm -rf "${ALVO:?está vazia}"/*</code></pre>
+<p>Qualcosa come:</p>
+<pre translate="no"><code class="lang-text">rm -rf /afs /bin /boot /dev /etc /home /lib /lib64 /media /mnt /opt /proc /root /run /sbin /srv /sys /tmp /usr /var
+bash: ALVO: está vazia</code></pre>
+<p>Con la variabile vuota, <code translate="no">"$ALVO"/*</code> diventa <code translate="no">/*</code>: tutta la radice, elemento per elemento, e <code translate="no">--preserve-root</code> non la riconosce. L'hai visto solo perché hai usato <code translate="no">echo</code>. <code translate="no">${ALVO:?mensagem}</code> fa fermare bash lì quando la variabile è vuota o non esiste. Ora con la variabile compilata, per davvero:</p>
+<pre translate="no"><code class="lang-bash">ALVO=~/lab14/dest-estrela
+echo rm -rf "${ALVO:?está vazia}"/*
+rm -rf "${ALVO:?está vazia}"/*
+ls -A "$ALVO"</code></pre>
+<p><code translate="no">echo</code> mostra solo i file all'interno di <code translate="no">dest-estrela</code>. <code translate="no">rm</code> diventa vuoto e <code translate="no">ls -A</code> non mostra nulla.</p>
+<p><strong>Decidere 7 · La pulizia cron.</strong> Scenario: lo script di pulizia di un client ha la riga <code translate="no">rm -rf $TMPDIR_APP/*</code> e viene eseguito come root ogni notte. Che correzione fai?</p>
+<ul><li><strong>A)</strong> <code translate="no">rm -rf "$TMPDIR_APP"/*</code></li>
+<li><strong>B)</strong> <code translate="no">rm -rf "${TMPDIR_APP:?}"/*</code></li>
+<li><strong>C)</strong> <code translate="no">rm -ri $TMPDIR_APP/*</code></li>
+<li><strong>D)</strong> Nessuno: lo script funziona da anni.</li></ul>
+<p>Scegli la lettera prima di guardare la tabella.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se hai selezionato</th><th scope="col">Risultato</th><th scope="col">Perché</th></tr></thead><tbody><tr><td>A</td><td>❌ Sbagliato</td><td>Le virgolette proteggono i percorsi con spazio, ma con la variabile vuota il risultato rimane <code translate="no">/*</code>.</td></tr><tr><td>B</td><td>✅ Giusto</td><td>Le virgolette proteggono gli spazi e <code translate="no">:?</code> interrompe lo script se la variabile è vuota. Una riga, due disastri evitati.</td></tr><tr><td>C</td><td>❌ Sbagliato</td><td>In cron nessuno risponde alla domanda. E con la variabile vuota rimane <code translate="no">/*</code>.</td></tr><tr><td>D</td><td>❌ Sbagliato</td><td>Funziona fino al giorno in cui qualcuno commenta la riga che definisce la variabile. Quel giorno, elimina il server.</td></tr></tbody></table></div>
+<p><strong>Da risolvere:</strong> la variabile in un <code translate="no">rm</code> va sempre tra virgolette e con <code translate="no">:?</code>.</p>
+<p><strong>Decidi 8 · Consiglio del collega.</strong> Scenario: come root, in Rocky-Lab, <code translate="no">rm arquivo</code> chiede <code translate="no">remove regular file?</code>. In Debian-Lab non lo chiede. Un collega dice: "usa sempre <code translate="no">rm -rf</code>, poi smette di riempirsi". Cosa rispondi?</p>
+<ul><li><strong>A)</strong> "Bene, <code translate="no">-f</code> è il modo professionale."</li>
+<li><strong>B)</strong> "In Rocky, root ha l'alias <code translate="no">rm -i</code> e <code translate="no">-f</code> lo disattiva. Preferisco verificare con <code translate="no">echo</code> e usare <code translate="no">-I</code> quando ce n'è molto."</li>
+<li><strong>C)</strong> "Di' <code translate="no">alias rm='rm -i'</code> su ogni server e potrai usare <code translate="no">-rf</code> in tutta tranquillità." mente."</li>
+<li><strong>D)</strong> "Debian è configurata in modo errato; deve essere corretta."</li></ul>
+<p>Scegli la lettera prima di guardare la tabella.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se hai selezionato</th><th scope="col">Risultato</th><th scope="col">Perché</th></tr></thead><tbody><tr><td>A</td><td>❌ Sbagliato</td><td><code translate="no">-f</code> mette a tacere la domanda e anche l'avviso di bersaglio inesistente. Perdi entrambi gli indizi che hai digitato in modo errato.</td></tr><tr><td>B</td><td>✅ Giusto</td><td>La domanda deriva dall'alias in <code translate="no">/root/.bashrc</code>. A <code translate="no">-f</code> dopo vince. La protezione che si applica a qualsiasi server è l'abitudine: prima vedi, poi cancella.</td></tr><tr><td>C</td><td>❌ Sbagliato</td><td><code translate="no">-f</code> batte l'aliasing e <code translate="no">sudo</code> non usa nemmeno gli alias. La rete di sicurezza non protegge nulla.</td></tr><tr><td>D</td><td>❌ Sbagliato</td><td>È una scelta di configurazione: in Debian le stesse righe sono commentate in <code translate="no">/root/.bashrc</code>.</td></tr></tbody></table></div>
+<p><strong>Da risolvere:</strong> la protezione non è nell'alias, è nell'abitudine.</p>
+<p><strong>Protocollo prima della cancellazione o della sostituzione.</strong> I cinque secondi che separano un pacifico amministratore di sistema da un fine settimana di ripristino del backup:</p>
+<pre translate="no"><code class="lang-bash">pwd -P
+ls -la site
+echo rm -r site</code></pre>
+<ol><li><code translate="no">pwd -P</code>: dove sono veramente.</li>
+<li><code translate="no">ls -la alvo</code>: cosa c'è.</li>
+<li><code translate="no">echo</code> o <code translate="no">printf '[%s]\n'</code> davanti al comando: cosa fornirà la shell.</li>
+<li>C'è una copia? Un <code translate="no">.bak</code>, uno snapshot o un backup.</li>
+<li>Solo allora il <code translate="no">rm</code>, preferibilmente con <code translate="no">-I</code> o <code translate="no">-v</code>.</li></ol>
+<h2 id="7-rompere-e-correggere">7 · Rompere e correggere</h2>
+<p>Due guasti che troverete sul client. In ognuno: spezzare, prevedere prima di guardare, scoprire con i comandi, decidere, aggiustare e verificare. Fallo prima in Rocky-Lab; Debian entra nel bonus. Entrambi sono all'interno di <code translate="no">~/lab14</code>, quindi non ci sono rischi al di fuori di esso.</p>
+<h3 id="interruzione-a-l-ho-ripristinato-e-l-app-ha-smesso-di-registrare">Interruzione A · L'ho ripristinato e l'app ha smesso di registrare</h3>
+<p>Il caso di Decida 4, in miniatura. <code translate="no">~/lab14/app/dados</code> svolge il ruolo di cartella di un servizio che viene eseguito con il suo utente.</p>
+<p><strong>Prepare.</strong></p>
+<pre translate="no"><code class="lang-bash">mkdir -p ~/lab14/app/dados ~/lab14/backup
+echo "registro 1" &gt; ~/lab14/app/dados/registro.log
+cp -a ~/lab14/app/dados ~/lab14/backup/
+ls -l ~/lab14/backup/dados</code></pre>
+<p><strong>Break.</strong> Disastro e ripristino affrettato:</p>
+<pre translate="no"><code class="lang-bash">rm -rf ~/lab14/app/dados
+sudo cp -r ~/lab14/backup/dados ~/lab14/app/</code></pre>
+<p><strong>Prepare.</strong> Il "servizio" scriverà una nuova riga in <code translate="no">registro.log</code>. Funzionerà? Scrivi sì o no e perché, prima di eseguire il blocco successivo.</p>
+<p><strong>Scoprilo.</strong></p>
+<pre translate="no"><code class="lang-bash">echo "registro 2" &gt;&gt; ~/lab14/app/dados/registro.log
+ls -l ~/lab14/app/dados ~/lab14/backup/dados</code></pre>
+<p>Qualcosa come:</p>
+<pre translate="no"><code class="lang-text">bash: /home/rodrigo/lab14/app/dados/registro.log: Permission denied
+/home/rodrigo/lab14/app/dados:
+-rw-r--r--. 1 root    root    11 Nov  2 10:40 registro.log
+
+/home/rodrigo/lab14/backup/dados:
+-rw-r--r--. 1 rodrigo rodrigo 11 Nov  2 10:31 registro.log</code></pre>
+<p>Il contenuto è stato restituito, ma il proprietario è diventato root e la data è la data del ripristino. Il file può essere letto da chiunque e scritto solo dal proprietario, che ora è root. Il backup, effettuato con <code translate="no">cp -a</code>, era corretto; È stato il ripristino a causare problemi.</p>
+<p><strong>Decidi.</strong> Come risolverlo?</p>
+<ul><li><strong>A)</strong> <code translate="no">sudo rm -rf ~/lab14/app/dados</code> e poi <code translate="no">cp -a ~/lab14/backup/dados ~/lab14/app/</code></li>
+<li><strong>B)</strong> <code translate="no">sudo chmod -R 777 ~/lab14/app/dados</code></li>
+<li><strong>C)</strong> Avviare l'esecuzione del servizio come root.</li>
+<li><strong>D)</strong> <code translate="no">sudo chown -R rodrigo: ~/lab14/app/dados</code></li></ul>
+<p>Scegliere prima la lettera per esaminare il tabella.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se hai selezionato</th><th scope="col">Risultato</th><th scope="col">Perché</th></tr></thead><tbody><tr><td>A</td><td>✅ Giusto</td><td>Rifai il ripristino nel modo corretto: proprietario, permessi e date ritornano dal backup. Qui <code translate="no">cp -a</code> non ha nemmeno bisogno di <code translate="no">sudo</code>, perché i file di backup sono già tuoi.</td></tr><tr><td>B</td><td>❌ Sbagliato</td><td>"Funziona", ma consente a qualsiasi utente di scrivere nella cartella e il proprietario rimane sbagliato. È la patch più comune in produzione e la più pericolosa.</td></tr><tr><td>C</td><td>❌ Sbagliato</td><td>Risolve il sintomo creando un problema di sicurezza: qualsiasi errore del servizio diventa un errore root.</td></tr><tr><td>D</td><td>❌ Incompleto</td><td>Il proprietario lo risolve, ma le date sono ancora sbagliate. E in un albero con proprietari diversi dovresti conoscere il proprietario di ciascun file. <code translate="no">chown</code> ha una propria lezione, 2.7.</td></tr></tbody></table></div>
+<p><strong>Fix.</strong> Prima il protocollo, poi il ripristino corretto:</p>
+<pre translate="no"><code class="lang-bash">ls -la ~/lab14/app/dados
+sudo rm -rf ~/lab14/app/dados
+cp -a ~/lab14/backup/dados ~/lab14/app/</code></pre>
+<p><strong>Check.</strong></p>
+<pre translate="no"><code class="lang-bash">ls -l ~/lab14/app/dados
+echo "registro 2" &gt;&gt; ~/lab14/app/dados/registro.log
+cat ~/lab14/app/dados/registro.log</code></pre>
+<p><code translate="no">ls</code> mostra l'utente come proprietario e l'ora del backup, non l'ora del ripristino. <code translate="no">cat</code> mostra <code translate="no">registro 1</code> e <code translate="no">registro 2</code>.</p>
+<h3 id="interruzione-b-l-ho-eliminato-e-il-disco-non-si-e-rilasciato">Interruzione B · L'ho eliminato e il disco non si è rilasciato</h3>
+<p>Un client <code translate="no">/var</code> raggiunge il 100%. Qualcuno cancella il tronco gigante e <code translate="no">df</code> non si muove. Imposterai la scena con un file da 300 MB e un processo che lo mantiene aperto.</p>
+<p><strong>Break.</strong></p>
+<pre translate="no"><code class="lang-bash">cd ~/lab14
+dd if=/dev/zero of=grande.bin bs=1M count=300 status=none
+df -h ~
+sleep 3600 &lt; grande.bin &amp;
+rm grande.bin
+ls grande.bin</code></pre>
+<p>Il <code translate="no">sleep</code> riceve il file come input e rimane aperto per un'ora. È il ruolo del servizio che scrive il log. <code translate="no">ls</code> risponde <code translate="no">No such file or directory</code>: all'elenco delle directory, il file non esiste più.</p>
+<p><strong>Predict.</strong> Il successivo <code translate="no">df -h ~</code> mostra i 300 MB indietro? Annota il numero previsto nella colonna <code translate="no">Avail</code>.</p>
+<p><strong>Scoprilo.</strong></p>
+<pre translate="no"><code class="lang-bash">df -h ~
+ls -l /proc/$!/fd
+sudo lsof +L1</code></pre>
+<p>Qualcosa come:</p>
+<pre translate="no"><code class="lang-text">Filesystem           Size  Used Avail Use% Mounted on
+/dev/mapper/rl-root   17G  2.9G   15G  17% /
+lr-x------. 1 rodrigo rodrigo 64 Nov  2 10:52 0 -&gt; /home/rodrigo/lab14/grande.bin (deleted)
+COMMAND  PID    USER FD TYPE DEVICE  SIZE/OFF NLINK     NODE NAME
+sleep   4242 rodrigo 0r  REG  253,0 314572800     0 33711470 /home/rodrigo/lab14/grande.bin (deleted)</code></pre>
+<p><code translate="no">Avail</code> non è cambiato. <code translate="no">$!</code> è il numero dell'ultima pratica che hai inviato al fondo, <code translate="no">sleep</code>, e <code translate="no">(deleted)</code> ne è la prova: il nome è stato cancellato, ma l'appartamento resta occupato. Sul server non sai quale sia il processo, quindi usi <code translate="no">lsof +L1</code>, che elenca i file aperti che non hanno più alcun nome (<code translate="no">NLINK 0</code>). Se <code translate="no">lsof</code> non è installato nel laboratorio: <code translate="no">sudo dnf install -y lsof</code> su Rocky, <code translate="no">sudo apt install -y lsof</code> su Debian.</p>
+<p><strong>Decide.</strong> Sul server client, <code translate="no">/var</code> rimane al 100% dopo aver eliminato un registro da 20 GB. Cosa fare?</p>
+<ul><li><strong>A)</strong> Scopri chi detiene il file con <code translate="no">sudo lsof +L1</code> e riavvia solo quel servizio.</li>
+<li><strong>B)</strong> Riavvia il server.</li>
+<li><strong>C)</strong> Elimina altri file fino al download di <code translate="no">df</code>.</li>
+<li><strong>D)</strong> Esegui <code translate="no">fsck</code> in <code translate="no">/var</code>.</li></ul>
+<p>Scegli la lettera prima di guardare la tabella.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se hai selezionato</th><th scope="col">Risultato</th><th scope="col">Perché</th></tr></thead><tbody><tr><td>A</td><td>✅ Giusto</td><td>Lo spazio ritorna quando l'ultimo programma chiude il file. Riavviare o ricaricare il servizio giusto risolve il problema in pochi secondi, senza interrompere il resto.</td></tr><tr><td>B</td><td>❌ Sbagliato</td><td>Funziona, ma distrugge tutto a causa di un processo e non se ne conosce ancora la causa.</td></tr><tr><td>C</td><td>❌ Sbagliato</td><td>Elimini le cose utili e lo spazio per la prima rimane intrappolato.</td></tr><tr><td>D</td><td>❌ Sbagliato</td><td>Non c’è corruzione: il sistema sta facendo esattamente quello che dovrebbe. E <code translate="no">fsck</code> in un sistema assemblato è in cerca di guai.</td></tr></tbody></table></div>
+<p>La prossima volta, in un log aperto, non cancellarlo: svuotalo. <code translate="no">truncate -s 0 arquivo</code> azzera il contenuto e lo spazio ritorna immediatamente, con il servizio in esecuzione. Nella Lezione 1.6 vedi la scorciatoia <code translate="no">&gt; arquivo</code>.</p>
+<p><strong>Correggilo.</strong></p>
+<pre translate="no"><code class="lang-bash">kill $!
+df -h ~</code></pre>
+<p>Se hai cambiato terminale nel mezzo, <code translate="no">$!</code> non esiste più lì. Usa il PID mostrato da <code translate="no">lsof</code>: <code translate="no">kill 4242</code>, con il tuo numero.</p>
+<p><strong>Check.</strong> <code translate="no">Avail</code> è aumentato di circa 300 MB, <code translate="no">jobs</code> non mostra nulla e <code translate="no">sudo lsof +L1</code> non elenca più <code translate="no">grande.bin</code>.</p>
+<h3 id="e-l-istantanea">E l'istantanea?</h3>
+<p><code translate="no">m1a4-inicio</code> salva l'intera VM. Tornare ad esso annulla tutto ciò che è venuto dopo, non solo il file che volevi. Egli è la rete di sicurezza della lezione, non lo strumento quotidiano. Ogni giorno, la persona che restituisce un file è il <code translate="no">.bak</code> accanto all'originale e al backup. Avviso Break A: la correzione è arrivata dal backup, in pochi secondi, senza toccare il resto della macchina.</p>
+<h3 id="bonus-in-debian">Bonus in Debian</h3>
+<p>Ripeti i due Break in debian-lab: il risultato è lo stesso, perché i comandi sono gli stessi. Poi guardate <code translate="no">mv</code> che diventa una copia:</p>
+<pre translate="no"><code class="lang-bash">findmnt -T ~
+findmnt -T /tmp
+dd if=/dev/zero of=~/lab14/medio.bin bs=1M count=200 status=none
+time mv ~/lab14/medio.bin ~/lab14/medio2.bin
+time mv ~/lab14/medio2.bin /tmp/
+rm /tmp/medio2.bin</code></pre>
+<p>Nel primo <code translate="no">mv</code> il tempo è praticamente zero. Nella seconda, se <code translate="no">findmnt</code> mostrava <code translate="no">/tmp</code> come <code translate="no">tmpfs</code>, <code translate="no">mv</code> copia i 200 MB in memoria e cancella la sorgente, e si vede il tempo salire. Se entrambi si trovano sullo stesso file system, i tempi sono simili. La lezione è la stessa: <code translate="no">findmnt -T</code> dice in anticipo se <code translate="no">mv</code> sarà istantaneo.</p>
+<h3 id="bonus-da-rocky-l-etichetta-che-mv-porta-con-se">Bonus da Rocky · L'etichetta che <code translate="no">mv</code> porta con sé</h3>
+<p>Solo da rocky-lab, che ha SELinux:</p>
+<pre translate="no"><code class="lang-bash">touch ~/lab14/etq.txt
+ls -Z ~/lab14/etq.txt
+sudo cp ~/lab14/etq.txt /etc/etq-cp.txt
+sudo mv ~/lab14/etq.txt /etc/etq-mv.txt
+ls -Z /etc/etq-cp.txt /etc/etq-mv.txt
+sudo restorecon -v /etc/etq-mv.txt
+sudo rm -v /etc/etq-cp.txt /etc/etq-mv.txt</code></pre>
+<p>Qualcosa del tipo:</p>
+<pre translate="no"><code class="lang-text">unconfined_u:object_r:user_home_t:s0 /home/rodrigo/lab14/etq.txt
+unconfined_u:object_r:etc_t:s0 /etc/etq-cp.txt
+unconfined_u:object_r:user_home_t:s0 /etc/etq-mv.txt
+Relabeled /etc/etq-mv.txt from unconfined_u:object_r:user_home_t:s0 to unconfined_u:object_r:etc_t:s0
+removed '/etc/etq-cp.txt'
+removed '/etc/etq-mv.txt'</code></pre>
+<p>La copia ha il nuovo tag del luogo, <code translate="no">etc_t</code>. Il file spostato continua con il tag home thing, <code translate="no">user_home_t</code>. Su un server web questo è il caso classico: il file è in <code translate="no">/var/www/html</code>, i permessi sono giusti e Apache risponde 403. <code translate="no">restorecon</code> applica il tag giusto al posto. Lo vedrai in modo approfondito nella parte RHCSA.</p>
+<h3 id="la-lezione">La lezione</h3>
+<ul><li><code translate="no">cp</code> crea: nuovo proprietario, data ed etichetta, a meno che tu non chieda <code translate="no">-a</code>.</li>
+<li><code translate="no">mv</code> rinomina: prende tutto insieme, anche l'etichetta.</li>
+<li><code translate="no">rm</code> scollega: lo spazio ritorna solo quando nessun nome e nessun programma utilizza più il file.</li>
+<li>Il ripristino è <code translate="no">cp -a</code> come root e il backup non si sposta.</li></ul>
+<h2 id="8-insidie">8 · Insidie</h2>
+<div class="tabela"><table><thead><tr><th scope="col">Trappola</th><th scope="col">Cosa succede</th><th scope="col">Come evitare</th></tr></thead><tbody><tr><td><code translate="no">cp -r</code> per il backup o il ripristino</td><td>Proprietario e data hanno visto quelli di chi ha copiato</td><td><code translate="no">cp -a</code>, e come root se i proprietari sono altri</td></tr><tr><td>Ripetere <code translate="no">cp -r a b</code></td><td>Nasce per la seconda volta <code translate="no">b/a</code></td><td><code translate="no">cp -a a/. b/</code></td></tr><tr><td><code translate="no">cp -a origem/* destino/</code></td><td>Quelli nascosti vengono lasciati indietro</td><td><code translate="no">cp -a origem/. destino/</code></td></tr><tr><td><code translate="no">mv</code> o <code translate="no">cp</code> per la cartella con il file con lo stesso nome</td><td>Sostituisce bozza</td><td><code translate="no">-i</code> in mano, <code translate="no">--backup=numbered</code> in scrittura</td></tr><tr><td>Spazio extra in <code translate="no">rm -rf</code></td><td>Un bersaglio diventa due</td><td><code translate="no">echo</code> o <code translate="no">printf '[%s]\n'</code> prima di</td></tr><tr><td>Variabile vuota in <code translate="no">rm -rf "$X"/*</code></td><td>Girare <code translate="no">/*</code></td><td><code translate="no">"${X:?}"</code></td></tr><tr><td><code translate="no">rm</code> in un registro aperto</td><td>Lo spazio non ritorna</td><td><code translate="no">truncate -s 0</code>, oppure riavviare chi detiene il file</td></tr><tr><td>Alias ​​di fiducia <code translate="no">rm -i</code></td><td><code translate="no">-f</code> e <code translate="no">sudo</code> vanno oltre</td><td>Il protocollo, sempre</td></tr><tr><td><code translate="no">mv</code> su un altro disco</td><td>Ci vuole tempo, ha bisogno di spazio e, se cade, ne lascia metà da ogni lato</td><td><code translate="no">cp -a</code>, spuntare, solo dopo cancellare l'origine</td></tr><tr><td><code translate="no">.bak</code> in <code translate="no">/tmp</code></td><td>Aggiungi al riavvio</td><td><code translate="no">.bak</code> con la data accanto all'originale</td></tr><tr><td><code translate="no">touch</code> per "azzerare" un file</td><td>Cambia solo la data</td><td><code translate="no">truncate -s 0</code></td></tr><tr><td><code translate="no">mv</code> in Rocky per una cartella di servizio</td><td>Il tag SELinux viene fornito con esso e il servizio non lo legge</td><td><code translate="no">cp</code>, oppure <code translate="no">restorecon</code> dopo <code translate="no">mv</code></td></tr></tbody></table></div>
+<h2 id="9-quiz">9 · Quiz</h2>
+<p>Dieci domande. Rispondi a tutti prima di aprire la chiave di risposta.</p>
+<p><strong>1.</strong> Quale comando crea <code translate="no">/srv/app/releases/v2</code> quando <code translate="no">/srv/app</code> non esiste nemmeno?</p>
+<ul><li>a) <code translate="no">mkdir /srv/app/releases/v2</code></li>
+<li>b) <code translate="no">mkdir -p /srv/app/releases/v2</code></li>
+<li>c) <code translate="no">mkdir -r /srv/app/releases/v2</code></li>
+<li>d) <code translate="no">touch -p /srv/app/releases/v2</code></li></ul>
+<p><strong>2.</strong> La directory <code translate="no">copia</code> non esisteva. Esegui <code translate="no">cp -r site copia</code> due volte. Cosa c'è in <code translate="no">copia</code>?</p>
+<ul><li>a) Solo il contenuto del <code translate="no">site</code>.</li>
+<li>b) Il contenuto del <code translate="no">site</code> e anche del <code translate="no">copia/site</code>.</li>
+<li>c) Solo il contenuto di <code translate="no">site</code>, perché la seconda volta dà un errore.</li>
+<li>d) Il contenuto di <code translate="no">site</code> duplicato, con numeri nel nome.</li></ul>
+<p><strong>3.</strong> Come utente normale esegui <code translate="no">cp -a /etc/hosts ~/</code>. Di chi è la copia e qual è la data?</p>
+<ul><li>a) radice, data originaria.</li>
+<li>b) Tu, esci adesso.</li>
+<li>c) Tu, data originale.</li>
+<li>d) radice, data corrente.</li></ul>
+<p><strong>4.</strong> Quale di questi <strong>non</strong> libera subito spazio su disco?</p>
+<ul><li>a) <code translate="no">rm</code> di una copia che nessuno utilizza.</li>
+<li>b) <code translate="no">rm</code> di un log che un servizio mantiene aperto.</li>
+<li>c) <code translate="no">truncate -s 0</code> in un registro aperto.</li>
+<li>d) <code translate="no">rm -r</code> da un elenco di vecchie copie.</li></ul>
+<p><strong>5.</strong> Completare il comando che cancella la directory <code translate="no">projeto</code> e tutto ciò che contiene, chiedendo una volta: <code translate="no">rm ____ projeto</code></p>
+<p><strong>6.</strong> <code translate="no">compartilhada/relatorio.txt</code> esiste già. Cosa fa <code translate="no">mv relatorio.txt compartilhada/</code>?</p>
+<ul><li>a) Chiedere prima di sostituire.</li>
+<li>b) Dà un errore e non si muove.</li>
+<li>c) Sostituisce il file esistente senza preavviso.</li>
+<li>d) Crea <code translate="no">relatorio.txt.1</code>.</li></ul>
+<p><strong>7.</strong> Quale riga protegge uno script dalle variabili vuote?</p>
+<ul><li>a) <code translate="no">rm -rf "$D"/*</code></li>
+<li>b) <code translate="no">rm -rf "${D:?}"/*</code></li>
+<li>c) <code translate="no">rm -rfi $D/*</code></li>
+<li>d) <code translate="no">sudo rm -rf $D/*</code></li></ul>
+<p><strong>8.</strong> A <code translate="no">mv</code> da un file da 40 GB in un'altra directory sullo stesso file system:</p>
+<ul><li>a) È istantaneo e mantiene l'inode.</li>
+<li>b) Ritardo proporzionale alla dimensione.</li>
+<li>c) Sono necessari 40 GB liberi.</li>
+<li>d) Cambia l'inode.</li></ul>
+<p><strong>9.</strong> Quale comando rimuove la directory vuota <code translate="no">old</code> e fallisce se la directory non è vuota?</p>
+<ul><li>A.<code translate="no">rm old</code></li>
+<li>B.<code translate="no">rmdir old</code></li>
+<li>C.<code translate="no">rm -r old</code></li>
+<li>D.<code translate="no">rm -f old</code></li></ul>
+<p><strong>10.</strong> In rocky-lab, come root, <code translate="no">rm arquivo</code> chiede prima di eliminare. Perché?</p>
+<ul><li>a) SELinux protegge i file root.</li>
+<li>b) C'è un alias <code translate="no">rm='rm -i'</code> in <code translate="no">/root/.bashrc</code>.</li>
+<li>c) <code translate="no">rm</code> chiede sempre quando root lo sta eseguendo.</li>
+<li>d) Il file ha un attributo speciale.</li></ul>
+<h2 id="10-flashcard-e-colla">10 · Flashcard e colla</h2>
+<h3 id="conoscerlo-a-memoria">Conoscerlo a memoria</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Situazione</th><th scope="col">Comando</th></tr></thead><tbody><tr><td>Crea un intero percorso</td><td><code translate="no">mkdir -p a/b/c</code></td></tr><tr><td>Più cartelle contemporaneamente</td><td><code translate="no">mkdir -p site/{css,js,img}</code></td></tr><tr><td>Backup prima della modifica</td><td><code translate="no">cp -a arquivo{,.bak-$(date +%F)}</code></td></tr><tr><td>Copia una directory con tutto, nascosto incluso</td><td><code translate="no">cp -a origem/. destino/</code></td></tr><tr><td>Ripristina dal backup</td><td><code translate="no">sudo cp -a /backup/pasta /destino/</code></td></tr><tr><td>Sposta senza sostituire la bozza</td><td><code translate="no">mv -i</code></td></tr><tr><td>Elimina la directory chiedendo una volta</td><td><code translate="no">rm -rI dir</code></td></tr><tr><td>Scopri cosa fornirà la shell</td><td><code translate="no">printf '[%s]\n'</code> davanti al comando</td></tr><tr><td>Variabile in un <code translate="no">rm</code></td><td><code translate="no">"${VAR:?}"</code></td></tr></tbody></table></div>
+<h3 id="per-consultazione">Per consultazione</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Situazione</th><th scope="col">Comando</th></tr></thead><tbody><tr><td>Conserva quello vecchio quando sostituisci</td><td><code translate="no">mv --backup=numbered</code>, <code translate="no">cp --backup=numbered</code></td></tr><tr><td>Numero dell'appartamento</td><td><code translate="no">ls -i</code>, <code translate="no">stat</code></td></tr><tr><td>File eliminato ancora aperto</td><td><code translate="no">sudo lsof +L1</code>, <code translate="no">ls -l /proc/$!/fd</code></td></tr><tr><td>Svuota un registro aperto</td><td><code translate="no">truncate -s 0 arquivo</code></td></tr><tr><td><code translate="no">mv</code> sarà istantaneo?</td><td><code translate="no">findmnt -T</code> all'origine e alla destinazione</td></tr><tr><td>Tag SELinux</td><td><code translate="no">ls -Z</code>, <code translate="no">sudo restorecon -v arquivo</code></td></tr><tr><td>Confronta con backup</td><td><code translate="no">diff arquivo.bak arquivo</code></td></tr><tr><td>Elimina i genitori vuoti</td><td><code translate="no">rmdir -p a/b/c</code></td></tr></tbody></table></div>
+<h3 id="flashcard">Flashcard</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Davanti</th><th scope="col">Verso</th></tr></thead><tbody><tr><td>Cosa cambia <code translate="no">mv</code>, sullo stesso file system?</td><td>Solo il nome sulla lista. L'inode e il contenuto rimangono.</td></tr><tr><td>Perché <code translate="no">df</code> non viene scaricato dopo <code translate="no">rm</code>?</td><td>Un programma ha ancora il file aperto.</td></tr><tr><td><code translate="no">cp -r</code> o <code translate="no">cp -a</code> per il backup?</td><td><code translate="no">-a</code>: preserva proprietario, permessi, date, etichette e scorciatoie.</td></tr><tr><td>Cosa succede a <code translate="no">cp -r a b</code> la seconda volta?</td><td>Nasce <code translate="no">b/a</code>.</td></tr><tr><td>Come copiare quelli nascosti?</td><td><code translate="no">origem/.</code>, mai <code translate="no">origem/*</code>.</td></tr><tr><td>Cosa fa <code translate="no">${X:?}</code>?</td><td>Arresta bash se <code translate="no">X</code> è vuoto o non esiste.</td></tr><tr><td><code translate="no">-i</code> o <code translate="no">-I</code> in <code translate="no">rm</code>?</td><td><code translate="no">-i</code> chiede file per file; <code translate="no">-I</code> chiede una volta, quando è molto.</td></tr><tr><td>Perché <code translate="no">sudo rm</code> non lo chiede a Rocky?</td><td><code translate="no">sudo</code> non utilizza alias di shell.</td></tr><tr><td>Chi può eliminare un file?</td><td>Chi può scrivere nella directory, anche se il file appartiene a qualcun altro.</td></tr></tbody></table></div>
+<h2 id="11-checklist-di-output">11 · Checklist di output</h2>
+<ul><li>[ ] Creo un intero albero con <code translate="no">mkdir -p</code> e chiavi, senza consultare.</li>
+<li>[ ] Creo <code translate="no">.bak</code> con data prima di modificare qualsiasi configurazione.</li>
+<li>[ ] Spiego chi diventa proprietario della copia in <code translate="no">cp</code>, <code translate="no">cp -a</code>, <code translate="no">sudo cp</code> e <code translate="no">sudo cp -a</code>.</li>
+<li>[ ] Copio una directory con quelle nascoste, in modo che dia lo stesso risultato se eseguito di nuovo.</li>
+<li>[ ] So perché <code translate="no">mv</code> è istantaneo sullo stesso disco e quando non lo è.</li>
+<li>[ ] Utilizzo il protocollo prima di ogni <code translate="no">rm</code>.</li>
+<li>[ ] Proteggo la variabile in <code translate="no">rm</code> tra virgolette e <code translate="no">:?</code>.</li>
+<li>[ ] Trovo un file cancellato che occupa ancora spazio.</li></ul>
+<p><strong>Ultimo esercizio: cancella <code translate="no">~/lab14</code> con il protocollo.</strong> In entrambe le VM:</p>
+<pre translate="no"><code class="lang-bash">cd ~
+pwd -P
+ls -la ~/lab14
+printf '[%s]\n' rm -rI ~/lab14
+rm -rI ~/lab14</code></pre>
+<p>Dopo la domanda di <code translate="no">-I</code>, <code translate="no">rm</code> chiede ancora <code translate="no">hosts-sudo</code> e <code translate="no">hosts-sudo-a</code>: sono root e protetto da scrittura. Rispondi <code translate="no">y</code>. Puoi eliminarli perché l'eliminazione significa spostare l'elenco delle directory e la directory è tua. Presso Rocky-Lab verificare anche che il bonus non abbia lasciato traccia: <code translate="no">ls /etc/etq-*</code> dovrebbe rispondere a <code translate="no">No such file or directory</code>. <code translate="no">~/lab13</code> rimane, perché lezione 1.5 utilizza i suoi log.</p>
+<p>Chiusura snapshot, nel nodo Proxmox:</p>
+<pre translate="no"><code class="lang-bash">qm snapshot 201 m1a4-fim
+qm snapshot 202 m1a4-fim</code></pre>
+<h2 id="12-nella-vita-reale">12 · Nella vita reale</h2>
+<p><strong>Missione, sola lettura.</strong> Apri un vero server Linux, dal lavoro o dal tuo. Niente <code translate="no">cp</code>, <code translate="no">mv</code> o <code translate="no">rm</code> oggi: basta guardare.</p>
+<pre translate="no"><code class="lang-bash">ls -la /etc/ssh/
+ls -d /etc/*.bak* /etc/*/*.bak*
+sudo cat /root/.bashrc
+df -h
+sudo lsof +L1
+findmnt -T /var/log
+findmnt -T /tmp</code></pre>
+<p>Se <code translate="no">lsof</code> non è installato, per questo motivo non installare nulla in produzione. La stessa conclusione emerge dal <code translate="no">sudo find /proc/[0-9]*/fd -lname '*(deleted)'</code>, che recita solo.</p>
+<p><strong>Domande per il diario:</strong></p>
+<ol><li>Quanti <code translate="no">.bak</code> hai trovato, quando e da chi? Il team esegue una copia prima della modifica o non rimane traccia?</li>
+<li>Ci sono file eliminati che occupano spazio in questo momento? Quale servizio e quanto?</li>
+<li>La radice di questo server ha l'alias <code translate="no">rm -i</code>? Qualcuno nel team lo sa?</li>
+<li>Un <code translate="no">mv</code> da <code translate="no">/var/log</code> a <code translate="no">/tmp</code> sarebbe istantaneo su quel server?</li></ol>
+<p><strong>Sfida della settimana.</strong> Ogni volta che modifichi una configurazione, su qualsiasi server, inizia con <code translate="no">cp -a arquivo{,.bak-$(date +%F)}</code> e termina con un <code translate="no">diff</code> tra <code translate="no">.bak</code> e il file. Annota nel tuo diario quante volte l'hai fatto e se <code translate="no">.bak</code> ti ha salvato in qualcuna di esse.</p>
+<p><strong>Domani, senza guardare.</strong> In Rocky-Lab, senza aprire questa lezione:</p>
+<ol><li>Crea <code translate="no">~/teste/a/b/c</code> e <code translate="no">~/teste/x/1</code>, <code translate="no">~/teste/x/2</code> e <code translate="no">~/teste/x/3</code>, con un comando per ogni albero.</li>
+<li>Effettuare il backup con data <code translate="no">/etc/hosts</code>, accanto, conservando tutto.</li>
+<li>Copia <code translate="no">~/lab13/logs</code>, incluso quello nascosto, in <code translate="no">~/logs-copia</code>, in modo che dia lo stesso risultato se eseguito nuovamente.</li>
+<li>Spiega in due frasi perché <code translate="no">df</code> non è stato scaricato dopo un <code translate="no">rm</code> e quale comando trova il colpevole.</li>
+<li>Scrivere la riga di script che cancella il contenuto di <code translate="no">$DESTINO</code> senza il rischio di trasformarlo in <code translate="no">/*</code>.</li></ol>
+<h2 id="13-con-deeptutor">13 · Con DeepTutor</h2>
+<ul><li><code translate="no">!quiz</code> lezione 1.4: dieci domande su <code translate="no">mkdir</code>, <code translate="no">cp</code>, <code translate="no">mv</code> e <code translate="no">rm</code> in stile LPIC-1 103.3.</li>
+<li><code translate="no">!explica</code> la differenza tra <code translate="no">cp -r</code> e <code translate="no">cp -a</code>, con un esempio di restauro andato storto.</li>
+<li><code translate="no">!feynman</code> inode: spiega con parole tue e chiedi al tutor di trovare il buco.</li>
+<li><code translate="no">!quebra</code> un nuovo problema con i file, da risolvere in Rocky-Lab.</li>
+<li><code translate="no">!cartoes</code> con le flashcard della sezione 10.</li>
+<li><code translate="no">!erro</code> con <code translate="no">Permission denied</code> dalla Pausa A, chiedendo il diagnosi.</li>
+<li><code translate="no">!revisao</code> in due giorni, dalle lezioni 1.3 e 1.4 insieme.</li></ul>
+<h2 id="foglio-di-risposte-commentato">Foglio di risposte commentato</h2>
+<h3 id="riscaldamento">Riscaldamento</h3>
+<ol><li><code translate="no">app1.log app2.log</code>. <code translate="no">?</code> vale esattamente un carattere, quindi <code translate="no">app10.log</code> viene tralasciato.</li>
+<li>Le virgolette scompaiono prima dell'esecuzione di <code translate="no">rm</code>: riceve <code translate="no">-rf</code> e lo interpreta come opzioni. Funziona <code translate="no">rm ./-rf</code> o <code translate="no">rm -- -rf</code>.</li>
+<li><code translate="no">pwd -P</code>, che risolve le scorciatoie e mostra la directory reale.</li></ol>
+<h3 id="quiz">Quiz</h3>
+<ol><li><strong>b.</strong> <code translate="no">-p</code> crea i genitori mancanti. a) fallisce senza genitori, c) utilizza un'opzione che <code translate="no">mkdir</code> non ha ed) crea file, non directory.</li>
+<li><strong>b.</strong> La seconda volta <code translate="no">copia</code> esiste già, e <code translate="no">cp</code> vi inserisce <code translate="no">site</code>.</li>
+<li><strong>c.</strong> L'utente ordinario non fornisce file a qualcun altro, quindi sei tu il proprietario. <code translate="no">-a</code> conserva la data.</li>
+<li><strong>b.</strong> Il nome viene cancellato dall'elenco, ma il servizio detiene l'appartamento. <code translate="no">truncate</code> c) si sblocca immediatamente perché svuota il contenuto.</li>
+<li><strong><code translate="no">-rI</code>.</strong> Valgono anche i <code translate="no">-Ir</code> e <code translate="no">-r -I</code>.</li>
+<li><strong>c.</strong> Per impostazione predefinita, <code translate="no">mv</code> sostituisce bozza.</li>
+<li><strong>b.</strong> virgolette e <code translate="no">:?</code>. In a), vuoto diventa <code translate="no">/*</code>. c) non c'è nessuno a cui rispondere in uno script e d) peggiora tutto con root.</li>
+<li><strong>a.</strong> Stessa lista, nuovo nome, stesso inode.</li>
+<li><strong>B.</strong> Una spiegazione per alternativa:</li></ol>
+<div class="tabela"><table><thead><tr><th scope="col">Alternativa</th><th scope="col">Risultato</th><th scope="col">Perché</th></tr></thead><tbody><tr><td>A. <code translate="no">rm old</code></td><td>❌ Sbagliato</td><td>Senza <code translate="no">-r</code>, <code translate="no">rm</code> rifiuta la directory, vuota o meno: <code translate="no">Is a directory</code>.</td></tr><tr><td>B. <code translate="no">rmdir old</code></td><td>✅ Giusto</td><td>Cancellare solo la directory vuota e fallire con <code translate="no">Directory not empty</code> se c'è qualcosa al suo interno.</td></tr><tr><td>C.<code translate="no">rm -r old</code></td><td>❌ Sbagliato</td><td>Cancella la directory con tutto quello che c'è dentro: non fallisce se c'è del contenuto.</td></tr><tr><td>D.<code translate="no">rm -f old</code></td><td>❌ Sbagliato</td><td>il <code translate="no">-f</code> non attribuisce al <code translate="no">rm</code> il potere di cancellare gli elenchi; continua a rifiutare.</td></tr></tbody></table></div>
+<ol start="10"><li><strong>b.</strong> L'alias è in <code translate="no">/root/.bashrc</code> di Rocky. In Debian, le stesse righe sono commentate.</li></ol>
+</article><nav class="paginas" aria-label="Lezioni"><a class="ant" href="1.3-caminhos-e-navegacao.it.html"><small>← Precedente</small>1.3 · Percorsi e navigazione</a><a class="prox" href="1.5-ler-e-procurar-texto.it.html"><small>Successiva →</small>1.5 · Leggere e cercare testo</a></nav></main></div>
+<footer><div class="wrap">Generato dal Markdown del corso · Immagini in <code translate="no">img/</code></div></footer>
+</body>
+</html>

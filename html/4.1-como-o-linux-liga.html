@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light dark">
+<title>4.1 · Como o Linux liga · Curso Linux Sysadmin</title>
+<link rel="alternate" hreflang="pt-BR" href="4.1-como-o-linux-liga.html"><link rel="alternate" hreflang="it" href="4.1-como-o-linux-liga.it.html">
+<style>
+:root{color-scheme:light dark;--bg:#f6f1e7;--card:#fffdf8;--ink:#201c16;--muted:#5e564a;--accent:#9a3412;--accent-2:#1f5f4a;--tint:#efe6d4;--line:#ddd2bc;--code:#f1eadb;--shadow:0 1px 2px rgba(60,40,10,.08);--serif:Georgia,"Iowan Old Style","Palatino Linotype",Palatino,serif;--sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--mono:"Cascadia Code",Consolas,"DejaVu Sans Mono",monospace}
+@media (prefers-color-scheme:dark){:root{--bg:#16130f;--card:#201b15;--ink:#f1eadb;--muted:#b9ad98;--accent:#f0a070;--accent-2:#7fd0b0;--tint:#2a231a;--line:#3d3427;--code:#191510;--shadow:none}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:5.5rem}
+body{margin:0;background:var(--bg);color:var(--ink);font:1rem/1.6 var(--sans)}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--accent-2);outline-offset:2px;border-radius:4px}
+.pular{position:absolute;left:-999px;top:0;background:var(--card);padding:.5rem 1rem;z-index:20}
+.pular:focus{left:.5rem;top:.5rem}
+.wrap{width:100%;max-width:84rem;margin:0 auto;padding-inline:max(1rem,env(safe-area-inset-left))}
+.top{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10;border-top:6px solid var(--accent)}
+.top-in{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding-block:.6rem}
+.titles{min-width:0}
+.marca{margin:0;font:700 clamp(1.15rem,1rem + 1vw,1.6rem)/1.15 var(--serif);letter-spacing:-.01em}
+.marca a{text-decoration:none}
+.marca a:hover{color:var(--accent)}
+.meta{margin:.1rem 0 0;color:var(--muted);font-size:.85rem}
+.acoes{display:flex;align-items:center;gap:.9rem;flex:none}
+.acoes>a{font-size:.9rem;font-weight:600;color:var(--muted);text-decoration:none}
+.acoes>a:hover{color:var(--accent);text-decoration:underline}
+.idioma{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--tint)}
+.idioma>*{padding:.35rem .9rem;font-size:.8rem;font-weight:700;letter-spacing:.06em;text-decoration:none;color:var(--muted);min-width:2.75rem;text-align:center}
+.idioma a:hover{color:var(--accent);text-decoration:underline}
+.idioma span{background:var(--accent);color:#fff}
+@media (prefers-color-scheme:dark){.idioma span{color:#16130f}}
+code{font-family:var(--mono);font-size:.9em;background:var(--tint);padding:.1rem .35rem;border-radius:4px;overflow-wrap:anywhere}
+/* índice */
+.capa{max-width:70rem;padding-block:2rem 3rem}
+.stats{border-left:4px solid var(--accent-2);background:var(--card);border-radius:0 10px 10px 0;padding:1rem 1.25rem;margin:0 0 2.5rem;box-shadow:var(--shadow);color:var(--muted)}
+.stats strong{color:var(--ink)}
+.modulo{display:grid;grid-template-columns:15rem minmax(0,1fr);gap:1rem 2rem;padding:1.75rem 0;border-top:1px solid var(--line)}
+.modulo h2{margin:0;font:700 1.25rem/1.25 var(--serif);align-self:start;position:sticky;top:6rem}
+.mn{display:block;font:700 .8rem var(--mono);letter-spacing:.12em;color:var(--accent);margin-bottom:.25rem}
+.sep{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.modulo ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,17rem),1fr));gap:.75rem}
+.modulo li{margin:0}
+.modulo a{display:flex;gap:.45rem;align-items:baseline;height:100%;padding:.85rem 1rem;background:var(--card);border:1px solid var(--line);border-radius:10px;text-decoration:none;font-weight:600;line-height:1.35;box-shadow:var(--shadow);transition:border-color .15s,transform .15s}
+.modulo a:hover{border-color:var(--accent);color:var(--accent)}
+.num{font:700 .85rem var(--mono);color:var(--accent);white-space:nowrap}
+/* aula */
+.doc{display:grid;grid-template-columns:17rem minmax(0,1fr);gap:2.5rem;align-items:start;padding-block:2rem 3rem}
+.lateral{position:sticky;top:5.5rem;max-height:calc(100vh - 6.5rem);overflow:auto;font-size:.875rem;padding-right:.5rem}
+.lateral h2{margin:0 0 .25rem;font:700 .95rem var(--serif);color:var(--muted)}
+.lateral h3{margin:1rem 0 .25rem;font:700 .75rem var(--mono);letter-spacing:.06em;color:var(--accent)}
+.lateral ul{list-style:none;margin:0;padding:0}
+.lateral a{display:flex;gap:.45rem;padding:.25rem .5rem;border-radius:6px;text-decoration:none;color:var(--muted);line-height:1.3}
+.lateral a:hover{background:var(--tint);color:var(--ink)}
+.lateral a[aria-current]{background:var(--tint);color:var(--ink);font-weight:700;box-shadow:inset 3px 0 0 var(--accent)}
+.lateral .num{font-size:.75rem}
+.aula{min-width:0;max-width:56rem;overflow-wrap:break-word;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:clamp(1.25rem,1rem + 2vw,2.75rem);box-shadow:var(--shadow)}
+.aula h1{margin:0 0 1.5rem;font:700 clamp(1.75rem,1.4rem + 1.6vw,2.5rem)/1.15 var(--serif);letter-spacing:-.015em;color:var(--ink)}
+.aula h2{margin:2.5rem 0 .75rem;padding-top:1.25rem;border-top:1px solid var(--line);font:700 1.5rem/1.25 var(--serif)}
+.aula h3{margin:2rem 0 .5rem;font:700 1.15rem/1.3 var(--serif);color:var(--accent)}
+.aula h4,.aula h5,.aula h6{margin:1.5rem 0 .5rem;font-size:1rem}
+.aula p,.aula ul,.aula ol{margin:1rem 0}
+.aula ul,.aula ol{padding-left:1.5rem}
+.aula li{margin:.35rem 0}
+.aula li>ul,.aula li>ol{margin:.35rem 0}
+.aula a{color:var(--accent);text-underline-offset:2px}
+.aula hr{border:0;border-top:1px solid var(--line);margin:2rem 0}
+.tabela{overflow-x:auto;margin:1.25rem 0;border:1px solid var(--line);border-radius:10px}
+.aula table{width:100%;border-collapse:collapse;font-size:.9rem}
+.aula th,.aula td{padding:.55rem .75rem;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+.aula tr:last-child td{border-bottom:0}
+.aula th{background:var(--tint);font-weight:700}
+.aula pre{background:var(--code);border:1px solid var(--line);border-radius:10px;padding:.9rem 1rem;overflow-x:auto;font:.85rem/1.5 var(--mono);margin:1rem 0;tab-size:4}
+.aula pre code{background:none;padding:0;font-size:inherit;overflow-wrap:normal}
+.aula blockquote{margin:1.25rem 0;padding:.75rem 1.25rem;border-left:4px solid var(--accent-2);background:var(--tint);border-radius:0 10px 10px 0}
+.aula blockquote>:first-child{margin-top:0}
+.aula blockquote>:last-child{margin-bottom:0}
+.aula figure{margin:1.75rem 0;text-align:center}
+.aula figure img{display:block;margin:0 auto;max-width:100%;height:auto;border:1px solid var(--line);border-radius:10px;background:#fff}
+.aula figcaption{margin-top:.5rem;color:var(--muted);font-size:.9rem;font-style:italic}
+.paginas{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:2.5rem;padding-top:1.5rem;border-top:1px solid var(--line)}
+.paginas a{display:block;padding:.75rem 1rem;border:1px solid var(--line);border-radius:10px;text-decoration:none;color:var(--ink);font-weight:600;line-height:1.3}
+.paginas a:hover{border-color:var(--accent);color:var(--accent)}
+.paginas small{display:block;color:var(--muted);font-weight:400}
+.paginas .prox{grid-column:2;text-align:right}
+footer{border-top:1px solid var(--line);padding-block:1.5rem;color:var(--muted);font-size:.85rem;text-align:center}
+@media (hover:hover) and (prefers-reduced-motion:no-preference){.modulo a:hover{transform:translateY(-2px)}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+@media (max-width:980px){.doc{grid-template-columns:minmax(0,1fr);padding-top:1rem}.lateral{position:static;max-height:none;order:2}.aula{max-width:none}}
+@media (max-width:860px){.modulo{grid-template-columns:minmax(0,1fr)}.modulo h2{position:static}.mn{display:inline;margin-right:.5rem}}
+@media (max-width:420px){.meta{display:none}.top-in{gap:.5rem}.acoes{gap:.6rem}.capa{padding-top:1.25rem}.paginas{grid-template-columns:minmax(0,1fr)}.paginas .prox{grid-column:1}}
+@media print{.top,.lateral,.paginas{display:none}.aula{border:0;box-shadow:none;padding:0;max-width:none}.doc{display:block}}
+</style>
+</head>
+<body>
+<a class="pular" href="#conteudo">Pular para o conteúdo</a>
+<header class="top"><div class="wrap top-in"><div class="titles"><p class="marca"><a href="index.html">Curso Linux Sysadmin</a></p><p class="meta">Rodrigo Antignani · Aula 4.1</p></div><div class="acoes"><a href="index.html">Índice</a><div class="idioma" role="group" aria-label="Idioma"><span aria-current="true">PT</span><a href="4.1-como-o-linux-liga.it.html" hreflang="it" lang="it">IT</a></div></div></div></header>
+<div class="wrap doc"><aside class="lateral" aria-label="Aulas"><h2>Aulas</h2><h3>M0 · Laboratório</h3><ul><li><a href="0.1-montar-o-laboratorio.html"><span class="num">0.1</span><span>Montar o laboratório</span></a></li><li><a href="0.2-acesso-e-protecao.html"><span class="num">0.2</span><span>Acesso e proteção</span></a></li></ul><h3>M1 · Linha de comando</h3><ul><li><a href="1.1-o-que-e-linux.html"><span class="num">1.1</span><span>O que é Linux</span></a></li><li><a href="1.2-o-shell-e-a-ajuda.html"><span class="num">1.2</span><span>O shell e a ajuda</span></a></li><li><a href="1.3-caminhos-e-navegacao.html"><span class="num">1.3</span><span>Caminhos e navegação</span></a></li><li><a href="1.4-criar-copiar-mover-e-apagar.html"><span class="num">1.4</span><span>Criar, copiar, mover e apagar</span></a></li><li><a href="1.5-ler-e-procurar-texto.html"><span class="num">1.5</span><span>Ler e procurar texto</span></a></li><li><a href="1.6-redirecionamentos-e-pipes.html"><span class="num">1.6</span><span>Redirecionamentos e pipes</span></a></li><li><a href="1.7-arquivar-e-compactar.html"><span class="num">1.7</span><span>Arquivar e compactar</span></a></li><li><a href="1.8-primeiro-script.html"><span class="num">1.8</span><span>Primeiro script</span></a></li><li><a href="1.9-decidir-e-repetir.html"><span class="num">1.9</span><span>Decidir e repetir</span></a></li><li><a href="1.10-software-livre-na-pratica.html"><span class="num">1.10</span><span>Software livre na prática</span></a></li></ul><h3>M2 · Sistema, usuários e permissões</h3><ul><li><a href="2.1-instalacao-e-provisionamento.html"><span class="num">2.1</span><span>Instalação e provisionamento</span></a></li><li><a href="2.2-hardware-e-dispositivos.html"><span class="num">2.2</span><span>Hardware e dispositivos</span></a></li><li><a href="2.3-processos-e-logs.html"><span class="num">2.3</span><span>Processos e logs</span></a></li><li><a href="2.4-rede-no-dia-a-dia.html"><span class="num">2.4</span><span>Rede no dia a dia</span></a></li><li><a href="2.5-acesso-remoto-e-privilegios.html"><span class="num">2.5</span><span>Acesso remoto e privilégios</span></a></li><li><a href="2.6-usuarios-e-grupos.html"><span class="num">2.6</span><span>Usuários e grupos</span></a></li><li><a href="2.7-permissoes-e-dono.html"><span class="num">2.7</span><span>Permissões e dono</span></a></li><li><a href="2.8-diretorios-e-arquivos-especiais.html"><span class="num">2.8</span><span>Diretórios e arquivos especiais</span></a></li></ul><h3>M3 · Texto e editor</h3><ul><li><a href="3.1-fluxos-a-fundo.html"><span class="num">3.1</span><span>Fluxos a fundo</span></a></li><li><a href="3.2-filtros-de-texto.html"><span class="num">3.2</span><span>Filtros de texto</span></a></li><li><a href="3.3-regex-e-grep.html"><span class="num">3.3</span><span>Regex e grep</span></a></li><li><a href="3.4-sed-e-awk.html"><span class="num">3.4</span><span>sed e awk</span></a></li><li><a href="3.5-vi-e-vim-de-verdade.html"><span class="num">3.5</span><span>vi e vim de verdade</span></a></li></ul><h3>M4 · systemd e boot</h3><ul><li><a href="4.1-como-o-linux-liga.html" aria-current="page"><span class="num">4.1</span><span>Como o Linux liga</span></a></li><li><a href="4.2-systemd-servicos-e-units.html"><span class="num">4.2</span><span>systemd: serviços e units</span></a></li><li><a href="4.3-targets-desligar-e-reiniciar.html"><span class="num">4.3</span><span>Targets: desligar e reiniciar</span></a></li><li><a href="4.4-grub-e-acesso-de-emergencia.html"><span class="num">4.4</span><span>GRUB e acesso de emergência</span></a></li></ul><h3>M5 · Kernel, módulos e VM</h3><ul><li><a href="5.1-hardware-pelo-kernel.html"><span class="num">5.1</span><span>Hardware pelo kernel</span></a></li><li><a href="5.2-modulos-e-parametros.html"><span class="num">5.2</span><span>Módulos e parâmetros</span></a></li><li><a href="5.3-linux-como-convidado.html"><span class="num">5.3</span><span>Linux como convidado</span></a></li></ul><h3>M6 · Pacotes e repositórios</h3><ul><li><a href="6.1-pacotes-no-debian.html"><span class="num">6.1</span><span>Pacotes no Debian</span></a></li><li><a href="6.2-pacotes-na-rocky.html"><span class="num">6.2</span><span>Pacotes na Rocky</span></a></li><li><a href="6.3-repositorios.html"><span class="num">6.3</span><span>Repositórios</span></a></li><li><a href="6.4-flatpak.html"><span class="num">6.4</span><span>Flatpak</span></a></li><li><a href="6.5-bibliotecas-compartilhadas.html"><span class="num">6.5</span><span>Bibliotecas compartilhadas</span></a></li></ul></aside><main id="conteudo" class="aula"><article><h1>Aula 4.1 · Como o Linux liga</h1>
+<p>Até aqui você ligou as VMs e entrou nelas. Hoje você olha o que acontece no meio: entre apertar o botão e aparecer o <code translate="no">login:</code>, cinco programas passam o controle um para o outro. Quando um servidor não volta depois de um reboot, a primeira pergunta é sempre em qual dessas cinco etapas ele parou, e cada etapa tem uma cara diferente na tela. Quem sabe ler essa cara conserta o servidor; quem não sabe, reinstala.</p>
+<blockquote><p><strong>Formato núcleo.</strong> A partir desta aula, cada aula traz o essencial: o que você precisa saber sem internet, numa emergência, e o que a prova cobra na mão. Os detalhes que não entraram estão listados na seção 12, para você puxar no DeepTutor quando precisar.</p></blockquote>
+<div class="tabela"><table><thead><tr><th scope="col">Ficha</th><th scope="col">Aula 4.1</th></tr></thead><tbody><tr><td>Módulo</td><td>M4 · Boot e systemd, aula 1 de 4</td></tr><tr><td>Quando</td><td>Semana 8</td></tr><tr><td>Ao final você consegue</td><td>Dizer as cinco etapas do boot e o que cada uma entrega para a próxima; descobrir se a máquina usa UEFI ou BIOS; achar o kernel e o initramfs no <code translate="no">/boot</code> e a linha de comando do kernel em <code translate="no">/proc/cmdline</code>; confirmar que o PID 1 é o <code translate="no">systemd</code> e qual é o target padrão; ler o boot atual e o anterior com <code translate="no">journalctl -b</code>; achar o que atrasou o boot com <code translate="no">systemd-analyze</code></td></tr><tr><td>Itens de prova</td><td>LPIC-1 101.2 (sequência de boot, initramfs, <code translate="no">dmesg</code> e <code translate="no">journalctl</code>, noção de SysVinit) · RHCSA (reiniciar e desligar; guardar o journal entre reboots)</td></tr><tr><td>Pré-requisitos</td><td>Aula 2.3 (processos e <code translate="no">journalctl</code>); Aula 3.5 (<code translate="no">vim</code> e <code translate="no">sudoedit</code>)</td></tr><tr><td>Tempo</td><td>Cerca de 1h30</td></tr><tr><td>Snapshots</td><td>m4a1-inicio e m4a1-fim nas duas VMs</td></tr></tbody></table></div>
+<h2 id="1-aquecimento">1 · Aquecimento</h2>
+<p>Três perguntas, de cabeça. Escreva as respostas; o Gabarito confere no fim.</p>
+<ol><li>A máquina liga: aparece o logo do fabricante, depois um menu com uma lista de kernels, depois texto rolando, depois o <code translate="no">login:</code>. Palpite: quem mostra o menu, e quem mostra o texto que rola?</li>
+<li>O SSH já aceita a sua conexão, mas o <code translate="no">systemd-analyze</code> responde que o boot ainda não terminou. Palpite: como pode?</li>
+<li>Palpite: qual é o número do processo do <code translate="no">systemd</code>, e por que justo esse?</li></ol>
+<h2 id="2-por-que-importa">2 · Por que importa</h2>
+<div class="tabela"><table><thead><tr><th scope="col">O chamado</th><th scope="col">A resposta errada</th><th scope="col">O que acontece</th></tr></thead><tbody><tr><td>"O servidor não voltou depois do reboot"</td><td>Restaurar o backup</td><td>Sem saber em qual etapa ele parou, você não sabe o que consertar, e pode restaurar um backup com o mesmo problema. A tela diz a etapa: <code translate="no">grub&gt;</code>, <code translate="no">Kernel panic</code>, <code translate="no">dracut:/#</code> ou <code translate="no">Give root password for maintenance</code> são quatro problemas diferentes</td></tr><tr><td>"Ficou lento para subir depois da atualização"</td><td>Esperar e reclamar</td><td>O <code translate="no">systemd-analyze blame</code> mostra em dois segundos qual serviço segurou o boot</td></tr><tr><td>"Reiniciou sozinho de madrugada"</td><td>Olhar o <code translate="no">journalctl</code>, que só mostra o boot de agora</td><td>O motivo está no boot anterior, com <code translate="no">journalctl -b -1</code>. Se o journal não for persistente, o motivo sumiu no reboot, e você nunca vai saber</td></tr><tr><td>"Atualizei o kernel e não sobe mais"</td><td>Reinstalar</td><td>O GRUB guarda os kernels anteriores. Escolher o anterior no menu põe o servidor no ar hoje; a causa você investiga com calma, na Aula 4.4</td></tr></tbody></table></div>
+<h2 id="3-modelo-mental">3 · Modelo mental</h2>
+<blockquote><p>O boot é uma <strong>corrida de revezamento</strong> com cinco corredores. Cada um faz uma coisa só e passa o bastão: o <strong>firmware</strong> acha o disco e carrega o GRUB; o <strong>GRUB</strong> põe o kernel e o initramfs na memória e entrega a linha de comando; o <strong>kernel</strong> liga o hardware e roda o initramfs; o <strong>initramfs</strong> acha e monta o disco de verdade e chama o <code translate="no">systemd</code>; o <strong>systemd</strong> sobe os serviços até o target padrão. Se o boot parou, a pergunta é sempre a mesma: <strong>quem estava com o bastão?</strong></p></blockquote>
+<div class="tabela"><table><thead><tr><th scope="col">Etapa</th><th scope="col">Onde mora</th><th scope="col">O que entrega</th><th scope="col">Se parar aqui, você vê</th></tr></thead><tbody><tr><td>1 · Firmware (UEFI ou BIOS)</td><td>Na placa-mãe, ou na configuração da VM</td><td>O GRUB carregado do disco</td><td>Só o logo, ou <code translate="no">No bootable device</code></td></tr><tr><td>2 · GRUB 2</td><td><code translate="no">/boot/efi</code> (UEFI) e <code translate="no">/boot</code></td><td>Kernel e initramfs na memória, mais a linha de comando</td><td>O prompt <code translate="no">grub&gt;</code> ou <code translate="no">grub rescue&gt;</code></td></tr><tr><td>3 · Kernel</td><td><code translate="no">/boot/vmlinuz-VERSÃO</code></td><td>Hardware ligado, initramfs rodando</td><td><code translate="no">Kernel panic</code></td></tr><tr><td>4 · initramfs</td><td><code translate="no">/boot/initramfs-VERSÃO.img</code> (Rocky) ou <code translate="no">/boot/initrd.img-VERSÃO</code> (Debian)</td><td>O disco raiz montado, e o <code translate="no">systemd</code> chamado</td><td>Um shell <code translate="no">dracut:/#</code> (Rocky) ou <code translate="no">(initramfs)</code> (Debian), depois de esperar o disco</td></tr><tr><td>5 · systemd, o PID 1</td><td><code translate="no">/usr/lib/systemd/systemd</code></td><td>Os serviços e o target padrão</td><td>O modo de emergência: <code translate="no">Give root password for maintenance</code></td></tr></tbody></table></div>
+<p>Guarde a tabela. Ela é o mapa de toda emergência de boot do resto do curso.</p>
+<figure><a href="../img/4.1-corrida-do-boot.svg"><img src="../img/4.1-corrida-do-boot.svg" alt="A corrida de revezamento do boot" loading="lazy" decoding="async"></a><figcaption>Cinco corredores passam o bastão; se o boot parou, pergunte quem estava com ele.</figcaption></figure>
+<h2 id="4-o-essencial">4 · O essencial</h2>
+<h3 id="uefi-ou-bios">UEFI ou BIOS</h3>
+<p>O firmware é o primeiro programa a rodar. O <strong>BIOS</strong>, o antigo, lê o primeiro setor do disco e roda o que estiver lá. O <strong>UEFI</strong>, o atual, guarda uma lista de entradas de boot na memória da placa (a NVRAM) e abre um arquivo <code translate="no">.efi</code> numa partição pequena, em FAT, chamada <strong>ESP</strong>, que o Linux monta em <code translate="no">/boot/efi</code>. Numa VM do Proxmox, depende da VM: OVMF é UEFI, SeaBIOS é BIOS.</p>
+<p>Para saber qual é, sem reiniciar: se existe <code translate="no">/sys/firmware/efi</code>, o sistema subiu por UEFI.</p>
+<h3 id="grub-2">GRUB 2</h3>
+<p>O GRUB mostra o menu, carrega o kernel e o initramfs escolhidos e passa a <strong>linha de comando do kernel</strong>. O arquivo dele, o <code translate="no">grub.cfg</code>, é <strong>gerado</strong>: você não edita à mão, porque a próxima atualização de kernel o reescreve. Na Rocky, cada kernel tem uma entrada em <code translate="no">/boot/loader/entries/</code> e a ferramenta é o <code translate="no">grubby</code>; na Debian, você muda o <code translate="no">/etc/default/grub</code> e roda <code translate="no">update-grub</code>. As duas coisas ficam para a Aula 4.4.</p>
+<h3 id="kernel-e-a-linha-de-comando">Kernel e a linha de comando</h3>
+<p>O kernel é um arquivo, <code translate="no">/boot/vmlinuz-VERSÃO</code>, e a versão que está rodando é a do <code translate="no">uname -r</code>. A linha de comando que o GRUB passou está em <code translate="no">/proc/cmdline</code>. Os itens que você vai ver sempre:</p>
+<ul><li><code translate="no">root=</code>: onde está o disco raiz, por UUID ou por nome de volume LVM.</li>
+<li><code translate="no">ro</code>: o kernel monta a raiz só para leitura, e o <code translate="no">systemd</code> remonta para escrita depois de conferir.</li>
+<li><code translate="no">quiet</code> e, na Rocky, <code translate="no">rhgb</code>: escondem o texto do boot. Tirá-los no menu do GRUB é o primeiro passo para ver onde o boot trava.</li></ul>
+<h3 id="initramfs">initramfs</h3>
+<p>O kernel precisa ler o disco para achar o <code translate="no">/</code>, mas o driver do disco, o LVM ou a criptografia estão <strong>no próprio disco</strong>. O initramfs resolve isso: é um mini-sistema que o GRUB põe na memória junto com o kernel, com só o que é preciso para achar e montar a raiz de verdade. Quando consegue, ele passa o controle para o <code translate="no">/sbin/init</code> da raiz, que é o <code translate="no">systemd</code>. A Rocky gera o initramfs com o <code translate="no">dracut</code>, e a Debian com o <code translate="no">update-initramfs</code>; os dois rodam sozinhos a cada kernel novo.</p>
+<p>Se o initramfs não tem o driver certo, ou não acha o disco do <code translate="no">root=</code>, você cai no shell dele depois de uma espera, ou num <code translate="no">Kernel panic</code> que fala em <code translate="no">unable to mount root fs</code>.</p>
+<h3 id="systemd-o-pid-1">systemd, o PID 1</h3>
+<p>O <code translate="no">systemd</code> é o primeiro processo que o kernel inicia na raiz de verdade, então recebe o número <strong>1</strong>. Todos os outros processos descendem dele, e se ele morre, o kernel entra em pânico. Ele sobe as <strong>units</strong> (serviços, montagens, sockets) em paralelo, respeitando as dependências, até chegar ao <strong>target padrão</strong>: um grupo de units com nome, como <code translate="no">multi-user.target</code> para servidor, ou <code translate="no">graphical.target</code> com interface gráfica.</p>
+<p>Antes do <code translate="no">systemd</code>, o padrão era o <strong>SysVinit</strong>, com níveis numerados, os runlevels. A prova ainda pede a correspondência:</p>
+<div class="tabela"><table><thead><tr><th scope="col">Runlevel</th><th scope="col">Target</th><th scope="col">Para que serve</th></tr></thead><tbody><tr><td>0</td><td><code translate="no">poweroff.target</code></td><td>Desligar</td></tr><tr><td>1</td><td><code translate="no">rescue.target</code></td><td>Manutenção, um usuário só</td></tr><tr><td>3</td><td><code translate="no">multi-user.target</code></td><td>Servidor: rede e serviços, sem interface gráfica</td></tr><tr><td>5</td><td><code translate="no">graphical.target</code></td><td>O 3 mais a interface gráfica</td></tr><tr><td>6</td><td><code translate="no">reboot.target</code></td><td>Reiniciar</td></tr></tbody></table></div>
+<h3 id="ler-o-boot">Ler o boot</h3>
+<ul><li><code translate="no">journalctl -b</code>: tudo do boot atual. <code translate="no">-b -1</code> é o anterior, <code translate="no">-b -2</code> o de antes, e <code translate="no">--list-boots</code> lista os que o journal guardou.</li>
+<li><code translate="no">journalctl -b -p err</code>: só os erros do boot atual.</li>
+<li><code translate="no">journalctl -k</code>, ou <code translate="no">sudo dmesg</code>: só as mensagens do kernel, onde aparecem disco, rede e hardware.</li>
+<li>O journal só guarda boots anteriores se for <strong>persistente</strong>, gravado em <code translate="no">/var/log/journal</code>. Se essa pasta não existe, ele fica em <code translate="no">/run/log/journal</code>, na memória, e some a cada reboot.</li></ul>
+<h3 id="medir-o-boot">Medir o boot</h3>
+<ul><li><code translate="no">systemd-analyze</code>: quanto tempo levou cada fase.</li>
+<li><code translate="no">systemd-analyze blame</code>: quanto cada unit levou, da mais lenta para a mais rápida. Cuidado: as units rodam em paralelo, então a mais lenta nem sempre atrasou o boot.</li>
+<li><code translate="no">systemd-analyze critical-chain</code>: a corrente de units que <strong>de fato</strong> atrasou o target padrão. Comece por aqui.</li>
+<li><code translate="no">systemctl is-system-running</code>: <code translate="no">running</code> (tudo certo), <code translate="no">degraded</code> (alguma unit falhou: veja com <code translate="no">systemctl --failed</code>) ou <code translate="no">starting</code> (o boot ainda não terminou).</li></ul>
+<h3 id="rocky-debian">Rocky × Debian</h3>
+<div class="tabela"><table><thead><tr><th scope="col"></th><th scope="col">Rocky</th><th scope="col">Debian</th></tr></thead><tbody><tr><td>Configuração do GRUB</td><td><code translate="no">/boot/grub2/grub.cfg</code> e <code translate="no">/boot/loader/entries/</code></td><td><code translate="no">/boot/grub/grub.cfg</code></td></tr><tr><td>Mudar o GRUB</td><td><code translate="no">grubby</code></td><td><code translate="no">/etc/default/grub</code> e <code translate="no">update-grub</code></td></tr><tr><td>initramfs</td><td><code translate="no">/boot/initramfs-VERSÃO.img</code>, gerado pelo <code translate="no">dracut</code>; o conteúdo, com <code translate="no">lsinitrd</code></td><td><code translate="no">/boot/initrd.img-VERSÃO</code>, gerado pelo <code translate="no">update-initramfs</code>; o conteúdo, com <code translate="no">lsinitramfs</code></td></tr><tr><td>Shell do initramfs</td><td><code translate="no">dracut:/#</code></td><td><code translate="no">(initramfs)</code></td></tr><tr><td>Log em texto além do journal</td><td><code translate="no">/var/log/messages</code>, se o <code translate="no">rsyslog</code> estiver instalado</td><td>Nenhum, por padrão: a Debian 12 não instala mais o <code translate="no">rsyslog</code></td></tr><tr><td><code translate="no">dmesg</code> sem <code translate="no">sudo</code></td><td>Costuma funcionar</td><td>Recusa: <code translate="no">Operation not permitted</code></td></tr></tbody></table></div>
+<p>Confira as duas últimas linhas nas suas VMs, no lab. Depende do que foi instalado.</p>
+<h3 id="o-que-cai-na-prova">O que cai na prova</h3>
+<p>Na LPIC-1 101.2: a ordem das etapas; para que serve o initramfs; <code translate="no">dmesg</code> e <code translate="no">journalctl</code> para ler o boot; a correspondência entre runlevels e targets. Na RHCSA: reiniciar e desligar com <code translate="no">systemctl reboot</code> e <code translate="no">systemctl poweroff</code>, e deixar o journal persistente, para guardar os boots anteriores.</p>
+<h2 id="5-lab-guiado">5 · Lab guiado</h2>
+<p>Faça cada passo nas duas VMs. Os comandos são os mesmos, salvo onde o passo diz Rocky ou Debian. Hoje você só lê: nada do que você roda até o Passo 4 muda o sistema.</p>
+<h3 id="passo-0-snapshot-e-pasta">Passo 0 · Snapshot e pasta</h3>
+<p>No node do Proxmox:</p>
+<pre translate="no"><code class="lang-bash">qm snapshot 201 m4a1-inicio
+qm snapshot 202 m4a1-inicio</code></pre>
+<p>Nas duas VMs:</p>
+<pre translate="no"><code class="lang-bash">mkdir -p ~/lab41 &amp;&amp; cd ~/lab41</code></pre>
+<h3 id="passo-1-firmware-e-grub">Passo 1 · Firmware e GRUB</h3>
+<pre translate="no"><code class="lang-bash">[ -d /sys/firmware/efi ] &amp;&amp; echo UEFI || echo BIOS
+findmnt /boot/efi
+ls /boot</code></pre>
+<p>Se deu UEFI, veja as entradas de boot da placa, e qual delas foi usada agora (<code translate="no">BootCurrent</code>):</p>
+<pre translate="no"><code class="lang-bash">sudo efibootmgr -v</code></pre>
+<p>Se deu BIOS, o <code translate="no">findmnt</code> não mostra nada e o <code translate="no">efibootmgr</code> responde <code translate="no">EFI variables are not supported on this system</code>. As duas respostas estão certas: a sua VM usa SeaBIOS.</p>
+<p>Na Rocky, veja as entradas do menu, uma por kernel instalado:</p>
+<pre translate="no"><code class="lang-bash">sudo ls /boot/loader/entries/</code></pre>
+<h3 id="passo-2-kernel-linha-de-comando-e-initramfs">Passo 2 · Kernel, linha de comando e initramfs</h3>
+<p><strong>Decida 1.</strong> Antes de rodar o próximo comando, marque: o <code translate="no">root=</code> da linha de comando vai mostrar</p>
+<ul><li>a) um nome como <code translate="no">/dev/sda2</code></li>
+<li>b) um <code translate="no">UUID=...</code> ou um nome de volume como <code translate="no">/dev/mapper/...</code></li>
+<li>c) nada: o <code translate="no">root=</code> não aparece</li></ul>
+<pre translate="no"><code class="lang-bash">uname -r
+cat /proc/cmdline</code></pre>
+<div class="tabela"><table><thead><tr><th scope="col">Se você marcou</th><th scope="col">Resultado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>a</td><td>Errou, e isso é bom</td><td>O nome <code translate="no">sda</code> vem da ordem em que o kernel achou os discos. Mude a ordem, ou acrescente um disco, e o <code translate="no">sda2</code> passa a ser outro. Ninguém instala assim hoje</td></tr><tr><td>b</td><td>Acertou</td><td>O UUID é gravado no sistema de arquivos e não muda. O nome do volume LVM também não. A Rocky padrão usa LVM (<code translate="no">/dev/mapper/rl-root</code>); a Debian, em geral, UUID</td></tr><tr><td>c</td><td>Errou</td><td>Sem <code translate="no">root=</code>, o initramfs não sabe qual disco montar. É a primeira coisa a conferir quando o boot cai no shell do initramfs</td></tr></tbody></table></div>
+<p><strong>Para fixar:</strong> o <code translate="no">root=</code> sempre usa um nome que não muda entre boots.</p>
+<p>Agora o initramfs do kernel que está rodando, e o que tem dentro dele:</p>
+<pre translate="no"><code class="lang-bash"># Rocky
+ls -lh /boot/initramfs-$(uname -r).img
+sudo lsinitrd | head -30
+
+# Debian
+ls -lh /boot/initrd.img-$(uname -r)
+lsinitramfs /boot/initrd.img-$(uname -r) | head -30</code></pre>
+<p>Repare no tamanho, dezenas de MB, e no conteúdo: um <code translate="no">bin</code>, um <code translate="no">lib</code> com módulos de disco, e, na Rocky, os módulos do LVM. É um sistema pequeno, feito só para achar o disco de verdade.</p>
+<h3 id="passo-3-pid-1-e-target-padrao">Passo 3 · PID 1 e target padrão</h3>
+<p><strong>Decida 2.</strong> Marque: o <code translate="no">/sbin/init</code>, que o initramfs chama no fim, é</p>
+<ul><li>a) um programa próprio, chamado <code translate="no">init</code></li>
+<li>b) um link para o <code translate="no">systemd</code></li>
+<li>c) um arquivo que não existe mais</li></ul>
+<pre translate="no"><code class="lang-bash">ls -l /sbin/init
+ps -p 1 -o pid,comm,args
+systemctl get-default
+systemctl is-system-running
+systemctl --failed</code></pre>
+<div class="tabela"><table><thead><tr><th scope="col">Se você marcou</th><th scope="col">Resultado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>a</td><td>Errou</td><td>Era assim no SysVinit. Hoje o nome ficou só por compatibilidade</td></tr><tr><td>b</td><td>Acertou</td><td>O <code translate="no">ls -l</code> mostra a seta: <code translate="no">init -&gt; ../lib/systemd/systemd</code>. Na Rocky o <code translate="no">/sbin</code> já é um link para <code translate="no">/usr/sbin</code>, então você pode ver dois saltos</td></tr><tr><td>c</td><td>Errou</td><td>O kernel e o initramfs ainda procuram <code translate="no">/sbin/init</code> pelo nome. Sem ele, o boot para com <code translate="no">Kernel panic</code>: <code translate="no">No working init found</code></td></tr></tbody></table></div>
+<p><strong>Para fixar:</strong> o PID 1 é o <code translate="no">systemd</code>, e <code translate="no">/sbin/init</code> é só o nome antigo que aponta para ele.</p>
+<p>Num servidor, o <code translate="no">get-default</code> deve responder <code translate="no">multi-user.target</code>. Se o <code translate="no">is-system-running</code> disser <code translate="no">degraded</code>, o <code translate="no">--failed</code> mostra qual unit falhou: anote no Diário, porque é o primeiro problema real que a VM está te mostrando.</p>
+<h3 id="passo-4-ler-o-boot-e-guardar-os-proximos">Passo 4 · Ler o boot, e guardar os próximos</h3>
+<pre translate="no"><code class="lang-bash">journalctl --list-boots
+ls -d /var/log/journal</code></pre>
+<p>Se o <code translate="no">--list-boots</code> só mostra uma linha, a do boot <code translate="no">0</code>, e o <code translate="no">ls</code> diz que <code translate="no">/var/log/journal</code> não existe, o journal está na memória. Deixe persistente:</p>
+<pre translate="no"><code class="lang-bash">sudo mkdir -p /var/log/journal
+sudo systemctl restart systemd-journald
+ls /var/log/journal</code></pre>
+<p>Aparece uma pasta com um nome comprido, o machine-id: a partir de agora, o journal grava em disco. A forma explícita, que a RHCSA também aceita, é pôr <code translate="no">Storage=persistent</code> na seção <code translate="no">[Journal]</code> do <code translate="no">/etc/systemd/journald.conf</code> e reiniciar o <code translate="no">systemd-journald</code>.</p>
+<p>Agora leia o boot atual:</p>
+<pre translate="no"><code class="lang-bash">journalctl -b -p err
+journalctl -k | head -20
+dmesg | head -5
+sudo dmesg | head -5</code></pre>
+<p>O <code translate="no">-p err</code> costuma trazer alguns erros sem importância numa VM, como um sensor ou um dispositivo que o hipervisor não tem. Ler e saber o que é normal na sua máquina é o que vai te deixar perceber o anormal. Anote na tabela Rocky × Debian da seção 4 se o <code translate="no">dmesg</code> sem <code translate="no">sudo</code> funcionou em cada uma, e se existe <code translate="no">/var/log/messages</code>.</p>
+<h3 id="passo-5-medir-o-boot-e-reiniciar">Passo 5 · Medir o boot e reiniciar</h3>
+<pre translate="no"><code class="lang-bash">systemd-analyze
+systemd-analyze blame | head -10
+systemd-analyze critical-chain</code></pre>
+<p>Compare o topo do <code translate="no">blame</code> com a corrente do <code translate="no">critical-chain</code>. Muitas vezes são units diferentes: o <code translate="no">blame</code> diz quem demorou, e o <code translate="no">critical-chain</code> diz quem fez o boot esperar.</p>
+<p>Agora reinicie e confira que o boot anterior foi guardado:</p>
+<pre translate="no"><code class="lang-bash">sudo systemctl reboot</code></pre>
+<p>Depois de entrar de novo:</p>
+<pre translate="no"><code class="lang-bash">journalctl --list-boots
+journalctl -b -1 -n 20</code></pre>
+<p>A lista tem agora pelo menos duas linhas, e o <code translate="no">-b -1 -n 20</code> mostra as últimas 20 linhas do boot anterior: o desligamento que você pediu. É exatamente o que você vai ler no dia em que um servidor reiniciar sozinho.</p>
+<h2 id="6-quebre-e-conserte">6 · Quebre e conserte</h2>
+<p><strong>A quebra:</strong> um serviço que segura o boot por 40 segundos. Crie o arquivo:</p>
+<figure><a href="../img/4.1-analise-do-boot.svg"><img src="../img/4.1-analise-do-boot.svg" alt="4.1 Analise Do Boot" loading="lazy" decoding="async"></a><figcaption>Compare o topo do blame com a corrente do critical-chain: quem demorou não é sempre quem fez esperar.</figcaption></figure>
+<pre translate="no"><code class="lang-bash">sudoedit /etc/systemd/system/lento.service</code></pre>
+<pre translate="no"><code class="lang-ini">[Unit]
+Description=Servico lento de proposito (Aula 4.1)
+
+[Service]
+Type=oneshot
+ExecStart=/bin/sleep 40
+
+[Install]
+WantedBy=multi-user.target</code></pre>
+<p>Ative e reinicie:</p>
+<pre translate="no"><code class="lang-bash">sudo systemctl daemon-reload
+sudo systemctl enable lento.service
+sudo systemctl reboot</code></pre>
+<p><strong>O diagnóstico.</strong> Entre por SSH assim que a VM aceitar, sem esperar, e rode:</p>
+<pre translate="no"><code class="lang-bash">systemctl is-system-running
+systemd-analyze
+systemctl list-jobs</code></pre>
+<p>O primeiro responde <code translate="no">starting</code>; o segundo diz que o boot ainda não terminou; o terceiro mostra o <code translate="no">lento.service</code> rodando e o <code translate="no">multi-user.target</code> esperando por ele. Espere os 40 segundos e rode de novo:</p>
+<pre translate="no"><code class="lang-bash">systemctl is-system-running
+systemd-analyze blame | head -3
+systemd-analyze critical-chain</code></pre>
+<p>O <code translate="no">lento.service</code> está no topo do <code translate="no">blame</code>, com 40 segundos, e na corrente do <code translate="no">critical-chain</code>, logo antes do <code translate="no">multi-user.target</code>.</p>
+<p><strong>O conserto:</strong></p>
+<pre translate="no"><code class="lang-bash">sudo systemctl disable lento.service
+sudo rm /etc/systemd/system/lento.service
+sudo systemctl daemon-reload
+sudo systemctl reboot</code></pre>
+<p>Depois do reboot, o <code translate="no">systemd-analyze</code> volta ao tempo de antes, e o <code translate="no">systemctl status lento.service</code> responde que a unit não existe.</p>
+<p><strong>A lição.</strong> O SSH aceitou você antes do boot terminar, porque o <code translate="no">sshd</code> não depende do <code translate="no">lento.service</code>: o <code translate="no">systemd</code> sobe as units em paralelo. Então "já consigo entrar" não quer dizer "o boot terminou". Quem diz isso é o <code translate="no">is-system-running</code>. E o caminho do diagnóstico é sempre o mesmo: <code translate="no">is-system-running</code> para saber se terminou, <code translate="no">critical-chain</code> para saber quem segurou, <code translate="no">blame</code> para ver quanto.</p>
+<h2 id="7-armadilhas">7 · Armadilhas</h2>
+<ul><li><strong>Editar o <code translate="no">grub.cfg</code> à mão.</strong> Funciona até a próxima atualização de kernel, que reescreve o arquivo. Mudanças no GRUB são com <code translate="no">grubby</code> ou <code translate="no">/etc/default/grub</code> e <code translate="no">update-grub</code>, na Aula 4.4.</li>
+<li><strong>Contar com o <code translate="no">journalctl -b -1</code> sem journal persistente.</strong> A resposta é que o boot não existe, e o motivo do reboot sumiu. Confira o <code translate="no">--list-boots</code> em todo servidor novo que você receber.</li>
+<li><strong>Ler o <code translate="no">blame</code> como se fosse uma fila.</strong> As units rodam em paralelo. A mais lenta pode não ter atrasado nada. Quem atrasou está no <code translate="no">critical-chain</code>.</li>
+<li><strong>Achar que o SSH aceitar é o fim do boot.</strong> É o que a quebra mostrou. O <code translate="no">is-system-running</code> responde de verdade.</li>
+<li><strong>Esquecer o <code translate="no">daemon-reload</code>.</strong> Depois de criar ou mudar um arquivo de unit, o <code translate="no">systemd</code> ainda usa a versão antiga e avisa com <code translate="no">Run 'systemctl daemon-reload' to reload units</code>. Leia os avisos.</li>
+<li><strong>Rodar <code translate="no">efibootmgr</code> numa máquina BIOS e achar que quebrou.</strong> A mensagem <code translate="no">EFI variables are not supported</code> só quer dizer que a máquina não é UEFI.</li>
+<li><strong>Apagar kernels antigos para liberar o <code translate="no">/boot</code>.</strong> O kernel anterior é a sua saída quando o novo não sobe. Os gerenciadores de pacote já guardam alguns de propósito; deixe eles cuidarem disso.</li></ul>
+<h2 id="8-quiz">8 · Quiz</h2>
+<p>Responda sem olhar as seções acima. O Gabarito comentado está no fim.</p>
+<ol><li>Ponha em ordem: kernel, <code translate="no">systemd</code>, firmware, initramfs, GRUB.</li>
+<li>Depois de um minuto parado, o boot cai num prompt <code translate="no">dracut:/#</code>. Qual etapa falhou, e qual é o primeiro suspeito?</li>
+<li>Um servidor reiniciou de madrugada. Você roda <code translate="no">journalctl -b -1</code> e a resposta é que esse boot não existe. O que isso diz sobre o servidor, e o que você faz para a próxima vez?</li>
+<li>O topo do <code translate="no">systemd-analyze blame</code> é um <code translate="no">exemplo.service</code> com 12 segundos, mas ele não aparece no <code translate="no">systemd-analyze critical-chain</code>. Ele atrasou o boot?</li>
+<li>A que targets correspondem os runlevels 3 e 5? Com que comando você vê o target padrão?</li>
+<li><em>Which file shows the kernel command line that the running system was booted with? a) <code translate="no">/etc/default/grub</code> b) <code translate="no">/proc/cmdline</code> c) <code translate="no">/boot/grub2/grub.cfg</code> d) <code translate="no">/etc/fstab</code></em></li></ol>
+<h2 id="9-cola">9 · Cola</h2>
+<h3 id="para-saber-de-cor">Para saber de cor</h3>
+<p>A corrida de revezamento, com o sinal de cada etapa quando ela para:</p>
+<ol><li><strong>Firmware</strong> (UEFI ou BIOS): <code translate="no">No bootable device</code></li>
+<li><strong>GRUB</strong>: <code translate="no">grub&gt;</code> ou <code translate="no">grub rescue&gt;</code></li>
+<li><strong>Kernel</strong>: <code translate="no">Kernel panic</code></li>
+<li><strong>initramfs</strong>: <code translate="no">dracut:/#</code> ou <code translate="no">(initramfs)</code></li>
+<li><strong>systemd</strong>: <code translate="no">Give root password for maintenance</code></li></ol>
+<p>E os comandos que você usa sem consultar:</p>
+<pre translate="no"><code class="lang-bash">cat /proc/cmdline              # o que o GRUB passou ao kernel
+systemctl get-default          # o target padrão
+systemctl is-system-running    # running, degraded ou starting
+systemctl --failed             # quem falhou
+journalctl -b -p err           # erros do boot atual
+journalctl -b -1               # o boot anterior
+journalctl --list-boots        # quantos boots o journal guardou
+systemd-analyze critical-chain # quem segurou o boot</code></pre>
+<h3 id="para-consultar">Para consultar</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Para</th><th scope="col">Rocky</th><th scope="col">Debian</th></tr></thead><tbody><tr><td>Ver se é UEFI</td><td><code translate="no">[ -d /sys/firmware/efi ]</code></td><td>O mesmo</td></tr><tr><td>Entradas de boot da placa (UEFI)</td><td><code translate="no">sudo efibootmgr -v</code></td><td>O mesmo</td></tr><tr><td>Entradas do menu do GRUB</td><td><code translate="no">/boot/loader/entries/</code></td><td><code translate="no">/boot/grub/grub.cfg</code> (só ler)</td></tr><tr><td>Conteúdo do initramfs</td><td><code translate="no">sudo lsinitrd</code></td><td><code translate="no">lsinitramfs /boot/initrd.img-$(uname -r)</code></td></tr><tr><td>Mensagens do kernel</td><td><code translate="no">journalctl -k</code> ou <code translate="no">dmesg</code></td><td><code translate="no">journalctl -k</code> ou <code translate="no">sudo dmesg</code></td></tr><tr><td>Journal persistente</td><td><code translate="no">mkdir -p /var/log/journal</code> e reiniciar o <code translate="no">systemd-journald</code></td><td>O mesmo</td></tr><tr><td>Tempo de cada unit</td><td><code translate="no">systemd-analyze blame</code></td><td>O mesmo</td></tr></tbody></table></div>
+<h3 id="flashcards">Flashcards</h3>
+<ul><li>Para que serve o initramfs? → Achar e montar o disco raiz, com os drivers que o kernel ainda não tem, e chamar o <code translate="no">systemd</code>.</li>
+<li>Onde fica a linha de comando usada no boot atual? → <code translate="no">/proc/cmdline</code>.</li>
+<li>Qual é o PID do <code translate="no">systemd</code>, e por quê? → 1: é o primeiro processo que o kernel inicia na raiz de verdade.</li>
+<li><code translate="no">degraded</code> no <code translate="no">is-system-running</code> quer dizer? → Subiu, mas alguma unit falhou: veja com <code translate="no">systemctl --failed</code>.</li>
+<li><code translate="no">blame</code> ou <code translate="no">critical-chain</code> para saber quem atrasou? → <code translate="no">critical-chain</code>.</li>
+<li>Por que o journal às vezes não tem o boot anterior? → Ele está em <code translate="no">/run/log/journal</code>, na memória, porque <code translate="no">/var/log/journal</code> não existe.</li>
+<li>Runlevel 3 e 5? → <code translate="no">multi-user.target</code> e <code translate="no">graphical.target</code>.</li></ul>
+<h2 id="10-checklist-de-saida">10 · Checklist de saída</h2>
+<ul><li>[ ] Digo as cinco etapas em ordem e o que cada uma entrega para a próxima.</li>
+<li>[ ] Sei se cada VM subiu por UEFI ou BIOS, e como descobri.</li>
+<li>[ ] Achei o kernel e o initramfs no <code translate="no">/boot</code> e li o <code translate="no">root=</code> no <code translate="no">/proc/cmdline</code>.</li>
+<li>[ ] Mostrei que o PID 1 é o <code translate="no">systemd</code> e que o target padrão é <code translate="no">multi-user.target</code>.</li>
+<li>[ ] O journal das duas VMs é persistente, e o <code translate="no">--list-boots</code> mostra mais de um boot.</li>
+<li>[ ] Achei o <code translate="no">lento.service</code> com <code translate="no">is-system-running</code>, <code translate="no">critical-chain</code> e <code translate="no">blame</code>, e o removi.</li>
+<li>[ ] Preenchi as duas linhas da tabela Rocky × Debian que dependiam das minhas VMs.</li></ul>
+<p><strong>Último exercício, sem olhar.</strong> Numa folha, escreva as cinco etapas e, ao lado de cada uma, um comando ou arquivo que prova que ela rodou no boot atual. Depois confira nas VMs.</p>
+<p><strong>Reboot e conferência.</strong> Reinicie as duas VMs e confira:</p>
+<pre translate="no"><code class="lang-bash">journalctl --list-boots | tail -3
+systemctl status lento.service
+systemctl is-system-running</code></pre>
+<p>Um boot a mais na lista; a unit <code translate="no">lento.service</code> não existe; o sistema <code translate="no">running</code>, ou <code translate="no">degraded</code> com o mesmo motivo que você anotou no Passo 3.</p>
+<p><strong>Snapshot de fim,</strong> no node do Proxmox:</p>
+<pre translate="no"><code class="lang-bash">qm snapshot 201 m4a1-fim
+qm snapshot 202 m4a1-fim</code></pre>
+<h2 id="11-na-vida-real">11 · Na vida real</h2>
+<p><strong>Missão, só leitura.</strong> Num servidor Linux real pelo qual você responde, rode apenas comandos de leitura:</p>
+<pre translate="no"><code class="lang-bash">[ -d /sys/firmware/efi ] &amp;&amp; echo UEFI || echo BIOS
+systemd-analyze
+journalctl --list-boots | tail -5
+systemctl --failed</code></pre>
+<p>Não mude nada nele. Se o journal não for persistente, ou se houver units falhando, anote e leve para a sua lista de melhorias, para decidir com calma e com janela de manutenção.</p>
+<p><strong>Diário.</strong> Anote: o que cada VM respondeu no <code translate="no">is-system-running</code>; o tempo de boot de cada uma; o que o servidor real mostrou; e uma frase com as suas palavras sobre a diferença entre <code translate="no">blame</code> e <code translate="no">critical-chain</code>.</p>
+<p><strong>Amanhã, sem olhar:</strong></p>
+<ol><li>Qual é a etapa que monta o disco raiz?</li>
+<li>Que comando mostra o boot anterior?</li>
+<li>O SSH entrou. O boot terminou?</li></ol>
+<h2 id="12-aprofundar-quando-quiser">12 · Aprofundar quando quiser</h2>
+<p>Ficaram de fora, de propósito. Puxe quando precisar, ou quando a curiosidade bater:</p>
+<ul><li><strong>Secure Boot</strong>: o <code translate="no">shim</code> e as chaves que deixam o firmware confiar no GRUB e no kernel.</li>
+<li><strong>MBR e GPT</strong>: como o BIOS e o UEFI acham o carregador no disco, e o que é a partição BIOS boot.</li>
+<li><strong>Gerar o initramfs de novo</strong>: <code translate="no">dracut -f</code> e <code translate="no">update-initramfs -u</code>, e quando isso é necessário.</li>
+<li><strong>Parâmetros do kernel para emergência</strong>: <code translate="no">systemd.unit=</code>, <code translate="no">rd.break</code> e <code translate="no">init=</code>. Entram na Aula 4.4.</li>
+<li><strong>SysVinit e Upstart</strong>: os scripts em <code translate="no">/etc/init.d</code> e os runlevels. A LPIC pede que você reconheça.</li>
+<li><strong>O boot em gráfico</strong>: <code translate="no">systemd-analyze plot &gt; boot.svg</code>.</li>
+<li><strong>Limites do journal</strong>: <code translate="no">SystemMaxUse=</code> no <code translate="no">journald.conf</code>, para o journal não encher o disco.</li></ul>
+<p>No DeepTutor:</p>
+<ul><li><code translate="no">!explica initramfs: por que ele existe e o que tem dentro</code></li>
+<li><code translate="no">!feynman as cinco etapas do boot</code> (você explica, ele corrige)</li>
+<li><code translate="no">!quiz LPIC 101.2, 5 perguntas</code></li></ul>
+<h2 id="gabarito-comentado">Gabarito comentado</h2>
+<h3 id="aquecimento">Aquecimento</h3>
+<ol><li>O menu é do <strong>GRUB</strong>. O texto que rola vem do <strong>kernel</strong> e depois do <strong>systemd</strong>. O logo antes de tudo é do firmware.</li>
+<li>O <code translate="no">systemd</code> sobe as units em paralelo. O <code translate="no">sshd</code> já está no ar enquanto outra unit ainda segura o target padrão. Foi exatamente a quebra da seção 6.</li>
+<li><strong>1</strong>: é o primeiro processo que o kernel inicia na raiz de verdade. Os outros descendem dele.</li></ol>
+<h3 id="quiz">Quiz</h3>
+<ol><li>Firmware, GRUB, kernel, initramfs, <code translate="no">systemd</code>. O GRUB carrega o kernel e o initramfs juntos, mas o kernel roda primeiro e é ele quem executa o initramfs.</li>
+<li>O <strong>initramfs</strong>: ele não achou o disco raiz. O primeiro suspeito é o <code translate="no">root=</code> da linha de comando apontando para um UUID ou volume que não existe, por exemplo depois de um disco trocado ou um volume renomeado. O segundo é um driver que falta no initramfs.</li>
+<li>O journal desse servidor não é persistente, e o motivo do reboot se perdeu. Para a próxima: criar <code translate="no">/var/log/journal</code> e reiniciar o <code translate="no">systemd-journald</code>, ou <code translate="no">Storage=persistent</code> no <code translate="no">journald.conf</code>. Se houver <code translate="no">/var/log/messages</code>, ele pode ter alguma pista.</li>
+<li>Provavelmente não. Ele demorou, mas em paralelo, e o target padrão não esperou por ele. Quem atrasou o boot é quem está no <code translate="no">critical-chain</code>.</li>
+<li>3 é <code translate="no">multi-user.target</code>, e 5 é <code translate="no">graphical.target</code>. O comando é <code translate="no">systemctl get-default</code>.</li>
+<li><strong>b)</strong>. O <code translate="no">/etc/default/grub</code> e o <code translate="no">grub.cfg</code> dizem o que <em>vai</em> ser usado no próximo boot, e alguém pode ter mudado depois. O <code translate="no">/proc/cmdline</code> mostra o que <em>foi</em> usado no boot atual. O <code translate="no">/etc/fstab</code> não tem nada a ver com a linha de comando.</li></ol>
+</article><nav class="paginas" aria-label="Aulas"><a class="ant" href="3.5-vi-e-vim-de-verdade.html"><small>← Anterior</small>3.5 · vi e vim de verdade</a><a class="prox" href="4.2-systemd-servicos-e-units.html"><small>Próxima →</small>4.2 · systemd: serviços e units</a></nav></main></div>
+<footer><div class="wrap">Gerado a partir do Markdown do curso · Imagens em <code translate="no">img/</code></div></footer>
+</body>
+</html>

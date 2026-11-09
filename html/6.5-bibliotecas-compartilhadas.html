@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light dark">
+<title>6.5 · Bibliotecas compartilhadas · Curso Linux Sysadmin</title>
+<link rel="alternate" hreflang="pt-BR" href="6.5-bibliotecas-compartilhadas.html"><link rel="alternate" hreflang="it" href="6.5-bibliotecas-compartilhadas.it.html">
+<style>
+:root{color-scheme:light dark;--bg:#f6f1e7;--card:#fffdf8;--ink:#201c16;--muted:#5e564a;--accent:#9a3412;--accent-2:#1f5f4a;--tint:#efe6d4;--line:#ddd2bc;--code:#f1eadb;--shadow:0 1px 2px rgba(60,40,10,.08);--serif:Georgia,"Iowan Old Style","Palatino Linotype",Palatino,serif;--sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--mono:"Cascadia Code",Consolas,"DejaVu Sans Mono",monospace}
+@media (prefers-color-scheme:dark){:root{--bg:#16130f;--card:#201b15;--ink:#f1eadb;--muted:#b9ad98;--accent:#f0a070;--accent-2:#7fd0b0;--tint:#2a231a;--line:#3d3427;--code:#191510;--shadow:none}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:5.5rem}
+body{margin:0;background:var(--bg);color:var(--ink);font:1rem/1.6 var(--sans)}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--accent-2);outline-offset:2px;border-radius:4px}
+.pular{position:absolute;left:-999px;top:0;background:var(--card);padding:.5rem 1rem;z-index:20}
+.pular:focus{left:.5rem;top:.5rem}
+.wrap{width:100%;max-width:84rem;margin:0 auto;padding-inline:max(1rem,env(safe-area-inset-left))}
+.top{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10;border-top:6px solid var(--accent)}
+.top-in{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding-block:.6rem}
+.titles{min-width:0}
+.marca{margin:0;font:700 clamp(1.15rem,1rem + 1vw,1.6rem)/1.15 var(--serif);letter-spacing:-.01em}
+.marca a{text-decoration:none}
+.marca a:hover{color:var(--accent)}
+.meta{margin:.1rem 0 0;color:var(--muted);font-size:.85rem}
+.acoes{display:flex;align-items:center;gap:.9rem;flex:none}
+.acoes>a{font-size:.9rem;font-weight:600;color:var(--muted);text-decoration:none}
+.acoes>a:hover{color:var(--accent);text-decoration:underline}
+.idioma{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--tint)}
+.idioma>*{padding:.35rem .9rem;font-size:.8rem;font-weight:700;letter-spacing:.06em;text-decoration:none;color:var(--muted);min-width:2.75rem;text-align:center}
+.idioma a:hover{color:var(--accent);text-decoration:underline}
+.idioma span{background:var(--accent);color:#fff}
+@media (prefers-color-scheme:dark){.idioma span{color:#16130f}}
+code{font-family:var(--mono);font-size:.9em;background:var(--tint);padding:.1rem .35rem;border-radius:4px;overflow-wrap:anywhere}
+/* índice */
+.capa{max-width:70rem;padding-block:2rem 3rem}
+.stats{border-left:4px solid var(--accent-2);background:var(--card);border-radius:0 10px 10px 0;padding:1rem 1.25rem;margin:0 0 2.5rem;box-shadow:var(--shadow);color:var(--muted)}
+.stats strong{color:var(--ink)}
+.modulo{display:grid;grid-template-columns:15rem minmax(0,1fr);gap:1rem 2rem;padding:1.75rem 0;border-top:1px solid var(--line)}
+.modulo h2{margin:0;font:700 1.25rem/1.25 var(--serif);align-self:start;position:sticky;top:6rem}
+.mn{display:block;font:700 .8rem var(--mono);letter-spacing:.12em;color:var(--accent);margin-bottom:.25rem}
+.sep{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.modulo ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,17rem),1fr));gap:.75rem}
+.modulo li{margin:0}
+.modulo a{display:flex;gap:.45rem;align-items:baseline;height:100%;padding:.85rem 1rem;background:var(--card);border:1px solid var(--line);border-radius:10px;text-decoration:none;font-weight:600;line-height:1.35;box-shadow:var(--shadow);transition:border-color .15s,transform .15s}
+.modulo a:hover{border-color:var(--accent);color:var(--accent)}
+.num{font:700 .85rem var(--mono);color:var(--accent);white-space:nowrap}
+/* aula */
+.doc{display:grid;grid-template-columns:17rem minmax(0,1fr);gap:2.5rem;align-items:start;padding-block:2rem 3rem}
+.lateral{position:sticky;top:5.5rem;max-height:calc(100vh - 6.5rem);overflow:auto;font-size:.875rem;padding-right:.5rem}
+.lateral h2{margin:0 0 .25rem;font:700 .95rem var(--serif);color:var(--muted)}
+.lateral h3{margin:1rem 0 .25rem;font:700 .75rem var(--mono);letter-spacing:.06em;color:var(--accent)}
+.lateral ul{list-style:none;margin:0;padding:0}
+.lateral a{display:flex;gap:.45rem;padding:.25rem .5rem;border-radius:6px;text-decoration:none;color:var(--muted);line-height:1.3}
+.lateral a:hover{background:var(--tint);color:var(--ink)}
+.lateral a[aria-current]{background:var(--tint);color:var(--ink);font-weight:700;box-shadow:inset 3px 0 0 var(--accent)}
+.lateral .num{font-size:.75rem}
+.aula{min-width:0;max-width:56rem;overflow-wrap:break-word;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:clamp(1.25rem,1rem + 2vw,2.75rem);box-shadow:var(--shadow)}
+.aula h1{margin:0 0 1.5rem;font:700 clamp(1.75rem,1.4rem + 1.6vw,2.5rem)/1.15 var(--serif);letter-spacing:-.015em;color:var(--ink)}
+.aula h2{margin:2.5rem 0 .75rem;padding-top:1.25rem;border-top:1px solid var(--line);font:700 1.5rem/1.25 var(--serif)}
+.aula h3{margin:2rem 0 .5rem;font:700 1.15rem/1.3 var(--serif);color:var(--accent)}
+.aula h4,.aula h5,.aula h6{margin:1.5rem 0 .5rem;font-size:1rem}
+.aula p,.aula ul,.aula ol{margin:1rem 0}
+.aula ul,.aula ol{padding-left:1.5rem}
+.aula li{margin:.35rem 0}
+.aula li>ul,.aula li>ol{margin:.35rem 0}
+.aula a{color:var(--accent);text-underline-offset:2px}
+.aula hr{border:0;border-top:1px solid var(--line);margin:2rem 0}
+.tabela{overflow-x:auto;margin:1.25rem 0;border:1px solid var(--line);border-radius:10px}
+.aula table{width:100%;border-collapse:collapse;font-size:.9rem}
+.aula th,.aula td{padding:.55rem .75rem;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+.aula tr:last-child td{border-bottom:0}
+.aula th{background:var(--tint);font-weight:700}
+.aula pre{background:var(--code);border:1px solid var(--line);border-radius:10px;padding:.9rem 1rem;overflow-x:auto;font:.85rem/1.5 var(--mono);margin:1rem 0;tab-size:4}
+.aula pre code{background:none;padding:0;font-size:inherit;overflow-wrap:normal}
+.aula blockquote{margin:1.25rem 0;padding:.75rem 1.25rem;border-left:4px solid var(--accent-2);background:var(--tint);border-radius:0 10px 10px 0}
+.aula blockquote>:first-child{margin-top:0}
+.aula blockquote>:last-child{margin-bottom:0}
+.aula figure{margin:1.75rem 0;text-align:center}
+.aula figure img{display:block;margin:0 auto;max-width:100%;height:auto;border:1px solid var(--line);border-radius:10px;background:#fff}
+.aula figcaption{margin-top:.5rem;color:var(--muted);font-size:.9rem;font-style:italic}
+.paginas{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:2.5rem;padding-top:1.5rem;border-top:1px solid var(--line)}
+.paginas a{display:block;padding:.75rem 1rem;border:1px solid var(--line);border-radius:10px;text-decoration:none;color:var(--ink);font-weight:600;line-height:1.3}
+.paginas a:hover{border-color:var(--accent);color:var(--accent)}
+.paginas small{display:block;color:var(--muted);font-weight:400}
+.paginas .prox{grid-column:2;text-align:right}
+footer{border-top:1px solid var(--line);padding-block:1.5rem;color:var(--muted);font-size:.85rem;text-align:center}
+@media (hover:hover) and (prefers-reduced-motion:no-preference){.modulo a:hover{transform:translateY(-2px)}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+@media (max-width:980px){.doc{grid-template-columns:minmax(0,1fr);padding-top:1rem}.lateral{position:static;max-height:none;order:2}.aula{max-width:none}}
+@media (max-width:860px){.modulo{grid-template-columns:minmax(0,1fr)}.modulo h2{position:static}.mn{display:inline;margin-right:.5rem}}
+@media (max-width:420px){.meta{display:none}.top-in{gap:.5rem}.acoes{gap:.6rem}.capa{padding-top:1.25rem}.paginas{grid-template-columns:minmax(0,1fr)}.paginas .prox{grid-column:1}}
+@media print{.top,.lateral,.paginas{display:none}.aula{border:0;box-shadow:none;padding:0;max-width:none}.doc{display:block}}
+</style>
+</head>
+<body>
+<a class="pular" href="#conteudo">Pular para o conteúdo</a>
+<header class="top"><div class="wrap top-in"><div class="titles"><p class="marca"><a href="index.html">Curso Linux Sysadmin</a></p><p class="meta">Rodrigo Antignani · Aula 6.5</p></div><div class="acoes"><a href="index.html">Índice</a><div class="idioma" role="group" aria-label="Idioma"><span aria-current="true">PT</span><a href="6.5-bibliotecas-compartilhadas.it.html" hreflang="it" lang="it">IT</a></div></div></div></header>
+<div class="wrap doc"><aside class="lateral" aria-label="Aulas"><h2>Aulas</h2><h3>M0 · Laboratório</h3><ul><li><a href="0.1-montar-o-laboratorio.html"><span class="num">0.1</span><span>Montar o laboratório</span></a></li><li><a href="0.2-acesso-e-protecao.html"><span class="num">0.2</span><span>Acesso e proteção</span></a></li></ul><h3>M1 · Linha de comando</h3><ul><li><a href="1.1-o-que-e-linux.html"><span class="num">1.1</span><span>O que é Linux</span></a></li><li><a href="1.2-o-shell-e-a-ajuda.html"><span class="num">1.2</span><span>O shell e a ajuda</span></a></li><li><a href="1.3-caminhos-e-navegacao.html"><span class="num">1.3</span><span>Caminhos e navegação</span></a></li><li><a href="1.4-criar-copiar-mover-e-apagar.html"><span class="num">1.4</span><span>Criar, copiar, mover e apagar</span></a></li><li><a href="1.5-ler-e-procurar-texto.html"><span class="num">1.5</span><span>Ler e procurar texto</span></a></li><li><a href="1.6-redirecionamentos-e-pipes.html"><span class="num">1.6</span><span>Redirecionamentos e pipes</span></a></li><li><a href="1.7-arquivar-e-compactar.html"><span class="num">1.7</span><span>Arquivar e compactar</span></a></li><li><a href="1.8-primeiro-script.html"><span class="num">1.8</span><span>Primeiro script</span></a></li><li><a href="1.9-decidir-e-repetir.html"><span class="num">1.9</span><span>Decidir e repetir</span></a></li><li><a href="1.10-software-livre-na-pratica.html"><span class="num">1.10</span><span>Software livre na prática</span></a></li></ul><h3>M2 · Sistema, usuários e permissões</h3><ul><li><a href="2.1-instalacao-e-provisionamento.html"><span class="num">2.1</span><span>Instalação e provisionamento</span></a></li><li><a href="2.2-hardware-e-dispositivos.html"><span class="num">2.2</span><span>Hardware e dispositivos</span></a></li><li><a href="2.3-processos-e-logs.html"><span class="num">2.3</span><span>Processos e logs</span></a></li><li><a href="2.4-rede-no-dia-a-dia.html"><span class="num">2.4</span><span>Rede no dia a dia</span></a></li><li><a href="2.5-acesso-remoto-e-privilegios.html"><span class="num">2.5</span><span>Acesso remoto e privilégios</span></a></li><li><a href="2.6-usuarios-e-grupos.html"><span class="num">2.6</span><span>Usuários e grupos</span></a></li><li><a href="2.7-permissoes-e-dono.html"><span class="num">2.7</span><span>Permissões e dono</span></a></li><li><a href="2.8-diretorios-e-arquivos-especiais.html"><span class="num">2.8</span><span>Diretórios e arquivos especiais</span></a></li></ul><h3>M3 · Texto e editor</h3><ul><li><a href="3.1-fluxos-a-fundo.html"><span class="num">3.1</span><span>Fluxos a fundo</span></a></li><li><a href="3.2-filtros-de-texto.html"><span class="num">3.2</span><span>Filtros de texto</span></a></li><li><a href="3.3-regex-e-grep.html"><span class="num">3.3</span><span>Regex e grep</span></a></li><li><a href="3.4-sed-e-awk.html"><span class="num">3.4</span><span>sed e awk</span></a></li><li><a href="3.5-vi-e-vim-de-verdade.html"><span class="num">3.5</span><span>vi e vim de verdade</span></a></li></ul><h3>M4 · systemd e boot</h3><ul><li><a href="4.1-como-o-linux-liga.html"><span class="num">4.1</span><span>Como o Linux liga</span></a></li><li><a href="4.2-systemd-servicos-e-units.html"><span class="num">4.2</span><span>systemd: serviços e units</span></a></li><li><a href="4.3-targets-desligar-e-reiniciar.html"><span class="num">4.3</span><span>Targets: desligar e reiniciar</span></a></li><li><a href="4.4-grub-e-acesso-de-emergencia.html"><span class="num">4.4</span><span>GRUB e acesso de emergência</span></a></li></ul><h3>M5 · Kernel, módulos e VM</h3><ul><li><a href="5.1-hardware-pelo-kernel.html"><span class="num">5.1</span><span>Hardware pelo kernel</span></a></li><li><a href="5.2-modulos-e-parametros.html"><span class="num">5.2</span><span>Módulos e parâmetros</span></a></li><li><a href="5.3-linux-como-convidado.html"><span class="num">5.3</span><span>Linux como convidado</span></a></li></ul><h3>M6 · Pacotes e repositórios</h3><ul><li><a href="6.1-pacotes-no-debian.html"><span class="num">6.1</span><span>Pacotes no Debian</span></a></li><li><a href="6.2-pacotes-na-rocky.html"><span class="num">6.2</span><span>Pacotes na Rocky</span></a></li><li><a href="6.3-repositorios.html"><span class="num">6.3</span><span>Repositórios</span></a></li><li><a href="6.4-flatpak.html"><span class="num">6.4</span><span>Flatpak</span></a></li><li><a href="6.5-bibliotecas-compartilhadas.html" aria-current="page"><span class="num">6.5</span><span>Bibliotecas compartilhadas</span></a></li></ul></aside><main id="conteudo" class="aula"><article><h1>Aula 6.5 · Bibliotecas compartilhadas</h1>
+<p>Quase nenhum programa do Linux funciona sozinho. O <code translate="no">ls</code>, o <code translate="no">sshd</code> e o <code translate="no">dnf</code> carregam, na hora em que rodam, bibliotecas que ficam em outros arquivos: a <code translate="no">libc</code>, a <code translate="no">libssl</code>, a <code translate="no">libz</code>. Quando uma delas falta, está na pasta errada ou é a versão errada, aparece a mensagem que todo sysadmin já viu: <code translate="no">error while loading shared libraries</code>. Esta aula ensina a ler essa mensagem e resolver do jeito certo. No fim vem o Desafio do M6.</p>
+<blockquote><p><strong>Núcleo desta aula:</strong> entender os três nomes de uma biblioteca (real name, soname, linker name); ver as dependências de um programa com <code translate="no">ldd</code> e <code translate="no">readelf</code>; saber onde o loader procura; registrar uma pasta nova com <code translate="no">/etc/ld.so.conf.d</code> e <code translate="no">ldconfig</code>; e saber por que <code translate="no">LD_LIBRARY_PATH</code> e symlink improvisado são remendos. O resto é aprofundamento.</p></blockquote>
+<div class="tabela"><table><thead><tr><th scope="col">Ficha</th><th scope="col"></th></tr></thead><tbody><tr><td><strong>Módulo</strong></td><td>M6 · Software, aula 5 de 5, com o Desafio do módulo</td></tr><tr><td><strong>Quando</strong></td><td>Semana 11. O Desafio pode ficar para o fim da semana ou para a 12</td></tr><tr><td><strong>Ao final</strong></td><td>Você diagnostica e resolve biblioteca que não carrega, sem gambiarra</td></tr><tr><td><strong>Itens de prova</strong></td><td>LPIC-1 102.3 (gerenciar bibliotecas compartilhadas): <code translate="no">ldd</code>, <code translate="no">ldconfig</code>, <code translate="no">/etc/ld.so.conf</code>, <code translate="no">LD_LIBRARY_PATH</code>. Na RHCSA não é objetivo direto, mas aparece quando algo não sobe</td></tr><tr><td><strong>Pré-requisitos</strong></td><td>Aulas 6.1 a 6.3</td></tr><tr><td><strong>Tempo</strong></td><td>cerca de 2h, mais 2h a 3h para o Desafio</td></tr><tr><td><strong>Snapshots</strong></td><td><code translate="no">m6a5-inicio</code> e <code translate="no">m6a5-fim</code> na rocky-lab. A debian-lab só é lida</td></tr></tbody></table></div>
+<h2 id="1-aquecimento">1 · Aquecimento</h2>
+<p>Responda antes de ler.</p>
+<ol><li>Se alguém apagar a <code translate="no">libc.so.6</code>, o que acontece com o <code translate="no">ls</code>? E com o <code translate="no">rm</code> que você usaria para consertar?</li>
+<li>Por que a mesma biblioteca aparece com três nomes, como <code translate="no">libz.so</code>, <code translate="no">libz.so.1</code> e <code translate="no">libz.so.1.2.13</code>?</li>
+<li>Você copiou uma biblioteca para <code translate="no">/opt/app/lib</code> e o programa continua dizendo que não acha. Por quê?</li></ol>
+<h2 id="2-por-que-importa">2 · Por que importa</h2>
+<div class="tabela"><table><thead><tr><th scope="col">O chamado</th><th scope="col">A resposta errada</th><th scope="col">O que ela causa</th></tr></thead><tbody><tr><td>"O app do fornecedor pede <code translate="no">libssl.so.1.1</code> e a Rocky 9 só tem a 3"</td><td><code translate="no">ln -s libssl.so.3 libssl.so.1.1</code></td><td>O app sobe e cai depois, ou corrompe dados. A interface mudou</td></tr><tr><td>"Instalei a lib e o programa não acha"</td><td><code translate="no">export LD_LIBRARY_PATH=...</code> no <code translate="no">/etc/profile</code></td><td>Vale para todo mundo, menos para os serviços do systemd. E pode trocar a lib de outros programas</td></tr><tr><td>"Funciona no meu terminal e não funciona como serviço"</td><td>Reiniciar até funcionar</td><td>O seu shell tem uma variável que o serviço não tem</td></tr><tr><td>"Atualizei o OpenSSL por causa de uma falha de segurança"</td><td>Achar que acabou</td><td>Os serviços que já estavam rodando continuam com a versão velha na memória até reiniciar</td></tr></tbody></table></div>
+<h2 id="3-modelo-mental">3 · Modelo mental</h2>
+<blockquote><p>O programa é uma <strong>lista de convidados</strong>: no binário está escrito "preciso da <code translate="no">libz.so.1</code> e da <code translate="no">libc.so.6</code>", só o nome, sem endereço. Quem vai buscar cada um é o <strong>loader</strong> (<code translate="no">ld-linux</code>), e ele procura numa ordem fixa. A agenda dele é o <code translate="no">/etc/ld.so.cache</code>, que o <code translate="no">ldconfig</code> monta a partir da lista de pastas em <code translate="no">/etc/ld.so.conf.d</code>. Se a pasta não está na lista e ninguém atualizou a agenda, o loader não acha, mesmo com o arquivo lá.</p></blockquote>
+<pre translate="no"><code>./programa
+   │  o kernel lê o ELF: "interpretador: /lib64/ld-linux-x86-64.so.2"
+   ▼
+ld-linux (o loader)
+   │  para cada NEEDED gravado no binário (ex.: libz.so.1):
+   ├─ 1. RUNPATH/RPATH gravado no próprio binário
+   ├─ 2. LD_LIBRARY_PATH (variável de ambiente)
+   ├─ 3. /etc/ld.so.cache  ← o ldconfig gera a partir de /etc/ld.so.conf(.d)
+   └─ 4. pastas padrão: /lib64 e /usr/lib64 (Rocky)
+                        /lib/x86_64-linux-gnu e /usr/lib/x86_64-linux-gnu (Debian)
+   ▼
+não achou → "error while loading shared libraries: libz.so.1:
+            cannot open shared object file: No such file or directory"</code></pre>
+<p>O detalhe fino: o RPATH antigo vem antes do <code translate="no">LD_LIBRARY_PATH</code> e o RUNPATH moderno vem depois. Para o dia a dia, basta a ordem do desenho.</p>
+<figure><a href="../img/6.5-loader.svg"><img src="../img/6.5-loader.svg" alt="A ordem de busca do loader" loading="lazy" decoding="async"></a><figcaption>Se a pasta não está na lista e ninguém rodou ldconfig, o loader não acha.</figcaption></figure>
+<h2 id="4-o-essencial">4 · O essencial</h2>
+<h3 id="os-tres-nomes">Os três nomes</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Nome</th><th scope="col">Exemplo</th><th scope="col">O que é</th><th scope="col">Quem cria</th></tr></thead><tbody><tr><td><strong>Real name</strong></td><td><code translate="no">libz.so.1.2.13</code></td><td>O arquivo de verdade, com a versão completa</td><td>O pacote (<code translate="no">zlib</code> / <code translate="no">zlib1g</code>)</td></tr><tr><td><strong>Soname</strong></td><td><code translate="no">libz.so.1</code></td><td>Symlink para o real name. É o nome que fica gravado nos programas. Só muda quando a interface quebra</td><td>O <code translate="no">ldconfig</code> (e o pacote)</td></tr><tr><td><strong>Linker name</strong></td><td><code translate="no">libz.so</code></td><td>Symlink usado só para <strong>compilar</strong> (<code translate="no">-lz</code>)</td><td>O pacote de desenvolvimento (<code translate="no">zlib-devel</code> / <code translate="no">zlib1g-dev</code>)</td></tr></tbody></table></div>
+<p>A regra que explica tudo: <strong>mesmo soname, interface compatível</strong>. A <code translate="no">libz.so.1.2.13</code> e a <code translate="no">libz.so.1.3.1</code> têm o mesmo soname <code translate="no">libz.so.1</code>, então qualquer programa feito para uma usa a outra. Uma <code translate="no">libz.so.2</code> seria outra interface, e os programas antigos continuariam pedindo a <code translate="no">.so.1</code>.</p>
+<h3 id="comandos">Comandos</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Quero...</th><th scope="col">Comando</th></tr></thead><tbody><tr><td>Ver de que bibliotecas um programa precisa e onde elas foram achadas</td><td><code translate="no">ldd /usr/bin/ssh</code></td></tr><tr><td>Ver só o que está gravado no binário, sem executar nada</td><td><code translate="no">readelf -d /usr/bin/ssh | grep -E 'NEEDED|RUNPATH|RPATH'</code></td></tr><tr><td>Ver a agenda do loader</td><td><code translate="no">ldconfig -p | grep libz</code></td></tr><tr><td>Atualizar a agenda e os symlinks de soname</td><td><code translate="no">sudo ldconfig</code></td></tr><tr><td>Ver as pastas extras</td><td><code translate="no">cat /etc/ld.so.conf</code> e <code translate="no">ls /etc/ld.so.conf.d/</code></td></tr><tr><td>Registrar uma pasta nova</td><td><code translate="no">echo /opt/app/lib | sudo tee /etc/ld.so.conf.d/app.conf</code> e <code translate="no">sudo ldconfig</code></td></tr><tr><td>Testar com uma pasta só para este comando</td><td><code translate="no">LD_LIBRARY_PATH=/opt/app/lib ./programa</code></td></tr><tr><td>Ver o loader procurando, passo a passo</td><td><code translate="no">LD_DEBUG=libs ./programa</code></td></tr><tr><td>Descobrir o pacote dono de uma lib</td><td><code translate="no">rpm -qf /usr/lib64/libz.so.1</code> / <code translate="no">dpkg -S libz.so.1</code></td></tr><tr><td>Descobrir que pacote fornece uma lib que falta</td><td><code translate="no">dnf provides 'libz.so.1()(64bit)'</code> / <code translate="no">apt-file search libz.so.1</code></td></tr><tr><td>Ver serviços usando lib antiga depois de uma atualização</td><td><code translate="no">sudo dnf needs-restarting -s</code> / <code translate="no">sudo needrestart</code> (Debian, pacote <code translate="no">needrestart</code>)</td></tr></tbody></table></div>
+<p><strong>Cuidado com o <code translate="no">ldd</code>:</strong> em binário desconhecido, ele pode acabar executando código do próprio binário. Para programa que você não conhece, use <code translate="no">readelf -d</code> ou <code translate="no">objdump -p</code>, que só leem.</p>
+<h3 id="rocky-debian">Rocky × Debian</h3>
+<div class="tabela"><table><thead><tr><th scope="col"></th><th scope="col">Rocky</th><th scope="col">Debian</th></tr></thead><tbody><tr><td>Pastas padrão (64 bits)</td><td><code translate="no">/lib64</code>, <code translate="no">/usr/lib64</code></td><td><code translate="no">/lib/x86_64-linux-gnu</code>, <code translate="no">/usr/lib/x86_64-linux-gnu</code> (multiarch)</td></tr><tr><td>Nome do pacote da lib</td><td><code translate="no">zlib</code>, <code translate="no">openssl-libs</code></td><td><code translate="no">zlib1g</code>, <code translate="no">libssl3</code> (o soname vai no nome)</td></tr><tr><td>Pacote para compilar</td><td><code translate="no">-devel</code> (<code translate="no">zlib-devel</code>)</td><td><code translate="no">-dev</code> (<code translate="no">zlib1g-dev</code>)</td></tr><tr><td>Quem roda o <code translate="no">ldconfig</code> ao instalar</td><td>O próprio rpm (gatilho de arquivo)</td><td>Gatilho do dpkg</td></tr><tr><td>Achar quem fornece</td><td><code translate="no">dnf provides 'libX.so.N()(64bit)'</code></td><td><code translate="no">apt-file search libX.so.N</code></td></tr><tr><td>Serviços com lib velha</td><td><code translate="no">dnf needs-restarting -s</code></td><td><code translate="no">needrestart</code></td></tr></tbody></table></div>
+<p>Na Rocky, <code translate="no">/lib64</code> é symlink para <code translate="no">/usr/lib64</code>. No Debian moderno, <code translate="no">/lib</code> é symlink para <code translate="no">/usr/lib</code>. Em ambos, a pasta "de verdade" é a que está em <code translate="no">/usr</code>.</p>
+<p><strong>O que cai na prova.</strong> Na LPIC-1: para que servem o <code translate="no">ldd</code> e o <code translate="no">ldconfig</code>, o que fica em <code translate="no">/etc/ld.so.conf</code> e em <code translate="no">/etc/ld.so.conf.d/</code>, que o <code translate="no">/etc/ld.so.cache</code> é binário (não se edita, se regenera), e o que faz o <code translate="no">LD_LIBRARY_PATH</code>. Saiba ler uma saída do <code translate="no">ldd</code> com <code translate="no">not found</code>.</p>
+<h2 id="5-lab-guiado">5 · Lab guiado</h2>
+<p>Você vai criar uma biblioteca de brinquedo, a <code translate="no">libola</code>, e quebrar e consertar o carregamento dela de vários jeitos.</p>
+<p><strong>Passo 0 · Snapshot, pasta e compilador.</strong> No Proxmox: <code translate="no">qm snapshot 201 m6a5-inicio</code>. Na rocky-lab:</p>
+<pre translate="no"><code class="lang-bash">sudo dnf install -y gcc
+mkdir -p ~/lab65 &amp;&amp; cd ~/lab65</code></pre>
+<p><strong>Passo 1 · Olhar um programa de verdade.</strong></p>
+<pre translate="no"><code class="lang-bash">ldd /usr/bin/ls
+readelf -d /usr/bin/ls | grep NEEDED
+ls -l /usr/lib64/libz.so*
+rpm -qf /usr/lib64/libz.so.1
+ldconfig -p | grep libz
+cat /etc/ld.so.conf
+ls /etc/ld.so.conf.d/</code></pre>
+<p>O <code translate="no">readelf</code> mostra só os nomes (sonames). O <code translate="no">ldd</code> mostra também onde cada um foi achado. No <code translate="no">ls -l</code>, repare na cadeia de symlinks: <code translate="no">libz.so.1</code> aponta para o real name. O <code translate="no">libz.so</code> (linker name) só existe se o <code translate="no">zlib-devel</code> estiver instalado.</p>
+<p><strong>Passo 2 · Criar a biblioteca e um programa que usa ela.</strong></p>
+<pre translate="no"><code class="lang-bash">cat &gt; ola.c &lt;&lt;'EOF'
+#include &lt;stdio.h&gt;
+void ola(void) { puts("ola da biblioteca v1"); }
+EOF
+
+cat &gt; main.c &lt;&lt;'EOF'
+void ola(void);
+int main(void) { ola(); return 0; }
+EOF
+
+gcc -fPIC -shared -Wl,-soname,libola.so.1 -o libola.so.1.0 ola.c
+ln -s libola.so.1.0 libola.so
+gcc -o app main.c -L. -lola
+./app</code></pre>
+<p>O <code translate="no">-Wl,-soname,libola.so.1</code> grava o soname dentro da lib. O <code translate="no">ln -s</code> cria o linker name, que o <code translate="no">gcc -lola</code> usa para compilar. E o <code translate="no">./app</code> falha: <code translate="no">error while loading shared libraries: libola.so.1: cannot open shared object file</code>.</p>
+<p><strong>Passo 3 · Diagnosticar e testar sem instalar.</strong></p>
+<pre translate="no"><code class="lang-bash">ldd ./app | grep ola
+readelf -d app | grep NEEDED
+ls -l
+LD_LIBRARY_PATH=. ./app
+ldconfig -n .
+ls -l
+LD_LIBRARY_PATH=. ./app</code></pre>
+<p>O <code translate="no">ldd</code> mostra <code translate="no">libola.so.1 =&gt; not found</code>. O binário pede a <code translate="no">libola.so.1</code> (o soname), não a <code translate="no">libola.so.1.0</code> nem a <code translate="no">libola.so</code>. Por isso o primeiro <code translate="no">LD_LIBRARY_PATH=.</code> <strong>ainda falha</strong>: não existe arquivo com esse nome na pasta. O <code translate="no">ldconfig -n .</code> cria o symlink de soname só nesta pasta, sem mexer na agenda do sistema. Agora o teste funciona. Mas ele vale só para esse comando.</p>
+<p><strong>Passo 4 · Instalar do jeito certo.</strong></p>
+<pre translate="no"><code class="lang-bash">sudo mkdir -p /opt/ola/lib
+sudo cp libola.so.1.0 /opt/ola/lib/
+./app
+echo /opt/ola/lib | sudo tee /etc/ld.so.conf.d/ola.conf
+sudo ldconfig
+ls -l /opt/ola/lib
+ldconfig -p | grep ola
+ldd ./app | grep ola
+./app</code></pre>
+<p>O primeiro <code translate="no">./app</code> continua falhando: o arquivo está lá, mas a pasta não está na agenda. Depois do <code translate="no">ldconfig</code>, duas coisas mudaram: a agenda conhece a pasta, e o <code translate="no">ldconfig</code> criou sozinho o symlink <code translate="no">libola.so.1 -&gt; libola.so.1.0</code>.</p>
+<p><strong>Passo 5 · Versões: compatível e incompatível.</strong></p>
+<pre translate="no"><code class="lang-bash">sed 's/v1/v1.1/' ola.c &gt; ola11.c
+gcc -fPIC -shared -Wl,-soname,libola.so.1 -o libola.so.1.1 ola11.c
+sudo cp libola.so.1.1 /opt/ola/lib/
+sudo ldconfig
+ls -l /opt/ola/lib
+./app</code></pre>
+<p>Mesmo soname, versão maior: o <code translate="no">ldconfig</code> passou o symlink <code translate="no">libola.so.1</code> para a <code translate="no">1.1</code>, e o <code translate="no">app</code> usa a nova <strong>sem recompilar</strong>. É assim que uma correção de segurança na <code translate="no">openssl-libs</code> chega a todos os programas de uma vez.</p>
+<pre translate="no"><code class="lang-bash">sed 's/v1/v2/' ola.c &gt; ola2.c
+gcc -fPIC -shared -Wl,-soname,libola.so.2 -o libola.so.2.0 ola2.c
+sudo cp libola.so.2.0 /opt/ola/lib/
+sudo ldconfig
+ls -l /opt/ola/lib
+ldconfig -p | grep ola
+./app</code></pre>
+<p>Soname novo, interface nova: agora existem <code translate="no">libola.so.1</code> e <code translate="no">libola.so.2</code> lado a lado, e o <code translate="no">app</code> antigo continua com a <code translate="no">1.1</code>. Só um programa compilado de novo, contra a <code translate="no">.so.2</code>, usaria a versão 2. Por isso a Rocky 9 pode ter a <code translate="no">libssl.so.3</code> e, num pacote de compatibilidade, a <code translate="no">libssl.so.1.1</code> ao mesmo tempo.</p>
+<p><strong>Passo 6 · RUNPATH: o binário que diz onde procurar.</strong></p>
+<pre translate="no"><code class="lang-bash">gcc -o app-local main.c -L. -lola -Wl,-rpath,'$ORIGIN'
+readelf -d app-local | grep -E 'NEEDED|RUNPATH'
+./app-local
+./app</code></pre>
+<p>O <code translate="no">$ORIGIN</code> quer dizer "a pasta onde o binário está". O <code translate="no">app-local</code> acha a <code translate="no">libola.so.1</code> de <code translate="no">~/lab65</code> (a v1) antes de olhar a agenda, enquanto o <code translate="no">app</code> usa a <code translate="no">1.1</code> do sistema. Muitos apps de fornecedor em <code translate="no">/opt</code> vêm assim, com as próprias libs ao lado.</p>
+<p><strong>Passo 7 · debian-lab, só leitura.</strong></p>
+<pre translate="no"><code class="lang-bash">ldd /usr/bin/ls
+ls -l /usr/lib/x86_64-linux-gnu/libz.so*
+dpkg -S libz.so.1
+cat /etc/ld.so.conf.d/*.conf</code></pre>
+<p>Mesma ideia, pasta multiarch diferente. O pacote se chama <code translate="no">zlib1g</code>: o <code translate="no">1</code> é o soname.</p>
+<p><strong>Não limpe ainda.</strong> As quebras da seção 6 usam o <code translate="no">/opt/ola</code>. A limpeza vem no fim delas.</p>
+<h3 id="decida-1">Decida 1</h3>
+<p>Um app de fornecedor em <code translate="no">/opt/vendor</code> não sobe numa Rocky 9: <code translate="no">libssl.so.1.1: cannot open shared object file</code>. A Rocky 9 tem a <code translate="no">libssl.so.3</code>. O que você faz?</p>
+<p>A) <code translate="no">ln -s /usr/lib64/libssl.so.3 /usr/lib64/libssl.so.1.1</code>. B) Instala o pacote de compatibilidade da distribuição (<code translate="no">dnf provides 'libssl.so.1.1()(64bit)'</code>, na Rocky 9 é o <code translate="no">compat-openssl11</code>) e cobra do fornecedor uma versão para OpenSSL 3. C) Baixa uma <code translate="no">libssl.so.1.1</code> de um site qualquer e joga em <code translate="no">/usr/lib64</code>.</p>
+<p>Marque uma opção antes.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se você marcou</th><th scope="col">Resultado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>A</td><td>Sobe e cai depois, ou pior, funciona errado</td><td>Soname diferente quer dizer interface diferente. O symlink engana o loader, não o código</td></tr><tr><td>B</td><td>Certo</td><td>Lib com o soname certo, assinada, atualizada pelo <code translate="no">dnf</code>, e o problema de verdade (app velho) fica registrado</td></tr><tr><td>C</td><td>Pior de todas</td><td>Biblioteca de criptografia de origem desconhecida, fora de qualquer atualização</td></tr></tbody></table></div>
+<p><strong>Para fixar:</strong> quando falta um soname, procure <strong>quem fornece aquele soname</strong>. Nunca aponte um soname para outro.</p>
+<h3 id="decida-2">Decida 2</h3>
+<p>O app em <code translate="no">/opt/app</code> traz em <code translate="no">/opt/app/lib</code> as próprias cópias de várias libs, inclusive uma <code translate="no">libcrypto.so.3</code> mais antiga que a do sistema. Um colega resolveu com <code translate="no">export LD_LIBRARY_PATH=/opt/app/lib</code> no <code translate="no">/etc/profile</code>. O app roda como serviço do systemd. O que você faz?</p>
+<p>A) Deixa como está, funcionou. B) Troca por <code translate="no">/etc/ld.so.conf.d/app.conf</code> com <code translate="no">/opt/app/lib</code> e roda <code translate="no">ldconfig</code>. C) Remove do <code translate="no">/etc/profile</code> e coloca a variável só no serviço: <code translate="no">Environment=LD_LIBRARY_PATH=/opt/app/lib</code> no unit (ou um script que exporta e chama o app).</p>
+<p>Marque uma opção antes.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se você marcou</th><th scope="col">Resultado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>A</td><td>Errado duas vezes</td><td>O <code translate="no">/etc/profile</code> vale para logins, não para o serviço. E todo programa que você abrir no shell passa a usar a <code translate="no">libcrypto</code> velha do app</td></tr><tr><td>B</td><td>Perigoso aqui</td><td>As pastas do <code translate="no">ld.so.conf.d</code> entram na agenda <strong>antes</strong> das pastas padrão. O sistema inteiro, incluindo <code translate="no">sshd</code> e <code translate="no">dnf</code>, passaria a usar a <code translate="no">libcrypto</code> velha</td></tr><tr><td>C</td><td>Certo</td><td>Só o app enxerga as libs dele</td></tr></tbody></table></div>
+<p><strong>Para fixar:</strong> <code translate="no">ld.so.conf.d</code> é para pasta com libs que só existem ali. Pasta com cópias de libs do sistema fica restrita ao app que precisa dela.</p>
+<h2 id="6-quebre-e-conserte">6 · Quebre e conserte</h2>
+<h3 id="quebra-1-agenda-desatualizada">Quebra 1 · Agenda desatualizada</h3>
+<pre translate="no"><code class="lang-bash">
+![6.5 Ldconfig Soname](../img/6.5-ldconfig-soname.svg)
+*Se a pasta não está na lista e ninguém rodou ldconfig, o loader não acha, mesmo com o arquivo lá.*
+
+sudo rm /opt/ola/lib/libola.so.1
+./app
+ldconfig -p | grep ola</code></pre>
+<p><strong>Sintoma:</strong> <code translate="no">cannot open shared object file</code>, embora a <code translate="no">libola.so.1.1</code> esteja lá.</p>
+<p><strong>Diagnóstico:</strong> a agenda ainda diz que a <code translate="no">libola.so.1</code> está em <code translate="no">/opt/ola/lib</code>, mas <code translate="no">ls -l /opt/ola/lib</code> mostra que o symlink de soname sumiu. O loader procura pelo soname, não pelo arquivo com versão.</p>
+<p><strong>Conserto:</strong> <code translate="no">sudo ldconfig</code>. Ele recria o symlink e a agenda. Confira com <code translate="no">ls -l</code> e <code translate="no">./app</code>.</p>
+<p><strong>Na vida real:</strong> acontece quando alguém copia uma lib à mão, ou um script de instalação apaga e recopia arquivos. Sempre que mexer em lib fora do gerenciador de pacotes: <code translate="no">sudo ldconfig</code>.</p>
+<h3 id="quebra-2-a-biblioteca-impostora">Quebra 2 · A biblioteca impostora</h3>
+<pre translate="no"><code class="lang-bash">mkdir -p ~/lab65/falsa
+sed 's/v1/IMPOSTORA/' ~/lab65/ola.c &gt; ~/lab65/falsa.c
+gcc -fPIC -shared -Wl,-soname,libola.so.1 -o ~/lab65/falsa/libola.so.1 ~/lab65/falsa.c
+export LD_LIBRARY_PATH=~/lab65/falsa
+./app
+ldd ./app | grep ola
+sudo ./app
+unset LD_LIBRARY_PATH
+./app</code></pre>
+<p><strong>Sintoma:</strong> o <code translate="no">app</code> imprime <code translate="no">IMPOSTORA</code>. Com <code translate="no">sudo</code>, volta ao normal.</p>
+<p><strong>Diagnóstico:</strong> <code translate="no">echo $LD_LIBRARY_PATH</code> e <code translate="no">ldd ./app</code> mostram a lib vindo de <code translate="no">~/lab65/falsa</code>. A variável passa na frente da agenda.</p>
+<p><strong>Conserto:</strong> <code translate="no">unset LD_LIBRARY_PATH</code>, e procurar onde ela foi definida (<code translate="no">~/.bashrc</code>, <code translate="no">/etc/profile.d/</code>, <code translate="no">/etc/environment</code>).</p>
+<p><strong>Na vida real:</strong> é por isso que o <code translate="no">sudo</code> limpa o ambiente, e que programas setuid ignoram o <code translate="no">LD_LIBRARY_PATH</code>. Se ele valesse para root, qualquer usuário trocaria a <code translate="no">libc</code> do <code translate="no">passwd</code> por uma dele.</p>
+<h3 id="quebra-3-removeram-uma-lib-do-sistema-narrativa">Quebra 3 · Removeram uma lib do sistema (narrativa)</h3>
+<p>Alguém rodou <code translate="no">rpm -e --nodeps openssl-libs</code> para "reinstalar limpo". Na hora, <code translate="no">ssh</code>, <code translate="no">curl</code> e <code translate="no">dnf</code> param com <code translate="no">libcrypto.so.3: cannot open shared object file</code>. O <code translate="no">dnf</code> não consegue reinstalar porque ele próprio precisa da lib.</p>
+<p><strong>Diagnóstico:</strong> <code translate="no">ldd /usr/bin/curl | grep 'not found'</code> e <code translate="no">rpm -V openssl-libs</code>.</p>
+<p><strong>Conserto:</strong> se o <code translate="no">rpm</code> ainda roda, <code translate="no">rpm -ivh</code> do pacote tirado da ISO (é para isso que serve o repositório da ISO da aula 6.3). Se nem ele roda, boot pela ISO no modo rescue e <code translate="no">rpm --root=/mnt/sysroot -ivh ...</code>.</p>
+<p><strong>Para fixar:</strong> <code translate="no">--nodeps</code> desliga exatamente a proteção que impede isso. Quase nunca é a resposta.</p>
+<h3 id="limpeza">Limpeza</h3>
+<pre translate="no"><code class="lang-bash">unset LD_LIBRARY_PATH
+sudo rm /etc/ld.so.conf.d/ola.conf
+sudo rm -r /opt/ola
+sudo ldconfig
+ldconfig -p | grep ola</code></pre>
+<p>O último comando não deve mostrar nada. A pasta <code translate="no">~/lab65</code> pode ficar.</p>
+<h2 id="7-armadilhas">7 · Armadilhas</h2>
+<div class="tabela"><table><thead><tr><th scope="col">Armadilha</th><th scope="col">O que acontece</th><th scope="col">Como evitar</th></tr></thead><tbody><tr><td>Symlink de um soname para outro (<code translate="no">.so.1.1</code> → <code translate="no">.so.3</code>)</td><td>Falha na hora, ou pior, mais tarde e de forma silenciosa</td><td>Procure quem fornece o soname certo (<code translate="no">dnf provides</code>, <code translate="no">apt-file</code>)</td></tr><tr><td><code translate="no">LD_LIBRARY_PATH</code> global no <code translate="no">/etc/profile</code></td><td>Muda a lib de todo programa no shell e não vale para os serviços</td><td>Coloque só no serviço (<code translate="no">Environment=</code>) ou num script wrapper</td></tr><tr><td>Pasta com cópias de libs do sistema no <code translate="no">ld.so.conf.d</code></td><td>O sistema inteiro passa a usar as cópias</td><td>Use <code translate="no">ld.so.conf.d</code> só para libs que existem apenas ali</td></tr><tr><td>Copiar a lib e esquecer o <code translate="no">ldconfig</code></td><td>Fica sem symlink de soname e com a agenda velha</td><td>Sempre <code translate="no">sudo ldconfig</code> depois de mexer em lib fora do gerenciador</td></tr><tr><td><code translate="no">ldd</code> em binário desconhecido</td><td>O binário pode executar código</td><td>Use <code translate="no">readelf -d</code> ou <code translate="no">objdump -p</code></td></tr><tr><td>Atualizar uma lib e não reiniciar nada</td><td>Os serviços continuam com a versão vulnerável na memória</td><td><code translate="no">dnf needs-restarting -s</code> / <code translate="no">needrestart</code>, e reinicie</td></tr><tr><td><code translate="no">rpm -e --nodeps</code> numa lib</td><td>Derruba tudo o que depende dela, às vezes até o <code translate="no">dnf</code></td><td>Nunca use <code translate="no">--nodeps</code> em lib. Use <code translate="no">dnf reinstall</code> ou <code translate="no">dnf swap</code></td></tr><tr><td>Achar que o loader procura na pasta atual</td><td><code translate="no">./app</code> não acha a lib que está do lado</td><td>Isso só acontece com RUNPATH <code translate="no">$ORIGIN</code> ou <code translate="no">LD_LIBRARY_PATH</code></td></tr><tr><td>Editar o <code translate="no">/etc/ld.so.cache</code></td><td>É binário, você corrompe o arquivo</td><td>Edite o <code translate="no">ld.so.conf.d</code> e rode o <code translate="no">ldconfig</code></td></tr></tbody></table></div>
+<h2 id="8-quiz">8 · Quiz</h2>
+<p>Responda sem olhar. O gabarito está no fim da aula.</p>
+<ol><li>Qual a diferença entre real name, soname e linker name? Quem cria cada um?</li>
+<li>Você instalou uma lib em <code translate="no">/opt/x/lib</code> e o programa não acha. Diga um jeito temporário e dois permanentes de resolver.</li>
+<li>Por que não rodar <code translate="no">ldd</code> num binário que veio de fora? O que usar no lugar?</li>
+<li>Um app antigo pede <code translate="no">libfoo.so.1</code> e o sistema tem <code translate="no">libfoo.so.2</code>. Por que o symlink é má ideia?</li>
+<li>O programa funciona no seu terminal e falha quando roda como serviço do systemd. Qual o suspeito número um?</li>
+<li><em>Which file lists additional directories that ldconfig scans for shared libraries? a) /etc/ld.so.cache b) /etc/ld.so.conf c) /etc/ldconfig.conf d) /etc/ld.so.preload</em></li></ol>
+<h2 id="9-cola">9 · Cola</h2>
+<p><strong>Para saber de cor:</strong></p>
+<div class="tabela"><table><thead><tr><th scope="col">Quero...</th><th scope="col">Comando</th></tr></thead><tbody><tr><td>Dependências de um programa</td><td><code translate="no">ldd PROGRAMA</code></td></tr><tr><td>O que está gravado no binário</td><td><code translate="no">readelf -d PROGRAMA | grep -E 'NEEDED|RUNPATH'</code></td></tr><tr><td>Agenda do loader</td><td><code translate="no">ldconfig -p | grep NOME</code></td></tr><tr><td>Regenerar agenda e symlinks</td><td><code translate="no">sudo ldconfig</code></td></tr><tr><td>Registrar pasta</td><td><code translate="no">echo /opt/x/lib | sudo tee /etc/ld.so.conf.d/x.conf</code> e <code translate="no">sudo ldconfig</code></td></tr><tr><td>Teste pontual</td><td><code translate="no">LD_LIBRARY_PATH=/opt/x/lib ./programa</code></td></tr></tbody></table></div>
+<p><strong>Para consultar:</strong></p>
+<div class="tabela"><table><thead><tr><th scope="col">Quero...</th><th scope="col">Comando</th></tr></thead><tbody><tr><td>Loader passo a passo</td><td><code translate="no">LD_DEBUG=libs ./programa</code></td></tr><tr><td>Pacote dono da lib</td><td><code translate="no">rpm -qf ARQUIVO</code> / <code translate="no">dpkg -S ARQUIVO</code></td></tr><tr><td>Quem fornece o soname</td><td><code translate="no">dnf provides 'libX.so.N()(64bit)'</code> / <code translate="no">apt-file search libX.so.N</code></td></tr><tr><td>Serviços com lib antiga</td><td><code translate="no">sudo dnf needs-restarting -s</code> / <code translate="no">sudo needrestart</code></td></tr><tr><td>Processos com lib apagada</td><td><code translate="no">sudo lsof -n 2&gt;/dev/null | grep 'DEL.*\.so'</code></td></tr><tr><td>Symlinks só numa pasta</td><td><code translate="no">ldconfig -n PASTA</code></td></tr><tr><td>Ler o ELF sem executar</td><td><code translate="no">objdump -p PROGRAMA</code></td></tr><tr><td>Libs pré-carregadas à força</td><td><code translate="no">cat /etc/ld.so.preload</code> (normalmente não existe)</td></tr><tr><td>Arquivos de configuração</td><td><code translate="no">/etc/ld.so.conf</code>, <code translate="no">/etc/ld.so.conf.d/*.conf</code>, <code translate="no">/etc/ld.so.cache</code></td></tr></tbody></table></div>
+<p><strong>Flashcards:</strong></p>
+<ul><li>Soname → <em>o nome gravado no programa. Ele só muda quando a interface quebra.</em></li>
+<li>Ordem do loader → <em>RUNPATH/RPATH, LD_LIBRARY_PATH, cache, pastas padrão.</em></li>
+<li>Mexeu em lib à mão → <em><code translate="no">sudo ldconfig</code>.</em></li>
+<li>Falta <code translate="no">libX.so.N</code> → <em>quem fornece esse soname? Nunca symlink para outro.</em></li>
+<li>Atualizou a lib → <em>reinicie os serviços que a usam.</em></li></ul>
+<h2 id="10-checklist-e-fechamento">10 · Checklist e fechamento</h2>
+<ul><li>[ ] Explico real name, soname e linker name</li>
+<li>[ ] Leio uma saída do <code translate="no">ldd</code> e acho o <code translate="no">not found</code></li>
+<li>[ ] Registro uma pasta com <code translate="no">ld.so.conf.d</code> e <code translate="no">ldconfig</code></li>
+<li>[ ] Sei por que o <code translate="no">LD_LIBRARY_PATH</code> é para teste e não para o sistema</li>
+<li>[ ] Explico por que a mesma lib com soname igual atualiza todo mundo sem recompilar</li>
+<li>[ ] Sei achar quem fornece um soname que falta, nas duas distros</li>
+<li>[ ] Sei descobrir os serviços que ainda usam uma lib antiga</li></ul>
+<p><strong>Último exercício, sem olhar a aula:</strong> em <code translate="no">~/lab65/final</code>, crie uma <code translate="no">libtchau.so.1.0</code> com soname <code translate="no">libtchau.so.1</code> e um programa que use ela. Faça o programa rodar <strong>sem</strong> <code translate="no">LD_LIBRARY_PATH</code> e <strong>sem</strong> <code translate="no">ld.so.conf.d</code>. Dica: o Passo 6. Depois explique por que funcionou.</p>
+<p><strong>Reboot e conferência:</strong></p>
+<pre translate="no"><code class="lang-bash">sudo reboot
+ldconfig -p | grep -c ola
+ls /etc/ld.so.conf.d/
+echo "[$LD_LIBRARY_PATH]"
+sudo dnf check</code></pre>
+<p>Esperado: <code translate="no">0</code>, nenhum <code translate="no">ola.conf</code> e a variável vazia (<code translate="no">[]</code>).</p>
+<p><strong>Snapshot de fim</strong> (no Proxmox):</p>
+<pre translate="no"><code class="lang-bash">qm snapshot 201 m6a5-fim</code></pre>
+<h2 id="11-na-vida-real">11 · Na vida real</h2>
+<p><strong>Missão, só leitura.</strong> Num servidor Linux que você administre (ou com autorização), rode <strong>apenas</strong>:</p>
+<pre translate="no"><code class="lang-bash">cat /etc/ld.so.conf
+cat /etc/ld.so.conf.d/*.conf
+ldconfig -p | wc -l
+ls -l /etc/ld.so.preload 2&gt;/dev/null
+grep -rs LD_LIBRARY_PATH /etc/profile /etc/profile.d/ /etc/environment /etc/systemd/system/
+sudo dnf needs-restarting -s 2&gt;/dev/null || sudo needrestart -b 2&gt;/dev/null</code></pre>
+<p>Perguntas para responder:</p>
+<ol><li>Que pastas extras estão registradas, e de que pacote ou app vem cada uma?</li>
+<li>Alguma delas tem cópias de libs do sistema (<code translate="no">libssl</code>, <code translate="no">libcrypto</code>, <code translate="no">libz</code>)? Confira com <code translate="no">ls</code>.</li>
+<li>Existe <code translate="no">/etc/ld.so.preload</code>? Num servidor comum não deveria existir. Se existir e você não souber de onde veio, é caso de investigar: é um lugar clássico de rootkit.</li>
+<li>Alguém usa <code translate="no">LD_LIBRARY_PATH</code> globalmente ou num unit?</li>
+<li>Há serviços que precisam ser reiniciados depois da última atualização?</li></ol>
+<p><strong>Diário:</strong> anote a resposta da 5. Se houver serviços pendentes, isso vira uma tarefa de manutenção agendada. Não reinicie nada agora.</p>
+<p><strong>Amanhã, sem olhar:</strong> escreva a ordem de busca do loader e os dois comandos para registrar uma pasta nova.</p>
+<h2 id="12-aprofundar-quando-quiser">12 · Aprofundar quando quiser</h2>
+<ul><li><strong><code translate="no">man ld.so</code> e <code translate="no">man ldconfig</code>:</strong> a ordem de busca exata, RPATH × RUNPATH e o modo seguro dos programas setuid.</li>
+<li><strong><code translate="no">LD_PRELOAD</code> e <code translate="no">/etc/ld.so.preload</code>:</strong> carregar uma lib antes de todas. É usado para depuração e também por malware.</li>
+<li><strong>Versionamento de símbolos:</strong> o erro <code translate="no">version `GLIBC_2.34' not found</code> aparece quando você leva um binário de um sistema novo para um velho.</li>
+<li><strong>Estático × dinâmico:</strong> por que Go gera binários quase estáticos e por que a distribuição prefere o dinâmico (uma correção vale para todos).</li>
+<li><strong><code translate="no">patchelf</code>:</strong> mudar o RUNPATH de um binário pronto.</li>
+<li><strong><code translate="no">lddtree</code></strong> (pacote <code translate="no">pax-utils</code>): a árvore de dependências inteira, sem executar o binário.</li></ul>
+<p><strong>DeepTutor</strong> (http://10.1.0.149:3782, KB "Curso Linux Sysadmin"):</p>
+<ul><li><code translate="no">!explica a ordem em que o ld-linux procura bibliotecas</code></li>
+<li><code translate="no">!feynman o que é um soname e por que ele existe</code></li>
+<li><code translate="no">!quiz Aula 6.5, 5 perguntas sobre ldd e ldconfig para a LPIC-1</code></li></ul>
+<h2 id="desafio-do-m6-instalacao-offline">Desafio do M6 · Instalação offline</h2>
+<blockquote><p><strong>A missão:</strong> a rocky-lab instala pacotes <strong>sem internet</strong>, usando só a ISO como repositório, e continua assim depois do reboot.</p></blockquote>
+<p>Na aula 6.3 você montou a ISO à mão e fez um repositório temporário. Agora o resultado tem que ser permanente, e quem confere é o reboot. Não há passo a passo. As dicas estão no Gabarito, mas tente sem elas primeiro.</p>
+<p><strong>Antes de começar:</strong></p>
+<ul><li>Confira que a ISO anexada à VM é a <strong>DVD</strong> (<code translate="no">Rocky-9.x-x86_64-dvd.iso</code>), não a minimal. A minimal tem poucos pacotes. Teste: <code translate="no">dnf --repo=iso-appstream list --available | wc -l</code>.</li>
+<li>Faça <code translate="no">qm snapshot 201 m6-desafio-inicio</code>.</li></ul>
+<p><strong>Requisitos:</strong></p>
+<ol><li>A ISO monta sozinha em <code translate="no">/mnt/iso</code> no boot, pelo <code translate="no">/etc/fstab</code>, somente leitura. Se a ISO não estiver anexada, o boot <strong>não</strong> pode travar.</li>
+<li>Um arquivo <code translate="no">/etc/yum.repos.d/local-iso.repo</code> com os repositórios BaseOS e AppStream da ISO, com <code translate="no">gpgcheck=1</code> e a chave certa.</li>
+<li><strong>Todos</strong> os repositórios de rede desligados de forma permanente: baseos, appstream, extras, crb, epel e qualquer outro que apareça. Não vale <code translate="no">--disablerepo</code> na linha de comando.</li>
+<li>Sem internet de verdade durante o teste: <code translate="no">sudo ip route del default</code> (volta no reboot).</li>
+<li>Instalar um pacote do BaseOS (por exemplo <code translate="no">zsh</code>) e um do AppStream (por exemplo <code translate="no">git</code>) que ainda não estejam instalados.</li>
+<li><code translate="no">sudo dnf check-update</code> e <code translate="no">sudo dnf makecache</code> terminam rápido e sem erro, sem tentar a internet.</li></ol>
+<p><strong>Critérios de aceite</strong> (depois de um <code translate="no">sudo reboot</code>):</p>
+<pre translate="no"><code class="lang-bash">findmnt /mnt/iso
+dnf repolist
+sudo ip route del default
+sudo dnf makecache
+sudo dnf install -y zsh git
+rpm -q zsh git
+sudo dnf check-update; echo "saida=$?"</code></pre>
+<ul><li>[ ] O <code translate="no">findmnt</code> mostra a ISO em <code translate="no">/mnt/iso</code>, com <code translate="no">ro</code></li>
+<li>[ ] O <code translate="no">dnf repolist</code> mostra <strong>só</strong> os dois repositórios da ISO</li>
+<li>[ ] Instalou os dois pacotes com a rota padrão removida</li>
+<li>[ ] O <code translate="no">check-update</code> termina em segundos (saída <code translate="no">0</code> ou <code translate="no">100</code>, sem erro de rede)</li>
+<li>[ ] Com a ISO desanexada (<code translate="no">qm set 201 --ide2 none,media=cdrom</code>), a VM ainda dá boot</li></ul>
+<p><strong>Bônus (opcional):</strong></p>
+<ul><li><strong>Repositório próprio:</strong> junte alguns <code translate="no">.rpm</code> em <code translate="no">/srv/repo-local</code>, gere os metadados com <code translate="no">createrepo_c</code> (instale o pacote antes de cortar a rede) e crie um <code translate="no">.repo</code> para ele. Você acabou de fazer um mini mirror.</li>
+<li><strong>Debian:</strong> na debian-lab, faça o equivalente com a ISO DVD 1 do Debian e <code translate="no">apt-cdrom add</code>, ou com uma linha <code translate="no">.sources</code> apontando para <code translate="no">file:/mnt/iso</code>.</li></ul>
+<p><strong>Ao terminar:</strong> <code translate="no">qm snapshot 201 m6-desafio-fim</code>. Os próximos módulos precisam de internet. Volte para o estado normal com <code translate="no">qm rollback 201 m6a5-fim</code>. O snapshot do Desafio fica guardado como prova.</p>
+<p><strong>Você fechou o M6.</strong> Agora você instala, consulta, verifica e remove pacotes nas duas famílias, mexe em repositórios, usa Flatpak e resolve biblioteca que não carrega. O próximo módulo está na aba Plano.</p>
+<h2 id="gabarito-comentado">Gabarito comentado</h2>
+<h3 id="aquecimento">Aquecimento</h3>
+<ol><li><strong>Quase tudo para.</strong> O <code translate="no">ls</code>, o <code translate="no">rm</code>, o <code translate="no">bash</code> e o <code translate="no">dnf</code> dependem da <code translate="no">libc.so.6</code>. Qualquer comando novo falha ao carregar. Só os builtins do shell que já está aberto continuam (<code translate="no">echo</code>, <code translate="no">cd</code>). O caminho é boot pela ISO no modo rescue e reinstalar a <code translate="no">glibc</code> com <code translate="no">rpm --root</code>. É o exemplo mais extremo da Quebra 3.</li>
+<li><strong>Cada nome tem uma função.</strong> <code translate="no">libz.so.1.2.13</code> é o arquivo (real name). <code translate="no">libz.so.1</code> é o soname, que os programas pedem. <code translate="no">libz.so</code> é o linker name, que só o compilador usa.</li>
+<li><strong>A pasta não está na agenda do loader.</strong> Ele não varre o disco, ele consulta o <code translate="no">/etc/ld.so.cache</code> e as pastas padrão. Ou você registra a pasta (<code translate="no">ld.so.conf.d</code> + <code translate="no">ldconfig</code>), ou o binário traz o RUNPATH, ou você usa o <code translate="no">LD_LIBRARY_PATH</code> só para aquele programa. E confira se o arquivo com o nome do soname existe ali.</li></ol>
+<h3 id="quiz">Quiz</h3>
+<ol><li>O <strong>real name</strong> (<code translate="no">libfoo.so.1.4.2</code>) é o arquivo, e quem cria é o pacote. O <strong>soname</strong> (<code translate="no">libfoo.so.1</code>) é o symlink com o nome que fica gravado nos programas; quem cria é o <code translate="no">ldconfig</code> (e o pacote). O <strong>linker name</strong> (<code translate="no">libfoo.so</code>) serve para compilar com <code translate="no">-lfoo</code>, e vem no pacote <code translate="no">-devel</code> ou <code translate="no">-dev</code>.</li>
+<li>Temporário: <code translate="no">LD_LIBRARY_PATH=/opt/x/lib ./programa</code>. Permanentes: um arquivo em <code translate="no">/etc/ld.so.conf.d/</code> mais <code translate="no">sudo ldconfig</code>, ou o binário compilado com RUNPATH (<code translate="no">-Wl,-rpath,...</code>, ou <code translate="no">patchelf</code> num binário pronto). Num serviço, também vale <code translate="no">Environment=LD_LIBRARY_PATH=</code> no unit.</li>
+<li>Porque o <code translate="no">ldd</code> pode acabar executando o binário para descobrir as dependências, e um binário malicioso aproveita isso. Use <code translate="no">readelf -d</code> ou <code translate="no">objdump -p</code>, que só leem o arquivo.</li>
+<li>Porque soname diferente quer dizer interface diferente: funções que mudaram de assinatura ou sumiram. O loader aceita o symlink, mas o programa chama coisas que não existem mais ou que funcionam de outro jeito. O certo é instalar a lib com o soname <code translate="no">.so.1</code> (pacote de compatibilidade) ou atualizar o app.</li>
+<li>O <code translate="no">LD_LIBRARY_PATH</code> (ou outra variável) definido no seu <code translate="no">~/.bashrc</code> ou no <code translate="no">/etc/profile</code>. O systemd não lê esses arquivos. Confira com <code translate="no">systemctl show SERVICO -p Environment</code> e com o <code translate="no">journalctl -u SERVICO</code>.</li>
+<li><strong>b) <code translate="no">/etc/ld.so.conf</code></strong> (que no Rocky e no Debian só inclui o <code translate="no">/etc/ld.so.conf.d/*.conf</code>). O a) é a agenda binária que o <code translate="no">ldconfig</code> gera. O c) não existe. O d) é a lista de libs pré-carregadas.</li></ol>
+<h3 id="dicas-do-desafio">Dicas do Desafio</h3>
+<p>Leia uma de cada vez, só quando travar.</p>
+<ol><li><strong>fstab:</strong> o formato é <code translate="no">dispositivo ponto tipo opções dump pass</code>. Para a ISO no drive de CD da VM: <code translate="no">/dev/sr0 /mnt/iso iso9660 ro,nofail 0 0</code>. O <code translate="no">nofail</code> é o que impede o boot de travar sem a ISO.</li>
+<li><strong>Antes de reiniciar:</strong> <code translate="no">sudo umount /mnt/iso</code>, depois <code translate="no">sudo mount -a</code> e <code translate="no">findmnt --verify</code>. Se o <code translate="no">mount -a</code> reclamar, o reboot também vai reclamar.</li>
+<li><strong>O <code translate="no">.repo</code>:</strong> é o mesmo da aula 6.3, com <code translate="no">baseurl=file:///mnt/iso/BaseOS</code> e <code translate="no">file:///mnt/iso/AppStream</code>, <code translate="no">enabled=1</code>, <code translate="no">gpgcheck=1</code> e <code translate="no">gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-Rocky-9</code>.</li>
+<li><strong>Desligar os de rede:</strong> primeiro veja todos com <code translate="no">dnf repolist --all</code>. O EPEL costuma trazer mais de um repositório. Depois <code translate="no">sudo dnf config-manager --set-disabled baseos appstream extras crb epel ...</code> e confira com <code translate="no">dnf repolist</code> de novo.</li>
+<li><strong>Cache velho:</strong> se o <code translate="no">dnf</code> ainda tentar a rede, rode <code translate="no">sudo dnf clean all</code> e <code translate="no">sudo dnf makecache</code>.</li>
+<li><strong><code translate="no">git</code> não aparece:</strong> confirme que é a ISO DVD (<code translate="no">ls /mnt/iso/AppStream/Packages | wc -l</code> deve dar alguns milhares).</li>
+<li><strong><code translate="no">createrepo_c</code> (bônus):</strong> instale antes de cortar a rede. Depois, <code translate="no">sudo createrepo_c /srv/repo-local</code> e um <code translate="no">.repo</code> com <code translate="no">baseurl=file:///srv/repo-local</code>. Como os pacotes vieram assinados, <code translate="no">gpgcheck=1</code> continua valendo.</li></ol>
+</article><nav class="paginas" aria-label="Aulas"><a class="ant" href="6.4-flatpak.html"><small>← Anterior</small>6.4 · Flatpak</a></nav></main></div>
+<footer><div class="wrap">Gerado a partir do Markdown do curso · Imagens em <code translate="no">img/</code></div></footer>
+</body>
+</html>

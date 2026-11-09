@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light dark">
+<title>4.2 · systemd: servizi e unit · Corso Linux Sysadmin</title>
+<link rel="alternate" hreflang="pt-BR" href="4.2-systemd-servicos-e-units.html"><link rel="alternate" hreflang="it" href="4.2-systemd-servicos-e-units.it.html">
+<style>
+:root{color-scheme:light dark;--bg:#f6f1e7;--card:#fffdf8;--ink:#201c16;--muted:#5e564a;--accent:#9a3412;--accent-2:#1f5f4a;--tint:#efe6d4;--line:#ddd2bc;--code:#f1eadb;--shadow:0 1px 2px rgba(60,40,10,.08);--serif:Georgia,"Iowan Old Style","Palatino Linotype",Palatino,serif;--sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--mono:"Cascadia Code",Consolas,"DejaVu Sans Mono",monospace}
+@media (prefers-color-scheme:dark){:root{--bg:#16130f;--card:#201b15;--ink:#f1eadb;--muted:#b9ad98;--accent:#f0a070;--accent-2:#7fd0b0;--tint:#2a231a;--line:#3d3427;--code:#191510;--shadow:none}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:5.5rem}
+body{margin:0;background:var(--bg);color:var(--ink);font:1rem/1.6 var(--sans)}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--accent-2);outline-offset:2px;border-radius:4px}
+.pular{position:absolute;left:-999px;top:0;background:var(--card);padding:.5rem 1rem;z-index:20}
+.pular:focus{left:.5rem;top:.5rem}
+.wrap{width:100%;max-width:84rem;margin:0 auto;padding-inline:max(1rem,env(safe-area-inset-left))}
+.top{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10;border-top:6px solid var(--accent)}
+.top-in{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding-block:.6rem}
+.titles{min-width:0}
+.marca{margin:0;font:700 clamp(1.15rem,1rem + 1vw,1.6rem)/1.15 var(--serif);letter-spacing:-.01em}
+.marca a{text-decoration:none}
+.marca a:hover{color:var(--accent)}
+.meta{margin:.1rem 0 0;color:var(--muted);font-size:.85rem}
+.acoes{display:flex;align-items:center;gap:.9rem;flex:none}
+.acoes>a{font-size:.9rem;font-weight:600;color:var(--muted);text-decoration:none}
+.acoes>a:hover{color:var(--accent);text-decoration:underline}
+.idioma{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--tint)}
+.idioma>*{padding:.35rem .9rem;font-size:.8rem;font-weight:700;letter-spacing:.06em;text-decoration:none;color:var(--muted);min-width:2.75rem;text-align:center}
+.idioma a:hover{color:var(--accent);text-decoration:underline}
+.idioma span{background:var(--accent);color:#fff}
+@media (prefers-color-scheme:dark){.idioma span{color:#16130f}}
+code{font-family:var(--mono);font-size:.9em;background:var(--tint);padding:.1rem .35rem;border-radius:4px;overflow-wrap:anywhere}
+/* índice */
+.capa{max-width:70rem;padding-block:2rem 3rem}
+.stats{border-left:4px solid var(--accent-2);background:var(--card);border-radius:0 10px 10px 0;padding:1rem 1.25rem;margin:0 0 2.5rem;box-shadow:var(--shadow);color:var(--muted)}
+.stats strong{color:var(--ink)}
+.modulo{display:grid;grid-template-columns:15rem minmax(0,1fr);gap:1rem 2rem;padding:1.75rem 0;border-top:1px solid var(--line)}
+.modulo h2{margin:0;font:700 1.25rem/1.25 var(--serif);align-self:start;position:sticky;top:6rem}
+.mn{display:block;font:700 .8rem var(--mono);letter-spacing:.12em;color:var(--accent);margin-bottom:.25rem}
+.sep{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.modulo ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,17rem),1fr));gap:.75rem}
+.modulo li{margin:0}
+.modulo a{display:flex;gap:.45rem;align-items:baseline;height:100%;padding:.85rem 1rem;background:var(--card);border:1px solid var(--line);border-radius:10px;text-decoration:none;font-weight:600;line-height:1.35;box-shadow:var(--shadow);transition:border-color .15s,transform .15s}
+.modulo a:hover{border-color:var(--accent);color:var(--accent)}
+.num{font:700 .85rem var(--mono);color:var(--accent);white-space:nowrap}
+/* aula */
+.doc{display:grid;grid-template-columns:17rem minmax(0,1fr);gap:2.5rem;align-items:start;padding-block:2rem 3rem}
+.lateral{position:sticky;top:5.5rem;max-height:calc(100vh - 6.5rem);overflow:auto;font-size:.875rem;padding-right:.5rem}
+.lateral h2{margin:0 0 .25rem;font:700 .95rem var(--serif);color:var(--muted)}
+.lateral h3{margin:1rem 0 .25rem;font:700 .75rem var(--mono);letter-spacing:.06em;color:var(--accent)}
+.lateral ul{list-style:none;margin:0;padding:0}
+.lateral a{display:flex;gap:.45rem;padding:.25rem .5rem;border-radius:6px;text-decoration:none;color:var(--muted);line-height:1.3}
+.lateral a:hover{background:var(--tint);color:var(--ink)}
+.lateral a[aria-current]{background:var(--tint);color:var(--ink);font-weight:700;box-shadow:inset 3px 0 0 var(--accent)}
+.lateral .num{font-size:.75rem}
+.aula{min-width:0;max-width:56rem;overflow-wrap:break-word;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:clamp(1.25rem,1rem + 2vw,2.75rem);box-shadow:var(--shadow)}
+.aula h1{margin:0 0 1.5rem;font:700 clamp(1.75rem,1.4rem + 1.6vw,2.5rem)/1.15 var(--serif);letter-spacing:-.015em;color:var(--ink)}
+.aula h2{margin:2.5rem 0 .75rem;padding-top:1.25rem;border-top:1px solid var(--line);font:700 1.5rem/1.25 var(--serif)}
+.aula h3{margin:2rem 0 .5rem;font:700 1.15rem/1.3 var(--serif);color:var(--accent)}
+.aula h4,.aula h5,.aula h6{margin:1.5rem 0 .5rem;font-size:1rem}
+.aula p,.aula ul,.aula ol{margin:1rem 0}
+.aula ul,.aula ol{padding-left:1.5rem}
+.aula li{margin:.35rem 0}
+.aula li>ul,.aula li>ol{margin:.35rem 0}
+.aula a{color:var(--accent);text-underline-offset:2px}
+.aula hr{border:0;border-top:1px solid var(--line);margin:2rem 0}
+.tabela{overflow-x:auto;margin:1.25rem 0;border:1px solid var(--line);border-radius:10px}
+.aula table{width:100%;border-collapse:collapse;font-size:.9rem}
+.aula th,.aula td{padding:.55rem .75rem;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+.aula tr:last-child td{border-bottom:0}
+.aula th{background:var(--tint);font-weight:700}
+.aula pre{background:var(--code);border:1px solid var(--line);border-radius:10px;padding:.9rem 1rem;overflow-x:auto;font:.85rem/1.5 var(--mono);margin:1rem 0;tab-size:4}
+.aula pre code{background:none;padding:0;font-size:inherit;overflow-wrap:normal}
+.aula blockquote{margin:1.25rem 0;padding:.75rem 1.25rem;border-left:4px solid var(--accent-2);background:var(--tint);border-radius:0 10px 10px 0}
+.aula blockquote>:first-child{margin-top:0}
+.aula blockquote>:last-child{margin-bottom:0}
+.aula figure{margin:1.75rem 0;text-align:center}
+.aula figure img{display:block;margin:0 auto;max-width:100%;height:auto;border:1px solid var(--line);border-radius:10px;background:#fff}
+.aula figcaption{margin-top:.5rem;color:var(--muted);font-size:.9rem;font-style:italic}
+.paginas{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:2.5rem;padding-top:1.5rem;border-top:1px solid var(--line)}
+.paginas a{display:block;padding:.75rem 1rem;border:1px solid var(--line);border-radius:10px;text-decoration:none;color:var(--ink);font-weight:600;line-height:1.3}
+.paginas a:hover{border-color:var(--accent);color:var(--accent)}
+.paginas small{display:block;color:var(--muted);font-weight:400}
+.paginas .prox{grid-column:2;text-align:right}
+footer{border-top:1px solid var(--line);padding-block:1.5rem;color:var(--muted);font-size:.85rem;text-align:center}
+@media (hover:hover) and (prefers-reduced-motion:no-preference){.modulo a:hover{transform:translateY(-2px)}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+@media (max-width:980px){.doc{grid-template-columns:minmax(0,1fr);padding-top:1rem}.lateral{position:static;max-height:none;order:2}.aula{max-width:none}}
+@media (max-width:860px){.modulo{grid-template-columns:minmax(0,1fr)}.modulo h2{position:static}.mn{display:inline;margin-right:.5rem}}
+@media (max-width:420px){.meta{display:none}.top-in{gap:.5rem}.acoes{gap:.6rem}.capa{padding-top:1.25rem}.paginas{grid-template-columns:minmax(0,1fr)}.paginas .prox{grid-column:1}}
+@media print{.top,.lateral,.paginas{display:none}.aula{border:0;box-shadow:none;padding:0;max-width:none}.doc{display:block}}
+</style>
+</head>
+<body>
+<a class="pular" href="#conteudo">Vai al contenuto</a>
+<header class="top"><div class="wrap top-in"><div class="titles"><p class="marca"><a href="index.it.html">Corso Linux Sysadmin</a></p><p class="meta">Rodrigo Antignani · Lezione 4.2</p></div><div class="acoes"><a href="index.it.html">Indice</a><div class="idioma" role="group" aria-label="Lingua"><a href="4.2-systemd-servicos-e-units.html" hreflang="pt-BR" lang="pt-BR">PT</a><span aria-current="true">IT</span></div></div></div></header>
+<div class="wrap doc"><aside class="lateral" aria-label="Lezioni"><h2>Lezioni</h2><h3>M0 · Laboratorio</h3><ul><li><a href="0.1-montar-o-laboratorio.it.html"><span class="num">0.1</span><span>Allestire il laboratorio</span></a></li><li><a href="0.2-acesso-e-protecao.it.html"><span class="num">0.2</span><span>Accesso e protezione</span></a></li></ul><h3>M1 · Riga di comando</h3><ul><li><a href="1.1-o-que-e-linux.it.html"><span class="num">1.1</span><span>Che cos'è Linux</span></a></li><li><a href="1.2-o-shell-e-a-ajuda.it.html"><span class="num">1.2</span><span>La shell e la guida</span></a></li><li><a href="1.3-caminhos-e-navegacao.it.html"><span class="num">1.3</span><span>Percorsi e navigazione</span></a></li><li><a href="1.4-criar-copiar-mover-e-apagar.it.html"><span class="num">1.4</span><span>Creare, copiare, spostare ed eliminare</span></a></li><li><a href="1.5-ler-e-procurar-texto.it.html"><span class="num">1.5</span><span>Leggere e cercare testo</span></a></li><li><a href="1.6-redirecionamentos-e-pipes.it.html"><span class="num">1.6</span><span>Reindirizzamenti e pipe</span></a></li><li><a href="1.7-arquivar-e-compactar.it.html"><span class="num">1.7</span><span>Archiviare e comprimere</span></a></li><li><a href="1.8-primeiro-script.it.html"><span class="num">1.8</span><span>Primo script</span></a></li><li><a href="1.9-decidir-e-repetir.it.html"><span class="num">1.9</span><span>Decidere e ripetere</span></a></li><li><a href="1.10-software-livre-na-pratica.it.html"><span class="num">1.10</span><span>Il software libero in pratica</span></a></li></ul><h3>M2 · Sistema, utenti e permessi</h3><ul><li><a href="2.1-instalacao-e-provisionamento.it.html"><span class="num">2.1</span><span>Installazione e provisioning</span></a></li><li><a href="2.2-hardware-e-dispositivos.it.html"><span class="num">2.2</span><span>Hardware e dispositivi</span></a></li><li><a href="2.3-processos-e-logs.it.html"><span class="num">2.3</span><span>Processi e log</span></a></li><li><a href="2.4-rede-no-dia-a-dia.it.html"><span class="num">2.4</span><span>La rete di tutti i giorni</span></a></li><li><a href="2.5-acesso-remoto-e-privilegios.it.html"><span class="num">2.5</span><span>Accesso remoto e privilegi</span></a></li><li><a href="2.6-usuarios-e-grupos.it.html"><span class="num">2.6</span><span>Utenti e gruppi</span></a></li><li><a href="2.7-permissoes-e-dono.it.html"><span class="num">2.7</span><span>Permessi e proprietario</span></a></li><li><a href="2.8-diretorios-e-arquivos-especiais.it.html"><span class="num">2.8</span><span>Directory e file speciali</span></a></li></ul><h3>M3 · Testo ed editor</h3><ul><li><a href="3.1-fluxos-a-fundo.it.html"><span class="num">3.1</span><span>I flussi in profondità</span></a></li><li><a href="3.2-filtros-de-texto.it.html"><span class="num">3.2</span><span>Filtri di testo</span></a></li><li><a href="3.3-regex-e-grep.it.html"><span class="num">3.3</span><span>Regex e grep</span></a></li><li><a href="3.4-sed-e-awk.it.html"><span class="num">3.4</span><span>sed e awk</span></a></li><li><a href="3.5-vi-e-vim-de-verdade.it.html"><span class="num">3.5</span><span>vi e vim sul serio</span></a></li></ul><h3>M4 · systemd e boot</h3><ul><li><a href="4.1-como-o-linux-liga.it.html"><span class="num">4.1</span><span>Come si avvia Linux</span></a></li><li><a href="4.2-systemd-servicos-e-units.it.html" aria-current="page"><span class="num">4.2</span><span>systemd: servizi e unit</span></a></li><li><a href="4.3-targets-desligar-e-reiniciar.it.html"><span class="num">4.3</span><span>Target: spegnere e riavviare</span></a></li><li><a href="4.4-grub-e-acesso-de-emergencia.it.html"><span class="num">4.4</span><span>GRUB e accesso di emergenza</span></a></li></ul><h3>M5 · Kernel, moduli e VM</h3><ul><li><a href="5.1-hardware-pelo-kernel.it.html"><span class="num">5.1</span><span>L'hardware visto dal kernel</span></a></li><li><a href="5.2-modulos-e-parametros.it.html"><span class="num">5.2</span><span>Moduli e parametri</span></a></li><li><a href="5.3-linux-como-convidado.it.html"><span class="num">5.3</span><span>Linux come guest</span></a></li></ul><h3>M6 · Pacchetti e repository</h3><ul><li><a href="6.1-pacotes-no-debian.it.html"><span class="num">6.1</span><span>Pacchetti su Debian</span></a></li><li><a href="6.2-pacotes-na-rocky.it.html"><span class="num">6.2</span><span>Pacchetti su Rocky</span></a></li><li><a href="6.3-repositorios.it.html"><span class="num">6.3</span><span>Repository</span></a></li><li><a href="6.4-flatpak.it.html"><span class="num">6.4</span><span>Flatpak</span></a></li><li><a href="6.5-bibliotecas-compartilhadas.it.html"><span class="num">6.5</span><span>Librerie condivise</span></a></li></ul></aside><main id="conteudo" class="aula"><article><h1>Lezione 4.2 · systemd: servizi e unità</h1>
+<p>Nella 4.1 hai visto <code translate="no">systemd</code> raggiungere la fine dell'avvio. Oggi lo controlli: accendilo, spegnilo, impostalo per l'avvio, impediscigli di avviarsi e modifica il comportamento di un servizio senza toccare il file del pacchetto. Quasi tutte le chiamate al server passano da qui: "il servizio si è interrotto", "non è tornato dopo il riavvio", "devo modificare un parametro". Su Windows questo è <code translate="no">services.msc</code>; in Linux ci sono una mezza dozzina di comandi e due directory.</p>
+<blockquote><p><strong>Formato core.</strong> Essenziale per un'emergenza senza Internet e per il test a portata di mano. Il resto è elencato nella sezione 12, per l'inserimento in DeepTutor.</p></blockquote>
+<div class="tabela"><table><thead><tr><th scope="col">File</th><th scope="col">lezione 4.2</th></tr></thead><tbody><tr><td>Modulo</td><td>M4 · Boot e systemd, lezione 2 di 4</td></tr><tr><td>Quando</td><td>Settimana 8</td></tr><tr><td>Alla fine puoi</td><td>Leggi <code translate="no">systemctl status</code> e separa lo stato attuale dallo stato all'avvio; avviare, arrestare, riavviare e ricaricare i servizi; abilitare, disabilitare e mascherare; scrivere un semplice file unitario; modificare un servizio con <code translate="no">systemctl edit</code> senza toccare il file del pacchetto; trovare la causa di un servizio che non rientra nei <code translate="no">status</code> e <code translate="no">journalctl -u</code></td></tr><tr><td>Articoli di prova</td><td>LPIC-1 101.3 (<code translate="no">systemctl</code>, unità e destinazioni) · RHCSA (avvio, arresto e controllo dei servizi; configurazione dei servizi da caricare all'avvio)</td></tr><tr><td>Prerequisiti</td><td>lezione 4.1; lezione 3.5 (<code translate="no">vim</code> e <code translate="no">sudoedit</code>)</td></tr><tr><td>Tempo</td><td>Intorno all'1:30</td></tr><tr><td>Istantanee</td><td>m4a2-start e m4a2-end in entrambe le VM</td></tr></tbody></table></div>
+<h2 id="1-riscaldamento">1 · Riscaldamento</h2>
+<p>Tre domande, appena mi vengono in mente. La chiave di risposta viene visualizzata alla fine.</p>
+<ol><li>Indovina: qual è la differenza tra <strong>interrompere</strong> un servizio e <strong>disabilitare</strong> un servizio?</li>
+<li>Hai modificato una riga nel file del servizio SSH, in <code translate="no">/usr/lib/systemd/system/</code>. La settimana successiva, dopo un aggiornamento, la modifica è scomparsa. Indovina: perché?</li>
+<li>Hai interrotto e disabilitato un servizio e poche ore dopo è di nuovo in esecuzione. Indovina: chi ha chiamato?</li></ol>
+<h2 id="2-perche-e-importante">2 · Perché è importante</h2>
+<div class="tabela"><table><thead><tr><th scope="col">Il cosiddetto</th><th scope="col">La risposta sbagliata</th><th scope="col">Cosa succede</th></tr></thead><tbody><tr><td>"Ho riavviato il server e il servizio non si è attivato"</td><td>Ricomincia e chiudi il ticket</td><td>È stato avviato ma mai <strong>abilitato</strong>. Al riavvio successivo, la chiamata restituisce</td></tr><tr><td>"Ho modificato la configurazione del servizio e un aggiornamento è stato annullato"</td><td>Cambia di nuovo nello stesso posto</td><td>Il file in <code translate="no">/usr/lib/systemd/system</code> proviene dal pacchetto e il pacchetto lo riscrive. La modifica va in override, in <code translate="no">/etc</code>, con <code translate="no">systemctl edit</code></td></tr><tr><td>"L'ho disabilitato ed è tornato da solo"</td><td>Disabilita nuovamente</td><td>Un'altra unità estrae questo servizio come dipendenza oppure un socket lo riattiva. Per vietare effettivamente, <code translate="no">mask</code></td></tr><tr><td>"Funziona, ma non funziona"</td><td>Riavviare fino al successo</td><td>Il motivo è scritto: <code translate="no">systemctl status</code> mostra le ultime righe, e <code translate="no">journalctl -u</code> mostra tutto</td></tr></tbody></table></div>
+<h2 id="3-modello-mentale">3 · Modello mentale</h2>
+<blockquote><p>Ogni servizio ha <strong>due commutatori indipendenti</strong>. Il primo è <strong>da adesso</strong>: <code translate="no">start</code> e <code translate="no">stop</code> attivano e disattivano il processo in questo momento e l'effetto scompare al riavvio. Il secondo è <strong>boot</strong>: <code translate="no">enable</code> e <code translate="no">disable</code> decidono se il servizio si attiverà da solo al prossimo avvio e non modificano il processo adesso. E c'è una terza cosa, che non è un interruttore: <strong><code translate="no">mask</code></strong> copre il socket, e nessuno accende il servizio, né tu, né il boot, né un'altra unità.</p></blockquote>
+<p><code translate="no">systemctl status</code> mostra i due interruttori su linee separate:</p>
+<pre translate="no"><code>● relogio.service - Relogio de teste (Aula 4.2)
+     Loaded: loaded (/etc/systemd/system/relogio.service; enabled; preset: disabled)
+     Active: active (running) since ...</code></pre>
+<div class="tabela"><table><thead><tr><th scope="col">Linea</th><th scope="col">Cambia</th><th scope="col">Valori che vedrai</th></tr></thead><tbody><tr><td><code translate="no">Loaded:</code></td><td>Quello di avvio e da dove proviene il file</td><td><code translate="no">enabled</code>, <code translate="no">disabled</code>, <code translate="no">static</code> (non c'è modo di attivarlo; un'altra unità lo tira), <code translate="no">masked</code></td></tr><tr><td><code translate="no">Active:</code></td><td>Cosa è adesso</td><td><code translate="no">active (running)</code>, <code translate="no">active (exited)</code> (corso e finito bene), <code translate="no">inactive (dead)</code>, <code translate="no">failed</code>, <code translate="no">activating</code></td></tr></tbody></table></div>
+<p>Leggi sempre entrambi. <code translate="no">active</code> con <code translate="no">disabled</code> è il servizio che scompare al prossimo riavvio. <code translate="no">inactive</code> con <code translate="no">enabled</code> è il servizio che verrà attivato solo al prossimo avvio o che è caduto.</p>
+<figure><a href="../img/4.2-dois-interruptores.svg"><img src="../img/4.2-dois-interruptores.svg" alt="avvia/abilita e la maschera" loading="lazy" decoding="async"></a><figcaption>avvia/interrompi cambia ora; abilitare/disabilitare decidere il prossimo avvio; la maschera copre il socket.</figcaption></figure>
+<h2 id="4-gli-elementi-essenziali">4 · Gli elementi essenziali</h2>
+<h3 id="units">Units</h3>
+<p><code translate="no">systemd</code> si occupa delle <strong>unità</strong> e il suffisso del nome ne indica il tipo. Quelli che usi tutti i giorni:</p>
+<ul><li><code translate="no">.service</code>: un programma, come <code translate="no">sshd.service</code>.</li>
+<li><code translate="no">.target</code>: un gruppo di unità con un nome, come <code translate="no">multi-user.target</code>.</li>
+<li><code translate="no">.socket</code>: una porta o socket che attiva un servizio all'arrivo di una connessione.</li>
+<li><code translate="no">.timer</code>: una pianificazione che attiva un servizio, come cron.</li>
+<li><code translate="no">.mount</code>: un assieme; <code translate="no">systemd</code> ne genera uno per ogni riga di <code translate="no">/etc/fstab</code>.</li></ul>
+<p>Se non si scrive il suffisso, <code translate="no">systemctl</code> presuppone <code translate="no">.service</code>: <code translate="no">systemctl status sshd</code> è uguale a <code translate="no">systemctl status sshd.service</code>.</p>
+<h3 id="dove-risiedono-i-file">Dove risiedono i file</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Elenco</th><th scope="col">Da chi viene</th><th scope="col">Priorità</th></tr></thead><tbody><tr><td><code translate="no">/etc/systemd/system/</code></td><td>Distinti saluti dall'amministratore</td><td>Tutti vincono</td></tr><tr><td><code translate="no">/run/systemd/system/</code></td><td>Generato in fase di esecuzione; scompare al riavvio</td><td>Media</td></tr><tr><td><code translate="no">/usr/lib/systemd/system/</code></td><td>Dal pacchetto. In Debian 12 appare anche come <code translate="no">/lib/systemd/system/</code>, che è lo stesso posto</td><td>La più bassa</td></tr></tbody></table></div>
+<p>Regola pratica: <strong>non modificare mai <code translate="no">/usr/lib</code></strong>. Quello che è tuo va in <code translate="no">/etc</code>. Un file con lo stesso nome in <code translate="no">/etc</code> sostituisce quello presente nell'intero pacchetto; una cartella <code translate="no">NOME.service.d/</code> in <code translate="no">/etc</code> con file <code translate="no">.conf</code> cambia solo le righe che scrivi e il resto continua a provenire dal pacchetto. Questo è un <strong>override</strong>, o drop-in.</p>
+<h3 id="i-comandi">I comandi</h3>
+<pre translate="no"><code class="lang-bash">systemctl status NOME          # i due interruttori e le ultime righe del log
+sudo systemctl start NOME      # chiama adesso
+sudo systemctl stop NOME       # riattacca adesso
+sudo systemctl restart NOME    # si spegne e si riaccende: il processo è nuovo
+sudo systemctl reload NOME     # rilegge la configurazione senza eliminarla, se il servizio lo sa
+sudo systemctl enable NOME     # vai su per avviare
+sudo systemctl disable NOME    # non viene visualizzato all'avvio
+sudo systemctl enable --now NOME   # entrambe le cose contemporaneamente
+sudo systemctl disable --now NOME  # il contrario
+sudo systemctl mask NOME       # a nessuno importa
+sudo systemctl unmask NOME     # togliti la maschera
+systemctl is-active NOME       # solo quello per ora, buono per gli script
+systemctl is-enabled NOME      # solo quello di avvio
+sudo systemctl daemon-reload   # dopo aver creato o modificato un file unit</code></pre>
+<p>E per osservare l'intero sistema:</p>
+<pre translate="no"><code class="lang-bash">systemctl list-units --type=service              # quelli caricati adesso
+systemctl list-unit-files --type=service         # tutto, con lo stato di avvio
+systemctl --failed                               # quelli che hanno fallito
+systemctl cat NOME                               # il file e le sostituzioni, insieme
+systemd-delta                                    # tutto ciò che /etc cambia in relazione ai pacchetti
+journalctl -u NOME                               # il registro solo per questo servizio</code></pre>
+<h3 id="cio-che-enable-fa-effettivamente">Ciò che <code translate="no">enable</code> fa effettivamente</h3>
+<p><code translate="no">enable</code> non accende nulla. Legge la sezione <code translate="no">[Install]</code> del file, ad esempio <code translate="no">WantedBy=multi-user.target</code>, e crea un collegamento in <code translate="no">/etc/systemd/system/multi-user.target.wants/</code>. All'avvio, <code translate="no">multi-user.target</code> carica tutto in quella cartella. <code translate="no">disable</code> cancella il collegamento. E <code translate="no">mask</code> crea un collegamento dal nome del servizio a <code translate="no">/dev/null</code>, in <code translate="no">/etc/systemd/system/</code>: poiché <code translate="no">/etc</code> conquista tutti, il servizio diventa un file vuoto, che non può essere avviato.</p>
+<p>Un'unità senza sezione <code translate="no">[Install]</code> appare come <code translate="no">static</code>: non può essere attivata, perché sale solo quando un'altra unità fa schifo.</p>
+<h3 id="anatomia-di-un-file-di-unita">Anatomia di un file di unità</h3>
+<pre translate="no"><code class="lang-ini">[Unit]
+Description=O que aparece no status
+After=network-online.target    # ordine: inizia solo dopo questo
+Wants=network-online.target    # dipendenza: trascina questo con te
+
+[Service]
+Type=simple                    # il processo ExecStart è il servizio
+ExecStart=/usr/local/bin/programa --opcao
+Restart=on-failure             # se cadi per errore, rialzati
+User=nobody                    # funziona come questo utente
+
+[Install]
+WantedBy=multi-user.target     # dove abilita crea il collegamento</code></pre>
+<p>Il punto più confuso: <strong><code translate="no">After=</code> è solo ordine, e <code translate="no">Wants=</code> è solo dipendenza.</strong> <code translate="no">After=</code> senza <code translate="no">Wants=</code> dice "se salgono due, salirò dopo", ma non fa salire l'altro. <code translate="no">Wants=</code> senza <code translate="no">After=</code> tira l'altro, ma salgono entrambi contemporaneamente. Li vuoi quasi sempre entrambi insieme. <code translate="no">Requires=</code> è un <code translate="no">Wants=</code> più forte: se l'altro fallisce, anche questo si ferma.</p>
+<h3 id="sostituisci-con-systemctl-edit">Sostituisci con <code translate="no">systemctl edit</code></h3>
+<pre translate="no"><code class="lang-bash">sudo systemctl edit NOME</code></pre>
+<p>Aprire un editor con un file vuoto, che diventa <code translate="no">/etc/systemd/system/NOME.service.d/override.conf</code>. Scrivi solo quello che cambia, con l'intestazione della sezione, e quando salvi <code translate="no">systemctl</code> fai già <code translate="no">daemon-reload</code>. Manca solo <code translate="no">restart</code>. <code translate="no">systemctl cat NOME</code> mostra uno dopo l'altro il file del pacchetto e l'override. Per annullare tutto in un pacchetto di servizi, <code translate="no">sudo systemctl revert NOME</code>.</p>
+<p>Due regole:</p>
+<ul><li>Righe che possono apparire più volte, come <code translate="no">ExecStart=</code>, <strong>somma</strong>. Per modificare <code translate="no">ExecStart</code>, reimpostarlo prima su una riga <code translate="no">ExecStart=</code> vuota, quindi scrivere quella nuova. È l'interruzione della sezione 6.</li>
+<li>L'editor è la variabile <code translate="no">SYSTEMD_EDITOR</code>, o <code translate="no">EDITOR</code>. In Debian di solito si apre <code translate="no">nano</code>: Ctrl+O, Invio e Ctrl+X salva ed esci. Per utilizzare <code translate="no">vim</code>: <code translate="no">sudo SYSTEMD_EDITOR=vim systemctl edit NOME</code>.</li></ul>
+<h3 id="rocky-debian">Rocky × Debian</h3>
+<div class="tabela"><table><thead><tr><th scope="col"></th><th scope="col">Roccioso</th><th scope="col">Debian</th></tr></thead><tbody><tr><td>File del pacchetto</td><td><code translate="no">/usr/lib/systemd/system/</code></td><td><code translate="no">/lib/systemd/system/</code>, uguale a <code translate="no">/usr/lib/systemd/system/</code></td></tr><tr><td>Nome servizio SSH</td><td><code translate="no">sshd</code></td><td><code translate="no">ssh</code></td></tr><tr><td>Nuovo servizio appena installato</td><td>Resta fermo e disabilitato: fai <code translate="no">enable --now</code></td><td>In generale, si avvia già ed è abilitato nell'installazione</td></tr><tr><td><code translate="no">systemctl edit</code> Redattore</td><td>Di solito è <code translate="no">vi</code></td><td>Di solito è <code translate="no">nano</code></td></tr></tbody></table></div>
+<p>La terza riga attira molte persone: su Rocky, a <code translate="no">dnf install</code> non interessa affatto. Nel test RHCSA, un servizio installato e non abilitato è un punto perso nel riavvio eseguito dal broker.</p>
+<h3 id="cosa-e-incluso-nel-test">Cosa è incluso nel test</h3>
+<p>Nel RHCSA: avviare, arrestare e controllare i servizi e lasciarli abilitati all'avvio. Il correttore riavvia la macchina prima della correzione, quindi tutto ciò che hai appena avviato, senza abilitare, conta come non fatto. In LPIC-1 101.3: i comandi <code translate="no">systemctl</code>, cosa sono un'unità e un target e dove si trovano i file.</p>
+<h2 id="5-laboratorio-guidato">5 · Laboratorio guidato</h2>
+<p>Eseguire ogni passaggio su entrambe le VM. Dove cambia il nome, il passo mostra entrambi.</p>
+<h3 id="passo-0-istantanea-e-cartella">Passo 0 · Istantanea e cartella</h3>
+<p>Sul nodo Proxmox:</p>
+<pre translate="no"><code class="lang-bash">qm snapshot 201 m4a2-inicio
+qm snapshot 202 m4a2-inicio</code></pre>
+<p>Sulle due VM:</p>
+<pre translate="no"><code class="lang-bash">mkdir -p ~/lab42 &amp;&amp; cd ~/lab42</code></pre>
+<h3 id="passo-1-leggere-un-servizio-gia-esistente">Passo 1 · Leggere un servizio già esistente</h3>
+<pre translate="no"><code class="lang-bash"># Rocky
+systemctl status sshd
+# Debian
+systemctl status ssh</code></pre>
+<p>Trova le due righe nella sezione 3: <code translate="no">Loaded:</code>, con il file e <code translate="no">enabled</code>, e <code translate="no">Active:</code>, con <code translate="no">running</code>. Dopo:</p>
+<pre translate="no"><code class="lang-bash"># troque sshd por ssh na Debian
+systemctl is-active sshd
+systemctl is-enabled sshd
+systemctl cat sshd
+systemctl list-unit-files --type=service --state=enabled
+systemd-delta</code></pre>
+<p><code translate="no">cat</code> mostra da dove proviene il file, sulla prima riga, con un <code translate="no">#</code>. <code translate="no">systemd-delta</code> elenca ciò che <code translate="no">/etc</code> già cambia nei pacchetti: in una nuova VM l'elenco è breve. Salva il suo output, perché alla fine del lab mostrerà cosa hai modificato.</p>
+<h3 id="passaggio-2-crea-un-servizio">Passaggio 2 · Crea un servizio</h3>
+<pre translate="no"><code class="lang-bash">sudoedit /etc/systemd/system/relogio.service</code></pre>
+<pre translate="no"><code class="lang-ini">[Unit]
+Description=Relogio de teste (Aula 4.2)
+
+[Service]
+Type=simple
+Environment=MSG=tique
+ExecStart=/bin/bash -c 'while true; do echo $MSG; sleep 10; done'
+
+[Install]
+WantedBy=multi-user.target</code></pre>
+<pre translate="no"><code class="lang-bash">sudo systemctl daemon-reload
+systemctl status relogio
+sudo systemctl start relogio
+systemctl status relogio
+journalctl -u relogio -f</code></pre>
+<p>Il primo <code translate="no">status</code> mostra <code translate="no">inactive (dead)</code> e <code translate="no">disabled</code>. Dopo <code translate="no">start</code>, <code translate="no">active (running)</code>, ancora <code translate="no">disabled</code>. <code translate="no">journalctl -f</code> mostra un <code translate="no">tique</code> ogni 10 secondi. Esci con Ctrl+C: chiude <code translate="no">journalctl</code>, non il servizio.</p>
+<p><strong>Decidi 1.</strong> <code translate="no">relogio</code> è in esecuzione ed è <code translate="no">disabled</code>. Verifica: dopo il riavvio, sarà</p>
+<ul><li>a) in esecuzione</li>
+<li>b) arrestato</li>
+<li>c) mascherato</li></ul>
+<pre translate="no"><code class="lang-bash">sudo systemctl reboot</code></pre>
+<p>Dopo aver effettuato nuovamente l'accesso:</p>
+<pre translate="no"><code class="lang-bash">systemctl status relogio</code></pre>
+<div class="tabela"><table><thead><tr><th scope="col">Se hai selezionato</th><th scope="col">Risultato</th><th scope="col">Perché</th></tr></thead><tbody><tr><td>a</td><td>Sbagliato</td><td><code translate="no">start</code> ora sposta solo l'interruttore. Nessuno gli ha chiesto di salire sullo stivale</td></tr><tr><td>b</td><td>Capito bene</td><td><code translate="no">inactive (dead)</code>, <code translate="no">disabled</code>. Si chiama prima riga della sezione 2</td></tr><tr><td>c</td><td>Sbagliato</td><td>Il mascheramento avviene solo se qualcuno lo richiede con <code translate="no">mask</code></td></tr></tbody></table></div>
+<p><strong>Per risolvere:</strong> <code translate="no">start</code> è valido fino al riavvio; <code translate="no">enable</code> è valido dal prossimo avvio. Nel test e nella vita, esegui entrambe le operazioni: <code translate="no">enable --now</code>.</p>
+<h3 id="passaggio-3-abilita-vedi-il-collegamento-e-maschera">Passaggio 3 · Abilita, vedi il collegamento e maschera</h3>
+<pre translate="no"><code class="lang-bash">sudo systemctl enable --now relogio
+ls -l /etc/systemd/system/multi-user.target.wants/ | grep relogio
+systemctl list-dependencies --reverse relogio</code></pre>
+<p><code translate="no">enable</code> ha risposto a <code translate="no">Created symlink ...</code> e <code translate="no">ls</code> mostra il collegamento al tuo file. <code translate="no">list-dependencies --reverse</code> mostra chi tira <code translate="no">relogio</code>: <code translate="no">multi-user.target</code>.</p>
+<p><strong>Decidi 2.</strong> Seleziona: <code translate="no">sudo systemctl mask relogio</code> volontà</p>
+<ul><li>a) maschera e <code translate="no">start</code> inizia a rifiutare</li>
+<li>b) dà errore</li>
+<li>c) cancella il file <code translate="no">relogio.service</code></li></ul>
+<pre translate="no"><code class="lang-bash">sudo systemctl mask relogio</code></pre>
+<div class="tabela"><table><thead><tr><th scope="col">Se hai selezionato</th><th scope="col">Risultato</th><th scope="col">Perché</th></tr></thead><tbody><tr><td>a</td><td>Sbagliato</td><td>Sarebbe così con un servizio a pacchetto</td></tr><tr><td>b</td><td>Capito bene</td><td>Qualcosa come <code translate="no">Failed to mask unit: File /etc/systemd/system/relogio.service already exists</code>. <code translate="no">mask</code> crea un collegamento con il nome del servizio <strong>in <code translate="no">/etc</code></strong>, e il tuo file è già lì con quel nome</td></tr><tr><td>c</td><td>Sbagliato</td><td><code translate="no">systemctl</code> non elimina mai il file da mascherare</td></tr></tbody></table></div>
+<p><strong>Per risolvere:</strong> <code translate="no">mask</code> è per i servizi a pacchetto, quelli che risiedono in <code translate="no">/usr/lib</code>. Per il tuo servizio, in <code translate="no">/etc</code>, è sufficiente disabilitare e arrestare.</p>
+<p>Ora maschera un servizio di pacchetto che esiste in entrambe le distribuzioni e che è sempre disattivato: <code translate="no">debug-shell.service</code>.</p>
+<blockquote><p><strong>Non avviare <code translate="no">debug-shell</code>.</strong> Apre una shell di root, senza password, nel terminale 9 della console. Esiste per eseguire il debug del boot e per questo motivo è un buon candidato per essere mascherato.</p></blockquote>
+<pre translate="no"><code class="lang-bash">sudo systemctl mask debug-shell
+ls -l /etc/systemd/system/debug-shell.service
+systemctl is-enabled debug-shell
+sudo systemctl start debug-shell
+sudo systemctl unmask debug-shell
+systemctl is-enabled debug-shell</code></pre>
+<p><code translate="no">ls</code> mostra il collegamento a <code translate="no">/dev/null</code>, <code translate="no">is-enabled</code> risponde a <code translate="no">masked</code> e <code translate="no">start</code> rifiuta con <code translate="no">Unit debug-shell.service is masked</code>. Dopo il <code translate="no">unmask</code> si ritorna al <code translate="no">disabled</code>. Questo è ciò che ha fatto <code translate="no">mask</code>, ed è per questo che <code translate="no">start</code> ha rifiutato senza mai eseguire il servizio.</p>
+<h3 id="passo-4-modificare-il-servizio-con-un-override">Passo 4 · Modificare il servizio con un override</h3>
+<pre translate="no"><code class="lang-bash">sudo systemctl edit relogio</code></pre>
+<p>Nell'editor, scrivere solo questo, nello spazio indicato dai commenti del file:</p>
+<pre translate="no"><code class="lang-ini">[Service]
+Environment=MSG=taque</code></pre>
+<p>Salva ed esci. Quindi:</p>
+<pre translate="no"><code class="lang-bash">ls /etc/systemd/system/relogio.service.d/
+systemctl cat relogio
+sudo systemctl restart relogio
+journalctl -u relogio -n 5
+systemd-delta</code></pre>
+<p><code translate="no">cat</code> mostra entrambi i file, l'originale e <code translate="no">override.conf</code>. Dopo <code translate="no">restart</code> il log comincia a dire <code translate="no">taque</code>: la seconda riga <code translate="no">Environment=MSG=</code> batte la prima. E <code translate="no">systemd-delta</code> ora elenca il suo override, contrassegnato come <code translate="no">[EXTENDED]</code>.</p>
+<h2 id="6-break-and-fix">6 · Break and fix</h2>
+<p><strong>The break:</strong> cambia il comando di servizio in override, nel modo che sembra ovvio.</p>
+<figure><a href="../img/4.2-start-enable-mask.svg"><img src="../img/4.2-start-enable-mask.svg" alt="4.2 Start Enable Mask" loading="lazy" decoding="async"></a><figcaption>attivo + disabilitato scompare all'avvio successivo; inattivo + abilitato va solo lassù, o lasciato cadere.</figcaption></figure>
+<pre translate="no"><code class="lang-bash">sudo systemctl edit relogio</code></pre>
+<p>Lascia l'override in questo modo:</p>
+<pre translate="no"><code class="lang-ini">[Service]
+Environment=MSG=taque
+ExecStart=/bin/bash -c 'while true; do echo novo; sleep 5; done'</code></pre>
+<pre translate="no"><code class="lang-bash">sudo systemctl restart relogio</code></pre>
+<p><strong>La diagnosi.</strong> <code translate="no">restart</code> rifiuta, con qualcosa come <code translate="no">Unit relogio.service has a bad unit file setting</code>. Cercare il motivo:</p>
+<pre translate="no"><code class="lang-bash">systemctl status relogio
+journalctl -u relogio -n 20</code></pre>
+<p>Il motivo è scritto: <code translate="no">Service has more than one ExecStart= setting, which is only allowed for Type=oneshot services. Refusing.</code> Il <code translate="no">ExecStart</code> dell'override <strong>aggiunto</strong> a quello nel file originale, e un servizio <code translate="no">simple</code> ne accetta solo uno.</p>
+<p><strong>La correzione.</strong> Aprire nuovamente l'override e reimpostare il <code translate="no">ExecStart</code> prima di scrivere quello nuovo:</p>
+<pre translate="no"><code class="lang-ini">[Service]
+Environment=MSG=taque
+ExecStart=
+ExecStart=/bin/bash -c 'while true; do echo novo; sleep 5; done'</code></pre>
+<pre translate="no"><code class="lang-bash">sudo systemctl restart relogio
+journalctl -u relogio -n 5</code></pre>
+<p>Ora <code translate="no">novo</code> appare ogni 5 secondi.</p>
+<p><strong>La lezione.</strong> Quando un servizio non va su, non indovinare: <code translate="no">systemctl status</code> e <code translate="no">journalctl -u</code> quasi sempre spiegano la causa. E in un override, le righe che possono essere ripetute si sommano; per modificarne uno, è necessario prima reimpostarlo.</p>
+<h2 id="7-trappole">7 · Trappole</h2>
+<ul><li><strong><code translate="no">start</code> senza <code translate="no">enable</code>.</strong> Funziona fino al prossimo riavvio. In RHCSA, il broker riavvia la macchina prima di applicare la patch.</li>
+<li><strong>Modifica il file in <code translate="no">/usr/lib/systemd/system/</code>.</strong> Il successivo aggiornamento del pacchetto lo annulla. Usa <code translate="no">systemctl edit</code>.</li>
+<li><strong>Dimentica <code translate="no">daemon-reload</code> dopo aver modificato manualmente un file di unità.</strong> <code translate="no">systemd</code> continua a utilizzare la vecchia versione e avvisa. <code translate="no">systemctl edit</code> si ricarica già.</li>
+<li><strong>Cambia <code translate="no">ExecStart=</code> in un override senza prima reimpostarlo.</strong> Questa è un'interruzione nella sezione 6.</li>
+<li><strong><code translate="no">After=</code> pensando che attiri l'altro servizio.</strong> <code translate="no">After=</code> è solo ordine; La persona che tira è <code translate="no">Wants=</code> o <code translate="no">Requires=</code>.</li>
+<li><strong><code translate="no">disable</code> pensa che fosse vietato.</strong> Un'altra unità, o una presa, possono comunque collegare il servizio. Per disabilitarlo, <code translate="no">mask</code>.</li>
+<li><strong>Riavvia SSH remoto con una configurazione interrotta.</strong> Le sessioni aperte sopravvivono, ma non se ne aggiunge nessuna nuova. Prima di <code translate="no">restart</code>, prova con <code translate="no">sudo sshd -t</code>, che non risponde affatto quando tutto va bene.</li>
+<li><strong><code translate="no">sshd</code> in Debian.</strong> Lì il servizio è <code translate="no">ssh</code>.</li></ul>
+<h2 id="8-quiz">8 · Quiz</h2>
+<p>Rispondi senza guardare le sezioni precedenti.</p>
+<ol><li><code translate="no">systemctl status</code> mostra <code translate="no">Loaded: ... disabled</code> e <code translate="no">Active: active (running)</code>. Cosa succede al prossimo riavvio e con quale comando risolvi il problema?</li>
+<li>Quale file crea <code translate="no">enable</code> e dove per un servizio con <code translate="no">WantedBy=multi-user.target</code>?</li>
+<li>È necessario un servizio pacchetto da eseguire come un altro utente. Dove e come apportare la modifica in modo che sopravviva agli aggiornamenti?</li>
+<li>Qual è la differenza tra <code translate="no">disable</code> e <code translate="no">mask</code>?</li>
+<li>Un servizio ha <code translate="no">After=postgresql.service</code>, ma PostgreSQL non si avvia con esso. Perché?</li>
+<li><em>Quale singolo comando fa avviare un servizio all'avvio e lo avvia anche immediatamente?</em></li></ol>
+<h2 id="9-cola">9 · Cola</h2>
+<h3 id="da-conoscere-a-memoria">Da conoscere a memoria</h3>
+<pre translate="no"><code class="lang-bash">systemctl status NOME
+sudo systemctl enable --now NOME
+sudo systemctl disable --now NOME
+sudo systemctl restart NOME
+sudo systemctl mask NOME
+sudo systemctl edit NOME
+sudo systemctl daemon-reload
+journalctl -u NOME
+systemctl --failed</code></pre>
+<p>E le tre idee: due interruttori (ora e avvio) e una maschera; <code translate="no">/etc</code> batte <code translate="no">/usr/lib</code>; in caso di override, la riga ripetibile viene reimpostata per prima.</p>
+<h3 id="per-consultare">Per consultare</h3>
+<div class="tabela"><table><thead><tr><th scope="col">A</th><th scope="col">Comando</th></tr></thead><tbody><tr><td>Visualizza il file e sovrascrive insieme</td><td><code translate="no">systemctl cat NOME</code></td></tr><tr><td>Vedi tutto <code translate="no">/etc</code> modifiche nei pacchetti</td><td><code translate="no">systemd-delta</code></td></tr><tr><td>Annulla le sostituzioni da un servizio di pacchetto</td><td><code translate="no">sudo systemctl revert NOME</code></td></tr><tr><td>Elenco servizi abilitati</td><td><code translate="no">systemctl list-unit-files --type=service --state=enabled</code></td></tr><tr><td>Guarda chi tira un servizio</td><td><code translate="no">systemctl list-dependencies --reverse NOME</code></td></tr><tr><td>Copiare l'intero file in <code translate="no">/etc</code> e modificare</td><td><code translate="no">sudo systemctl edit --full NOME</code></td></tr><tr><td>Testare la configurazione SSH prima di riavviare</td><td><code translate="no">sudo sshd -t</code></td></tr></tbody></table></div>
+<h3 id="flashcards">Flashcards</h3>
+<ul><li><code translate="no">start</code> e <code translate="no">enable</code>: quale è valida all'avvio? → <code translate="no">enable</code>.</li>
+<li>Dove va il tuo? → <code translate="no">/etc/systemd/system/</code>.</li>
+<li>Cosa crea <code translate="no">mask</code>? → Un collegamento dal nome del servizio a <code translate="no">/dev/null</code>, in <code translate="no">/etc/systemd/system/</code>.</li>
+<li><code translate="no">static</code> vuoi dire? → Senza sezione <code translate="no">[Install]</code>: non è possibile abilitarla, un'altra unità la tira.</li>
+<li><code translate="no">After=</code> tira l'altro servizio? → No, definisce solo l'ordine.</li>
+<li>Come modificare <code translate="no">ExecStart</code> in un override? → <code translate="no">ExecStart=</code> vuoto, poi quello nuovo.</li>
+<li>Il servizio non va: dov'è il motivo? → <code translate="no">systemctl status</code> e <code translate="no">journalctl -u</code>.</li></ul>
+<h2 id="10-checklist-di-uscita">10 · Checklist di uscita</h2>
+<ul><li>[ ] Ho letto <code translate="no">status</code> e dico adesso lo stato e lo stato del boot.</li>
+<li>[ ] Ho creato <code translate="no">relogio.service</code>, ho visto che <code translate="no">start</code> non sopravvive al riavvio e l'ho abilitato con <code translate="no">enable --now</code>.</li>
+<li>[ ] Ho visto il collegamento in <code translate="no">multi-user.target.wants</code> e ho capito perché <code translate="no">mask</code> di <code translate="no">relogio</code> ha dato un errore.</li>
+<li>[ ] Ho mascherato e smascherato <code translate="no">debug-shell</code> senza avviarlo.</li>
+<li>[ ] Ho cambiato servizio con <code translate="no">systemctl edit</code> e ho visto l'override in <code translate="no">systemctl cat</code> e in <code translate="no">systemd-delta</code>.</li>
+<li>[ ] Ho trovato la causa dell'interruzione in <code translate="no">status</code> e <code translate="no">journalctl -u</code> e l'ho risolto reimpostando <code translate="no">ExecStart</code>.</li></ul>
+<p><strong>Ultimo esercizio, senza guardare.</strong> Senza consultare la lezione, creare su entrambe le VM un servizio <code translate="no">eco.service</code> che scriva <code translate="no">eco</code> nel log ogni 30 secondi, abilitarlo e accenderlo con un solo comando, verificare con <code translate="no">journalctl -u eco</code>. Quindi modificare il messaggio in <code translate="no">ola</code> con un override.</p>
+<p><strong>Cleanup.</strong> Rimuovere i due servizi di test:</p>
+<pre translate="no"><code class="lang-bash">sudo systemctl disable --now relogio eco
+sudo rm -r /etc/systemd/system/relogio.service.d /etc/systemd/system/eco.service.d
+sudo rm /etc/systemd/system/relogio.service /etc/systemd/system/eco.service
+sudo systemctl daemon-reload</code></pre>
+<p><strong>Riavvia e conferenza.</strong> Riavviare entrambe le VM e verificare:</p>
+<pre translate="no"><code class="lang-bash">systemctl status relogio
+systemctl is-enabled debug-shell
+systemd-delta
+systemctl is-system-running</code></pre>
+<p><code translate="no">relogio</code> non esiste più; <code translate="no">debug-shell</code> è <code translate="no">disabled</code>, non <code translate="no">masked</code>; <code translate="no">systemd-delta</code> ritorna alla lista del Passo 1; il sistema è <code translate="no">running</code>, o <code translate="no">degraded</code> con lo stesso motivo che avevi già notato in 4.1.</p>
+<p><strong>Istantanea della fine,</strong> sul nodo Proxmox:</p>
+<pre translate="no"><code class="lang-bash">qm snapshot 201 m4a2-fim
+qm snapshot 202 m4a2-fim</code></pre>
+<h2 id="11-nella-vita-reale">11 · Nella vita reale</h2>
+<p><strong>Missione, sola lettura.</strong> Su un vero server Linux a cui rispondi, esegui semplicemente:</p>
+<pre translate="no"><code class="lang-bash">systemctl --failed
+systemctl list-unit-files --type=service --state=enabled
+systemd-delta</code></pre>
+<p>Non cambiare nulla. <code translate="no">systemd-delta</code> è il più rivelatore: mostra tutto ciò che qualcuno ha cambiato nei servizi di quel server, comprese cose che nessuno ha documentato. Annota ciò che non sapevi esistesse.</p>
+<p><strong>Diario.</strong> Annota: quanti servizi abilitati ha il real server; cosa ha mostrato <code translate="no">systemd-delta</code>; e, secondo le tue parole, la differenza tra <code translate="no">disable</code> e <code translate="no">mask</code>.</p>
+<p><strong>Domani, senza guardare:</strong></p>
+<ol><li>Quale comando abilita e accende contemporaneamente?</li>
+<li>Dov'è il file creato da <code translate="no">systemctl edit</code>?</li>
+<li>Perché un override con <code translate="no">ExecStart=</code> può interrompere il servizio?</li></ol>
+<h2 id="12-approfondisci-quando-vuoi">12 · Approfondisci quando vuoi</h2>
+<ul><li><strong>Gli altri <code translate="no">Type=</code></strong>: <code translate="no">forking</code>, <code translate="no">oneshot</code> con <code translate="no">RemainAfterExit=</code>, <code translate="no">notify</code>, e quando ognuno ha ragione.</li>
+<li><strong><code translate="no">Restart=</code> e i limiti</strong>: <code translate="no">RestartSec=</code>, <code translate="no">StartLimitBurst=</code>, e perché un servizio che cade in un loop finisce arrestato.</li>
+<li><strong>Socket e timer</strong>: come un <code translate="no">.socket</code> attiva un servizio e <code translate="no">.timer</code> come alternativa a cron. I timer ritornano nel modulo di pianificazione.</li>
+<li><strong>Unità modello</strong>: il <code translate="no">@</code> in nomi come <code translate="no">getty@tty1.service</code>.</li>
+<li><strong>Unità utente</strong>: <code translate="no">systemctl --user</code>, senza root.</li>
+<li><strong>Preimpostazioni</strong>: <code translate="no">systemctl preset</code> e perché Rocky lascia i nuovi servizi disattivati.</li>
+<li><strong>Rafforzare un servizio</strong>: <code translate="no">ProtectSystem=</code>, <code translate="no">PrivateTmp=</code> e <code translate="no">systemd-analyze security</code>.</li></ul>
+<p>In DeepTutor:</p>
+<ul><li><code translate="no">!explica a diferença entre Wants, Requires e After</code></li>
+<li><code translate="no">!feynman o que o systemctl enable faz no disco</code></li>
+<li><code translate="no">!quiz RHCSA serviços systemd, 5 perguntas</code></li></ul>
+<h2 id="foglio-risposte-commentato">Foglio risposte commentato</h2>
+<h3 id="riscaldamento">Riscaldamento</h3>
+<ol><li><strong>Stop</strong> si disattiva adesso e al prossimo avvio il servizio potrebbe ritornare. <strong>Disabilitare</strong> rimuove il servizio dall'avvio, ma non disattiva ciò che è in esecuzione. Questi sono i due interruttori.</li>
+<li><code translate="no">/usr/lib/systemd/system/</code> proviene dalla confezione. L'aggiornamento ha portato il nuovo file e ha sovrascritto il tuo. La modifica va in override nel <code translate="no">/etc</code>, con <code translate="no">systemctl edit</code>.</li>
+<li>Un'altra unità che dipende da lui, oppure un <code translate="no">.socket</code> che lo sveglia quando arriva una connessione. <code translate="no">disable</code> rimuove solo il collegamento di avvio. Per vietare effettivamente, <code translate="no">mask</code>.</li></ol>
+<h3 id="quiz">Quiz</h3>
+<ol><li>Non sale al prossimo avvio. <code translate="no">sudo systemctl enable NOME</code>; oppure, se è stato interrotto, <code translate="no">enable --now</code>.</li>
+<li>Un collegamento in <code translate="no">/etc/systemd/system/multi-user.target.wants/</code>, con il nome del servizio, che punta al file unit.</li>
+<li>In override: <code translate="no">sudo systemctl edit NOME</code>, con <code translate="no">[Service]</code> e <code translate="no">User=OUTRO</code> e poi <code translate="no">restart</code>. Il file va a <code translate="no">/etc/systemd/system/NOME.service.d/override.conf</code>, che l'aggiornamento non tocca.</li>
+<li><code translate="no">disable</code> toglie il servizio dal bagagliaio, ma tu, un'altra unità o una presa potete comunque attivarlo. <code translate="no">mask</code> indirizza il servizio a <code translate="no">/dev/null</code> e nessuno può attivarlo fino a <code translate="no">unmask</code>.</li>
+<li><code translate="no">After=</code> definisce solo l'ordine: se salgono entrambi, dopo va questo. Per portare PostgreSQL con sé, è necessario <code translate="no">Wants=postgresql.service</code> o <code translate="no">Requires=postgresql.service</code> oppure abilitare PostgreSQL.</li>
+<li><code translate="no">systemctl enable --now NOME</code>.</li></ol>
+</article><nav class="paginas" aria-label="Lezioni"><a class="ant" href="4.1-como-o-linux-liga.it.html"><small>← Precedente</small>4.1 · Come si avvia Linux</a><a class="prox" href="4.3-targets-desligar-e-reiniciar.it.html"><small>Successiva →</small>4.3 · Target: spegnere e riavviare</a></nav></main></div>
+<footer><div class="wrap">Generato dal Markdown del corso · Immagini in <code translate="no">img/</code></div></footer>
+</body>
+</html>

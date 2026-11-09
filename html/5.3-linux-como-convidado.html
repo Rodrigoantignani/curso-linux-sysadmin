@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light dark">
+<title>5.3 · Linux como convidado · Curso Linux Sysadmin</title>
+<link rel="alternate" hreflang="pt-BR" href="5.3-linux-como-convidado.html"><link rel="alternate" hreflang="it" href="5.3-linux-como-convidado.it.html">
+<style>
+:root{color-scheme:light dark;--bg:#f6f1e7;--card:#fffdf8;--ink:#201c16;--muted:#5e564a;--accent:#9a3412;--accent-2:#1f5f4a;--tint:#efe6d4;--line:#ddd2bc;--code:#f1eadb;--shadow:0 1px 2px rgba(60,40,10,.08);--serif:Georgia,"Iowan Old Style","Palatino Linotype",Palatino,serif;--sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--mono:"Cascadia Code",Consolas,"DejaVu Sans Mono",monospace}
+@media (prefers-color-scheme:dark){:root{--bg:#16130f;--card:#201b15;--ink:#f1eadb;--muted:#b9ad98;--accent:#f0a070;--accent-2:#7fd0b0;--tint:#2a231a;--line:#3d3427;--code:#191510;--shadow:none}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:5.5rem}
+body{margin:0;background:var(--bg);color:var(--ink);font:1rem/1.6 var(--sans)}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--accent-2);outline-offset:2px;border-radius:4px}
+.pular{position:absolute;left:-999px;top:0;background:var(--card);padding:.5rem 1rem;z-index:20}
+.pular:focus{left:.5rem;top:.5rem}
+.wrap{width:100%;max-width:84rem;margin:0 auto;padding-inline:max(1rem,env(safe-area-inset-left))}
+.top{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10;border-top:6px solid var(--accent)}
+.top-in{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding-block:.6rem}
+.titles{min-width:0}
+.marca{margin:0;font:700 clamp(1.15rem,1rem + 1vw,1.6rem)/1.15 var(--serif);letter-spacing:-.01em}
+.marca a{text-decoration:none}
+.marca a:hover{color:var(--accent)}
+.meta{margin:.1rem 0 0;color:var(--muted);font-size:.85rem}
+.acoes{display:flex;align-items:center;gap:.9rem;flex:none}
+.acoes>a{font-size:.9rem;font-weight:600;color:var(--muted);text-decoration:none}
+.acoes>a:hover{color:var(--accent);text-decoration:underline}
+.idioma{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--tint)}
+.idioma>*{padding:.35rem .9rem;font-size:.8rem;font-weight:700;letter-spacing:.06em;text-decoration:none;color:var(--muted);min-width:2.75rem;text-align:center}
+.idioma a:hover{color:var(--accent);text-decoration:underline}
+.idioma span{background:var(--accent);color:#fff}
+@media (prefers-color-scheme:dark){.idioma span{color:#16130f}}
+code{font-family:var(--mono);font-size:.9em;background:var(--tint);padding:.1rem .35rem;border-radius:4px;overflow-wrap:anywhere}
+/* índice */
+.capa{max-width:70rem;padding-block:2rem 3rem}
+.stats{border-left:4px solid var(--accent-2);background:var(--card);border-radius:0 10px 10px 0;padding:1rem 1.25rem;margin:0 0 2.5rem;box-shadow:var(--shadow);color:var(--muted)}
+.stats strong{color:var(--ink)}
+.modulo{display:grid;grid-template-columns:15rem minmax(0,1fr);gap:1rem 2rem;padding:1.75rem 0;border-top:1px solid var(--line)}
+.modulo h2{margin:0;font:700 1.25rem/1.25 var(--serif);align-self:start;position:sticky;top:6rem}
+.mn{display:block;font:700 .8rem var(--mono);letter-spacing:.12em;color:var(--accent);margin-bottom:.25rem}
+.sep{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.modulo ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,17rem),1fr));gap:.75rem}
+.modulo li{margin:0}
+.modulo a{display:flex;gap:.45rem;align-items:baseline;height:100%;padding:.85rem 1rem;background:var(--card);border:1px solid var(--line);border-radius:10px;text-decoration:none;font-weight:600;line-height:1.35;box-shadow:var(--shadow);transition:border-color .15s,transform .15s}
+.modulo a:hover{border-color:var(--accent);color:var(--accent)}
+.num{font:700 .85rem var(--mono);color:var(--accent);white-space:nowrap}
+/* aula */
+.doc{display:grid;grid-template-columns:17rem minmax(0,1fr);gap:2.5rem;align-items:start;padding-block:2rem 3rem}
+.lateral{position:sticky;top:5.5rem;max-height:calc(100vh - 6.5rem);overflow:auto;font-size:.875rem;padding-right:.5rem}
+.lateral h2{margin:0 0 .25rem;font:700 .95rem var(--serif);color:var(--muted)}
+.lateral h3{margin:1rem 0 .25rem;font:700 .75rem var(--mono);letter-spacing:.06em;color:var(--accent)}
+.lateral ul{list-style:none;margin:0;padding:0}
+.lateral a{display:flex;gap:.45rem;padding:.25rem .5rem;border-radius:6px;text-decoration:none;color:var(--muted);line-height:1.3}
+.lateral a:hover{background:var(--tint);color:var(--ink)}
+.lateral a[aria-current]{background:var(--tint);color:var(--ink);font-weight:700;box-shadow:inset 3px 0 0 var(--accent)}
+.lateral .num{font-size:.75rem}
+.aula{min-width:0;max-width:56rem;overflow-wrap:break-word;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:clamp(1.25rem,1rem + 2vw,2.75rem);box-shadow:var(--shadow)}
+.aula h1{margin:0 0 1.5rem;font:700 clamp(1.75rem,1.4rem + 1.6vw,2.5rem)/1.15 var(--serif);letter-spacing:-.015em;color:var(--ink)}
+.aula h2{margin:2.5rem 0 .75rem;padding-top:1.25rem;border-top:1px solid var(--line);font:700 1.5rem/1.25 var(--serif)}
+.aula h3{margin:2rem 0 .5rem;font:700 1.15rem/1.3 var(--serif);color:var(--accent)}
+.aula h4,.aula h5,.aula h6{margin:1.5rem 0 .5rem;font-size:1rem}
+.aula p,.aula ul,.aula ol{margin:1rem 0}
+.aula ul,.aula ol{padding-left:1.5rem}
+.aula li{margin:.35rem 0}
+.aula li>ul,.aula li>ol{margin:.35rem 0}
+.aula a{color:var(--accent);text-underline-offset:2px}
+.aula hr{border:0;border-top:1px solid var(--line);margin:2rem 0}
+.tabela{overflow-x:auto;margin:1.25rem 0;border:1px solid var(--line);border-radius:10px}
+.aula table{width:100%;border-collapse:collapse;font-size:.9rem}
+.aula th,.aula td{padding:.55rem .75rem;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+.aula tr:last-child td{border-bottom:0}
+.aula th{background:var(--tint);font-weight:700}
+.aula pre{background:var(--code);border:1px solid var(--line);border-radius:10px;padding:.9rem 1rem;overflow-x:auto;font:.85rem/1.5 var(--mono);margin:1rem 0;tab-size:4}
+.aula pre code{background:none;padding:0;font-size:inherit;overflow-wrap:normal}
+.aula blockquote{margin:1.25rem 0;padding:.75rem 1.25rem;border-left:4px solid var(--accent-2);background:var(--tint);border-radius:0 10px 10px 0}
+.aula blockquote>:first-child{margin-top:0}
+.aula blockquote>:last-child{margin-bottom:0}
+.aula figure{margin:1.75rem 0;text-align:center}
+.aula figure img{display:block;margin:0 auto;max-width:100%;height:auto;border:1px solid var(--line);border-radius:10px;background:#fff}
+.aula figcaption{margin-top:.5rem;color:var(--muted);font-size:.9rem;font-style:italic}
+.paginas{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:2.5rem;padding-top:1.5rem;border-top:1px solid var(--line)}
+.paginas a{display:block;padding:.75rem 1rem;border:1px solid var(--line);border-radius:10px;text-decoration:none;color:var(--ink);font-weight:600;line-height:1.3}
+.paginas a:hover{border-color:var(--accent);color:var(--accent)}
+.paginas small{display:block;color:var(--muted);font-weight:400}
+.paginas .prox{grid-column:2;text-align:right}
+footer{border-top:1px solid var(--line);padding-block:1.5rem;color:var(--muted);font-size:.85rem;text-align:center}
+@media (hover:hover) and (prefers-reduced-motion:no-preference){.modulo a:hover{transform:translateY(-2px)}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+@media (max-width:980px){.doc{grid-template-columns:minmax(0,1fr);padding-top:1rem}.lateral{position:static;max-height:none;order:2}.aula{max-width:none}}
+@media (max-width:860px){.modulo{grid-template-columns:minmax(0,1fr)}.modulo h2{position:static}.mn{display:inline;margin-right:.5rem}}
+@media (max-width:420px){.meta{display:none}.top-in{gap:.5rem}.acoes{gap:.6rem}.capa{padding-top:1.25rem}.paginas{grid-template-columns:minmax(0,1fr)}.paginas .prox{grid-column:1}}
+@media print{.top,.lateral,.paginas{display:none}.aula{border:0;box-shadow:none;padding:0;max-width:none}.doc{display:block}}
+</style>
+</head>
+<body>
+<a class="pular" href="#conteudo">Pular para o conteúdo</a>
+<header class="top"><div class="wrap top-in"><div class="titles"><p class="marca"><a href="index.html">Curso Linux Sysadmin</a></p><p class="meta">Rodrigo Antignani · Aula 5.3</p></div><div class="acoes"><a href="index.html">Índice</a><div class="idioma" role="group" aria-label="Idioma"><span aria-current="true">PT</span><a href="5.3-linux-como-convidado.it.html" hreflang="it" lang="it">IT</a></div></div></div></header>
+<div class="wrap doc"><aside class="lateral" aria-label="Aulas"><h2>Aulas</h2><h3>M0 · Laboratório</h3><ul><li><a href="0.1-montar-o-laboratorio.html"><span class="num">0.1</span><span>Montar o laboratório</span></a></li><li><a href="0.2-acesso-e-protecao.html"><span class="num">0.2</span><span>Acesso e proteção</span></a></li></ul><h3>M1 · Linha de comando</h3><ul><li><a href="1.1-o-que-e-linux.html"><span class="num">1.1</span><span>O que é Linux</span></a></li><li><a href="1.2-o-shell-e-a-ajuda.html"><span class="num">1.2</span><span>O shell e a ajuda</span></a></li><li><a href="1.3-caminhos-e-navegacao.html"><span class="num">1.3</span><span>Caminhos e navegação</span></a></li><li><a href="1.4-criar-copiar-mover-e-apagar.html"><span class="num">1.4</span><span>Criar, copiar, mover e apagar</span></a></li><li><a href="1.5-ler-e-procurar-texto.html"><span class="num">1.5</span><span>Ler e procurar texto</span></a></li><li><a href="1.6-redirecionamentos-e-pipes.html"><span class="num">1.6</span><span>Redirecionamentos e pipes</span></a></li><li><a href="1.7-arquivar-e-compactar.html"><span class="num">1.7</span><span>Arquivar e compactar</span></a></li><li><a href="1.8-primeiro-script.html"><span class="num">1.8</span><span>Primeiro script</span></a></li><li><a href="1.9-decidir-e-repetir.html"><span class="num">1.9</span><span>Decidir e repetir</span></a></li><li><a href="1.10-software-livre-na-pratica.html"><span class="num">1.10</span><span>Software livre na prática</span></a></li></ul><h3>M2 · Sistema, usuários e permissões</h3><ul><li><a href="2.1-instalacao-e-provisionamento.html"><span class="num">2.1</span><span>Instalação e provisionamento</span></a></li><li><a href="2.2-hardware-e-dispositivos.html"><span class="num">2.2</span><span>Hardware e dispositivos</span></a></li><li><a href="2.3-processos-e-logs.html"><span class="num">2.3</span><span>Processos e logs</span></a></li><li><a href="2.4-rede-no-dia-a-dia.html"><span class="num">2.4</span><span>Rede no dia a dia</span></a></li><li><a href="2.5-acesso-remoto-e-privilegios.html"><span class="num">2.5</span><span>Acesso remoto e privilégios</span></a></li><li><a href="2.6-usuarios-e-grupos.html"><span class="num">2.6</span><span>Usuários e grupos</span></a></li><li><a href="2.7-permissoes-e-dono.html"><span class="num">2.7</span><span>Permissões e dono</span></a></li><li><a href="2.8-diretorios-e-arquivos-especiais.html"><span class="num">2.8</span><span>Diretórios e arquivos especiais</span></a></li></ul><h3>M3 · Texto e editor</h3><ul><li><a href="3.1-fluxos-a-fundo.html"><span class="num">3.1</span><span>Fluxos a fundo</span></a></li><li><a href="3.2-filtros-de-texto.html"><span class="num">3.2</span><span>Filtros de texto</span></a></li><li><a href="3.3-regex-e-grep.html"><span class="num">3.3</span><span>Regex e grep</span></a></li><li><a href="3.4-sed-e-awk.html"><span class="num">3.4</span><span>sed e awk</span></a></li><li><a href="3.5-vi-e-vim-de-verdade.html"><span class="num">3.5</span><span>vi e vim de verdade</span></a></li></ul><h3>M4 · systemd e boot</h3><ul><li><a href="4.1-como-o-linux-liga.html"><span class="num">4.1</span><span>Como o Linux liga</span></a></li><li><a href="4.2-systemd-servicos-e-units.html"><span class="num">4.2</span><span>systemd: serviços e units</span></a></li><li><a href="4.3-targets-desligar-e-reiniciar.html"><span class="num">4.3</span><span>Targets: desligar e reiniciar</span></a></li><li><a href="4.4-grub-e-acesso-de-emergencia.html"><span class="num">4.4</span><span>GRUB e acesso de emergência</span></a></li></ul><h3>M5 · Kernel, módulos e VM</h3><ul><li><a href="5.1-hardware-pelo-kernel.html"><span class="num">5.1</span><span>Hardware pelo kernel</span></a></li><li><a href="5.2-modulos-e-parametros.html"><span class="num">5.2</span><span>Módulos e parâmetros</span></a></li><li><a href="5.3-linux-como-convidado.html" aria-current="page"><span class="num">5.3</span><span>Linux como convidado</span></a></li></ul><h3>M6 · Pacotes e repositórios</h3><ul><li><a href="6.1-pacotes-no-debian.html"><span class="num">6.1</span><span>Pacotes no Debian</span></a></li><li><a href="6.2-pacotes-na-rocky.html"><span class="num">6.2</span><span>Pacotes na Rocky</span></a></li><li><a href="6.3-repositorios.html"><span class="num">6.3</span><span>Repositórios</span></a></li><li><a href="6.4-flatpak.html"><span class="num">6.4</span><span>Flatpak</span></a></li><li><a href="6.5-bibliotecas-compartilhadas.html"><span class="num">6.5</span><span>Bibliotecas compartilhadas</span></a></li></ul></aside><main id="conteudo" class="aula"><article><h1>Aula 5.3 · Linux como convidado</h1>
+<p>Nas Aulas 5.1 e 5.2 você viu o kernel falar com o hardware. Só que, nas suas duas VMs, esse hardware não existe: quem responde é o QEMU, rodando no nó Proxmox. Hoje você vê o Linux do lado de dentro da VM. Como ele sabe que é convidado, que drivers usa para andar mais rápido, como conversa com o hipervisor pelo guest agent e como é configurado sozinho no primeiro boot pelo cloud-init. Você também vai ver o que acontece quando alguém clona uma VM e esquece que algumas coisas precisam ser únicas. No fim, você compara uma VM com um contêiner, que parece uma máquina mas usa o kernel de outra.</p>
+<blockquote><p><strong>Núcleo desta aula:</strong> <code translate="no">systemd-detect-virt</code> e <code translate="no">hostnamectl</code> para saber onde você está; os dispositivos <code translate="no">virtio</code>; o <code translate="no">qemu-guest-agent</code>, dos dois lados (pacote na VM, opção no Proxmox); o que o cloud-init faz no primeiro boot; o que precisa ser único num clone: hostname, <code translate="no">/etc/machine-id</code> e as chaves SSH do host; e a diferença entre VM e contêiner: o kernel. O resto é aprofundamento.</p></blockquote>
+<div class="tabela"><table><thead><tr><th scope="col">Ficha</th><th scope="col">Aula 5.3</th></tr></thead><tbody><tr><td>Módulo</td><td>M5 · Hardware, kernel e virtualização, aula 3 de 3</td></tr><tr><td>Quando</td><td>Semana 9</td></tr><tr><td>Ao final você consegue</td><td>Dizer se o Linux roda em VM, em contêiner ou em máquina física, e com qual hipervisor; reconhecer os dispositivos <code translate="no">virtio</code> e os seus módulos; instalar e ligar o guest agent na VM e no Proxmox, e usá-lo com <code translate="no">qm agent</code> e <code translate="no">qm guest cmd</code>; explicar o que o cloud-init faz e quando ele roda; listar o que deve ser único num clone e trocar hostname, <code translate="no">machine-id</code> e chaves SSH do host; ver na prática que um contêiner usa o kernel do hospedeiro</td></tr><tr><td>Itens de prova</td><td>LPIC-1 102.6 (Linux como convidado de virtualização) · RHCSA (a prova roda em VM; o guest agent e o <code translate="no">hostnamectl</code> aparecem no dia a dia)</td></tr><tr><td>Pré-requisitos</td><td>Aula 5.1 (<code translate="no">lspci -k</code>, <code translate="no">/sys</code>, <code translate="no">dmesg</code>); Aula 5.2 (<code translate="no">lsmod</code>, <code translate="no">modinfo</code>); Aula 4.2 (systemd e unidades); o SSH entre o seu computador e as VMs</td></tr><tr><td>Tempo</td><td>Cerca de 2h30, mais o Desafio do módulo</td></tr><tr><td>Snapshots</td><td>m5a3-inicio e m5a3-fim nas duas VMs; m5-desafio antes do Desafio</td></tr></tbody></table></div>
+<h2 id="1-aquecimento">1 · Aquecimento</h2>
+<p>Três perguntas, de cabeça. Escreva as respostas; o Gabarito confere no fim.</p>
+<ol><li>Você entra por SSH numa máquina desconhecida. Palpite: com um só comando, dá para saber se ela é uma VM?</li>
+<li>Você clona uma VM Linux no Proxmox e liga as duas. Palpite: elas vão ter o mesmo <code translate="no">/etc/machine-id</code>? E isso importa?</li>
+<li>Um contêiner Debian roda dentro da sua rocky-lab. Palpite: o que o <code translate="no">uname -r</code> mostra dentro dele, o kernel da Debian ou o da Rocky?</li></ol>
+<h2 id="2-por-que-importa">2 · Por que importa</h2>
+<div class="tabela"><table><thead><tr><th scope="col">O chamado</th><th scope="col">A resposta errada</th><th scope="col">O que ela causa</th></tr></thead><tbody><tr><td>"O Proxmox não mostra o IP da VM, e o desligar pela GUI não funciona"</td><td>Desligar no botão Stop</td><td>O Stop é tirar da tomada. O que faltava era o guest agent: com ele, o Proxmox vê o IP, pede um desligamento limpo e congela o sistema de arquivos durante o backup</td></tr><tr><td>"Clonei a VM e agora as duas brigam pelo mesmo IP do DHCP, e o monitoramento só vê uma"</td><td>Trocar o hostname e achar que acabou</td><td>O <code translate="no">machine-id</code> e as chaves SSH continuam iguais. Dependendo da rede, o DHCP identifica as duas como a mesma máquina; o journal, o monitoramento e muitos agentes também usam o <code translate="no">machine-id</code></td></tr><tr><td>"O SSH diz que a identificação do servidor mudou: <code translate="no">REMOTE HOST IDENTIFICATION HAS CHANGED</code>"</td><td>Apagar o <code translate="no">known_hosts</code> inteiro, ou ignorar o aviso</td><td>Às vezes é só um clone com chaves novas. Às vezes é ataque. Quem sabe quando as chaves mudaram e por quê, decide com calma e remove só a linha certa</td></tr><tr><td>"Vamos rodar isso num contêiner, que é mais leve"</td><td>Tratar o contêiner como uma VM menor</td><td>O contêiner usa o kernel do hospedeiro. Não carrega módulo próprio, não escolhe a versão do kernel e, se o kernel do hospedeiro cair, cai junto</td></tr></tbody></table></div>
+<h2 id="3-modelo-mental">3 · Modelo mental</h2>
+<blockquote><p>Pense num <strong>prédio comercial</strong>, como na Aula 5.1. Uma <strong>VM</strong> é uma sala alugada com portaria própria: o kernel dela é seu, com os seus drivers, e o hipervisor finge ser o hardware. Os drivers <code translate="no">virtio</code> são o interfone direto com o síndico: em vez de fingir um hardware antigo, o convidado sabe que está numa VM e fala a língua do hipervisor, que é mais rápida. O <strong>guest agent</strong> é o zelador da sala, que atende o síndico (o Proxmox) quando ele pergunta o IP ou pede para fechar tudo. O <strong>cloud-init</strong> é o kit de mudança: no primeiro dia, ele monta a sala com o nome, os usuários e as chaves que vieram no pacote. Um <strong>contêiner</strong> não é uma sala com portaria: é uma divisória dentro de outra sala, que usa a mesma portaria (o mesmo kernel).</p></blockquote>
+<pre translate="no"><code class="lang-text">  MÁQUINA FÍSICA (nó Proxmox)
+  ┌───────────────────────────────────────────────────────────────┐
+  │ kernel do nó (KVM)                                            │
+  │  ┌────────────── QEMU ─────────────┐   ┌──── LXC ───────────┐ │
+  │  │ VM rocky-lab                    │   │ contêiner           │ │
+  │  │  kernel PRÓPRIO                 │   │  processos isolados │ │
+  │  │  virtio_net, virtio_scsi        │   │  SEM kernel próprio │ │
+  │  │  qemu-guest-agent ◄── canal ────┼─► │  usa o kernel do nó │ │
+  │  │  cloud-init (1º boot)  virtio-serial │                     │ │
+  │  └─────────────────────────────────┘   └─────────────────────┘ │
+  └───────────────────────────────────────────────────────────────┘</code></pre>
+<figure><a href="../img/5.3-vm-ou-container.svg"><img src="../img/5.3-vm-ou-container.svg" alt="VM e contêiner lado a lado" loading="lazy" decoding="async"></a><figcaption>A VM tem kernel próprio; o contêiner usa o kernel do nó.</figcaption></figure>
+<h2 id="4-o-essencial">4 · O essencial</h2>
+<h3 id="onde-estou">Onde estou?</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Comando</th><th scope="col">O que mostra</th></tr></thead><tbody><tr><td><code translate="no">systemd-detect-virt</code></td><td><code translate="no">kvm</code>, <code translate="no">qemu</code>, <code translate="no">vmware</code>, <code translate="no">microsoft</code>, <code translate="no">oracle</code>... numa VM; <code translate="no">lxc</code>, <code translate="no">podman</code>, <code translate="no">docker</code>... num contêiner; <code translate="no">none</code> na máquina física</td></tr><tr><td><code translate="no">systemd-detect-virt -c</code> / <code translate="no">-v</code></td><td>Só contêiner / só VM</td></tr><tr><td><code translate="no">hostnamectl</code></td><td>Linha <code translate="no">Virtualization:</code> e <code translate="no">Chassis: vm</code>, além do hostname e do kernel</td></tr><tr><td><code translate="no">lscpu | grep -i hypervisor</code></td><td><code translate="no">Hypervisor vendor: KVM</code></td></tr><tr><td><code translate="no">sudo dmidecode -s system-product-name</code></td><td>O "modelo" que o hipervisor inventou, como <code translate="no">Standard PC (Q35 + ICH9, 2009)</code></td></tr></tbody></table></div>
+<h3 id="os-drivers-virtio">Os drivers virtio</h3>
+<p>O hipervisor pode imitar um hardware real e antigo, como a placa de rede e1000 ou um disco IDE. Funciona em qualquer sistema, mas é lento, porque cada acesso é traduzido. O <strong>virtio</strong> é um hardware que só existe em VM: o convidado sabe disso e conversa direto com o hipervisor. No Linux, os drivers virtio já vêm no kernel.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Dispositivo no Proxmox</th><th scope="col">Driver no convidado</th><th scope="col">Como aparece</th></tr></thead><tbody><tr><td>VirtIO SCSI (controladora)</td><td><code translate="no">virtio_scsi</code></td><td>Discos <code translate="no">sda</code>, <code translate="no">sdb</code>...</td></tr><tr><td>VirtIO Block</td><td><code translate="no">virtio_blk</code></td><td>Discos <code translate="no">vda</code>, <code translate="no">vdb</code>...</td></tr><tr><td>Placa VirtIO</td><td><code translate="no">virtio_net</code></td><td><code translate="no">ens18</code> ou <code translate="no">eth0</code></td></tr><tr><td>Balloon</td><td><code translate="no">virtio_balloon</code></td><td>O hipervisor pode pegar RAM de volta</td></tr><tr><td>RNG VirtIO</td><td><code translate="no">virtio_rng</code></td><td>Fonte de aleatoriedade</td></tr><tr><td>Serial VirtIO</td><td><code translate="no">virtio_console</code></td><td>O canal do guest agent</td></tr></tbody></table></div>
+<h3 id="o-guest-agent">O guest agent</h3>
+<p>O <code translate="no">qemu-guest-agent</code> é um serviço que roda <strong>dentro</strong> da VM e responde ao Proxmox por um canal serial virtual. Ele precisa de duas metades, e esquecer uma é o erro clássico:</p>
+<ol><li><strong>No Proxmox:</strong> a opção <code translate="no">QEMU Guest Agent</code> ligada (<code translate="no">qm set ID --agent enabled=1</code>). Ela cria o dispositivo serial, e só vale depois de desligar e ligar a VM pelo Proxmox.</li>
+<li><strong>Na VM:</strong> o pacote <code translate="no">qemu-guest-agent</code> instalado e o serviço rodando.</li></ol>
+<p>Com as duas metades, o Proxmox mostra os IPs na GUI, faz um desligamento limpo, congela o sistema de arquivos (<code translate="no">fsfreeze</code>) durante o backup para a cópia sair consistente, e deixa você perguntar coisas com <code translate="no">qm agent</code> e <code translate="no">qm guest cmd</code>.</p>
+<h3 id="cloud-init">cloud-init</h3>
+<p>O cloud-init roda no <strong>primeiro boot</strong> de uma imagem de nuvem e configura a máquina com dados que vêm de fora: hostname, usuários, chaves SSH autorizadas, rede e pacotes. Esses dados vêm de uma <strong>datasource</strong>: um serviço de metadados na AWS ou no OpenStack, ou um CD virtual no Proxmox (a aba Cloud-Init). O cloud-init guarda um <code translate="no">instance-id</code>: enquanto ele não muda, a máquina não se considera nova e não refaz a configuração de primeiro boot.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Comando ou arquivo</th><th scope="col">Para quê</th></tr></thead><tbody><tr><td><code translate="no">cloud-init status --long</code></td><td>Rodou? Terminou? Deu erro?</td></tr><tr><td><code translate="no">/var/log/cloud-init.log</code> e <code translate="no">cloud-init-output.log</code></td><td>O que ele fez, passo a passo</td></tr><tr><td><code translate="no">/etc/cloud/cloud.cfg</code> e <code translate="no">/etc/cloud/cloud.cfg.d/</code></td><td>O que ele está autorizado a mudar</td></tr><tr><td><code translate="no">sudo cloud-init clean --logs</code></td><td>Apaga o estado. No próximo boot, ele age como se fosse a primeira vez. É o que se faz antes de transformar a VM em template</td></tr></tbody></table></div>
+<h3 id="clones-e-o-que-precisa-ser-unico">Clones e o que precisa ser único</h3>
+<p>Um <strong>clone completo</strong> copia o disco inteiro. Um <strong>clone ligado</strong> (linked clone) usa o disco do template como base e grava só as diferenças. Nos dois casos, o disco do clone começa igual ao original, com tudo o que está dentro dele:</p>
+<div class="tabela"><table><thead><tr><th scope="col">Identificador</th><th scope="col">Onde fica</th><th scope="col">Quem troca</th></tr></thead><tbody><tr><td>Endereço MAC</td><td>Configuração da VM</td><td>O Proxmox gera um novo no clone</td></tr><tr><td>Hostname</td><td><code translate="no">/etc/hostname</code> e <code translate="no">/etc/hosts</code></td><td>Você, com <code translate="no">hostnamectl set-hostname</code>, ou o cloud-init</td></tr><tr><td><code translate="no">machine-id</code></td><td><code translate="no">/etc/machine-id</code> (na Debian, também <code translate="no">/var/lib/dbus/machine-id</code>)</td><td>Você, com <code translate="no">systemd-machine-id-setup</code>, ou a imagem já vem com o arquivo vazio</td></tr><tr><td>Chaves SSH do host</td><td><code translate="no">/etc/ssh/ssh_host_*</code></td><td>Você, com <code translate="no">ssh-keygen -A</code>, ou o cloud-init</td></tr><tr><td>IP fixo</td><td>Configuração de rede</td><td>Você, ou o cloud-init</td></tr></tbody></table></div>
+<p>O <code translate="no">machine-id</code> é o "CPF" da instalação: 32 caracteres hexadecimais criados na instalação. O journal guarda os logs numa pasta com esse nome, o <code translate="no">systemd-networkd</code> usa esse ID para se identificar no DHCP, e muito agente de monitoramento ou de backup também. Dois clones com o mesmo <code translate="no">machine-id</code> são, para essas ferramentas, a mesma máquina.</p>
+<p>As <strong>chaves SSH do host</strong> provam ao cliente que o servidor é o mesmo da última vez. Dois clones com as mesmas chaves são indistinguíveis para o SSH: se um deles for comprometido, a chave privada dele serve para se passar pelo outro.</p>
+<h3 id="vm-e-conteiner-lado-a-lado">VM e contêiner lado a lado</h3>
+<div class="tabela"><table><thead><tr><th scope="col"></th><th scope="col">VM (QEMU/KVM, <code translate="no">qm</code>)</th><th scope="col">Contêiner (LXC com <code translate="no">pct</code>, Podman, Docker)</th></tr></thead><tbody><tr><td>Kernel</td><td>Próprio</td><td>O do hospedeiro</td></tr><tr><td>Boot</td><td>GRUB, initramfs, systemd</td><td>Começa direto no processo principal, às vezes um systemd</td></tr><tr><td>Módulos e <code translate="no">sysctl</code></td><td>Carrega e muda os seus</td><td>Não carrega módulo; muitos <code translate="no">sysctl</code> são só leitura ou do hospedeiro</td></tr><tr><td>Outro sistema operacional</td><td>Qualquer um, até Windows</td><td>Só Linux, com o kernel de quem hospeda</td></tr><tr><td>Isolamento</td><td>Forte: o hipervisor separa</td><td>Mais fraco: tudo depende do kernel compartilhado</td></tr><tr><td>Custo</td><td>Mais RAM e mais disco</td><td>Leve: sobe em segundos</td></tr></tbody></table></div>
+<h3 id="rocky-debian">Rocky × Debian</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Tema</th><th scope="col">Rocky</th><th scope="col">Debian</th></tr></thead><tbody><tr><td>Guest agent</td><td><code translate="no">dnf install qemu-guest-agent</code></td><td><code translate="no">apt install qemu-guest-agent</code></td></tr><tr><td>Ligar o serviço</td><td>O pacote não liga sozinho em toda versão: confira com <code translate="no">systemctl status</code> e ligue com <code translate="no">systemctl enable --now</code></td><td>O serviço sobe quando o dispositivo serial aparece; sem a opção ligada no Proxmox, ele fica parado esperando</td></tr><tr><td>Chave SSH do host ausente</td><td>O <code translate="no">sshd-keygen@.service</code> gera as que faltam quando o <code translate="no">sshd</code> sobe</td><td>O <code translate="no">ssh</code> não sobe. É preciso rodar <code translate="no">ssh-keygen -A</code> ou <code translate="no">dpkg-reconfigure openssh-server</code></td></tr><tr><td><code translate="no">/var/lib/dbus/machine-id</code></td><td>Costuma não existir; o D-Bus lê o <code translate="no">/etc/machine-id</code></td><td>Costuma ser um link para o <code translate="no">/etc/machine-id</code>; confira com <code translate="no">ls -l</code></td></tr><tr><td>Imagens de nuvem</td><td>Vêm com cloud-init</td><td>Vêm com cloud-init</td></tr></tbody></table></div>
+<p><strong>O que cai na prova.</strong> No LPIC-1 102.6, a prova pede conceitos: a diferença entre VM e contêiner; o que é um hipervisor; o que é IaaS; que drivers e ferramentas de convidado (como o guest agent) existem; o que o cloud-init faz; e, com mais frequência, <strong>o que deve ser único num clone</strong>: o <code translate="no">machine-id</code> do D-Bus e do systemd, as chaves SSH do host e o hostname. Na RHCSA, a prova roda numa VM, e saber trocar o hostname com <code translate="no">hostnamectl</code> é obrigatório.</p>
+<h2 id="5-lab-guiado">5 · Lab guiado</h2>
+<h3 id="passo-0-snapshot-e-pasta">Passo 0 · Snapshot e pasta</h3>
+<p>No nó Proxmox:</p>
+<pre translate="no"><code class="lang-bash">qm snapshot 201 m5a3-inicio
+qm snapshot 202 m5a3-inicio</code></pre>
+<p>Em cada VM:</p>
+<pre translate="no"><code class="lang-bash">mkdir -p ~/lab53 &amp;&amp; cd ~/lab53</code></pre>
+<h3 id="passo-1-onde-estou">Passo 1 · Onde estou?</h3>
+<p>Nas duas VMs:</p>
+<pre translate="no"><code class="lang-bash">systemd-detect-virt
+hostnamectl
+lscpu | grep -i hypervisor
+sudo dmidecode -s system-product-name
+lspci | grep -i virtio
+lsmod | grep virtio</code></pre>
+<p>No nó Proxmox, rode <code translate="no">systemd-detect-virt</code> também. Ele deve responder <code translate="no">none</code>: o nó é a máquina física.</p>
+<p>Anote em <code translate="no">~/lab53/notas.txt</code> o que o <code translate="no">systemd-detect-virt</code> respondeu em cada lugar e quais módulos <code translate="no">virtio</code> cada VM carrega. Compare com o que a aba Hardware da VM mostra no Proxmox: a controladora de disco e o modelo da placa de rede.</p>
+<h3 id="passo-2-o-guest-agent-as-duas-metades">Passo 2 · O guest agent, as duas metades</h3>
+<p>Primeiro, a metade da VM. Na rocky-lab:</p>
+<pre translate="no"><code class="lang-bash">sudo dnf -y install qemu-guest-agent
+sudo systemctl enable --now qemu-guest-agent
+systemctl status qemu-guest-agent --no-pager</code></pre>
+<p>Na debian-lab:</p>
+<pre translate="no"><code class="lang-bash">sudo apt -y install qemu-guest-agent
+systemctl status qemu-guest-agent --no-pager</code></pre>
+<p>Na Debian, o serviço pode aparecer parado, esperando o dispositivo <code translate="no">virtio-ports/org.qemu.guest_agent.0</code>. Isso é normal enquanto a outra metade não estiver ligada.</p>
+<p>Agora, a metade do Proxmox. No nó:</p>
+<pre translate="no"><code class="lang-bash">qm config 201 | grep agent
+qm set 201 --agent enabled=1
+qm set 202 --agent enabled=1</code></pre>
+<h3 id="decida-1">Decida 1</h3>
+<p>Você ligou a opção do agent. Na debian-lab, você roda <code translate="no">sudo systemctl reboot</code>. Depois que ela volta, você roda <code translate="no">qm agent 202 ping</code> no nó. O que acontece?</p>
+<ul><li>A) Responde sem erro, porque a VM reiniciou.</li>
+<li>B) Dá erro, porque o reboot de dentro da VM não aplica a mudança de hardware.</li>
+<li>C) Dá erro, porque o serviço da Debian precisa de <code translate="no">enable</code> manual.</li></ul>
+<p>Marque uma opção antes. Depois faça o teste.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se você marcou</th><th scope="col">Resultado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>A</td><td>Errou</td><td>O reboot de dentro reinicia o sistema, mas o processo QEMU continua o mesmo, com o hardware antigo. A GUI mostra a opção como mudança pendente</td></tr><tr><td>B</td><td>Acertou</td><td>Mudança de hardware só vale quando o Proxmox desliga e liga a VM: <code translate="no">qm shutdown</code> e <code translate="no">qm start</code>, ou <code translate="no">qm reboot</code>, ou o Reboot da GUI</td></tr><tr><td>C</td><td>Errou</td><td>Na Debian, o serviço sobe sozinho quando o dispositivo aparece. O problema é que o dispositivo ainda não existe</td></tr></tbody></table></div>
+<p>Agora aplique de verdade e converse com o agente:</p>
+<pre translate="no"><code class="lang-bash">qm reboot 201
+qm reboot 202
+# espere as VMs voltarem
+qm agent 201 ping &amp;&amp; echo ok
+qm agent 202 ping &amp;&amp; echo ok
+qm guest cmd 202 get-osinfo
+qm guest cmd 202 network-get-interfaces | grep -E '"name"|ip-address"'
+qm guest cmd 201 get-fsinfo | grep -E 'mountpoint|type'</code></pre>
+<p>Na GUI, a página Summary das duas VMs agora mostra os IPs.</p>
+<p><strong>Para fixar:</strong> o guest agent só funciona com as duas metades: o pacote dentro da VM e a opção no Proxmox, aplicada com um desliga e liga feito pelo Proxmox.</p>
+<h3 id="passo-3-cloud-init-so-olhando">Passo 3 · cloud-init, só olhando</h3>
+<p>Suas VMs foram instaladas pelo ISO, então o cloud-init provavelmente não está lá. Confira:</p>
+<pre translate="no"><code class="lang-bash">command -v cloud-init || echo "cloud-init não instalado"</code></pre>
+<p>Se estiver instalado, olhe sem mudar nada:</p>
+<pre translate="no"><code class="lang-bash">cloud-init status --long
+sudo tail -20 /var/log/cloud-init.log
+ls /etc/cloud/cloud.cfg.d/</code></pre>
+<p>No nó, veja como o Proxmox entrega os dados ao cloud-init de uma VM que use uma imagem de nuvem:</p>
+<pre translate="no"><code class="lang-bash">man qm | grep -A2 -E '^ +--(ciuser|sshkeys|ipconfig0)'</code></pre>
+<p>As opções <code translate="no">--ciuser</code>, <code translate="no">--sshkeys</code> e <code translate="no">--ipconfig0</code> vão para um CD virtual que o cloud-init lê no boot. Você não vai montar um template agora. Ele aparece de novo no módulo de automação.</p>
+<h3 id="passo-4-a-identidade-da-vm">Passo 4 · A identidade da VM</h3>
+<p>Na debian-lab:</p>
+<pre translate="no"><code class="lang-bash">hostnamectl hostname
+cat /etc/machine-id
+ls -l /var/lib/dbus/machine-id
+ls /var/log/journal/
+ls -l /etc/ssh/ssh_host_*
+for k in /etc/ssh/ssh_host_*_key.pub; do ssh-keygen -lf "$k"; done</code></pre>
+<p>No seu computador, compare a impressão digital com a que o cliente SSH guardou:</p>
+<pre translate="no"><code class="lang-bash">ssh-keygen -F IP_DA_DEBIAN -l</code></pre>
+<p>O nome da pasta em <code translate="no">/var/log/journal/</code> é o <code translate="no">machine-id</code>. Guarde as três coisas em <code translate="no">~/lab53/identidade.txt</code>: hostname, <code translate="no">machine-id</code> e a impressão da chave <code translate="no">ed25519</code>. Você vai precisar delas no Desafio.</p>
+<h3 id="decida-2">Decida 2</h3>
+<p>Você clona a debian-lab sem mexer em nada e liga o clone. Quais destas coisas o clone tem <strong>igual</strong> à original?</p>
+<ul><li>A) Só o hostname.</li>
+<li>B) Hostname, <code translate="no">machine-id</code> e chaves SSH do host. O MAC é novo.</li>
+<li>C) Tudo, inclusive o MAC.</li></ul>
+<p>Marque uma opção antes. A conferida fica para o Desafio do módulo.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se você marcou</th><th scope="col">Resultado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>A</td><td>Errou</td><td>O disco é copiado inteiro, e com ele os arquivos <code translate="no">/etc/machine-id</code> e <code translate="no">/etc/ssh/ssh_host_*</code></td></tr><tr><td>B</td><td>Acertou</td><td>O MAC fica na configuração da VM, e o Proxmox gera outro no clone. Tudo o que está no disco vem igual</td></tr><tr><td>C</td><td>Errou</td><td>O Proxmox troca o MAC justamente para as duas poderem ficar na mesma rede</td></tr></tbody></table></div>
+<p><strong>Para fixar:</strong> clone copia o disco. Tudo o que identifica a máquina e mora no disco precisa ser trocado à mão, por uma ferramenta como o <code translate="no">virt-sysprep</code>, ou pelo cloud-init.</p>
+<h3 id="passo-5-um-conteiner-ao-lado">Passo 5 · Um contêiner ao lado</h3>
+<p>Na rocky-lab, com internet:</p>
+<pre translate="no"><code class="lang-bash">sudo dnf -y install podman
+uname -r
+podman run --rm docker.io/library/debian:12 cat /etc/os-release
+podman run --rm docker.io/library/debian:12 uname -r
+podman run --rm docker.io/library/debian:12 ls /boot /lib/modules</code></pre>
+<p>O contêiner diz que é Debian 12, mas o <code translate="no">uname -r</code> mostra o kernel da Rocky, com <code translate="no">el9</code> no nome. E não há <code translate="no">/boot</code> nem módulos: não há kernel para carregar. É a resposta da pergunta 3 do Aquecimento, ao vivo.</p>
+<p>Para terminar, tente mudar um parâmetro do kernel de dentro do contêiner:</p>
+<pre translate="no"><code class="lang-bash">podman run --rm docker.io/library/debian:12 sh -c 'echo 10 &gt; /proc/sys/vm/swappiness'</code></pre>
+<p>O kernel recusa, porque o <code translate="no">/proc/sys</code> aparece só para leitura no contêiner: o kernel é do hospedeiro, e quem manda nele é o hospedeiro.</p>
+<h2 id="6-quebre-e-conserte">6 · Quebre e conserte</h2>
+<p>Nesta quebra você apaga as chaves SSH do host nas duas VMs e vê que cada distro reage de um jeito. <strong>Faça pelo console do Proxmox</strong>, não pelo SSH. Uma sessão SSH aberta não cai quando o serviço reinicia, mas você não consegue abrir outra.</p>
+<figure><a href="../img/5.3-cloud-init-guest-agent.svg"><img src="../img/5.3-cloud-init-guest-agent.svg" alt="5.3 Cloud Init Guest Agent" loading="lazy" decoding="async"></a><figcaption>A VM tem kernel próprio; o contêiner usa o kernel do nó. Precisa de outro kernel, ou isolamento forte basta?</figcaption></figure>
+<p>Nas duas VMs:</p>
+<pre translate="no"><code class="lang-bash">sudo cp -a /etc/ssh ~/lab53/ssh-antes
+sudo rm /etc/ssh/ssh_host_*</code></pre>
+<p>Na rocky-lab, <code translate="no">sudo systemctl restart sshd</code>. Na debian-lab, <code translate="no">sudo systemctl restart ssh</code>. Depois, investigue sem olhar o conserto:</p>
+<pre translate="no"><code class="lang-bash">systemctl status sshd --no-pager      # Rocky
+systemctl status ssh --no-pager       # Debian
+journalctl -b -u ssh --no-pager | tail -5
+ls /etc/ssh/ssh_host_*</code></pre>
+<p>Na Rocky, o <code translate="no">sshd</code> sobe: o <code translate="no">sshd-keygen@</code> gerou chaves novas antes. Na Debian, o <code translate="no">ssh</code> falha, com algo como <code translate="no">no hostkeys available</code>. Do seu computador, tente entrar nas duas. A Rocky responde com o aviso <code translate="no">REMOTE HOST IDENTIFICATION HAS CHANGED</code>, porque as chaves mudaram. A Debian recusa a conexão.</p>
+<p>O conserto na Debian:</p>
+<pre translate="no"><code class="lang-bash">sudo ssh-keygen -A
+sudo systemctl restart ssh
+systemctl status ssh --no-pager</code></pre>
+<p>No seu computador, remova só a linha antiga de cada VM e entre de novo, conferindo a impressão digital nova com a que o console mostra:</p>
+<pre translate="no"><code class="lang-bash">ssh-keygen -R IP_DA_ROCKY
+ssh-keygen -R IP_DA_DEBIAN</code></pre>
+<p>A lição: o aviso de chave mudada não se ignora e não se resolve apagando o <code translate="no">known_hosts</code> inteiro. Você descobre <strong>por que</strong> a chave mudou, confere a impressão nova por outro caminho (aqui, o console) e só então tira a linha velha.</p>
+<h2 id="7-armadilhas">7 · Armadilhas</h2>
+<ul><li><strong>Ligar o agent só de um lado.</strong> O pacote sem a opção no Proxmox, ou a opção sem o pacote, dão o mesmo resultado: nada.</li>
+<li><strong>Reiniciar por dentro e esperar mudança de hardware.</strong> Só o desliga e liga feito pelo Proxmox aplica.</li>
+<li><strong>Apagar o <code translate="no">/etc/machine-id</code>.</strong> O caminho certo é esvaziar ou remover e recriar com <code translate="no">systemd-machine-id-setup</code>, e conferir o <code translate="no">/var/lib/dbus/machine-id</code> na Debian. Um sistema sem o arquivo pode não subir direito.</li>
+<li><strong>Fazer template sem limpar.</strong> Se você transforma uma VM em template sem limpar <code translate="no">machine-id</code>, chaves SSH e o estado do cloud-init, todos os clones nascem gêmeos.</li>
+<li><strong>Esquecer o <code translate="no">/etc/hosts</code>.</strong> O <code translate="no">hostnamectl set-hostname</code> muda o <code translate="no">/etc/hostname</code>, mas o nome antigo continua no <code translate="no">/etc/hosts</code>, e o <code translate="no">sudo</code> pode ficar lento ou reclamar.</li>
+<li><strong>Tratar o contêiner como VM.</strong> Ele não tem kernel próprio: módulos, muitos <code translate="no">sysctl</code> e a versão do kernel vêm do hospedeiro.</li>
+<li><strong>Clone com IP fixo ligado na rede.</strong> Dois IPs iguais na mesma rede derrubam as duas máquinas aos poucos. Ligue o clone com a placa desconectada até trocar o IP.</li></ul>
+<h2 id="8-quiz">8 · Quiz</h2>
+<ol><li>Que comando diz se você está numa VM, num contêiner ou numa máquina física?</li>
+<li>Quais são as duas metades do guest agent, e como se aplica a metade do Proxmox?</li>
+<li>O que o cloud-init faz, e quando?</li>
+<li>Cite três coisas que precisam ser únicas num clone e diga onde cada uma fica.</li>
+<li>Por que um contêiner Debian dentro da Rocky mostra o kernel da Rocky?</li>
+<li><em>Which file holds the systemd machine ID, and which command creates a new one?</em></li></ol>
+<h2 id="9-cola">9 · Cola</h2>
+<h3 id="para-saber-de-cor">Para saber de cor</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Comando ou arquivo</th><th scope="col">Faz</th></tr></thead><tbody><tr><td><code translate="no">systemd-detect-virt</code> / <code translate="no">hostnamectl</code></td><td>Onde estou / hostname, chassis e virtualização</td></tr><tr><td><code translate="no">qm set ID --agent enabled=1</code> + <code translate="no">qm reboot ID</code></td><td>Liga o agent no Proxmox e aplica</td></tr><tr><td><code translate="no">qm agent ID ping</code> / <code translate="no">qm guest cmd ID network-get-interfaces</code></td><td>Testa o agent / pergunta os IPs</td></tr><tr><td><code translate="no">hostnamectl set-hostname nome</code></td><td>Troca o hostname (e depois o <code translate="no">/etc/hosts</code>)</td></tr><tr><td><code translate="no">/etc/machine-id</code> + <code translate="no">systemd-machine-id-setup</code></td><td>O ID da instalação e quem o recria</td></tr><tr><td><code translate="no">/etc/ssh/ssh_host_*</code> + <code translate="no">ssh-keygen -A</code></td><td>As chaves do host e quem gera as que faltam</td></tr><tr><td><code translate="no">ssh-keygen -R host</code></td><td>Remove só aquele host do <code translate="no">known_hosts</code></td></tr></tbody></table></div>
+<h3 id="para-consultar">Para consultar</h3>
+<p><code translate="no">systemd-detect-virt -c</code> e <code translate="no">-v</code>, <code translate="no">lscpu</code>, <code translate="no">dmidecode</code>, <code translate="no">virtio_scsi</code>, <code translate="no">virtio_blk</code>, <code translate="no">virtio_net</code>, <code translate="no">virtio_balloon</code>, <code translate="no">qm guest cmd ID get-osinfo</code>, <code translate="no">get-fsinfo</code>, <code translate="no">fsfreeze-status</code>, <code translate="no">cloud-init status --long</code>, <code translate="no">cloud-init clean --logs</code>, <code translate="no">/var/log/cloud-init.log</code>, <code translate="no">/etc/cloud/cloud.cfg.d/</code>, <code translate="no">qm set --ciuser --sshkeys --ipconfig0</code>, <code translate="no">qm clone --full</code>, <code translate="no">qm template</code>, <code translate="no">virt-sysprep</code>, <code translate="no">sshd-keygen@.service</code>, <code translate="no">dpkg-reconfigure openssh-server</code>, <code translate="no">ssh-keygen -lf</code>, <code translate="no">ssh-keygen -F</code>, <code translate="no">podman run --rm</code>, <code translate="no">pct list</code>.</p>
+<h3 id="flashcards">Flashcards</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Pergunta</th><th scope="col">Resposta</th></tr></thead><tbody><tr><td><code translate="no">systemd-detect-virt</code> na máquina física responde...</td><td><code translate="no">none</code></td></tr><tr><td>Reboot de dentro da VM aplica mudança de hardware?</td><td>Não; só o desliga e liga do Proxmox</td></tr><tr><td>O clone do Proxmox troca o MAC?</td><td>Sim; o que está no disco, não</td></tr><tr><td>Debian sem chave SSH do host...</td><td>O <code translate="no">ssh</code> não sobe; a Rocky gera chaves novas sozinha</td></tr><tr><td>Contêiner tem kernel próprio?</td><td>Não; usa o do hospedeiro</td></tr></tbody></table></div>
+<h2 id="10-checklist-e-fechamento">10 · Checklist e fechamento</h2>
+<ul><li>[ ] Descobri onde cada máquina roda com <code translate="no">systemd-detect-virt</code> e <code translate="no">hostnamectl</code></li>
+<li>[ ] Reconheci os dispositivos e módulos <code translate="no">virtio</code> das duas VMs</li>
+<li>[ ] Liguei o guest agent dos dois lados e vi os IPs com <code translate="no">qm guest cmd</code></li>
+<li>[ ] Expliquei o que o cloud-init faz, mesmo sem ele instalado</li>
+<li>[ ] Anotei hostname, <code translate="no">machine-id</code> e chave SSH da debian-lab</li>
+<li>[ ] Vi um contêiner Debian rodar no kernel da Rocky</li>
+<li>[ ] Apaguei as chaves SSH do host, vi a diferença entre as distros e consertei</li></ul>
+<p><strong>Último exercício, sem olhar a aula:</strong> de dentro de cada VM, sem usar a GUI, diga o IP dela e confirme pelo nó com <code translate="no">qm guest cmd</code>. Depois, na rocky-lab, apague a imagem que o Podman baixou (<code translate="no">podman images</code>, depois <code translate="no">podman rmi</code> com o nome que aparecer).</p>
+<p><strong>Reboot e conferência:</strong> reinicie as duas VMs pelo Proxmox (<code translate="no">qm reboot</code>) e confira:</p>
+<pre translate="no"><code class="lang-bash">systemctl status qemu-guest-agent --no-pager   # active (running)
+systemctl --failed                              # vazio
+ls ~/lab53</code></pre>
+<p>No nó, <code translate="no">qm agent 201 ping</code> e <code translate="no">qm agent 202 ping</code> sem erro.</p>
+<p><strong>Snapshot de fim</strong>, no nó Proxmox:</p>
+<pre translate="no"><code class="lang-bash">qm snapshot 201 m5a3-fim
+qm snapshot 202 m5a3-fim</code></pre>
+<p>O guest agent fica ligado daqui em diante. Ele vai ajudar nos backups e nos próximos módulos.</p>
+<h2 id="11-na-vida-real">11 · Na vida real</h2>
+<p><strong>Missão, só leitura.</strong> Num servidor real que você administra, rode apenas estes comandos, que não mudam nada:</p>
+<pre translate="no"><code class="lang-bash">systemd-detect-virt
+hostnamectl
+systemctl is-active qemu-guest-agent 2&gt;/dev/null || echo "sem guest agent"
+cat /etc/machine-id
+command -v cloud-init &amp;&amp; cloud-init status</code></pre>
+<p>Se for uma VM do Proxmox, olhe também, no nó, só lendo: <code translate="no">qm config ID | grep agent</code>.</p>
+<p>Responda: as VMs que você administra têm o guest agent dos dois lados? Se não têm, o backup delas está saindo sem congelar o sistema de arquivos. Duas máquinas suas têm o mesmo <code translate="no">machine-id</code>? Isso denuncia um clone mal feito. Anote o que achou. Não mude nada sozinho.</p>
+<p><strong>Diário:</strong> escreva três linhas sobre o que você aprendeu hoje e uma dúvida que ficou.</p>
+<p><strong>Amanhã, sem olhar:</strong></p>
+<ol><li>Liste, em ordem, o que você faria num clone recém-criado antes de ligá-lo na rede.</li>
+<li>Explique por que o reboot de dentro da VM não liga o guest agent.</li>
+<li>Diga uma vantagem e uma desvantagem do contêiner em relação à VM.</li></ol>
+<h2 id="12-aprofundar-quando-quiser">12 · Aprofundar quando quiser</h2>
+<ul><li><code translate="no">virt-sysprep</code> (pacote <code translate="no">guestfs-tools</code> ou <code translate="no">libguestfs-tools</code>): limpa <code translate="no">machine-id</code>, chaves SSH, logs e histórico de um disco de VM desligada.</li>
+<li>Templates no Proxmox com imagens de nuvem da Rocky e da Debian: <code translate="no">qm importdisk</code>, a aba Cloud-Init e <code translate="no">qm template</code>.</li>
+<li>Os arquivos <code translate="no">user-data</code>, <code translate="no">meta-data</code> e <code translate="no">network-config</code> do cloud-init, e a datasource NoCloud.</li>
+<li>Clone ligado versus clone completo: espaço, desempenho e por que não se apaga o template de um clone ligado.</li>
+<li><code translate="no">systemd-firstboot</code> e <code translate="no">ConditionFirstBoot=</code>: como o systemd sabe que é o primeiro boot.</li>
+<li>Contêineres LXC no Proxmox (<code translate="no">pct</code>), privilegiados e não privilegiados.</li>
+<li>Namespaces e cgroups: as peças do kernel que fazem um contêiner existir.</li></ul>
+<p>No DeepTutor: <code translate="no">!explica guest agent do QEMU</code>, <code translate="no">!feynman diferença entre VM e contêiner</code>, <code translate="no">!quiz Linux como convidado</code>.</p>
+<h2 id="desafio-do-modulo-5">Desafio do módulo 5</h2>
+<p><strong>Missão:</strong> clonar a debian-lab e dar ao clone identidade própria: hostname, <code translate="no">machine-id</code> e chaves SSH do host. No fim, as duas VMs ficam ligadas ao mesmo tempo, na mesma rede, sem conflito. Sem olhar a aula; o Gabarito tem dicas, se travar.</p>
+<p><strong>Antes de começar</strong>, no nó Proxmox:</p>
+<pre translate="no"><code class="lang-bash">qm snapshot 202 m5-desafio
+qm list          # escolha um VMID livre, por exemplo 902</code></pre>
+<p><strong>Regras:</strong></p>
+<ul><li>Clone completo, no storage <code translate="no">vm-hdd</code>, com o nome <code translate="no">debian-clone</code>.</li>
+<li>Ligue o clone com a placa de rede <strong>desconectada</strong> e faça tudo pelo console, até a identidade estar trocada. Se a debian-lab usar IP fixo, troque o IP também.</li>
+<li>A debian-lab original não muda em nada.</li>
+<li>Tempo-alvo: 30 minutos.</li></ul>
+<p><strong>Critérios de sucesso:</strong></p>
+<div class="tabela"><table><thead><tr><th scope="col">Conferir</th><th scope="col">Como</th><th scope="col">Esperado</th></tr></thead><tbody><tr><td>Hostname</td><td><code translate="no">hostnamectl hostname</code> no clone</td><td><code translate="no">debian-clone</code>, e o <code translate="no">/etc/hosts</code> sem o nome antigo</td></tr><tr><td><code translate="no">machine-id</code></td><td><code translate="no">cat /etc/machine-id</code> nas duas</td><td>Diferentes; o do clone com 32 caracteres hexadecimais</td></tr><tr><td>D-Bus</td><td><code translate="no">ls -l /var/lib/dbus/machine-id</code> no clone</td><td>Link para o <code translate="no">/etc/machine-id</code>, ou o mesmo conteúdo</td></tr><tr><td>Chaves SSH</td><td><code translate="no">ssh-keygen -lf /etc/ssh/ssh_host_ed25519_key.pub</code> nas duas</td><td>Impressões diferentes; compare com o <code translate="no">identidade.txt</code></td></tr><tr><td>Rede</td><td><code translate="no">ip -br a</code> nas duas, com o clone já conectado</td><td>IPs diferentes, e os dois respondem ao <code translate="no">ping</code></td></tr><tr><td>SSH</td><td>Do seu computador, <code translate="no">ssh</code> para as duas</td><td>As duas entram; o clone aparece como host novo no <code translate="no">known_hosts</code></td></tr><tr><td>Agent</td><td><code translate="no">qm agent 902 ping</code> no nó</td><td>Sem erro</td></tr></tbody></table></div>
+<p><strong>Rollback</strong>, se algo der errado na original: <code translate="no">qm rollback 202 m5-desafio</code>.</p>
+<p><strong>Limpeza</strong>, quando você terminar e conferir tudo: no nó, <code translate="no">qm stop 902</code> e depois <code translate="no">qm destroy 902 --purge</code>. Confira o número duas vezes antes de apertar Enter. No seu computador, tire o clone do <code translate="no">known_hosts</code> com <code translate="no">ssh-keygen -R IP_DO_CLONE</code>.</p>
+<h2 id="gabarito-comentado">Gabarito comentado</h2>
+<h3 id="aquecimento">Aquecimento</h3>
+<ol><li>Sim. <code translate="no">systemd-detect-virt</code> responde <code translate="no">kvm</code>, <code translate="no">vmware</code>, <code translate="no">lxc</code>... ou <code translate="no">none</code>. O <code translate="no">hostnamectl</code> também mostra, na linha <code translate="no">Virtualization</code>.</li>
+<li>Sim, vão ter o mesmo, porque o arquivo está no disco e o disco foi copiado. E importa: o journal, o DHCP do <code translate="no">systemd-networkd</code> e vários agentes usam o <code translate="no">machine-id</code> para saber quem é quem.</li>
+<li>O da Rocky. O contêiner traz os arquivos da Debian, mas roda no kernel do hospedeiro.</li></ol>
+<h3 id="quiz">Quiz</h3>
+<ol><li><code translate="no">systemd-detect-virt</code>. O <code translate="no">hostnamectl</code> também serve.</li>
+<li>O pacote <code translate="no">qemu-guest-agent</code> rodando dentro da VM, e a opção <code translate="no">--agent enabled=1</code> no Proxmox. A opção cria um dispositivo serial e só vale depois de o Proxmox desligar e ligar a VM, por exemplo com <code translate="no">qm reboot</code>.</li>
+<li>Configura a máquina no primeiro boot com dados de uma datasource: hostname, usuários, chaves SSH, rede, pacotes. Ele só refaz isso se o <code translate="no">instance-id</code> mudar ou se alguém rodar <code translate="no">cloud-init clean</code>.</li>
+<li>Hostname, em <code translate="no">/etc/hostname</code> e <code translate="no">/etc/hosts</code>; <code translate="no">machine-id</code>, em <code translate="no">/etc/machine-id</code> (e <code translate="no">/var/lib/dbus/machine-id</code>); chaves SSH do host, em <code translate="no">/etc/ssh/ssh_host_*</code>. Também vale o IP fixo, na configuração de rede. O MAC o Proxmox já troca.</li>
+<li>Porque o contêiner não tem kernel próprio. Ele é um grupo de processos isolados que roda no kernel do hospedeiro.</li>
+<li><em><code translate="no">/etc/machine-id</code>. Empty or remove it, then run <code translate="no">systemd-machine-id-setup</code>; on Debian, check that <code translate="no">/var/lib/dbus/machine-id</code> matches or links to it.</em></li></ol>
+<h3 id="dicas-do-desafio">Dicas do Desafio</h3>
+<p>Tente sozinho primeiro. Se travar, leia uma dica de cada vez.</p>
+<ol><li><strong>Clone e placa desconectada:</strong> <code translate="no">qm clone 202 902 --name debian-clone --full --storage vm-hdd</code>. Depois, <code translate="no">qm config 902 | grep net0</code>, e repita a linha com <code translate="no">,link_down=1</code> no fim: <code translate="no">qm set 902 --net0 virtio=MAC_DO_CLONE,bridge=vmbr0,link_down=1</code>. Use o MAC que o clone ganhou, para não gerar outro. Só então <code translate="no">qm start 902</code> e abra o console.</li>
+<li><strong>Hostname:</strong> <code translate="no">sudo hostnamectl set-hostname debian-clone</code>, e troque o nome antigo no <code translate="no">/etc/hosts</code> com <code translate="no">sudoedit /etc/hosts</code> ou com o <code translate="no">sed -i</code> da Aula 3.4.</li>
+<li><strong>machine-id:</strong> <code translate="no">sudo rm /etc/machine-id</code>, depois <code translate="no">sudo systemd-machine-id-setup</code>. Confira o <code translate="no">/var/lib/dbus/machine-id</code>: se for link, já está certo; se for um arquivo comum, <code translate="no">sudo rm /var/lib/dbus/machine-id</code> e <code translate="no">sudo ln -s /etc/machine-id /var/lib/dbus/machine-id</code>.</li>
+<li><strong>Chaves SSH:</strong> <code translate="no">sudo rm /etc/ssh/ssh_host_*</code>, depois <code translate="no">sudo ssh-keygen -A</code> e <code translate="no">sudo systemctl restart ssh</code>. Se esquecer o <code translate="no">ssh-keygen -A</code>, você já sabe o que acontece: a Quebre desta aula.</li>
+<li><strong>Reboot e rede:</strong> reinicie o clone para que tudo passe a usar o <code translate="no">machine-id</code> novo. A pasta nova aparece em <code translate="no">/var/log/journal/</code>, e a velha pode ser apagada. Troque o IP se for fixo, e só então reconecte: <code translate="no">qm set 902 --net0 virtio=MAC_DO_CLONE,bridge=vmbr0</code> (sem o <code translate="no">link_down</code>).</li>
+<li><strong>Conferir:</strong> rode a tabela de critérios. Se o <code translate="no">machine-id</code> do clone ainda for igual ao da original, confira se você não editou a VM errada. O prompt mostra o hostname, e é por isso que ele vem primeiro.</li></ol>
+</article><nav class="paginas" aria-label="Aulas"><a class="ant" href="5.2-modulos-e-parametros.html"><small>← Anterior</small>5.2 · Módulos e parâmetros</a><a class="prox" href="6.1-pacotes-no-debian.html"><small>Próxima →</small>6.1 · Pacotes no Debian</a></nav></main></div>
+<footer><div class="wrap">Gerado a partir do Markdown do curso · Imagens em <code translate="no">img/</code></div></footer>
+</body>
+</html>

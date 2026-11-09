@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light dark">
+<title>3.2 · Filtros de texto · Curso Linux Sysadmin</title>
+<link rel="alternate" hreflang="pt-BR" href="3.2-filtros-de-texto.html"><link rel="alternate" hreflang="it" href="3.2-filtros-de-texto.it.html">
+<style>
+:root{color-scheme:light dark;--bg:#f6f1e7;--card:#fffdf8;--ink:#201c16;--muted:#5e564a;--accent:#9a3412;--accent-2:#1f5f4a;--tint:#efe6d4;--line:#ddd2bc;--code:#f1eadb;--shadow:0 1px 2px rgba(60,40,10,.08);--serif:Georgia,"Iowan Old Style","Palatino Linotype",Palatino,serif;--sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--mono:"Cascadia Code",Consolas,"DejaVu Sans Mono",monospace}
+@media (prefers-color-scheme:dark){:root{--bg:#16130f;--card:#201b15;--ink:#f1eadb;--muted:#b9ad98;--accent:#f0a070;--accent-2:#7fd0b0;--tint:#2a231a;--line:#3d3427;--code:#191510;--shadow:none}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:5.5rem}
+body{margin:0;background:var(--bg);color:var(--ink);font:1rem/1.6 var(--sans)}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--accent-2);outline-offset:2px;border-radius:4px}
+.pular{position:absolute;left:-999px;top:0;background:var(--card);padding:.5rem 1rem;z-index:20}
+.pular:focus{left:.5rem;top:.5rem}
+.wrap{width:100%;max-width:84rem;margin:0 auto;padding-inline:max(1rem,env(safe-area-inset-left))}
+.top{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10;border-top:6px solid var(--accent)}
+.top-in{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding-block:.6rem}
+.titles{min-width:0}
+.marca{margin:0;font:700 clamp(1.15rem,1rem + 1vw,1.6rem)/1.15 var(--serif);letter-spacing:-.01em}
+.marca a{text-decoration:none}
+.marca a:hover{color:var(--accent)}
+.meta{margin:.1rem 0 0;color:var(--muted);font-size:.85rem}
+.acoes{display:flex;align-items:center;gap:.9rem;flex:none}
+.acoes>a{font-size:.9rem;font-weight:600;color:var(--muted);text-decoration:none}
+.acoes>a:hover{color:var(--accent);text-decoration:underline}
+.idioma{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--tint)}
+.idioma>*{padding:.35rem .9rem;font-size:.8rem;font-weight:700;letter-spacing:.06em;text-decoration:none;color:var(--muted);min-width:2.75rem;text-align:center}
+.idioma a:hover{color:var(--accent);text-decoration:underline}
+.idioma span{background:var(--accent);color:#fff}
+@media (prefers-color-scheme:dark){.idioma span{color:#16130f}}
+code{font-family:var(--mono);font-size:.9em;background:var(--tint);padding:.1rem .35rem;border-radius:4px;overflow-wrap:anywhere}
+/* índice */
+.capa{max-width:70rem;padding-block:2rem 3rem}
+.stats{border-left:4px solid var(--accent-2);background:var(--card);border-radius:0 10px 10px 0;padding:1rem 1.25rem;margin:0 0 2.5rem;box-shadow:var(--shadow);color:var(--muted)}
+.stats strong{color:var(--ink)}
+.modulo{display:grid;grid-template-columns:15rem minmax(0,1fr);gap:1rem 2rem;padding:1.75rem 0;border-top:1px solid var(--line)}
+.modulo h2{margin:0;font:700 1.25rem/1.25 var(--serif);align-self:start;position:sticky;top:6rem}
+.mn{display:block;font:700 .8rem var(--mono);letter-spacing:.12em;color:var(--accent);margin-bottom:.25rem}
+.sep{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.modulo ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,17rem),1fr));gap:.75rem}
+.modulo li{margin:0}
+.modulo a{display:flex;gap:.45rem;align-items:baseline;height:100%;padding:.85rem 1rem;background:var(--card);border:1px solid var(--line);border-radius:10px;text-decoration:none;font-weight:600;line-height:1.35;box-shadow:var(--shadow);transition:border-color .15s,transform .15s}
+.modulo a:hover{border-color:var(--accent);color:var(--accent)}
+.num{font:700 .85rem var(--mono);color:var(--accent);white-space:nowrap}
+/* aula */
+.doc{display:grid;grid-template-columns:17rem minmax(0,1fr);gap:2.5rem;align-items:start;padding-block:2rem 3rem}
+.lateral{position:sticky;top:5.5rem;max-height:calc(100vh - 6.5rem);overflow:auto;font-size:.875rem;padding-right:.5rem}
+.lateral h2{margin:0 0 .25rem;font:700 .95rem var(--serif);color:var(--muted)}
+.lateral h3{margin:1rem 0 .25rem;font:700 .75rem var(--mono);letter-spacing:.06em;color:var(--accent)}
+.lateral ul{list-style:none;margin:0;padding:0}
+.lateral a{display:flex;gap:.45rem;padding:.25rem .5rem;border-radius:6px;text-decoration:none;color:var(--muted);line-height:1.3}
+.lateral a:hover{background:var(--tint);color:var(--ink)}
+.lateral a[aria-current]{background:var(--tint);color:var(--ink);font-weight:700;box-shadow:inset 3px 0 0 var(--accent)}
+.lateral .num{font-size:.75rem}
+.aula{min-width:0;max-width:56rem;overflow-wrap:break-word;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:clamp(1.25rem,1rem + 2vw,2.75rem);box-shadow:var(--shadow)}
+.aula h1{margin:0 0 1.5rem;font:700 clamp(1.75rem,1.4rem + 1.6vw,2.5rem)/1.15 var(--serif);letter-spacing:-.015em;color:var(--ink)}
+.aula h2{margin:2.5rem 0 .75rem;padding-top:1.25rem;border-top:1px solid var(--line);font:700 1.5rem/1.25 var(--serif)}
+.aula h3{margin:2rem 0 .5rem;font:700 1.15rem/1.3 var(--serif);color:var(--accent)}
+.aula h4,.aula h5,.aula h6{margin:1.5rem 0 .5rem;font-size:1rem}
+.aula p,.aula ul,.aula ol{margin:1rem 0}
+.aula ul,.aula ol{padding-left:1.5rem}
+.aula li{margin:.35rem 0}
+.aula li>ul,.aula li>ol{margin:.35rem 0}
+.aula a{color:var(--accent);text-underline-offset:2px}
+.aula hr{border:0;border-top:1px solid var(--line);margin:2rem 0}
+.tabela{overflow-x:auto;margin:1.25rem 0;border:1px solid var(--line);border-radius:10px}
+.aula table{width:100%;border-collapse:collapse;font-size:.9rem}
+.aula th,.aula td{padding:.55rem .75rem;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+.aula tr:last-child td{border-bottom:0}
+.aula th{background:var(--tint);font-weight:700}
+.aula pre{background:var(--code);border:1px solid var(--line);border-radius:10px;padding:.9rem 1rem;overflow-x:auto;font:.85rem/1.5 var(--mono);margin:1rem 0;tab-size:4}
+.aula pre code{background:none;padding:0;font-size:inherit;overflow-wrap:normal}
+.aula blockquote{margin:1.25rem 0;padding:.75rem 1.25rem;border-left:4px solid var(--accent-2);background:var(--tint);border-radius:0 10px 10px 0}
+.aula blockquote>:first-child{margin-top:0}
+.aula blockquote>:last-child{margin-bottom:0}
+.aula figure{margin:1.75rem 0;text-align:center}
+.aula figure img{display:block;margin:0 auto;max-width:100%;height:auto;border:1px solid var(--line);border-radius:10px;background:#fff}
+.aula figcaption{margin-top:.5rem;color:var(--muted);font-size:.9rem;font-style:italic}
+.paginas{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:2.5rem;padding-top:1.5rem;border-top:1px solid var(--line)}
+.paginas a{display:block;padding:.75rem 1rem;border:1px solid var(--line);border-radius:10px;text-decoration:none;color:var(--ink);font-weight:600;line-height:1.3}
+.paginas a:hover{border-color:var(--accent);color:var(--accent)}
+.paginas small{display:block;color:var(--muted);font-weight:400}
+.paginas .prox{grid-column:2;text-align:right}
+footer{border-top:1px solid var(--line);padding-block:1.5rem;color:var(--muted);font-size:.85rem;text-align:center}
+@media (hover:hover) and (prefers-reduced-motion:no-preference){.modulo a:hover{transform:translateY(-2px)}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+@media (max-width:980px){.doc{grid-template-columns:minmax(0,1fr);padding-top:1rem}.lateral{position:static;max-height:none;order:2}.aula{max-width:none}}
+@media (max-width:860px){.modulo{grid-template-columns:minmax(0,1fr)}.modulo h2{position:static}.mn{display:inline;margin-right:.5rem}}
+@media (max-width:420px){.meta{display:none}.top-in{gap:.5rem}.acoes{gap:.6rem}.capa{padding-top:1.25rem}.paginas{grid-template-columns:minmax(0,1fr)}.paginas .prox{grid-column:1}}
+@media print{.top,.lateral,.paginas{display:none}.aula{border:0;box-shadow:none;padding:0;max-width:none}.doc{display:block}}
+</style>
+</head>
+<body>
+<a class="pular" href="#conteudo">Pular para o conteúdo</a>
+<header class="top"><div class="wrap top-in"><div class="titles"><p class="marca"><a href="index.html">Curso Linux Sysadmin</a></p><p class="meta">Rodrigo Antignani · Aula 3.2</p></div><div class="acoes"><a href="index.html">Índice</a><div class="idioma" role="group" aria-label="Idioma"><span aria-current="true">PT</span><a href="3.2-filtros-de-texto.it.html" hreflang="it" lang="it">IT</a></div></div></div></header>
+<div class="wrap doc"><aside class="lateral" aria-label="Aulas"><h2>Aulas</h2><h3>M0 · Laboratório</h3><ul><li><a href="0.1-montar-o-laboratorio.html"><span class="num">0.1</span><span>Montar o laboratório</span></a></li><li><a href="0.2-acesso-e-protecao.html"><span class="num">0.2</span><span>Acesso e proteção</span></a></li></ul><h3>M1 · Linha de comando</h3><ul><li><a href="1.1-o-que-e-linux.html"><span class="num">1.1</span><span>O que é Linux</span></a></li><li><a href="1.2-o-shell-e-a-ajuda.html"><span class="num">1.2</span><span>O shell e a ajuda</span></a></li><li><a href="1.3-caminhos-e-navegacao.html"><span class="num">1.3</span><span>Caminhos e navegação</span></a></li><li><a href="1.4-criar-copiar-mover-e-apagar.html"><span class="num">1.4</span><span>Criar, copiar, mover e apagar</span></a></li><li><a href="1.5-ler-e-procurar-texto.html"><span class="num">1.5</span><span>Ler e procurar texto</span></a></li><li><a href="1.6-redirecionamentos-e-pipes.html"><span class="num">1.6</span><span>Redirecionamentos e pipes</span></a></li><li><a href="1.7-arquivar-e-compactar.html"><span class="num">1.7</span><span>Arquivar e compactar</span></a></li><li><a href="1.8-primeiro-script.html"><span class="num">1.8</span><span>Primeiro script</span></a></li><li><a href="1.9-decidir-e-repetir.html"><span class="num">1.9</span><span>Decidir e repetir</span></a></li><li><a href="1.10-software-livre-na-pratica.html"><span class="num">1.10</span><span>Software livre na prática</span></a></li></ul><h3>M2 · Sistema, usuários e permissões</h3><ul><li><a href="2.1-instalacao-e-provisionamento.html"><span class="num">2.1</span><span>Instalação e provisionamento</span></a></li><li><a href="2.2-hardware-e-dispositivos.html"><span class="num">2.2</span><span>Hardware e dispositivos</span></a></li><li><a href="2.3-processos-e-logs.html"><span class="num">2.3</span><span>Processos e logs</span></a></li><li><a href="2.4-rede-no-dia-a-dia.html"><span class="num">2.4</span><span>Rede no dia a dia</span></a></li><li><a href="2.5-acesso-remoto-e-privilegios.html"><span class="num">2.5</span><span>Acesso remoto e privilégios</span></a></li><li><a href="2.6-usuarios-e-grupos.html"><span class="num">2.6</span><span>Usuários e grupos</span></a></li><li><a href="2.7-permissoes-e-dono.html"><span class="num">2.7</span><span>Permissões e dono</span></a></li><li><a href="2.8-diretorios-e-arquivos-especiais.html"><span class="num">2.8</span><span>Diretórios e arquivos especiais</span></a></li></ul><h3>M3 · Texto e editor</h3><ul><li><a href="3.1-fluxos-a-fundo.html"><span class="num">3.1</span><span>Fluxos a fundo</span></a></li><li><a href="3.2-filtros-de-texto.html" aria-current="page"><span class="num">3.2</span><span>Filtros de texto</span></a></li><li><a href="3.3-regex-e-grep.html"><span class="num">3.3</span><span>Regex e grep</span></a></li><li><a href="3.4-sed-e-awk.html"><span class="num">3.4</span><span>sed e awk</span></a></li><li><a href="3.5-vi-e-vim-de-verdade.html"><span class="num">3.5</span><span>vi e vim de verdade</span></a></li></ul><h3>M4 · systemd e boot</h3><ul><li><a href="4.1-como-o-linux-liga.html"><span class="num">4.1</span><span>Como o Linux liga</span></a></li><li><a href="4.2-systemd-servicos-e-units.html"><span class="num">4.2</span><span>systemd: serviços e units</span></a></li><li><a href="4.3-targets-desligar-e-reiniciar.html"><span class="num">4.3</span><span>Targets: desligar e reiniciar</span></a></li><li><a href="4.4-grub-e-acesso-de-emergencia.html"><span class="num">4.4</span><span>GRUB e acesso de emergência</span></a></li></ul><h3>M5 · Kernel, módulos e VM</h3><ul><li><a href="5.1-hardware-pelo-kernel.html"><span class="num">5.1</span><span>Hardware pelo kernel</span></a></li><li><a href="5.2-modulos-e-parametros.html"><span class="num">5.2</span><span>Módulos e parâmetros</span></a></li><li><a href="5.3-linux-como-convidado.html"><span class="num">5.3</span><span>Linux como convidado</span></a></li></ul><h3>M6 · Pacotes e repositórios</h3><ul><li><a href="6.1-pacotes-no-debian.html"><span class="num">6.1</span><span>Pacotes no Debian</span></a></li><li><a href="6.2-pacotes-na-rocky.html"><span class="num">6.2</span><span>Pacotes na Rocky</span></a></li><li><a href="6.3-repositorios.html"><span class="num">6.3</span><span>Repositórios</span></a></li><li><a href="6.4-flatpak.html"><span class="num">6.4</span><span>Flatpak</span></a></li><li><a href="6.5-bibliotecas-compartilhadas.html"><span class="num">6.5</span><span>Bibliotecas compartilhadas</span></a></li></ul></aside><main id="conteudo" class="aula"><article><h1>Aula 3.2 · Filtros de texto</h1>
+<p>Na Aula 3.1 você aprendeu a ligar comandos: quem lê de onde, quem escreve para onde, e como um pipe falha de verdade. Hoje você aprende <strong>o que pôr no meio do pipe</strong>. Um servidor fala em texto: logs, <code translate="no">/etc/passwd</code>, a saída do <code translate="no">ps</code>, do <code translate="no">ss</code>, do <code translate="no">du</code>. A pergunta do chamado quase nunca é "mostre o log". É "quem mais errou a senha", "qual pasta encheu o disco", "quantos erros 500 desde as oito". A resposta é uma linha de filtros: <code translate="no">cut</code> recorta colunas, <code translate="no">sort</code> ordena, <code translate="no">uniq</code> conta, <code translate="no">tr</code> troca e limpa caracteres, <code translate="no">paste</code> junta, <code translate="no">nl</code> numera, <code translate="no">split</code> divide, <code translate="no">od</code> mostra os bytes que você não vê, e <code translate="no">sha256sum</code> prova que dois arquivos são iguais. No fim da aula, um log vira relatório com um script de dez linhas, igual nas duas VMs.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Ficha</th><th scope="col">Aula 3.2</th></tr></thead><tbody><tr><td>Módulo</td><td>M3 · Texto e editor, aula 2 de 5</td></tr><tr><td>Quando</td><td>Semana 7</td></tr><tr><td>Ao final você consegue</td><td>Recortar colunas com <code translate="no">cut</code>, inclusive de saídas com vários espaços; ordenar por número, por tamanho legível e por uma coluna específica com <code translate="no">sort -t -k</code>; contar ocorrências com <code translate="no">sort | uniq -c | sort -rn</code>; limpar e trocar caracteres com <code translate="no">tr</code>, e saber quando ele não serve; juntar linhas e colunas com <code translate="no">paste</code>; numerar com <code translate="no">nl</code>; dividir e remontar arquivos com <code translate="no">split</code> e <code translate="no">cat</code>, e provar a integridade com <code translate="no">sha256sum</code>; achar um <code translate="no">\r</code> de Windows com <code translate="no">od</code>; ler logs girados com <code translate="no">zcat</code>; transformar um log em relatório</td></tr><tr><td>Itens de prova</td><td>LE 3.2 (procurar e extrair dados de arquivos) · LPIC-1 103.2 (processar fluxos de texto usando filtros: <code translate="no">cut</code>, <code translate="no">sort</code>, <code translate="no">uniq</code>, <code translate="no">tr</code>, <code translate="no">paste</code>, <code translate="no">nl</code>, <code translate="no">split</code>, <code translate="no">od</code>, <code translate="no">wc</code>, <code translate="no">head</code>, <code translate="no">tail</code>, <code translate="no">zcat</code>, <code translate="no">md5sum</code>, <code translate="no">sha256sum</code>) · RHCSA (indireto: extrair e entregar resultados em arquivo)</td></tr><tr><td>Pré-requisitos</td><td>Aula 1.5 (<code translate="no">head</code>, <code translate="no">tail</code>, <code translate="no">wc</code>, <code translate="no">grep</code> básico); Aula 3.1 (pipes, here-doc, <code translate="no">pipefail</code>, <code translate="no">ssh deb</code>)</td></tr><tr><td>Tempo</td><td>Cerca de 2h30</td></tr><tr><td>Snapshots</td><td>m3a2-inicio e m3a2-fim nas duas VMs</td></tr></tbody></table></div>
+<h2 id="1-aquecimento">1 · Aquecimento</h2>
+<p>Três perguntas, de cabeça. Escreva as respostas; o Gabarito confere no fim.</p>
+<ol><li>Um arquivo tem as linhas <code translate="no">b</code>, <code translate="no">a</code>, <code translate="no">b</code>, <code translate="no">a</code>, nessa ordem. Palpite: quantas linhas sobram depois de <code translate="no">uniq</code>?</li>
+<li>Você tem uma lista de tamanhos: <code translate="no">512M</code>, <code translate="no">1.2G</code>, <code translate="no">40K</code>. Palpite: <code translate="no">sort -n</code> põe o <code translate="no">1.2G</code> no fim?</li>
+<li>Um colega manda um script feito no Bloco de Notas. Você roda e recebe <code translate="no">/bin/bash^M: bad interpreter</code>. Palpite: o que é esse <code translate="no">^M</code>?</li></ol>
+<h2 id="2-por-que-importa">2 · Por que importa</h2>
+<p>Filtros parecem coisa de prova até a primeira madrugada de incidente:</p>
+<div class="tabela"><table><thead><tr><th scope="col">O chamado</th><th scope="col">A resposta errada</th><th scope="col">O que ela causa</th></tr></thead><tbody><tr><td>"Quem está atacando o login do site?"</td><td>Abrir o log no <code translate="no">less</code> e ir rolando</td><td>Vinte minutos para achar o que um <code translate="no">sort | uniq -c | sort -rn | head</code> mostra em um segundo. Enquanto isso, o ataque continua</td></tr><tr><td>"Qual pasta encheu o disco?"</td><td><code translate="no">du -sh * | sort -rn | head -1</code></td><td>Mostra <code translate="no">512M</code> como a maior, e a de <code translate="no">3.5G</code> fica de fora. Alguém apaga a pasta errada</td></tr><tr><td>"Conta quantos IPs diferentes acessaram hoje"</td><td><code translate="no">cut ... | uniq | wc -l</code></td><td>O <code translate="no">uniq</code> só junta linhas <strong>vizinhas</strong>. O número sai inflado, e o relatório vai para o cliente assim</td></tr><tr><td>"A planilha de usuários veio do Windows, cria as contas"</td><td>Ler o CSV direto num laço</td><td>Cada nome termina com um <code translate="no">\r</code> invisível: <code translate="no">useradd</code> cria <code translate="no">ana\r</code>, e ninguém consegue entrar como <code translate="no">ana</code></td></tr><tr><td>"O arquivo de 2 GB chegou corrompido no fornecedor"</td><td>Mandar de novo, e de novo</td><td>Sem <code translate="no">sha256sum</code> dos dois lados, ninguém sabe se o problema é o envio, o disco ou o arquivo de origem</td></tr><tr><td>"Precisamos dos logs da semana passada"</td><td><code translate="no">grep</code> no <code translate="no">/var/log/messages</code></td><td>Os dias anteriores estão girados, às vezes em <code translate="no">.gz</code>. O <code translate="no">grep</code> não lê compactado; o <code translate="no">zgrep</code> e o <code translate="no">zcat</code> leem</td></tr></tbody></table></div>
+<p>Quem resolve rápido não sabe mais comandos. Sabe montar a linha certa: recortar, ordenar, contar, nessa ordem.</p>
+<h2 id="3-modelo-mental">3 · Modelo mental</h2>
+<blockquote><p>Um filtro é um comando que <strong>lê linhas na entrada, faz uma coisa só com elas e escreve linhas na saída</strong>. Nenhum filtro muda o arquivo original. Você monta o relatório como uma linha de produção: cada filtro recebe o que o anterior entregou, e o próximo só vê o que sobrou.</p></blockquote>
+<pre translate="no"><code class="lang-text">  A pergunta: "quais IPs mais acessaram?"
+
+  acesso.log ─▶ cut -d' ' -f1 ─▶ sort ─▶ uniq -c ─▶ sort -rn ─▶ head -3
+  (15 linhas)   (só o IP)        (iguais   (conta os   (maior      (os 3
+                                 ficam     vizinhos)   número      primeiros)
+                                 juntos)               primeiro)
+
+  O que passa em cada etapa:
+
+  10.1.0.20      10.1.0.20      10.1.0.20       4 10.1.0.20     5 192.168.5.7
+  10.1.0.31      10.1.0.20      10.1.0.20       2 10.1.0.31     4 10.1.0.20
+  10.1.0.20  ─▶  10.1.0.20  ─▶  ...         ─▶  1 10.1.0.45 ─▶  3 203.0.113.9
+  192.168.5.7    10.1.0.20      10.1.0.31       5 192.168.5.7   2 10.1.0.31
+  ...            10.1.0.31      ...             3 203.0.113.9   1 10.1.0.45
+
+  Por que o sort vem ANTES do uniq:
+
+  sem sort:  a b b a  ─▶ uniq -c ─▶  1 a   2 b   1 a     (o "a" aparece duas vezes)
+  com sort:  a a b b  ─▶ uniq -c ─▶  2 a   2 b           (agora conta de verdade)</code></pre>
+<p>Três perguntas para cada filtro, antes de usá-lo: <strong>o que é uma coluna</strong> para ele (um separador fixo? qualquer espaço?), <strong>o que é igual</strong> para ele (byte a byte? segundo o idioma?), e <strong>o que é um caractere</strong> para ele (um byte? uma letra com acento?). Quase todo resultado errado da aula vem de uma dessas três respostas.</p>
+<figure><a href="../img/3.2-linha-de-producao.svg"><img src="../img/3.2-linha-de-producao.svg" alt="Uma linha de produção de filtros" loading="lazy" decoding="async"></a><figcaption>Cada filtro lê linhas, faz uma coisa só e entrega o resultado ao próximo.</figcaption></figure>
+<h2 id="4-conceito-em-camadas">4 · Conceito em camadas</h2>
+<h3 id="essencial">Essencial</h3>
+<p><strong>O arquivo do lab.</strong> Todos os exemplos usam o mesmo log de acesso de um servidor web, que você cria no Passo 0. Uma linha dele, com cada campo separado por <strong>um</strong> espaço:</p>
+<pre translate="no"><code class="lang-text">192.168.5.7 - - [03/Nov/2026:08:02:30 +0100] "POST /login HTTP/1.1" 401 128
+     1      2 3          4            5         6     7       8      9   10</code></pre>
+<p>O campo 1 é o IP, o 7 é o caminho pedido, o 9 é o status HTTP e o 10 é o tamanho da resposta em bytes.</p>
+<p><strong>O <code translate="no">cut</code> recorta.</strong> Por campo, com um separador de <strong>um</strong> caractere, ou por posição:</p>
+<pre translate="no"><code class="lang-bash">cut -d' ' -f1 acesso.log           # só o IP
+cut -d' ' -f7,9 acesso.log         # o caminho e o status
+cut -d: -f1,3 /etc/passwd          # nome e UID
+cut -c1-3 acesso.log               # os três primeiros caracteres de cada linha
+cut -d: -f1 --complement /etc/passwd   # tudo, menos o campo 1 (GNU)</code></pre>
+<p>Sem <code translate="no">-d</code>, o separador é a tabulação. O <code translate="no">-f</code> aceita listas (<code translate="no">1,3</code>) e faixas (<code translate="no">2-4</code>, <code translate="no">5-</code>).</p>
+<p><strong>O <code translate="no">sort</code> ordena.</strong> Por padrão, por texto, segundo o idioma do sistema:</p>
+<div class="tabela"><table><thead><tr><th scope="col">Opção</th><th scope="col">O que faz</th><th scope="col">Exemplo</th></tr></thead><tbody><tr><td><code translate="no">-n</code></td><td>Por número</td><td><code translate="no">sort -n numeros.txt</code></td></tr><tr><td><code translate="no">-r</code></td><td>Inverte</td><td><code translate="no">sort -rn</code> (maior primeiro)</td></tr><tr><td><code translate="no">-h</code></td><td>Por tamanho legível: <code translate="no">K</code>, <code translate="no">M</code>, <code translate="no">G</code></td><td><code translate="no">du -sh * | sort -h</code></td></tr><tr><td><code translate="no">-u</code></td><td>Só uma de cada linha igual</td><td><code translate="no">sort -u nomes.txt</code></td></tr><tr><td><code translate="no">-t X</code></td><td>O separador de campos é <code translate="no">X</code></td><td><code translate="no">sort -t:</code></td></tr><tr><td><code translate="no">-k N,N</code></td><td>Ordena pelo campo N, só ele</td><td><code translate="no">sort -t: -k3,3n /etc/passwd</code></td></tr><tr><td><code translate="no">-o f</code></td><td>Grava em <code translate="no">f</code>, mesmo que seja o arquivo de entrada</td><td><code translate="no">sort -o lista.txt lista.txt</code></td></tr></tbody></table></div>
+<p><strong>O <code translate="no">uniq</code> junta linhas iguais vizinhas.</strong> E só vizinhas: por isso quase sempre vem depois de um <code translate="no">sort</code>.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Opção</th><th scope="col">O que faz</th></tr></thead><tbody><tr><td>(nenhuma)</td><td>Uma de cada grupo de linhas iguais seguidas</td></tr><tr><td><code translate="no">-c</code></td><td>Conta quantas havia em cada grupo</td></tr><tr><td><code translate="no">-d</code></td><td>Só as que se repetem</td></tr><tr><td><code translate="no">-u</code></td><td>Só as que aparecem uma vez</td></tr></tbody></table></div>
+<p>A frase que você vai escrever a vida toda: <code translate="no">sort | uniq -c | sort -rn | head</code>. Recorta antes, com <code translate="no">cut</code>, e ela responde "o que mais aparece".</p>
+<p><strong>O <code translate="no">wc</code>, o <code translate="no">head</code> e o <code translate="no">tail</code>, revistos.</strong> <code translate="no">wc -l</code> conta linhas; <code translate="no">head -n 3</code> e <code translate="no">tail -n 3</code> pegam as primeiras e as últimas. Um detalhe novo: <code translate="no">tail -n +2</code> começa <strong>na linha 2</strong>, ou seja, pula o cabeçalho de um CSV.</p>
+<p><strong>O <code translate="no">tr</code> troca caracteres.</strong> Ele só lê a entrada: não aceita nome de arquivo.</p>
+<pre translate="no"><code class="lang-bash">tr a-z A-Z &lt; arquivo           # minúsculas para maiúsculas
+tr -d '\r' &lt; win.txt &gt; unix.txt    # apaga o \r do Windows
+tr -s ' ' &lt; saida.txt          # junta espaços repetidos num só
+tr ':' '\n' &lt;&lt;&lt; "$PATH"        # um diretório do PATH por linha</code></pre>
+<h3 id="intermediario">Intermediário</h3>
+<p><strong>O <code translate="no">cut</code> e os vários espaços.</strong> O <code translate="no">cut -d' '</code> considera <strong>cada</strong> espaço um separador. Duas colunas separadas por três espaços têm, para ele, dois campos vazios no meio. A saída do <code translate="no">ps</code>, do <code translate="no">ls -l</code>, do <code translate="no">df</code> e o próprio <code translate="no">/var/log/secure</code> da Rocky alinham colunas com espaços repetidos. O conserto é juntar os espaços antes:</p>
+<pre translate="no"><code class="lang-bash">ps aux | cut -d' ' -f2            # quase tudo vazio
+ps aux | tr -s ' ' | cut -d' ' -f2   # o PID de cada processo</code></pre>
+<p>O log do <code translate="no">rsyslog</code> tem uma armadilha de calendário: o dia vem alinhado com espaço, <code translate="no">Nov  3</code> nos dias 1 a 9 e <code translate="no">Nov 10</code> a partir do dia 10. Um <code translate="no">cut -d' ' -f5</code> que funciona no dia 12 pega o campo errado no dia 3. O <code translate="no">tr -s ' '</code> resolve nos dois casos.</p>
+<p><strong>O <code translate="no">sort</code> por coluna.</strong> O <code translate="no">-k</code> sem fim (<code translate="no">-k3</code>) ordena <strong>do campo 3 até o fim da linha</strong>; o <code translate="no">-k3,3</code> ordena só pelo campo 3. O tipo vai junto da chave:</p>
+<pre translate="no"><code class="lang-bash">sort -t: -k3,3n /etc/passwd            # por UID, como número
+sort -k1,1nr -k2,2n relatorio.txt      # pelo campo 1, maior primeiro; empate, pelo campo 2</code></pre>
+<p>Sem <code translate="no">-n</code>, o <code translate="no">1000</code> vem antes do <code translate="no">2</code>, porque o caractere <code translate="no">1</code> vem antes do <code translate="no">2</code>. Ordenar números como texto é o erro mais comum do <code translate="no">sort</code>.</p>
+<p><strong>O idioma muda a ordem.</strong> O <code translate="no">sort</code> compara segundo a variável <code translate="no">LC_COLLATE</code> (ou <code translate="no">LANG</code>). Num sistema em <code translate="no">en_US.UTF-8</code>, maiúsculas e minúsculas ficam misturadas (<code translate="no">a A b B</code>) e a pontuação quase não conta. No idioma <code translate="no">C</code>, a ordem é a dos bytes: todas as maiúsculas antes das minúsculas. Para um resultado que não dependa do servidor, e mais rápido em arquivo grande:</p>
+<pre translate="no"><code class="lang-bash">LC_ALL=C sort arquivo</code></pre>
+<p><strong>O <code translate="no">paste</code> junta.</strong> Colunas de arquivos diferentes, lado a lado, ou todas as linhas de um arquivo numa só:</p>
+<pre translate="no"><code class="lang-bash">paste nomes.txt uids.txt          # linha 1 com linha 1, separadas por tabulação
+paste -d: nomes.txt uids.txt      # o mesmo, separadas por ':'
+cut -d: -f1 /etc/passwd | paste -sd,      # todos os usuários numa linha, com vírgula
+cut -d' ' -f10 acesso.log | paste -sd+    # 512+1024+2048+...: uma conta pronta</code></pre>
+<p>A última linha vira soma com a aritmética do <code translate="no">bash</code>: <code translate="no">echo $(( $(cut -d' ' -f10 acesso.log | paste -sd+) ))</code>.</p>
+<p><strong>O <code translate="no">nl</code> numera.</strong> Como o <code translate="no">cat -n</code>, mas por padrão pula as linhas vazias. <code translate="no">nl -ba</code> numera todas. Serve para conversar sobre um arquivo de configuração: "olha a linha 42".</p>
+<p><strong>Os logs girados.</strong> O <code translate="no">logrotate</code> renomeia o log antigo (<code translate="no">messages-20261026</code>) e, conforme a configuração, compacta (<code translate="no">.gz</code>). Os filtros não leem compactado, mas há versões que leem:</p>
+<div class="tabela"><table><thead><tr><th scope="col">Para ler</th><th scope="col">Compactado com</th><th scope="col">Use</th></tr></thead><tbody><tr><td><code translate="no">.gz</code></td><td><code translate="no">gzip</code></td><td><code translate="no">zcat</code>, <code translate="no">zless</code>, <code translate="no">zgrep</code></td></tr><tr><td><code translate="no">.bz2</code></td><td><code translate="no">bzip2</code></td><td><code translate="no">bzcat</code></td></tr><tr><td><code translate="no">.xz</code></td><td><code translate="no">xz</code></td><td><code translate="no">xzcat</code></td></tr></tbody></table></div>
+<pre translate="no"><code class="lang-bash">zcat /var/log/messages-*.gz | grep -c sshd</code></pre>
+<h3 id="ponte-windows">Ponte Windows</h3>
+<div class="tabela"><table><thead><tr><th scope="col">No Windows</th><th scope="col">No Linux</th><th scope="col">A diferença que importa</th></tr></thead><tbody><tr><td>Abrir o CSV no Excel e filtrar</td><td><code translate="no">cut</code>, <code translate="no">sort</code>, <code translate="no">uniq</code></td><td>No Linux, o filtro roda no servidor, sem copiar o arquivo, e vira script</td></tr><tr><td><code translate="no">Sort-Object</code></td><td><code translate="no">sort</code></td><td>O PowerShell ordena <strong>objetos</strong> por propriedade; o <code translate="no">sort</code> ordena <strong>texto</strong>, e você diz qual coluna e se é número</td></tr><tr><td><code translate="no">Group-Object</code></td><td><code translate="no">sort | uniq -c</code></td><td>O <code translate="no">uniq</code> só junta vizinhos: o <code translate="no">sort</code> antes é obrigatório</td></tr><tr><td><code translate="no">Select-Object -First 5</code></td><td><code translate="no">head -n 5</code></td><td>Igual</td></tr><tr><td><code translate="no">Get-FileHash</code></td><td><code translate="no">sha256sum</code></td><td>O mesmo SHA-256. O hash de um arquivo é igual no Windows e no Linux, <strong>se os bytes forem iguais</strong></td></tr><tr><td>Fim de linha <code translate="no">CRLF</code> (<code translate="no">\r\n</code>)</td><td>Fim de linha <code translate="no">LF</code> (<code translate="no">\n</code>)</td><td>O <code translate="no">\r</code> sobra no Linux, invisível, no fim de cada linha. É a origem de metade dos "o script não roda"</td></tr><tr><td>Bloco de Notas mostra acentos</td><td><code translate="no">od -c</code> mostra os bytes</td><td>No Linux você <strong>vê</strong> o que tem no arquivo, inclusive o que a tela esconde</td></tr></tbody></table></div>
+<h3 id="avancado">Avançado</h3>
+<p><strong>O <code translate="no">tr</code> não entende acento.</strong> O <code translate="no">tr</code> do GNU trabalha com <strong>bytes</strong>. Em UTF-8, <code translate="no">ç</code> e <code translate="no">ã</code> têm dois bytes cada, e nenhum deles está em <code translate="no">a-z</code>. Por isso <code translate="no">tr a-z A-Z &lt;&lt;&lt; "ação"</code> devolve <code translate="no">AçãO</code>. Para trocar maiúsculas e minúsculas em texto com acento, num idioma UTF-8:</p>
+<pre translate="no"><code class="lang-bash">palavra="ação"; echo "${palavra^^}"      # AÇÃO, no bash
+sed 's/.*/\U&amp;/' &lt;&lt;&lt; "ação"               # AÇÃO, no sed do GNU</code></pre>
+<p><strong>O <code translate="no">od</code> mostra o invisível.</strong> <code translate="no">od -c</code> imprime cada byte como caractere; <code translate="no">-An</code> tira a coluna de posição; <code translate="no">-tx1</code> mostra em hexadecimal. É como você descobre o <code translate="no">\r</code> do Windows, uma tabulação no lugar de espaços, ou um caractere estranho colado de uma página web:</p>
+<pre translate="no"><code class="lang-bash">printf 'ok\r\n' | od -c
+# 0000000   o   k  \r  \n
+printf 'ação' | od -An -tx1
+#  61 c3 a7 c3 a3 6f</code></pre>
+<p>O <code translate="no">cat -A</code> faz parecido, de um jeito mais curto: mostra <code translate="no">^M</code> para o <code translate="no">\r</code>, <code translate="no">^I</code> para a tabulação e <code translate="no">$</code> no fim de cada linha.</p>
+<p><strong>O <code translate="no">split</code> divide; o <code translate="no">cat</code> remonta.</strong> Para mandar um arquivo grande por um canal que tem limite de tamanho, ou para processar um log enorme em pedaços:</p>
+<pre translate="no"><code class="lang-bash">split -b 10M -d backup.tar.gz backup.part.     # backup.part.00, .01, .02 ...
+split -l 1000 lista.txt lista.                 # 1000 linhas por pedaço: lista.aa, lista.ab ...
+cat backup.part.* &gt; backup-remontado.tar.gz</code></pre>
+<p>O <code translate="no">-d</code> usa números no sufixo. O <code translate="no">cat backup.part.*</code> remonta na ordem certa porque o shell expande o <code translate="no">*</code> em ordem alfabética, e <code translate="no">00</code> vem antes de <code translate="no">01</code>.</p>
+<p><strong>O hash prova.</strong> O <code translate="no">sha256sum</code> calcula uma impressão digital de 64 caracteres hexadecimais. Um byte diferente muda o hash inteiro. O <code translate="no">-c</code> confere uma lista de hashes gravada antes:</p>
+<pre translate="no"><code class="lang-bash">sha256sum backup.tar.gz &gt; backup.sha256        # grava "hash  nome"
+sha256sum -c backup.sha256                     # backup.tar.gz: OK</code></pre>
+<p>O <code translate="no">md5sum</code> e o <code translate="no">sha1sum</code> funcionam igual, mas são quebrados para segurança: alguém pode fabricar dois arquivos diferentes com o mesmo hash. Para detectar corrupção acidental ainda servem; para provar que ninguém mexeu no arquivo, use <code translate="no">sha256sum</code> ou <code translate="no">sha512sum</code>. É o que as distribuições publicam ao lado de cada ISO.</p>
+<p><strong>O <code translate="no">join</code>, para conhecer.</strong> O <code translate="no">join</code> junta dois arquivos <strong>ordenados</strong> pela coluna em comum, como um <code translate="no">JOIN</code> de banco de dados: <code translate="no">join -t: &lt;(sort -t: -k1,1 a) &lt;(sort -t: -k1,1 b)</code>. Cai pouco na prova e quase nunca no dia a dia, porque o <code translate="no">awk</code> da Aula 3.4 faz o mesmo com mais controle.</p>
+<h3 id="o-que-cai-na-prova">O que cai na prova</h3>
+<p><strong>Linux Essentials e LPIC-1 (103.2):</strong></p>
+<ul><li>O que cada filtro faz, em uma frase, e a opção principal de cada um: <code translate="no">cut -d -f</code>, <code translate="no">sort -n -r -k -t -u</code>, <code translate="no">uniq -c -d -u</code>, <code translate="no">tr -d -s</code>, <code translate="no">paste -s -d</code>, <code translate="no">nl -ba</code>, <code translate="no">split -l -b</code>, <code translate="no">od -c</code>, <code translate="no">wc -l -w -c</code>.</li>
+<li>Que o <code translate="no">uniq</code> precisa de entrada ordenada.</li>
+<li>Que o <code translate="no">tr</code> só lê a entrada padrão.</li>
+<li><code translate="no">head -n</code> e <code translate="no">tail -n</code>, inclusive <code translate="no">tail -n +N</code> e <code translate="no">tail -f</code>.</li>
+<li><code translate="no">zcat</code>, <code translate="no">bzcat</code> e <code translate="no">xzcat</code> para ler compactado sem descompactar.</li>
+<li><code translate="no">md5sum</code>, <code translate="no">sha256sum</code> e <code translate="no">sha512sum</code>, e o <code translate="no">-c</code>.</li></ul>
+<p><strong>RHCSA:</strong></p>
+<ul><li>Não há questão "use o <code translate="no">cut</code>", mas há "salve em <code translate="no">/root/x</code> as linhas que...", "salve a lista ordenada de...". Os filtros são como você monta a resposta e a entrega em arquivo, com o <code translate="no">&gt;</code> da Aula 3.1.</li></ul>
+<h2 id="5-rocky-debian">5 · Rocky × Debian</h2>
+<div class="tabela"><table><thead><tr><th scope="col">O quê</th><th scope="col">rocky-lab</th><th scope="col">debian-lab</th><th scope="col">Como conferir</th></tr></thead><tbody><tr><td><code translate="no">cut</code>, <code translate="no">sort</code>, <code translate="no">uniq</code>, <code translate="no">tr</code>, <code translate="no">paste</code>, <code translate="no">nl</code>, <code translate="no">split</code>, <code translate="no">od</code>, <code translate="no">sha256sum</code></td><td>GNU coreutils 8.32</td><td>GNU coreutils 9.1</td><td><code translate="no">sort --version | head -1</code></td></tr><tr><td>Idioma padrão do <code translate="no">sort</code></td><td>O que a instalação definiu</td><td>O que a instalação definiu</td><td><code translate="no">locale</code>; se as duas VMs diferem, a ordem do <code translate="no">sort</code> também difere</td></tr><tr><td><code translate="no">awk</code></td><td><code translate="no">gawk</code></td><td><code translate="no">mawk</code></td><td><code translate="no">readlink -f "$(command -v awk)"</code>. Importa na Aula 3.4</td></tr><tr><td>Formato do <code translate="no">/var/log/secure</code> e do <code translate="no">/var/log/messages</code></td><td><code translate="no">rsyslog</code>, formato tradicional: <code translate="no">Nov  3 08:02:30</code>, com o dia alinhado por espaço</td><td>Não existem: só o journal</td><td><code translate="no">sudo head -n 2 /var/log/secure</code></td></tr><tr><td>Formato curto do journal</td><td><code translate="no">Nov 03 08:02:30</code>, com zero</td><td><code translate="no">Nov 03 08:02:30</code>, com zero</td><td><code translate="no">journalctl -n 2</code></td></tr><tr><td>Logs girados</td><td>Com data no nome (<code translate="no">messages-20261026</code>)</td><td>Com número (<code translate="no">.1</code>, <code translate="no">.2.gz</code>)</td><td><code translate="no">ls /var/log/ | head</code></td></tr><tr><td><code translate="no">dos2unix</code></td><td>Não vem instalado</td><td>Não vem instalado</td><td><code translate="no">command -v dos2unix</code></td></tr><tr><td><code translate="no">bc</code> (calculadora)</td><td>Pode não estar instalado</td><td>Pode não estar instalado</td><td><code translate="no">command -v bc</code>. A aula usa <code translate="no">$(( ))</code>, que é do <code translate="no">bash</code></td></tr></tbody></table></div>
+<p>A diferença que mais engana é a do log: a mesma pergunta, com o mesmo <code translate="no">cut</code>, dá resultado certo num dia e errado no outro, na Rocky. Na Debian, o formato do journal não tem esse problema, mas o log nem é arquivo. O Passo 4 mostra os dois casos.</p>
+<h2 id="6-lab-guiado">6 · Lab guiado</h2>
+<p>Você é o <code translate="no">rodrigo</code>, na rocky-lab, e alcança a debian-lab pelo <code translate="no">ssh deb</code>. Tudo acontece em <code translate="no">~/lab32</code>, nas duas VMs; nenhum passo mexe em arquivo do sistema, e os logs reais só são lidos. O Passo 7 é o desafio da aula, e o relatório que ele gera fica para você conferir depois do reboot.</p>
+<figure><a href="../img/3.2-qual-filtro-usar.svg"><img src="../img/3.2-qual-filtro-usar.svg" alt="3.2 Qual Filtro Usar" loading="lazy" decoding="async"></a><figcaption>Sem sort antes do uniq, o mesmo valor aparece em blocos separados e a contagem sai errada.</figcaption></figure>
+<h3 id="passo-0-snapshot-caminho-e-o-log-do-lab">Passo 0 · Snapshot, caminho e o log do lab</h3>
+<p>No Proxmox, tire o snapshot <code translate="no">m3a2-inicio</code> das duas VMs. Na rocky-lab:</p>
+<pre translate="no"><code class="lang-bash">eval "$(ssh-agent -s)"; ssh-add
+ssh -o BatchMode=yes deb hostname
+mkdir -p ~/lab32; ssh deb 'mkdir -p ~/lab32'
+cd ~/lab32
+locale | grep -E '^(LANG|LC_COLLATE)='; ssh deb "locale | grep -E '^(LANG|LC_COLLATE)='"</code></pre>
+<p>Anote o idioma das duas VMs: se forem diferentes, o <code translate="no">sort</code> também pode ordenar diferente. Agora o log do lab, com um here-doc entre aspas, para o shell não mexer em nada:</p>
+<pre translate="no"><code class="lang-bash">cat &gt; acesso.log &lt;&lt;'EOF'
+10.1.0.20 - - [03/Nov/2026:08:00:01 +0100] "GET / HTTP/1.1" 200 5120
+10.1.0.31 - - [03/Nov/2026:08:00:15 +0100] "GET /docs HTTP/1.1" 200 2048
+10.1.0.20 - - [03/Nov/2026:08:01:02 +0100] "GET /docs HTTP/1.1" 200 2048
+192.168.5.7 - - [03/Nov/2026:08:02:30 +0100] "POST /login HTTP/1.1" 401 128
+192.168.5.7 - - [03/Nov/2026:08:02:31 +0100] "POST /login HTTP/1.1" 401 128
+203.0.113.9 - - [03/Nov/2026:08:03:10 +0100] "GET /admin HTTP/1.1" 403 256
+192.168.5.7 - - [03/Nov/2026:08:03:12 +0100] "POST /login HTTP/1.1" 401 128
+10.1.0.45 - - [03/Nov/2026:08:04:00 +0100] "GET /relatorio.pdf HTTP/1.1" 200 1048576
+203.0.113.9 - - [03/Nov/2026:08:04:20 +0100] "GET /wp-login.php HTTP/1.1" 404 512
+10.1.0.20 - - [03/Nov/2026:08:05:05 +0100] "GET /api/status HTTP/1.1" 500 64
+192.168.5.7 - - [03/Nov/2026:08:05:40 +0100] "POST /login HTTP/1.1" 401 128
+10.1.0.31 - - [03/Nov/2026:08:06:00 +0100] "GET /api/status HTTP/1.1" 500 64
+203.0.113.9 - - [03/Nov/2026:08:06:30 +0100] "GET /.env HTTP/1.1" 404 512
+192.168.5.7 - - [03/Nov/2026:08:07:01 +0100] "POST /login HTTP/1.1" 200 4096
+10.1.0.20 - - [03/Nov/2026:08:07:30 +0100] "GET / HTTP/1.1" 200 5120
+EOF
+wc -l acesso.log</code></pre>
+<pre translate="no"><code class="lang-text">15 acesso.log</code></pre>
+<p>Leia o arquivo uma vez, com calma. Um IP que tenta <code translate="no">/login</code> várias vezes e recebe <code translate="no">401</code>, outro que procura <code translate="no">/wp-login.php</code> e <code translate="no">/.env</code> num site que nem é WordPress: é exatamente o que você vê num servidor exposto na internet.</p>
+<h3 id="passo-1-o-uniq-que-nao-conta">Passo 1 · O <code translate="no">uniq</code> que não conta</h3>
+<p>O chefe pergunta: "quantos IPs diferentes acessaram?". Primeiro, só o IP de cada linha:</p>
+<pre translate="no"><code class="lang-bash">cut -d' ' -f1 acesso.log</code></pre>
+<p>Quinze linhas, um IP por linha. Agora a tentativa rápida:</p>
+<p><strong>Decida 1 · Você roda <code translate="no">cut -d' ' -f1 acesso.log | uniq | wc -l</code>. Que número sai?</strong></p>
+<ul><li><strong>A)</strong> 5</li>
+<li><strong>B)</strong> 14</li>
+<li><strong>C)</strong> 15</li>
+<li><strong>D)</strong> 1</li></ul>
+<p>Escolha a letra antes de olhar a tabela.</p>
+<pre translate="no"><code class="lang-bash">cut -d' ' -f1 acesso.log | uniq | wc -l
+cut -d' ' -f1 acesso.log | sort -u | wc -l</code></pre>
+<div class="tabela"><table><thead><tr><th scope="col">Se você marcou</th><th scope="col">Resultado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>A</td><td>❌ Errada</td><td>É a resposta certa para a pergunta, mas não é o que esse comando dá. Cinco sai do segundo comando, com <code translate="no">sort -u</code>.</td></tr><tr><td>B</td><td>✅ Certa</td><td>O <code translate="no">uniq</code> só junta linhas iguais <strong>vizinhas</strong>. No log, só as linhas 4 e 5 têm o mesmo IP uma embaixo da outra. As outras repetições estão espalhadas, e cada uma conta de novo.</td></tr><tr><td>C</td><td>❌ Errada</td><td>O <code translate="no">uniq</code> juntou alguma coisa, sim: as duas linhas seguidas de <code translate="no">192.168.5.7</code>.</td></tr><tr><td>D</td><td>❌ Errada</td><td>O <code translate="no">uniq</code> não reduz tudo a uma linha. Ele compara cada linha só com a anterior.</td></tr></tbody></table></div>
+<p><strong>Para fixar:</strong> o <code translate="no">uniq</code> sem <code translate="no">sort</code> antes é um bug que parece funcionar. Num log de teste ordenado por acaso, ele dá o número certo; no log de produção, não. Para contar diferentes: <code translate="no">sort -u | wc -l</code>. Para contar quantas vezes cada um aparece: <code translate="no">sort | uniq -c</code>.</p>
+<p>Agora a frase da vida toda, com o resultado do Modelo mental:</p>
+<pre translate="no"><code class="lang-bash">cut -d' ' -f1 acesso.log | sort | uniq -c | sort -rn | head -n 3</code></pre>
+<pre translate="no"><code class="lang-text">      5 192.168.5.7
+      4 10.1.0.20
+      3 203.0.113.9</code></pre>
+<p>O mesmo esqueleto, trocando a coluna, responde outra pergunta. O campo 9 é o status:</p>
+<pre translate="no"><code class="lang-bash">cut -d' ' -f9 acesso.log | sort | uniq -c | sort -rn</code></pre>
+<pre translate="no"><code class="lang-text">      6 200
+      4 401
+      2 500
+      2 404
+      1 403</code></pre>
+<p>A ordem entre o <code translate="no">500</code> e o <code translate="no">404</code>, que empatam em 2, pode variar: o <code translate="no">sort -rn</code> só olha o número. Para desempatar de um jeito fixo, diga a segunda chave: <code translate="no">sort -k1,1nr -k2,2n</code>.</p>
+<h3 id="passo-2-numero-ordenado-como-texto">Passo 2 · Número ordenado como texto</h3>
+<p>Qual foi a maior resposta, em bytes? O campo 10 é o tamanho.</p>
+<p><strong>Decida 2 · Você roda <code translate="no">cut -d' ' -f10 acesso.log | sort -r | head -n 1</code>. O que aparece?</strong></p>
+<ul><li><strong>A)</strong> <code translate="no">1048576</code></li>
+<li><strong>B)</strong> <code translate="no">64</code></li>
+<li><strong>C)</strong> <code translate="no">5120</code></li>
+<li><strong>D)</strong> Um erro: o <code translate="no">sort</code> não ordena números sem <code translate="no">-n</code></li></ul>
+<p>Escolha a letra antes de olhar a tabela.</p>
+<pre translate="no"><code class="lang-bash">cut -d' ' -f10 acesso.log | sort -r | head -n 1
+cut -d' ' -f10 acesso.log | sort -rn | head -n 1</code></pre>
+<div class="tabela"><table><thead><tr><th scope="col">Se você marcou</th><th scope="col">Resultado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>A</td><td>❌ Errada</td><td>Esse é o resultado do segundo comando, com <code translate="no">-n</code>.</td></tr><tr><td>B</td><td>✅ Certa</td><td>Sem <code translate="no">-n</code>, o <code translate="no">sort</code> compara caractere a caractere, como num dicionário. O <code translate="no">6</code> de <code translate="no">64</code> vem depois do <code translate="no">5</code> de <code translate="no">5120</code> e do <code translate="no">1</code> de <code translate="no">1048576</code>, então, de trás para a frente, o <code translate="no">64</code> fica em primeiro.</td></tr><tr><td>C</td><td>❌ Errada</td><td>O <code translate="no">5120</code> perde para o <code translate="no">64</code> logo no primeiro caractere: <code translate="no">5</code> vem antes de <code translate="no">6</code>.</td></tr><tr><td>D</td><td>❌ Errada</td><td>O <code translate="no">sort</code> ordena qualquer texto. Ele não avisa que você esqueceu o <code translate="no">-n</code>; só entrega a ordem errada.</td></tr></tbody></table></div>
+<p><strong>Para fixar:</strong> coluna de número, <code translate="no">sort -n</code>, sempre. E o erro não avisa: um relatório com a ordem errada parece um relatório normal.</p>
+<p>O mesmo problema, com tamanhos legíveis. Leia-se: qual pasta do <code translate="no">/var/log</code> mais ocupa espaço?</p>
+<pre translate="no"><code class="lang-bash">sudo du -sh /var/log/* 2&gt;/dev/null | sort -rn | head -n 3
+sudo du -sh /var/log/* 2&gt;/dev/null | sort -rh | head -n 3</code></pre>
+<p>O <code translate="no">-n</code> lê só o número e ignora a letra: <code translate="no">900K</code> ganha de <code translate="no">12M</code>. O <code translate="no">-h</code> entende <code translate="no">K</code>, <code translate="no">M</code> e <code translate="no">G</code>. Rode o segundo nas duas VMs; ele é a resposta do chamado "qual pasta encheu o disco".</p>
+<h3 id="passo-3-a-coluna-certa-e-o-cabecalho">Passo 3 · A coluna certa e o cabeçalho</h3>
+<p>O RH manda uma planilha:</p>
+<pre translate="no"><code class="lang-bash">cat &gt; usuarios.csv &lt;&lt;'EOF'
+nome;uid;depto
+ana;2001;suporte
+bruno;2002;redes
+carla;150;suporte
+davi;10010;redes
+EOF</code></pre>
+<p>Você quer a lista por UID, sem o cabeçalho. O <code translate="no">tail -n +2</code> começa na linha 2:</p>
+<p><strong>Decida 3 · Você roda <code translate="no">tail -n +2 usuarios.csv | sort -t';' -k2 | cut -d';' -f1</code>. Em que ordem saem os nomes?</strong></p>
+<ul><li><strong>A)</strong> carla, ana, bruno, davi</li>
+<li><strong>B)</strong> davi, carla, ana, bruno</li>
+<li><strong>C)</strong> ana, bruno, carla, davi</li>
+<li><strong>D)</strong> bruno, davi, ana, carla</li></ul>
+<p>Escolha a letra antes de olhar a tabela.</p>
+<pre translate="no"><code class="lang-bash">tail -n +2 usuarios.csv | sort -t';' -k2 | cut -d';' -f1 | paste -sd,
+tail -n +2 usuarios.csv | sort -t';' -k2,2n | cut -d';' -f1 | paste -sd,</code></pre>
+<div class="tabela"><table><thead><tr><th scope="col">Se você marcou</th><th scope="col">Resultado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>A</td><td>❌ Errada</td><td>É a ordem por UID como número, que só sai com o <code translate="no">n</code> na chave: <code translate="no">-k2,2n</code>.</td></tr><tr><td>B</td><td>✅ Certa</td><td>Sem <code translate="no">n</code>, o UID é texto: <code translate="no">10010</code> vem antes de <code translate="no">150</code>, que vem antes de <code translate="no">2001</code>, porque <code translate="no">1</code> vem antes de <code translate="no">2</code> e, depois do <code translate="no">1</code>, <code translate="no">0</code> vem antes de <code translate="no">5</code>.</td></tr><tr><td>C</td><td>❌ Errada</td><td>Seria a ordem original da planilha. O <code translate="no">sort</code> mudou a ordem, só não do jeito que você queria.</td></tr><tr><td>D</td><td>❌ Errada</td><td>Seria a ordem pelo campo 3, o departamento, com <code translate="no">-k3</code>. O <code translate="no">-k2</code> começa no campo 2.</td></tr></tbody></table></div>
+<p><strong>Para fixar:</strong> a chave do <code translate="no">sort</code> tem três partes, e as três importam: <strong>onde começa</strong> (<code translate="no">-k2</code>), <strong>onde termina</strong> (<code translate="no">,2</code>) e <strong>como compara</strong> (<code translate="no">n</code>). Escreva sempre <code translate="no">-k2,2n</code>, nunca só <code translate="no">-k2</code>.</p>
+<p>Duas chaves, para um relatório por departamento e, dentro dele, por UID:</p>
+<pre translate="no"><code class="lang-bash">tail -n +2 usuarios.csv | sort -t';' -k3,3 -k2,2n</code></pre>
+<pre translate="no"><code class="lang-text">bruno;2002;redes
+davi;10010;redes
+carla;150;suporte
+ana;2001;suporte</code></pre>
+<p>O mesmo vale para os arquivos do sistema. Os três usuários com o maior UID, nas duas VMs:</p>
+<pre translate="no"><code class="lang-bash">sort -t: -k3,3n /etc/passwd | tail -n 3 | cut -d: -f1,3
+ssh deb 'sort -t: -k3,3n /etc/passwd | tail -n 3 | cut -d: -f1,3'</code></pre>
+<p>Nas duas, o último costuma ser o <code translate="no">nobody</code>, com UID 65534. Logo antes vêm os usuários do lab, como a <code translate="no">ana</code>, com 2001. Se aparecer outro nome no meio, é uma conta criada por algum pacote: descubra qual com <code translate="no">getent passwd nome</code>.</p>
+<h3 id="passo-4-o-log-de-verdade-com-espacos-demais">Passo 4 · O log de verdade, com espaços demais</h3>
+<p>Uma amostra no formato do <code translate="no">rsyslog</code> da Rocky, com uma linha do dia 3 e outra do dia 12:</p>
+<pre translate="no"><code class="lang-bash">cat &gt; secure.amostra &lt;&lt;'EOF'
+Nov  3 08:02:30 rocky-lab sshd[1201]: Failed password for root from 203.0.113.9 port 51022 ssh2
+Nov 12 09:15:02 rocky-lab sshd[1388]: Failed password for root from 198.51.100.4 port 40110 ssh2
+EOF</code></pre>
+<p>Contando com os olhos, o nome da máquina é a quarta coluna.</p>
+<p><strong>Decida 4 · Você roda <code translate="no">cut -d' ' -f4 secure.amostra</code>. O que sai?</strong></p>
+<ul><li><strong>A)</strong> <code translate="no">rocky-lab</code> nas duas linhas</li>
+<li><strong>B)</strong> <code translate="no">08:02:30</code> na primeira, <code translate="no">rocky-lab</code> na segunda</li>
+<li><strong>C)</strong> Uma linha vazia na primeira, <code translate="no">rocky-lab</code> na segunda</li>
+<li><strong>D)</strong> Um erro: o <code translate="no">cut</code> não aceita linhas com tamanhos diferentes</li></ul>
+<p>Escolha a letra antes de olhar a tabela.</p>
+<pre translate="no"><code class="lang-bash">cut -d' ' -f4 secure.amostra
+tr -s ' ' &lt; secure.amostra | cut -d' ' -f4</code></pre>
+<div class="tabela"><table><thead><tr><th scope="col">Se você marcou</th><th scope="col">Resultado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>A</td><td>❌ Errada</td><td>É o resultado do segundo comando, depois do <code translate="no">tr -s ' '</code>.</td></tr><tr><td>B</td><td>✅ Certa</td><td>No dia 3, há dois espaços entre <code translate="no">Nov</code> e <code translate="no">3</code>. Para o <code translate="no">cut</code>, entre eles existe um campo vazio: <code translate="no">Nov</code>, vazio, <code translate="no">3</code>, <code translate="no">08:02:30</code>. O campo 4 é a hora. No dia 12, o campo 4 é o nome da máquina.</td></tr><tr><td>C</td><td>❌ Errada</td><td>O campo vazio é o 2, não o 4.</td></tr><tr><td>D</td><td>❌ Errada</td><td>O <code translate="no">cut</code> processa cada linha sozinha e nunca reclama de campos: se o campo não existe, a linha sai vazia.</td></tr></tbody></table></div>
+<p><strong>Para fixar:</strong> um script com <code translate="no">cut -d' '</code> em saída alinhada funciona nos dias 10 a 31 e quebra nos dias 1 a 9. Se as colunas são alinhadas com espaços, junte os espaços antes: <code translate="no">tr -s ' ' | cut -d' '</code>.</p>
+<p>Agora os logs reais, só leitura. Na Rocky, o programa que escreveu as últimas linhas do <code translate="no">/var/log/secure</code>:</p>
+<pre translate="no"><code class="lang-bash">sudo tail -n 20 /var/log/secure | tr -s ' ' | cut -d' ' -f5 | cut -d'[' -f1 | tr -d ':' | sort | uniq -c</code></pre>
+<p>Na Debian não há <code translate="no">/var/log/secure</code>. O equivalente sai do journal. O formato curto do <code translate="no">journalctl</code> escreve o dia com dois dígitos, <code translate="no">Nov 03</code>, então o campo não dança:</p>
+<pre translate="no"><code class="lang-bash">ssh deb "sudo journalctl -n 20 -o short --no-pager | tr -s ' ' | cut -d' ' -f5 | cut -d'[' -f1 | tr -d ':' | sort | uniq -c"</code></pre>
+<p>O <code translate="no">sudo</code> no <code translate="no">ssh deb</code> pode pedir senha. Se pedir, rode o mesmo comando dentro de uma sessão <code translate="no">ssh deb</code>. A primeira linha do <code translate="no">journalctl</code> às vezes é um cabeçalho (<code translate="no">-- Boot ...</code>) ou não tem o mesmo número de campos, e aparece na contagem como um nome estranho. Na Aula 3.3, o <code translate="no">grep</code> resolve isso escolhendo só as linhas certas.</p>
+<p>E os logs girados. Na Rocky, os dias anteriores ficam em arquivos com data no nome:</p>
+<pre translate="no"><code class="lang-bash">ls /var/log/messages* /var/log/secure* 2&gt;/dev/null
+sudo cat /var/log/secure-* 2&gt;/dev/null | wc -l</code></pre>
+<p>Se algum terminar em <code translate="no">.gz</code>, troque o <code translate="no">cat</code> por <code translate="no">zcat</code>. O <code translate="no">cat</code> de um arquivo compactado mostra lixo binário, e o <code translate="no">wc -l</code> conta lixo.</p>
+<h3 id="passo-5-o-r-que-ninguem-ve">Passo 5 · O <code translate="no">\r</code> que ninguém vê</h3>
+<p>A planilha do RH chegou de novo, desta vez salva no Windows. O <code translate="no">printf</code> imita o que o Bloco de Notas grava:</p>
+<pre translate="no"><code class="lang-bash">printf 'ana\r\nbruno\r\n' &gt; win.txt
+cat win.txt</code></pre>
+<pre translate="no"><code class="lang-text">ana
+bruno</code></pre>
+<p>Na tela, tudo normal.</p>
+<p><strong>Decida 5 · Você roda <code translate="no">grep -c '^ana$' win.txt</code>. Que número sai?</strong></p>
+<ul><li><strong>A)</strong> <code translate="no">1</code></li>
+<li><strong>B)</strong> <code translate="no">0</code></li>
+<li><strong>C)</strong> <code translate="no">2</code></li>
+<li><strong>D)</strong> Um erro: o <code translate="no">grep</code> não lê arquivo do Windows</li></ul>
+<p>Escolha a letra antes de olhar a tabela.</p>
+<pre translate="no"><code class="lang-bash">grep -c '^ana$' win.txt
+od -c win.txt
+cat -A win.txt</code></pre>
+<pre translate="no"><code class="lang-text">0
+0000000   a   n   a  \r  \n   b   r   u   n   o  \r  \n
+0000014
+ana^M$
+bruno^M$</code></pre>
+<div class="tabela"><table><thead><tr><th scope="col">Se você marcou</th><th scope="col">Resultado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>A</td><td>❌ Errada</td><td>Seria o resultado num arquivo do Linux. Aqui, a linha é <code translate="no">ana\r</code>: depois do <code translate="no">a</code> vem o <code translate="no">\r</code>, e não o fim da linha. O <code translate="no">$</code> não casa.</td></tr><tr><td>B</td><td>✅ Certa</td><td>O <code translate="no">od -c</code> mostra o <code translate="no">\r</code> antes de cada <code translate="no">\n</code>. O <code translate="no">cat -A</code> mostra o mesmo como <code translate="no">^M</code>. O terminal esconde: o <code translate="no">\r</code> só volta o cursor para o começo da linha.</td></tr><tr><td>C</td><td>❌ Errada</td><td>O <code translate="no">bruno</code> nem começa com <code translate="no">ana</code>. O <code translate="no">-c</code> conta linhas que casam, e nenhuma casa.</td></tr><tr><td>D</td><td>❌ Errada</td><td>Para o <code translate="no">grep</code>, um arquivo é um arquivo. Ele leu tudo; só não achou o que você pediu.</td></tr></tbody></table></div>
+<p><strong>Para fixar:</strong> quando um texto "igual" não casa, olhe os bytes antes de desconfiar do comando: <code translate="no">od -c</code> ou <code translate="no">cat -A</code>. O <code translate="no">^M</code> é o mesmo do <code translate="no">bad interpreter</code> do Aquecimento.</p>
+<p>O conserto, e a prova:</p>
+<pre translate="no"><code class="lang-bash">tr -d '\r' &lt; win.txt &gt; unix.txt
+grep -c '^ana$' unix.txt
+wc -c win.txt unix.txt</code></pre>
+<pre translate="no"><code class="lang-text">1
+12 win.txt
+10 unix.txt
+22 total</code></pre>
+<p>Dois bytes a menos: um <code translate="no">\r</code> por linha. O <code translate="no">tr</code> só lê a entrada padrão; por isso o <code translate="no">&lt;</code>. Agora o limite do <code translate="no">tr</code>:</p>
+<pre translate="no"><code class="lang-bash">tr a-z A-Z &lt;&lt;&lt; "configuração"
+p="configuração"; echo "${p^^}"</code></pre>
+<pre translate="no"><code class="lang-text">CONFIGURAçãO
+CONFIGURAÇÃO</code></pre>
+<p>O <code translate="no">tr</code> não tocou no <code translate="no">ç</code> nem no <code translate="no">ã</code>: cada um são dois bytes em UTF-8, fora de <code translate="no">a-z</code>. O <code translate="no">${p^^}</code> do <code translate="no">bash</code> entende letras. Confira os bytes com <code translate="no">printf 'ç' | od -An -tx1</code>: aparecem dois, <code translate="no">c3 a7</code>.</p>
+<h3 id="passo-6-dividir-juntar-e-provar">Passo 6 · Dividir, juntar e provar</h3>
+<p>O log vai para um fornecedor por um canal que só aceita arquivos pequenos. Antes de qualquer coisa, a impressão digital:</p>
+<pre translate="no"><code class="lang-bash">sha256sum acesso.log | tee acesso.sha256</code></pre>
+<p><strong>Decida 6 · Você roda <code translate="no">split -l 4 acesso.log parte.</code>. Quantos arquivos aparecem, e quantas linhas tem o último?</strong></p>
+<ul><li><strong>A)</strong> 3 arquivos; o último com 3 linhas</li>
+<li><strong>B)</strong> 4 arquivos; o último com 3 linhas</li>
+<li><strong>C)</strong> 4 arquivos com 4 linhas cada; o último completado com linhas vazias</li>
+<li><strong>D)</strong> 5 arquivos; o último com 1 linha</li></ul>
+<p>Escolha a letra antes de olhar a tabela.</p>
+<pre translate="no"><code class="lang-bash">split -l 4 acesso.log parte.
+wc -l parte.*</code></pre>
+<pre translate="no"><code class="lang-text">   4 parte.aa
+   4 parte.ab
+   4 parte.ac
+   3 parte.ad
+  15 total</code></pre>
+<div class="tabela"><table><thead><tr><th scope="col">Se você marcou</th><th scope="col">Resultado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>A</td><td>❌ Errada</td><td>Três arquivos de 4 linhas guardam 12. Sobram 3, que vão para um quarto arquivo.</td></tr><tr><td>B</td><td>✅ Certa</td><td>15 linhas, 4 por arquivo: <code translate="no">aa</code>, <code translate="no">ab</code> e <code translate="no">ac</code> com 4, e o <code translate="no">ad</code> com as 3 que sobram.</td></tr><tr><td>C</td><td>❌ Errada</td><td>O <code translate="no">split</code> nunca inventa conteúdo. Se inventasse, o arquivo remontado seria diferente do original, e o hash acusaria.</td></tr><tr><td>D</td><td>❌ Errada</td><td>Seria com <code translate="no">-l 3</code> e um log de 13 linhas. Faça a conta: 4 × 3 = 12, e 15 − 12 = 3.</td></tr></tbody></table></div>
+<p><strong>Para fixar:</strong> o <code translate="no">split</code> corta e o <code translate="no">cat</code> cola, sem mudar nenhum byte. Quem prova que nenhum byte mudou é o hash, nunca o tamanho nem o olho.</p>
+<p>A remontagem e a prova:</p>
+<pre translate="no"><code class="lang-bash">cat parte.* &gt; remontado.log
+sha256sum acesso.log remontado.log
+cmp acesso.log remontado.log &amp;&amp; echo "iguais"
+rm parte.* remontado.log</code></pre>
+<p>Os dois hashes são iguais, e o <code translate="no">cmp</code>, que compara byte a byte, não imprime nada e devolve sucesso. Agora o envio de verdade, para a outra VM, com a prova do outro lado:</p>
+<pre translate="no"><code class="lang-bash">scp acesso.log acesso.sha256 deb:lab32/
+ssh deb 'cd ~/lab32 &amp;&amp; sha256sum -c acesso.sha256'</code></pre>
+<pre translate="no"><code class="lang-text">acesso.log: OK</code></pre>
+<p>É o mesmo que você faz com uma ISO baixada: o site publica o <code translate="no">.sha256</code>, e o <code translate="no">sha256sum -c</code> confere.</p>
+<p>Por último, o <code translate="no">paste</code> e o <code translate="no">nl</code>, que entram no relatório do Passo 7:</p>
+<pre translate="no"><code class="lang-bash">cut -d' ' -f10 acesso.log | paste -sd+
+echo $(( $(cut -d' ' -f10 acesso.log | paste -sd+) ))
+cut -d' ' -f7 acesso.log | sort -u | nl</code></pre>
+<p>O primeiro comando escreve a conta (<code translate="no">5120+2048+...</code>); o segundo calcula: <strong>1068928</strong> bytes. O terceiro numera os caminhos diferentes que foram pedidos. Para virar linha a linha, o <code translate="no">paste</code> junta duas colunas de arquivos diferentes:</p>
+<pre translate="no"><code class="lang-bash">cut -d' ' -f1 acesso.log &gt; ips.txt
+cut -d' ' -f9 acesso.log &gt; status.txt
+paste -d' ' ips.txt status.txt | head -n 3</code></pre>
+<h3 id="passo-7-desafio-o-log-vira-relatorio">Passo 7 · Desafio: o log vira relatório</h3>
+<p>O chamado: "manda todo dia um resumo do log de acesso". Escreva <code translate="no">~/lab32/relatorio.sh</code> na rocky-lab:</p>
+<pre translate="no"><code class="lang-bash">cat &gt; relatorio.sh &lt;&lt;'EOF'
+#!/bin/bash
+# relatorio.sh: resumo de um log de acesso no formato do lab
+set -u
+log=${1:?uso: relatorio.sh arquivo.log}
+[ -r "$log" ] || { echo "não consigo ler $log" &gt;&amp;2; exit 1; }
+
+echo "Relatório de $log em $(hostname), $(date '+%F %T')"
+echo "Requisições: $(wc -l &lt; "$log")"
+echo "IPs diferentes: $(cut -d' ' -f1 "$log" | sort -u | wc -l)"
+echo "Top 3 IPs:"
+cut -d' ' -f1 "$log" | sort | uniq -c | sort -k1,1nr -k2,2 | head -n 3
+echo "Por status:"
+cut -d' ' -f9 "$log" | sort | uniq -c | sort -k2,2n
+echo "Bytes enviados: $(( $(cut -d' ' -f10 "$log" | paste -sd+) ))"
+echo "IPs com 401: $(cut -d' ' -f1,9 "$log" | grep ' 401$' | cut -d' ' -f1 | sort -u | paste -sd,)"
+EOF
+chmod +x relatorio.sh
+./relatorio.sh acesso.log | tee "relatorio-$(hostname).txt"</code></pre>
+<pre translate="no"><code class="lang-text">Relatório de acesso.log em rocky-lab, 2026-11-...
+Requisições: 15
+IPs diferentes: 5
+Top 3 IPs:
+      5 192.168.5.7
+      4 10.1.0.20
+      3 203.0.113.9
+Por status:
+      6 200
+      4 401
+      1 403
+      2 404
+      2 500
+Bytes enviados: 1068928
+IPs com 401: 192.168.5.7</code></pre>
+<p>Sem <code translate="no">pipefail</code> de propósito: o <code translate="no">head</code> fecha o pipe depois de três linhas, e num log grande o <code translate="no">sort</code> antes dele recebe um <code translate="no">SIGPIPE</code>. Com <code translate="no">pipefail</code>, esse fim normal contaria como falha.</p>
+<p>Agora a Debian. O <code translate="no">relatorio.sh</code> vai junto, e na Debian você o chama com <code translate="no">sh</code>, sem pensar:</p>
+<pre translate="no"><code class="lang-bash">scp relatorio.sh deb:lab32/</code></pre>
+<p><strong>Decida 7 · Na debian-lab, onde o <code translate="no">sh</code> é o <code translate="no">dash</code>, você roda <code translate="no">sh relatorio.sh acesso.log</code>. O que acontece?</strong></p>
+<ul><li><strong>A)</strong> O relatório sai igual ao da Rocky, só com outro nome de máquina</li>
+<li><strong>B)</strong> Erro no <code translate="no">$(( ))</code>: o <code translate="no">dash</code> não faz conta</li>
+<li><strong>C)</strong> Erro no <code translate="no">${1:?...}</code>: o <code translate="no">dash</code> não conhece essa forma</li>
+<li><strong>D)</strong> O <code translate="no">dash</code> lê o <code translate="no">#!/bin/bash</code> e chama o <code translate="no">bash</code> sozinho</li></ul>
+<p>Escolha a letra antes de olhar a tabela.</p>
+<pre translate="no"><code class="lang-bash">ssh deb 'cd ~/lab32 &amp;&amp; sh relatorio.sh acesso.log | tee "relatorio-$(hostname).txt"'</code></pre>
+<div class="tabela"><table><thead><tr><th scope="col">Se você marcou</th><th scope="col">Resultado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>A</td><td>✅ Certa</td><td>Tudo no script é POSIX: <code translate="no">$(( ))</code>, <code translate="no">${1:?}</code>, <code translate="no">[ -r ]</code>, <code translate="no">$( )</code>. E os filtros são programas externos, iguais para os dois shells. O <code translate="no">dash</code> roda sem reclamar.</td></tr><tr><td>B</td><td>❌ Errada</td><td>O <code translate="no">$(( ))</code> é POSIX, e o <code translate="no">dash</code> faz conta de inteiros. O que ele não tem são extras do <code translate="no">bash</code>, como <code translate="no">(( ))</code> sozinho ou <code translate="no">let</code>.</td></tr><tr><td>C</td><td>❌ Errada</td><td>O <code translate="no">${var:?mensagem}</code> é POSIX e funciona em qualquer <code translate="no">sh</code>.</td></tr><tr><td>D</td><td>❌ Errada</td><td>Quando você escreve <code translate="no">sh script</code>, quem decide é o <code translate="no">sh</code>. O <code translate="no">#!</code> só vale quando o script é executado direto, como <code translate="no">./relatorio.sh</code>. Para o <code translate="no">dash</code>, a primeira linha é um comentário.</td></tr></tbody></table></div>
+<p><strong>Para fixar:</strong> o <code translate="no">#!</code> vale para <code translate="no">./script</code>, nunca para <code translate="no">sh script</code>. Funcionou aqui porque o script não usa nada do <code translate="no">bash</code>. Com um <code translate="no">${p^^}</code> do Passo 5 ou um <code translate="no">&lt;&lt;&lt;</code>, o mesmo comando quebraria na Debian e funcionaria na Rocky.</p>
+<p>Compare os dois relatórios, tirando a primeira linha, que tem nome de máquina e hora:</p>
+<pre translate="no"><code class="lang-bash">diff &lt;(tail -n +2 relatorio-rocky-lab.txt) &lt;(ssh deb 'tail -n +2 ~/lab32/relatorio-debian-lab.txt') &amp;&amp; echo "mesmo resultado"</code></pre>
+<pre translate="no"><code class="lang-text">mesmo resultado</code></pre>
+<p>O mesmo log, o mesmo script e dois sistemas diferentes dão o mesmo relatório. Se a ordem dos IPs mudasse de uma VM para outra, a culpa seria do idioma (Passo 0), e o conserto, <code translate="no">LC_ALL=C</code> no começo do script.</p>
+<p><strong>Bônus, só leitura.</strong> O mesmo esqueleto, num arquivo real: quantos usuários usam cada shell, nas duas VMs.</p>
+<pre translate="no"><code class="lang-bash">cut -d: -f7 /etc/passwd | sort | uniq -c | sort -rn
+ssh deb 'cut -d: -f7 /etc/passwd | sort | uniq -c | sort -rn'</code></pre>
+<p>A Rocky usa <code translate="no">/sbin/nologin</code> para as contas de serviço; a Debian, <code translate="no">/usr/sbin/nologin</code>. É a mesma ideia com caminho diferente, e o relatório mostra isso em uma linha.</p>
+<h2 id="7-quebre-e-conserte">7 · Quebre e conserte</h2>
+<h3 id="quebra-a-a-lista-que-se-apagou-sozinha">Quebra A · A lista que se apagou sozinha</h3>
+<p>O cenário: um servidor tem uma lista de IPs liberados para o painel de administração. Toda noite, um script limpa a lista, tirando as repetições, e o firewall lê o resultado. Um dia ninguém mais entra no painel. Monte a lista como ela estava, na rocky-lab:</p>
+<pre translate="no"><code class="lang-bash">cat &gt; ~/lab32/liberados.txt &lt;&lt;'EOF'
+10.1.0.20
+10.1.0.31
+10.1.0.20
+192.168.1.10
+10.1.0.31
+EOF
+sha256sum ~/lab32/liberados.txt</code></pre>
+<p>E a linha que o script roda toda noite:</p>
+<pre translate="no"><code class="lang-bash">sort -u ~/lab32/liberados.txt &gt; ~/lab32/liberados.txt</code></pre>
+<p><strong>Observe.</strong> Nenhuma mensagem de erro, e o status é <code translate="no">0</code>. Mas:</p>
+<pre translate="no"><code class="lang-bash">wc -l ~/lab32/liberados.txt; echo "status: $?"</code></pre>
+<pre translate="no"><code class="lang-text">0 /home/rodrigo/lab32/liberados.txt
+status: 0</code></pre>
+<p>A lista está vazia. Num firewall que só libera quem está na lista, isso é "ninguém entra".</p>
+<p><strong>Diagnostique.</strong> Lembre da Aula 3.1: quem abre o arquivo do <code translate="no">&gt;</code> é o shell, <strong>antes</strong> de o comando começar. E o <code translate="no">&gt;</code> abre truncando. Veja a ordem com o <code translate="no">bash -x</code>, que mostra a linha depois das expansões:</p>
+<pre translate="no"><code class="lang-bash">printf 'b\na\nb\n' &gt; ~/lab32/teste.txt
+bash -xc 'sort -u ~/lab32/teste.txt &gt; ~/lab32/teste.txt'; wc -c ~/lab32/teste.txt</code></pre>
+<pre translate="no"><code class="lang-text">+ sort -u /home/rodrigo/lab32/teste.txt
+0 /home/rodrigo/lab32/teste.txt</code></pre>
+<p>O <code translate="no">bash -x</code> mostra o <code translate="no">sort</code> sem o <code translate="no">&gt;</code>: o redirecionamento não é argumento do <code translate="no">sort</code>, é uma preparação que o shell faz antes de chamá-lo. Quando o <code translate="no">sort</code> foi ler, o arquivo já tinha zero bytes. Ele leu um arquivo vazio, ordenou nada e escreveu nada.</p>
+<p><strong>Decida A · O conserto.</strong> Como o script deve limpar a lista?</p>
+<ul><li><strong>A)</strong> <code translate="no">sort -u -o ~/lab32/liberados.txt ~/lab32/liberados.txt</code></li>
+<li><strong>B)</strong> <code translate="no">sort -u ~/lab32/liberados.txt &gt;&gt; ~/lab32/liberados.txt</code></li>
+<li><strong>C)</strong> <code translate="no">cat ~/lab32/liberados.txt | sort -u &gt; ~/lab32/liberados.txt</code></li>
+<li><strong>D)</strong> <code translate="no">sort -u ~/lab32/liberados.txt &gt; /tmp/lista &amp;&amp; mv /tmp/lista ~/lab32/liberados.txt</code></li></ul>
+<p>Escolha a letra antes de olhar a tabela.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se você marcou</th><th scope="col">Resultado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>A</td><td>✅ Certa</td><td>O <code translate="no">-o</code> é do <code translate="no">sort</code>, não do shell. O <code translate="no">sort</code> lê a entrada inteira primeiro e só abre o arquivo de saída no fim, por isso ele aceita o mesmo arquivo dos dois lados. O arquivo continua o mesmo, com o mesmo dono e as mesmas permissões.</td></tr><tr><td>B</td><td>❌ Errada</td><td>O <code translate="no">&gt;&gt;</code> não trunca, então nada se apaga, mas a lista ordenada vai para o <strong>fim</strong> da original. O arquivo cresce a cada noite, e as repetições continuam lá.</td></tr><tr><td>C</td><td>❌ Errada</td><td>O pior dos quatro, porque às vezes funciona. O <code translate="no">cat</code> e o <code translate="no">&gt;</code> começam juntos, e quem chega primeiro decide. Num arquivo pequeno, quase sempre o <code translate="no">&gt;</code> ganha e a lista some; às vezes não, e o teste passa.</td></tr><tr><td>D</td><td>⚠️ Funciona, mas</td><td>O conteúdo sai certo. Mas o <code translate="no">mv</code> troca o arquivo por outro, criado pelo <code translate="no">rodrigo</code> com as permissões padrão: se a lista era <code translate="no">root:firewall 640</code>, deixa de ser. E um <code translate="no">/tmp/lista</code> fixo colide com outro script que use o mesmo nome. Se precisar desse caminho, use <code translate="no">mktemp</code> e confira dono e modo.</td></tr></tbody></table></div>
+<p><strong>Para fixar:</strong> <code translate="no">cmd arquivo &gt; arquivo</code> apaga o arquivo antes de o <code translate="no">cmd</code> começar, com qualquer comando. Para filtros que escrevem no próprio arquivo, use a opção do programa (<code translate="no">sort -o</code>, <code translate="no">sed -i</code>), nunca o <code translate="no">&gt;</code>.</p>
+<p><strong>Conserte.</strong></p>
+<pre translate="no"><code class="lang-bash">cat &gt; ~/lab32/liberados.txt &lt;&lt;'EOF'
+10.1.0.20
+10.1.0.31
+10.1.0.20
+192.168.1.10
+10.1.0.31
+EOF
+sort -u -o ~/lab32/liberados.txt ~/lab32/liberados.txt
+cat ~/lab32/liberados.txt
+rm ~/lab32/teste.txt</code></pre>
+<pre translate="no"><code class="lang-text">10.1.0.20
+10.1.0.31
+192.168.1.10</code></pre>
+<p>Três IPs, sem repetição. Na vida real não há <code translate="no">cat &gt; ... &lt;&lt;'EOF'</code> para recriar a lista: ou havia backup, ou snapshot, ou alguém lembra os IPs. Por isso o <code translate="no">sha256sum</code> antes de mexer: ele não traz o arquivo de volta, mas prova, depois, se o que você restaurou é igual ao que havia.</p>
+<h3 id="quebra-b-a-lista-de-bloqueio-que-nao-bloqueia-nada">Quebra B · A lista de bloqueio que não bloqueia nada</h3>
+<p>O cenário: a equipe de segurança mandou, de um computador com Windows, a lista de IPs que atacaram outros clientes. A pergunta é: algum deles apareceu no nosso log? O <code translate="no">printf</code> imita o arquivo que chegou:</p>
+<pre translate="no"><code class="lang-bash">printf '203.0.113.9\r\n198.51.100.4\r\n' &gt; ~/lab32/bloqueio.txt
+cd ~/lab32
+cat bloqueio.txt
+grep -c -F -w -f bloqueio.txt acesso.log</code></pre>
+<p>O <code translate="no">grep -f</code> lê os padrões de um arquivo, um por linha; o <code translate="no">-F</code> os trata como texto fixo, sem regex; o <code translate="no">-w</code> exige a palavra inteira, para <code translate="no">203.0.113.9</code> não casar com <code translate="no">203.0.113.90</code>. A Aula 3.3 detalha o <code translate="no">grep</code>.</p>
+<p><strong>Observe.</strong> O <code translate="no">cat</code> mostra os dois IPs, limpos. O <code translate="no">grep -c</code> responde <code translate="no">0</code>. O relatório para a segurança diria "nenhum IP da lista acessou o servidor". Mas:</p>
+<pre translate="no"><code class="lang-bash">grep -c 203.0.113.9 acesso.log</code></pre>
+<pre translate="no"><code class="lang-text">3</code></pre>
+<p>Três acessos, digitando o IP à mão.</p>
+<p><strong>Diagnostique.</strong> O mesmo IP casa quando você digita e não casa quando vem do arquivo. A diferença está no arquivo:</p>
+<pre translate="no"><code class="lang-bash">od -c bloqueio.txt | head -n 2
+cat -A bloqueio.txt</code></pre>
+<pre translate="no"><code class="lang-text">0000000   2   0   3   .   0   .   1   1   3   .   9  \r  \n   1   9   8
+0000020   .   5   1   .   1   0   0   .   4  \r  \n
+203.0.113.9^M$
+198.51.100.4^M$</code></pre>
+<p>O padrão é <code translate="no">203.0.113.9\r</code>. No <code translate="no">acesso.log</code>, depois do IP vem um espaço, não um <code translate="no">\r</code>. Nenhuma linha casa.</p>
+<p><strong>Decida B · O conserto.</strong> O que você faz com o <code translate="no">bloqueio.txt</code>?</p>
+<ul><li><strong>A)</strong> <code translate="no">tr -d '\r' &lt; bloqueio.txt &gt; bloqueio.unix</code> e usar o <code translate="no">bloqueio.unix</code> no <code translate="no">grep</code></li>
+<li><strong>B)</strong> Acrescentar <code translate="no">-i</code> ao <code translate="no">grep</code>, para ignorar a diferença</li>
+<li><strong>C)</strong> Instalar o pacote <code translate="no">dos2unix</code> no servidor e rodar <code translate="no">dos2unix bloqueio.txt</code></li>
+<li><strong>D)</strong> <code translate="no">tr -d '\n' &lt; bloqueio.txt &gt; bloqueio.unix</code></li></ul>
+<p>Escolha a letra antes de olhar a tabela.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se você marcou</th><th scope="col">Resultado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>A</td><td>✅ Certa</td><td>Tira só o <code translate="no">\r</code> e deixa um IP por linha. Ferramenta que já existe nas duas VMs, e o original fica intacto para comparar.</td></tr><tr><td>B</td><td>❌ Errada</td><td>O <code translate="no">-i</code> ignora maiúsculas e minúsculas. O <code translate="no">\r</code> não é letra; continua lá, e o resultado continua <code translate="no">0</code>.</td></tr><tr><td>C</td><td>⚠️ Funciona, mas</td><td>O <code translate="no">dos2unix</code> faz isso e mais, e é ótimo na sua estação de trabalho. Num servidor de cliente, instalar um pacote para tirar um caractere é uma mudança que precisa de autorização, e o <code translate="no">tr</code> já resolve. Além disso, ele altera o arquivo original.</td></tr><tr><td>D</td><td>❌ Errada</td><td>Apaga o <code translate="no">\n</code> e deixa o <code translate="no">\r</code>: os dois IPs viram uma linha só, <code translate="no">203.0.113.9\r198.51.100.4\r</code>. Agora nem o primeiro IP casa sozinho.</td></tr></tbody></table></div>
+<p><strong>Para fixar:</strong> todo arquivo que veio do Windows, da web ou de um e-mail passa por um <code translate="no">cat -A | head</code> antes de virar entrada de um script. Um <code translate="no">0</code> como resposta pode ser o arquivo, não o mundo.</p>
+<p><strong>Conserte.</strong></p>
+<pre translate="no"><code class="lang-bash">tr -d '\r' &lt; bloqueio.txt &gt; bloqueio.unix
+grep -c -F -w -f bloqueio.unix acesso.log
+grep -F -w -f bloqueio.unix acesso.log | cut -d' ' -f1,7,9 | sort | uniq -c</code></pre>
+<pre translate="no"><code class="lang-text">3
+      1 203.0.113.9 /.env 404
+      1 203.0.113.9 /admin 403
+      1 203.0.113.9 /wp-login.php 404</code></pre>
+<p>O <code translate="no">203.0.113.9</code> esteve aqui três vezes, procurando painel e arquivo de senha. O <code translate="no">198.51.100.4</code> não apareceu. Agora o relatório para a segurança diz a verdade.</p>
+<h3 id="a-licao">A lição</h3>
+<p>As duas quebras deram uma resposta tranquila e errada: status <code translate="no">0</code>, nenhuma mensagem, e um arquivo vazio ou uma contagem zero. Filtro de texto não avisa quando a entrada está errada; ele processa o que recebeu. Os instrumentos que mostram a verdade são poucos: <code translate="no">wc -l</code> e <code translate="no">sha256sum</code> <strong>antes e depois</strong> de mexer num arquivo; <code translate="no">od -c</code> ou <code translate="no">cat -A</code> quando um texto "igual" não casa; e um teste com um valor que você <strong>sabe</strong> que existe, como o <code translate="no">grep -c 203.0.113.9</code> à mão. Antes de entregar um zero, prove que o zero é real.</p>
+<h2 id="8-armadilhas">8 · Armadilhas</h2>
+<div class="tabela"><table><thead><tr><th scope="col">Você digita ou vê</th><th scope="col">O que acontece</th><th scope="col">O certo</th></tr></thead><tbody><tr><td><code translate="no">cut ... | uniq -c</code></td><td>Conta só as repetições vizinhas; o mesmo valor aparece várias vezes</td><td><code translate="no">cut ... | sort | uniq -c</code></td></tr><tr><td><code translate="no">sort | uniq -c | sort -r</code></td><td>Num relatório com contagens de tamanhos diferentes (<code translate="no">9</code> e <code translate="no">10</code>), a ordem sai errada</td><td><code translate="no">sort -rn</code></td></tr><tr><td><code translate="no">du -sh * | sort -n</code></td><td><code translate="no">900K</code> fica acima de <code translate="no">12M</code>: o <code translate="no">-n</code> ignora a letra</td><td><code translate="no">sort -h</code></td></tr><tr><td><code translate="no">sort -t: -k3 /etc/passwd</code></td><td>Ordena do campo 3 até o fim da linha, como texto: <code translate="no">1000</code> antes de <code translate="no">2</code></td><td><code translate="no">sort -t: -k3,3n</code></td></tr><tr><td><code translate="no">cut -d' ' -f5</code> em saída alinhada (<code translate="no">ps</code>, <code translate="no">/var/log/secure</code>)</td><td>Pega a coluna certa em uns dias e a errada em outros</td><td><code translate="no">tr -s ' ' | cut -d' ' -f5</code></td></tr><tr><td><code translate="no">cut -d', ' -f1</code></td><td><code translate="no">cut: the delimiter must be a single character</code></td><td><code translate="no">cut -d, -f1</code> e depois <code translate="no">tr -d ' '</code>, ou o <code translate="no">awk</code> da Aula 3.4</td></tr><tr><td><code translate="no">sort -u lista &gt; lista</code></td><td>A lista fica vazia</td><td><code translate="no">sort -u -o lista lista</code></td></tr><tr><td><code translate="no">tr a-z A-Z arquivo</code></td><td><code translate="no">tr: extra operand 'arquivo'</code>: o <code translate="no">tr</code> só lê a entrada</td><td><code translate="no">tr a-z A-Z &lt; arquivo</code></td></tr><tr><td><code translate="no">tr a-z A-Z</code> em texto com acento</td><td><code translate="no">CONFIGURAçãO</code></td><td><code translate="no">${var^^}</code> no <code translate="no">bash</code>, ou <code translate="no">sed 's/.*/\U&amp;/'</code></td></tr><tr><td>Script ou lista vinda do Windows</td><td><code translate="no">bad interpreter: ^M</code>, <code translate="no">grep</code> que não casa, usuário <code translate="no">ana\r</code></td><td><code translate="no">cat -A arquivo | head</code> antes; <code translate="no">tr -d '\r'</code> para consertar</td></tr><tr><td><code translate="no">grep padrão log.2.gz</code></td><td>Procura em bytes compactados e não acha nada</td><td><code translate="no">zgrep padrão log.2.gz</code> ou <code translate="no">zcat log.2.gz | grep padrão</code></td></tr><tr><td>Conferir cópia pelo tamanho (<code translate="no">ls -l</code>)</td><td>Arquivos do mesmo tamanho com bytes diferentes passam</td><td><code translate="no">sha256sum</code> dos dois lados, ou <code translate="no">sha256sum -c</code></td></tr><tr><td><code translate="no">md5sum</code> para provar que um arquivo não foi alterado</td><td>Detecta corrupção, mas não adulteração: o MD5 está quebrado</td><td><code translate="no">sha256sum</code></td></tr></tbody></table></div>
+<h2 id="9-quiz">9 · Quiz</h2>
+<p>Dez perguntas, sem consultar. Escreva a letra ou a resposta de cada uma e só depois abra o Gabarito.</p>
+<p><strong>1.</strong> Qual é a diferença entre <code translate="no">sort | uniq</code>, <code translate="no">sort -u</code> e <code translate="no">sort | uniq -c</code>?</p>
+<p><strong>2.</strong> Qual linha mostra os três shells mais usados no <code translate="no">/etc/passwd</code>, com a contagem, do mais usado para o menos usado?</p>
+<ul><li><strong>A)</strong> <code translate="no">cut -d: -f7 /etc/passwd | uniq -c | sort -rn | head -n 3</code></li>
+<li><strong>B)</strong> <code translate="no">cut -d: -f7 /etc/passwd | sort | uniq -c | sort -rn | head -n 3</code></li>
+<li><strong>C)</strong> <code translate="no">sort -t: -k7 /etc/passwd | uniq -c | head -n 3</code></li>
+<li><strong>D)</strong> <code translate="no">cut -f7 /etc/passwd | sort | uniq -c | sort -r | head -n 3</code></li></ul>
+<p><strong>3.</strong> Num arquivo separado por <code translate="no">;</code>, qual é a diferença entre <code translate="no">sort -t';' -k2</code> e <code translate="no">sort -t';' -k2,2n</code>?</p>
+<p><strong>4.</strong> Qual comando tira o <code translate="no">\r</code> de um arquivo vindo do Windows?</p>
+<ul><li><strong>A)</strong> <code translate="no">tr -d '\r' win.txt &gt; unix.txt</code></li>
+<li><strong>B)</strong> <code translate="no">tr -d '\r' &lt; win.txt &gt; unix.txt</code></li>
+<li><strong>C)</strong> <code translate="no">cut -d'\r' -f1 win.txt &gt; unix.txt</code></li>
+<li><strong>D)</strong> <code translate="no">tr '\r' &lt; win.txt &gt; unix.txt</code></li></ul>
+<p><strong>5.</strong> O que <code translate="no">cut -d: -f1,7 /etc/passwd</code> mostra? E <code translate="no">cut -c1-8 /etc/passwd</code>?</p>
+<p><strong>6.</strong> Você roda <code translate="no">du -sh /var/* | sort -n</code> e a pasta de <code translate="no">12G</code> aparece antes da de <code translate="no">900M</code>. Por quê, e qual é o conserto?</p>
+<p><strong>7.</strong> Qual comando mostra as últimas linhas de <code translate="no">/var/log/messages-20261026.gz</code> sem descompactar o arquivo no disco?</p>
+<ul><li><strong>A)</strong> <code translate="no">tail /var/log/messages-20261026.gz</code></li>
+<li><strong>B)</strong> <code translate="no">zcat /var/log/messages-20261026.gz | tail</code></li>
+<li><strong>C)</strong> <code translate="no">gunzip /var/log/messages-20261026.gz | tail</code></li>
+<li><strong>D)</strong> <code translate="no">tar xzf /var/log/messages-20261026.gz | tail</code></li></ul>
+<p><strong>8.</strong> <code translate="no">split -b 100M -d backup.tar backup.</code> cria quais nomes de arquivo? Como você remonta e prova que o resultado é idêntico ao original?</p>
+<p><strong>9.</strong> O que <code translate="no">printf 'a\nb\nc\n' | paste -sd,</code> mostra? E <code translate="no">printf 'a\nb\nc\n' | nl</code>?</p>
+<p><strong>10.</strong> <em>You must save to <code translate="no">/root/bash-users</code> a sorted list containing only the usernames whose login shell is <code translate="no">/bin/bash</code>. Which command achieves this?</em></p>
+<ul><li><strong><em>A)</em></strong> <em><code translate="no">grep '/bin/bash$' /etc/passwd | cut -d: -f1 | sort &gt; /root/bash-users</code></em></li>
+<li><strong><em>B)</em></strong> <em><code translate="no">cut -d: -f1 /etc/passwd | grep bash | sort &gt; /root/bash-users</code></em></li>
+<li><strong><em>C)</em></strong> <em><code translate="no">sort /etc/passwd | cut -f1 | grep /bin/bash &gt; /root/bash-users</code></em></li>
+<li><strong><em>D)</em></strong> <em><code translate="no">grep bash /etc/passwd | sort | cut -d: -f7 &gt; /root/bash-users</code></em></li></ul>
+<h2 id="10-flashcards-e-cola">10 · Flashcards e cola</h2>
+<h3 id="para-saber-de-cor">Para saber de cor</h3>
+<ul><li>Filtro lê linhas, faz uma coisa e escreve linhas. Nenhum filtro muda o arquivo de entrada.</li>
+<li><code translate="no">cut -d X -f N</code>: o separador é <strong>um</strong> caractere, e cada ocorrência dele separa um campo, mesmo repetida. Sem <code translate="no">-d</code>, o separador é a tabulação.</li>
+<li>Colunas alinhadas com espaços: <code translate="no">tr -s ' '</code> antes do <code translate="no">cut</code>.</li>
+<li><code translate="no">uniq</code> só junta linhas iguais <strong>vizinhas</strong>. Sempre <code translate="no">sort</code> antes.</li>
+<li>"O que mais aparece": <code translate="no">sort | uniq -c | sort -rn | head</code>.</li>
+<li><code translate="no">sort</code> sem opção ordena texto, segundo o idioma. Número: <code translate="no">-n</code>. Tamanho legível: <code translate="no">-h</code>. Coluna: <code translate="no">-t X -k N,N</code>, com o tipo na chave (<code translate="no">-k3,3n</code>).</li>
+<li><code translate="no">LC_ALL=C sort</code>: ordem por bytes, igual em qualquer servidor, e mais rápida.</li>
+<li><code translate="no">sort -o f f</code> pode; <code translate="no">sort f &gt; f</code> apaga <code translate="no">f</code>.</li>
+<li><code translate="no">tr</code> só lê a entrada padrão, troca <strong>bytes</strong> e não entende acento. <code translate="no">-d</code> apaga, <code translate="no">-s</code> junta repetidos.</li>
+<li><code translate="no">paste a b</code> junta colunas; <code translate="no">paste -sd,</code> junta todas as linhas numa só.</li>
+<li><code translate="no">nl</code> numera sem contar as linhas vazias; <code translate="no">nl -ba</code> conta todas.</li>
+<li><code translate="no">split -l N</code> ou <code translate="no">-b N</code> corta; <code translate="no">cat partes.* &gt; inteiro</code> remonta; o <code translate="no">sha256sum</code> prova.</li>
+<li><code translate="no">od -c</code> e <code translate="no">cat -A</code> mostram o que a tela esconde: <code translate="no">\r</code> (<code translate="no">^M</code>), tabulação (<code translate="no">^I</code>), fim de linha (<code translate="no">$</code>).</li>
+<li>Arquivo do Windows: cada linha termina em <code translate="no">\r\n</code>. O <code translate="no">\r</code> sobra no Linux.</li>
+<li>Logs girados compactados: <code translate="no">zcat</code>, <code translate="no">zgrep</code>, <code translate="no">zless</code> (<code translate="no">.gz</code>); <code translate="no">bzcat</code> (<code translate="no">.bz2</code>); <code translate="no">xzcat</code> (<code translate="no">.xz</code>).</li>
+<li><code translate="no">sha256sum</code> para provar integridade. <code translate="no">md5sum</code> e <code translate="no">sha1sum</code> só servem para erro acidental.</li></ul>
+<h3 id="para-consultar">Para consultar</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Pergunta</th><th scope="col">Comando</th></tr></thead><tbody><tr><td>Uma coluna de um arquivo com separador</td><td><code translate="no">cut -d: -f1 /etc/passwd</code></td></tr><tr><td>Várias colunas</td><td><code translate="no">cut -d: -f1,3,7</code> ou <code translate="no">-f2-4</code></td></tr><tr><td>Tudo menos uma coluna</td><td><code translate="no">cut -d: -f2 --complement</code></td></tr><tr><td>Coluna de saída alinhada</td><td><code translate="no">ps aux | tr -s ' ' | cut -d' ' -f2</code></td></tr><tr><td>Quantos diferentes</td><td><code translate="no">cut ... | sort -u | wc -l</code></td></tr><tr><td>Quantas vezes cada um</td><td><code translate="no">cut ... | sort | uniq -c | sort -rn</code></td></tr><tr><td>Só os repetidos</td><td><code translate="no">sort | uniq -d</code></td></tr><tr><td>Só os que aparecem uma vez</td><td><code translate="no">sort | uniq -u</code></td></tr><tr><td>Ordenar por número, maior primeiro</td><td><code translate="no">sort -rn</code></td></tr><tr><td>Ordenar tamanhos do <code translate="no">du</code></td><td><code translate="no">du -sh * | sort -h</code></td></tr><tr><td>Ordenar por uma coluna</td><td><code translate="no">sort -t: -k3,3n /etc/passwd</code></td></tr><tr><td>Duas chaves</td><td><code translate="no">sort -t';' -k3,3 -k2,2n</code></td></tr><tr><td>Ordem igual em qualquer servidor</td><td><code translate="no">LC_ALL=C sort</code></td></tr><tr><td>Ordenar o próprio arquivo</td><td><code translate="no">sort -o f f</code></td></tr><tr><td>Pular o cabeçalho</td><td><code translate="no">tail -n +2 arquivo.csv</code></td></tr><tr><td>Maiúsculas (sem acento)</td><td><code translate="no">tr a-z A-Z &lt; f</code></td></tr><tr><td>Maiúsculas com acento</td><td><code translate="no">echo "${var^^}"</code></td></tr><tr><td>Tirar o <code translate="no">\r</code> do Windows</td><td><code translate="no">tr -d '\r' &lt; win.txt &gt; unix.txt</code></td></tr><tr><td>Juntar espaços repetidos</td><td><code translate="no">tr -s ' '</code></td></tr><tr><td>Um item por linha</td><td><code translate="no">tr ':' '\n' &lt;&lt;&lt; "$PATH"</code></td></tr><tr><td>Todas as linhas numa só</td><td><code translate="no">paste -sd,</code></td></tr><tr><td>Somar uma coluna</td><td><code translate="no">echo $(( $(cut ... | paste -sd+) ))</code></td></tr><tr><td>Duas colunas lado a lado</td><td><code translate="no">paste -d' ' a.txt b.txt</code></td></tr><tr><td>Numerar linhas</td><td><code translate="no">nl -ba f</code> ou <code translate="no">cat -n f</code></td></tr><tr><td>Ver os bytes</td><td><code translate="no">od -c f</code>; em hexadecimal: <code translate="no">od -An -tx1 f</code></td></tr><tr><td>Ver caracteres invisíveis</td><td><code translate="no">cat -A f</code></td></tr><tr><td>Cortar por linhas</td><td><code translate="no">split -l 1000 f pedaco.</code></td></tr><tr><td>Cortar por tamanho, sufixo numérico</td><td><code translate="no">split -b 100M -d f pedaco.</code></td></tr><tr><td>Remontar</td><td><code translate="no">cat pedaco.* &gt; f</code></td></tr><tr><td>Gravar e conferir um hash</td><td><code translate="no">sha256sum f &gt; f.sha256</code>; <code translate="no">sha256sum -c f.sha256</code></td></tr><tr><td>Comparar dois arquivos byte a byte</td><td><code translate="no">cmp a b</code></td></tr><tr><td>Ler log compactado</td><td><code translate="no">zcat log.gz | ...</code>, <code translate="no">zgrep padrão log.gz</code></td></tr></tbody></table></div>
+<h3 id="flashcards">Flashcards</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Frente</th><th scope="col">Verso</th></tr></thead><tbody><tr><td><code translate="no">uniq</code> em <code translate="no">b a b a</code></td><td>Quatro linhas: nenhuma é igual à vizinha</td></tr><tr><td><code translate="no">sort | uniq</code></td><td>O mesmo que <code translate="no">sort -u</code></td></tr><tr><td><code translate="no">uniq -c</code></td><td>Prefixa cada linha com quantas vezes ela se repetiu em sequência</td></tr><tr><td><code translate="no">uniq -d</code> / <code translate="no">uniq -u</code></td><td>Só as repetidas / só as únicas</td></tr><tr><td><code translate="no">sort</code> de <code translate="no">64</code>, <code translate="no">512</code>, <code translate="no">1048576</code> sem <code translate="no">-n</code></td><td><code translate="no">1048576</code>, <code translate="no">512</code>, <code translate="no">64</code></td></tr><tr><td><code translate="no">sort -h</code></td><td>Entende <code translate="no">K</code>, <code translate="no">M</code>, <code translate="no">G</code></td></tr><tr><td><code translate="no">-k3</code> e <code translate="no">-k3,3</code></td><td>Do campo 3 até o fim / só o campo 3</td></tr><tr><td><code translate="no">sort -t: -k3,3n</code></td><td><code translate="no">/etc/passwd</code> por UID, como número</td></tr><tr><td><code translate="no">sort f &gt; f</code></td><td><code translate="no">f</code> vazio</td></tr><tr><td><code translate="no">cut -d' ' -f4</code> em <code translate="no">Nov  3 08:02:30 host</code></td><td><code translate="no">08:02:30</code>: o espaço duplo cria um campo vazio</td></tr><tr><td><code translate="no">cut</code> sem <code translate="no">-d</code></td><td>Separa por tabulação</td></tr><tr><td><code translate="no">cut -d', '</code></td><td>Erro: o separador tem que ser um caractere</td></tr><tr><td><code translate="no">tr a-z A-Z arquivo</code></td><td><code translate="no">extra operand</code>: o <code translate="no">tr</code> só lê a entrada</td></tr><tr><td><code translate="no">tr a-z A-Z &lt;&lt;&lt; ação</code></td><td><code translate="no">AçãO</code></td></tr><tr><td><code translate="no">tr -s ' '</code></td><td>Vários espaços seguidos viram um</td></tr><tr><td><code translate="no">tr -d '\r'</code></td><td>Converte um arquivo do Windows</td></tr><tr><td><code translate="no">^M</code> no <code translate="no">cat -A</code></td><td>Um <code translate="no">\r</code></td></tr><tr><td><code translate="no">od -c</code></td><td>Os bytes, como caracteres</td></tr><tr><td><code translate="no">paste -sd+</code></td><td><code translate="no">1+2+3</code>: uma conta pronta</td></tr><tr><td><code translate="no">nl</code> e <code translate="no">nl -ba</code></td><td>Numera sem as vazias / com as vazias</td></tr><tr><td><code translate="no">tail -n +2</code></td><td>Da linha 2 até o fim</td></tr><tr><td><code translate="no">split -l 4</code> num arquivo de 15 linhas</td><td>4 arquivos: <code translate="no">aa</code>, <code translate="no">ab</code>, <code translate="no">ac</code> com 4, <code translate="no">ad</code> com 3</td></tr><tr><td><code translate="no">split -d</code></td><td>Sufixos numéricos: <code translate="no">00</code>, <code translate="no">01</code>, ...</td></tr><tr><td><code translate="no">sha256sum -c lista</code></td><td>Confere os arquivos da lista: <code translate="no">OK</code> ou <code translate="no">FAILED</code></td></tr><tr><td><code translate="no">zcat</code></td><td><code translate="no">cat</code> de <code translate="no">.gz</code>, sem descompactar no disco</td></tr><tr><td><code translate="no">LC_ALL=C</code></td><td>Ordem por bytes: maiúsculas antes das minúsculas</td></tr></tbody></table></div>
+<h2 id="11-checklist-de-saida">11 · Checklist de saída</h2>
+<ul><li>[ ] Recorto colunas com <code translate="no">cut</code>, por separador e por posição, e conserto saídas alinhadas com <code translate="no">tr -s ' '</code>.</li>
+<li>[ ] Respondo "quantos diferentes" e "quais mais aparecem" com <code translate="no">sort</code>, <code translate="no">uniq</code> e <code translate="no">wc</code>, e explico por que o <code translate="no">sort</code> vem antes do <code translate="no">uniq</code>.</li>
+<li>[ ] Ordeno por número, por tamanho legível e por uma coluna específica, com a chave completa (<code translate="no">-k N,N</code> e o tipo).</li>
+<li>[ ] Escrevo no próprio arquivo sem apagá-lo, com <code translate="no">sort -o</code>.</li>
+<li>[ ] Acho um <code translate="no">\r</code> de Windows com <code translate="no">od -c</code> ou <code translate="no">cat -A</code>, e tiro com <code translate="no">tr -d '\r'</code>.</li>
+<li>[ ] Divido e remonto um arquivo com <code translate="no">split</code> e <code translate="no">cat</code>, e provo a integridade com <code translate="no">sha256sum</code> dos dois lados.</li>
+<li>[ ] Transformo um log em relatório com um script que roda igual na Rocky e na Debian.</li></ul>
+<p><strong>Último exercício, sem olhar.</strong> Tudo na debian-lab: entre com <code translate="no">ssh deb</code> e trabalhe em <code translate="no">~/lab32</code>. Sem abrir esta aula:</p>
+<ol><li>Mostre os três usuários com o maior UID, no formato <code translate="no">nome=uid</code>, um por linha.</li>
+<li>Grave em <code translate="no">~/lab32/shells.txt</code> quantos usuários usam cada shell, do mais usado para o menos usado.</li>
+<li>Crie <code translate="no">~/lab32/win2.txt</code> com duas linhas, <code translate="no">suporte</code> e <code translate="no">redes</code>, com fim de linha do Windows. Prove o <code translate="no">\r</code> com um comando, conserte com outro, e prove o conserto com um <code translate="no">grep -c</code> que conte a linha <code translate="no">redes</code> exata.</li>
+<li>Divida o <code translate="no">~/lab32/acesso.log</code> em pedaços de no máximo 8 linhas, remonte num arquivo novo, prove com <code translate="no">sha256sum</code> que é igual ao original e apague os pedaços.</li>
+<li>Com uma linha só, mostre o total de bytes enviados apenas nas respostas com status <code translate="no">200</code>.</li></ol>
+<p>Só abra o Gabarito depois disso, ou depois de três tentativas.</p>
+<p><strong>Reboot e conferência.</strong> Reinicie as duas VMs:</p>
+<pre translate="no"><code class="lang-bash">ssh -t deb 'sudo reboot'
+sudo reboot</code></pre>
+<p>Depois de voltar, na rocky-lab:</p>
+<pre translate="no"><code class="lang-bash">eval "$(ssh-agent -s)"; ssh-add
+cd ~/lab32
+sha256sum -c acesso.sha256; ssh deb 'cd ~/lab32 &amp;&amp; sha256sum -c acesso.sha256'
+./relatorio.sh acesso.log | tail -n +2 | diff - &lt;(tail -n +2 relatorio-rocky-lab.txt) &amp;&amp; echo "Rocky: igual"
+ssh deb 'cd ~/lab32 &amp;&amp; sh relatorio.sh acesso.log | tail -n +2 | diff - &lt;(tail -n +2 relatorio-debian-lab.txt) &amp;&amp; echo "Debian: igual"'
+cat liberados.txt</code></pre>
+<p>Os dois <code translate="no">acesso.log: OK</code>, os dois relatórios iguais ao que você gravou antes do reboot, e a lista da Quebra A com os três IPs. Nada disso dependia de memória: é tudo arquivo e programa, e arquivo sobrevive. Repare na linha da Debian: o <code translate="no">&lt;( )</code> funciona lá porque quem interpreta o comando do <code translate="no">ssh</code> é o shell de login do <code translate="no">rodrigo</code>, o <code translate="no">bash</code>. Só o <code translate="no">relatorio.sh</code> roda no <code translate="no">dash</code>, porque você o chamou com <code translate="no">sh</code>.</p>
+<p><strong>Snapshots de fechamento.</strong> Ficam nas duas VMs: a pasta <code translate="no">~/lab32</code>, com o log, o script e os relatórios; a Aula 3.3 usa o <code translate="no">acesso.log</code> de novo. Os arquivos da Aula 3.1 continuam lá, e a <code translate="no">/srv/equipe</code> segue em <code translate="no">3770 root:equipe</code>:</p>
+<pre translate="no"><code class="lang-bash">sudo find /srv/equipe -maxdepth 0 -printf '%M %m %u:%g %p\n'
+ssh -t deb "sudo find /srv/equipe -maxdepth 0 -printf '%M %m %u:%g %p\n'"</code></pre>
+<p>No nó Proxmox:</p>
+<pre translate="no"><code class="lang-bash">qm snapshot 201 m3a2-fim
+qm snapshot 202 m3a2-fim</code></pre>
+<h2 id="12-na-vida-real">12 · Na vida real</h2>
+<p><strong>Missão da semana, só leitura.</strong> Três servidores reais que você administra. Em cada um, sem mudar nada:</p>
+<ol><li>Se o servidor tem um site: os dez IPs que mais acessaram, no log de acesso do servidor web (<code translate="no">/var/log/nginx/access.log</code>, <code translate="no">/var/log/httpd/access_log</code> ou <code translate="no">/var/log/apache2/access.log</code>): <code translate="no">sudo cut -d' ' -f1 ARQUIVO | sort | uniq -c | sort -rn | head</code>. Algum é de fora da sua rede e aparece muito mais que os outros?</li>
+<li>No mesmo log, a distribuição de status: <code translate="no">sudo cut -d' ' -f9 ARQUIVO | sort | uniq -c | sort -rn</code>. Quantos <code translate="no">404</code>, <code translate="no">401</code>, <code translate="no">403</code> e <code translate="no">500</code>, comparados com os <code translate="no">200</code>? Confira antes, com <code translate="no">sudo head -n 2 ARQUIVO</code>, se o formato tem o status no campo 9.</li>
+<li>Onde está o espaço: <code translate="no">sudo du -xsh /var/* 2&gt;/dev/null | sort -rh | head -n 5</code>. O <code translate="no">-x</code> não atravessa para outros sistemas de arquivos montados. Anote as três maiores pastas e o tamanho.</li>
+<li>As contas com shell de verdade: <code translate="no">cut -d: -f7 /etc/passwd | sort | uniq -c | sort -rn</code>. Quantas contas têm <code translate="no">bash</code> ou <code translate="no">sh</code>? Você sabe de quem é cada uma? A lista sai com <code translate="no">grep -E '(ba)?sh$' /etc/passwd | cut -d: -f1</code>.</li>
+<li>Arquivos com fim de linha do Windows onde não deveria haver: <code translate="no">sudo grep -rlI $'\r' /usr/local/bin /usr/local/sbin /etc/cron.d 2&gt;/dev/null</code>. O <code translate="no">-I</code> pula arquivos binários. Cada nome que sair é um script que pode estar falhando sem ninguém saber.</li>
+<li>Os logs girados: <code translate="no">ls /var/log/*.gz /var/log/*/*.gz 2&gt;/dev/null | wc -l</code> e <code translate="no">grep -E '^\s*(compress|rotate|daily|weekly)' /etc/logrotate.conf</code>. Os logs antigos são compactados? Quantas semanas ficam guardadas? Se um incidente for descoberto daqui a um mês, ainda haverá log dele?</li>
+<li>O idioma: <code translate="no">locale | grep -E '^(LANG|LC_ALL|LC_COLLATE)='</code>. Se os seus servidores estão em idiomas diferentes, um script com <code translate="no">sort</code> pode dar resultados diferentes em cada um.</li></ol>
+<p><strong>Para o diário.</strong> Uma linha por servidor: <code translate="no">nome · top 3 IPs do site · % de 4xx e 5xx · 3 maiores pastas do /var · contas com shell · scripts com \r · logs guardados por quanto tempo · idioma</code>. Ao lado de cada achado estranho, o que você <strong>faria</strong> e quem precisaria aprovar. Não corrija nada nesta semana: a missão é ver.</p>
+<p><strong>Desafio da semana.</strong> Adapte o <code translate="no">relatorio.sh</code> ao log de verdade de um dos seus servidores web, sem mudar nada no servidor: rode o script a partir da sua pasta pessoal, lendo o log com <code translate="no">sudo cat ARQUIVO | ./relatorio.sh /dev/stdin</code>, ou copie um trecho com <code translate="no">sudo tail -n 5000 ARQUIVO &gt; ~/amostra.log</code>. Confira, linha por linha, se cada campo (<code translate="no">-f1</code>, <code translate="no">-f9</code>, <code translate="no">-f10</code>) corresponde ao que o formato do seu servidor grava. Se não corresponder, é o tipo de problema que a Aula 3.4 resolve com o <code translate="no">awk</code>.</p>
+<p><strong>Amanhã, sem olhar.</strong> Antes de abrir o terminal, responda de cabeça: por que o <code translate="no">uniq</code> precisa do <code translate="no">sort</code> antes? Qual é a diferença entre <code translate="no">sort -k3</code> e <code translate="no">sort -k3,3n</code>? Por que <code translate="no">cut -d' '</code> falha em saída alinhada, e qual é o conserto? O que o <code translate="no">tr</code> não sabe fazer com <code translate="no">ção</code>? Como você prova que um arquivo que chegou é igual ao que saiu? Depois, numa das VMs, rode <code translate="no">printf 'x\r\n' | od -c</code> e <code translate="no">printf '10\n9\n' | sort</code>, e explique cada resultado em voz alta, dizendo em qual VM você está.</p>
+<h2 id="13-com-o-deeptutor">13 · Com o DeepTutor</h2>
+<p>Use o DeepTutor da sua rede local depois do lab, não no lugar dele. Os comandos começam com <code translate="no">!</code>:</p>
+<ul><li><code translate="no">!quiz Aula 3.2</code>: dez perguntas novas sobre <code translate="no">cut</code>, <code translate="no">sort</code>, <code translate="no">uniq</code>, <code translate="no">tr</code>, <code translate="no">paste</code>, <code translate="no">split</code> e hashes.</li>
+<li><code translate="no">!explica sort -k</code>: a chave de ordenação por partes, com exemplos de <code translate="no">-k2</code>, <code translate="no">-k2,2</code> e <code translate="no">-k2,2n</code> no mesmo arquivo.</li>
+<li><code translate="no">!feynman uniq</code>: você explica por que o <code translate="no">uniq</code> precisa do <code translate="no">sort</code>, e ele aponta onde ficou vago.</li>
+<li><code translate="no">!quebra relatório de log</code>: ele descreve um relatório que dá um número errado e te entrega as saídas de <code translate="no">od -c</code>, <code translate="no">cat -A</code> e <code translate="no">wc -l</code>, uma por vez, até você achar a causa.</li>
+<li><code translate="no">!simulado LPIC-1 103.2</code>: perguntas no estilo da prova, com filtros, opções e saídas para prever.</li>
+<li><code translate="no">!cartoes Aula 3.2</code>: os flashcards da seção 10, em ordem de revisão.</li>
+<li><code translate="no">!erro</code>: cole a linha de filtros que deu resultado estranho, com um trecho da entrada, e ele diz a causa provável e o que olhar.</li>
+<li><code translate="no">!revisao Aula 3.2</code>: o que rever antes da Aula 3.3, pelo que você errou até agora.</li></ul>
+<h2 id="gabarito-comentado">Gabarito comentado</h2>
+<h3 id="aquecimento">Aquecimento</h3>
+<ol><li>Quatro. O <code translate="no">uniq</code> compara cada linha só com a anterior, e em <code translate="no">b a b a</code> nenhuma é igual à vizinha. Com <code translate="no">sort</code> antes, a entrada vira <code translate="no">a a b b</code>, e sobram duas. É o Passo 1.</li>
+<li>Não: o <code translate="no">1.2G</code> vai para o <strong>começo</strong>. O <code translate="no">-n</code> lê só o número e para na letra: <code translate="no">1.2</code>, <code translate="no">40</code>, <code translate="no">512</code>. O <code translate="no">-h</code> entende as letras e põe o <code translate="no">1.2G</code> no fim. É o Passo 2.</li>
+<li>É o <code translate="no">\r</code> do fim de linha do Windows. O arquivo tem <code translate="no">#!/bin/bash\r</code> na primeira linha, e o sistema procura um programa chamado <code translate="no">bash\r</code>, que não existe. <code translate="no">cat -A script | head -n 1</code> mostra o <code translate="no">^M</code>; <code translate="no">tr -d '\r' &lt; script &gt; script.unix</code> conserta. É o Passo 5.</li></ol>
+<h3 id="quiz">Quiz</h3>
+<ol><li><code translate="no">sort | uniq</code> e <code translate="no">sort -u</code> dão o mesmo resultado: uma linha de cada valor. <code translate="no">sort | uniq -c</code> mostra cada valor uma vez <strong>com a contagem</strong> de quantas vezes ele apareceu.</li>
+<li><strong>B.</strong> O A esquece o <code translate="no">sort</code>, e o <code translate="no">uniq</code> só junta vizinhos. O C conta linhas inteiras do <code translate="no">/etc/passwd</code>, que nunca se repetem. O D usa <code translate="no">cut -f7</code> sem <code translate="no">-d:</code>, então recorta pela tabulação, que não existe no arquivo, e devolve as linhas inteiras; e o <code translate="no">sort -r</code> sem <code translate="no">-n</code> ordena a contagem como texto.</li>
+<li><code translate="no">-k2</code> ordena do campo 2 até o fim da linha, como texto. <code translate="no">-k2,2n</code> ordena só pelo campo 2, como número. Com UIDs <code translate="no">150</code> e <code translate="no">2001</code>, o primeiro põe <code translate="no">150</code> depois de <code translate="no">10010</code>; o segundo põe na ordem numérica.</li>
+<li><strong>B.</strong> O A dá <code translate="no">tr: extra operand</code>, porque o <code translate="no">tr</code> não aceita nome de arquivo. O C dá <code translate="no">the delimiter must be a single character</code>: dentro das aspas simples, <code translate="no">\r</code> são dois caracteres para o <code translate="no">cut</code>. O D dá <code translate="no">missing operand</code>: sem <code translate="no">-d</code>, o <code translate="no">tr</code> precisa de dois conjuntos.</li>
+<li>O primeiro mostra o nome e o shell de cada usuário, como <code translate="no">rodrigo:/bin/bash</code>. O segundo mostra os oito primeiros caracteres de cada linha, sem olhar campos: <code translate="no">rodrigo:</code> e <code translate="no">root:x:0</code>.</li>
+<li>O <code translate="no">-n</code> lê só o número: <code translate="no">12</code> é menor que <code translate="no">900</code>, e a letra é ignorada. O conserto é <code translate="no">sort -h</code>, que entende <code translate="no">K</code>, <code translate="no">M</code> e <code translate="no">G</code>. Com <code translate="no">sort -rh</code>, a maior fica em primeiro.</li>
+<li><strong>B.</strong> O A mostra lixo binário: o <code translate="no">tail</code> não descompacta. O C descompacta o arquivo <strong>no disco</strong>, troca o <code translate="no">.gz</code> pelo arquivo inteiro e não escreve nada na saída. O D é para arquivos <code translate="no">.tar</code>; um <code translate="no">.gz</code> simples dá erro.</li>
+<li><code translate="no">backup.00</code>, <code translate="no">backup.01</code>, <code translate="no">backup.02</code> e assim por diante, cada um com 100 MB, menos o último. Para remontar: <code translate="no">cat backup.?? &gt; backup2.tar</code> (ou <code translate="no">backup.*</code>, que o shell expande em ordem). Para provar: <code translate="no">sha256sum backup.tar backup2.tar</code>, com os dois hashes iguais; ou, do outro lado de uma transferência, <code translate="no">sha256sum -c</code> com o <code translate="no">.sha256</code> gravado antes de cortar.</li>
+<li><code translate="no">a,b,c</code>. O <code translate="no">nl</code> mostra cada linha com um número alinhado à direita e uma tabulação: <code translate="no">     1	a</code>, <code translate="no">     2	b</code>, <code translate="no">     3	c</code>.</li>
+<li>Tabela abaixo.</li></ol>
+<div class="tabela"><table><thead><tr><th scope="col">Se você marcou</th><th scope="col">Resultado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>A</td><td>✅ Certa</td><td>O <code translate="no">grep</code> escolhe as linhas que <strong>terminam</strong> em <code translate="no">/bin/bash</code>, o <code translate="no">cut</code> fica com o nome, o <code translate="no">sort</code> ordena, e o <code translate="no">&gt;</code> grava só o resultado. O <code translate="no">$</code> impede de pegar um shell como <code translate="no">/bin/bash-restrito</code>.</td></tr><tr><td>B</td><td>❌ Errada</td><td>O <code translate="no">cut</code> jogou fora o shell antes do <code translate="no">grep</code>. O <code translate="no">grep bash</code> procura <code translate="no">bash</code> no <strong>nome</strong> do usuário, e o arquivo sai vazio ou com nomes errados.</td></tr><tr><td>C</td><td>❌ Errada</td><td>O <code translate="no">cut -f1</code> sem <code translate="no">-d:</code> separa por tabulação e devolve a linha inteira. O arquivo sai com as linhas completas do <code translate="no">/etc/passwd</code>, não com nomes.</td></tr><tr><td>D</td><td>❌ Errada</td><td>O campo 7 é o shell: o arquivo fica com <code translate="no">/bin/bash</code> repetido, sem nenhum nome. E ordenar antes de recortar ordena pela linha inteira, não pelo que vai ser gravado.</td></tr></tbody></table></div>
+<h3 id="ultimo-exercicio">Último exercício</h3>
+<p>Na debian-lab, em <code translate="no">~/lab32</code>:</p>
+<pre translate="no"><code class="lang-bash">sort -t: -k3,3n /etc/passwd | tail -n 3 | cut -d: -f1,3 | tr : =
+cut -d: -f7 /etc/passwd | sort | uniq -c | sort -rn &gt; ~/lab32/shells.txt
+cat ~/lab32/shells.txt</code></pre>
+<p>O primeiro comando mostra, por exemplo, <code translate="no">ana=2001</code>, <code translate="no">bruno=2002</code> e <code translate="no">nobody=65534</code>, conforme os UIDs da sua VM. Sem o <code translate="no">n</code> na chave, a ordem seria de texto, e o <code translate="no">nobody</code> poderia nem estar entre os três. O <code translate="no">tr : =</code> troca o separador no fim, depois do <code translate="no">cut</code>.</p>
+<pre translate="no"><code class="lang-bash">printf 'suporte\r\nredes\r\n' &gt; ~/lab32/win2.txt
+cat -A ~/lab32/win2.txt
+tr -d '\r' &lt; ~/lab32/win2.txt &gt; ~/lab32/win2.unix
+grep -c '^redes$' ~/lab32/win2.txt ~/lab32/win2.unix</code></pre>
+<p>O <code translate="no">cat -A</code> mostra <code translate="no">suporte^M$</code> e <code translate="no">redes^M$</code>. O <code translate="no">grep -c</code> mostra <code translate="no">0</code> para o <code translate="no">win2.txt</code> e <code translate="no">1</code> para o <code translate="no">win2.unix</code>. O <code translate="no">od -c</code> também vale para a prova.</p>
+<pre translate="no"><code class="lang-bash">cd ~/lab32
+split -l 8 acesso.log ped.
+cat ped.* &gt; junto.log
+sha256sum acesso.log junto.log
+rm ped.* junto.log</code></pre>
+<p>Dois pedaços: <code translate="no">ped.aa</code> com 8 linhas e <code translate="no">ped.ab</code> com 7. Os dois hashes iguais. Se você usou <code translate="no">sha256sum -c acesso.sha256</code> depois de renomear o <code translate="no">junto.log</code>, também vale.</p>
+<pre translate="no"><code class="lang-bash">echo $(( $(cut -d' ' -f9,10 ~/lab32/acesso.log | grep '^200 ' | cut -d' ' -f2 | paste -sd+) ))</code></pre>
+<p>O resultado é <strong>1067008</strong>: as seis respostas <code translate="no">200</code> (<code translate="no">5120</code>, <code translate="no">2048</code>, <code translate="no">2048</code>, <code translate="no">1048576</code>, <code translate="no">4096</code> e <code translate="no">5120</code>). O <code translate="no">cut -f9,10</code> deixa só o status e o tamanho, o <code translate="no">grep '^200 '</code> escolhe as linhas que começam com <code translate="no">200</code> seguido de espaço, e o segundo <code translate="no">cut</code> fica com o tamanho. Sem o espaço no <code translate="no">grep</code>, um tamanho que começasse com <code translate="no">200</code> poderia enganar; sem o <code translate="no">^</code>, qualquer linha com <code translate="no">200 </code> no meio entraria.</p>
+</article><nav class="paginas" aria-label="Aulas"><a class="ant" href="3.1-fluxos-a-fundo.html"><small>← Anterior</small>3.1 · Fluxos a fundo</a><a class="prox" href="3.3-regex-e-grep.html"><small>Próxima →</small>3.3 · Regex e grep</a></nav></main></div>
+<footer><div class="wrap">Gerado a partir do Markdown do curso · Imagens em <code translate="no">img/</code></div></footer>
+</body>
+</html>

@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light dark">
+<title>3.5 · vi e vim de verdade · Curso Linux Sysadmin</title>
+<link rel="alternate" hreflang="pt-BR" href="3.5-vi-e-vim-de-verdade.html"><link rel="alternate" hreflang="it" href="3.5-vi-e-vim-de-verdade.it.html">
+<style>
+:root{color-scheme:light dark;--bg:#f6f1e7;--card:#fffdf8;--ink:#201c16;--muted:#5e564a;--accent:#9a3412;--accent-2:#1f5f4a;--tint:#efe6d4;--line:#ddd2bc;--code:#f1eadb;--shadow:0 1px 2px rgba(60,40,10,.08);--serif:Georgia,"Iowan Old Style","Palatino Linotype",Palatino,serif;--sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--mono:"Cascadia Code",Consolas,"DejaVu Sans Mono",monospace}
+@media (prefers-color-scheme:dark){:root{--bg:#16130f;--card:#201b15;--ink:#f1eadb;--muted:#b9ad98;--accent:#f0a070;--accent-2:#7fd0b0;--tint:#2a231a;--line:#3d3427;--code:#191510;--shadow:none}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:5.5rem}
+body{margin:0;background:var(--bg);color:var(--ink);font:1rem/1.6 var(--sans)}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--accent-2);outline-offset:2px;border-radius:4px}
+.pular{position:absolute;left:-999px;top:0;background:var(--card);padding:.5rem 1rem;z-index:20}
+.pular:focus{left:.5rem;top:.5rem}
+.wrap{width:100%;max-width:84rem;margin:0 auto;padding-inline:max(1rem,env(safe-area-inset-left))}
+.top{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10;border-top:6px solid var(--accent)}
+.top-in{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding-block:.6rem}
+.titles{min-width:0}
+.marca{margin:0;font:700 clamp(1.15rem,1rem + 1vw,1.6rem)/1.15 var(--serif);letter-spacing:-.01em}
+.marca a{text-decoration:none}
+.marca a:hover{color:var(--accent)}
+.meta{margin:.1rem 0 0;color:var(--muted);font-size:.85rem}
+.acoes{display:flex;align-items:center;gap:.9rem;flex:none}
+.acoes>a{font-size:.9rem;font-weight:600;color:var(--muted);text-decoration:none}
+.acoes>a:hover{color:var(--accent);text-decoration:underline}
+.idioma{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--tint)}
+.idioma>*{padding:.35rem .9rem;font-size:.8rem;font-weight:700;letter-spacing:.06em;text-decoration:none;color:var(--muted);min-width:2.75rem;text-align:center}
+.idioma a:hover{color:var(--accent);text-decoration:underline}
+.idioma span{background:var(--accent);color:#fff}
+@media (prefers-color-scheme:dark){.idioma span{color:#16130f}}
+code{font-family:var(--mono);font-size:.9em;background:var(--tint);padding:.1rem .35rem;border-radius:4px;overflow-wrap:anywhere}
+/* índice */
+.capa{max-width:70rem;padding-block:2rem 3rem}
+.stats{border-left:4px solid var(--accent-2);background:var(--card);border-radius:0 10px 10px 0;padding:1rem 1.25rem;margin:0 0 2.5rem;box-shadow:var(--shadow);color:var(--muted)}
+.stats strong{color:var(--ink)}
+.modulo{display:grid;grid-template-columns:15rem minmax(0,1fr);gap:1rem 2rem;padding:1.75rem 0;border-top:1px solid var(--line)}
+.modulo h2{margin:0;font:700 1.25rem/1.25 var(--serif);align-self:start;position:sticky;top:6rem}
+.mn{display:block;font:700 .8rem var(--mono);letter-spacing:.12em;color:var(--accent);margin-bottom:.25rem}
+.sep{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.modulo ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,17rem),1fr));gap:.75rem}
+.modulo li{margin:0}
+.modulo a{display:flex;gap:.45rem;align-items:baseline;height:100%;padding:.85rem 1rem;background:var(--card);border:1px solid var(--line);border-radius:10px;text-decoration:none;font-weight:600;line-height:1.35;box-shadow:var(--shadow);transition:border-color .15s,transform .15s}
+.modulo a:hover{border-color:var(--accent);color:var(--accent)}
+.num{font:700 .85rem var(--mono);color:var(--accent);white-space:nowrap}
+/* aula */
+.doc{display:grid;grid-template-columns:17rem minmax(0,1fr);gap:2.5rem;align-items:start;padding-block:2rem 3rem}
+.lateral{position:sticky;top:5.5rem;max-height:calc(100vh - 6.5rem);overflow:auto;font-size:.875rem;padding-right:.5rem}
+.lateral h2{margin:0 0 .25rem;font:700 .95rem var(--serif);color:var(--muted)}
+.lateral h3{margin:1rem 0 .25rem;font:700 .75rem var(--mono);letter-spacing:.06em;color:var(--accent)}
+.lateral ul{list-style:none;margin:0;padding:0}
+.lateral a{display:flex;gap:.45rem;padding:.25rem .5rem;border-radius:6px;text-decoration:none;color:var(--muted);line-height:1.3}
+.lateral a:hover{background:var(--tint);color:var(--ink)}
+.lateral a[aria-current]{background:var(--tint);color:var(--ink);font-weight:700;box-shadow:inset 3px 0 0 var(--accent)}
+.lateral .num{font-size:.75rem}
+.aula{min-width:0;max-width:56rem;overflow-wrap:break-word;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:clamp(1.25rem,1rem + 2vw,2.75rem);box-shadow:var(--shadow)}
+.aula h1{margin:0 0 1.5rem;font:700 clamp(1.75rem,1.4rem + 1.6vw,2.5rem)/1.15 var(--serif);letter-spacing:-.015em;color:var(--ink)}
+.aula h2{margin:2.5rem 0 .75rem;padding-top:1.25rem;border-top:1px solid var(--line);font:700 1.5rem/1.25 var(--serif)}
+.aula h3{margin:2rem 0 .5rem;font:700 1.15rem/1.3 var(--serif);color:var(--accent)}
+.aula h4,.aula h5,.aula h6{margin:1.5rem 0 .5rem;font-size:1rem}
+.aula p,.aula ul,.aula ol{margin:1rem 0}
+.aula ul,.aula ol{padding-left:1.5rem}
+.aula li{margin:.35rem 0}
+.aula li>ul,.aula li>ol{margin:.35rem 0}
+.aula a{color:var(--accent);text-underline-offset:2px}
+.aula hr{border:0;border-top:1px solid var(--line);margin:2rem 0}
+.tabela{overflow-x:auto;margin:1.25rem 0;border:1px solid var(--line);border-radius:10px}
+.aula table{width:100%;border-collapse:collapse;font-size:.9rem}
+.aula th,.aula td{padding:.55rem .75rem;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+.aula tr:last-child td{border-bottom:0}
+.aula th{background:var(--tint);font-weight:700}
+.aula pre{background:var(--code);border:1px solid var(--line);border-radius:10px;padding:.9rem 1rem;overflow-x:auto;font:.85rem/1.5 var(--mono);margin:1rem 0;tab-size:4}
+.aula pre code{background:none;padding:0;font-size:inherit;overflow-wrap:normal}
+.aula blockquote{margin:1.25rem 0;padding:.75rem 1.25rem;border-left:4px solid var(--accent-2);background:var(--tint);border-radius:0 10px 10px 0}
+.aula blockquote>:first-child{margin-top:0}
+.aula blockquote>:last-child{margin-bottom:0}
+.aula figure{margin:1.75rem 0;text-align:center}
+.aula figure img{display:block;margin:0 auto;max-width:100%;height:auto;border:1px solid var(--line);border-radius:10px;background:#fff}
+.aula figcaption{margin-top:.5rem;color:var(--muted);font-size:.9rem;font-style:italic}
+.paginas{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:2.5rem;padding-top:1.5rem;border-top:1px solid var(--line)}
+.paginas a{display:block;padding:.75rem 1rem;border:1px solid var(--line);border-radius:10px;text-decoration:none;color:var(--ink);font-weight:600;line-height:1.3}
+.paginas a:hover{border-color:var(--accent);color:var(--accent)}
+.paginas small{display:block;color:var(--muted);font-weight:400}
+.paginas .prox{grid-column:2;text-align:right}
+footer{border-top:1px solid var(--line);padding-block:1.5rem;color:var(--muted);font-size:.85rem;text-align:center}
+@media (hover:hover) and (prefers-reduced-motion:no-preference){.modulo a:hover{transform:translateY(-2px)}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+@media (max-width:980px){.doc{grid-template-columns:minmax(0,1fr);padding-top:1rem}.lateral{position:static;max-height:none;order:2}.aula{max-width:none}}
+@media (max-width:860px){.modulo{grid-template-columns:minmax(0,1fr)}.modulo h2{position:static}.mn{display:inline;margin-right:.5rem}}
+@media (max-width:420px){.meta{display:none}.top-in{gap:.5rem}.acoes{gap:.6rem}.capa{padding-top:1.25rem}.paginas{grid-template-columns:minmax(0,1fr)}.paginas .prox{grid-column:1}}
+@media print{.top,.lateral,.paginas{display:none}.aula{border:0;box-shadow:none;padding:0;max-width:none}.doc{display:block}}
+</style>
+</head>
+<body>
+<a class="pular" href="#conteudo">Pular para o conteúdo</a>
+<header class="top"><div class="wrap top-in"><div class="titles"><p class="marca"><a href="index.html">Curso Linux Sysadmin</a></p><p class="meta">Rodrigo Antignani · Aula 3.5</p></div><div class="acoes"><a href="index.html">Índice</a><div class="idioma" role="group" aria-label="Idioma"><span aria-current="true">PT</span><a href="3.5-vi-e-vim-de-verdade.it.html" hreflang="it" lang="it">IT</a></div></div></div></header>
+<div class="wrap doc"><aside class="lateral" aria-label="Aulas"><h2>Aulas</h2><h3>M0 · Laboratório</h3><ul><li><a href="0.1-montar-o-laboratorio.html"><span class="num">0.1</span><span>Montar o laboratório</span></a></li><li><a href="0.2-acesso-e-protecao.html"><span class="num">0.2</span><span>Acesso e proteção</span></a></li></ul><h3>M1 · Linha de comando</h3><ul><li><a href="1.1-o-que-e-linux.html"><span class="num">1.1</span><span>O que é Linux</span></a></li><li><a href="1.2-o-shell-e-a-ajuda.html"><span class="num">1.2</span><span>O shell e a ajuda</span></a></li><li><a href="1.3-caminhos-e-navegacao.html"><span class="num">1.3</span><span>Caminhos e navegação</span></a></li><li><a href="1.4-criar-copiar-mover-e-apagar.html"><span class="num">1.4</span><span>Criar, copiar, mover e apagar</span></a></li><li><a href="1.5-ler-e-procurar-texto.html"><span class="num">1.5</span><span>Ler e procurar texto</span></a></li><li><a href="1.6-redirecionamentos-e-pipes.html"><span class="num">1.6</span><span>Redirecionamentos e pipes</span></a></li><li><a href="1.7-arquivar-e-compactar.html"><span class="num">1.7</span><span>Arquivar e compactar</span></a></li><li><a href="1.8-primeiro-script.html"><span class="num">1.8</span><span>Primeiro script</span></a></li><li><a href="1.9-decidir-e-repetir.html"><span class="num">1.9</span><span>Decidir e repetir</span></a></li><li><a href="1.10-software-livre-na-pratica.html"><span class="num">1.10</span><span>Software livre na prática</span></a></li></ul><h3>M2 · Sistema, usuários e permissões</h3><ul><li><a href="2.1-instalacao-e-provisionamento.html"><span class="num">2.1</span><span>Instalação e provisionamento</span></a></li><li><a href="2.2-hardware-e-dispositivos.html"><span class="num">2.2</span><span>Hardware e dispositivos</span></a></li><li><a href="2.3-processos-e-logs.html"><span class="num">2.3</span><span>Processos e logs</span></a></li><li><a href="2.4-rede-no-dia-a-dia.html"><span class="num">2.4</span><span>Rede no dia a dia</span></a></li><li><a href="2.5-acesso-remoto-e-privilegios.html"><span class="num">2.5</span><span>Acesso remoto e privilégios</span></a></li><li><a href="2.6-usuarios-e-grupos.html"><span class="num">2.6</span><span>Usuários e grupos</span></a></li><li><a href="2.7-permissoes-e-dono.html"><span class="num">2.7</span><span>Permissões e dono</span></a></li><li><a href="2.8-diretorios-e-arquivos-especiais.html"><span class="num">2.8</span><span>Diretórios e arquivos especiais</span></a></li></ul><h3>M3 · Texto e editor</h3><ul><li><a href="3.1-fluxos-a-fundo.html"><span class="num">3.1</span><span>Fluxos a fundo</span></a></li><li><a href="3.2-filtros-de-texto.html"><span class="num">3.2</span><span>Filtros de texto</span></a></li><li><a href="3.3-regex-e-grep.html"><span class="num">3.3</span><span>Regex e grep</span></a></li><li><a href="3.4-sed-e-awk.html"><span class="num">3.4</span><span>sed e awk</span></a></li><li><a href="3.5-vi-e-vim-de-verdade.html" aria-current="page"><span class="num">3.5</span><span>vi e vim de verdade</span></a></li></ul><h3>M4 · systemd e boot</h3><ul><li><a href="4.1-como-o-linux-liga.html"><span class="num">4.1</span><span>Como o Linux liga</span></a></li><li><a href="4.2-systemd-servicos-e-units.html"><span class="num">4.2</span><span>systemd: serviços e units</span></a></li><li><a href="4.3-targets-desligar-e-reiniciar.html"><span class="num">4.3</span><span>Targets: desligar e reiniciar</span></a></li><li><a href="4.4-grub-e-acesso-de-emergencia.html"><span class="num">4.4</span><span>GRUB e acesso de emergência</span></a></li></ul><h3>M5 · Kernel, módulos e VM</h3><ul><li><a href="5.1-hardware-pelo-kernel.html"><span class="num">5.1</span><span>Hardware pelo kernel</span></a></li><li><a href="5.2-modulos-e-parametros.html"><span class="num">5.2</span><span>Módulos e parâmetros</span></a></li><li><a href="5.3-linux-como-convidado.html"><span class="num">5.3</span><span>Linux como convidado</span></a></li></ul><h3>M6 · Pacotes e repositórios</h3><ul><li><a href="6.1-pacotes-no-debian.html"><span class="num">6.1</span><span>Pacotes no Debian</span></a></li><li><a href="6.2-pacotes-na-rocky.html"><span class="num">6.2</span><span>Pacotes na Rocky</span></a></li><li><a href="6.3-repositorios.html"><span class="num">6.3</span><span>Repositórios</span></a></li><li><a href="6.4-flatpak.html"><span class="num">6.4</span><span>Flatpak</span></a></li><li><a href="6.5-bibliotecas-compartilhadas.html"><span class="num">6.5</span><span>Bibliotecas compartilhadas</span></a></li></ul></aside><main id="conteudo" class="aula"><article><h1>Aula 3.5 · vi e vim de verdade</h1>
+<p>Nas Aulas 3.3 e 3.4 você mudou arquivos com comandos: o <code translate="no">grep</code> escolheu linhas, o <code translate="no">sed</code> trocou, o <code translate="no">awk</code> calculou. Hoje você muda arquivos <strong>com as mãos</strong>, no editor que existe em todo Linux, inclusive no servidor recém-instalado, no contêiner sem pacotes e no modo de emergência, quando o disco não montou e não há rede. Esse editor é o <code translate="no">vi</code>, e quase sempre ele é o <code translate="no">vim</code>, em alguma versão. Você não precisa gostar dele. Precisa entrar, mudar o que tem de mudar, sair sem estragar nada e saber o que fazer quando a sessão cai no meio. O resto é velocidade, e a velocidade vem da mesma regex das últimas duas aulas.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Ficha</th><th scope="col">Aula 3.5</th></tr></thead><tbody><tr><td>Módulo</td><td>M3 · Texto e editor, aula 5 de 5</td></tr><tr><td>Quando</td><td>Semana 8</td></tr><tr><td>Ao final você consegue</td><td>Abrir, salvar e sair do <code translate="no">vi</code> sem perder nada, com <code translate="no">:w</code>, <code translate="no">:q!</code>, <code translate="no">:wq</code>, <code translate="no">:x</code> e <code translate="no">ZZ</code>; trocar entre os modos normal, inserção, linha de comando e visual sem se perder; andar por palavra, linha e número de linha sem setas; apagar, copiar, colar, desfazer e repetir com operador, movimento, contagem e o <code translate="no">.</code>; buscar com <code translate="no">/</code> e <code translate="no">?</code> e trocar com <code translate="no">:s</code> e <code translate="no">:%s</code>, com grupos, <code translate="no">&amp;</code> e outro delimitador; apagar e filtrar linhas com <code translate="no">:g</code>, <code translate="no">:v</code> e <code translate="no">:%!</code>; ver tabulações, espaços e o <code translate="no">^M</code> do Windows com <code translate="no">:set list</code> e <code translate="no">:set ff</code>; recuperar uma edição perdida pelo arquivo <code translate="no">.swp</code>; editar arquivos do sistema com <code translate="no">sudoedit</code> e <code translate="no">visudo</code>, sem <code translate="no">sudo vim</code>; saber qual <code translate="no">vi</code> cada distribuição instala e por que o da Debian às vezes "não desfaz"</td></tr><tr><td>Itens de prova</td><td>LPIC-1 103.8 (edição básica de arquivos com o <code translate="no">vi</code>, e a variável <code translate="no">EDITOR</code>) · RHCSA (criar e editar arquivos de texto; na prova, o <code translate="no">vi</code> é o editor que sempre está lá)</td></tr><tr><td>Pré-requisitos</td><td>Aula 2.3 (journal e logs); Aula 3.3 (BRE e ERE, classes como <code translate="no">[[:space:]]</code>); Aula 3.4 (<code translate="no">s///</code>, grupos, <code translate="no">&amp;</code>, <code translate="no">~/lab34</code> com o <code translate="no">conf.amostra</code> e o <code translate="no">acesso.log</code>)</td></tr><tr><td>Tempo</td><td>Cerca de 2h30</td></tr><tr><td>Snapshots</td><td>m3a5-inicio e m3a5-fim nas duas VMs</td></tr></tbody></table></div>
+<h2 id="1-aquecimento">1 · Aquecimento</h2>
+<p>Três perguntas, de cabeça. Escreva as respostas; o Gabarito confere no fim.</p>
+<ol><li>Você abre um arquivo no <code translate="no">vi</code> e digita <code translate="no">Port 2222</code> logo de cara. Na tela aparecem coisas que você não digitou, e o cursor pulou para outro lugar. Palpite: o que aconteceu?</li>
+<li>Você abre um arquivo e o <code translate="no">vim</code> mostra <code translate="no">E325: ATTENTION</code> e fala de um arquivo <code translate="no">.swp</code>. Palpite: o que isso quer dizer, e é perigoso só apertar Enter?</li>
+<li>O cursor está na linha 1 do <code translate="no">conf.amostra</code>, e você digita <code translate="no">:s/yes/no/</code>. Palpite: a linha 7, <code translate="no">PasswordAuthentication yes</code>, muda?</li></ol>
+<h2 id="2-por-que-importa">2 · Por que importa</h2>
+<p>O <code translate="no">vi</code> raramente estraga um arquivo sozinho. Quem estraga é a pressa de sair dele:</p>
+<div class="tabela"><table><thead><tr><th scope="col">O chamado</th><th scope="col">A resposta errada</th><th scope="col">O que ela causa</th></tr></thead><tbody><tr><td>"O servidor caiu no modo de emergência por causa do <code translate="no">/etc/fstab</code>"</td><td>Procurar o <code translate="no">nano</code></td><td>No modo de emergência da Rocky, e em muita imagem mínima, só existe o <code translate="no">vi</code>. Quem não sabe usá-lo reinstala o servidor, ou espera alguém que saiba</td></tr><tr><td>"Coloca o usuário <code translate="no">operador</code> no <code translate="no">sudoers</code>"</td><td><code translate="no">sudo vi /etc/sudoers</code> e salvar</td><td>Um erro de digitação passa direto, porque o <code translate="no">vi</code> não confere nada. O <code translate="no">sudo</code> reclama na próxima vez, e às vezes para de funcionar para todo mundo. O <code translate="no">visudo</code> confere antes de gravar</td></tr><tr><td>"Não consigo sair do <code translate="no">vi</code>, vou fechar o terminal"</td><td>Fechar a janela ou matar o processo</td><td>A mudança se perde, e fica para trás um <code translate="no">.arquivo.swp</code>. O próximo que abrir o arquivo, talvez você amanhã, recebe um <code translate="no">E325</code> e não sabe o que responder</td></tr><tr><td>"Troca todos os <code translate="no">yes</code> por <code translate="no">no</code> no arquivo"</td><td><code translate="no">:s/yes/no/</code></td><td>Troca só na linha do cursor, e só a primeira ocorrência. O <code translate="no">%</code> e o <code translate="no">g</code> fazem a diferença, como no <code translate="no">sed</code></td></tr><tr><td>"Edita o arquivo do root, sem tirar a permissão dele"</td><td><code translate="no">sudo vim /etc/algo.conf</code>, ou <code translate="no">chmod 666</code> para conseguir salvar</td><td>O <code translate="no">sudo vim</code> roda o editor inteiro como root, com os seus plugins e o <code translate="no">:!</code> abrindo um shell de root. O <code translate="no">chmod</code> deixa o arquivo aberto para qualquer usuário. O <code translate="no">sudoedit</code> edita uma cópia com o seu usuário e grava de volta como root</td></tr><tr><td>"O script veio do colega que usa Windows e não roda"</td><td>Reescrever o script</td><td>O arquivo tem <code translate="no">\r\n</code> no fim de cada linha. O <code translate="no">vim</code> mostra <code translate="no">[dos]</code> ao abrir, e um <code translate="no">:set ff=unix</code> resolve em dois segundos</td></tr></tbody></table></div>
+<p>O <code translate="no">vi</code> é estranho por um motivo só: as letras são <strong>comandos</strong>, a não ser que você diga que vai escrever texto. Entendido isso, o resto é vocabulário.</p>
+<h2 id="3-modelo-mental">3 · Modelo mental</h2>
+<blockquote><p>O <code translate="no">vi</code> tem <strong>modos</strong>. No modo <strong>normal</strong>, que é onde você entra, cada tecla é um comando: <code translate="no">x</code> apaga, <code translate="no">d</code> começa um "apagar", <code translate="no">w</code> anda uma palavra. Para escrever texto, você entra no modo de <strong>inserção</strong> (com <code translate="no">i</code>, <code translate="no">a</code> ou <code translate="no">o</code>) e sai dele com <code translate="no">Esc</code>. Os comandos com <code translate="no">:</code>, <code translate="no">/</code> e <code translate="no">?</code> abrem uma <strong>linha de comando</strong> no rodapé, que roda quando você aperta Enter. Na dúvida, aperte <code translate="no">Esc</code> duas vezes: você volta ao modo normal, de onde tudo começa.</p></blockquote>
+<pre translate="no"><code class="lang-text">                       i  a  o  I  A  O
+                    ┌──────────────────────►┌───────────────┐
+                    │                       │   INSERÇÃO    │  as teclas viram texto
+  vim arquivo ─►┌───┴─────────┐◄────────────┤  -- INSERT -- │
+                │   NORMAL    │     Esc     └───────────────┘
+                │ teclas são  │
+                │  comandos   │   :  /  ?   ┌───────────────┐
+                │             ├────────────►│ LINHA DE      │  :wq  :%s/a/b/g  /regex
+                │             │◄────────────┤ COMANDO       │  roda com Enter
+                └───┬─────────┘ Enter ou Esc└───────────────┘
+                    │  ▲
+          v  V  ^v  │  │ Esc, ou um operador (d y c &gt; &lt;)
+                    ▼  │
+                ┌──────┴────────┐
+                │    VISUAL     │  seleciona caracteres (v), linhas (V) ou um bloco (Ctrl-v)
+                └───────────────┘
+
+  A gramática do modo normal:   [contagem] operador [contagem] movimento
+
+        d        w          apaga até a próxima palavra
+        c        $          troca até o fim da linha
+      3 d        d          apaga 3 linhas (operador repetido = a linha inteira)
+        y        G          copia daqui até a última linha
+        .                   repete a última mudança, onde o cursor estiver</code></pre>
+<p>Duas consequências práticas. Primeira: um comando no modo normal é uma <strong>frase</strong>, verbo e objeto. Você não decora <code translate="no">dw</code>, <code translate="no">dd</code>, <code translate="no">d$</code>, <code translate="no">cw</code>, <code translate="no">c$</code>, <code translate="no">yy</code>, <code translate="no">y$</code> como quatorze atalhos; decora três verbos (<code translate="no">d</code>, <code translate="no">c</code>, <code translate="no">y</code>) e alguns movimentos, e combina. Segunda: o <code translate="no">.</code> repete a frase inteira. Uma troca que dá certo uma vez vira <code translate="no">n</code> e <code translate="no">.</code>, <code translate="no">n</code> e <code translate="no">.</code>, quantas vezes você quiser, conferindo cada uma.</p>
+<figure><a href="../img/3.5-modos-do-vim.svg"><img src="../img/3.5-modos-do-vim.svg" alt="Os modos do vim" loading="lazy" decoding="async"></a><figcaption>No modo normal cada tecla é um comando; para escrever, entre no modo de inserção.</figcaption></figure>
+<h2 id="4-conceito-em-camadas">4 · Conceito em camadas</h2>
+<h3 id="essencial">Essencial</h3>
+<p><strong>Abrir e sair.</strong> Tudo começa e termina no modo normal. Se não sabe onde está, <code translate="no">Esc</code>.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Você digita</th><th scope="col">Faz</th></tr></thead><tbody><tr><td><code translate="no">vim arq</code></td><td>Abre o arquivo. Se não existe, abre vazio e cria ao salvar</td></tr><tr><td><code translate="no">vim +7 arq</code></td><td>Abre na linha 7</td></tr><tr><td><code translate="no">vim +/Password arq</code></td><td>Abre na primeira linha que casa com a regex</td></tr><tr><td><code translate="no">view arq</code> ou <code translate="no">vim -R arq</code></td><td>Abre só para leitura. É o jeito de olhar um arquivo de produção sem medo</td></tr><tr><td><code translate="no">:w</code></td><td>Grava e continua no arquivo</td></tr><tr><td><code translate="no">:q</code></td><td>Sai, se não houver mudança por gravar. Se houver, recusa com <code translate="no">E37</code></td></tr><tr><td><code translate="no">:q!</code></td><td>Sai e <strong>descarta</strong> as mudanças</td></tr><tr><td><code translate="no">:wq</code></td><td>Grava e sai. Grava mesmo sem mudança, e a data do arquivo muda</td></tr><tr><td><code translate="no">:x</code> ou <code translate="no">ZZ</code></td><td>Grava só se houver mudança, e sai</td></tr><tr><td><code translate="no">ZQ</code></td><td>O mesmo que <code translate="no">:q!</code></td></tr><tr><td><code translate="no">:w novo.conf</code></td><td>Grava uma cópia com outro nome; o buffer continua ligado ao original</td></tr><tr><td><code translate="no">:e!</code></td><td>Volta ao arquivo como está no disco, jogando fora o que você mudou desde o último <code translate="no">:w</code></td></tr></tbody></table></div>
+<p><strong>Entrar no modo de inserção.</strong> A letra escolhe <strong>onde</strong> o texto entra:</p>
+<div class="tabela"><table><thead><tr><th scope="col">Tecla</th><th scope="col">Onde</th></tr></thead><tbody><tr><td><code translate="no">i</code></td><td>Antes do cursor</td></tr><tr><td><code translate="no">a</code></td><td>Depois do cursor</td></tr><tr><td><code translate="no">I</code></td><td>No começo da linha, depois dos espaços</td></tr><tr><td><code translate="no">A</code></td><td>No fim da linha</td></tr><tr><td><code translate="no">o</code></td><td>Numa linha nova, abaixo</td></tr><tr><td><code translate="no">O</code></td><td>Numa linha nova, acima</td></tr></tbody></table></div>
+<p><strong>Andar.</strong> Sem setas, que podem não funcionar num terminal ruim, e com contagem, que as setas não têm:</p>
+<div class="tabela"><table><thead><tr><th scope="col">Tecla</th><th scope="col">Vai para</th></tr></thead><tbody><tr><td><code translate="no">h</code> <code translate="no">j</code> <code translate="no">k</code> <code translate="no">l</code></td><td>Esquerda, baixo, cima, direita</td></tr><tr><td><code translate="no">w</code> <code translate="no">b</code> <code translate="no">e</code></td><td>Começo da próxima palavra, começo desta ou da anterior, fim da palavra</td></tr><tr><td><code translate="no">0</code> <code translate="no">^</code> <code translate="no">$</code></td><td>Começo da linha, primeiro caractere que não é espaço, fim da linha</td></tr><tr><td><code translate="no">gg</code> <code translate="no">G</code></td><td>Primeira linha, última linha</td></tr><tr><td><code translate="no">7G</code> ou <code translate="no">:7</code></td><td>Linha 7</td></tr><tr><td><code translate="no">Ctrl-f</code> <code translate="no">Ctrl-b</code></td><td>Uma tela para a frente, uma para trás</td></tr><tr><td><code translate="no">%</code></td><td>O parêntese, colchete ou chave que fecha (ou abre) o que está sob o cursor</td></tr></tbody></table></div>
+<p><strong>Apagar, copiar, colar, desfazer.</strong></p>
+<div class="tabela"><table><thead><tr><th scope="col">Tecla</th><th scope="col">Faz</th></tr></thead><tbody><tr><td><code translate="no">x</code></td><td>Apaga o caractere sob o cursor</td></tr><tr><td><code translate="no">r</code> seguido de uma tecla</td><td>Troca o caractere sob o cursor por essa tecla, e continua no modo normal</td></tr><tr><td><code translate="no">dd</code></td><td>Apaga a linha. <code translate="no">3dd</code> apaga três</td></tr><tr><td><code translate="no">dw</code>, <code translate="no">d$</code> ou <code translate="no">D</code></td><td>Apaga até a próxima palavra, até o fim da linha</td></tr><tr><td><code translate="no">cw</code>, <code translate="no">c$</code> ou <code translate="no">C</code></td><td>Apaga e entra no modo de inserção: é "trocar"</td></tr><tr><td><code translate="no">yy</code></td><td>Copia a linha (o <code translate="no">y</code> vem de <em>yank</em>). <code translate="no">5yy</code> copia cinco</td></tr><tr><td><code translate="no">p</code> <code translate="no">P</code></td><td>Cola depois, antes. Uma linha copiada é colada abaixo ou acima</td></tr><tr><td><code translate="no">u</code></td><td>Desfaz</td></tr><tr><td><code translate="no">Ctrl-r</code></td><td>Refaz</td></tr><tr><td><code translate="no">.</code></td><td>Repete a última mudança</td></tr><tr><td><code translate="no">J</code></td><td>Junta a linha de baixo a esta</td></tr></tbody></table></div>
+<p>O <code translate="no">dd</code> não só apaga: ele guarda a linha. Por isso <code translate="no">ddp</code> troca a linha atual com a de baixo, e <code translate="no">dd</code>, andar, <code translate="no">p</code> é o "recortar e colar" do <code translate="no">vi</code>.</p>
+<p><strong>Buscar.</strong></p>
+<div class="tabela"><table><thead><tr><th scope="col">Tecla</th><th scope="col">Faz</th></tr></thead><tbody><tr><td><code translate="no">/regex</code></td><td>Busca para a frente, a partir do cursor</td></tr><tr><td><code translate="no">?regex</code></td><td>Busca para trás</td></tr><tr><td><code translate="no">n</code> <code translate="no">N</code></td><td>Próxima ocorrência, na mesma direção ou na contrária</td></tr><tr><td><code translate="no">*</code> <code translate="no">#</code></td><td>Busca a palavra sob o cursor, para a frente ou para trás</td></tr></tbody></table></div>
+<p>A busca usa regex, a mesma das aulas anteriores, com o sabor do <code translate="no">vim</code>, que você vê no Intermediário.</p>
+<h3 id="intermediario">Intermediário</h3>
+<p><strong>Operador e movimento.</strong> Qualquer operador combina com qualquer movimento:</p>
+<div class="tabela"><table><thead><tr><th scope="col">Frase</th><th scope="col">Faz</th></tr></thead><tbody><tr><td><code translate="no">dw</code></td><td>Apaga até o começo da próxima palavra</td></tr><tr><td><code translate="no">d$</code></td><td>Apaga até o fim da linha</td></tr><tr><td><code translate="no">dG</code></td><td>Apaga daqui até o fim do arquivo</td></tr><tr><td><code translate="no">dgg</code></td><td>Apaga daqui até o começo</td></tr><tr><td><code translate="no">d/Port</code></td><td>Apaga daqui até a próxima linha com <code translate="no">Port</code>, sem ela</td></tr><tr><td><code translate="no">c0</code></td><td>Troca do começo da linha até o cursor</td></tr><tr><td><code translate="no">yG</code></td><td>Copia daqui até o fim</td></tr><tr><td><code translate="no">&gt;&gt;</code> e <code translate="no">&lt;&lt;</code></td><td>Aumenta e diminui o recuo da linha; <code translate="no">&gt;G</code> até o fim</td></tr><tr><td><code translate="no">gUw</code> e <code translate="no">guw</code></td><td>Põe a palavra em maiúsculas, em minúsculas</td></tr></tbody></table></div>
+<p>Uma "palavra" para o <code translate="no">w</code> é uma sequência de letras, números e <code translate="no">_</code>, <strong>ou</strong> uma sequência de outros símbolos. Por isso <code translate="no">dw</code> sobre <code translate="no">#PermitRootLogin</code> apaga só o <code translate="no">#</code>: o <code translate="no">#</code> é uma palavra, e <code translate="no">PermitRootLogin</code> é outra. O <code translate="no">W</code> maiúsculo usa só os espaços como separador, e <code translate="no">dW</code> apagaria <code translate="no">#PermitRootLogin</code> inteiro.</p>
+<p><strong>Trocar com <code translate="no">:s</code>.</strong> É o <code translate="no">s///</code> do <code translate="no">sed</code>, dentro do editor. Sem intervalo, age na linha do cursor:</p>
+<div class="tabela"><table><thead><tr><th scope="col">Comando</th><th scope="col">Age em</th></tr></thead><tbody><tr><td><code translate="no">:s/yes/no/</code></td><td>Primeira ocorrência na linha do cursor</td></tr><tr><td><code translate="no">:s/yes/no/g</code></td><td>Todas na linha do cursor</td></tr><tr><td><code translate="no">:%s/yes/no/g</code></td><td>Todas, no arquivo inteiro. O <code translate="no">%</code> é "da primeira à última linha"</td></tr><tr><td><code translate="no">:5,10s/^/#/</code></td><td>Da linha 5 à 10: comenta as seis</td></tr><tr><td><code translate="no">:.,$s/a/b/</code></td><td>Da linha do cursor (<code translate="no">.</code>) até o fim (<code translate="no">$</code>)</td></tr><tr><td><code translate="no">:'&lt;,'&gt;s/a/b/</code></td><td>Nas linhas selecionadas no modo visual. O <code translate="no">vim</code> escreve o <code translate="no">'&lt;,'&gt;</code> sozinho quando você aperta <code translate="no">:</code> com uma seleção</td></tr><tr><td><code translate="no">:%s/a/b/gc</code></td><td>Todas, perguntando uma por uma: <code translate="no">y</code> troca, <code translate="no">n</code> pula, <code translate="no">a</code> troca todas as que faltam, <code translate="no">q</code> para</td></tr><tr><td><code translate="no">:%s/a/b/ge</code></td><td>Todas, sem dar erro se não achar nenhuma. Útil em macro e em script</td></tr></tbody></table></div>
+<p>Grupos, <code translate="no">&amp;</code> e outro delimitador funcionam como no <code translate="no">sed</code>: <code translate="no">:%s/^\(PasswordAuthentication\) yes$/\1 no/</code>, <code translate="no">:%s/^MaxAuthTries/# &amp;/</code>, <code translate="no">:%s#/login#/entrar#g</code>.</p>
+<p><strong>A regex do <code translate="no">vim</code>.</strong> Por padrão, o <code translate="no">vim</code> trabalha como a BRE do <code translate="no">sed</code> e do <code translate="no">grep</code> sem <code translate="no">-E</code>: o <code translate="no">+</code>, o <code translate="no">?</code>, o <code translate="no">|</code>, as chaves e os parênteses são <strong>literais</strong>, a não ser com barra. E tem atalhos próprios:</p>
+<div class="tabela"><table><thead><tr><th scope="col">No <code translate="no">vim</code></th><th scope="col">Quer dizer</th><th scope="col">Na ERE do <code translate="no">grep -E</code></th></tr></thead><tbody><tr><td><code translate="no">\+</code> <code translate="no">\?</code> <code translate="no">\=</code></td><td>Um ou mais, zero ou um, zero ou um</td><td><code translate="no">+</code> <code translate="no">?</code> <code translate="no">?</code></td></tr><tr><td><code translate="no">\{2,4}</code></td><td>De duas a quatro vezes</td><td><code translate="no">{2,4}</code></td></tr><tr><td><code translate="no">\(</code> <code translate="no">\)</code> <code translate="no">\|</code></td><td>Grupo e alternativa</td><td><code translate="no">(</code> <code translate="no">)</code> <code translate="no">|</code></td></tr><tr><td><code translate="no">\s</code> <code translate="no">\S</code></td><td>Espaço ou tabulação, e o contrário</td><td><code translate="no">[[:space:]]</code>, <code translate="no">[^[:space:]]</code></td></tr><tr><td><code translate="no">\d</code> <code translate="no">\w</code></td><td>Dígito, caractere de palavra</td><td><code translate="no">[0-9]</code>, <code translate="no">[[:alnum:]_]</code></td></tr><tr><td><code translate="no">\&lt;</code> <code translate="no">\&gt;</code></td><td>Começo e fim de palavra</td><td><code translate="no">\b</code></td></tr><tr><td><code translate="no">\v</code> no começo</td><td><em>Very magic</em>: dali em diante, <code translate="no">+ ? | ( ) { }</code> sem barra, como na ERE</td><td></td></tr><tr><td><code translate="no">\c</code> em qualquer lugar</td><td>Ignora maiúsculas nesta busca</td><td><code translate="no">grep -i</code></td></tr></tbody></table></div>
+<p>Assim, <code translate="no">:%s/[0-9]+/N/g</code> procura "um dígito seguido de um <code translate="no">+</code>", e não acha nada no <code translate="no">acesso.log</code>. O que você queria é <code translate="no">:%s/[0-9]\+/N/g</code>, ou <code translate="no">:%s/\v[0-9]+/N/g</code>.</p>
+<p><strong>Apagar e filtrar linhas com <code translate="no">:g</code> e <code translate="no">:v</code>.</strong> O <code translate="no">:g/regex/comando</code> roda o comando em toda linha que casa; o <code translate="no">:v</code>, em toda que <strong>não</strong> casa. Os dois mais usados:</p>
+<pre translate="no"><code class="lang-text">:g/^\s*#/d         apaga os comentários, com ou sem recuo (o sed '/^[[:space:]]*#/d')
+:g/^\s*$/d         apaga as linhas vazias ou só com espaços
+:v/401/d           deixa só as linhas com 401 (o grep 401, dentro do editor)
+:g/Failed/p        só mostra, sem mudar nada (o p é de print)</code></pre>
+<p><strong>O <code translate="no">vim</code> conversa com o shell.</strong></p>
+<div class="tabela"><table><thead><tr><th scope="col">Comando</th><th scope="col">Faz</th></tr></thead><tbody><tr><td><code translate="no">:!comando</code></td><td>Roda um comando e volta. <code translate="no">:!ls -l %</code> lista o arquivo aberto; o <code translate="no">%</code> é o nome dele</td></tr><tr><td><code translate="no">:r arquivo</code></td><td>Insere o conteúdo de outro arquivo abaixo do cursor</td></tr><tr><td><code translate="no">:r !comando</code></td><td>Insere a <strong>saída</strong> de um comando: <code translate="no">:r !ip -br a</code></td></tr><tr><td><code translate="no">:%!comando</code></td><td>Passa o arquivo inteiro pelo comando e troca pelo resultado: <code translate="no">:%!sort -u</code></td></tr><tr><td><code translate="no">:5,10!sort</code></td><td>O mesmo, só nas linhas 5 a 10</td></tr><tr><td><code translate="no">:w !comando</code></td><td>Manda o buffer para o comando <strong>sem gravar</strong> o arquivo: <code translate="no">:w !wc -l</code></td></tr></tbody></table></div>
+<p>O <code translate="no">:%!</code> faz do editor uma bancada de filtros: tudo o que você aprendeu nas Aulas 3.2 a 3.4 roda dentro do <code translate="no">vim</code>, com <code translate="no">u</code> para desfazer se der errado.</p>
+<p><strong>Configurar.</strong> Os <code translate="no">:set</code> valem até você sair; no <code translate="no">~/.vimrc</code>, valem sempre:</p>
+<div class="tabela"><table><thead><tr><th scope="col">Opção</th><th scope="col">Faz</th></tr></thead><tbody><tr><td><code translate="no">:set nu</code> e <code translate="no">:set nonu</code></td><td>Mostra e esconde o número das linhas</td></tr><tr><td><code translate="no">:set list</code></td><td>Mostra tabulação como <code translate="no">^I</code> e o fim da linha como <code translate="no">$</code>, como o <code translate="no">cat -A</code></td></tr><tr><td><code translate="no">:set hlsearch</code> e <code translate="no">:noh</code></td><td>Destaca as buscas; o <code translate="no">:noh</code> apaga o destaque até a próxima</td></tr><tr><td><code translate="no">:set ignorecase smartcase</code></td><td>Busca sem diferenciar maiúsculas, a não ser que você digite uma</td></tr><tr><td><code translate="no">:set ff?</code></td><td>Mostra o formato das linhas: <code translate="no">unix</code> (<code translate="no">\n</code>) ou <code translate="no">dos</code> (<code translate="no">\r\n</code>)</td></tr><tr><td><code translate="no">:set paste</code></td><td>Cola texto sem o <code translate="no">vim</code> recuar cada linha sozinho. <code translate="no">:set nopaste</code> depois</td></tr><tr><td><code translate="no">:set opção?</code></td><td>Mostra o valor de qualquer opção</td></tr></tbody></table></div>
+<h3 id="ponte-windows">Ponte Windows</h3>
+<div class="tabela"><table><thead><tr><th scope="col">No Windows</th><th scope="col">No <code translate="no">vim</code></th><th scope="col">Cuidado</th></tr></thead><tbody><tr><td>Ctrl+S</td><td><code translate="no">:w</code></td><td>No terminal, Ctrl+S pode <strong>congelar</strong> a tela (é o controle de fluxo antigo). Se congelou, Ctrl+Q destrava</td></tr><tr><td>Ctrl+Z (desfazer)</td><td><code translate="no">u</code></td><td>No terminal, Ctrl+Z <strong>suspende</strong> o <code translate="no">vim</code> e devolve o shell. Ele não fechou: <code translate="no">fg</code> volta para ele. Se você esquecer e sair do SSH, sobra um <code translate="no">.swp</code></td></tr><tr><td>Ctrl+F (localizar)</td><td><code translate="no">/texto</code></td><td>A busca do <code translate="no">vim</code> é regex: <code translate="no">.</code> casa com qualquer caractere, como na Aula 3.3</td></tr><tr><td>Ctrl+H (substituir) no Notepad++</td><td><code translate="no">:%s/de/para/gc</code></td><td>No Notepad++, o modo "Expressão regular" usa <code translate="no">\1</code> como o <code translate="no">vim</code></td></tr><tr><td>Notepad++ "Editar &gt; Conversão de fim de linha &gt; Unix (LF)"</td><td><code translate="no">:set ff=unix</code> e <code translate="no">:w</code></td><td>O Notepad antigo salvava sempre em <code translate="no">\r\n</code>. O Notepad atual mantém o formato do arquivo, mas um arquivo <strong>novo</strong> sai em <code translate="no">\r\n</code></td></tr><tr><td>Abrir o Notepad "como administrador"</td><td><code translate="no">sudoedit arq</code></td><td>No Windows o editor inteiro vira administrador. No Linux, o <code translate="no">sudoedit</code> deixa o editor com o seu usuário e só a gravação é feita como root</td></tr><tr><td><code translate="no">notepad arq</code> no PowerShell</td><td><code translate="no">$EDITOR arq</code></td><td>No Linux, cada programa que abre um editor (<code translate="no">crontab -e</code>, <code translate="no">visudo</code>, <code translate="no">git commit</code>, <code translate="no">systemctl edit</code>) olha as variáveis <code translate="no">VISUAL</code> e <code translate="no">EDITOR</code></td></tr></tbody></table></div>
+<h3 id="avancado">Avançado</h3>
+<p><strong>O arquivo de troca (<code translate="no">.swp</code>).</strong> Enquanto você edita <code translate="no">conf.amostra</code>, o <code translate="no">vim</code> grava as mudanças, a cada poucos segundos, num arquivo oculto ao lado, o <code translate="no">.conf.amostra.swp</code>. Se a sessão cai (SSH que fecha, <code translate="no">kill -9</code>, servidor que desliga), as mudanças estão nele. Na próxima vez que alguém abrir o arquivo, o <code translate="no">vim</code> mostra o <code translate="no">E325: ATTENTION</code> e oferece:</p>
+<div class="tabela"><table><thead><tr><th scope="col">Opção</th><th scope="col">Faz</th><th scope="col">Quando</th></tr></thead><tbody><tr><td><code translate="no">(O)pen Read-Only</code></td><td>Abre só para leitura</td><td>Para olhar antes de decidir</td></tr><tr><td><code translate="no">(E)dit anyway</code></td><td>Abre o arquivo do disco e ignora o <code translate="no">.swp</code></td><td>Quase nunca. Se outra pessoa está editando, um sobrescreve o outro</td></tr><tr><td><code translate="no">(R)ecover</code></td><td>Recupera as mudanças do <code translate="no">.swp</code></td><td>A sessão caiu e você quer o que tinha feito</td></tr><tr><td><code translate="no">(D)elete it</code></td><td>Apaga o <code translate="no">.swp</code></td><td>Você já recuperou, ou sabe que não quer o que está nele. Só aparece se o processo dono não está mais rodando</td></tr><tr><td><code translate="no">(Q)uit</code> e <code translate="no">(A)bort</code></td><td>Desiste</td><td>Para ir perguntar quem está editando</td></tr></tbody></table></div>
+<p>Se a mensagem diz <code translate="no">process ID: 12345 (STILL RUNNING)</code>, outra sessão está com o arquivo aberto <strong>agora</strong>: é um colega, ou é você em outro terminal. Não edite por cima. Depois de recuperar, o <code translate="no">.swp</code> velho <strong>continua lá</strong>, e o <code translate="no">E325</code> volta na próxima abertura até você apagá-lo. O <code translate="no">vim -r</code>, sem arquivo, lista os <code translate="no">.swp</code> que ele encontra.</p>
+<p><strong>Editar arquivo do sistema: <code translate="no">sudoedit</code>, <code translate="no">visudo</code> e companhia.</strong></p>
+<div class="tabela"><table><thead><tr><th scope="col">Arquivo</th><th scope="col">Use</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>Qualquer arquivo de configuração</td><td><code translate="no">sudoedit arq</code> (o mesmo que <code translate="no">sudo -e arq</code>)</td><td>Copia o arquivo para um temporário seu, abre o <strong>seu</strong> editor com o <strong>seu</strong> <code translate="no">~/.vimrc</code>, e no fim grava de volta como root. Nenhum plugin nem <code translate="no">:!</code> roda como root</td></tr><tr><td><code translate="no">/etc/sudoers</code> e <code translate="no">/etc/sudoers.d/*</code></td><td><code translate="no">sudo visudo</code> e <code translate="no">sudo visudo -f /etc/sudoers.d/arq</code></td><td>Trava o arquivo, edita uma cópia e só grava se a sintaxe estiver certa. Se não estiver, pergunta <code translate="no">What now?</code>: <code translate="no">e</code> volta a editar, <code translate="no">x</code> sai sem gravar, <code translate="no">Q</code> grava com o erro (nunca)</td></tr><tr><td><code translate="no">/etc/passwd</code> e <code translate="no">/etc/group</code></td><td><code translate="no">sudo vipw</code> e <code translate="no">sudo vigr</code></td><td>Travam o arquivo para que um <code translate="no">useradd</code> ao mesmo tempo não se perca. <code translate="no">vipw -s</code> e <code translate="no">vigr -s</code> editam o <code translate="no">shadow</code> e o <code translate="no">gshadow</code></td></tr><tr><td>A tabela do cron</td><td><code translate="no">crontab -e</code></td><td>Confere a sintaxe ao sair e recarrega</td></tr><tr><td>Um serviço do systemd</td><td><code translate="no">sudo systemctl edit nome</code></td><td>Cria o arquivo de <em>override</em> no lugar certo e recarrega o systemd (é a Aula 4.x)</td></tr><tr><td>Conferir sem mudar</td><td><code translate="no">sudo visudo -c</code></td><td>Lê o <code translate="no">sudoers</code> e todos os incluídos e diz se estão certos. Não abre editor</td></tr></tbody></table></div>
+<p>Se você já está dentro do <code translate="no">vim</code>, mudou um arquivo de root e não pode gravar, existe a saída de emergência: <code translate="no">:w !sudo tee % &gt; /dev/null</code>. O <code translate="no">:w !</code> manda o buffer para o <code translate="no">sudo tee</code>, que grava o arquivo como root; o <code translate="no">&gt; /dev/null</code> esconde a cópia que o <code translate="no">tee</code> mostraria. O <code translate="no">vim</code> depois avisa que o arquivo mudou fora dele: aperte <code translate="no">L</code> para recarregar. Funciona, mas é um remendo. O hábito é abrir com <code translate="no">sudoedit</code> desde o começo.</p>
+<p><strong><code translate="no">VISUAL</code>, <code translate="no">EDITOR</code> e o editor padrão.</strong> Os programas procuram nesta ordem: <code translate="no">SUDO_EDITOR</code> (só o <code translate="no">sudoedit</code>), <code translate="no">VISUAL</code>, <code translate="no">EDITOR</code>, e por fim um padrão da distribuição. Na Rocky, o padrão é o <code translate="no">vi</code>. Na Debian, é o <code translate="no">/usr/bin/editor</code>, que o sistema de alternativas aponta para o <code translate="no">nano</code>. Para fixar o seu, no <code translate="no">~/.bashrc</code>: <code translate="no">export VISUAL=vim EDITOR=vim</code>.</p>
+<p><strong>Modo visual e bloco.</strong> <code translate="no">v</code> seleciona caracteres, <code translate="no">V</code> linhas, <code translate="no">Ctrl-v</code> um retângulo. Com uma seleção, um operador age nela: <code translate="no">d</code>, <code translate="no">y</code>, <code translate="no">&gt;</code>, <code translate="no">:</code> (para um <code translate="no">:s</code> só ali). No <code translate="no">vim</code> completo, <code translate="no">Ctrl-v</code>, descer algumas linhas, <code translate="no">I#</code> e <code translate="no">Esc</code> comenta todas de uma vez. Nas versões mínimas o bloco pode não ter o <code translate="no">I</code>; o <code translate="no">:5,10s/^/#/</code> funciona em qualquer uma.</p>
+<p><strong>Registros.</strong> Todo <code translate="no">d</code>, <code translate="no">c</code> e <code translate="no">y</code> vai para um registro. O <code translate="no">"</code> é o padrão; o <code translate="no">"0</code> guarda a última cópia (<code translate="no">y</code>), que um <code translate="no">dd</code> depois não apaga; de <code translate="no">"a</code> a <code translate="no">"z</code> são seus. <code translate="no">"ayy</code> copia a linha para o registro <code translate="no">a</code>, <code translate="no">"ap</code> cola. <code translate="no">:reg</code> mostra todos. Isso resolve o problema clássico: você copiou uma linha, apagou outra para dar lugar, e o <code translate="no">p</code> colou a apagada. Cole com <code translate="no">"0p</code>.</p>
+<p><strong>Modelines.</strong> Um arquivo pode ter, nas primeiras ou últimas linhas, um comentário como <code translate="no"># vim: set ts=4 sw=4:</code>, e o <code translate="no">vim</code> aplica as opções ao abrir. Já houve falhas de segurança por esse caminho. Por isso várias distribuições desligam o recurso para o root, e quem edita arquivos de outras pessoas pode pôr <code translate="no">set nomodeline</code> no <code translate="no">~/.vimrc</code>.</p>
+<h3 id="o-que-cai-na-prova">O que cai na prova</h3>
+<ul><li><strong>LPIC-1 103.8.</strong> O objetivo pede: navegar com o <code translate="no">vi</code>, entender e usar os modos, inserir, editar, apagar, copiar e buscar texto, conhecer o Emacs, o <code translate="no">nano</code> e o <code translate="no">vim</code>, e configurar o editor padrão (<code translate="no">EDITOR</code>). A lista de termos inclui <code translate="no">vi</code>, <code translate="no">/</code>, <code translate="no">?</code>, <code translate="no">h</code>, <code translate="no">j</code>, <code translate="no">k</code>, <code translate="no">l</code>, <code translate="no">i</code>, <code translate="no">o</code>, <code translate="no">a</code>, <code translate="no">d</code>, <code translate="no">p</code>, <code translate="no">y</code>, <code translate="no">dd</code>, <code translate="no">yy</code>, <code translate="no">ZZ</code>, <code translate="no">:w!</code>, <code translate="no">:q!</code> e <code translate="no">EDITOR</code>. Perguntas típicas: "qual comando salva e sai?" (<code translate="no">ZZ</code> e <code translate="no">:wq</code>, e às vezes <code translate="no">:x</code>), "qual sai sem salvar?" (<code translate="no">:q!</code>), "qual copia uma linha?" (<code translate="no">yy</code>), "qual abre uma linha abaixo e entra na inserção?" (<code translate="no">o</code>). Confira a lista atual no site da LPI.</li>
+<li><strong>RHCSA.</strong> A prova é prática, e muitos arquivos só se editam com o <code translate="no">vi</code> (ou com o <code translate="no">nano</code>, se estiver instalado). Os pontos que mais custam: sair sem salvar sem querer, deixar um <code translate="no">.swp</code> que trava a edição seguinte, e salvar um arquivo com erro de sintaxe que derruba um serviço. O <code translate="no">visudo</code> e o <code translate="no">sudoedit</code> valem mais que velocidade.</li></ul>
+<h2 id="5-rocky-debian">5 · Rocky × Debian</h2>
+<div class="tabela"><table><thead><tr><th scope="col">Item</th><th scope="col">rocky-lab (Rocky 9)</th><th scope="col">debian-lab (Debian 13)</th><th scope="col">Como conferir</th></tr></thead><tbody><tr><td>O que é o <code translate="no">vi</code></td><td><code translate="no">/usr/bin/vi</code>, do pacote <code translate="no">vim-minimal</code></td><td><code translate="no">/usr/bin/vi</code> → <code translate="no">/etc/alternatives/vi</code> → <code translate="no">/usr/bin/vim.tiny</code>, do pacote <code translate="no">vim-tiny</code></td><td><code translate="no">readlink -f "$(command -v vi)"</code></td></tr><tr><td>O <code translate="no">vim</code> completo</td><td>Pacote <code translate="no">vim-enhanced</code>, que nem sempre vem instalado</td><td>Pacote <code translate="no">vim</code>, que não vem instalado</td><td><code translate="no">command -v vim</code></td></tr><tr><td>Versão</td><td>8.2</td><td>9.1</td><td><code translate="no">vi --version | head -2</code></td></tr><tr><td>Depois de instalar o completo</td><td>O <code translate="no">vi</code> continua sendo o <code translate="no">vim-minimal</code>; o pacote costuma trazer um <code translate="no">/etc/profile.d/vim.sh</code> com <code translate="no">alias vi=vim</code> para usuários comuns, mas não para o root</td><td>O <code translate="no">vi</code> passa a apontar para o <code translate="no">vim.basic</code>, porque ele tem prioridade maior nas alternativas</td><td><code translate="no">type vi</code>; <code translate="no">update-alternatives --display vi</code></td></tr><tr><td>Modo compatível com o <code translate="no">vi</code> antigo</td><td>Não, em uso normal</td><td>O <code translate="no">vim.tiny</code> lê o <code translate="no">/etc/vim/vimrc.tiny</code>, que liga o <code translate="no">compatible</code>, a não ser que você tenha um <code translate="no">~/.vimrc</code></td><td><code translate="no">:set compatible?</code> dentro do editor</td></tr><tr><td>Editor padrão (<code translate="no">EDITOR</code> vazio)</td><td><code translate="no">vi</code></td><td><code translate="no">/usr/bin/editor</code>, que aponta para o <code translate="no">nano</code></td><td><code translate="no">update-alternatives --display editor</code> (Debian)</td></tr><tr><td><code translate="no">visudo</code> e <code translate="no">sudoedit</code> sem <code translate="no">EDITOR</code></td><td>Abrem o <code translate="no">vi</code></td><td>Abrem o <code translate="no">nano</code></td><td>Rode e veja</td></tr><tr><td><code translate="no">crontab -e</code> na primeira vez</td><td>Abre o <code translate="no">vi</code></td><td>Pergunta qual editor você quer (<code translate="no">select-editor</code>) e grava a escolha em <code translate="no">~/.selected_editor</code></td><td>Rode como um usuário novo</td></tr><tr><td><code translate="no">vimtutor</code></td><td>Vem com o <code translate="no">vim-enhanced</code></td><td>Vem com o pacote <code translate="no">vim</code></td><td><code translate="no">command -v vimtutor</code></td></tr><tr><td><code translate="no">syntax on</code> no <code translate="no">~/.vimrc</code></td><td>Erro no <code translate="no">vim-minimal</code></td><td>Erro no <code translate="no">vim.tiny</code></td><td>Proteja com <code translate="no">if has('syntax')</code></td></tr></tbody></table></div>
+<p>A linha que mais pega é a do modo compatível. O mesmo <code translate="no">vi</code>, na mesma tela, desfaz só uma vez, e as setas no modo de inserção escrevem letras. Não é defeito: é o <code translate="no">vim</code> imitando o <code translate="no">vi</code> dos anos 1980, de propósito. Na Quebra B você vê isso acontecer, e conserta com uma linha.</p>
+<p>A outra é a do editor padrão. Na Debian, o <code translate="no">sudo visudo</code> abre o <code translate="no">nano</code>, e quem treinou só o <code translate="no">vi</code> se perde do outro lado. Saiba sair dos dois: no <code translate="no">nano</code>, Ctrl+O grava e Ctrl+X sai.</p>
+<h2 id="6-lab-guiado">6 · Lab guiado</h2>
+<p>Você é o <code translate="no">rodrigo</code>, na rocky-lab, e alcança a debian-lab pelo <code translate="no">ssh deb</code>. Tudo acontece em <code translate="no">~/lab35</code>, nas duas VMs, sobre <strong>cópias</strong>. A regra do lab: antes de cada passo, <code translate="no">cp conf.orig treino.conf</code>; depois, <code translate="no">diff conf.orig treino.conf</code> mostra exatamente o que as suas teclas fizeram. O <code translate="no">diff</code> é o seu juiz, não a sua memória. O único arquivo de root é o do Passo 8, criado só para o lab, em <code translate="no">/srv/lab35</code>. Nenhum arquivo do sistema é aberto para escrita.</p>
+<figure><a href="../img/3.5-como-sair-do-vim.svg"><img src="../img/3.5-como-sair-do-vim.svg" alt="3.5 Como Sair Do Vim" loading="lazy" decoding="async"></a><figcaption>Na dúvida, aperte Esc duas vezes para voltar ao modo normal, de onde tudo começa.</figcaption></figure>
+<p>Nos blocos abaixo, as teclas que você aperta dentro do <code translate="no">vim</code> aparecem num comentário depois do comando que abre o editor. <code translate="no">Esc</code> é a tecla Esc, <code translate="no">Enter</code> é a tecla Enter, e o espaço entre as teclas só serve para ler: não aperte a barra de espaço.</p>
+<h3 id="passo-0-snapshot-pasta-e-qual-vi-voce-tem">Passo 0 · Snapshot, pasta e qual <code translate="no">vi</code> você tem</h3>
+<p>No Proxmox, tire o snapshot <code translate="no">m3a5-inicio</code> das duas VMs. Na rocky-lab:</p>
+<pre translate="no"><code class="lang-bash">eval "$(ssh-agent -s)"; ssh-add
+mkdir -p ~/lab35; ssh deb 'mkdir -p ~/lab35'
+cd ~/lab35
+cp ~/lab34/conf.amostra conf.orig
+cp ~/lab34/acesso.log .
+wc -l conf.orig acesso.log
+scp conf.orig acesso.log deb:lab35/</code></pre>
+<pre translate="no"><code class="lang-text"> 11 conf.orig
+ 15 acesso.log
+ 26 total</code></pre>
+<p>Se faltar algum, recrie com o Passo 0 da Aula 3.3. Agora descubra qual <code translate="no">vi</code> cada VM tem. Rode o bloco na rocky-lab e, trocando <code translate="no">rpm -qf</code> por <code translate="no">dpkg -S</code>, na debian-lab:</p>
+<pre translate="no"><code class="lang-bash">type vi vim
+readlink -f "$(command -v vi)"
+rpm -qf "$(readlink -f "$(command -v vi)")"
+vi --version | head -2
+echo "VISUAL=$VISUAL EDITOR=$EDITOR"</code></pre>
+<p>Na Rocky você deve ver algo como <code translate="no">vi is /usr/bin/vi</code>, o pacote <code translate="no">vim-minimal</code>, <code translate="no">VIM - Vi IMproved 8.2</code> e, na segunda linha, uma versão <em>Small</em> ou <em>Huge</em>, conforme o build. Talvez <code translate="no">vim</code> nem exista. Na Debian, o <code translate="no">readlink</code> termina em <code translate="no">/usr/bin/vim.tiny</code>, o <code translate="no">dpkg -S</code> diz <code translate="no">vim-tiny</code>, a versão é 9.1 e a segunda linha fala em <em>Tiny version</em>. As duas variáveis estão vazias. Na Debian, confira também o editor padrão:</p>
+<pre translate="no"><code class="lang-bash">ssh deb 'update-alternatives --display editor | head -3; update-alternatives --display vi | head -3'</code></pre>
+<p>Agora instale o <code translate="no">vim</code> completo nas duas, e confira de novo:</p>
+<pre translate="no"><code class="lang-bash">sudo dnf install -y vim-enhanced
+ssh -t deb 'sudo apt install -y vim'
+bash -lc 'type vi vim'
+ssh deb 'readlink -f "$(command -v vi)"; readlink -f /usr/bin/editor'</code></pre>
+<p>Na Rocky, o <code translate="no">vi</code> continua sendo o <code translate="no">vim-minimal</code>; num shell de login novo, o <code translate="no">type vi</code> pode mostrar <code translate="no">vi is aliased to 'vim'</code>, que vem do <code translate="no">/etc/profile.d/vim.sh</code>. Na Debian, o <code translate="no">vi</code> agora termina em <code translate="no">/usr/bin/vim.basic</code>, e o <code translate="no">editor</code> continua no <code translate="no">nano</code>. O <code translate="no">vim.tiny</code> não foi embora: ele continua instalado, e a Quebra B usa ele. Anote o que saiu em cada VM.</p>
+<h3 id="passo-1-entrar-e-sair-sem-estragar">Passo 1 · Entrar e sair sem estragar</h3>
+<pre translate="no"><code class="lang-bash">cd ~/lab35
+cp conf.orig treino.conf
+vim treino.conf          # no vim: dd   e depois   :q Enter</code></pre>
+<p>Você apagou a primeira linha e pediu para sair.</p>
+<p><strong>Decida 1 · O que o <code translate="no">vim</code> faz com o <code translate="no">:q</code>?</strong></p>
+<ul><li><strong>A)</strong> Sai, e a linha 1 sumiu do arquivo</li>
+<li><strong>B)</strong> Recusa, e avisa que há mudança não gravada</li>
+<li><strong>C)</strong> Grava a mudança e sai, como o <code translate="no">:wq</code></li>
+<li><strong>D)</strong> Pergunta se você quer salvar, como o Bloco de Notas</li></ul>
+<p>Escolha a letra antes de olhar a tabela.</p>
+<pre translate="no"><code class="lang-bash"># ainda no vim, depois do :q
+:q!
+cmp conf.orig treino.conf &amp;&amp; echo igual</code></pre>
+<pre translate="no"><code class="lang-text">E37: No write since last change (add ! to override)
+igual</code></pre>
+<div class="tabela"><table><thead><tr><th scope="col">Se você marcou</th><th scope="col">Resultado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>A</td><td>❌ Errada</td><td>O <code translate="no">:q</code> nunca joga fora uma mudança. Para isso existe o <code translate="no">!</code></td></tr><tr><td>B</td><td>✅ Certa</td><td>O <code translate="no">E37</code> é a trava de segurança. O <code translate="no">:q!</code> sai descartando, e o <code translate="no">cmp</code> confirma que o arquivo ficou igual ao original</td></tr><tr><td>C</td><td>❌ Errada</td><td>Gravar e sair é o <code translate="no">:wq</code>, o <code translate="no">:x</code> ou o <code translate="no">ZZ</code>. O <code translate="no">:q</code> só sai</td></tr><tr><td>D</td><td>❌ Errada</td><td>O <code translate="no">vim</code> não abre janelas de pergunta. Ele recusa e diz qual comando força</td></tr></tbody></table></div>
+<p><strong>Para fixar:</strong> o <code translate="no">!</code> no fim de um comando do <code translate="no">vim</code> quer dizer "eu sei, faça assim mesmo". <code translate="no">:q!</code> sai sem gravar; <code translate="no">:w!</code> grava por cima de um aviso. Na dúvida sobre o que mudou, saia com <code translate="no">:q!</code> e comece de novo: uma cópia intacta vale mais que dez minutos de <code translate="no">u</code>.</p>
+<p>Confira os outros jeitos de sair, de novo com a cópia limpa:</p>
+<pre translate="no"><code class="lang-bash">cp conf.orig treino.conf; stat -c %y treino.conf
+vim treino.conf          # no vim: :x Enter        (nada mudou)
+stat -c %y treino.conf
+vim treino.conf          # no vim: :wq Enter       (nada mudou)
+stat -c %y treino.conf</code></pre>
+<p>Depois do <code translate="no">:x</code>, a data é a mesma. Depois do <code translate="no">:wq</code>, a data muda, mesmo sem nenhuma mudança no texto. Num arquivo vigiado por um serviço ou por um backup incremental, essa diferença conta. O <code translate="no">ZZ</code> é o <code translate="no">:x</code> em duas teclas.</p>
+<h3 id="passo-2-trocar-uma-palavra">Passo 2 · Trocar uma palavra</h3>
+<p>Você quer trocar o <code translate="no">yes</code> por <code translate="no">no</code> na linha 7, <code translate="no">PasswordAuthentication yes</code>, com o modo normal, sem <code translate="no">:s</code>. A linha 7 começa em <code translate="no">P</code>.</p>
+<p><strong>Decida 2 · Qual sequência deixa a linha 7 como <code translate="no">PasswordAuthentication no</code>?</strong></p>
+<ul><li><strong>A)</strong> <code translate="no">7G</code> <code translate="no">w</code> <code translate="no">cw</code> <code translate="no">no</code> <code translate="no">Esc</code></li>
+<li><strong>B)</strong> <code translate="no">7G</code> <code translate="no">$</code> <code translate="no">cw</code> <code translate="no">no</code> <code translate="no">Esc</code></li>
+<li><strong>C)</strong> <code translate="no">7G</code> <code translate="no">cw</code> <code translate="no">no</code> <code translate="no">Esc</code></li>
+<li><strong>D)</strong> <code translate="no">7G</code> <code translate="no">w</code> <code translate="no">r</code> <code translate="no">no</code> <code translate="no">Esc</code></li></ul>
+<p>Escolha a letra antes de olhar a tabela.</p>
+<p>Faça a sua no <code translate="no">vim</code>, com <code translate="no">:wq</code> no fim, e olhe o <code translate="no">diff</code>. Depois confira as quatro de uma vez. O <code translate="no">vim -Es</code> roda o <code translate="no">vim</code> sem tela, como um <code translate="no">sed</code>; o <code translate="no">normal!</code> aperta as teclas por você:</p>
+<pre translate="no"><code class="lang-bash">for k in '7Gwcwno' '7G$cwno' '7Gcwno' '7Gwrno'; do
+  cp conf.orig t.conf
+  vim -u NONE -N -i NONE -n -Es -c "exe \"normal! ${k}\&lt;Esc&gt;\"" -c wq t.conf
+  printf '%-9s -&gt; ' "$k"; sed -n 7p t.conf
+done</code></pre>
+<pre translate="no"><code class="lang-text">7Gwcwno   -&gt; PasswordAuthentication no
+7G$cwno   -&gt; PasswordAuthentication yeno
+7Gcwno    -&gt; no yes
+7Gwrno    -&gt; PasswordAuthentication nes</code></pre>
+<div class="tabela"><table><thead><tr><th scope="col">Se você marcou</th><th scope="col">Resultado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>A</td><td>✅ Certa</td><td>O <code translate="no">7G</code> vai para a linha 7, o <code translate="no">w</code> pula para o começo de <code translate="no">yes</code>, e o <code translate="no">cw</code> troca a palavra inteira pelo que você digitar</td></tr><tr><td>B</td><td>❌ Errada</td><td>O <code translate="no">$</code> vai para o <strong>último caractere</strong>, o <code translate="no">s</code>. O <code translate="no">cw</code> troca só do cursor ao fim da palavra, que é o <code translate="no">s</code>. Sobra o <code translate="no">ye</code>, e o resultado é <code translate="no">yeno</code></td></tr><tr><td>C</td><td>❌ Errada</td><td>Sem o <code translate="no">w</code>, o cursor está no <code translate="no">P</code>, e a palavra trocada é <code translate="no">PasswordAuthentication</code></td></tr><tr><td>D</td><td>⚠️ Pior do que parece</td><td>O <code translate="no">r</code> troca <strong>um</strong> caractere: o <code translate="no">y</code> vira <code translate="no">n</code>. O <code translate="no">o</code> seguinte não é texto, é o comando "abrir linha abaixo". Você fica com <code translate="no">nes</code> na linha 7 e uma linha vazia nova, a 8</td></tr></tbody></table></div>
+<p><strong>Para fixar:</strong> o movimento decide onde a frase começa e termina. Antes de um <code translate="no">cw</code> ou de um <code translate="no">dw</code>, olhe onde o cursor está. E desconfie de uma letra "a mais" depois de um comando: no modo normal, ela também é um comando.</p>
+<h3 id="passo-3-apagar-copiar-colar-repetir">Passo 3 · Apagar, copiar, colar, repetir</h3>
+<p>Comece de novo. A linha 4 é <code translate="no">#PermitRootLogin prohibit-password</code>, e você quer tirar o <code translate="no">#</code>:</p>
+<pre translate="no"><code class="lang-bash">cp conf.orig treino.conf
+vim treino.conf          # no vim: 4G dw :wq Enter
+diff conf.orig treino.conf</code></pre>
+<p><strong>Decida 3 · Como fica a linha 4?</strong></p>
+<ul><li><strong>A)</strong> <code translate="no">PermitRootLogin prohibit-password</code></li>
+<li><strong>B)</strong> <code translate="no"> prohibit-password</code></li>
+<li><strong>C)</strong> <code translate="no">prohibit-password</code></li>
+<li><strong>D)</strong> Vazia</li></ul>
+<p>Escolha a letra antes de olhar a tabela.</p>
+<pre translate="no"><code class="lang-text">4c4
+&lt; #PermitRootLogin prohibit-password
+---
+&gt; PermitRootLogin prohibit-password</code></pre>
+<div class="tabela"><table><thead><tr><th scope="col">Se você marcou</th><th scope="col">Resultado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>A</td><td>✅ Certa</td><td>Para o <code translate="no">w</code>, o <code translate="no">#</code> é uma palavra sozinha, porque é um símbolo seguido de letras. O <code translate="no">dw</code> apaga só ele</td></tr><tr><td>B</td><td>❌ Errada</td><td>Seria o <code translate="no">dW</code>, que usa só o espaço como separador e apaga <code translate="no">#PermitRootLogin</code></td></tr><tr><td>C</td><td>❌ Errada</td><td>Seria o <code translate="no">dW</code> mais o espaço, ou um <code translate="no">2dw</code></td></tr><tr><td>D</td><td>❌ Errada</td><td>Seria o <code translate="no">D</code> ou o <code translate="no">d$</code>, do cursor ao fim da linha</td></tr></tbody></table></div>
+<p><strong>Para fixar:</strong> <code translate="no">w</code> é palavra no sentido de programador (letras, números e <code translate="no">_</code>, ou um bloco de símbolos); <code translate="no">W</code> é palavra no sentido de "até o espaço". Para descomentar uma linha, o mais curto é <code translate="no">x</code> sobre o <code translate="no">#</code>.</p>
+<p>Agora a busca com repetição. Você quer apagar as linhas que começam com <code translate="no">#</code>, uma por uma, conferindo cada uma:</p>
+<pre translate="no"><code class="lang-bash">cp conf.orig treino.conf
+vim treino.conf          # no vim: gg /^# Enter dd n . :wq Enter
+diff conf.orig treino.conf</code></pre>
+<p><strong>Decida 4 · Quais linhas do original sumiram?</strong></p>
+<ul><li><strong>A)</strong> A 1 e a 4</li>
+<li><strong>B)</strong> A 4 e a 11</li>
+<li><strong>C)</strong> A 1, a 4 e a 11</li>
+<li><strong>D)</strong> A 4, a 6, a 9 e a 11</li></ul>
+<p>Escolha a letra antes de olhar a tabela.</p>
+<pre translate="no"><code class="lang-text">4d3
+&lt; #PermitRootLogin prohibit-password
+11d9
+&lt; #PasswordAuthentication no</code></pre>
+<div class="tabela"><table><thead><tr><th scope="col">Se você marcou</th><th scope="col">Resultado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>A</td><td>❌ Errada</td><td>A linha 1 casa com <code translate="no">^#</code>, mas a busca começa <strong>depois</strong> do cursor. Com o cursor no começo da linha 1, a primeira ocorrência achada é a da linha 4</td></tr><tr><td>B</td><td>✅ Certa</td><td>O <code translate="no">/^#</code> achou a 4, o <code translate="no">dd</code> apagou, o <code translate="no">n</code> achou a próxima, a antiga 11, e o <code translate="no">.</code> repetiu o <code translate="no">dd</code></td></tr><tr><td>C</td><td>❌ Errada</td><td>Seria preciso começar a busca de baixo para cima, ou com o cursor no fim do arquivo (<code translate="no">G</code> antes do <code translate="no">/</code>)</td></tr><tr><td>D</td><td>❌ Errada</td><td>As linhas 6 e 9 têm <code translate="no">#</code>, mas depois de espaços e de uma tabulação. O <code translate="no">^#</code> exige o <code translate="no">#</code> na primeira coluna</td></tr></tbody></table></div>
+<p><strong>Para fixar:</strong> <code translate="no">n</code> e <code translate="no">.</code> são a dupla da edição conferida: o <code translate="no">n</code> mostra a próxima, você olha, e o <code translate="no">.</code> aplica, ou outro <code translate="no">n</code> pula. E a busca começa depois do cursor: para incluir a linha 1, comece com <code translate="no">G</code>, porque a busca dá a volta no fim do arquivo.</p>
+<p>O resto do vocabulário, um por vez, sempre com a cópia limpa e o <code translate="no">diff</code>:</p>
+<pre translate="no"><code class="lang-bash">cp conf.orig treino.conf
+vim treino.conf          # no vim: 4G 3dd u :wq Enter       (apaga 3, desfaz)
+diff conf.orig treino.conf &amp;&amp; echo nada mudou
+cp conf.orig treino.conf
+vim treino.conf          # no vim: 10G yy p :wq Enter       (duplica a linha 10)
+diff conf.orig treino.conf
+cp conf.orig treino.conf
+vim treino.conf          # no vim: 2G dd p :wq Enter        (troca a 2 com a 3)
+diff conf.orig treino.conf</code></pre>
+<pre translate="no"><code class="lang-text">nada mudou
+10a11
+&gt; MaxAuthTries 3
+2d1
+&lt; Port 22
+3a3
+&gt; Port 22</code></pre>
+<p>Experimente também, sem gravar: <code translate="no">u</code> várias vezes e <code translate="no">Ctrl-r</code> para refazer; <code translate="no">A # era 6</code> e <code translate="no">Esc</code> na linha 10, para comentar no fim; <code translate="no">o</code> na linha 2, para abrir uma linha nova abaixo do <code translate="no">Port 22</code>. Saia com <code translate="no">:q!</code>.</p>
+<h3 id="passo-4-trocar-com-s-e-s">Passo 4 · Trocar com <code translate="no">:s</code> e <code translate="no">:%s</code></h3>
+<pre translate="no"><code class="lang-bash">cp conf.orig treino.conf
+vim treino.conf          # no vim: :s/yes/no/ Enter</code></pre>
+<p>O cursor está na linha 1, onde o <code translate="no">vim</code> abre.</p>
+<p><strong>Decida 5 · O que acontece?</strong></p>
+<ul><li><strong>A)</strong> A linha 7 vira <code translate="no">PasswordAuthentication no</code></li>
+<li><strong>B)</strong> Todos os <code translate="no">yes</code> do arquivo viram <code translate="no">no</code></li>
+<li><strong>C)</strong> Um erro, e nada muda</li>
+<li><strong>D)</strong> O <code translate="no">vim</code> acrescenta <code translate="no">no</code> à linha 1</li></ul>
+<p>Escolha a letra antes de olhar a tabela.</p>
+<pre translate="no"><code class="lang-text">E486: Pattern not found: yes</code></pre>
+<div class="tabela"><table><thead><tr><th scope="col">Se você marcou</th><th scope="col">Resultado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>A</td><td>❌ Errada</td><td>Sem intervalo, o <code translate="no">:s</code> só olha a linha do cursor. A linha 7 nem é lida</td></tr><tr><td>B</td><td>❌ Errada</td><td>Isso é o <code translate="no">:%s/yes/no/g</code>. Faltam o <code translate="no">%</code> e o <code translate="no">g</code></td></tr><tr><td>C</td><td>✅ Certa</td><td>A linha 1 não tem <code translate="no">yes</code>. O <code translate="no">E486</code> avisa, e o arquivo continua igual</td></tr><tr><td>D</td><td>❌ Errada</td><td>O <code translate="no">:s</code> só troca o que casa. Sem casamento, não há troca</td></tr></tbody></table></div>
+<p><strong>Para fixar:</strong> o <code translate="no">:s</code> é o <code translate="no">sed</code> de uma linha só. Para o arquivo inteiro, <code translate="no">%</code>; para todas as ocorrências da linha, <code translate="no">g</code>. Leia <code translate="no">:%s/a/b/g</code> como "em todas as linhas, troque todos os <code translate="no">a</code> por <code translate="no">b</code>".</p>
+<p>Agora certo, e com as ferramentas da Aula 3.4. Faça um de cada vez, dentro do mesmo <code translate="no">vim</code>, e veja a tela mudar:</p>
+<pre translate="no"><code class="lang-bash">vim treino.conf
+# :%s/^\(PasswordAuthentication\) yes$/\1 no/ Enter       grupo e \1
+# :%s/^MaxAuthTries/# &amp;/ Enter                            o &amp; é o que casou
+# :5,7s/^/#/ Enter                                        comenta as linhas 5 a 7
+# u u                                                     desfaz as duas últimas
+# :%s/yes/no/gc Enter                                     pergunta uma por uma: y, n, q
+# :wq Enter
+diff conf.orig treino.conf</code></pre>
+<pre translate="no"><code class="lang-text">7c7
+&lt; PasswordAuthentication yes
+---
+&gt; PasswordAuthentication no</code></pre>
+<p>O <code translate="no">u</code> desfaz um <code translate="no">:s</code> inteiro de uma vez, mesmo que ele tenha trocado cem linhas. Por isso, no <code translate="no">vim</code>, um <code translate="no">:%s</code> errado custa uma tecla. No <code translate="no">sed -i</code>, custa a cópia de segurança que você talvez não fez.</p>
+<p>Agora o <code translate="no">acesso.log</code>. Você quer esconder os números do log para mandar a um fornecedor, e escreve a regex como na ERE:</p>
+<pre translate="no"><code class="lang-bash">cp acesso.log anon.log
+vim anon.log             # no vim: :%s/[0-9]+/N/g Enter</code></pre>
+<p><strong>Decida 6 · O que acontece?</strong></p>
+<ul><li><strong>A)</strong> Cada sequência de dígitos vira um <code translate="no">N</code></li>
+<li><strong>B)</strong> Cada dígito vira um <code translate="no">N</code></li>
+<li><strong>C)</strong> Um erro, e nada muda</li>
+<li><strong>D)</strong> Só a primeira linha muda</li></ul>
+<p>Escolha a letra antes de olhar a tabela.</p>
+<pre translate="no"><code class="lang-text">E486: Pattern not found: [0-9]+</code></pre>
+<pre translate="no"><code class="lang-bash"># ainda no vim
+:%s/[0-9]\+/N/g
+:1,2p
+:q!</code></pre>
+<pre translate="no"><code class="lang-text">N.N.N.N - - [N/Nov/N:N:N:N +N] "GET / HTTP/N.N" N N
+N.N.N.N - - [N/Nov/N:N:N:N +N] "GET /docs HTTP/N.N" N N</code></pre>
+<div class="tabela"><table><thead><tr><th scope="col">Se você marcou</th><th scope="col">Resultado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>A</td><td>❌ Errada</td><td>É o que você queria, e o que o <code translate="no">sed -E</code> faria. No <code translate="no">vim</code>, sem barra, o <code translate="no">+</code> é um caractere comum</td></tr><tr><td>B</td><td>❌ Errada</td><td>Seria o <code translate="no">:%s/[0-9]/N/g</code>, sem o <code translate="no">+</code></td></tr><tr><td>C</td><td>✅ Certa</td><td>O <code translate="no">vim</code> procurou "um dígito seguido de um <code translate="no">+</code>", e não há nenhum <code translate="no">+</code> no log</td></tr><tr><td>D</td><td>❌ Errada</td><td>Com o <code translate="no">%</code>, o <code translate="no">:s</code> olha todas as linhas. Ele simplesmente não achou nada</td></tr></tbody></table></div>
+<p><strong>Para fixar:</strong> a regex do <code translate="no">vim</code> é BRE: <code translate="no">\+</code>, <code translate="no">\?</code>, <code translate="no">\|</code>, <code translate="no">\(</code>, <code translate="no">\{</code>. Se você pensa em ERE, comece com <code translate="no">\v</code>: <code translate="no">:%s/\v[0-9]+/N/g</code>. E um <code translate="no">E486</code> num <code translate="no">:%s</code> é bom sinal: nada mudou, e você pode tentar de novo.</p>
+<p>Um delimitador diferente, para não escapar as barras do caminho:</p>
+<pre translate="no"><code class="lang-bash">cp acesso.log anon.log
+vim anon.log             # no vim: :%s#/login#/entrar#g Enter :wq Enter
+grep -c entrar anon.log</code></pre>
+<pre translate="no"><code class="lang-text">5</code></pre>
+<h3 id="passo-5-filtrar-linhas-g-v-e">Passo 5 · Filtrar linhas: <code translate="no">:g</code>, <code translate="no">:v</code> e <code translate="no">:%!</code></h3>
+<p>Você quer ficar só com as tentativas de login que falharam, as linhas com <code translate="no">401</code>, para mandar ao colega da segurança.</p>
+<pre translate="no"><code class="lang-bash">cp acesso.log falhas.log
+vim falhas.log           # no vim: :v/401/d Enter</code></pre>
+<p><strong>Decida 7 · Quantas linhas sobram no buffer?</strong></p>
+<ul><li><strong>A)</strong> 11</li>
+<li><strong>B)</strong> 4</li>
+<li><strong>C)</strong> 15</li>
+<li><strong>D)</strong> 5</li></ul>
+<p>Escolha a letra antes de olhar a tabela.</p>
+<pre translate="no"><code class="lang-bash"># ainda no vim
+:%p
+:wq
+wc -l falhas.log</code></pre>
+<pre translate="no"><code class="lang-text">192.168.5.7 - - [03/Nov/2026:08:02:30 +0100] "POST /login HTTP/1.1" 401 128
+192.168.5.7 - - [03/Nov/2026:08:02:31 +0100] "POST /login HTTP/1.1" 401 128
+192.168.5.7 - - [03/Nov/2026:08:03:12 +0100] "POST /login HTTP/1.1" 401 128
+192.168.5.7 - - [03/Nov/2026:08:05:40 +0100] "POST /login HTTP/1.1" 401 128
+4 falhas.log</code></pre>
+<div class="tabela"><table><thead><tr><th scope="col">Se você marcou</th><th scope="col">Resultado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>A</td><td>❌ Errada</td><td>Seria o <code translate="no">:g/401/d</code>, que apaga as linhas <strong>com</strong> <code translate="no">401</code>. O <code translate="no">:v</code> é o contrário do <code translate="no">:g</code></td></tr><tr><td>B</td><td>✅ Certa</td><td>O <code translate="no">:v/401/d</code> apaga toda linha que <strong>não</strong> tem <code translate="no">401</code>. Sobram as quatro falhas do <code translate="no">192.168.5.7</code></td></tr><tr><td>C</td><td>❌ Errada</td><td>O <code translate="no">:v</code> não é só leitura: com <code translate="no">d</code>, ele apaga</td></tr><tr><td>D</td><td>❌ Errada</td><td>5 é o número de linhas do <code translate="no">192.168.5.7</code>. Uma delas, a das 08:07, é um login que deu certo (<code translate="no">200</code>)</td></tr></tbody></table></div>
+<p><strong>Para fixar:</strong> <code translate="no">:g/re/d</code> é o <code translate="no">grep -v</code>, e <code translate="no">:v/re/d</code> é o <code translate="no">grep</code>, os dois dentro do editor. O <code translate="no">:g/re/p</code> só mostra.</p>
+<p>Agora a limpeza do arquivo de configuração, e a bancada de filtros:</p>
+<pre translate="no"><code class="lang-bash">cp conf.orig limpo.conf
+vim limpo.conf
+# :g/^\s*#/d Enter            comentários, com ou sem recuo
+# :g/^\s*$/d Enter            linhas vazias ou só com espaços
+# :wq Enter
+cat limpo.conf
+cp acesso.log ips.txt
+vim ips.txt
+# :%!cut -d' ' -f1 | sort | uniq -c | sort -rn Enter
+# :r !date Enter              a data, abaixo do cursor
+# :wq Enter
+cat ips.txt</code></pre>
+<pre translate="no"><code class="lang-text">Port 22
+PermitRootLogin no
+PasswordAuthentication yes
+MaxAuthTries 3
+      5 192.168.5.7
+Mon Nov  3 10:15:00 CET 2026
+      4 10.1.0.20
+      3 203.0.113.9
+      2 10.1.0.31
+      1 10.1.0.45</code></pre>
+<p>A data entrou abaixo da linha 1 porque o cursor estava nela depois do <code translate="no">:%!</code>. A hora e o idioma do <code translate="no">date</code> são os da sua VM. O <code translate="no">limpo.conf</code> é o mesmo resultado do <code translate="no">grep -Ev '^[[:space:]]*(#|$)'</code> da Aula 3.3, mas feito dentro do arquivo, com <code translate="no">u</code> à mão.</p>
+<h3 id="passo-6-ver-o-invisivel-e-configurar-o-seu-vim">Passo 6 · Ver o invisível e configurar o seu <code translate="no">vim</code></h3>
+<pre translate="no"><code class="lang-bash">vim conf.orig            # no vim: :set list Enter   :set nu Enter   :set ff? Enter</code></pre>
+<p>Na linha 8 você vê três espaços e um <code translate="no">$</code>; na 9, um <code translate="no">^I</code> antes do <code translate="no">#</code>; o rodapé diz <code translate="no">fileformat=unix</code>. É o <code translate="no">cat -A</code> da Aula 3.3, dentro do editor. Saia com <code translate="no">:q</code>. Agora o seu <code translate="no">~/.vimrc</code>, nas duas VMs:</p>
+<pre translate="no"><code class="lang-bash">cat &gt; ~/.vimrc &lt;&lt;'EOF'
+" ~/.vimrc mínimo, que funciona do vim.tiny ao vim completo
+set nocompatible
+set number
+set hlsearch incsearch
+set ignorecase smartcase
+set backspace=indent,eol,start
+set nomodeline
+if has('syntax')
+  syntax on
+endif
+EOF
+scp ~/.vimrc deb:
+vim -u ~/.vimrc -Es -c 'set compatible? number? ignorecase?' -c q 2&gt;&amp;1</code></pre>
+<pre translate="no"><code class="lang-text">nocompatible  number  ignorecase</code></pre>
+<p>O <code translate="no">if has('syntax')</code> evita o erro <code translate="no">E319</code> nos builds mínimos, que não têm cores. O <code translate="no">set nomodeline</code> protege você ao abrir arquivos de outras pessoas. O <code translate="no">backspace</code> faz o Backspace apagar além do ponto onde você entrou no modo de inserção, que o <code translate="no">vi</code> antigo não deixa. Para o root, este arquivo não vale, e nem precisa: com o <code translate="no">sudoedit</code>, quem roda o editor é você.</p>
+<h3 id="passo-7-a-sessao-que-caiu-o-arquivo-swp">Passo 7 · A sessão que caiu: o arquivo <code translate="no">.swp</code></h3>
+<p>Faça na rocky-lab. Você vai editar um arquivo, simular uma queda e recuperar.</p>
+<pre translate="no"><code class="lang-bash">cp conf.orig swap.conf
+vim swap.conf
+# G o MaxStartups 10:30:60 Esc        uma linha nova no fim
+# espere 5 segundos sem apertar nada
+# Ctrl-z                              suspende o vim e volta ao shell
+ls -a | grep swp
+kill -9 %1
+jobs</code></pre>
+<pre translate="no"><code class="lang-text">.swap.conf.swp
+[1]+  Killed                  vim swap.conf</code></pre>
+<p>O <code translate="no">kill -9</code> matou o <code translate="no">vim</code> sem dar chance de gravar: é o mesmo que um SSH que cai ou uma VM que desliga. O <code translate="no">swap.conf</code> no disco não tem a linha nova; o <code translate="no">.swap.conf.swp</code>, tem. Os 5 segundos foram para o <code translate="no">vim</code> gravar o <code translate="no">.swp</code>, o que ele faz depois de 4 segundos parado (a opção <code translate="no">updatetime</code>). Abra de novo:</p>
+<pre translate="no"><code class="lang-bash">vim swap.conf</code></pre>
+<pre translate="no"><code class="lang-text">E325: ATTENTION
+Found a swap file by the name ".swap.conf.swp"
+          owned by: rodrigo   dated: ...
+         file name: ~rodrigo/lab35/swap.conf
+          modified: YES
+         user name: rodrigo   host name: rocky-lab
+        process ID: 4321
+While opening file "swap.conf"
+...
+[O]pen Read-Only, (E)dit anyway, (R)ecover, (D)elete it, (Q)uit, (A)bort:</code></pre>
+<p>O <code translate="no">process ID</code> não diz <code translate="no">(STILL RUNNING)</code>: ninguém está com o arquivo aberto. Aperte <code translate="no">R</code>. O <code translate="no">vim</code> recupera, avisa que você deve conferir, e diz que você talvez queira apagar o <code translate="no">.swp</code>. Aperte Enter, confira com <code translate="no">G</code> que a linha <code translate="no">MaxStartups</code> voltou, e grave com <code translate="no">:wq</code>.</p>
+<p><strong>Decida 8 · O que acontece quando você abre o <code translate="no">swap.conf</code> de novo?</strong></p>
+<ul><li><strong>A)</strong> Abre normal: o <code translate="no">:wq</code> apagou o <code translate="no">.swp</code></li>
+<li><strong>B)</strong> O <code translate="no">E325</code> aparece de novo</li>
+<li><strong>C)</strong> O arquivo abre sem a linha <code translate="no">MaxStartups</code>, porque a recuperação só vale até sair</li>
+<li><strong>D)</strong> O <code translate="no">vim</code> recusa abrir, porque o <code translate="no">.swp</code> é mais novo que o arquivo</li></ul>
+<p>Escolha a letra antes de olhar a tabela.</p>
+<pre translate="no"><code class="lang-bash">vim swap.conf            # E325 de novo: aperte Q
+ls -a | grep swp
+tail -1 swap.conf
+rm .swap.conf.swp
+vim swap.conf            # abre normal: :q Enter</code></pre>
+<pre translate="no"><code class="lang-text">.swap.conf.swp
+MaxStartups 10:30:60</code></pre>
+<div class="tabela"><table><thead><tr><th scope="col">Se você marcou</th><th scope="col">Resultado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>A</td><td>❌ Errada</td><td>O <code translate="no">vim</code> recuperou <strong>lendo</strong> o <code translate="no">.swp</code> velho, mas não apagou ele. O <code translate="no">:wq</code> só apaga o <code translate="no">.swp</code> da sessão atual</td></tr><tr><td>B</td><td>✅ Certa</td><td>O <code translate="no">.swp</code> da sessão morta continua lá, e o <code translate="no">vim</code> avisa de novo. Agora o <code translate="no">(D)elete it</code> resolve, ou o <code translate="no">rm</code> do arquivo</td></tr><tr><td>C</td><td>❌ Errada</td><td>O <code translate="no">:wq</code> gravou o texto recuperado no arquivo. O <code translate="no">tail -1</code> mostra a linha</td></tr><tr><td>D</td><td>❌ Errada</td><td>O <code translate="no">vim</code> nunca recusa abrir por causa de um <code translate="no">.swp</code>: ele pergunta</td></tr></tbody></table></div>
+<p><strong>Para fixar:</strong> recuperar tem três tempos: <code translate="no">R</code>, conferir e <code translate="no">:wq</code>, e depois apagar o <code translate="no">.swp</code> (com <code translate="no">D</code> no próximo <code translate="no">E325</code>, ou <code translate="no">rm</code>). Se o <code translate="no">E325</code> disser <code translate="no">STILL RUNNING</code>, não é para recuperar nem apagar: alguém está editando agora.</p>
+<h3 id="passo-8-o-arquivo-do-root-sudoedit-nao-sudo-vim">Passo 8 · O arquivo do root: <code translate="no">sudoedit</code>, não <code translate="no">sudo vim</code></h3>
+<p>Crie um arquivo de root, só para o lab:</p>
+<pre translate="no"><code class="lang-bash">sudo install -d -m 755 /srv/lab35
+sudo cp ~/lab35/conf.orig /srv/lab35/app.conf
+ls -ld /srv/lab35; ls -l /srv/lab35/app.conf
+vim /srv/lab35/app.conf
+# o rodapé mostra [readonly]
+# 7G w cw no Esc        o vim avisa: W10: Warning: Changing a readonly file
+# :w Enter</code></pre>
+<pre translate="no"><code class="lang-text">E45: 'readonly' option is set (add ! to override)</code></pre>
+<p>Você pensa: "o <code translate="no">!</code> força". E tenta.</p>
+<p><strong>Decida 9 · O que acontece com o <code translate="no">:w!</code>?</strong></p>
+<ul><li><strong>A)</strong> Grava, porque o <code translate="no">!</code> passa por cima de tudo</li>
+<li><strong>B)</strong> Um erro: o <code translate="no">vim</code> não consegue abrir o arquivo para escrita</li>
+<li><strong>C)</strong> O <code translate="no">vim</code> pede a senha do <code translate="no">sudo</code> e grava</li>
+<li><strong>D)</strong> Grava uma cópia em <code translate="no">~/app.conf</code></li></ul>
+<p>Escolha a letra antes de olhar a tabela.</p>
+<pre translate="no"><code class="lang-text">"/srv/lab35/app.conf" E212: Can't open file for writing</code></pre>
+<div class="tabela"><table><thead><tr><th scope="col">Se você marcou</th><th scope="col">Resultado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>A</td><td>❌ Errada</td><td>O <code translate="no">!</code> passa por cima de um <strong>aviso</strong> do <code translate="no">vim</code> (a opção <code translate="no">readonly</code>), não de uma permissão do sistema. Quem nega é o kernel</td></tr><tr><td>B</td><td>✅ Certa</td><td>O <code translate="no">E212</code> é o kernel dizendo não. O arquivo é do root com <code translate="no">644</code>, e a pasta é do root com <code translate="no">755</code></td></tr><tr><td>C</td><td>❌ Errada</td><td>O <code translate="no">vim</code> não fala com o <code translate="no">sudo</code> sozinho. Existe o remendo <code translate="no">:w !sudo tee %</code>, do Avançado, mas você teria de pedir</td></tr><tr><td>D</td><td>❌ Errada</td><td>O <code translate="no">vim</code> não muda de arquivo sem você dizer. <code translate="no">:w ~/app.conf</code> faria isso</td></tr></tbody></table></div>
+<p><strong>Para fixar:</strong> <code translate="no">E45</code> é o <code translate="no">vim</code> avisando, e o <code translate="no">!</code> passa. <code translate="no">E212</code> é o sistema negando, e o <code translate="no">!</code> não passa. Um detalhe que pega: se a <strong>pasta</strong> fosse sua, o <code translate="no">:w!</code> conseguiria apagar e recriar o arquivo, e ele passaria a ser seu. Por isso o lab usa <code translate="no">/srv/lab35</code>, do root.</p>
+<p>Saia com <code translate="no">:q!</code> e faça do jeito certo:</p>
+<pre translate="no"><code class="lang-bash">EDITOR=vim sudoedit /srv/lab35/app.conf
+# o sudo pede a sua senha; no vim: 7G w cw no Esc :wq Enter
+ls -l /srv/lab35/app.conf
+grep -n '^PasswordAuthentication' /srv/lab35/app.conf
+sudo visudo -c</code></pre>
+<pre translate="no"><code class="lang-text">-rw-r--r--. 1 root root 215 Nov  3 10:30 /srv/lab35/app.conf
+7:PasswordAuthentication no
+/etc/sudoers: parsed OK
+/etc/sudoers.d/...: parsed OK</code></pre>
+<p>O arquivo continua do root, com as mesmas permissões, e o <code translate="no">vim</code> rodou com o seu usuário e o seu <code translate="no">~/.vimrc</code>: os números de linha apareceram. Na debian-lab, faça o mesmo <strong>sem</strong> o <code translate="no">EDITOR=vim</code> na frente: <code translate="no">ssh -t deb 'sudo install -d -m 755 /srv/lab35; sudo cp ~/lab35/conf.orig /srv/lab35/app.conf; sudoedit /srv/lab35/app.conf'</code>. Abre o <code translate="no">nano</code>, como a tabela do §5 avisou. Saia com Ctrl+X. Para que o seu <code translate="no">vim</code> valha sempre, nas duas VMs:</p>
+<pre translate="no"><code class="lang-bash">echo 'export VISUAL=vim EDITOR=vim' &gt;&gt; ~/.bashrc
+ssh deb "echo 'export VISUAL=vim EDITOR=vim' &gt;&gt; ~/.bashrc"</code></pre>
+<p>O <code translate="no">sudo visudo -c</code> não mudou nada: ele só leu o <code translate="no">sudoers</code> e disse que está certo. É o comando para rodar depois de qualquer mudança em <code translate="no">/etc/sudoers.d/</code>, e antes de fechar a sessão de root.</p>
+<h2 id="7-quebre-e-conserte">7 · Quebre e conserte</h2>
+<h3 id="quebra-a-o-script-que-veio-do-windows">Quebra A · O script que veio do Windows</h3>
+<p>O cenário: um colega escreveu um script de backup no Notepad do Windows, mandou por e-mail, e você colou no servidor. Simule nas duas VMs. O <code translate="no">printf</code> com <code translate="no">\r\n</code> faz o que o Notepad faz:</p>
+<pre translate="no"><code class="lang-bash">cd ~/lab35
+printf '#!/bin/bash\r\necho "backup ok"\r\n' &gt; backup.sh
+chmod +x backup.sh
+./backup.sh</code></pre>
+<pre translate="no"><code class="lang-text">-bash: ./backup.sh: /bin/bash^M: bad interpreter: No such file or directory</code></pre>
+<p><strong>Observe.</strong> O <code translate="no">/bin/bash</code> existe, o script tem permissão de execução, e o erro diz que o interpretador não existe. Há um <code translate="no">^M</code> grudado no nome.</p>
+<p><strong>Decida 10 · Qual é a causa?</strong></p>
+<ul><li><strong>A)</strong> Falta o <code translate="no">chmod +x</code></li>
+<li><strong>B)</strong> O <code translate="no">bash</code> desta VM está em outro caminho</li>
+<li><strong>C)</strong> As linhas terminam em <code translate="no">\r\n</code>, e o <code translate="no">\r</code> virou parte do nome do interpretador</li>
+<li><strong>D)</strong> O script precisa rodar com <code translate="no">bash backup.sh</code></li></ul>
+<p>Escolha a letra antes de olhar a tabela.</p>
+<p><strong>Diagnostique.</strong></p>
+<pre translate="no"><code class="lang-bash">cat -A backup.sh
+file backup.sh
+vim backup.sh            # olhe o rodapé; no vim: :set ff? Enter   :q Enter</code></pre>
+<pre translate="no"><code class="lang-text">#!/bin/bash^M$
+echo "backup ok"^M$
+backup.sh: Bourne-Again shell script, ASCII text executable, with CRLF line terminators
+"backup.sh" [dos] 2L, 31B
+  fileformat=dos</code></pre>
+<div class="tabela"><table><thead><tr><th scope="col">Se você marcou</th><th scope="col">Resultado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>A</td><td>❌ Errada</td><td>Sem o <code translate="no">x</code>, o erro seria <code translate="no">Permission denied</code>. O <code translate="no">chmod</code> foi feito</td></tr><tr><td>B</td><td>❌ Errada</td><td>O kernel procurou um arquivo chamado <code translate="no">/bin/bash</code> seguido de um <code translate="no">\r</code>, que não existe. O <code translate="no">bash</code> está onde sempre esteve</td></tr><tr><td>C</td><td>✅ Certa</td><td>O <code translate="no">cat -A</code> mostra o <code translate="no">^M</code> antes de cada <code translate="no">$</code>, o <code translate="no">file</code> diz <code translate="no">CRLF</code>, e o <code translate="no">vim</code> mostra <code translate="no">[dos]</code> ao abrir</td></tr><tr><td>D</td><td>⚠️ Esconde o problema</td><td>O <code translate="no">bash backup.sh</code> ignora a primeira linha e roda. Este script até funciona, porque o <code translate="no">\r</code> no fim do <code translate="no">echo</code> não aparece. Mas um <code translate="no">cd /dados</code> vira <code translate="no">cd $'/dados\r'</code>, e o backup roda na pasta errada</td></tr></tbody></table></div>
+<p><strong>Para fixar:</strong> <code translate="no">bad interpreter</code> com <code translate="no">^M</code> é sempre fim de linha do Windows. O <code translate="no">[dos]</code> no rodapé do <code translate="no">vim</code> avisa antes de você rodar qualquer coisa.</p>
+<p><strong>Conserte.</strong></p>
+<pre translate="no"><code class="lang-bash">vim backup.sh            # no vim: :set ff=unix Enter   :wq Enter
+file backup.sh
+./backup.sh</code></pre>
+<pre translate="no"><code class="lang-text">backup.sh: Bourne-Again shell script, ASCII text executable
+backup ok</code></pre>
+<p>O <code translate="no">:set ff=unix</code> não muda o texto: muda o jeito como o <code translate="no">vim</code> grava o fim das linhas. Fora do editor, o mesmo conserto é <code translate="no">sed -i 's/\r$//' backup.sh</code>, ou o <code translate="no">dos2unix</code>, se estiver instalado. Um caso que engana: se só <strong>algumas</strong> linhas têm <code translate="no">\r\n</code>, o <code translate="no">vim</code> abre como <code translate="no">unix</code> e mostra os <code translate="no">^M</code> no fim delas. Aí o <code translate="no">:set ff=unix</code> não basta, e o certo é <code translate="no">:%s/\r$//</code>. Teste:</p>
+<pre translate="no"><code class="lang-bash">printf '#!/bin/bash\necho um\r\necho dois\n' &gt; misto.sh
+vim misto.sh             # no vim: :set ff? Enter   veja o ^M na linha 2   :%s/\r$// Enter   :wq Enter
+cat -A misto.sh</code></pre>
+<pre translate="no"><code class="lang-text">#!/bin/bash$
+echo um$
+echo dois$</code></pre>
+<h3 id="quebra-b-o-vi-da-debian-que-nao-desfaz">Quebra B · O <code translate="no">vi</code> da Debian que não desfaz</h3>
+<p>O cenário: num Debian recém-instalado, como root, sem <code translate="no">~/.vimrc</code>, o <code translate="no">vi</code> é o <code translate="no">vim.tiny</code>, e ele lê o <code translate="no">/etc/vim/vimrc.tiny</code>. Simule na debian-lab, sem mexer no root, forçando esse arquivo com o <code translate="no">-u</code>:</p>
+<pre translate="no"><code class="lang-bash">ssh deb
+cd ~/lab35
+printf 'linha um\nlinha dois\nlinha tres\n' &gt; quebra.txt
+grep -v '^"' /etc/vim/vimrc.tiny
+vim.tiny -u /etc/vim/vimrc.tiny quebra.txt
+# no vim: :set compatible? Enter</code></pre>
+<pre translate="no"><code class="lang-text">set runtimepath=...
+set compatible
+  compatible</code></pre>
+<p><strong>Observe.</strong> Agora, com o cursor na linha 2: <code translate="no">dd</code>, depois <code translate="no">u</code>, depois <code translate="no">u</code> de novo.</p>
+<p><strong>Decida 11 · Como fica o arquivo na tela?</strong></p>
+<ul><li><strong>A)</strong> As três linhas, como no começo: o segundo <code translate="no">u</code> não tem o que desfazer</li>
+<li><strong>B)</strong> Só a linha um e a linha tres: o segundo <code translate="no">u</code> apagou a linha de novo</li>
+<li><strong>C)</strong> Um erro, <code translate="no">Already at oldest change</code>, e as três linhas</li>
+<li><strong>D)</strong> Duas linhas a mais: cada <code translate="no">u</code> colou a linha apagada</li></ul>
+<p>Escolha a letra antes de olhar a tabela.</p>
+<pre translate="no"><code class="lang-text">linha um
+linha tres</code></pre>
+<div class="tabela"><table><thead><tr><th scope="col">Se você marcou</th><th scope="col">Resultado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>A</td><td>❌ Errada</td><td>É o que o <code translate="no">vim</code> faz no modo normal, com <code translate="no">nocompatible</code>: vários níveis de desfazer</td></tr><tr><td>B</td><td>✅ Certa</td><td>No modo <code translate="no">compatible</code>, o <code translate="no">vim</code> imita o <code translate="no">vi</code> original, que tem <strong>um</strong> nível de desfazer. O segundo <code translate="no">u</code> desfaz o desfazer</td></tr><tr><td>C</td><td>❌ Errada</td><td>Essa mensagem é do <code translate="no">vim</code> com <code translate="no">nocompatible</code>, quando você já desfez tudo</td></tr><tr><td>D</td><td>❌ Errada</td><td>O <code translate="no">u</code> nunca cola. Colar é o <code translate="no">p</code></td></tr></tbody></table></div>
+<p><strong>Para fixar:</strong> se o <code translate="no">u</code> "volta" a mudança que acabou de desfazer, você está no modo <code translate="no">compatible</code>. Não é defeito, é o <code translate="no">vi</code> dos anos 1980 de propósito.</p>
+<p><strong>Diagnostique.</strong> Ainda no <code translate="no">vim.tiny</code>, aperte <code translate="no">i</code> e uma seta para cima. Em vez de subir, aparece uma linha nova com um <code translate="no">A</code>: a seta manda <code translate="no">Esc O A</code>, e no modo <code translate="no">compatible</code> o <code translate="no">vim</code> lê isso como "sai da inserção, abre uma linha acima, escreve A". Confira o que você tem:</p>
+<pre translate="no"><code class="lang-bash"># ainda no vim.tiny
+:version
+:set compatible? esckeys?
+:q!</code></pre>
+<pre translate="no"><code class="lang-text">VIM - Vi IMproved 9.1 ...
+Tiny version without GUI.  Features included (+) or not (-):
+...
+  compatible
+noesckeys</code></pre>
+<p><strong>Conserte.</strong> Na hora, <code translate="no">:set nocompatible</code>, e o <code translate="no">u</code> e as setas voltam a funcionar. Para sempre, basta existir um <code translate="no">~/.vimrc</code>: quando o <code translate="no">vim</code> acha um, ele desliga o <code translate="no">compatible</code> sozinho, e o seu ainda tem <code translate="no">set nocompatible</code> na primeira linha, desde o Passo 6. Confira, agora sem o <code translate="no">-u</code>:</p>
+<pre translate="no"><code class="lang-bash">vim.tiny -Es -c 'set compatible?' -c q quebra.txt
+exit</code></pre>
+<pre translate="no"><code class="lang-text">nocompatible</code></pre>
+<p>E para o root? Não crie um <code translate="no">~/.vimrc</code> para o root em cada servidor. Edite arquivos de sistema com o <code translate="no">sudoedit</code>, que roda o <strong>seu</strong> editor com o <strong>seu</strong> <code translate="no">~/.vimrc</code>, e o problema nem aparece.</p>
+<h3 id="a-licao">A lição</h3>
+<p>As duas quebras têm a mesma raiz: o arquivo e o editor carregam coisas que a tela não mostra. O <code translate="no">\r</code> do Windows não aparece no <code translate="no">cat</code>, e o modo <code translate="no">compatible</code> não aparece em lugar nenhum até o <code translate="no">u</code> se comportar estranho. Os instrumentos são os de hoje: o rodapé do <code translate="no">vim</code> ao abrir (<code translate="no">[dos]</code>, <code translate="no">[readonly]</code>, o <code translate="no">E325</code>), o <code translate="no">:set opção?</code> para perguntar ao editor o que ele está fazendo, o <code translate="no">cat -A</code> e o <code translate="no">file</code> para ver o arquivo como ele é, e o <code translate="no">diff</code> contra uma cópia para saber o que as suas teclas mudaram. Na vida real, há mais uma camada: antes de mexer num arquivo de configuração de produção, <code translate="no">cp -a arq arq.$(date +%F)</code>; depois, o teste de sintaxe do serviço (<code translate="no">sshd -t</code>, <code translate="no">nginx -t</code>, <code translate="no">visudo -c</code>, <code translate="no">named-checkconf</code>) antes de recarregar. O editor não sabe o que é um <code translate="no">sshd_config</code> válido. O serviço sabe.</p>
+<h2 id="8-armadilhas">8 · Armadilhas</h2>
+<div class="tabela"><table><thead><tr><th scope="col">Você digita ou vê</th><th scope="col">O que acontece</th><th scope="col">O certo</th></tr></thead><tbody><tr><td>Digita texto assim que abre o arquivo</td><td>As letras viram comandos: o <code translate="no">i</code> entra na inserção no meio, o <code translate="no">d</code> apaga, o <code translate="no">G</code> pula</td><td><code translate="no">Esc</code>, <code translate="no">:q!</code> e comece de novo. Para escrever, primeiro <code translate="no">i</code>, <code translate="no">a</code> ou <code translate="no">o</code></td></tr><tr><td><code translate="no">:q</code> com mudança</td><td><code translate="no">E37</code>, e você continua no arquivo</td><td><code translate="no">:wq</code> para gravar, <code translate="no">:q!</code> para descartar</td></tr><tr><td>Ctrl+Z para desfazer</td><td>O <code translate="no">vim</code> é suspenso e você volta ao shell. Se sair do SSH, sobra um <code translate="no">.swp</code></td><td><code translate="no">fg</code> volta para o <code translate="no">vim</code>. Desfazer é <code translate="no">u</code></td></tr><tr><td>Ctrl+S para salvar</td><td>O terminal congela</td><td>Ctrl+Q destrava. Salvar é <code translate="no">:w</code></td></tr><tr><td><code translate="no">:s/a/b/</code> esperando trocar no arquivo todo</td><td>Troca só a primeira ocorrência da linha do cursor</td><td><code translate="no">:%s/a/b/g</code></td></tr><tr><td><code translate="no">:%s/[0-9]+/N/g</code></td><td><code translate="no">E486</code>: o <code translate="no">+</code> é literal</td><td><code translate="no">:%s/[0-9]\+/N/g</code> ou <code translate="no">:%s/\v[0-9]+/N/g</code></td></tr><tr><td><code translate="no">$</code> e depois <code translate="no">cw</code> para trocar a última palavra</td><td>Troca só o último caractere</td><td><code translate="no">$</code>, <code translate="no">b</code> e <code translate="no">cw</code>, ou <code translate="no">w</code> até o começo da palavra</td></tr><tr><td><code translate="no">r</code> seguido de várias letras</td><td>Só a primeira troca; as outras viram comandos</td><td><code translate="no">cw</code> para palavra, <code translate="no">R</code> para sobrescrever vários caracteres</td></tr><tr><td><code translate="no">E325</code> e Enter sem ler</td><td>Abre por cima de uma edição perdida, ou da edição de um colega</td><td>Leia o <code translate="no">process ID</code>. Morto: <code translate="no">R</code>, conferir, <code translate="no">:wq</code>, apagar o <code translate="no">.swp</code>. <code translate="no">STILL RUNNING</code>: <code translate="no">Q</code> e vá perguntar</td></tr><tr><td><code translate="no">sudo vim /etc/arq.conf</code></td><td>O editor inteiro, com plugins e <code translate="no">:!</code>, roda como root</td><td><code translate="no">sudoedit /etc/arq.conf</code></td></tr><tr><td><code translate="no">sudo vi /etc/sudoers</code></td><td>Um erro de sintaxe grava sem aviso e pode travar o <code translate="no">sudo</code></td><td><code translate="no">sudo visudo</code> ou <code translate="no">sudo visudo -f /etc/sudoers.d/arq</code></td></tr><tr><td><code translate="no">:w!</code> num arquivo do root</td><td><code translate="no">E212</code>, porque o <code translate="no">!</code> não passa por cima do kernel</td><td><code translate="no">:q!</code> e <code translate="no">sudoedit</code>; em emergência, <code translate="no">:w !sudo tee % &gt; /dev/null</code></td></tr><tr><td><code translate="no">bad interpreter</code> com <code translate="no">^M</code></td><td>O script tem fim de linha do Windows</td><td><code translate="no">:set ff=unix</code> e <code translate="no">:wq</code>, ou <code translate="no">sed -i 's/\r$//'</code></td></tr><tr><td>Colar um bloco e cada linha sai mais recuada</td><td>O <code translate="no">vim</code> recua sozinho cada linha "digitada"</td><td><code translate="no">:set paste</code> antes, <code translate="no">:set nopaste</code> depois</td></tr><tr><td>O <code translate="no">u</code> desfaz e refaz alternando</td><td>O <code translate="no">vim</code> está no modo <code translate="no">compatible</code></td><td><code translate="no">:set nocompatible</code> e um <code translate="no">~/.vimrc</code></td></tr><tr><td><code translate="no">syntax on</code> no <code translate="no">~/.vimrc</code> dá <code translate="no">E319</code></td><td>O build mínimo não tem cores</td><td><code translate="no">if has('syntax')</code> em volta</td></tr><tr><td>Na Debian, <code translate="no">visudo</code> abre o <code translate="no">nano</code></td><td>O editor padrão é o <code translate="no">nano</code></td><td><code translate="no">EDITOR=vim</code> ou <code translate="no">export VISUAL=vim EDITOR=vim</code> no <code translate="no">~/.bashrc</code></td></tr></tbody></table></div>
+<h2 id="9-quiz">9 · Quiz</h2>
+<p>Dez perguntas, sem consultar. Escreva a letra ou a resposta de cada uma e só depois abra o Gabarito.</p>
+<p><strong>1.</strong> Você está no modo de inserção, escrevendo. Quais teclas, em ordem, gravam o arquivo e saem do <code translate="no">vim</code>? Dê duas respostas diferentes.</p>
+<p><strong>2.</strong> Qual comando sai do <code translate="no">vi</code> <strong>sem</strong> gravar as mudanças?</p>
+<ul><li><strong>A)</strong> <code translate="no">:wq</code></li>
+<li><strong>B)</strong> <code translate="no">ZZ</code></li>
+<li><strong>C)</strong> <code translate="no">:q!</code></li>
+<li><strong>D)</strong> <code translate="no">:x</code></li></ul>
+<p><strong>3.</strong> Com o cursor numa linha, qual a diferença entre <code translate="no">o</code>, <code translate="no">O</code>, <code translate="no">A</code> e <code translate="no">I</code>?</p>
+<p><strong>4.</strong> O que fazem, em ordem, as teclas <code translate="no">5G</code> <code translate="no">yy</code> <code translate="no">G</code> <code translate="no">p</code>? E <code translate="no">3dd</code> seguido de <code translate="no">.</code>?</p>
+<p><strong>5.</strong> Você quer trocar <code translate="no">http://</code> por <code translate="no">https://</code> em todas as linhas de <code translate="no">site.conf</code>, dentro do <code translate="no">vim</code>, sem escrever barras invertidas. Escreva o comando.</p>
+<p><strong>6.</strong> Qual comando, dentro do <code translate="no">vim</code>, apaga todas as linhas que <strong>não</strong> contêm <code translate="no">ERROR</code>?</p>
+<ul><li><strong>A)</strong> <code translate="no">:g/ERROR/d</code></li>
+<li><strong>B)</strong> <code translate="no">:v/ERROR/d</code></li>
+<li><strong>C)</strong> <code translate="no">:%s/ERROR//g</code></li>
+<li><strong>D)</strong> <code translate="no">:g!/ERROR/p</code></li></ul>
+<p><strong>7.</strong> Ao abrir um arquivo, o <code translate="no">vim</code> mostra <code translate="no">E325: ATTENTION</code> e <code translate="no">process ID: 2210 (STILL RUNNING)</code>. O que isso quer dizer, e qual opção você escolhe?</p>
+<p><strong>8.</strong> Por que <code translate="no">sudoedit /etc/ssh/sshd_config</code> é melhor que <code translate="no">sudo vim /etc/ssh/sshd_config</code>? Diga duas razões.</p>
+<p><strong>9.</strong> Na Debian, o <code translate="no">crontab -e</code> e o <code translate="no">sudo visudo</code> abrem o <code translate="no">nano</code>, e na Rocky abrem o <code translate="no">vi</code>. Por quê? Como você faz os dois abrirem o <code translate="no">vim</code> nas duas VMs?</p>
+<p><strong>10.</strong> <em>Which variable do programs such as <code translate="no">crontab -e</code> and <code translate="no">visudo</code> check to decide which text editor to open, and which <code translate="no">vi</code> command saves the file and exits in one step, writing only if there are changes?</em></p>
+<ul><li><strong><em>A)</em></strong> <em><code translate="no">$SHELL</code> and <code translate="no">:wq!</code></em></li>
+<li><strong><em>B)</em></strong> <em><code translate="no">$EDITOR</code> and <code translate="no">ZZ</code></em></li>
+<li><strong><em>C)</em></strong> <em><code translate="no">$TERM</code> and <code translate="no">:x!</code></em></li>
+<li><strong><em>D)</em></strong> <em><code translate="no">$EDITOR</code> and <code translate="no">ZQ</code></em></li></ul>
+<h2 id="10-flashcards-e-cola">10 · Flashcards e cola</h2>
+<h3 id="para-saber-de-cor">Para saber de cor</h3>
+<ul><li>O <code translate="no">vim</code> abre no modo <strong>normal</strong>, onde cada tecla é um comando. Para escrever, <code translate="no">i</code>, <code translate="no">a</code> ou <code translate="no">o</code>. Para voltar, <code translate="no">Esc</code>. Na dúvida, <code translate="no">Esc</code> duas vezes.</li>
+<li>Sair: <code translate="no">:wq</code> grava e sai, <code translate="no">:x</code> e <code translate="no">ZZ</code> gravam só se mudou, <code translate="no">:q!</code> e <code translate="no">ZQ</code> saem descartando. O <code translate="no">:q</code> sozinho recusa se houver mudança (<code translate="no">E37</code>).</li>
+<li>Um comando é uma frase: <code translate="no">[contagem] operador movimento</code>. <code translate="no">d</code> apaga, <code translate="no">c</code> troca, <code translate="no">y</code> copia; <code translate="no">w</code>, <code translate="no">$</code>, <code translate="no">G</code> dizem até onde. Operador repetido é a linha: <code translate="no">dd</code>, <code translate="no">cc</code>, <code translate="no">yy</code>.</li>
+<li><code translate="no">u</code> desfaz, <code translate="no">Ctrl-r</code> refaz, <code translate="no">.</code> repete a última mudança. <code translate="no">n</code> e <code translate="no">.</code> juntos são a troca conferida.</li>
+<li><code translate="no">:s</code> age na linha do cursor; <code translate="no">:%s</code>, no arquivo; <code translate="no">g</code> no fim, em todas as ocorrências da linha; <code translate="no">c</code>, perguntando.</li>
+<li>A regex do <code translate="no">vim</code> é BRE: <code translate="no">\+</code>, <code translate="no">\?</code>, <code translate="no">\|</code>, <code translate="no">\(</code>. Com <code translate="no">\v</code> no começo, vira ERE.</li>
+<li><code translate="no">:g/re/d</code> apaga as linhas que casam; <code translate="no">:v/re/d</code>, as que não casam. <code translate="no">:%!cmd</code> passa o arquivo pelo comando.</li>
+<li><code translate="no">[dos]</code> no rodapé é fim de linha do Windows: <code translate="no">:set ff=unix</code> e <code translate="no">:wq</code>.</li>
+<li><code translate="no">E325</code> é um <code translate="no">.swp</code>: leia o <code translate="no">process ID</code>. Morto: <code translate="no">R</code>, conferir, <code translate="no">:wq</code>, apagar o <code translate="no">.swp</code>. <code translate="no">STILL RUNNING</code>: não mexa.</li>
+<li>Arquivo de root: <code translate="no">sudoedit</code>. O <code translate="no">sudoers</code>: <code translate="no">visudo</code>. Nunca <code translate="no">sudo vim</code>.</li>
+<li><code translate="no">E45</code> é aviso, e o <code translate="no">!</code> passa. <code translate="no">E212</code> é o sistema negando, e o <code translate="no">!</code> não passa.</li></ul>
+<h3 id="para-consultar">Para consultar</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Pergunta</th><th scope="col">Comando</th></tr></thead><tbody><tr><td>Abrir na linha 7</td><td><code translate="no">vim +7 arq</code></td></tr><tr><td>Abrir na primeira linha que casa</td><td><code translate="no">vim +/regex arq</code></td></tr><tr><td>Só olhar, sem risco</td><td><code translate="no">view arq</code> ou <code translate="no">vim -R arq</code></td></tr><tr><td>Gravar com outro nome</td><td><code translate="no">:w novo.conf</code></td></tr><tr><td>Voltar ao arquivo do disco</td><td><code translate="no">:e!</code></td></tr><tr><td>Ir para a linha N</td><td><code translate="no">NG</code> ou <code translate="no">:N</code></td></tr><tr><td>Trocar a palavra sob o cursor</td><td><code translate="no">cw</code> (com o cursor no começo dela)</td></tr><tr><td>Trocar a linha inteira</td><td><code translate="no">cc</code></td></tr><tr><td>Duplicar a linha</td><td><code translate="no">yyp</code></td></tr><tr><td>Trocar duas linhas de lugar</td><td><code translate="no">ddp</code></td></tr><tr><td>Comentar as linhas 5 a 10</td><td><code translate="no">:5,10s/^/#/</code></td></tr><tr><td>Trocar no arquivo todo, perguntando</td><td><code translate="no">:%s/de/para/gc</code></td></tr><tr><td>Trocar um caminho com barras</td><td><code translate="no">:%s#/velho#/novo#g</code></td></tr><tr><td>Apagar comentários e linhas vazias</td><td><code translate="no">:g/^\s*#/d</code> e <code translate="no">:g/^\s*$/d</code></td></tr><tr><td>Ficar só com as linhas que casam</td><td><code translate="no">:v/regex/d</code></td></tr><tr><td>Ordenar e tirar repetidas</td><td><code translate="no">:%!sort -u</code></td></tr><tr><td>Inserir a saída de um comando</td><td><code translate="no">:r !comando</code></td></tr><tr><td>Ver tabulação e fim de linha</td><td><code translate="no">:set list</code> (e <code translate="no">:set nolist</code>)</td></tr><tr><td>Ver e trocar o fim de linha</td><td><code translate="no">:set ff?</code> e <code translate="no">:set ff=unix</code></td></tr><tr><td>Colar sem recuo automático</td><td><code translate="no">:set paste</code>, colar, <code translate="no">:set nopaste</code></td></tr><tr><td>Recuperar uma edição perdida</td><td>Abrir e <code translate="no">R</code> no <code translate="no">E325</code>, ou <code translate="no">vim -r arq</code></td></tr><tr><td>Listar os <code translate="no">.swp</code></td><td><code translate="no">vim -r</code> e <code translate="no">find ~ -name '.*.sw?'</code></td></tr><tr><td>Editar arquivo de root</td><td><code translate="no">sudoedit arq</code> (<code translate="no">EDITOR=vim sudoedit arq</code> para escolher)</td></tr><tr><td>Editar o <code translate="no">sudoers</code></td><td><code translate="no">sudo visudo</code> e <code translate="no">sudo visudo -f /etc/sudoers.d/arq</code></td></tr><tr><td>Conferir o <code translate="no">sudoers</code> sem editar</td><td><code translate="no">sudo visudo -c</code></td></tr><tr><td>Gravar como root, já dentro do <code translate="no">vim</code></td><td><code translate="no">:w !sudo tee % &gt; /dev/null</code>, e <code translate="no">L</code> no aviso</td></tr><tr><td>Qual <code translate="no">vi</code> eu tenho</td><td><code translate="no">readlink -f "$(command -v vi)"</code> e <code translate="no">vi --version | head -2</code></td></tr><tr><td>Fixar o meu editor</td><td><code translate="no">export VISUAL=vim EDITOR=vim</code> no <code translate="no">~/.bashrc</code></td></tr><tr><td>Treinar sozinho</td><td><code translate="no">vimtutor pt</code></td></tr></tbody></table></div>
+<h3 id="flashcards">Flashcards</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Frente</th><th scope="col">Verso</th></tr></thead><tbody><tr><td><code translate="no">:q</code> com mudança não gravada</td><td><code translate="no">E37</code>, e você continua no arquivo</td></tr><tr><td><code translate="no">:wq</code> × <code translate="no">:x</code></td><td>O <code translate="no">:wq</code> grava sempre; o <code translate="no">:x</code> (e o <code translate="no">ZZ</code>), só se mudou</td></tr><tr><td><code translate="no">ZQ</code></td><td>O mesmo que <code translate="no">:q!</code></td></tr><tr><td><code translate="no">o</code> × <code translate="no">O</code></td><td>Linha nova abaixo × linha nova acima</td></tr><tr><td><code translate="no">A</code> × <code translate="no">I</code></td><td>Inserir no fim × no começo da linha</td></tr><tr><td><code translate="no">dw</code> sobre <code translate="no">#Port</code></td><td>Apaga só o <code translate="no">#</code></td></tr><tr><td><code translate="no">dW</code> sobre <code translate="no">#Port 22</code></td><td>Apaga <code translate="no">#Port </code></td></tr><tr><td><code translate="no">$</code> e <code translate="no">cw</code> sobre <code translate="no">yes</code></td><td>Troca só o <code translate="no">s</code>: sobra <code translate="no">ye</code></td></tr><tr><td><code translate="no">r</code> e <code translate="no">no</code></td><td>Troca um caractere por <code translate="no">n</code>; o <code translate="no">o</code> abre uma linha nova</td></tr><tr><td><code translate="no">3dd</code> e <code translate="no">.</code></td><td>Apaga 3 linhas, e mais 3</td></tr><tr><td><code translate="no">ddp</code></td><td>Troca a linha atual com a de baixo</td></tr><tr><td><code translate="no">/^#</code> com o cursor na linha 1</td><td>Começa a procurar <strong>depois</strong> do cursor</td></tr><tr><td><code translate="no">:s/yes/no/</code> na linha 1</td><td>Só a linha 1. Sem <code translate="no">yes</code> nela, <code translate="no">E486</code></td></tr><tr><td><code translate="no">:%s/[0-9]+/N/g</code></td><td><code translate="no">E486</code>: o <code translate="no">+</code> é literal. Use <code translate="no">\+</code> ou <code translate="no">\v</code></td></tr><tr><td><code translate="no">:g/401/d</code> × <code translate="no">:v/401/d</code></td><td>Apaga as linhas com <code translate="no">401</code> × apaga as linhas sem <code translate="no">401</code></td></tr><tr><td><code translate="no">:%!sort</code></td><td>Troca o arquivo pela saída do <code translate="no">sort</code>; <code translate="no">u</code> desfaz</td></tr><tr><td><code translate="no">[dos]</code> no rodapé</td><td>Fim de linha <code translate="no">\r\n</code>: <code translate="no">:set ff=unix</code></td></tr><tr><td><code translate="no">bad interpreter: /bin/bash^M</code></td><td>Script com fim de linha do Windows</td></tr><tr><td><code translate="no">E325</code> com <code translate="no">STILL RUNNING</code></td><td>Outra sessão está editando agora: <code translate="no">Q</code></td></tr><tr><td>Depois de <code translate="no">R</code> e <code translate="no">:wq</code></td><td>O <code translate="no">.swp</code> velho continua: apague</td></tr><tr><td><code translate="no">E45</code> × <code translate="no">E212</code></td><td>Aviso do <code translate="no">vim</code> (<code translate="no">!</code> passa) × permissão do sistema (<code translate="no">!</code> não passa)</td></tr><tr><td><code translate="no">sudoedit</code></td><td>Edita uma cópia com o seu usuário e grava como root</td></tr><tr><td><code translate="no">u</code> que refaz o que desfez</td><td>Modo <code translate="no">compatible</code>: <code translate="no">:set nocompatible</code></td></tr><tr><td><code translate="no">vi</code> na Debian sem o pacote <code translate="no">vim</code></td><td><code translate="no">vim.tiny</code>, que lê o <code translate="no">vimrc.tiny</code> com <code translate="no">set compatible</code></td></tr><tr><td>Editor padrão da Debian</td><td><code translate="no">/usr/bin/editor</code>, que aponta para o <code translate="no">nano</code></td></tr></tbody></table></div>
+<h2 id="11-checklist-de-saida">11 · Checklist de saída</h2>
+<ul><li>[ ] Entro, gravo e saio do <code translate="no">vim</code> de cinco jeitos, e explico a diferença entre <code translate="no">:wq</code>, <code translate="no">:x</code> e <code translate="no">:q!</code>.</li>
+<li>[ ] Ando por palavra, linha e número, e entro na inserção no lugar certo com <code translate="no">i</code>, <code translate="no">a</code>, <code translate="no">o</code>, <code translate="no">I</code>, <code translate="no">A</code> e <code translate="no">O</code>.</li>
+<li>[ ] Apago, troco, copio, colo, desfaço e repito com operador, movimento, contagem e <code translate="no">.</code>, e confiro com <code translate="no">diff</code> contra uma cópia.</li>
+<li>[ ] Busco com <code translate="no">/</code> e <code translate="no">n</code>, e explico por que a busca começa depois do cursor.</li>
+<li>[ ] Troco com <code translate="no">:s</code> e <code translate="no">:%s</code>, com intervalo, <code translate="no">g</code>, <code translate="no">c</code>, grupos, <code translate="no">&amp;</code>, <code translate="no">\v</code> e outro delimitador.</li>
+<li>[ ] Filtro linhas com <code translate="no">:g</code>, <code translate="no">:v</code> e <code translate="no">:%!</code>, e insiro a saída de um comando com <code translate="no">:r !</code>.</li>
+<li>[ ] Vejo e conserto o fim de linha do Windows, dentro e fora do <code translate="no">vim</code>.</li>
+<li>[ ] Recupero uma edição perdida pelo <code translate="no">.swp</code> e apago o <code translate="no">.swp</code> depois.</li>
+<li>[ ] Edito arquivos do root com <code translate="no">sudoedit</code> e o <code translate="no">sudoers</code> com <code translate="no">visudo</code>, e explico por que não <code translate="no">sudo vim</code>.</li>
+<li>[ ] Digo qual <code translate="no">vi</code> cada distribuição tem, e conserto o modo <code translate="no">compatible</code> com um <code translate="no">~/.vimrc</code>.</li></ul>
+<p><strong>Último exercício, sem olhar.</strong> Tudo na debian-lab: entre com <code translate="no">ssh deb</code> e trabalhe em <code translate="no">~/lab35</code>, com o <code translate="no">vim</code>. Sem abrir esta aula:</p>
+<ol><li>Numa cópia do <code translate="no">conf.orig</code> chamada <code translate="no">ex1.conf</code>, <strong>só com o modo normal</strong> (sem <code translate="no">:s</code>): descomente a linha 4, troque o <code translate="no">3</code> do <code translate="no">MaxAuthTries</code> por <code translate="no">4</code>, e apague a última linha. Mostre o <code translate="no">diff</code>.</li>
+<li>Numa cópia chamada <code translate="no">ex2.conf</code>, com <strong>um só</strong> <code translate="no">:%s</code> e o <code translate="no">&amp;</code>, comente com <code translate="no"># </code> as linhas que começam com <code translate="no">Port</code> ou com <code translate="no">MaxAuthTries</code>.</li>
+<li>Numa cópia do <code translate="no">acesso.log</code> chamada <code translate="no">ex3.log</code>, deixe só os pedidos <code translate="no">POST</code> e troque o IP do começo de cada linha por <code translate="no">IP</code>. Quantas linhas sobram?</li>
+<li>Crie com o <code translate="no">vim</code> um <code translate="no">deploy.sh</code> com uma linha, <code translate="no">echo deploy</code>, gravado com fim de linha do Windows. Mostre com o <code translate="no">file</code>. Depois conserte, e mostre de novo.</li>
+<li>Com o <code translate="no">sudoedit</code> e o <code translate="no">vim</code>, acrescente <code translate="no">MaxStartups 10:30:60</code> no fim do <code translate="no">/srv/lab35/app.conf</code>. Mostre que o arquivo continua do root e que o <code translate="no">sudoers</code> está certo.</li></ol>
+<p>Só abra o Gabarito depois disso, ou depois de três tentativas.</p>
+<p><strong>Reboot e conferência.</strong> Antes de reiniciar, nas duas VMs, grave o que não pode mudar:</p>
+<pre translate="no"><code class="lang-bash">cd ~/lab35
+md5sum *.conf *.log *.txt &gt; soma-antes.txt
+ssh deb 'cd ~/lab35 &amp;&amp; md5sum *.conf *.log *.txt &gt; soma-antes.txt'
+ssh -t deb 'sudo reboot'
+sudo reboot</code></pre>
+<p>Depois de voltar, na rocky-lab:</p>
+<pre translate="no"><code class="lang-bash">eval "$(ssh-agent -s)"; ssh-add
+cd ~/lab35
+md5sum -c --quiet soma-antes.txt &amp;&amp; echo "Rocky: igual"
+ssh deb 'cd ~/lab35 &amp;&amp; md5sum -c --quiet soma-antes.txt &amp;&amp; echo "Debian: igual"'
+find ~/lab35 -name '.*.sw?'
+ssh deb "find ~/lab35 -name '.*.sw?'"
+ls -l /srv/lab35/app.conf; ssh deb 'ls -l /srv/lab35/app.conf'
+bash -lc 'echo "VISUAL=$VISUAL EDITOR=$EDITOR"'
+ssh deb 'bash -lc "echo VISUAL=\$VISUAL EDITOR=\$EDITOR"'</code></pre>
+<p>Os arquivos iguais nas duas VMs. Os dois <code translate="no">find</code> sem nenhuma linha: nenhum <code translate="no">.swp</code> esquecido. O <code translate="no">app.conf</code> do root, nas duas. E as duas variáveis com <code translate="no">vim</code>. Se o <code translate="no">find</code> achar um <code translate="no">.swp</code>, alguma edição ficou aberta ou caiu: abra o arquivo e trate o <code translate="no">E325</code>, como no Passo 7.</p>
+<p><strong>Snapshots de fechamento.</strong> Ficam nas duas VMs: a pasta <code translate="no">~/lab35</code>, o <code translate="no">~/.vimrc</code>, o <code translate="no">vim</code> completo instalado, a linha <code translate="no">export VISUAL=vim EDITOR=vim</code> no <code translate="no">~/.bashrc</code> e o <code translate="no">/srv/lab35</code>. As pastas das aulas anteriores continuam lá, e a <code translate="no">/srv/equipe</code> segue em <code translate="no">3770 root:equipe</code>. No nó Proxmox:</p>
+<pre translate="no"><code class="lang-bash">qm snapshot 201 m3a5-fim
+qm snapshot 202 m3a5-fim</code></pre>
+<p>Com isso, o Módulo 3 está fechado. Você lê, filtra, troca e edita texto com <code translate="no">grep</code>, <code translate="no">sed</code>, <code translate="no">awk</code> e <code translate="no">vim</code>. O Módulo 4 começa pela Aula 4.1, Como o Linux liga: firmware, GRUB, kernel e systemd. É lá que o <code translate="no">vi</code> vira ferramenta de resgate, no modo de emergência, quando um <code translate="no">/etc/fstab</code> errado não deixa o sistema subir e o único editor que existe é o que você treinou hoje.</p>
+<h2 id="12-na-vida-real">12 · Na vida real</h2>
+<p><strong>Missão da semana, só leitura.</strong> Três servidores reais que você administra. Em cada um, sem mudar nada. Nenhum arquivo é aberto para escrita: use <code translate="no">view</code> ou <code translate="no">vim -R</code>, e saia com <code translate="no">:q</code>.</p>
+<ol><li>Qual <code translate="no">vi</code> cada servidor tem: <code translate="no">readlink -f "$(command -v vi)"; vi --version | head -2; type vi</code>. Anote onde é o <code translate="no">vim-minimal</code>, o <code translate="no">vim.tiny</code>, o <code translate="no">vim</code> completo ou outra coisa (o <code translate="no">busybox vi</code>, num appliance).</li>
+<li>Qual editor os comandos do sistema vão abrir: <code translate="no">echo "VISUAL=$VISUAL EDITOR=$EDITOR"</code>, e nos Debian, <code translate="no">update-alternatives --display editor | head -3</code>. Se um colega rodar <code translate="no">sudo visudo</code> aí, cai no <code translate="no">vi</code> ou no <code translate="no">nano</code>?</li>
+<li>Arquivos <code translate="no">.swp</code> esquecidos nas pastas de configuração: <code translate="no">sudo find /etc /root /home -name '.*.sw?' -mtime +1 2&gt;/dev/null</code>. Cada um é uma edição que caiu, ou uma sessão que ainda está aberta. Não apague nada: anote o arquivo, o dono e a data (<code translate="no">ls -l</code>).</li>
+<li>Scripts com fim de linha do Windows: <code translate="no">sudo grep -rlI $'\r$' /usr/local/bin /usr/local/sbin /etc/cron.d 2&gt;/dev/null</code>. Para cada um, <code translate="no">file</code> e a primeira linha com <code translate="no">head -1 | cat -A</code>. Algum está no <code translate="no">cron</code> e nunca rodou de verdade?</li>
+<li>Quem pode editar o <code translate="no">sudoers</code>: <code translate="no">sudo ls -l /etc/sudoers.d/</code>, e <code translate="no">sudo visudo -c</code>. Tudo <code translate="no">parsed OK</code>? Algum arquivo com permissão diferente de <code translate="no">440</code> (ou <code translate="no">0440</code>)?</li>
+<li>Uma olhada num arquivo grande de configuração com o <code translate="no">view</code>, praticando a navegação sem risco: <code translate="no">view +/^Port /etc/ssh/sshd_config</code>, depois <code translate="no">n</code>, <code translate="no">gg</code>, <code translate="no">G</code>, <code translate="no">:set nu</code>, <code translate="no">:g/^[^#]/p</code> (as linhas que não são comentário) e <code translate="no">:q</code>.</li></ol>
+<p><strong>Para o diário.</strong> Uma linha por servidor: <code translate="no">nome · qual vi · editor padrão · .swp esquecidos (arquivo, dono, data) · scripts com CRLF · sudoers parsed OK? · arquivos do sudoers.d com permissão errada</code>. Ao lado de cada achado, o que você <strong>faria</strong> e quem precisaria aprovar. Não corrija nada nesta semana: a missão é ver.</p>
+<p><strong>Desafio da semana.</strong> Na sua estação, faça o <code translate="no">vimtutor pt</code> inteiro, cronometrado, uma vez por dia durante cinco dias. Anote o tempo de cada dia no diário. Depois, num arquivo de prática, repita sem olhar as cinco frases de hoje que mais te custaram, até sair cada uma na primeira tentativa. A meta não é ser rápido no <code translate="no">vim</code>: é nunca mais abrir um arquivo de produção com medo de sair dele.</p>
+<p><strong>Amanhã, sem olhar.</strong> Antes de abrir o terminal, responda de cabeça: por que o <code translate="no">:q</code> às vezes recusa? Qual a diferença entre <code translate="no">:wq</code> e <code translate="no">:x</code>? O que fazem <code translate="no">cw</code>, <code translate="no">dw</code>, <code translate="no">dd</code>, <code translate="no">yyp</code> e <code translate="no">ddp</code>? Por que <code translate="no">:s/yes/no/</code> não trocou a linha 7? Por que <code translate="no">[0-9]+</code> não casa no <code translate="no">vim</code>? O que você responde a um <code translate="no">E325</code> com <code translate="no">STILL RUNNING</code>, e a um sem? Por que <code translate="no">sudoedit</code> e não <code translate="no">sudo vim</code>? Depois, numa das VMs, rode <code translate="no">vim -u NONE -N -Es -c 'exe "normal! 7G\$cwno\&lt;Esc&gt;"' -c '7p' -c 'q!' ~/lab35/conf.orig</code> e explique o resultado em voz alta, dizendo em qual VM você está.</p>
+<h2 id="13-com-o-deeptutor">13 · Com o DeepTutor</h2>
+<p>Use o DeepTutor da sua rede local depois do lab, não no lugar dele. Os comandos começam com <code translate="no">!</code>:</p>
+<ul><li><code translate="no">!quiz Aula 3.5</code>: dez perguntas novas sobre modos, frases do modo normal, <code translate="no">:s</code>, <code translate="no">:g</code> e o <code translate="no">.swp</code>.</li>
+<li><code translate="no">!explica E325</code>: o arquivo de troca, quando ele é gravado, o que cada opção faz e quando apagar, passo a passo.</li>
+<li><code translate="no">!feynman operador e movimento no vim</code>: você explica a gramática do modo normal, e ele aponta onde ficou vago.</li>
+<li><code translate="no">!quebra vim</code>: ele descreve uma edição que deu errado (um <code translate="no">.swp</code>, um <code translate="no">E212</code>, um <code translate="no">[dos]</code>, um <code translate="no">u</code> estranho) e te entrega, uma por vez, as mensagens e as saídas de <code translate="no">cat -A</code>, <code translate="no">file</code> e <code translate="no">ls -l</code> até você achar a causa.</li>
+<li><code translate="no">!simulado LPIC-1 103.8</code>: perguntas no estilo da prova, com sequências de teclas para prever o resultado.</li>
+<li><code translate="no">!cartoes Aula 3.5</code>: os flashcards da seção 10, em ordem de revisão.</li>
+<li><code translate="no">!erro</code>: cole a mensagem do <code translate="no">vim</code> (o <code translate="no">E</code> e o número) e a sequência de teclas, e ele diz a causa provável e o que testar.</li>
+<li><code translate="no">!revisao Módulo 3</code>: o que rever antes do Módulo 4, pelo que você errou nas Aulas 3.1 a 3.5.</li></ul>
+<h2 id="gabarito-comentado">Gabarito comentado</h2>
+<h3 id="aquecimento">Aquecimento</h3>
+<ol><li>Você estava no modo normal, e cada letra virou um comando. O <code translate="no">P</code> colou alguma coisa, o <code translate="no">o</code> abriu uma linha nova e entrou na inserção, e o resto (<code translate="no">rt 2222</code>) virou texto na linha nova. A saída: <code translate="no">Esc</code>, <code translate="no">:q!</code> e comece de novo, com <code translate="no">i</code> antes de escrever. É o §3 e o Passo 1.</li>
+<li>Existe um arquivo de troca, o <code translate="no">.swp</code>, de uma edição que caiu ou que ainda está aberta. Apertar Enter sem ler é perigoso: você pode abrir o arquivo velho por cima de uma edição que dava para recuperar, ou editar ao mesmo tempo que um colega. Leia o <code translate="no">process ID</code> primeiro. É o Passo 7.</li>
+<li>Não. Sem intervalo, o <code translate="no">:s</code> só olha a linha do cursor, a 1, que não tem <code translate="no">yes</code>: o <code translate="no">vim</code> responde <code translate="no">E486</code> e nada muda. Para o arquivo todo, <code translate="no">:%s/yes/no/</code>. É o Passo 4.</li></ol>
+<h3 id="quiz">Quiz</h3>
+<ol><li><code translate="no">Esc</code> e <code translate="no">:wq</code> com Enter, ou <code translate="no">Esc</code> e <code translate="no">ZZ</code>, ou <code translate="no">Esc</code> e <code translate="no">:x</code> com Enter. O <code translate="no">Esc</code> primeiro, porque no modo de inserção o <code translate="no">:</code> e o <code translate="no">Z</code> seriam texto.</li>
+<li><strong>C.</strong></li></ol>
+<div class="tabela"><table><thead><tr><th scope="col">Opção</th><th scope="col">Resultado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>A</td><td>❌ Errada</td><td>Grava e sai.</td></tr><tr><td>B</td><td>❌ Errada</td><td>Grava, se houver mudança, e sai.</td></tr><tr><td>C</td><td>✅ Certa</td><td>Sai e descarta tudo o que não foi gravado.</td></tr><tr><td>D</td><td>❌ Errada</td><td>É o mesmo que o <code translate="no">ZZ</code>: grava se houver mudança.</td></tr></tbody></table></div>
+<ol start="3"><li>O <code translate="no">o</code> abre uma linha nova <strong>abaixo</strong> e entra na inserção; o <code translate="no">O</code>, <strong>acima</strong>. O <code translate="no">A</code> entra na inserção no <strong>fim</strong> da linha; o <code translate="no">I</code>, no <strong>começo</strong>, depois dos espaços do recuo.</li>
+<li>O <code translate="no">5G</code> vai para a linha 5, o <code translate="no">yy</code> copia a linha, o <code translate="no">G</code> vai para a última, e o <code translate="no">p</code> cola abaixo dela: a linha 5 aparece de novo no fim do arquivo. O <code translate="no">3dd</code> apaga três linhas a partir do cursor, e o <code translate="no">.</code> repete a frase inteira: apaga mais três.</li>
+<li><code translate="no">:%s#http://#https://#g</code>. O <code translate="no">%</code> para o arquivo todo, o <code translate="no">#</code> como delimitador para não escapar as barras, e o <code translate="no">g</code> para mais de uma ocorrência na mesma linha. Qualquer outro caractere serve de delimitador, como o <code translate="no">|</code> ou o <code translate="no">,</code>.</li>
+<li><strong>B.</strong></li></ol>
+<div class="tabela"><table><thead><tr><th scope="col">Opção</th><th scope="col">Resultado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>A</td><td>❌ Errada</td><td>Apaga as linhas que <strong>contêm</strong> <code translate="no">ERROR</code>. É o contrário.</td></tr><tr><td>B</td><td>✅ Certa</td><td>O <code translate="no">:v</code> roda o comando nas linhas que <strong>não</strong> casam. Sobram só as de <code translate="no">ERROR</code>.</td></tr><tr><td>C</td><td>❌ Errada</td><td>Apaga a palavra <code translate="no">ERROR</code> das linhas, e não apaga linha nenhuma.</td></tr><tr><td>D</td><td>❌ Errada</td><td>O <code translate="no">:g!</code> é o mesmo que o <code translate="no">:v</code>, mas com <code translate="no">p</code> ele só <strong>mostra</strong> as linhas, sem apagar.</td></tr></tbody></table></div>
+<ol start="7"><li>Outro <code translate="no">vim</code>, o processo 2210, está com o arquivo aberto agora: um colega, ou você mesmo em outro terminal ou numa sessão do <code translate="no">tmux</code>. Escolha <code translate="no">Q</code> (ou <code translate="no">O</code>, para só olhar) e descubra quem é, com <code translate="no">ps -o user,tty,etime,cmd -p 2210</code>. Não use <code translate="no">R</code>, <code translate="no">E</code> nem apague o <code translate="no">.swp</code>: um dos dois perderia o trabalho. O <code translate="no">(D)elete it</code> nem aparece nesse caso.</li>
+<li>Primeira: o editor roda com o <strong>seu</strong> usuário, então plugins, o <code translate="no">:!</code> e o <code translate="no">:r !</code> não rodam como root, e o <code translate="no">vim</code> usa o <strong>seu</strong> <code translate="no">~/.vimrc</code>. Segunda: o <code translate="no">sudoedit</code> edita uma cópia temporária e só grava de volta no fim, mantendo o dono e as permissões do arquivo; se o editor cair, o original fica intacto. Vale também: o log do <code translate="no">sudo</code> registra <code translate="no">sudoedit</code> e o arquivo, e não "rodou o vim como root".</li>
+<li>Sem <code translate="no">VISUAL</code> e sem <code translate="no">EDITOR</code>, cada distribuição usa o seu padrão: na Rocky, o <code translate="no">vi</code>; na Debian, o <code translate="no">/usr/bin/editor</code>, que o sistema de alternativas aponta para o <code translate="no">nano</code>, e o <code translate="no">crontab -e</code> ainda pergunta na primeira vez, com o <code translate="no">select-editor</code>. Para os dois abrirem o <code translate="no">vim</code>, ponha <code translate="no">export VISUAL=vim EDITOR=vim</code> no <code translate="no">~/.bashrc</code> nas duas VMs. O <code translate="no">visudo</code> respeita essas variáveis do usuário que chamou o <code translate="no">sudo</code>. Na Debian, também daria para mudar o padrão do sistema com <code translate="no">sudo update-alternatives --config editor</code>, mas isso muda para todos os usuários.</li>
+<li><strong>B.</strong></li></ol>
+<div class="tabela"><table><thead><tr><th scope="col">Opção</th><th scope="col">Resultado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>A</td><td>❌ Errada</td><td>O <code translate="no">$SHELL</code> é o shell do usuário, e o <code translate="no">:wq!</code> grava sempre, mesmo sem mudança.</td></tr><tr><td>B</td><td>✅ Certa</td><td>O <code translate="no">EDITOR</code> (junto com o <code translate="no">VISUAL</code>) escolhe o editor, e o <code translate="no">ZZ</code> grava só se houver mudança, e sai.</td></tr><tr><td>C</td><td>❌ Errada</td><td>O <code translate="no">$TERM</code> é o tipo de terminal. O <code translate="no">:x!</code> existe, mas a variável está errada.</td></tr><tr><td>D</td><td>❌ Errada</td><td>A variável está certa, mas o <code translate="no">ZQ</code> sai <strong>sem</strong> gravar.</td></tr></tbody></table></div>
+<h3 id="ultimo-exercicio">Último exercício</h3>
+<pre translate="no"><code class="lang-bash">cp conf.orig ex1.conf
+vim ex1.conf             # no vim: 4G x   10G $ r4   G dd   :wq Enter
+diff conf.orig ex1.conf</code></pre>
+<pre translate="no"><code class="lang-text">4c4
+&lt; #PermitRootLogin prohibit-password
+---
+&gt; PermitRootLogin prohibit-password
+10,11c10
+&lt; MaxAuthTries 3
+&lt; #PasswordAuthentication no
+---
+&gt; MaxAuthTries 4</code></pre>
+<p>O <code translate="no">x</code> sobre o <code translate="no">#</code> descomenta, o <code translate="no">$</code> vai até o <code translate="no">3</code>, o <code translate="no">r4</code> troca um caractere, e o <code translate="no">G</code> e o <code translate="no">dd</code> apagam a última linha. Valem outras sequências, como <code translate="no">4Gdw</code> no lugar do <code translate="no">4Gx</code>, desde que o <code translate="no">diff</code> seja este.</p>
+<pre translate="no"><code class="lang-bash">cp conf.orig ex2.conf
+vim ex2.conf             # no vim: :%s/\v^(Port|MaxAuthTries)/# &amp;/ Enter   :wq Enter
+diff conf.orig ex2.conf</code></pre>
+<pre translate="no"><code class="lang-text">2c2
+&lt; Port 22
+---
+&gt; # Port 22
+10c10
+&lt; MaxAuthTries 3
+---
+&gt; # MaxAuthTries 3</code></pre>
+<p>Sem o <code translate="no">\v</code>, a mesma troca é <code translate="no">:%s/^\(Port\|MaxAuthTries\)/# &amp;/</code>. O <code translate="no">&amp;</code> devolve o que casou, então não é preciso repetir as palavras.</p>
+<pre translate="no"><code class="lang-bash">cp acesso.log ex3.log
+vim ex3.log              # no vim: :v/POST/d Enter   :%s/^\S\+/IP/ Enter   :wq Enter
+cat ex3.log</code></pre>
+<pre translate="no"><code class="lang-text">IP - - [03/Nov/2026:08:02:30 +0100] "POST /login HTTP/1.1" 401 128
+IP - - [03/Nov/2026:08:02:31 +0100] "POST /login HTTP/1.1" 401 128
+IP - - [03/Nov/2026:08:03:12 +0100] "POST /login HTTP/1.1" 401 128
+IP - - [03/Nov/2026:08:05:40 +0100] "POST /login HTTP/1.1" 401 128
+IP - - [03/Nov/2026:08:07:01 +0100] "POST /login HTTP/1.1" 200 4096</code></pre>
+<p>Sobram cinco linhas: as quatro falhas e o login que deu certo. O <code translate="no">\S\+</code> é "um ou mais caracteres que não são espaço", o IP inteiro. Com <code translate="no">\v</code>, <code translate="no">:%s/\v^\S+/IP/</code>.</p>
+<pre translate="no"><code class="lang-bash">vim deploy.sh            # no vim: i echo deploy Esc   :set ff=dos Enter   :wq Enter
+file deploy.sh
+vim deploy.sh            # o rodapé mostra [dos]; no vim: :set ff=unix Enter   :wq Enter
+file deploy.sh</code></pre>
+<pre translate="no"><code class="lang-text">deploy.sh: ASCII text, with CRLF line terminators
+deploy.sh: ASCII text</code></pre>
+<p>Se você deu <code translate="no">chmod +x</code> e pôs um <code translate="no">#!/bin/bash</code> na primeira linha, o <code translate="no">file</code> diz <code translate="no">Bourne-Again shell script</code> nas duas vezes, e o <code translate="no">with CRLF</code> só na primeira.</p>
+<pre translate="no"><code class="lang-bash">EDITOR=vim sudoedit /srv/lab35/app.conf      # no vim: G o MaxStartups 10:30:60 Esc   :wq Enter
+ls -l /srv/lab35/app.conf
+tail -1 /srv/lab35/app.conf
+sudo visudo -c</code></pre>
+<p>O <code translate="no">ls -l</code> mostra <code translate="no">root root</code> e <code translate="no">-rw-r--r--</code>, como antes; o <code translate="no">tail -1</code>, a linha nova; e o <code translate="no">visudo -c</code>, <code translate="no">parsed OK</code> em cada arquivo. Se você já pôs o <code translate="no">export VISUAL=vim EDITOR=vim</code> no <code translate="no">~/.bashrc</code> da Debian, o <code translate="no">EDITOR=vim</code> na frente nem é preciso. Sem ele, abre o <code translate="no">nano</code>, e o exercício também vale: Ctrl+O grava, Ctrl+X sai.</p>
+</article><nav class="paginas" aria-label="Aulas"><a class="ant" href="3.4-sed-e-awk.html"><small>← Anterior</small>3.4 · sed e awk</a><a class="prox" href="4.1-como-o-linux-liga.html"><small>Próxima →</small>4.1 · Como o Linux liga</a></nav></main></div>
+<footer><div class="wrap">Gerado a partir do Markdown do curso · Imagens em <code translate="no">img/</code></div></footer>
+</body>
+</html>

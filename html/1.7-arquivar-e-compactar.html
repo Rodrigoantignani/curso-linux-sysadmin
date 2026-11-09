@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light dark">
+<title>1.7 · Arquivar e compactar · Curso Linux Sysadmin</title>
+<link rel="alternate" hreflang="pt-BR" href="1.7-arquivar-e-compactar.html"><link rel="alternate" hreflang="it" href="1.7-arquivar-e-compactar.it.html">
+<style>
+:root{color-scheme:light dark;--bg:#f6f1e7;--card:#fffdf8;--ink:#201c16;--muted:#5e564a;--accent:#9a3412;--accent-2:#1f5f4a;--tint:#efe6d4;--line:#ddd2bc;--code:#f1eadb;--shadow:0 1px 2px rgba(60,40,10,.08);--serif:Georgia,"Iowan Old Style","Palatino Linotype",Palatino,serif;--sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--mono:"Cascadia Code",Consolas,"DejaVu Sans Mono",monospace}
+@media (prefers-color-scheme:dark){:root{--bg:#16130f;--card:#201b15;--ink:#f1eadb;--muted:#b9ad98;--accent:#f0a070;--accent-2:#7fd0b0;--tint:#2a231a;--line:#3d3427;--code:#191510;--shadow:none}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:5.5rem}
+body{margin:0;background:var(--bg);color:var(--ink);font:1rem/1.6 var(--sans)}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--accent-2);outline-offset:2px;border-radius:4px}
+.pular{position:absolute;left:-999px;top:0;background:var(--card);padding:.5rem 1rem;z-index:20}
+.pular:focus{left:.5rem;top:.5rem}
+.wrap{width:100%;max-width:84rem;margin:0 auto;padding-inline:max(1rem,env(safe-area-inset-left))}
+.top{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10;border-top:6px solid var(--accent)}
+.top-in{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding-block:.6rem}
+.titles{min-width:0}
+.marca{margin:0;font:700 clamp(1.15rem,1rem + 1vw,1.6rem)/1.15 var(--serif);letter-spacing:-.01em}
+.marca a{text-decoration:none}
+.marca a:hover{color:var(--accent)}
+.meta{margin:.1rem 0 0;color:var(--muted);font-size:.85rem}
+.acoes{display:flex;align-items:center;gap:.9rem;flex:none}
+.acoes>a{font-size:.9rem;font-weight:600;color:var(--muted);text-decoration:none}
+.acoes>a:hover{color:var(--accent);text-decoration:underline}
+.idioma{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--tint)}
+.idioma>*{padding:.35rem .9rem;font-size:.8rem;font-weight:700;letter-spacing:.06em;text-decoration:none;color:var(--muted);min-width:2.75rem;text-align:center}
+.idioma a:hover{color:var(--accent);text-decoration:underline}
+.idioma span{background:var(--accent);color:#fff}
+@media (prefers-color-scheme:dark){.idioma span{color:#16130f}}
+code{font-family:var(--mono);font-size:.9em;background:var(--tint);padding:.1rem .35rem;border-radius:4px;overflow-wrap:anywhere}
+/* índice */
+.capa{max-width:70rem;padding-block:2rem 3rem}
+.stats{border-left:4px solid var(--accent-2);background:var(--card);border-radius:0 10px 10px 0;padding:1rem 1.25rem;margin:0 0 2.5rem;box-shadow:var(--shadow);color:var(--muted)}
+.stats strong{color:var(--ink)}
+.modulo{display:grid;grid-template-columns:15rem minmax(0,1fr);gap:1rem 2rem;padding:1.75rem 0;border-top:1px solid var(--line)}
+.modulo h2{margin:0;font:700 1.25rem/1.25 var(--serif);align-self:start;position:sticky;top:6rem}
+.mn{display:block;font:700 .8rem var(--mono);letter-spacing:.12em;color:var(--accent);margin-bottom:.25rem}
+.sep{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.modulo ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,17rem),1fr));gap:.75rem}
+.modulo li{margin:0}
+.modulo a{display:flex;gap:.45rem;align-items:baseline;height:100%;padding:.85rem 1rem;background:var(--card);border:1px solid var(--line);border-radius:10px;text-decoration:none;font-weight:600;line-height:1.35;box-shadow:var(--shadow);transition:border-color .15s,transform .15s}
+.modulo a:hover{border-color:var(--accent);color:var(--accent)}
+.num{font:700 .85rem var(--mono);color:var(--accent);white-space:nowrap}
+/* aula */
+.doc{display:grid;grid-template-columns:17rem minmax(0,1fr);gap:2.5rem;align-items:start;padding-block:2rem 3rem}
+.lateral{position:sticky;top:5.5rem;max-height:calc(100vh - 6.5rem);overflow:auto;font-size:.875rem;padding-right:.5rem}
+.lateral h2{margin:0 0 .25rem;font:700 .95rem var(--serif);color:var(--muted)}
+.lateral h3{margin:1rem 0 .25rem;font:700 .75rem var(--mono);letter-spacing:.06em;color:var(--accent)}
+.lateral ul{list-style:none;margin:0;padding:0}
+.lateral a{display:flex;gap:.45rem;padding:.25rem .5rem;border-radius:6px;text-decoration:none;color:var(--muted);line-height:1.3}
+.lateral a:hover{background:var(--tint);color:var(--ink)}
+.lateral a[aria-current]{background:var(--tint);color:var(--ink);font-weight:700;box-shadow:inset 3px 0 0 var(--accent)}
+.lateral .num{font-size:.75rem}
+.aula{min-width:0;max-width:56rem;overflow-wrap:break-word;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:clamp(1.25rem,1rem + 2vw,2.75rem);box-shadow:var(--shadow)}
+.aula h1{margin:0 0 1.5rem;font:700 clamp(1.75rem,1.4rem + 1.6vw,2.5rem)/1.15 var(--serif);letter-spacing:-.015em;color:var(--ink)}
+.aula h2{margin:2.5rem 0 .75rem;padding-top:1.25rem;border-top:1px solid var(--line);font:700 1.5rem/1.25 var(--serif)}
+.aula h3{margin:2rem 0 .5rem;font:700 1.15rem/1.3 var(--serif);color:var(--accent)}
+.aula h4,.aula h5,.aula h6{margin:1.5rem 0 .5rem;font-size:1rem}
+.aula p,.aula ul,.aula ol{margin:1rem 0}
+.aula ul,.aula ol{padding-left:1.5rem}
+.aula li{margin:.35rem 0}
+.aula li>ul,.aula li>ol{margin:.35rem 0}
+.aula a{color:var(--accent);text-underline-offset:2px}
+.aula hr{border:0;border-top:1px solid var(--line);margin:2rem 0}
+.tabela{overflow-x:auto;margin:1.25rem 0;border:1px solid var(--line);border-radius:10px}
+.aula table{width:100%;border-collapse:collapse;font-size:.9rem}
+.aula th,.aula td{padding:.55rem .75rem;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+.aula tr:last-child td{border-bottom:0}
+.aula th{background:var(--tint);font-weight:700}
+.aula pre{background:var(--code);border:1px solid var(--line);border-radius:10px;padding:.9rem 1rem;overflow-x:auto;font:.85rem/1.5 var(--mono);margin:1rem 0;tab-size:4}
+.aula pre code{background:none;padding:0;font-size:inherit;overflow-wrap:normal}
+.aula blockquote{margin:1.25rem 0;padding:.75rem 1.25rem;border-left:4px solid var(--accent-2);background:var(--tint);border-radius:0 10px 10px 0}
+.aula blockquote>:first-child{margin-top:0}
+.aula blockquote>:last-child{margin-bottom:0}
+.aula figure{margin:1.75rem 0;text-align:center}
+.aula figure img{display:block;margin:0 auto;max-width:100%;height:auto;border:1px solid var(--line);border-radius:10px;background:#fff}
+.aula figcaption{margin-top:.5rem;color:var(--muted);font-size:.9rem;font-style:italic}
+.paginas{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:2.5rem;padding-top:1.5rem;border-top:1px solid var(--line)}
+.paginas a{display:block;padding:.75rem 1rem;border:1px solid var(--line);border-radius:10px;text-decoration:none;color:var(--ink);font-weight:600;line-height:1.3}
+.paginas a:hover{border-color:var(--accent);color:var(--accent)}
+.paginas small{display:block;color:var(--muted);font-weight:400}
+.paginas .prox{grid-column:2;text-align:right}
+footer{border-top:1px solid var(--line);padding-block:1.5rem;color:var(--muted);font-size:.85rem;text-align:center}
+@media (hover:hover) and (prefers-reduced-motion:no-preference){.modulo a:hover{transform:translateY(-2px)}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+@media (max-width:980px){.doc{grid-template-columns:minmax(0,1fr);padding-top:1rem}.lateral{position:static;max-height:none;order:2}.aula{max-width:none}}
+@media (max-width:860px){.modulo{grid-template-columns:minmax(0,1fr)}.modulo h2{position:static}.mn{display:inline;margin-right:.5rem}}
+@media (max-width:420px){.meta{display:none}.top-in{gap:.5rem}.acoes{gap:.6rem}.capa{padding-top:1.25rem}.paginas{grid-template-columns:minmax(0,1fr)}.paginas .prox{grid-column:1}}
+@media print{.top,.lateral,.paginas{display:none}.aula{border:0;box-shadow:none;padding:0;max-width:none}.doc{display:block}}
+</style>
+</head>
+<body>
+<a class="pular" href="#conteudo">Pular para o conteúdo</a>
+<header class="top"><div class="wrap top-in"><div class="titles"><p class="marca"><a href="index.html">Curso Linux Sysadmin</a></p><p class="meta">Rodrigo Antignani · Aula 1.7</p></div><div class="acoes"><a href="index.html">Índice</a><div class="idioma" role="group" aria-label="Idioma"><span aria-current="true">PT</span><a href="1.7-arquivar-e-compactar.it.html" hreflang="it" lang="it">IT</a></div></div></div></header>
+<div class="wrap doc"><aside class="lateral" aria-label="Aulas"><h2>Aulas</h2><h3>M0 · Laboratório</h3><ul><li><a href="0.1-montar-o-laboratorio.html"><span class="num">0.1</span><span>Montar o laboratório</span></a></li><li><a href="0.2-acesso-e-protecao.html"><span class="num">0.2</span><span>Acesso e proteção</span></a></li></ul><h3>M1 · Linha de comando</h3><ul><li><a href="1.1-o-que-e-linux.html"><span class="num">1.1</span><span>O que é Linux</span></a></li><li><a href="1.2-o-shell-e-a-ajuda.html"><span class="num">1.2</span><span>O shell e a ajuda</span></a></li><li><a href="1.3-caminhos-e-navegacao.html"><span class="num">1.3</span><span>Caminhos e navegação</span></a></li><li><a href="1.4-criar-copiar-mover-e-apagar.html"><span class="num">1.4</span><span>Criar, copiar, mover e apagar</span></a></li><li><a href="1.5-ler-e-procurar-texto.html"><span class="num">1.5</span><span>Ler e procurar texto</span></a></li><li><a href="1.6-redirecionamentos-e-pipes.html"><span class="num">1.6</span><span>Redirecionamentos e pipes</span></a></li><li><a href="1.7-arquivar-e-compactar.html" aria-current="page"><span class="num">1.7</span><span>Arquivar e compactar</span></a></li><li><a href="1.8-primeiro-script.html"><span class="num">1.8</span><span>Primeiro script</span></a></li><li><a href="1.9-decidir-e-repetir.html"><span class="num">1.9</span><span>Decidir e repetir</span></a></li><li><a href="1.10-software-livre-na-pratica.html"><span class="num">1.10</span><span>Software livre na prática</span></a></li></ul><h3>M2 · Sistema, usuários e permissões</h3><ul><li><a href="2.1-instalacao-e-provisionamento.html"><span class="num">2.1</span><span>Instalação e provisionamento</span></a></li><li><a href="2.2-hardware-e-dispositivos.html"><span class="num">2.2</span><span>Hardware e dispositivos</span></a></li><li><a href="2.3-processos-e-logs.html"><span class="num">2.3</span><span>Processos e logs</span></a></li><li><a href="2.4-rede-no-dia-a-dia.html"><span class="num">2.4</span><span>Rede no dia a dia</span></a></li><li><a href="2.5-acesso-remoto-e-privilegios.html"><span class="num">2.5</span><span>Acesso remoto e privilégios</span></a></li><li><a href="2.6-usuarios-e-grupos.html"><span class="num">2.6</span><span>Usuários e grupos</span></a></li><li><a href="2.7-permissoes-e-dono.html"><span class="num">2.7</span><span>Permissões e dono</span></a></li><li><a href="2.8-diretorios-e-arquivos-especiais.html"><span class="num">2.8</span><span>Diretórios e arquivos especiais</span></a></li></ul><h3>M3 · Texto e editor</h3><ul><li><a href="3.1-fluxos-a-fundo.html"><span class="num">3.1</span><span>Fluxos a fundo</span></a></li><li><a href="3.2-filtros-de-texto.html"><span class="num">3.2</span><span>Filtros de texto</span></a></li><li><a href="3.3-regex-e-grep.html"><span class="num">3.3</span><span>Regex e grep</span></a></li><li><a href="3.4-sed-e-awk.html"><span class="num">3.4</span><span>sed e awk</span></a></li><li><a href="3.5-vi-e-vim-de-verdade.html"><span class="num">3.5</span><span>vi e vim de verdade</span></a></li></ul><h3>M4 · systemd e boot</h3><ul><li><a href="4.1-como-o-linux-liga.html"><span class="num">4.1</span><span>Como o Linux liga</span></a></li><li><a href="4.2-systemd-servicos-e-units.html"><span class="num">4.2</span><span>systemd: serviços e units</span></a></li><li><a href="4.3-targets-desligar-e-reiniciar.html"><span class="num">4.3</span><span>Targets: desligar e reiniciar</span></a></li><li><a href="4.4-grub-e-acesso-de-emergencia.html"><span class="num">4.4</span><span>GRUB e acesso de emergência</span></a></li></ul><h3>M5 · Kernel, módulos e VM</h3><ul><li><a href="5.1-hardware-pelo-kernel.html"><span class="num">5.1</span><span>Hardware pelo kernel</span></a></li><li><a href="5.2-modulos-e-parametros.html"><span class="num">5.2</span><span>Módulos e parâmetros</span></a></li><li><a href="5.3-linux-como-convidado.html"><span class="num">5.3</span><span>Linux como convidado</span></a></li></ul><h3>M6 · Pacotes e repositórios</h3><ul><li><a href="6.1-pacotes-no-debian.html"><span class="num">6.1</span><span>Pacotes no Debian</span></a></li><li><a href="6.2-pacotes-na-rocky.html"><span class="num">6.2</span><span>Pacotes na Rocky</span></a></li><li><a href="6.3-repositorios.html"><span class="num">6.3</span><span>Repositórios</span></a></li><li><a href="6.4-flatpak.html"><span class="num">6.4</span><span>Flatpak</span></a></li><li><a href="6.5-bibliotecas-compartilhadas.html"><span class="num">6.5</span><span>Bibliotecas compartilhadas</span></a></li></ul></aside><main id="conteudo" class="aula"><article><h1>Aula 1.7 · Arquivar e compactar</h1>
+<p>Você aprende a juntar uma pasta inteira num arquivo só, a encolher esse arquivo e, principalmente, a abrir um backup sem destruir o que já existe no servidor. No fim, "restaura a configuração de ontem" deixa de ser um comando arriscado e vira um procedimento de cinco passos, que você repete igual em qualquer cliente.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Ficha</th><th scope="col">Aula 1.7</th></tr></thead><tbody><tr><td>Módulo</td><td>M1 · Linha de comando, aula 7 de 10</td></tr><tr><td>Quando</td><td>Semana 3</td></tr><tr><td>Ao final você consegue</td><td>Criar, listar e extrair arquivos tar com e sem compressão; escolher entre gzip, bzip2, xz e zip sabendo o custo de cada um; testar um backup antes de precisar dele; extrair numa pasta separada e trazer só o arquivo que interessa; trocar arquivos com quem usa Windows</td></tr><tr><td>Itens de prova</td><td>LE 013.1 · LPIC-1 103.3, a parte de tar, gzip, bzip2 e xz · RHCSA: arquivar, compactar, desempacotar e descompactar arquivos com tar, gzip e bzip2</td></tr><tr><td>Pré-requisitos</td><td>Aulas 1.4 a 1.6, com o ~/lab13 ainda nas VMs</td></tr><tr><td>Tempo</td><td>Cerca de 2h30</td></tr><tr><td>Snapshots</td><td>m1a7-inicio e m1a7-fim nas duas VMs</td></tr></tbody></table></div>
+<h2 id="1-aquecimento">1 · Aquecimento</h2>
+<p>Três perguntas, de cabeça, antes de ler qualquer coisa. Escreva as respostas; o Gabarito confere no fim.</p>
+<ol><li>Na Aula 1.6, como você gravava a saída e os erros de um script de backup no mesmo log, sem apagar o que já estava lá?</li>
+<li>Na Aula 1.5, você leu um log terminado em <code translate="no">.gz</code> sem descompactá-lo antes. Com qual comando?</li>
+<li>Palpite: você manda a mesma pasta como <code translate="no">.zip</code> e como <code translate="no">.tar.gz</code>. Qual dos dois guarda o dono e o grupo de cada arquivo?</li></ol>
+<h2 id="2-por-que-importa">2 · Por que importa</h2>
+<p>Segunda, 9h10. O cliente liga: "alguém mexeu na configuração do sistema de pedidos ontem à noite, volta como estava na sexta". Você tem o backup de sexta, <code translate="no">etc-2026-10-30.tar.gz</code>, no NAS. Entra como root, vai para <code translate="no">/</code>, roda <code translate="no">tar -xzf etc-2026-10-30.tar.gz</code> e o prompt volta em dois segundos, sem nenhuma mensagem. O arquivo do sistema de pedidos voltou. E voltaram também, para a versão de sexta, o <code translate="no">/etc/passwd</code>, o <code translate="no">/etc/shadow</code> e a configuração de rede, que outro colega tinha alterado no sábado com autorização. Na terça, dois usuários novos não conseguem entrar, e ninguém liga o problema ao backup restaurado na véspera.</p>
+<p>O <code translate="no">tar</code> não pergunta antes de sobrescrever. Esta aula ensina o hábito que evita o desastre: listar antes, extrair numa pasta vazia, comparar e copiar só o que precisa voltar.</p>
+<p>Segundo caso. O script de backup roda toda noite há oito meses, e o arquivo de cada dia está lá, com tamanho razoável. No dia em que o disco do servidor morre, o backup mais recente para no meio: <code translate="no">unexpected end of file</code>. A cópia para o NAS caía sempre pela metade, e ninguém nunca tinha aberto um backup. Backup que nunca foi testado é só uma esperança. Aqui você aprende a testar sem extrair, em um segundo.</p>
+<p>Terceiro caso, o mais comum. O suporte de um fornecedor pede "os logs do servidor, compactados". Quem vai abrir usa Windows. Você precisa saber o que o Windows abre sem instalar nada, e o que ele estraga.</p>
+<p>E o quarto, de toda madrugada: o disco de logs chega a 95%. Antes de apagar qualquer coisa, compactar os logs antigos libera, em texto, de 80% a 95% do espaço. Mas há um jeito de compactar que apaga o original na hora, e é bom saber disso antes.</p>
+<h2 id="3-modelo-mental">3 · Modelo mental</h2>
+<blockquote><p>O tar é a caixa de mudança. O gzip, o bzip2 e o xz são o saco a vácuo.</p></blockquote>
+<p>São duas tarefas diferentes, feitas por ferramentas diferentes:</p>
+<ul><li>A <strong>caixa</strong>, que é o <code translate="no">tar</code>, junta muitos arquivos num só. Dentro dela vai cada arquivo com seu nome, pasta, dono, grupo, permissões e data. A caixa não diminui nada: dez arquivos de 1 MB dão um <code translate="no">.tar</code> de pouco mais de 10 MB.</li>
+<li>O <strong>saco a vácuo</strong>, que é o compressor, encolhe um único fluxo de bytes. Ele não sabe o que é uma pasta. Se você pedir para o <code translate="no">gzip</code> compactar uma pasta, ele recusa.</li></ul>
+<p>Um <code translate="no">.tar.gz</code> é a caixa dentro do saco. Por isso o nome tem duas extensões, e por isso as letras do <code translate="no">tar</code> vêm em dois grupos: as que dizem o que fazer com a caixa e a que diz qual saco usar.</p>
+<pre translate="no"><code class="lang-text">  app/conf/app.conf ─┐
+  app/logs/app1.log ─┼─► tar ─► app.tar  ─► gzip ─► app.tar.gz
+  app/www/index.html ┘   caixa: junta,       saco: encolhe,
+                         guarda dono,        não sabe o que
+                         permissão e data    é pasta</code></pre>
+<p>O <code translate="no">zip</code>, o formato do Windows, faz as duas coisas de uma vez, arquivo por arquivo. Isso tem uma vantagem: dá para tirar um arquivo do meio de um <code translate="no">.zip</code> enorme sem ler o resto. E duas desvantagens: compacta pior quando há muitos arquivos parecidos, porque cada um é compactado sozinho, e não guarda dono nem grupo do Linux.</p>
+<p><strong>A primeira ideia que você leva.</strong> As letras do <code translate="no">tar</code> se leem como uma frase. A primeira diz a ação, e só há três que você usa todo dia:</p>
+<div class="tabela"><table><thead><tr><th scope="col">Letra</th><th scope="col">Ação</th><th scope="col">Lembre como</th></tr></thead><tbody><tr><td>c</td><td>criar a caixa</td><td><strong>c</strong>reate</td></tr><tr><td>t</td><td>listar o que tem dentro</td><td><strong>t</strong>able, a tabela de conteúdo</td></tr><tr><td>x</td><td>extrair</td><td>e<strong>x</strong>tract</td></tr></tbody></table></div>
+<p>Depois vêm os modificadores: <code translate="no">v</code> mostra cada arquivo enquanto trabalha, <code translate="no">f</code> diz o nome do arquivo da caixa, e <code translate="no">z</code>, <code translate="no">j</code> ou <code translate="no">J</code> escolhem o saco. O <code translate="no">f</code> tem uma regra que derruba muita gente: <strong>o nome da caixa vem logo depois dele</strong>. Em <code translate="no">tar -czvf backup.tar.gz app</code>, o <code translate="no">f</code> é a última letra, e <code translate="no">backup.tar.gz</code> é o nome. Em <code translate="no">tar -cfzv backup.tar.gz app</code>, o nome da caixa vira <code translate="no">zv</code>.</p>
+<p><strong>A segunda ideia.</strong> Extrair escreve por cima, sem perguntar. O <code translate="no">tar -x</code> se comporta como um <code translate="no">cp</code> sem <code translate="no">-i</code> aplicado a centenas de arquivos de uma vez. Se o caminho guardado dentro da caixa já existe onde você está, o arquivo atual é substituído pela versão da caixa. Por isso a regra de ouro: <strong>liste antes, extraia numa pasta vazia</strong>.</p>
+<p><strong>A terceira ideia.</strong> Um backup só vale o que vale a sua restauração. Criar o arquivo prova que o script rodou; só listar ou testar o arquivo prova que dá para abri-lo.</p>
+<p><strong>Ponte Windows.</strong> No Windows você clica com o botão direito em "Enviar para &gt; Pasta compactada" e ganha um <code translate="no">.zip</code>. O Windows 10 e o 11 também trazem um <code translate="no">tar.exe</code> de verdade, em <code translate="no">C:\Windows\System32</code>, que abre <code translate="no">.tar.gz</code> pelo cmd ou pelo PowerShell com o mesmo <code translate="no">tar -xzf</code>. O 7-Zip abre os dois formatos, mas um <code translate="no">.tar.gz</code> em duas etapas: primeiro tira o saco, depois abre a caixa. A diferença que importa: o <code translate="no">.zip</code> do Windows não sabe o que é dono, grupo ou permissão do Linux. Um script com permissão de execução que passa por um <code translate="no">.zip</code> criado no Windows chega sem ela.</p>
+<figure><a href="../img/1.7-anatomia-tar.jpg"><img src="../img/1.7-anatomia-tar.jpg" alt="A caixa e o saco: anatomia do tar" loading="lazy" decoding="async"></a><figcaption>O tar junta, o compressor encolhe, e as letras do comando se leem como uma frase.</figcaption></figure>
+<h2 id="4-conceito-em-camadas">4 · Conceito em camadas</h2>
+<h3 id="essencial">Essencial</h3>
+<p><strong>O tar.</strong> As três frases que você vai escrever mil vezes:</p>
+<pre translate="no"><code class="lang-bash">tar -czf app.tar.gz app/
+tar -tzf app.tar.gz
+tar -xzf app.tar.gz -C /tmp/restaura</code></pre>
+<p>Crie, liste, extraia. O <code translate="no">-C</code> diz em que pasta extrair; sem ele, o <code translate="no">tar</code> extrai na pasta atual. Ao ler, o <code translate="no">tar</code> do GNU, que é o da Rocky e o da Debian, descobre sozinho qual compressor foi usado. Então <code translate="no">tar -tf app.tar.gz</code> e <code translate="no">tar -xf app.tar.gz</code> também funcionam. Ao criar, você precisa dizer.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Letra</th><th scope="col">Compressor</th><th scope="col">Extensão</th><th scope="col">Quando usar</th></tr></thead><tbody><tr><td>z</td><td>gzip</td><td>.tar.gz ou .tgz</td><td>O padrão. Rápido, e todo sistema abre</td></tr><tr><td>j</td><td>bzip2</td><td>.tar.bz2</td><td>Formato antigo. Você vai encontrar em arquivos velhos e na prova</td></tr><tr><td>J</td><td>xz</td><td>.tar.xz</td><td>Menor arquivo, criação mais lenta. Comum em código-fonte e pacotes</td></tr><tr><td>nenhuma</td><td>nenhum</td><td>.tar</td><td>Quando o conteúdo já está compactado, como fotos, vídeos e .zip</td></tr></tbody></table></div>
+<p>Com <code translate="no">-a</code>, no lugar da letra, o <code translate="no">tar</code> escolhe o compressor pela extensão do nome: <code translate="no">tar -caf app.tar.xz app/</code> usa o xz.</p>
+<p><strong>Os compressores sozinhos.</strong> Servem para um único arquivo. Por padrão, eles substituem o original:</p>
+<div class="tabela"><table><thead><tr><th scope="col">Compactar</th><th scope="col">Descompactar</th><th scope="col">Ler sem descompactar</th><th scope="col">Testar</th></tr></thead><tbody><tr><td>gzip arq</td><td>gunzip arq.gz</td><td>zcat, zless, zgrep</td><td>gzip -t arq.gz</td></tr><tr><td>bzip2 arq</td><td>bunzip2 arq.bz2</td><td>bzcat, bzless, bzgrep</td><td>bzip2 -t arq.bz2</td></tr><tr><td>xz arq</td><td>unxz arq.xz</td><td>xzcat, xzless, xzgrep</td><td>xz -t arq.xz</td></tr></tbody></table></div>
+<p><code translate="no">gzip arq</code> cria <code translate="no">arq.gz</code> e apaga o <code translate="no">arq</code>. Para guardar o original, use <code translate="no">-k</code>, de keep. Para escolher entre velocidade e tamanho, os níveis vão de <code translate="no">-1</code>, o mais rápido, a <code translate="no">-9</code>, o menor arquivo. O padrão do gzip é 6.</p>
+<p><strong>O zip.</strong> Formato próprio, com dois programas:</p>
+<pre translate="no"><code class="lang-bash">zip -r logs.zip logs/
+unzip -l logs.zip
+unzip -t logs.zip
+unzip logs.zip -d /tmp/restaura</code></pre>
+<p>O <code translate="no">-r</code> entra nas pastas; sem ele, o <code translate="no">zip</code> guarda só a pasta vazia. O <code translate="no">-l</code> lista, o <code translate="no">-t</code> testa e o <code translate="no">-d</code> escolhe a pasta de destino.</p>
+<p><strong>Testar.</strong> Três jeitos, do mais rápido ao mais completo:</p>
+<ul><li><code translate="no">gzip -t arq.tar.gz</code>: o saco está inteiro?</li>
+<li><code translate="no">tar -tf arq.tar.gz &gt; /dev/null</code>: o saco está inteiro, e a caixa dentro dele também? Se não aparecer nenhum erro, o arquivo abre.</li>
+<li><code translate="no">tar -df arq.tar.gz</code>: a caixa é igual ao que está no disco agora? Mostra cada diferença.</li></ul>
+<p>E, para cópias entre máquinas, a impressão digital: <code translate="no">sha256sum arq.tar.gz</code> antes e depois da cópia. Se os dois números forem iguais, a cópia é idêntica.</p>
+<h3 id="ponte-windows">Ponte Windows</h3>
+<div class="tabela"><table><thead><tr><th scope="col">No Windows</th><th scope="col">No Linux</th><th scope="col">Cuidado</th></tr></thead><tbody><tr><td>Enviar para &gt; Pasta compactada</td><td>zip -r arq.zip pasta</td><td>O Linux pode não ter o zip instalado</td></tr><tr><td>Extrair tudo...</td><td>unzip arq.zip -d pasta</td><td>Sem -d, extrai na pasta atual</td></tr><tr><td>Compress-Archive, no PowerShell</td><td>zip -r ou tar -czf</td><td>O .zip não guarda dono nem grupo</td></tr><tr><td>tar.exe -xzf, no cmd</td><td>tar -xzf</td><td>O mesmo comando dos dois lados</td></tr><tr><td>7-Zip com .tar.gz</td><td>tar -xzf</td><td>O 7-Zip abre em duas etapas</td></tr><tr><td>Backup do Windows Server</td><td>tar com data no nome e teste</td><td>Nenhum dos dois avisa se o backup não abre</td></tr></tbody></table></div>
+<h3 id="avancado">Avançado</h3>
+<ul><li><code translate="no">tar --exclude='*.log' -czf app.tar.gz app/</code> deixa de fora o que casa com o padrão. A Aula 8.3 aprofunda seleção e exclusão.</li>
+<li><code translate="no">tar -xzf app.tar.gz app/conf/app.conf</code> extrai um arquivo só. O caminho tem de ser exatamente o que o <code translate="no">tar -t</code> mostra.</li>
+<li><code translate="no">tar --strip-components=1 -xzf app.tar.gz</code> tira a primeira pasta do caminho ao extrair.</li>
+<li><code translate="no">tar --keep-old-files</code>, ou <code translate="no">-k</code>, recusa sobrescrever um arquivo que já existe, e termina com erro. <code translate="no">--skip-old-files</code> pula em silêncio, e <code translate="no">--keep-newer-files</code> só substitui o que for mais antigo que a versão da caixa.</li>
+<li>A Rocky, como o RHEL, usa SELinux e às vezes ACLs. Para guardar esses atributos, <code translate="no">tar --selinux --acls --xattrs</code>. É assunto da Aula 8.5 e do RHCSA.</li>
+<li>O <code translate="no">zstd</code>, com <code translate="no">tar --zstd</code>, comprime quase tão bem quanto o xz e quase tão rápido quanto o gzip. É o formato dos backups de contêiner do Proxmox, os arquivos <code translate="no">vzdump-lxc-*.tar.zst</code>.</li>
+<li>Com <code translate="no">xz -T0</code>, o xz usa todos os núcleos da CPU. Com <code translate="no">tar -I 'xz -T0' -cf</code>, o mesmo dentro do tar.</li></ul>
+<h3 id="o-que-cai-na-prova">O que cai na prova</h3>
+<ul><li><strong>LE 013.1.</strong> Saber o que cada letra do <code translate="no">tar</code> faz, inclusive <code translate="no">c</code>, <code translate="no">t</code>, <code translate="no">x</code>, <code translate="no">v</code>, <code translate="no">f</code>, <code translate="no">z</code>, <code translate="no">j</code> e <code translate="no">J</code>. Distinguir arquivar de compactar. Conhecer <code translate="no">gzip</code>, <code translate="no">bzip2</code>, <code translate="no">xz</code>, <code translate="no">zip</code> e <code translate="no">unzip</code>, e as extensões de cada um.</li>
+<li><strong>LPIC-1 103.3.</strong> O mesmo, mais os comandos de descompactar e de ler compactado, como <code translate="no">gunzip</code>, <code translate="no">bunzip2</code>, <code translate="no">unxz</code>, <code translate="no">zcat</code> e <code translate="no">xzcat</code>. A prova gosta de perguntar qual opção mantém o original, e o que acontece com o arquivo de entrada.</li>
+<li><strong>RHCSA.</strong> É uma tarefa prática, sem múltipla escolha: "crie um arquivo <code translate="no">/root/backup.tar.bz2</code> com o conteúdo de <code translate="no">/usr/local</code>, compactado com bzip2". Se o nome, o caminho ou o compressor estiverem errados, a tarefa vale zero. Confira sempre com <code translate="no">file</code> e com <code translate="no">tar -tf</code>.</li></ul>
+<h2 id="5-rocky-debian">5 · Rocky × Debian</h2>
+<p>O <code translate="no">tar</code> é o mesmo nas duas, o do GNU, e as opções desta aula funcionam igual. A diferença está no que vem instalado e em como cada sistema usa compressão no dia a dia.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Item</th><th scope="col">Rocky 9</th><th scope="col">Debian 13</th></tr></thead><tbody><tr><td>tar, gzip e xz</td><td>Vêm instalados</td><td>Vêm instalados</td></tr><tr><td>bzip2, zip e unzip</td><td>Podem faltar na instalação mínima</td><td>Podem faltar na instalação mínima</td></tr><tr><td>Instalar o que falta</td><td>sudo dnf install bzip2 zip unzip</td><td>sudo apt install bzip2 zip unzip</td></tr><tr><td>Logs girados pelo logrotate</td><td>Com a data no nome, em geral sem .gz</td><td>.1 sem compactar e .2.gz em diante, por causa do delaycompress</td></tr><tr><td>Documentação em /usr/share/doc</td><td>Arquivos comuns</td><td>Muitos arquivos .gz, como changelog.Debian.gz</td></tr><tr><td>Backups automáticos do sistema</td><td>Não há uma pasta padrão</td><td>/var/backups, com cópias .gz da lista de pacotes</td></tr></tbody></table></div>
+<p>Confira os logs girados nas duas:</p>
+<pre translate="no"><code class="lang-bash">ls /var/log | head -n 30
+grep -n compress /etc/logrotate.conf</code></pre>
+<p>Na Rocky, algo como <code translate="no">messages-20261101</code> e <code translate="no">secure-20261101</code>, sem <code translate="no">.gz</code>. O <code translate="no">compress</code> aparece comentado no <code translate="no">logrotate.conf</code>. Na Debian, procure arquivos como <code translate="no">dpkg.log.1</code> e <code translate="no">dpkg.log.2.gz</code>. Na Debian, quem decide é cada arquivo em <code translate="no">/etc/logrotate.d</code>:</p>
+<pre translate="no"><code class="lang-bash">[ "$(hostname)" = debian-lab ] &amp;&amp; grep -l delaycompress /etc/logrotate.d/*
+[ "$(hostname)" = debian-lab ] &amp;&amp; ls -lh /var/backups</code></pre>
+<p>O <code translate="no">delaycompress</code> deixa o <code translate="no">.1</code> sem compactar por um ciclo, porque algum programa ainda pode estar escrevendo nele. É a mesma lição do <code translate="no">tail -F</code> da Aula 1.5, vista pelo outro lado.</p>
+<p>Na Debian, o próprio pacote <code translate="no">.deb</code> leva uma caixa tar por dentro. Baixe um pacote pequeno para a pasta atual, sem instalar nada, e olhe o conteúdo:</p>
+<pre translate="no"><code class="lang-bash">[ "$(hostname)" = debian-lab ] &amp;&amp; cd /tmp &amp;&amp; apt download hostname &amp;&amp; dpkg-deb -c hostname_*.deb</code></pre>
+<p>Algo como uma lista no formato do <code translate="no">tar -tv</code>, com permissões, dono <code translate="no">root/root</code>, tamanho, data e caminhos como <code translate="no">./usr/bin/hostname</code>. É exatamente a caixa que o <code translate="no">dpkg</code> abre em <code translate="no">/</code> quando instala o pacote. Apague o arquivo baixado com <code translate="no">rm -v /tmp/hostname_*.deb</code>.</p>
+<h2 id="6-lab-guiado">6 · Lab guiado</h2>
+<p>Faça tudo nas duas VMs, a não ser quando o passo disser só uma. Os arquivos ficam em <code translate="no">~/lab13/arquivo</code>, e a matéria-prima é uma pequena aplicação de mentira, com configuração, logs, um script e um arquivo binário. Em cada passo, quando aparecer <strong>Preveja</strong>, escreva a resposta antes de apertar Enter.</p>
+<h3 id="passo-1-preparar">Passo 1 · Preparar</h3>
+<p>No nó Proxmox:</p>
+<pre translate="no"><code class="lang-bash">qm snapshot 201 m1a7-inicio
+qm snapshot 202 m1a7-inicio</code></pre>
+<p>Em cada VM, confira se as ferramentas estão instaladas:</p>
+<pre translate="no"><code class="lang-bash">for p in tar gzip bzip2 xz zip unzip; do command -v $p &gt; /dev/null &amp;&amp; echo "ok    $p" || echo "FALTA $p"; done</code></pre>
+<p>Se aparecer algum <code translate="no">FALTA</code>, instale:</p>
+<pre translate="no"><code class="lang-bash">[ "$(hostname)" = rocky-lab ] &amp;&amp; sudo dnf install -y bzip2 xz zip unzip
+[ "$(hostname)" = debian-lab ] &amp;&amp; sudo apt install -y bzip2 xz-utils zip unzip</code></pre>
+<p>Rode o <code translate="no">for</code> de novo: todas as linhas devem dizer <code translate="no">ok</code>. Agora monte a aplicação:</p>
+<pre translate="no"><code class="lang-bash">mkdir -p ~/lab13/arquivo/app/conf ~/lab13/arquivo/app/logs ~/lab13/arquivo/app/www
+cd ~/lab13/arquivo
+cp ~/lab13/logs/app1.log app/logs/
+for i in $(seq 1 500); do cat ~/lab13/logs/app1.log; done &gt; app/logs/grande.log
+head -c 2M /dev/urandom &gt; app/www/foto.bin
+echo '&lt;h1&gt;Loja&lt;/h1&gt;' &gt; app/www/index.html
+cat &gt; app/conf/app.conf &lt;&lt;'EOF'
+porta=8080
+banco=pg01
+usuarios_max=50
+EOF
+printf '#!/bin/bash\necho "app ok"\n' &gt; app/iniciar.sh
+chmod 750 app/iniciar.sh
+ls -lR app
+du -sh app</code></pre>
+<p>O <code translate="no">grande.log</code> é o <code translate="no">app1.log</code> repetido 500 vezes: 10.000 linhas de texto muito repetitivo, como um log de verdade. O <code translate="no">foto.bin</code> são 2 MB de bytes aleatórios, que fazem o papel de uma foto ou de um arquivo já compactado. O <code translate="no">du</code> deve mostrar algo como <code translate="no">3,0M app</code>. Se o <code translate="no">app1.log</code> não existir, volte ao Passo 1 da Aula 1.5.</p>
+<h3 id="passo-2-a-caixa-criar-listar-e-extrair">Passo 2 · A caixa: criar, listar e extrair</h3>
+<p>Primeiro, só a caixa, sem compressão:</p>
+<pre translate="no"><code class="lang-bash">tar -cvf app.tar app
+ls -lh app.tar</code></pre>
+<p>O <code translate="no">v</code> mostra cada arquivo que entra. <strong>Preveja.</strong> O <code translate="no">app.tar</code> vai ter mais, menos ou o mesmo tamanho que o <code translate="no">du</code> mostrou?</p>
+<p>Um pouco mais. A caixa não comprime, e ainda guarda um cabeçalho de 512 bytes para cada arquivo, com nome, dono, permissões e data. Agora olhe dentro dela:</p>
+<pre translate="no"><code class="lang-bash">tar -tf app.tar
+tar -tvf app.tar</code></pre>
+<p>O <code translate="no">-t</code> sozinho mostra os caminhos. Com <code translate="no">v</code>, aparece algo como um <code translate="no">ls -l</code>:</p>
+<pre translate="no"><code class="lang-text">-rwxr-x--- rodrigo/rodrigo   27 2026-11-02 10:14 app/iniciar.sh</code></pre>
+<p>Permissão, dono e grupo, tamanho, data e caminho: tudo isso viaja dentro da caixa. Repare que os caminhos começam em <code translate="no">app/</code>, sem barra na frente. São relativos, e isso vai importar no Passo 5.</p>
+<p>Extraia numa pasta separada e confira:</p>
+<pre translate="no"><code class="lang-bash">mkdir -p /tmp/teste1
+tar -xvf app.tar -C /tmp/teste1
+ls -l /tmp/teste1/app</code></pre>
+<p>O <code translate="no">iniciar.sh</code> voltou com <code translate="no">-rwxr-x---</code>, como era. Agora, o caminho absoluto:</p>
+<pre translate="no"><code class="lang-bash">tar -cf hosts.tar /etc/hosts
+tar -tf hosts.tar</code></pre>
+<p>Algo como <code translate="no">tar: Removing leading '/' from member names</code>, e a lista mostra <code translate="no">etc/hosts</code>, sem a barra. Não é erro: o <code translate="no">tar</code> tira a barra de propósito, para que a extração caia na pasta onde você está, e não por cima do <code translate="no">/etc/hosts</code> do sistema. O colega da seção 2 só destruiu o <code translate="no">/etc</code> porque estava em <code translate="no">/</code> quando extraiu.</p>
+<p><strong>Decida 1 · A ordem das letras.</strong> Cenário: com pressa, você digita <code translate="no">tar -cfv backup.tar app</code>, com o <code translate="no">v</code> depois do <code translate="no">f</code>. O que acontece?</p>
+<ul><li><strong>A)</strong> O mesmo que <code translate="no">tar -cvf</code>. A ordem das letras não importa.</li>
+<li><strong>B)</strong> O <code translate="no">tar</code> cria um arquivo chamado <code translate="no">v</code>, põe dentro dele a pasta <code translate="no">app</code>, e reclama que <code translate="no">backup.tar</code> não existe.</li>
+<li><strong>C)</strong> O <code translate="no">tar</code> recusa o comando, porque o <code translate="no">f</code> tem de ser a primeira letra.</li>
+<li><strong>D)</strong> Cria o <code translate="no">backup.tar</code> normalmente, só não mostra os nomes na tela.</li></ul>
+<p>Escolha a letra antes de olhar a tabela.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se você marcou</th><th scope="col">Resultado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>A</td><td>❌ Errada</td><td>A ordem das outras letras não importa, mas o <code translate="no">f</code> pega a palavra seguinte como nome da caixa. Com <code translate="no">-cfv</code>, essa palavra é o <code translate="no">v</code>.</td></tr><tr><td>B</td><td>✅ Certa</td><td>O <code translate="no">f</code> recebeu <code translate="no">v</code> como nome. Sobraram <code translate="no">backup.tar</code> e <code translate="no">app</code> como coisas a guardar, e o <code translate="no">backup.tar</code> não existe. A caixa <code translate="no">v</code> é criada com o <code translate="no">app</code> dentro, e o comando termina com erro.</td></tr><tr><td>C</td><td>❌ Errada</td><td>O <code translate="no">f</code> pode vir em qualquer posição. O que importa é que o nome da caixa venha logo depois dele.</td></tr><tr><td>D</td><td>❌ Errada</td><td>O <code translate="no">backup.tar</code> nunca é criado. O <code translate="no">tar</code> o tratou como algo a guardar, não como o destino.</td></tr></tbody></table></div>
+<p><strong>Para fixar:</strong> o <code translate="no">f</code> é sempre a última letra do grupo, e o nome da caixa vem logo depois. Leia <code translate="no">-czf</code> como "crie, com gzip, o arquivo...".</p>
+<p>Confira:</p>
+<pre translate="no"><code class="lang-bash">tar -cfv backup.tar app
+echo "código de saída: $?"
+ls -l v backup.tar
+tar -tf v | head -n 3
+rm -v v</code></pre>
+<p>Algo como <code translate="no">tar: backup.tar: Cannot stat: No such file or directory</code> e código de saída 2. O <code translate="no">ls</code> mostra o arquivo <code translate="no">v</code>, com o tamanho do <code translate="no">app.tar</code>, e diz que <code translate="no">backup.tar</code> não existe. O conteúdo de <code translate="no">v</code> é a pasta <code translate="no">app</code>.</p>
+<h3 id="passo-3-o-saco-sozinho-gzip-bzip2-e-xz">Passo 3 · O saco sozinho: gzip, bzip2 e xz</h3>
+<p>Faça uma cópia do log grande e compacte:</p>
+<pre translate="no"><code class="lang-bash">cp app/logs/grande.log g1.log
+ls -lh g1.log
+gzip g1.log</code></pre>
+<p><strong>Preveja.</strong> O que o <code translate="no">ls</code> vai mostrar agora: o <code translate="no">g1.log</code> e o <code translate="no">g1.log.gz</code>, ou só um deles?</p>
+<pre translate="no"><code class="lang-bash">ls -lh g1.log*</code></pre>
+<p>Só o <code translate="no">g1.log.gz</code>. O <code translate="no">gzip</code> substituiu o original pelo compactado. E o tamanho caiu de algo como 600 KB para poucos KB: o texto é tão repetitivo que quase tudo some. Leia sem descompactar e depois descompacte:</p>
+<pre translate="no"><code class="lang-bash">zcat g1.log.gz | wc -l
+gunzip g1.log.gz
+ls -lh g1.log*</code></pre>
+<p>As 10.000 linhas, e de novo só o <code translate="no">g1.log</code>, agora sem o <code translate="no">.gz</code>. Para guardar o original, use <code translate="no">-k</code>:</p>
+<pre translate="no"><code class="lang-bash">gzip -k g1.log
+ls -lh g1.log*</code></pre>
+<p>Agora estão os dois. Compare os três compressores no mesmo arquivo:</p>
+<pre translate="no"><code class="lang-bash">for c in gzip bzip2 xz; do cp app/logs/grande.log t-$c.log; $c t-$c.log; done
+ls -lh t-*</code></pre>
+<p>Algo como o <code translate="no">.xz</code> menor, o <code translate="no">.bz2</code> no meio e o <code translate="no">.gz</code> maior. A diferença existe, mas os três ficam muito menores que o original. Agora tente o que não dá:</p>
+<pre translate="no"><code class="lang-bash">gzip app
+gzip -k app/www/foto.bin
+ls -l app/www/foto.bin*
+rm -v app/www/foto.bin.gz</code></pre>
+<p>O primeiro responde <code translate="no">gzip: app is a directory -- ignored</code>: o saco não sabe o que é pasta. O segundo funciona, mas o <code translate="no">foto.bin.gz</code> fica do mesmo tamanho do original, ou um pouco maior. Bytes aleatórios não têm repetição para tirar. Vale para fotos, vídeos, <code translate="no">.zip</code> e qualquer coisa já compactada: compactar de novo só gasta CPU.</p>
+<p><strong>Decida 2 · O disco cheio de madrugada.</strong> Cenário: o disco de <code translate="no">/var/log/loja</code> está em 95%. Lá há um log por dia, de <code translate="no">loja-2026-10-01.log</code> a <code translate="no">loja-2026-11-01.log</code>, mais o <code translate="no">loja.log</code>, que o serviço está escrevendo agora. Você quer liberar espaço sem perder nenhum log. O que você faz?</p>
+<ul><li><strong>A)</strong> <code translate="no">sudo gzip /var/log/loja/*.log</code></li>
+<li><strong>B)</strong> <code translate="no">sudo gzip /var/log/loja/loja-2026-*.log</code></li>
+<li><strong>C)</strong> <code translate="no">sudo tar -czf /var/log/loja/antigos.tar.gz /var/log/loja</code></li>
+<li><strong>D)</strong> <code translate="no">sudo rm /var/log/loja/loja-2026-10-*.log</code></li></ul>
+<p>Escolha a letra antes de olhar a tabela.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se você marcou</th><th scope="col">Resultado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>A</td><td>❌ Errada</td><td>O <code translate="no">*.log</code> pega também o <code translate="no">loja.log</code>, que está aberto. O <code translate="no">gzip</code> cria o <code translate="no">.gz</code> e apaga o nome, mas o serviço continua escrevendo no arquivo apagado: o espaço não volta, e o que for escrito depois se perde. É o inode da Aula 1.5.</td></tr><tr><td>B</td><td>✅ Certa</td><td>Compacta só os arquivos com data, que ninguém mais escreve. Cada um é substituído pelo <code translate="no">.gz</code>, e o espaço volta na hora. Os logs continuam legíveis com <code translate="no">zless</code> e <code translate="no">zgrep</code>.</td></tr><tr><td>C</td><td>❌ Errada</td><td>Cria mais um arquivo, no mesmo disco cheio, e não apaga nenhum original. O uso do disco sobe. E ainda tenta pôr dentro da caixa a própria caixa que está sendo criada.</td></tr><tr><td>D</td><td>❌ Errada</td><td>Libera espaço, mas apaga os logs de outubro. Ninguém autorizou perder histórico.</td></tr></tbody></table></div>
+<p><strong>Para fixar:</strong> o <code translate="no">gzip</code> sozinho troca o original pelo <code translate="no">.gz</code>. Em log, use só nos arquivos que ninguém mais escreve.</p>
+<p>Arrume a pasta antes de seguir:</p>
+<pre translate="no"><code class="lang-bash">rm -v g1.log g1.log.gz t-*</code></pre>
+<h3 id="passo-4-a-caixa-dentro-do-saco">Passo 4 · A caixa dentro do saco</h3>
+<p>Agora as duas coisas juntas. Compare os três sacos, só com os logs:</p>
+<pre translate="no"><code class="lang-bash">time tar -czf logs.tar.gz app/logs
+time tar -cjf logs.tar.bz2 app/logs
+time tar -cJf logs.tar.xz app/logs
+ls -lh logs.tar*
+file logs.tar*</code></pre>
+<p>O <code translate="no">time</code> mostra quanto cada um demorou: olhe a linha <code translate="no">real</code>. Algo como o xz mais lento e o menor, o gzip mais rápido e o maior. Com 600 KB, tudo leva frações de segundo; com 50 GB, a diferença vira horas. O <code translate="no">file</code> olha os primeiros bytes e diz o formato de verdade, sem confiar na extensão: algo como <code translate="no">gzip compressed data</code>, <code translate="no">bzip2 compressed data</code> e <code translate="no">XZ compressed data</code>.</p>
+<p><strong>Preveja.</strong> Agora a aplicação inteira, com o <code translate="no">foto.bin</code>. Os três arquivos vão ter tamanhos muito diferentes?</p>
+<pre translate="no"><code class="lang-bash">tar -czf app.tar.gz app
+tar -cJf app.tar.xz app
+ls -lh app.tar app.tar.gz app.tar.xz</code></pre>
+<p>Não. Algo como 3,0 MB, 2,1 MB e 2,0 MB. Os 2 MB do <code translate="no">foto.bin</code> não encolhem com nenhum saco e dominam o total. Antes de escolher o compressor, olhe o que vai dentro da caixa.</p>
+<p>O <code translate="no">tar</code> também escolhe o saco pela extensão, com <code translate="no">-a</code>, e descobre sozinho qual saco abrir:</p>
+<pre translate="no"><code class="lang-bash">tar -caf auto.tar.bz2 app/conf
+file auto.tar.bz2
+tar -tf auto.tar.bz2
+tar -tf logs.tar.xz</code></pre>
+<p>Nenhum <code translate="no">j</code> nem <code translate="no">J</code> na leitura, e tudo funciona. Já no <code translate="no">-c</code>, sem a letra e sem o <code translate="no">-a</code>, a caixa sai sem compressão, mesmo com <code translate="no">.gz</code> no nome.</p>
+<p><strong>Decida 3 · A tarefa do RHCSA.</strong> Cenário: o enunciado diz "crie o arquivo <code translate="no">/root/backup.tar.bz2</code> com o conteúdo de <code translate="no">/usr/local</code>, compactado com bzip2". Qual comando cumpre a tarefa?</p>
+<ul><li><strong>A)</strong> <code translate="no">sudo tar -czf /root/backup.tar.bz2 /usr/local</code></li>
+<li><strong>B)</strong> <code translate="no">sudo tar -cjf /root/backup.tar.bz2 /usr/local</code></li>
+<li><strong>C)</strong> <code translate="no">sudo bzip2 -c /usr/local &gt; /root/backup.tar.bz2</code></li>
+<li><strong>D)</strong> <code translate="no">sudo tar -cfj /root/backup.tar.bz2 /usr/local</code></li></ul>
+<p>Escolha a letra antes de olhar a tabela.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se você marcou</th><th scope="col">Resultado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>A</td><td>❌ Errada</td><td>O <code translate="no">z</code> usa gzip. O arquivo tem o nome certo e o formato errado, e o script de correção usa o <code translate="no">file</code>. A tarefa vale zero.</td></tr><tr><td>B</td><td>✅ Certa</td><td>O <code translate="no">c</code> cria, o <code translate="no">j</code> usa bzip2, e o <code translate="no">f</code> recebe o nome logo depois. O <code translate="no">sudo</code> é preciso para escrever em <code translate="no">/root</code>.</td></tr><tr><td>C</td><td>❌ Errada</td><td>O <code translate="no">bzip2</code> não sabe o que é pasta. Sem a caixa, não há o que compactar.</td></tr><tr><td>D</td><td>❌ Errada</td><td>O <code translate="no">f</code> pega <code translate="no">j</code> como nome da caixa. É a armadilha da Decida 1, agora com root.</td></tr></tbody></table></div>
+<p><strong>Para fixar:</strong> z é gzip, j é bzip2, J é xz. Na prova, termine sempre com <code translate="no">file</code> e <code translate="no">tar -tf</code>.</p>
+<p>Confira, e apague depois:</p>
+<pre translate="no"><code class="lang-bash">sudo tar -cjf /root/backup.tar.bz2 /usr/local
+sudo file /root/backup.tar.bz2
+sudo tar -tf /root/backup.tar.bz2 | head -n 5
+sudo rm -v /root/backup.tar.bz2</code></pre>
+<h3 id="passo-5-liste-antes-de-extrair">Passo 5 · Liste antes de extrair</h3>
+<p>Um fornecedor manda uma atualização. Ele criou a caixa de dentro da pasta, sem o nome dela:</p>
+<pre translate="no"><code class="lang-bash">cd ~/lab13/arquivo/app &amp;&amp; tar -czf ../patch.tar.gz * &amp;&amp; cd ..
+mkdir -p downloads
+touch downloads/contrato.pdf downloads/planilha.xlsx</code></pre>
+<p>Você baixou o <code translate="no">patch.tar.gz</code> para a pasta <code translate="no">downloads</code>, onde já há outros arquivos. <strong>Preveja.</strong> Se você extrair o patch dentro de <code translate="no">downloads</code>, onde os arquivos vão parar?</p>
+<p>Não extraia ainda. Olhe primeiro:</p>
+<pre translate="no"><code class="lang-bash">tar -tzf patch.tar.gz</code></pre>
+<p>Os caminhos começam em <code translate="no">conf/</code>, <code translate="no">logs/</code>, <code translate="no">www/</code> e <code translate="no">iniciar.sh</code>. Não há uma pasta em volta. Extraído em <code translate="no">downloads</code>, o conteúdo se espalharia no meio do contrato e da planilha, e, se houvesse um <code translate="no">conf/</code> ali, os arquivos seriam sobrescritos. Esse tipo de caixa tem até apelido, tarbomb. O jeito seguro é dar a ela uma pasta vazia:</p>
+<pre translate="no"><code class="lang-bash">mkdir -p /tmp/patch
+tar -xzf patch.tar.gz -C /tmp/patch
+ls -l /tmp/patch
+ls -l downloads</code></pre>
+<p>O <code translate="no">downloads</code> continua só com os dois arquivos. Agora tire um arquivo só de uma caixa. O caminho tem de ser exatamente o que o <code translate="no">-t</code> mostra:</p>
+<pre translate="no"><code class="lang-bash">mkdir -p /tmp/um
+tar -xzf app.tar.gz -C /tmp/um conf/app.conf
+tar -xzf app.tar.gz -C /tmp/um app/conf/app.conf
+find /tmp/um</code></pre>
+<p>O primeiro falha com algo como <code translate="no">tar: conf/app.conf: Not found in archive</code>, porque dentro do <code translate="no">app.tar.gz</code> o caminho começa em <code translate="no">app/</code>. O segundo funciona, e o <code translate="no">find</code> mostra só <code translate="no">app/conf/app.conf</code>. As pastas do caminho são criadas, o resto não.</p>
+<p><strong>Decida 4 · O patch do fornecedor.</strong> Cenário: o fornecedor manda <code translate="no">patch.tar.gz</code> e escreve "extraia na pasta do sistema, <code translate="no">/opt/loja</code>". Qual é o primeiro comando?</p>
+<ul><li><strong>A)</strong> <code translate="no">cd /opt/loja &amp;&amp; sudo tar -xzf ~/patch.tar.gz</code></li>
+<li><strong>B)</strong> <code translate="no">tar -tzf ~/patch.tar.gz | head -n 30</code></li>
+<li><strong>C)</strong> <code translate="no">sudo tar -xzf ~/patch.tar.gz -C /</code></li>
+<li><strong>D)</strong> <code translate="no">gunzip ~/patch.tar.gz</code></li></ul>
+<p>Escolha a letra antes de olhar a tabela.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se você marcou</th><th scope="col">Resultado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>A</td><td>❌ Errada</td><td>Pode até dar certo, mas você extraiu como root, por cima do sistema, sem saber o que havia na caixa. Se os caminhos começarem em <code translate="no">opt/loja/</code>, os arquivos vão para <code translate="no">/opt/loja/opt/loja</code>. Se forem soltos, sobrescrevem a configuração atual.</td></tr><tr><td>B</td><td>✅ Certa</td><td>Olhar não muda nada. Você vê se os caminhos começam numa pasta, quantos arquivos são e se algum vai substituir uma configuração que você mudou. Só depois decide onde extrair.</td></tr><tr><td>C</td><td>❌ Errada</td><td>Extrair em <code translate="no">/</code> como root é o desastre da seção 2. Só faça isso se você leu toda a lista e sabe que cada caminho tem de ir exatamente para lá.</td></tr><tr><td>D</td><td>❌ Errada</td><td>Tira o saco e deixa a caixa, <code translate="no">patch.tar</code>. Não mostra o conteúdo e ainda apaga o <code translate="no">.gz</code> original.</td></tr></tbody></table></div>
+<p><strong>Para fixar:</strong> antes de todo <code translate="no">-x</code>, um <code translate="no">-t</code>. Custa um segundo.</p>
+<h3 id="passo-6-testar-antes-de-confiar">Passo 6 · Testar antes de confiar</h3>
+<p>Um backup só vale o que a restauração entrega. Há quatro testes, do mais rápido ao mais completo:</p>
+<pre translate="no"><code class="lang-bash">cd ~/lab13/arquivo
+gzip -t app.tar.gz &amp;&amp; echo "gzip ok"
+xz -t logs.tar.xz &amp;&amp; echo "xz ok"
+tar -tzf app.tar.gz &gt; /dev/null &amp;&amp; echo "tar ok"</code></pre>
+<p>O <code translate="no">gzip -t</code> e o <code translate="no">xz -t</code> não dizem nada quando está tudo certo: só o <code translate="no">echo</code> aparece. Eles leem o saco inteiro e conferem a soma de verificação que vai no fim do arquivo. O <code translate="no">tar -t</code> com a saída jogada em <code translate="no">/dev/null</code> vai mais longe: abre o saco e percorre a caixa até o último cabeçalho. Se qualquer pedaço faltar, os dois reclamam e devolvem erro.</p>
+<p>O terceiro teste compara a caixa com o disco. Rode de dentro da pasta onde os caminhos fazem sentido:</p>
+<pre translate="no"><code class="lang-bash">tar -dzf app.tar.gz &amp;&amp; echo "igual ao disco"
+echo "porta=9090" &gt;&gt; app/conf/app.conf
+tar -dzf app.tar.gz
+echo "código de saída: $?"</code></pre>
+<p>Na primeira vez, <code translate="no">igual ao disco</code>. Depois da mudança, algo como:</p>
+<pre translate="no"><code class="lang-text">app/conf/app.conf: Mod time differs
+app/conf/app.conf: Size differs</code></pre>
+<p>e código de saída 1. O <code translate="no">-d</code> (diff) diz o que mudou desde o backup, sem extrair nada. Desfaça a mudança antes de seguir:</p>
+<pre translate="no"><code class="lang-bash">sed -i '/porta=9090/d' app/conf/app.conf</code></pre>
+<p>O quarto teste é a impressão digital. O <code translate="no">sha256sum</code> calcula um número que muda se um único bit do arquivo mudar. Guarde esse número na hora de criar o backup, e confira depois de copiar, de baixar ou antes de restaurar:</p>
+<pre translate="no"><code class="lang-bash">sha256sum app.tar.gz &gt; app.tar.gz.sha256
+cat app.tar.gz.sha256
+cp app.tar.gz /tmp/copia.tar.gz
+cd /tmp &amp;&amp; sha256sum -c ~/lab13/arquivo/app.tar.gz.sha256 ; cd ~/lab13/arquivo</code></pre>
+<p>O <code translate="no">-c</code> procura o arquivo pelo nome escrito no <code translate="no">.sha256</code>. Em <code translate="no">/tmp</code> ele não acha o <code translate="no">app.tar.gz</code>, só a <code translate="no">copia</code>, e reclama. Compare a cópia direto:</p>
+<pre translate="no"><code class="lang-bash">sha256sum app.tar.gz /tmp/copia.tar.gz
+sha256sum -c app.tar.gz.sha256</code></pre>
+<p>Os dois números são iguais, e o <code translate="no">-c</code> responde <code translate="no">app.tar.gz: OK</code>. É assim que se confere uma ISO baixada da internet: o site publica o <code translate="no">.sha256</code> ao lado.</p>
+<p><strong>Decida 5 · O backup de ontem.</strong> Cenário: o servidor de arquivos de um cliente morreu, e você precisa restaurar o <code translate="no">backup-2026-11-01.tar.gz</code> que o script de todo dia criou no NAS. Antes de tudo, você quer saber se ele está inteiro. Qual verificação responde a isso?</p>
+<ul><li><strong>A)</strong> <code translate="no">ls -lh backup-2026-11-01.tar.gz</code>: tem 40 GB, do tamanho de sempre.</li>
+<li><strong>B)</strong> <code translate="no">tar -tzf backup-2026-11-01.tar.gz &gt; /dev/null &amp;&amp; echo OK</code></li>
+<li><strong>C)</strong> <code translate="no">file backup-2026-11-01.tar.gz</code>: diz <code translate="no">gzip compressed data</code>.</li>
+<li><strong>D)</strong> O log do script diz <code translate="no">backup concluído</code> e código de saída 0.</li></ul>
+<p>Escolha a letra antes de olhar a tabela.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se você marcou</th><th scope="col">Resultado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>A</td><td>❌ Errada</td><td>O tamanho só diz quantos bytes há, não se estão certos. Uma cópia cortada perto do fim ou um disco com setores ruins mantém o tamanho parecido.</td></tr><tr><td>B</td><td>✅ Certa</td><td>Lê o arquivo do primeiro ao último byte, confere a soma do gzip e percorre todos os cabeçalhos da caixa. Se algo estiver cortado ou corrompido, o OK não aparece.</td></tr><tr><td>C</td><td>❌ Errada</td><td>O <code translate="no">file</code> olha só os primeiros bytes. Um arquivo cortado pela metade continua começando como gzip. Você vai ver isso na Quebra B.</td></tr><tr><td>D</td><td>❌ Errada</td><td>Diz que o script terminou ontem. Não diz nada sobre o que aconteceu com o arquivo depois: cópia para o NAS, disco, rede.</td></tr></tbody></table></div>
+<p><strong>Para fixar:</strong> "existe" e "tem tamanho" não são "está inteiro". Leia o arquivo até o fim com <code translate="no">tar -t</code> ou <code translate="no">gzip -t</code>.</p>
+<h3 id="passo-7-zip-e-unzip-para-quem-usa-windows">Passo 7 · zip e unzip, para quem usa Windows</h3>
+<p>Crie, liste e teste um zip:</p>
+<pre translate="no"><code class="lang-bash">zip -r app.zip app
+unzip -l app.zip
+unzip -t app.zip
+ls -lh app.zip app.tar.gz</code></pre>
+<p>O <code translate="no">-r</code> é obrigatório: sem ele, o <code translate="no">zip</code> guarda só a pasta vazia. O <code translate="no">-l</code> lista, como o <code translate="no">tar -t</code>. O <code translate="no">-t</code> testa e termina com algo como <code translate="no">No errors detected in compressed data of app.zip.</code>. O tamanho fica parecido com o do <code translate="no">.tar.gz</code>: o algoritmo é o mesmo da família do gzip.</p>
+<p>A diferença está no que o zip lembra. Extraia e compare:</p>
+<pre translate="no"><code class="lang-bash">mkdir -p /tmp/z
+unzip -q app.zip -d /tmp/z
+ls -l /tmp/z/app/iniciar.sh
+tar -tvzf app.tar.gz app/iniciar.sh</code></pre>
+<p>O <code translate="no">unzip</code> do Linux devolve as permissões, então o <code translate="no">iniciar.sh</code> volta executável. Mas o zip não guarda dono e grupo do jeito que o <code translate="no">tar</code> guarda: extraído como root, tudo fica de root. E se o zip foi criado no Windows, não há permissão nenhuma: o script chega sem o <code translate="no">x</code>, e você precisa de um <code translate="no">chmod</code>.</p>
+<p>Para mandar um zip a um cliente, só o que interessa:</p>
+<pre translate="no"><code class="lang-bash">zip -r logs-para-fornecedor.zip app/logs -x '*.bin'
+unzip -l logs-para-fornecedor.zip</code></pre>
+<p>O <code translate="no">-x</code> exclui pelo padrão. Para quem recebe no Windows, um zip abre com dois cliques. Um <code translate="no">.tar.gz</code> também abre no Windows 11 com o <code translate="no">tar.exe</code> ou o 7-Zip, mas pede uma explicação.</p>
+<p>Regra prática: entre servidores Linux, <code translate="no">tar</code>. Para pessoas, principalmente no Windows, <code translate="no">zip</code>.</p>
+<h3 id="passo-8-backup-do-etc-e-restauracao-de-um-arquivo">Passo 8 · Backup do <code translate="no">/etc</code> e restauração de um arquivo</h3>
+<p>Agora com arquivos de verdade. Faça o backup da configuração do sistema:</p>
+<pre translate="no"><code class="lang-bash">cd ~/lab13/arquivo
+sudo tar -czf etc-$(date +%F).tar.gz -C / etc
+ls -lh etc-*.tar.gz
+sudo tar -tzf etc-*.tar.gz | head -n 5
+sudo tar -tzf etc-*.tar.gz | wc -l</code></pre>
+<p>O <code translate="no">-C /</code> faz o <code translate="no">tar</code> entrar em <code translate="no">/</code> antes de pegar o <code translate="no">etc</code>. Assim, os caminhos dentro da caixa começam em <code translate="no">etc/</code>, sem a barra, e sem a mensagem <code translate="no">Removing leading '/'</code>. O <code translate="no">sudo</code> é preciso porque arquivos como o <code translate="no">/etc/shadow</code> só o root lê. O <code translate="no">$(date +%F)</code> põe a data no nome, algo como <code translate="no">etc-2026-11-02.tar.gz</code>.</p>
+<p>O arquivo de backup pertence ao root. Confira:</p>
+<pre translate="no"><code class="lang-bash">ls -l etc-*.tar.gz</code></pre>
+<p>Algo como <code translate="no">-rw-r--r--. 1 root root</code>. Ele contém o <code translate="no">shadow</code>, com os hashes das senhas, e qualquer usuário pode lê-lo. Corrija:</p>
+<pre translate="no"><code class="lang-bash">sudo chmod 600 etc-*.tar.gz
+ls -l etc-*.tar.gz</code></pre>
+<p>Agora simule um acidente. Alguém estragou o <code translate="no">/etc/hosts</code>:</p>
+<pre translate="no"><code class="lang-bash">sudo cp /etc/hosts /etc/hosts.antes-da-aula
+echo "10.9.9.9 servidor-errado" | sudo tee -a /etc/hosts
+tail -n 2 /etc/hosts</code></pre>
+<p>Restaure só esse arquivo, sem tocar no resto do <code translate="no">/etc</code>. Primeiro, numa pasta separada:</p>
+<pre translate="no"><code class="lang-bash">sudo tar -tzf etc-*.tar.gz | grep -x 'etc/hosts'
+mkdir -p /tmp/restaura
+sudo tar -xzf etc-*.tar.gz -C /tmp/restaura etc/hosts
+diff /tmp/restaura/etc/hosts /etc/hosts</code></pre>
+<p>O <code translate="no">grep -x</code> confirma o caminho exato antes de extrair. O <code translate="no">diff</code> mostra algo como <code translate="no">&gt; 10.9.9.9 servidor-errado</code>: a única linha que o arquivo atual tem a mais. Agora você sabe exatamente o que vai mudar. Devolva:</p>
+<pre translate="no"><code class="lang-bash">sudo cp /tmp/restaura/etc/hosts /etc/hosts
+diff /etc/hosts.antes-da-aula /etc/hosts &amp;&amp; echo "restaurado"
+sudo rm -v /etc/hosts.antes-da-aula
+sudo rm -rf /tmp/restaura</code></pre>
+<p>Na Rocky, o <code translate="no">cp</code> sobre um arquivo que já existe mantém o contexto SELinux do arquivo de destino. Se você tivesse extraído direto em <code translate="no">/etc</code> sem <code translate="no">--selinux</code>, poderia precisar de um <code translate="no">restorecon</code>. Isso volta no Módulo 4.</p>
+<p><strong>Decida 6 · O <code translate="no">sshd_config</code> quebrado.</strong> Cenário: depois de uma mudança, o <code translate="no">sshd</code> não sobe mais. Você tem o <code translate="no">etc-2026-11-01.tar.gz</code> de ontem e quer voltar só o <code translate="no">/etc/ssh/sshd_config</code>. Qual caminho você segue?</p>
+<ul><li><strong>A)</strong> <code translate="no">cd / &amp;&amp; sudo tar -xzf ~/etc-2026-11-01.tar.gz</code></li>
+<li><strong>B)</strong> Extrair <code translate="no">etc/ssh/sshd_config</code> em <code translate="no">/tmp/restaura</code>, rodar o <code translate="no">diff</code> com o atual, e então copiar.</li>
+<li><strong>C)</strong> <code translate="no">sudo tar -xzf ~/etc-2026-11-01.tar.gz -C / etc/ssh/sshd_config</code></li>
+<li><strong>D)</strong> <code translate="no">sudo gunzip ~/etc-2026-11-01.tar.gz</code> e procurar o arquivo.</li></ul>
+<p>Escolha a letra antes de olhar a tabela.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se você marcou</th><th scope="col">Resultado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>A</td><td>❌ Errada</td><td>Volta o <code translate="no">/etc</code> inteiro para ontem: <code translate="no">passwd</code>, <code translate="no">shadow</code>, <code translate="no">fstab</code>, tudo. Quem criou usuário ou trocou senha hoje perde a mudança. É o caso da seção 2.</td></tr><tr><td>B</td><td>✅ Certa</td><td>Você vê a diferença antes de mexer. Se a mudança de hoje tinha uma linha boa, como uma porta nova, você a guarda. O <code translate="no">cp</code> sobre o arquivo existente mantém dono, permissões e contexto SELinux.</td></tr><tr><td>C</td><td>❌ Errada</td><td>Funciona, mas às cegas. Você troca o arquivo sem saber o que muda, e qualquer ajuste legítimo de hoje some sem aviso. Num arquivo só, o <code translate="no">diff</code> custa dez segundos.</td></tr><tr><td>D</td><td>❌ Errada</td><td>Tira o saco e apaga o <code translate="no">.tar.gz</code> original. Você fica com um <code translate="no">.tar</code> de vários MB e ainda não restaurou nada.</td></tr></tbody></table></div>
+<p><strong>Para fixar:</strong> restaure em <code translate="no">/tmp</code>, compare com <code translate="no">diff</code>, copie só o que precisa.</p>
+<h3 id="protocolo-backup-e-restauracao-sem-susto">Protocolo · Backup e restauração sem susto</h3>
+<p>Cole isso no seu caderno. É a mesma ordem para um <code translate="no">/etc</code>, um site ou uma pasta de cliente.</p>
+<p><strong>Ao criar:</strong></p>
+<ol><li>Use <code translate="no">-C</code> para que os caminhos fiquem relativos e comecem numa pasta com nome: <code translate="no">tar -czf nome-$(date +%F).tar.gz -C /origem pasta</code>.</li>
+<li>Escolha o saco pelo conteúdo: <code translate="no">z</code> no dia a dia, <code translate="no">J</code> se o tamanho importa mais que o tempo, nenhum se o conteúdo já é compactado.</li>
+<li>Teste na hora: <code translate="no">tar -tzf arquivo &gt; /dev/null &amp;&amp; echo OK</code>.</li>
+<li>Grave a impressão digital: <code translate="no">sha256sum arquivo &gt; arquivo.sha256</code>.</li>
+<li>Se há senhas ou chaves dentro, <code translate="no">chmod 600</code>.</li></ol>
+<p><strong>Ao restaurar:</strong></p>
+<ol><li>Confira a impressão digital: <code translate="no">sha256sum -c arquivo.sha256</code>.</li>
+<li>Liste antes: <code translate="no">tar -tzf arquivo | head</code>, e procure o caminho exato com <code translate="no">grep</code>.</li>
+<li>Extraia numa pasta vazia: <code translate="no">-C /tmp/restaura</code>.</li>
+<li>Compare com <code translate="no">diff</code> ou <code translate="no">tar -d</code>.</li>
+<li>Copie só o que precisa para o lugar certo.</li></ol>
+<figure><a href="../img/1.7-backup-restauracao.jpg"><img src="../img/1.7-backup-restauracao.jpg" alt="Backup e restauração sem susto" loading="lazy" decoding="async"></a><figcaption>Criar e restaurar seguem a mesma lógica: testar antes de confiar, e nunca extrair por cima.</figcaption></figure>
+<h2 id="7-quebre-e-conserte">7 · Quebre e conserte</h2>
+<h3 id="quebra-a-a-restauracao-que-apagou-o-trabalho-de-hoje">Quebra A · A restauração que apagou o trabalho de hoje</h3>
+<p>Você trabalhou a manhã toda na configuração da aplicação:</p>
+<pre translate="no"><code class="lang-bash">cd ~/lab13/arquivo
+echo "cache=on" &gt;&gt; app/conf/app.conf
+echo "timeout=30" &gt;&gt; app/conf/app.conf
+cat app/conf/app.conf</code></pre>
+<p>À tarde, alguém pede "volta os logs de ontem, por favor". Você extrai o <code translate="no">app.tar.gz</code>, que tem a aplicação toda, na pasta atual:</p>
+<pre translate="no"><code class="lang-bash">tar -xzf app.tar.gz
+cat app/conf/app.conf</code></pre>
+<p><strong>Observe.</strong> As linhas <code translate="no">cache=on</code> e <code translate="no">timeout=30</code> sumiram. O <code translate="no">tar</code> sobrescreveu o <code translate="no">app.conf</code> com a versão do backup, sem perguntar e sem avisar. O código de saída foi 0.</p>
+<p><strong>Diagnostique.</strong> Não há desfazer. O arquivo novo foi apagado e substituído. Se não houver outro backup, ou um snapshot, o trabalho da manhã se perdeu. Refaça as duas linhas e veja como o <code translate="no">tar</code> poderia ter protegido você:</p>
+<pre translate="no"><code class="lang-bash">echo "cache=on" &gt;&gt; app/conf/app.conf
+echo "timeout=30" &gt;&gt; app/conf/app.conf
+tar -xkzf app.tar.gz
+echo "código de saída: $?"
+tail -n 2 app/conf/app.conf</code></pre>
+<p>O <code translate="no">-k</code> (keep old files) recusa sobrescrever. Aparece algo como <code translate="no">tar: app/conf/app.conf: Cannot open: File exists</code> para cada arquivo que já existe, código de saída 2, e as suas linhas continuam lá. Há também o <code translate="no">--keep-newer-files</code>, que só deixa de sobrescrever o que é mais novo que a versão do backup:</p>
+<pre translate="no"><code class="lang-bash">touch app/conf/app.conf
+tar -xzf app.tar.gz --keep-newer-files
+tail -n 2 app/conf/app.conf</code></pre>
+<p>Algo como <code translate="no">Current 'app/conf/app.conf' is newer or same age</code>, e o arquivo fica intacto.</p>
+<p><strong>Conserte.</strong> O caminho certo para o pedido era extrair só os logs, numa pasta separada:</p>
+<pre translate="no"><code class="lang-bash">mkdir -p /tmp/logs-ontem
+tar -xzf app.tar.gz -C /tmp/logs-ontem app/logs
+ls -l /tmp/logs-ontem/app/logs</code></pre>
+<p><strong>Decida 7 · O que teria evitado a perda.</strong> Cenário: depois do susto, o colega pergunta o que muda no procedimento. Qual regra teria evitado a perda sozinha?</p>
+<ul><li><strong>A)</strong> Usar <code translate="no">tar -xvzf</code>, para ver os nomes passando.</li>
+<li><strong>B)</strong> Extrair sempre numa pasta vazia com <code translate="no">-C</code> e copiar só o que foi pedido.</li>
+<li><strong>C)</strong> Usar <code translate="no">zip</code> no lugar do <code translate="no">tar</code>.</li>
+<li><strong>D)</strong> Fazer o backup com <code translate="no">J</code> no lugar de <code translate="no">z</code>.</li></ul>
+<p>Escolha a letra antes de olhar a tabela.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se você marcou</th><th scope="col">Resultado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>A</td><td>❌ Errada</td><td>O <code translate="no">v</code> mostra os nomes enquanto o estrago acontece. Quando você lê <code translate="no">app/conf/app.conf</code> na tela, ele já foi sobrescrito.</td></tr><tr><td>B</td><td>✅ Certa</td><td>Na pasta vazia não há nada para sobrescrever. Você copia os logs pedidos e não encosta na configuração.</td></tr><tr><td>C</td><td>❌ Errada</td><td>O <code translate="no">unzip</code> pergunta antes de sobrescrever, mas só porque está no terminal. Num script, com <code translate="no">-o</code>, sobrescreve igual. E você perde dono e grupo.</td></tr><tr><td>D</td><td>❌ Errada</td><td>O compressor muda o tamanho e o tempo. A extração sobrescreve do mesmo jeito.</td></tr></tbody></table></div>
+<p><strong>Para fixar:</strong> o <code translate="no">-x</code> do <code translate="no">tar</code> sobrescreve sem perguntar. Extraia longe e traga só o que foi pedido.</p>
+<h3 id="quebra-b-o-backup-cortado-que-ninguem-testou">Quebra B · O backup cortado que ninguém testou</h3>
+<p>Simule uma cópia que caiu no meio, como uma rede que caiu ou um disco que encheu:</p>
+<pre translate="no"><code class="lang-bash">cd ~/lab13/arquivo
+ls -l app.tar.gz
+head -c 1000000 app.tar.gz &gt; cortado.tar.gz
+ls -lh app.tar.gz cortado.tar.gz
+file cortado.tar.gz</code></pre>
+<p><strong>Observe.</strong> O <code translate="no">cortado.tar.gz</code> tem algo como 977 KB, metade do original, mas ninguém compara tamanhos de memória. O <code translate="no">file</code> diz <code translate="no">gzip compressed data</code>, como no original: os primeiros bytes estão lá. Tudo parece normal. Agora teste:</p>
+<pre translate="no"><code class="lang-bash">gzip -t cortado.tar.gz
+echo "código de saída: $?"
+tar -tzf cortado.tar.gz &gt; /dev/null
+echo "código de saída: $?"</code></pre>
+<p><strong>Diagnostique.</strong> Algo como:</p>
+<pre translate="no"><code class="lang-text">gzip: cortado.tar.gz: unexpected end of file
+código de saída: 1
+gzip: stdin: unexpected end of file
+tar: Unexpected EOF in archive
+tar: Error is not recoverable: exiting now
+código de saída: 2</code></pre>
+<p>Os dois testes leem até o fim e descobrem que o fim não está lá. Veja o que sobra:</p>
+<pre translate="no"><code class="lang-bash">tar -tzf cortado.tar.gz</code></pre>
+<p>O <code translate="no">iniciar.sh</code>, o <code translate="no">conf</code> e parte dos logs aparecem antes do erro. O que vinha depois do corte se perdeu. Se esse fosse o único backup, você restauraria metade de um servidor.</p>
+<p><strong>Conserte.</strong> Não há conserto para o arquivo cortado. O conserto é no processo: testar logo depois de criar e logo depois de copiar. Confira com a impressão digital do Passo 6:</p>
+<pre translate="no"><code class="lang-bash">sha256sum app.tar.gz cortado.tar.gz
+rm -v cortado.tar.gz</code></pre>
+<p>Os números são completamente diferentes. Se o <code translate="no">.sha256</code> foi gravado na criação, o <code translate="no">sha256sum -c</code> na cópia teria pegado o problema na hora.</p>
+<p><strong>Decida 8 · Qual verificação pega o corte.</strong> Cenário: o script de backup copia o arquivo para o NAS toda noite. Você vai acrescentar uma verificação depois da cópia. Qual delas pega uma cópia cortada?</p>
+<ul><li><strong>A)</strong> <code translate="no">[ -s backup.tar.gz ] &amp;&amp; echo OK</code>, que confere se o arquivo existe e não está vazio.</li>
+<li><strong>B)</strong> <code translate="no">file backup.tar.gz | grep -q gzip &amp;&amp; echo OK</code></li>
+<li><strong>C)</strong> <code translate="no">gzip -t backup.tar.gz &amp;&amp; echo OK</code>, rodado na cópia que está no NAS.</li>
+<li><strong>D)</strong> <code translate="no">sha256sum backup.tar.gz &gt; backup.sha256</code>, rodado na cópia que está no NAS.</li></ul>
+<p>Escolha a letra antes de olhar a tabela.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se você marcou</th><th scope="col">Resultado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>A</td><td>❌ Errada</td><td>O <code translate="no">cortado.tar.gz</code> tem quase 1 MB. Não está vazio, e o teste passa.</td></tr><tr><td>B</td><td>❌ Errada</td><td>O <code translate="no">file</code> lê só o começo. Você viu: o arquivo cortado continua sendo <code translate="no">gzip compressed data</code>.</td></tr><tr><td>C</td><td>✅ Certa</td><td>Lê a cópia do primeiro ao último byte e confere a soma no fim. Um corte em qualquer ponto aparece como <code translate="no">unexpected end of file</code>.</td></tr><tr><td>D</td><td>❌ Errada</td><td>Calcula a impressão digital da cópia já estragada. Ela vai bater consigo mesma amanhã. A impressão digital só protege se for gravada no original, antes da cópia.</td></tr></tbody></table></div>
+<p><strong>Para fixar:</strong> teste a cópia, não o original. E a impressão digital nasce junto com o backup.</p>
+<h3 id="e-o-snapshot">E o snapshot?</h3>
+<p>Por que fazer <code translate="no">tar</code> se o Proxmox tem snapshot? Porque não são a mesma coisa:</p>
+<ul><li>O <strong>snapshot</strong> volta a VM inteira para um momento. É ótimo para desfazer um laboratório ou uma atualização. Mas fica no mesmo storage da VM: se o storage morre, o snapshot morre junto. E não dá para voltar um arquivo só sem voltar o resto.</li>
+<li>O <strong>tar</strong> guarda pastas escolhidas, num arquivo que você copia para onde quiser: outro disco, o NAS, outro prédio. E deixa você tirar um arquivo só.</li></ul>
+<p>O <code translate="no">vzdump</code> do Proxmox, que você vai ver no Módulo 17, junta os dois mundos: para container, o backup é justamente um <code translate="no">tar</code> compactado, algo como <code translate="no">vzdump-lxc-108-2026_11_01-02_00_00.tar.zst</code>. O que você aprendeu hoje vale para abrir e conferir esse arquivo.</p>
+<h3 id="bonus-debian-e-rocky">Bônus · Debian e Rocky</h3>
+<ul><li>Na <strong>Rocky</strong>, para fazer backup de pastas com contexto SELinux, como <code translate="no">/var/www</code>, use <code translate="no">tar --selinux --acls --xattrs</code>, também na extração. Sem isso, os arquivos voltam com o contexto padrão da pasta onde caíram, e o Apache pode recusar servir.</li>
+<li>No <strong>Debian</strong>, olhe <code translate="no">/var/backups</code>. O sistema guarda ali, todo dia, cópias compactadas do <code translate="no">passwd</code>, do <code translate="no">group</code> e da lista de pacotes do <code translate="no">dpkg</code>, como <code translate="no">dpkg.status.0</code> e <code translate="no">dpkg.status.1.gz</code>. Muito sysadmin nem sabe que existe.</li></ul>
+<h3 id="a-licao">A lição</h3>
+<p>As duas quebras têm a mesma raiz: confiar sem olhar. Na A, você extraiu sem saber onde ia cair. Na B, guardou sem saber se estava inteiro. O <code translate="no">tar</code> não pergunta nem avisa. Quem pergunta é você, com <code translate="no">-t</code> antes de extrair e com um teste depois de criar.</p>
+<h2 id="8-armadilhas">8 · Armadilhas</h2>
+<div class="tabela"><table><thead><tr><th scope="col">Armadilha</th><th scope="col">O que acontece</th><th scope="col">Como evitar</th></tr></thead><tbody><tr><td><code translate="no">tar -cfv x.tar pasta</code></td><td>Cria um arquivo chamado <code translate="no">v</code> e reclama que <code translate="no">x.tar</code> não existe.</td><td>O <code translate="no">f</code> é a última letra do grupo: <code translate="no">-cvf</code>.</td></tr><tr><td>Extrair em <code translate="no">/</code> ou por cima de uma pasta que já existe</td><td>Sobrescreve sem perguntar e sem avisar. O código de saída é 0.</td><td>Extraia numa pasta vazia com <code translate="no">-C</code>. Se precisar extrair no lugar, use <code translate="no">-k</code> ou <code translate="no">--keep-newer-files</code>.</td></tr><tr><td><code translate="no">gzip arquivo</code> quando você queria guardar o original</td><td>O original some, e fica só o <code translate="no">.gz</code>.</td><td><code translate="no">gzip -k arquivo</code>, ou <code translate="no">gzip -c arquivo &gt; arquivo.gz</code>.</td></tr><tr><td><code translate="no">gzip pasta</code></td><td><code translate="no">is a directory -- ignored</code>, e nada acontece.</td><td>Primeiro a caixa: <code translate="no">tar -czf pasta.tar.gz pasta</code>.</td></tr><tr><td><code translate="no">tar -cf x.tar.gz pasta</code></td><td>O nome diz gzip, mas o conteúdo não foi compactado.</td><td>Use <code translate="no">z</code>, <code translate="no">j</code> ou <code translate="no">J</code>, ou <code translate="no">-a</code>. Confira com <code translate="no">file</code>.</td></tr><tr><td>Caixa sem pasta em volta, a tarbomb</td><td>Os arquivos se espalham no meio dos que já estavam lá.</td><td><code translate="no">tar -tf</code> antes, e extração com <code translate="no">-C</code> numa pasta nova.</td></tr><tr><td>Extrair um arquivo com o caminho errado</td><td><code translate="no">Not found in archive</code>.</td><td>Copie o caminho exatamente como o <code translate="no">tar -t</code> mostra.</td></tr><tr><td>Compactar o que já é compactado</td><td>Gasta CPU e o tamanho não muda.</td><td>Fotos, vídeos, <code translate="no">.zip</code> e <code translate="no">.gz</code> vão na caixa sem saco.</td></tr><tr><td>Backup do <code translate="no">/etc</code> com permissão <code translate="no">644</code></td><td>Qualquer usuário lê o <code translate="no">shadow</code> de dentro da caixa.</td><td><code translate="no">chmod 600</code> logo depois de criar.</td></tr><tr><td>Testar o backup com <code translate="no">ls</code> ou <code translate="no">file</code></td><td>Um arquivo cortado passa nos dois.</td><td><code translate="no">gzip -t</code>, ou <code translate="no">tar -tf arquivo &gt; /dev/null</code>, e <code translate="no">sha256sum -c</code>.</td></tr><tr><td><code translate="no">zip pasta.zip pasta</code>, sem <code translate="no">-r</code></td><td>O zip guarda só a pasta vazia.</td><td><code translate="no">zip -r</code>. Confira com <code translate="no">unzip -l</code>.</td></tr><tr><td>Restaurar na Rocky sem <code translate="no">--selinux</code></td><td>Arquivos voltam com o contexto errado, e o serviço recusa ler.</td><td><code translate="no">tar --selinux --acls --xattrs</code> na criação e na extração, ou <code translate="no">restorecon -Rv</code> depois.</td></tr></tbody></table></div>
+<h2 id="9-quiz">9 · Quiz</h2>
+<p>Dez perguntas, sem consultar. Escreva a letra ou a resposta de cada uma e só depois abra o Gabarito.</p>
+<p><strong>1.</strong> Você roda <code translate="no">gzip relatorio.txt</code>. O que fica na pasta?</p>
+<ul><li><strong>A)</strong> <code translate="no">relatorio.txt</code> e <code translate="no">relatorio.txt.gz</code></li>
+<li><strong>B)</strong> Só <code translate="no">relatorio.txt.gz</code></li>
+<li><strong>C)</strong> Só <code translate="no">relatorio.txt</code>, com o conteúdo compactado</li>
+<li><strong>D)</strong> <code translate="no">relatorio.tar.gz</code></li></ul>
+<p><strong>2.</strong> O que faz <code translate="no">tar -tvf backup.tar</code>?</p>
+<ul><li><strong>A)</strong> Testa o backup e conserta o que estiver corrompido</li>
+<li><strong>B)</strong> Lista o conteúdo com dono, permissões, tamanho e data, sem extrair</li>
+<li><strong>C)</strong> Extrai o conteúdo mostrando cada nome</li>
+<li><strong>D)</strong> Cria o <code translate="no">backup.tar</code> mostrando cada nome</li></ul>
+<p><strong>3.</strong> Qual letra do <code translate="no">tar</code> escolhe o xz?</p>
+<ul><li><strong>A)</strong> <code translate="no">x</code></li>
+<li><strong>B)</strong> <code translate="no">z</code></li>
+<li><strong>C)</strong> <code translate="no">j</code></li>
+<li><strong>D)</strong> <code translate="no">J</code></li></ul>
+<p><strong>4.</strong> Você precisa mandar para o outro lado do mundo, por um link lento, 20 GB de logs de texto. O tempo de CPU não importa. Qual compressor deixa o arquivo menor?</p>
+<ul><li><strong>A)</strong> gzip</li>
+<li><strong>B)</strong> bzip2</li>
+<li><strong>C)</strong> xz</li>
+<li><strong>D)</strong> Nenhum: logs não comprimem</li></ul>
+<p><strong>5.</strong> Você está em <code translate="no">/home/rodrigo</code> e roda <code translate="no">tar -xzf etc.tar.gz etc/hosts</code>. Onde o arquivo vai parar?</p>
+<ul><li><strong>A)</strong> Em <code translate="no">/etc/hosts</code>, por cima do arquivo do sistema</li>
+<li><strong>B)</strong> Em <code translate="no">/home/rodrigo/etc/hosts</code></li>
+<li><strong>C)</strong> Em <code translate="no">/home/rodrigo/hosts</code></li>
+<li><strong>D)</strong> Em <code translate="no">/tmp/etc/hosts</code></li></ul>
+<p><strong>6.</strong> Qual opção do <code translate="no">tar</code> muda a pasta antes de criar ou extrair?</p>
+<p><strong>7.</strong> Um script de backup terminou com sucesso, e o arquivo tem o tamanho de sempre. Qual comando confirma que ele pode ser lido do primeiro ao último byte?</p>
+<ul><li><strong>A)</strong> <code translate="no">file backup.tar.gz</code></li>
+<li><strong>B)</strong> <code translate="no">du -h backup.tar.gz</code></li>
+<li><strong>C)</strong> <code translate="no">gzip -t backup.tar.gz</code></li>
+<li><strong>D)</strong> <code translate="no">stat backup.tar.gz</code></li></ul>
+<p><strong>8.</strong> O que é um arquivo <code translate="no">.tgz</code>?</p>
+<ul><li><strong>A)</strong> Um formato do Windows que o Linux só lê com o <code translate="no">unzip</code></li>
+<li><strong>B)</strong> O mesmo que <code translate="no">.tar.gz</code>, com um nome mais curto</li>
+<li><strong>C)</strong> Um <code translate="no">tar</code> compactado com xz</li>
+<li><strong>D)</strong> Um pacote de instalação da Debian</li></ul>
+<p><strong>9.</strong> <em>Which command creates a gzip-compressed archive named <code translate="no">docs.tar.gz</code> containing the directory <code translate="no">docs</code>?</em></p>
+<ul><li><strong>A)</strong> <code translate="no">tar -xzf docs.tar.gz docs</code></li>
+<li><strong>B)</strong> <code translate="no">tar -czf docs docs.tar.gz</code></li>
+<li><strong>C)</strong> <code translate="no">tar -czf docs.tar.gz docs</code></li>
+<li><strong>D)</strong> <code translate="no">gzip -r docs &gt; docs.tar.gz</code></li></ul>
+<p><strong>10.</strong> O comando <code translate="no">tar czf site.tar.gz site</code>, sem o traço, funciona?</p>
+<ul><li><strong>A)</strong> Não. O <code translate="no">tar</code> exige o traço desde 2010</li>
+<li><strong>B)</strong> Sim. O <code translate="no">tar</code> aceita as letras juntas sem traço no primeiro argumento, o estilo antigo</li>
+<li><strong>C)</strong> Só se o <code translate="no">site</code> for um arquivo, não uma pasta</li>
+<li><strong>D)</strong> Só como root</li></ul>
+<h2 id="10-flashcards-e-cola">10 · Flashcards e cola</h2>
+<h3 id="para-saber-de-cor">Para saber de cor</h3>
+<p>Esta parte é para guardar na cabeça. São os comandos que você usa toda semana.</p>
+<ul><li><code translate="no">tar -czf nome.tar.gz pasta</code>: cria. <code translate="no">c</code> cria, <code translate="no">z</code> gzip, <code translate="no">f</code> o nome logo depois</li>
+<li><code translate="no">tar -tzf nome.tar.gz</code>: lista. Sempre antes de extrair</li>
+<li><code translate="no">tar -xzf nome.tar.gz -C /tmp/pasta</code>: extrai numa pasta vazia</li>
+<li><code translate="no">z</code> gzip, <code translate="no">j</code> bzip2, <code translate="no">J</code> xz. Na leitura, o <code translate="no">tar</code> descobre sozinho</li>
+<li><code translate="no">gzip -k arquivo</code> guarda o original; <code translate="no">gunzip</code> ou <code translate="no">gzip -d</code> descompacta</li>
+<li><code translate="no">zcat</code>, <code translate="no">zless</code> e <code translate="no">zgrep</code> leem sem descompactar</li>
+<li><code translate="no">tar -tzf nome.tar.gz &gt; /dev/null &amp;&amp; echo OK</code>: testa até o fim</li>
+<li><code translate="no">zip -r nome.zip pasta</code>, <code translate="no">unzip -l</code> lista, <code translate="no">unzip -t</code> testa, <code translate="no">unzip -d</code> escolhe a pasta</li>
+<li><code translate="no">file nome</code>: o formato de verdade, sem confiar na extensão</li></ul>
+<h3 id="para-consultar">Para consultar</h3>
+<p>Esta parte você não precisa decorar. Guarde onde ela está.</p>
+<ul><li><code translate="no">tar -czf nome.tar.gz -C /origem pasta</code>: caminhos relativos, sem <code translate="no">Removing leading '/'</code></li>
+<li><code translate="no">tar -xzf nome.tar.gz -C /tmp/r caminho/exato</code>: um arquivo só</li>
+<li><code translate="no">tar -dzf nome.tar.gz</code>: o que mudou no disco desde o backup</li>
+<li><code translate="no">tar -xkzf</code> não sobrescreve; <code translate="no">--keep-newer-files</code> não sobrescreve o que é mais novo; <code translate="no">--skip-old-files</code> pula em silêncio</li>
+<li><code translate="no">--exclude='*.log'</code>: deixa de fora pelo padrão; <code translate="no">--strip-components=1</code> tira a primeira pasta dos caminhos</li>
+<li><code translate="no">tar -caf nome.tar.xz pasta</code>: o saco pela extensão</li>
+<li><code translate="no">sha256sum arq &gt; arq.sha256</code> e <code translate="no">sha256sum -c arq.sha256</code>: a impressão digital</li>
+<li><code translate="no">xz -T0</code>: usa todos os núcleos; <code translate="no">gzip -9</code> ou <code translate="no">xz -9</code>: mais compressão, mais tempo</li>
+<li><code translate="no">zip -r nome.zip pasta -x '*.bin'</code>: exclui pelo padrão</li>
+<li>Rocky: <code translate="no">tar --selinux --acls --xattrs</code>. Debian: <code translate="no">/var/backups</code>. Proxmox: <code translate="no">vzdump-lxc-*.tar.zst</code></li></ul>
+<h3 id="flashcards">Flashcards</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Frente</th><th scope="col">Verso</th></tr></thead><tbody><tr><td>O que significam <code translate="no">c</code>, <code translate="no">t</code> e <code translate="no">x</code> no <code translate="no">tar</code>?</td><td>Criar, listar e extrair</td></tr><tr><td>Por que o <code translate="no">f</code> vem por último no grupo?</td><td>Porque a palavra seguinte vira o nome da caixa</td></tr><tr><td>Letras do gzip, do bzip2 e do xz no <code translate="no">tar</code></td><td><code translate="no">z</code>, <code translate="no">j</code> e <code translate="no">J</code></td></tr><tr><td>O que o <code translate="no">gzip</code> faz com o original?</td><td>Apaga, e deixa só o <code translate="no">.gz</code>. Use <code translate="no">-k</code> para guardar</td></tr><tr><td>Por que o <code translate="no">gzip</code> sozinho não compacta uma pasta?</td><td>Ele só conhece arquivos. A pasta precisa entrar numa caixa <code translate="no">tar</code> antes</td></tr><tr><td>Qual compressor é o mais rápido e qual comprime mais?</td><td>gzip é o mais rápido; xz comprime mais</td></tr><tr><td>O que é uma tarbomb?</td><td>Uma caixa sem pasta em volta, que espalha arquivos onde for extraída</td></tr><tr><td>Por que o <code translate="no">tar</code> tira a barra do começo dos caminhos?</td><td>Para a extração cair na pasta atual, e não por cima do sistema</td></tr><tr><td>Qual opção escolhe a pasta de destino?</td><td><code translate="no">-C</code></td></tr><tr><td>Como testar um <code translate="no">.tar.gz</code> até o fim?</td><td><code translate="no">gzip -t</code> ou <code translate="no">tar -tzf arquivo &gt; /dev/null</code></td></tr><tr><td>O <code translate="no">file</code> pega um backup cortado?</td><td>Não. Ele lê só o começo</td></tr><tr><td>O que o zip não guarda do jeito que o tar guarda?</td><td>Dono e grupo</td></tr><tr><td>Quando a impressão digital <code translate="no">sha256</code> protege?</td><td>Quando é gravada junto com o original, antes da cópia</td></tr><tr><td>Snapshot é backup?</td><td>Não. Fica no mesmo storage e não volta um arquivo só</td></tr></tbody></table></div>
+<h2 id="11-checklist-de-saida">11 · Checklist de saída</h2>
+<p>Marque só o que você consegue fazer sem olhar a aula:</p>
+<ul><li>[ ] Criar, listar e extrair um <code translate="no">tar</code> com e sem compressão</li>
+<li>[ ] Escolher entre gzip, bzip2 e xz e dizer por quê</li>
+<li>[ ] Compactar um arquivo guardando o original, e ler um <code translate="no">.gz</code> sem descompactar</li>
+<li>[ ] Listar antes de extrair e reconhecer uma tarbomb</li>
+<li>[ ] Extrair numa pasta escolhida, e extrair um arquivo só</li>
+<li>[ ] Testar um backup até o fim e conferir a impressão digital</li>
+<li>[ ] Criar e testar um zip para quem usa Windows</li>
+<li>[ ] Fazer backup do <code translate="no">/etc</code> com caminhos relativos e permissão <code translate="no">600</code></li>
+<li>[ ] Restaurar um arquivo só, com <code translate="no">diff</code> antes de copiar</li>
+<li>[ ] Explicar por que snapshot não é backup</li></ul>
+<p><strong>Último exercício, sem olhar.</strong> Feche esta aula. Em <code translate="no">~/lab13/arquivo</code>, resolva cada item com um comando:</p>
+<ol><li>Crie o <code translate="no">conf.tar.xz</code>, com a pasta <code translate="no">app/conf</code>, compactado com xz.</li>
+<li>Liste o conteúdo do <code translate="no">conf.tar.xz</code> sem extrair.</li>
+<li>Teste o <code translate="no">conf.tar.xz</code> até o fim.</li>
+<li>Extraia só o <code translate="no">app.conf</code> dele em <code translate="no">/tmp/ex</code>.</li>
+<li>Compacte o <code translate="no">app/logs/grande.log</code> com gzip, sem perder o original.</li></ol>
+<p>As respostas estão no fim do Gabarito.</p>
+<p><strong>Snapshots de fechamento.</strong> No nó Proxmox:</p>
+<pre translate="no"><code class="lang-bash">qm snapshot 201 m1a7-fim
+qm snapshot 202 m1a7-fim</code></pre>
+<p>Não apague <code translate="no">~/lab13/arquivo</code>: a Aula 1.8 transforma o Protocolo desta aula no seu primeiro script de backup.</p>
+<h2 id="12-na-vida-real">12 · Na vida real</h2>
+<p><strong>Missão da semana, só leitura.</strong> Escolha um servidor que você administra de verdade. Se ele for de cliente, faça só o que o contrato permite; se tiver dúvida, use a rocky-lab e a debian-lab. Nenhum comando desta missão cria, extrai ou apaga nada.</p>
+<p>Os logs rodados:</p>
+<pre translate="no"><code class="lang-bash">ls -lh /var/log | head -n 40
+ls -lh /var/log/*.gz 2&gt; /dev/null | head
+sudo zgrep -il 'error' /var/log/*.gz 2&gt; /dev/null | head</code></pre>
+<p>Se o segundo comando não mostrar nada, o <code translate="no">logrotate</code> desse servidor não compacta. É o padrão da Rocky. Confira com <code translate="no">grep -n compress /etc/logrotate.conf</code>.</p>
+<p>Um backup que já existe. Procure onde ficam os backups desse servidor, como uma pasta <code translate="no">/backup</code>, um NAS montado ou o <code translate="no">/var/backups</code> da Debian:</p>
+<pre translate="no"><code class="lang-bash">ls -lh /var/backups 2&gt; /dev/null
+sudo find / -xdev \( -name '*.tar.gz' -o -name '*.tgz' -o -name '*.tar.xz' -o -name '*.tar.zst' \) -size +1M 2&gt; /dev/null | head</code></pre>
+<p>Escolha um backup pequeno e olhe dentro dele:</p>
+<pre translate="no"><code class="lang-bash">ls -lh caminho/do/backup.tar.gz
+file caminho/do/backup.tar.gz
+sudo tar -tvf caminho/do/backup.tar.gz | head -n 20
+sudo gzip -t caminho/do/backup.tar.gz &amp;&amp; echo "inteiro"</code></pre>
+<p>O <code translate="no">gzip -t</code> lê o arquivo inteiro. Num backup de muitos GB, ele leva tempo e pesa no disco: num servidor de produção, faça fora do horário ou escolha o menor. Para um <code translate="no">.tar.xz</code>, use <code translate="no">xz -t</code>; para um <code translate="no">.tar.zst</code>, <code translate="no">zstd -t</code>.</p>
+<p>No Proxmox:</p>
+<pre translate="no"><code class="lang-bash">pvesm status
+ls -lh /var/lib/vz/dump
+tar -tf /var/lib/vz/dump/vzdump-lxc-NNN-AAAA_MM_DD-HH_MM_SS.tar.zst | head -n 20</code></pre>
+<p>Troque o nome pelo de um arquivo que exista de verdade. Se a pasta estiver vazia, os backups vão para outro storage, como um Proxmox Backup Server ou um NFS: o <code translate="no">pvesm status</code> mostra quais existem. Os backups de VM são <code translate="no">.vma.zst</code>, outro formato, que não abre com <code translate="no">tar</code>.</p>
+<p><strong>Para o diário.</strong> Responda em poucas linhas:</p>
+<ol><li>Os logs rodados desse servidor são compactados? Com qual compressor? Quantos dias ficam guardados?</li>
+<li>Onde ficam os backups? Existe um <code translate="no">.sha256</code> ao lado deles, ou algum teste depois da cópia?</li>
+<li>Dentro do backup que você abriu, os caminhos começam com uma pasta ou estão soltos? Começam com <code translate="no">/</code>?</li>
+<li>Se o disco desse servidor morresse agora, qual seria o último backup inteiro? Você testou, ou supôs?</li>
+<li>Algum backup tinha permissão de leitura para todos, com senhas ou chaves dentro?</li></ol>
+<p><strong>Desafio da semana.</strong> Escolha um backup por dia, de servidores diferentes, e aplique a metade "Ao restaurar" do Protocolo até o passo 3, numa pasta em <code translate="no">/tmp</code> do seu próprio laboratório: copie o backup para a rocky-lab, confira, liste e extraia lá. No diário, uma linha por dia: qual backup, se estava inteiro e quanto tempo levou para achar um arquivo específico.</p>
+<p><strong>Amanhã, sem olhar.</strong> Abra um terminal amanhã e, sem consultar nada:</p>
+<ol><li>Crie um <code translate="no">.tar.gz</code> de uma pasta qualquer.</li>
+<li>Liste o conteúdo dele com dono e permissões.</li>
+<li>Teste o arquivo até o fim.</li>
+<li>Extraia um arquivo só numa pasta em <code translate="no">/tmp</code>.</li>
+<li>Explique em voz alta por que o <code translate="no">file</code> não pega um backup cortado.</li></ol>
+<p>Se travar em algum, volte só ao Passo daquele item.</p>
+<h2 id="13-com-o-deeptutor">13 · Com o DeepTutor</h2>
+<p>Use o DeepTutor da sua rede local depois do lab, não no lugar dele:</p>
+<ul><li><code translate="no">!quiz Aula 1.7</code>: peça dez perguntas novas com cenários de backup e restauração, no formato das Decidas.</li>
+<li><code translate="no">!explica tar e gzip</code>: peça a diferença entre a caixa e o saco, e confira com o que você viu no <code translate="no">foto.bin</code>.</li>
+<li><code translate="no">!feynman</code>: explique para um estagiário por que extrair em <code translate="no">/</code> é perigoso. O DeepTutor aponta onde ficou vago.</li>
+<li><code translate="no">!quebra</code>: peça um cenário novo, como um backup com caminhos absolutos ou uma tarbomb, e resolva só com <code translate="no">tar -t</code> e <code translate="no">-C</code>.</li>
+<li><code translate="no">!simulado RHCSA tar</code>: peça três tarefas de prova, cada uma com o comando de verificação que um corretor usaria.</li>
+<li><code translate="no">!cartoes</code>: gere flashcards a partir da seção 10 e revise em três dias.</li>
+<li><code translate="no">!erro</code>: cole uma mensagem real, como <code translate="no">Unexpected EOF in archive</code> ou <code translate="no">Not found in archive</code>, e peça a causa antes da solução.</li>
+<li><code translate="no">!revisao</code>: agende a revisão da Aula 1.7 para daqui a três dias e para daqui a uma semana.</li></ul>
+<h2 id="gabarito-comentado">Gabarito comentado</h2>
+<h3 id="aquecimento">Aquecimento</h3>
+<ol><li><strong><code translate="no">./backup.sh &gt;&gt; backup.log 2&gt;&amp;1</code>.</strong> O <code translate="no">&gt;&gt;</code> acrescenta no fim, sem apagar. O <code translate="no">2&gt;&amp;1</code> vem depois e manda os erros para o mesmo lugar que a saída. Na ordem inversa, os erros continuam na tela.</li>
+<li><strong><code translate="no">zless</code>, <code translate="no">zcat</code> ou <code translate="no">zgrep</code>.</strong> Eles descompactam na memória, enquanto leem, e o <code translate="no">.gz</code> fica como estava. Nesta aula você viu por que funcionam: o gzip é só o saco, e dentro dele está o texto.</li>
+<li><strong>O <code translate="no">.tar.gz</code>.</strong> O <code translate="no">tar</code> guarda dono, grupo, permissões e data no cabeçalho de cada arquivo, e devolve tudo quando a extração é feita como root. O <code translate="no">unzip</code> do Linux devolve as permissões, mas extraído como root deixa tudo como root. E um zip criado no Windows não traz nem as permissões.</li></ol>
+<h3 id="quiz">Quiz</h3>
+<ol><li><strong>B.</strong> O <code translate="no">gzip</code> substitui o original pelo <code translate="no">.gz</code>. Para guardar os dois, <code translate="no">gzip -k</code>.</li>
+<li><strong>B.</strong> O <code translate="no">t</code> lista, e o <code translate="no">v</code> acrescenta os detalhes, como num <code translate="no">ls -l</code>. Nada é extraído nem alterado. O <code translate="no">tar</code> não conserta arquivo nenhum.</li>
+<li><strong>D.</strong> O <code translate="no">J</code> maiúsculo é o xz. O <code translate="no">x</code> minúsculo é extrair, o <code translate="no">z</code> é gzip e o <code translate="no">j</code> minúsculo é bzip2.</li>
+<li><strong>C.</strong> O xz comprime mais que os outros dois, e é mais lento. Como a CPU não importa e o link é lento, cada MB a menos vale. Logs de texto comprimem muito bem, então D está errada.</li>
+<li><strong>B.</strong> Sem <code translate="no">-C</code>, o <code translate="no">tar</code> extrai na pasta atual, e o caminho dentro da caixa é <code translate="no">etc/hosts</code>, sem barra. As pastas do caminho são criadas. O arquivo do sistema não é tocado.</li>
+<li><strong><code translate="no">-C</code>.</strong> Por exemplo, <code translate="no">tar -czf etc.tar.gz -C / etc</code> na criação e <code translate="no">tar -xzf etc.tar.gz -C /tmp/r</code> na extração.</li>
+<li><strong>C.</strong> O <code translate="no">gzip -t</code> lê até o fim e confere a soma de verificação. O <code translate="no">file</code> lê só o começo, e o <code translate="no">du</code> e o <code translate="no">stat</code> mostram só o tamanho e os dados do inode.</li>
+<li><strong>B.</strong> <code translate="no">.tgz</code> é só um apelido curto para <code translate="no">.tar.gz</code>, do tempo em que nomes de arquivo tinham poucas letras. Abre com <code translate="no">tar -xzf</code>.</li>
+<li><strong>C.</strong> Veja cada alternativa:</li></ol>
+<div class="tabela"><table><thead><tr><th scope="col">Se você marcou</th><th scope="col">Resultado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>A</td><td>❌ Errada</td><td>O <code translate="no">x</code> extrai. O comando tentaria tirar <code translate="no">docs</code> de dentro de um <code translate="no">docs.tar.gz</code> que ainda não existe.</td></tr><tr><td>B</td><td>❌ Errada</td><td>A ordem está trocada. O nome que vem depois do <code translate="no">f</code> é a caixa, então o <code translate="no">tar</code> tentaria gravar a caixa em <code translate="no">docs</code>, que é uma pasta, e falharia com <code translate="no">Is a directory</code>.</td></tr><tr><td>C</td><td>✅ Certa</td><td><code translate="no">c</code> cria, <code translate="no">z</code> usa gzip, e o <code translate="no">f</code> recebe <code translate="no">docs.tar.gz</code> como nome. A pasta <code translate="no">docs</code> vem por último.</td></tr><tr><td>D</td><td>❌ Errada</td><td>O <code translate="no">gzip -r</code> compacta cada arquivo da pasta em separado, no lugar. Não cria uma caixa e não escreve nada útil na saída.</td></tr></tbody></table></div>
+<ol start="10"><li><strong>B.</strong> É o estilo antigo, de antes de as opções terem traço. Ainda funciona e aparece em muito script e na prova LPIC-1. Prefira o traço no dia a dia, que é o estilo das outras ferramentas.</li></ol>
+<h3 id="ultimo-exercicio">Último exercício</h3>
+<ol><li><code translate="no">tar -cJf conf.tar.xz app/conf</code>. Confira com <code translate="no">file conf.tar.xz</code>, que deve dizer <code translate="no">XZ compressed data</code>.</li>
+<li><code translate="no">tar -tf conf.tar.xz</code>. O <code translate="no">J</code> na leitura é opcional: o <code translate="no">tar</code> descobre o saco sozinho.</li>
+<li><code translate="no">xz -t conf.tar.xz &amp;&amp; echo OK</code>, ou <code translate="no">tar -tf conf.tar.xz &gt; /dev/null &amp;&amp; echo OK</code>.</li>
+<li><code translate="no">mkdir -p /tmp/ex &amp;&amp; tar -xf conf.tar.xz -C /tmp/ex app/conf/app.conf</code>. O caminho começa em <code translate="no">app/</code>, como o item 2 mostrou. O arquivo fica em <code translate="no">/tmp/ex/app/conf/app.conf</code>.</li>
+<li><code translate="no">gzip -k app/logs/grande.log</code>. Confira com <code translate="no">ls -lh app/logs/grande.log*</code>: os dois arquivos estão lá.</li></ol>
+</article><nav class="paginas" aria-label="Aulas"><a class="ant" href="1.6-redirecionamentos-e-pipes.html"><small>← Anterior</small>1.6 · Redirecionamentos e pipes</a><a class="prox" href="1.8-primeiro-script.html"><small>Próxima →</small>1.8 · Primeiro script</a></nav></main></div>
+<footer><div class="wrap">Gerado a partir do Markdown do curso · Imagens em <code translate="no">img/</code></div></footer>
+</body>
+</html>

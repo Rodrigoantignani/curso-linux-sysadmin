@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light dark">
+<title>1.8 · Primo script · Corso Linux Sysadmin</title>
+<link rel="alternate" hreflang="pt-BR" href="1.8-primeiro-script.html"><link rel="alternate" hreflang="it" href="1.8-primeiro-script.it.html">
+<style>
+:root{color-scheme:light dark;--bg:#f6f1e7;--card:#fffdf8;--ink:#201c16;--muted:#5e564a;--accent:#9a3412;--accent-2:#1f5f4a;--tint:#efe6d4;--line:#ddd2bc;--code:#f1eadb;--shadow:0 1px 2px rgba(60,40,10,.08);--serif:Georgia,"Iowan Old Style","Palatino Linotype",Palatino,serif;--sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--mono:"Cascadia Code",Consolas,"DejaVu Sans Mono",monospace}
+@media (prefers-color-scheme:dark){:root{--bg:#16130f;--card:#201b15;--ink:#f1eadb;--muted:#b9ad98;--accent:#f0a070;--accent-2:#7fd0b0;--tint:#2a231a;--line:#3d3427;--code:#191510;--shadow:none}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:5.5rem}
+body{margin:0;background:var(--bg);color:var(--ink);font:1rem/1.6 var(--sans)}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--accent-2);outline-offset:2px;border-radius:4px}
+.pular{position:absolute;left:-999px;top:0;background:var(--card);padding:.5rem 1rem;z-index:20}
+.pular:focus{left:.5rem;top:.5rem}
+.wrap{width:100%;max-width:84rem;margin:0 auto;padding-inline:max(1rem,env(safe-area-inset-left))}
+.top{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10;border-top:6px solid var(--accent)}
+.top-in{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding-block:.6rem}
+.titles{min-width:0}
+.marca{margin:0;font:700 clamp(1.15rem,1rem + 1vw,1.6rem)/1.15 var(--serif);letter-spacing:-.01em}
+.marca a{text-decoration:none}
+.marca a:hover{color:var(--accent)}
+.meta{margin:.1rem 0 0;color:var(--muted);font-size:.85rem}
+.acoes{display:flex;align-items:center;gap:.9rem;flex:none}
+.acoes>a{font-size:.9rem;font-weight:600;color:var(--muted);text-decoration:none}
+.acoes>a:hover{color:var(--accent);text-decoration:underline}
+.idioma{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--tint)}
+.idioma>*{padding:.35rem .9rem;font-size:.8rem;font-weight:700;letter-spacing:.06em;text-decoration:none;color:var(--muted);min-width:2.75rem;text-align:center}
+.idioma a:hover{color:var(--accent);text-decoration:underline}
+.idioma span{background:var(--accent);color:#fff}
+@media (prefers-color-scheme:dark){.idioma span{color:#16130f}}
+code{font-family:var(--mono);font-size:.9em;background:var(--tint);padding:.1rem .35rem;border-radius:4px;overflow-wrap:anywhere}
+/* índice */
+.capa{max-width:70rem;padding-block:2rem 3rem}
+.stats{border-left:4px solid var(--accent-2);background:var(--card);border-radius:0 10px 10px 0;padding:1rem 1.25rem;margin:0 0 2.5rem;box-shadow:var(--shadow);color:var(--muted)}
+.stats strong{color:var(--ink)}
+.modulo{display:grid;grid-template-columns:15rem minmax(0,1fr);gap:1rem 2rem;padding:1.75rem 0;border-top:1px solid var(--line)}
+.modulo h2{margin:0;font:700 1.25rem/1.25 var(--serif);align-self:start;position:sticky;top:6rem}
+.mn{display:block;font:700 .8rem var(--mono);letter-spacing:.12em;color:var(--accent);margin-bottom:.25rem}
+.sep{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.modulo ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,17rem),1fr));gap:.75rem}
+.modulo li{margin:0}
+.modulo a{display:flex;gap:.45rem;align-items:baseline;height:100%;padding:.85rem 1rem;background:var(--card);border:1px solid var(--line);border-radius:10px;text-decoration:none;font-weight:600;line-height:1.35;box-shadow:var(--shadow);transition:border-color .15s,transform .15s}
+.modulo a:hover{border-color:var(--accent);color:var(--accent)}
+.num{font:700 .85rem var(--mono);color:var(--accent);white-space:nowrap}
+/* aula */
+.doc{display:grid;grid-template-columns:17rem minmax(0,1fr);gap:2.5rem;align-items:start;padding-block:2rem 3rem}
+.lateral{position:sticky;top:5.5rem;max-height:calc(100vh - 6.5rem);overflow:auto;font-size:.875rem;padding-right:.5rem}
+.lateral h2{margin:0 0 .25rem;font:700 .95rem var(--serif);color:var(--muted)}
+.lateral h3{margin:1rem 0 .25rem;font:700 .75rem var(--mono);letter-spacing:.06em;color:var(--accent)}
+.lateral ul{list-style:none;margin:0;padding:0}
+.lateral a{display:flex;gap:.45rem;padding:.25rem .5rem;border-radius:6px;text-decoration:none;color:var(--muted);line-height:1.3}
+.lateral a:hover{background:var(--tint);color:var(--ink)}
+.lateral a[aria-current]{background:var(--tint);color:var(--ink);font-weight:700;box-shadow:inset 3px 0 0 var(--accent)}
+.lateral .num{font-size:.75rem}
+.aula{min-width:0;max-width:56rem;overflow-wrap:break-word;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:clamp(1.25rem,1rem + 2vw,2.75rem);box-shadow:var(--shadow)}
+.aula h1{margin:0 0 1.5rem;font:700 clamp(1.75rem,1.4rem + 1.6vw,2.5rem)/1.15 var(--serif);letter-spacing:-.015em;color:var(--ink)}
+.aula h2{margin:2.5rem 0 .75rem;padding-top:1.25rem;border-top:1px solid var(--line);font:700 1.5rem/1.25 var(--serif)}
+.aula h3{margin:2rem 0 .5rem;font:700 1.15rem/1.3 var(--serif);color:var(--accent)}
+.aula h4,.aula h5,.aula h6{margin:1.5rem 0 .5rem;font-size:1rem}
+.aula p,.aula ul,.aula ol{margin:1rem 0}
+.aula ul,.aula ol{padding-left:1.5rem}
+.aula li{margin:.35rem 0}
+.aula li>ul,.aula li>ol{margin:.35rem 0}
+.aula a{color:var(--accent);text-underline-offset:2px}
+.aula hr{border:0;border-top:1px solid var(--line);margin:2rem 0}
+.tabela{overflow-x:auto;margin:1.25rem 0;border:1px solid var(--line);border-radius:10px}
+.aula table{width:100%;border-collapse:collapse;font-size:.9rem}
+.aula th,.aula td{padding:.55rem .75rem;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+.aula tr:last-child td{border-bottom:0}
+.aula th{background:var(--tint);font-weight:700}
+.aula pre{background:var(--code);border:1px solid var(--line);border-radius:10px;padding:.9rem 1rem;overflow-x:auto;font:.85rem/1.5 var(--mono);margin:1rem 0;tab-size:4}
+.aula pre code{background:none;padding:0;font-size:inherit;overflow-wrap:normal}
+.aula blockquote{margin:1.25rem 0;padding:.75rem 1.25rem;border-left:4px solid var(--accent-2);background:var(--tint);border-radius:0 10px 10px 0}
+.aula blockquote>:first-child{margin-top:0}
+.aula blockquote>:last-child{margin-bottom:0}
+.aula figure{margin:1.75rem 0;text-align:center}
+.aula figure img{display:block;margin:0 auto;max-width:100%;height:auto;border:1px solid var(--line);border-radius:10px;background:#fff}
+.aula figcaption{margin-top:.5rem;color:var(--muted);font-size:.9rem;font-style:italic}
+.paginas{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:2.5rem;padding-top:1.5rem;border-top:1px solid var(--line)}
+.paginas a{display:block;padding:.75rem 1rem;border:1px solid var(--line);border-radius:10px;text-decoration:none;color:var(--ink);font-weight:600;line-height:1.3}
+.paginas a:hover{border-color:var(--accent);color:var(--accent)}
+.paginas small{display:block;color:var(--muted);font-weight:400}
+.paginas .prox{grid-column:2;text-align:right}
+footer{border-top:1px solid var(--line);padding-block:1.5rem;color:var(--muted);font-size:.85rem;text-align:center}
+@media (hover:hover) and (prefers-reduced-motion:no-preference){.modulo a:hover{transform:translateY(-2px)}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+@media (max-width:980px){.doc{grid-template-columns:minmax(0,1fr);padding-top:1rem}.lateral{position:static;max-height:none;order:2}.aula{max-width:none}}
+@media (max-width:860px){.modulo{grid-template-columns:minmax(0,1fr)}.modulo h2{position:static}.mn{display:inline;margin-right:.5rem}}
+@media (max-width:420px){.meta{display:none}.top-in{gap:.5rem}.acoes{gap:.6rem}.capa{padding-top:1.25rem}.paginas{grid-template-columns:minmax(0,1fr)}.paginas .prox{grid-column:1}}
+@media print{.top,.lateral,.paginas{display:none}.aula{border:0;box-shadow:none;padding:0;max-width:none}.doc{display:block}}
+</style>
+</head>
+<body>
+<a class="pular" href="#conteudo">Vai al contenuto</a>
+<header class="top"><div class="wrap top-in"><div class="titles"><p class="marca"><a href="index.it.html">Corso Linux Sysadmin</a></p><p class="meta">Rodrigo Antignani · Lezione 1.8</p></div><div class="acoes"><a href="index.it.html">Indice</a><div class="idioma" role="group" aria-label="Lingua"><a href="1.8-primeiro-script.html" hreflang="pt-BR" lang="pt-BR">PT</a><span aria-current="true">IT</span></div></div></div></header>
+<div class="wrap doc"><aside class="lateral" aria-label="Lezioni"><h2>Lezioni</h2><h3>M0 · Laboratorio</h3><ul><li><a href="0.1-montar-o-laboratorio.it.html"><span class="num">0.1</span><span>Allestire il laboratorio</span></a></li><li><a href="0.2-acesso-e-protecao.it.html"><span class="num">0.2</span><span>Accesso e protezione</span></a></li></ul><h3>M1 · Riga di comando</h3><ul><li><a href="1.1-o-que-e-linux.it.html"><span class="num">1.1</span><span>Che cos'è Linux</span></a></li><li><a href="1.2-o-shell-e-a-ajuda.it.html"><span class="num">1.2</span><span>La shell e la guida</span></a></li><li><a href="1.3-caminhos-e-navegacao.it.html"><span class="num">1.3</span><span>Percorsi e navigazione</span></a></li><li><a href="1.4-criar-copiar-mover-e-apagar.it.html"><span class="num">1.4</span><span>Creare, copiare, spostare ed eliminare</span></a></li><li><a href="1.5-ler-e-procurar-texto.it.html"><span class="num">1.5</span><span>Leggere e cercare testo</span></a></li><li><a href="1.6-redirecionamentos-e-pipes.it.html"><span class="num">1.6</span><span>Reindirizzamenti e pipe</span></a></li><li><a href="1.7-arquivar-e-compactar.it.html"><span class="num">1.7</span><span>Archiviare e comprimere</span></a></li><li><a href="1.8-primeiro-script.it.html" aria-current="page"><span class="num">1.8</span><span>Primo script</span></a></li><li><a href="1.9-decidir-e-repetir.it.html"><span class="num">1.9</span><span>Decidere e ripetere</span></a></li><li><a href="1.10-software-livre-na-pratica.it.html"><span class="num">1.10</span><span>Il software libero in pratica</span></a></li></ul><h3>M2 · Sistema, utenti e permessi</h3><ul><li><a href="2.1-instalacao-e-provisionamento.it.html"><span class="num">2.1</span><span>Installazione e provisioning</span></a></li><li><a href="2.2-hardware-e-dispositivos.it.html"><span class="num">2.2</span><span>Hardware e dispositivi</span></a></li><li><a href="2.3-processos-e-logs.it.html"><span class="num">2.3</span><span>Processi e log</span></a></li><li><a href="2.4-rede-no-dia-a-dia.it.html"><span class="num">2.4</span><span>La rete di tutti i giorni</span></a></li><li><a href="2.5-acesso-remoto-e-privilegios.it.html"><span class="num">2.5</span><span>Accesso remoto e privilegi</span></a></li><li><a href="2.6-usuarios-e-grupos.it.html"><span class="num">2.6</span><span>Utenti e gruppi</span></a></li><li><a href="2.7-permissoes-e-dono.it.html"><span class="num">2.7</span><span>Permessi e proprietario</span></a></li><li><a href="2.8-diretorios-e-arquivos-especiais.it.html"><span class="num">2.8</span><span>Directory e file speciali</span></a></li></ul><h3>M3 · Testo ed editor</h3><ul><li><a href="3.1-fluxos-a-fundo.it.html"><span class="num">3.1</span><span>I flussi in profondità</span></a></li><li><a href="3.2-filtros-de-texto.it.html"><span class="num">3.2</span><span>Filtri di testo</span></a></li><li><a href="3.3-regex-e-grep.it.html"><span class="num">3.3</span><span>Regex e grep</span></a></li><li><a href="3.4-sed-e-awk.it.html"><span class="num">3.4</span><span>sed e awk</span></a></li><li><a href="3.5-vi-e-vim-de-verdade.it.html"><span class="num">3.5</span><span>vi e vim sul serio</span></a></li></ul><h3>M4 · systemd e boot</h3><ul><li><a href="4.1-como-o-linux-liga.it.html"><span class="num">4.1</span><span>Come si avvia Linux</span></a></li><li><a href="4.2-systemd-servicos-e-units.it.html"><span class="num">4.2</span><span>systemd: servizi e unit</span></a></li><li><a href="4.3-targets-desligar-e-reiniciar.it.html"><span class="num">4.3</span><span>Target: spegnere e riavviare</span></a></li><li><a href="4.4-grub-e-acesso-de-emergencia.it.html"><span class="num">4.4</span><span>GRUB e accesso di emergenza</span></a></li></ul><h3>M5 · Kernel, moduli e VM</h3><ul><li><a href="5.1-hardware-pelo-kernel.it.html"><span class="num">5.1</span><span>L'hardware visto dal kernel</span></a></li><li><a href="5.2-modulos-e-parametros.it.html"><span class="num">5.2</span><span>Moduli e parametri</span></a></li><li><a href="5.3-linux-como-convidado.it.html"><span class="num">5.3</span><span>Linux come guest</span></a></li></ul><h3>M6 · Pacchetti e repository</h3><ul><li><a href="6.1-pacotes-no-debian.it.html"><span class="num">6.1</span><span>Pacchetti su Debian</span></a></li><li><a href="6.2-pacotes-na-rocky.it.html"><span class="num">6.2</span><span>Pacchetti su Rocky</span></a></li><li><a href="6.3-repositorios.it.html"><span class="num">6.3</span><span>Repository</span></a></li><li><a href="6.4-flatpak.it.html"><span class="num">6.4</span><span>Flatpak</span></a></li><li><a href="6.5-bibliotecas-compartilhadas.it.html"><span class="num">6.5</span><span>Librerie condivise</span></a></li></ul></aside><main id="conteudo" class="aula"><article><h1>Lezione 1.8 · Primo script</h1>
+<p>Trasformi il Protocollo di Backup della lezione 1.7 in un vero e proprio script: un file che chiami per nome, da qualsiasi cartella, passandoci dentro quello che vuoi salvare, e che esegue i cinque passi sempre nello stesso ordine. Lungo il percorso, apprende i tre errori che fanno fallire il primo script di tutti: l'autorizzazione mancante, la virgoletta mancante e il file proveniente da Windows.</p>
+<div class="tabela"><table><thead><tr><th scope="col">File</th><th scope="col">lezione 1.8</th></tr></thead><tbody><tr><td>Modulo</td><td>M1 · Riga di comando, lezione 8 di 10</td></tr><tr><td>Quando</td><td>Settimana 3</td></tr><tr><td>Alla fine puoi</td><td>Scrivi uno script con shebang, commenti e variabili; renderlo eseguibile e chiamarlo in tre modi, conoscendo la differenza; utilizzare le virgolette singole e doppie senza sorprese; ricevere argomenti con <code translate="no">$1</code>, <code translate="no">$2</code>, <code translate="no">$#</code> e <code translate="no">"$@"</code>; proteggere lo script da una variabile vuota; eseguire il debug con <code translate="no">bash -n</code> e <code translate="no">bash -x</code>; installare lo script in <code translate="no">~/bin</code></td></tr><tr><td>Articoli di prova</td><td>LE 013.3 · LPIC-1 105.2, la parte degli script semplici · RHCSA: creare script semplici ed elaborare l'input degli script (<code translate="no">$1</code>, <code translate="no">$2</code>...)</td></tr><tr><td>Prerequisiti</td><td>lezione 1.7 completata, con <code translate="no">~/lab13/arquivo</code> ancora nelle VM</td></tr><tr><td>Meteo</td><td>Intorno alle 2:30</td></tr><tr><td>Istantanee</td><td>m1a8-start e m1a8-end su entrambe le VM</td></tr></tbody></table></div>
+<h2 id="1-riscaldamento">1 · Riscaldamento</h2>
+<p>Tre domande, a mente fredda, prima di leggere qualsiasi cosa. Scrivi le risposte; la chiave di risposta viene visualizzata alla fine.</p>
+<ol><li>Nella lezione 1.7, quale comando testa un <code translate="no">.tar.gz</code> fino all'ultimo byte, senza estrarre nulla?</li>
+<li>Nella lezione 1.7, perché il Protocollo utilizza <code translate="no">-C</code> durante la creazione del backup?</li>
+<li>Indovina: salvi un file <code translate="no">ola.sh</code> con un <code translate="no">echo</code> all'interno e scrivi <code translate="no">ola.sh</code> nel terminale, nella stessa cartella. Cosa succede?</li></ol>
+<h2 id="2-perche-e-importante">2 · Perché è importante</h2>
+<p>Venerdì, 18:00. È necessario eseguire il backup del <code translate="no">/etc</code> di sei server prima di un aggiornamento. Nella lezione 1.7, il Protocollo prevedeva cinque passaggi. Sei server per cinque passaggi sono trenta comandi digitati a mano, alla fine della giornata. Sul quarto server dimentichi <code translate="no">chmod 600</code>. Nella quinta digitate <code translate="no">-cfz</code> invece di <code translate="no">-czf</code>. Nessuno se ne accorge fino al giorno in cui ha bisogno del backup.</p>
+<p>Uno script non si stanca. Esegue i cinque passaggi nello stesso ordine, ogni volta, e tu controlli semplicemente il risultato. È la differenza tra conoscere una procedura ed avere una procedura.</p>
+<p>Secondo caso. Un collega scrive uno script nel Blocco note di Windows, lo copia sul server e lo esegue. L'errore è <code translate="no">bad interpreter: No such file or directory</code>, che punta a <code translate="no">/bin/bash</code>, che ovviamente esiste. Perde un'ora reinstallando bash. Il problema era un carattere invisibile alla fine di ogni riga. Vedrai questo errore oggi, di proposito, e lo risolverai con un comando.</p>
+<p>Terzo caso, quello pericoloso. Uno script di pulizia ha <code translate="no">rm -rf "$PASTA"/*</code>. Un giorno la variabile <code translate="no">PASTA</code> arriva vuota. Il comando diventa <code translate="no">rm -rf /*</code>. Ciò è già successo in prodotti noti e su molti server client. Oggi imparerai la riga che lo impedisce e testerai senza cancellare nulla.</p>
+<p>E la quarta, la dimostrazione: RHCSA richiede script semplici che accettano argomenti. Non è programmazione, è esattamente ciò che insegna questo corso.</p>
+<h2 id="3-modello-mentale">3 · Modello mentale</h2>
+<blockquote><p>Uno script è una ricetta scritta. La shell è la cuoca che legge riga per riga.</p></blockquote>
+<p>Tutto ciò che scrivi nel terminale può finire in un file, una riga sotto l'altra. Quando dici esegui, una shell apre il file e fa esattamente quello che farebbe se lo digitassi. Non c'è un nuovo linguaggio qui: sono gli stessi comandi delle lezioni da 1.2 a 1.7.</p>
+<p>Tre domande definiscono se la ricetta funziona:</p>
+<ul><li><strong>Chi legge la ricetta?</strong> La prima riga, lo <em>shebang</em>, dice quale cuoco: <code translate="no">#!/bin/bash</code>. Senza di essa, chi sceglie è chi ha chiamato, e il risultato cambia da macchina a macchina.</li>
+<li><strong>La ricetta può essere eseguita?</strong> Linux non controlla l'estensione <code translate="no">.sh</code>. Guarda l'autorizzazione <code translate="no">x</code>. Senza di esso, il file è solo testo.</li>
+<li><strong>Dov'è la ricetta?</strong> Se si digita solo il nome, la shell cerca nelle cartelle <code translate="no">PATH</code> e la cartella corrente non è lì. O dici dove si trova, con <code translate="no">./</code>, oppure lo installi in una cartella in <code translate="no">PATH</code>.</li></ul>
+<p>E due pezzi rendono la ricetta riutilizzabile:</p>
+<ul><li><strong>Variabili</strong> sono le note del cuoco: <code translate="no">destino=/backup</code>. Durante la lettura, <code translate="no">$destino</code>.</li>
+<li><strong>Argomenti</strong> sono gli ingredienti che fornisci subito: <code translate="no">backup-app.sh /etc</code> fa sì che <code translate="no">$1</code> valga <code translate="no">/etc</code>. La stessa ricetta funziona per qualsiasi pasta.</li></ul>
+<pre translate="no"><code class="lang-text">  você digita:   backup-app.sh  /etc  /backup
+                      │           │      │
+                      $0          $1     $2        $# = 2
+
+  o shell:  1. acha o arquivo (PATH ou ./)
+            2. confere a permissão x
+            3. lê a 1ª linha  #!/bin/bash  e chama o bash
+            4. o bash executa linha por linha, trocando $1 e $2 pelos valores</code></pre>
+<h2 id="4-concetto-a-strati">4 · Concetto a strati</h2>
+<h3 id="essenziale">Essenziale</h3>
+<p><strong>Il file.</strong> Uno script minimo:</p>
+<pre translate="no"><code class="lang-bash">#!/bin/bash
+# ola.sh - meu primeiro script
+echo "Olá, $USER. Hoje é $(date +%F)."</code></pre>
+<ul><li><code translate="no">#!/bin/bash</code> è lo shebang. Deve essere la prima riga, che inizia esattamente con <code translate="no">#!</code>, senza spazi prima.</li>
+<li>Le righe che iniziano con <code translate="no">#</code> sono commenti. La shell lo ignora. Non tu, tra sei mesi.</li>
+<li>Il resto sono comandi comuni. Hai già utilizzato <code translate="no">$(date +%F)</code> nella lezione 1.7: la shell esegue il comando e mette a posto l'output. Dettagli della lezione 1.9.</li></ul>
+<p><strong>Esegui.</strong> Tre modi, con risultati diversi:</p>
+<div class="tabela"><table><thead><tr><th scope="col">Come si chiama</th><th scope="col">Cosa ti serve</th><th scope="col">Cosa succede</th></tr></thead><tbody><tr><td><code translate="no">bash ola.sh</code></td><td>Sola lettura</td><td>Scegli bash; lo shebang viene ignorato</td></tr><tr><td><code translate="no">./ola.sh</code></td><td>Autorizzazione <code translate="no">x</code></td><td>Il kernel legge lo shebang e chiama il programma indicato</td></tr><tr><td><code translate="no">ola.sh</code></td><td>Autorizzazione <code translate="no">x</code> e permanenza in una cartella <code translate="no">PATH</code></td><td>La shell si presenta in <code translate="no">PATH</code>; la cartella corrente non conta</td></tr></tbody></table></div>
+<p>Per dare il permesso: <code translate="no">chmod +x ola.sh</code>. La lezione 2.7 spiega i permessi in dettaglio; per ora basta <code translate="no">+x</code>.</p>
+<p><strong>Variabili.</strong></p>
+<pre translate="no"><code class="lang-bash">destino=/backup        # crea: NO spazio prima o dopo =
+echo $destino          # leggere con $
+echo "${destino}_old"  # le parentesi graffe separano il nome dal testo incollato</code></pre>
+<p><code translate="no">destino = /backup</code>, con gli spazi, non crea nulla: la shell capisce che vuoi eseguire un comando chiamato <code translate="no">destino</code> con argomenti <code translate="no">=</code> e <code translate="no">/backup</code>.</p>
+<p><strong>Virgolette.</strong></p>
+<div class="tabela"><table><thead><tr><th scope="col">Ha scritto</th><th scope="col">La shell fa</th><th scope="col">Esempio con <code translate="no">nome=Rodrigo</code></th></tr></thead><tbody><tr><td><code translate="no">'...'</code> semplice</td><td>Niente. Tutto è letterale</td><td><code translate="no">echo 'Oi $nome'</code> → <code translate="no">Oi $nome</code></td></tr><tr><td><code translate="no">"..."</code> raddoppia</td><td>Scambia <code translate="no">$variável</code> e <code translate="no">$(comando)</code>, mantieni gli spazi</td><td><code translate="no">echo "Oi $nome"</code> → <code translate="no">Oi Rodrigo</code></td></tr><tr><td>Senza virgolette</td><td>Scambia, quindi <strong>dividi negli spazi</strong> ed espandi <code translate="no">*</code></td><td>Pericolo con nomi di file con spazi</td></tr></tbody></table></div>
+<p>Regola pratica: <strong>variabile sempre racchiusa tra virgolette doppie</strong>, <code translate="no">"$destino"</code>. Nessuna eccezione, finché non sai perché desideri l'eccezione.</p>
+<p><strong>Argomenti.</strong></p>
+<div class="tabela"><table><thead><tr><th scope="col">Variabile</th><th scope="col">Valore</th></tr></thead><tbody><tr><td><code translate="no">$0</code></td><td>Il nome con cui si chiamava lo script</td></tr><tr><td><code translate="no">$1</code>, <code translate="no">$2</code>... <code translate="no">${10}</code></td><td>Il primo, il secondo... il decimo argomento</td></tr><tr><td><code translate="no">$#</code></td><td>Quanti argomenti sono arrivati ​​</td></tr><tr><td><code translate="no">"$@"</code></td><td>Tutti gli argomenti, ogni numero intero, anche con lo spazio</td></tr><tr><td><code translate="no">$?</code></td><td>Il codice di uscita dell'ultimo comando. La lezione 1.9 utilizza molti</td></tr></tbody></table></div>
+<p><strong>Valore predefinito e valore obbligatorio.</strong></p>
+<pre translate="no"><code class="lang-bash">destino="${2:-$HOME/backups}"     # se $2 risultano vuoti, utilizza $HOME/backups
+origem="${1:?uso: $0 PASTA}"      # se $1 risulta vuoto, interrompi lo script con questo messaggio</code></pre>
+<p><code translate="no">:?</code> è la cintura di sicurezza dello script. La lezione 1.9 comprende <code translate="no">if</code>, che fa lo stesso in modo più flessibile; Fino ad allora, <code translate="no">:?</code> risolve.</p>
+<p><strong>Debug.</strong></p>
+<pre translate="no"><code class="lang-bash">bash -n script.sh     # controlla solo la sintassi, non esegue nulla
+bash -x script.sh     # viene eseguito mostrando ogni riga, con le variabili modificate</code></pre>
+<h3 id="windows-bridge">Windows Bridge</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Su Windows</th><th scope="col">Su Linux</th><th scope="col">Attenzione</th></tr></thead><tbody><tr><td><code translate="no">.bat</code>, <code translate="no">.cmd</code>, <code translate="no">.ps1</code> decidono l'interprete con l'estensione</td><td>Lo shebang decide; l'estensione <code translate="no">.sh</code> è riservata solo agli esseri umani</td><td>Un <code translate="no">.sh</code> con <code translate="no">#!/usr/bin/python3</code> funziona come Python</td></tr><tr><td><code translate="no">Set-ExecutionPolicy</code> decide se gli script vengono eseguiti</td><td>Il permesso <code translate="no">x</code> di ciascun file decide</td><td>Non esiste uno switch globale</td></tr><tr><td>La cartella attuale è contenuta nel <code translate="no">cmd</code></td><td>La cartella corrente <strong>non</strong> è in <code translate="no">PATH</code></td><td>Ecco perché <code translate="no">./</code></td></tr><tr><td><code translate="no">set destino=C:\bkp</code> e <code translate="no">%destino%</code></td><td><code translate="no">destino=/bkp</code> e <code translate="no">$destino</code></td><td>Su Linux, lo spazio attorno a <code translate="no">=</code> interrompe</td></tr><tr><td><code translate="no">%1</code>, <code translate="no">%2</code>, <code translate="no">%*</code></td><td><code translate="no">$1</code>, <code translate="no">$2</code>, <code translate="no">"$@"</code></td><td></td></tr><tr><td>Fine riga CRLF (<code translate="no">\r\n</code>)</td><td>Fine riga LF (<code translate="no">\n</code>)</td><td>Lo script salvato su Windows si interrompe su Linux. Wrap A</td></tr></tbody></table></div>
+<p>In PowerShell, <code translate="no">$destino = "C:\bkp"</code> accetta spazi attorno a <code translate="no">=</code>. È l'abitudine che più abbatte chi viene da Windows.</p>
+<h3 id="advanced">Advanced</h3>
+<ul><li><strong><code translate="no">source</code> o <code translate="no">.</code> non vengono eseguiti: includono.</strong> <code translate="no">./script.sh</code> viene eseguito in una nuova shell, una tua figlia. Un <code translate="no">cd</code> o una variabile creata all'interno muore quando lo script termina. <code translate="no">source script.sh</code> esegue le righe nella propria shell e <code translate="no">cd</code> rimane. Così si legge il <code translate="no">~/.bashrc</code>.</li>
+<li><strong><code translate="no">export</code>.</strong> Una variabile creata nel terminale non raggiunge lo script, a meno che non venga esportata: <code translate="no">export DESTINO=/backup</code>. Le variabili di ambiente come <code translate="no">PATH</code>, <code translate="no">HOME</code> e <code translate="no">USER</code> sono già esportate.</li>
+<li><strong><code translate="no">set -u</code></strong> fa sì che lo script si interrompa quando si utilizza una variabile che non esiste, invece di trattarla come vuota. <strong><code translate="no">set -e</code></strong> si ferma al primo comando che fallisce. Sono utili, ma presentano delle insidie; La lezione 1.9 mostra quando fidarsi di loro.</li>
+<li><strong><code translate="no">#!/usr/bin/env bash</code></strong> cerca bash in <code translate="no">PATH</code>, utile quando non è in <code translate="no">/bin</code>, come su alcuni BSD. In Rocky e Debian, <code translate="no">#!/bin/bash</code> funziona sempre.</li>
+<li><strong><code translate="no">readonly</code></strong> impedisce che una variabile venga modificata in seguito: <code translate="no">readonly DESTINO=/backup</code>.</li></ul>
+<h3 id="cosa-rientra-nel-test">Cosa rientra nel test</h3>
+<ul><li><strong>LE 013.3:</strong> shebang, <code translate="no">chmod +x</code>, eseguito con <code translate="no">./</code>, variabili, <code translate="no">$1</code> e <code translate="no">$#</code>, commenti. Domande brevi come "quale riga crea correttamente la variabile".</li>
+<li><strong>LPIC-1 105.2:</strong> parametri posizionali, <code translate="no">$?</code>, <code translate="no">$#</code>, <code translate="no">$@</code>, <code translate="no">source</code>, differenza tra esegui e include.</li>
+<li><strong>RHCSA:</strong> un'attività come "crea <code translate="no">/usr/local/bin/meuscript</code> che accetta un argomento e fa X", e il correttore esegue lo script con i suoi argomenti. Cavolo, il giusto permesso e il giusto percorso valgono quanto la logica.</li></ul>
+<h2 id="5-rocky-debian">5 · Rocky × Debian</h2>
+<div class="tabela"><table><thead><tr><th scope="col"></th><th scope="col">Rocky Linux 9 e 10</th><th scope="col">Debian 13</th></tr></thead><tbody><tr><td><code translate="no">/bin/sh</code> punta a</td><td><code translate="no">bash</code></td><td><code translate="no">dash</code>, una shell più piccola e più veloce</td></tr><tr><td>Script con <code translate="no">#!/bin/sh</code> e funzionalità bash come <code translate="no">{1..3}</code></td><td>Funziona, perché è bash</td><td>Interrompe o fornisce risultati diversi</td></tr><tr><td><code translate="no">~/bin</code> in <code translate="no">PATH</code></td><td>Secondo <code translate="no">~/.bashrc</code> c'è già, anche se la cartella non esiste ancora</td><td>Accedere tramite <code translate="no">~/.profile</code>, solo se la cartella esiste <strong>al login</strong>. Creare e uscire dalla sessione</td></tr><tr><td><code translate="no">~/.local/bin</code> in <code translate="no">PATH</code></td><td>E' fatto</td><td>Stessa regola di <code translate="no">~/bin</code></td></tr><tr><td><code translate="no">dos2unix</code> per rimuovere il CRLF</td><td><code translate="no">sudo dnf install dos2unix</code></td><td><code translate="no">sudo apt install dos2unix</code></td></tr><tr><td><code translate="no">bash --version</code></td><td>5.1 in Rocky 9, 5.2 in Rocky 10</td><td>5.2</td></tr></tbody></table></div>
+<p>La regola che evita la prima riga della tabella: <strong>se usi risorse bash, scrivi <code translate="no">#!/bin/bash</code></strong>. Utilizzare <code translate="no">#!/bin/sh</code> solo quando lo script è POSIX puro e testarlo su Debian.</p>
+<h2 id="6-laboratorio-guidato">6 · Laboratorio guidato</h2>
+<p>Esegui tutto su entrambe le VM, a meno che il passaggio non ne indichi solo uno. Gli script sono in <code translate="no">~/lab13/scripts</code> e la materia prima è l'applicazione di bugie della lezione 1.7, in <code translate="no">~/lab13/arquivo/app</code>. Ad ogni passaggio, quando viene visualizzato <strong>Predict</strong>, scrivere la risposta prima di premere Invio.</p>
+<figure><a href="../img/1.8-fluxo-executar-script.svg"><img src="../img/1.8-fluxo-executar-script.svg" alt="1.8 Esegui flusso di script" loading="lazy" decoding="async"></a><figcaption>Senza shebang, il chiamante sceglie l'interprete. Senza il permesso x, non verrà eseguito. Senza virgolette nella variabile, una vuota cancella tutto.</figcaption></figure>
+<h3 id="passo-1-preparare">Passo 1 · Preparare</h3>
+<p>Nel nodo Proxmox:</p>
+<pre translate="no"><code class="lang-bash">qm snapshot 201 m1a8-inicio
+qm snapshot 202 m1a8-inicio</code></pre>
+<p>In ogni VM:</p>
+<pre translate="no"><code class="lang-bash">ls ~/lab13/arquivo/app
+mkdir -p ~/lab13/scripts
+cd ~/lab13/scripts
+echo "$SHELL"
+bash --version | head -1</code></pre>
+<p>Il <code translate="no">ls</code> deve mostrare <code translate="no">conf</code>, <code translate="no">iniciar.sh</code>, <code translate="no">logs</code> e <code translate="no">www</code>. Se la cartella non esiste, ripetere il passaggio 1 della lezione 1.7. <code translate="no">$SHELL</code> dovrebbe essere <code translate="no">/bin/bash</code>.</p>
+<h3 id="passo-2-il-primo-file-e-i-tre-modi-per-chiamarlo">Passo 2 · Il primo file e i tre modi per chiamarlo</h3>
+<p>Crea lo script con un <em>here-document</em>, il <code translate="no">cat &gt; arquivo &lt;&lt;'EOF'</code> che hai usato nella lezione 1.7. Le virgolette in <code translate="no">'EOF'</code> fanno sì che il testo entri nel file esattamente così com'è, senza modificare <code translate="no">$USER</code> adesso.</p>
+<pre translate="no"><code class="lang-bash">cat &gt; ola.sh &lt;&lt;'EOF'
+#!/bin/bash
+# ola.sh - meu primeiro script
+echo "Olá, $USER. Hoje é $(date +%F)."
+echo "Estou rodando em $(hostname)."
+EOF
+cat ola.sh
+ls -l ola.sh</code></pre>
+<p><strong>Anteprima.</strong> Digiterai <code translate="no">ola.sh</code>, solo il nome, essendo nella stessa cartella. Cosa appare?</p>
+<pre translate="no"><code class="lang-bash">ola.sh</code></pre>
+<p><code translate="no">bash: ola.sh: command not found</code>. Il file c'è, ma la shell non cerca nella cartella corrente: cerca nelle cartelle <code translate="no">PATH</code>. Guarda cosa sono:</p>
+<pre translate="no"><code class="lang-bash">echo "$PATH"</code></pre>
+<p>Ora di' dove si trova il file, con <code translate="no">./</code>:</p>
+<pre translate="no"><code class="lang-bash">./ola.sh</code></pre>
+<p><code translate="no">bash: ./ola.sh: Permission denied</code>. <code translate="no">ls -l</code> di prima mostrava <code translate="no">-rw-r--r--</code>: non c'è <code translate="no">x</code>. Per Linux, questo è testo, non programma.</p>
+<p><strong>Decidi 1 · Come funziona senza <code translate="no">x</code>.</strong> Prima di dare il permesso, esegui <code translate="no">bash ola.sh</code>. Cosa succede?</p>
+<ul><li><strong>A)</strong> <code translate="no">Permission denied</code>, come in <code translate="no">./ola.sh</code>.</li>
+<li><strong>B)</strong> Funziona, perché <code translate="no">bash</code> è in esecuzione e <code translate="no">ola.sh</code> è semplicemente un file che legge.</li>
+<li><strong>C)</strong> Funziona, perché <code translate="no">bash</code> ignora i permessi di qualsiasi file.</li>
+<li><strong>D)</strong> <code translate="no">command not found</code>, perché <code translate="no">ola.sh</code> non è in <code translate="no">PATH</code>.</li></ul>
+<p>Scegli la lettera prima di guardare la tabella.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se hai selezionato</th><th scope="col">Risultato</th><th scope="col">Perché</th></tr></thead><tbody><tr><td>A</td><td>❌ Sbagliato</td><td><code translate="no">x</code> è richiesto a coloro che vengono giustiziati. Qui l'imputato è <code translate="no">/bin/bash</code>, che ha <code translate="no">x</code>. Basta leggere il <code translate="no">ola.sh</code> e c'è il <code translate="no">r</code>.</td></tr><tr><td>B</td><td>✅ Giusto</td><td><code translate="no">bash</code> prende come argomento il nome del file, lo apre e lo legge riga per riga, come faresti con un <code translate="no">cat</code>. Lo shebang diventa un commento comune.</td></tr><tr><td>C</td><td>❌ Sbagliato</td><td>Se prendi <code translate="no">r</code> con <code translate="no">chmod -r ola.sh</code>, <code translate="no">bash ola.sh</code> fallisce con <code translate="no">Permission denied</code>. Rispetta la lettura; semplicemente non hai bisogno di <code translate="no">x</code>.</td></tr><tr><td>D</td><td>❌ Sbagliato</td><td><code translate="no">PATH</code> entra in gioco solo per trovare il primo nome della riga, che qui è <code translate="no">bash</code>. <code translate="no">ola.sh</code> è un argomento di percorso relativo.</td></tr></tbody></table></div>
+<p><strong>Da risolvere:</strong> <code translate="no">bash script.sh</code> necessita di <code translate="no">r</code>; <code translate="no">./script.sh</code> necessita di <code translate="no">r</code> e <code translate="no">x</code>; <code translate="no">script.sh</code> necessita di <code translate="no">r</code>, <code translate="no">x</code> ed essere in <code translate="no">PATH</code>.</p>
+<p>Dai un'occhiata:</p>
+<pre translate="no"><code class="lang-bash">bash ola.sh
+chmod +x ola.sh
+ls -l ola.sh
+./ola.sh</code></pre>
+<p>Ora <code translate="no">ls -l</code> mostra <code translate="no">-rwxr-xr-x</code> e <code translate="no">./ola.sh</code> funziona. Un ultimo esperimento con lo shebang:</p>
+<pre translate="no"><code class="lang-bash">head -1 ola.sh
+file ola.sh</code></pre>
+<p><code translate="no">file</code> risponde qualcosa come <code translate="no">Bourne-Again shell script, Unicode text, UTF-8 text executable</code>. Ha letto la prima riga, come fa il kernel.</p>
+<h3 id="passo-3-variabili-e-virgolette-nel-terminale">Passo 3 · Variabili e virgolette, nel terminale</h3>
+<p>Prima di inserire variabili in uno script, commettere l'errore nel terminale, dove è economico:</p>
+<pre translate="no"><code class="lang-bash">destino = /backup</code></pre>
+<p><strong>Prevedere</strong> il messaggio. È <code translate="no">bash: destino: command not found</code>. La shell legge <code translate="no">destino</code> come un comando, con due argomenti. Adesso nel modo giusto:</p>
+<pre translate="no"><code class="lang-bash">destino=/backup
+echo $destino
+echo "Os backups vão para $destino"
+echo 'Os backups vão para $destino'
+echo "${destino}_antigo"
+echo "$destino_antigo"</code></pre>
+<p>Le ultime due righe sono lo scherzo delle chiavi. <code translate="no">"${destino}_antigo"</code> mostra <code translate="no">/backup_antigo</code>. <code translate="no">"$destino_antigo"</code> mostra una riga vuota: la shell ha cercato una variabile chiamata <code translate="no">destino_antigo</code>, che non esiste, e l'ha sostituita con niente, senza alcun errore.</p>
+<p>Ora un nome file con uno spazio, il caso che rompe la maggior parte degli script:</p>
+<pre translate="no"><code class="lang-bash">cd /tmp
+arq="relatorio final.txt"</code></pre>
+<p><strong>Decidi 2 · La virgoletta mancante.</strong> Si digita <code translate="no">touch $arq</code>, senza virgolette, e poi <code translate="no">ls</code>. Cosa appare?</p>
+<ul><li><strong>A)</strong> Un file <code translate="no">relatorio final.txt</code>.</li>
+<li><strong>B)</strong> Due file: <code translate="no">relatorio</code> e <code translate="no">final.txt</code>.</li>
+<li><strong>C)</strong> Un file chiamato <code translate="no">$arq</code>.</li>
+<li><strong>D)</strong> Errore, perché <code translate="no">touch</code> non accetta spazi nel nome.</li></ul>
+<p>Scegliere la lettera prima di guardare la tabella.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se hai selezionato</th><th scope="col">Risultato</th><th scope="col">Perché</th></tr></thead><tbody><tr><td>A</td><td>❌ Sbagliato</td><td>Sarebbe il risultato del <code translate="no">touch "$arq"</code>. Senza virgolette, dopo aver modificato la variabile la shell avvolge il testo tra spazi.</td></tr><tr><td>B</td><td>✅ Giusto</td><td>La shell scambia <code translate="no">$arq</code> con <code translate="no">relatorio final.txt</code> e poi si divide negli spazi. <code translate="no">touch</code> accetta due argomenti e crea due file.</td></tr><tr><td>C</td><td>❌ Sbagliato</td><td>Ciò accadrebbe con virgolette singole: <code translate="no">touch '$arq'</code>. Senza virgolette, la variabile viene scambiata.</td></tr><tr><td>D</td><td>❌ Sbagliato</td><td><code translate="no">touch</code> accetta qualsiasi nome. Non sa nemmeno che c'era uno spazio: riceve due nomi distinti.</td></tr></tbody></table></div>
+<p><strong>Da correggere:</strong> variabile sempre racchiusa tra virgolette doppie. <code translate="no">touch "$arq"</code>, <code translate="no">rm "$arq"</code>, <code translate="no">cp "$arq" "$destino"</code>.</p>
+<p>Controlla e pulisci:</p>
+<pre translate="no"><code class="lang-bash">touch $arq
+ls -l relatorio final.txt
+touch "$arq"
+ls -l "$arq"
+rm -v relatorio final.txt "$arq"
+cd ~/lab13/scripts</code></pre>
+<p>Immagina lo stesso errore con <code translate="no">rm $arq</code>: elimineresti <code translate="no">relatorio</code> e <code translate="no">final.txt</code>, che potrebbero essere altri file, e <code translate="no">relatorio final.txt</code> sarebbe ancora lì.</p>
+<h3 id="passo-4-argomenti">Passo 4 · Argomenti</h3>
+<p>Um script che mostra solo ciò che ha ricevuto:</p>
+<pre translate="no"><code class="lang-bash">cat &gt; args.sh &lt;&lt;'EOF'
+#!/bin/bash
+# args.sh - mostra os argumentos recebidos
+echo "Nome do script: $0"
+echo "Primeiro:       $1"
+echo "Segundo:        $2"
+echo "Quantidade:     $#"
+echo "Todos, um por linha:"
+printf '  [%s]\n' "$@"
+EOF
+chmod +x args.sh</code></pre>
+<p>Il <code translate="no">printf</code> si ripete il modello <code translate="no">[%s]</code> una volta per ogni argomento. È un trucco vedere esattamente dove inizia e finisce ogni argomento.</p>
+<p><strong>Prevedere</strong> il <code translate="no">$#</code> di ogni riga prima di eseguire:</p>
+<pre translate="no"><code class="lang-bash">./args.sh
+./args.sh um dois tres
+./args.sh um "dois tres"
+./args.sh "$HOME" *.sh</code></pre>
+<p>Risposte: 0, 3, 2, e l'ultima dipende da quanti <code translate="no">.sh</code> ci sono nella cartella. <code translate="no">*.sh</code> viene espanso <strong>prima</strong> che parta lo script: non vede mai l'asterisco, riceve solo la lista dei nomi. Si noti inoltre che, senza discussione, <code translate="no">$1</code> risulta vuoto e la sceneggiatura va avanti, senza lamentarsi. Conservalo per la pausa B.</p>
+<p><strong>Decidi 3 · Il decimo argomento.</strong> Esegui <code translate="no">./args.sh a b c d e f g h i j</code>. All'interno dello script, una riga dice <code translate="no">echo "$10"</code>. Cosa mostra?</p>
+<ul><li><strong>A)</strong> <code translate="no">j</code>, il decimo argomento.</li>
+<li><strong>B)</strong> <code translate="no">a0</code>, il primo argomento seguito da uno zero.</li>
+<li><strong>C)</strong> Una riga vuota, perché ci sono solo da <code translate="no">$1</code> a <code translate="no">$9</code>.</li>
+<li><strong>D)</strong> Errore di sintassi.</li></ul>
+<p>Scegliere la lettera prima di guardare tabella.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se hai selezionato</th><th scope="col">Risultato</th><th scope="col">Perché</th></tr></thead><tbody><tr><td>A</td><td>❌ Sbagliato</td><td>Sarebbe il risultato del <code translate="no">"${10}"</code>. Senza parentesi graffe la shell legge solo una cifra dopo <code translate="no">$</code>.</td></tr><tr><td>B</td><td>✅ Giusto</td><td>La shell legge <code translate="no">$1</code>, che è <code translate="no">a</code>, e incolla <code translate="no">0</code> come testo. È lo stesso scherzo del <code translate="no">$destino_antigo</code>.</td></tr><tr><td>C</td><td>❌ Sbagliato</td><td>Ci sono <code translate="no">${10}</code>, <code translate="no">${11}</code> e quanti ne superi. Solo la forma breve, senza chiavi, si ferma a 9.</td></tr><tr><td>D</td><td>❌ Sbagliato</td><td>Non c'è nessun errore: la shell accetta <code translate="no">$10</code> e lo interpreta, nel modo che non volevi.</td></tr></tbody></table></div>
+<p><strong>Per impostare:</strong> sopra 9 utilizzare i tasti: <code translate="no">${10}</code>. In caso di dubbio, utilizzare sempre le chiavi.</p>
+<p>Controlla:</p>
+<pre translate="no"><code class="lang-bash">echo 'echo "com \$10:   $10"'   &gt;&gt; args.sh
+echo 'echo "com \${10}: ${10}"' &gt;&gt; args.sh
+tail -2 args.sh
+./args.sh a b c d e f g h i j</code></pre>
+<h3 id="passaggio-5-il-protocollo-diventa-uno-script">Passaggio 5 · Il protocollo diventa uno script</h3>
+<p>Questo è il passaggio centrale. Scriverai lo stesso script tre volte, ogni versione migliore della precedente.</p>
+<p><strong>Versione 1, tutto corretto.</strong> È il protocollo della lezione 1.7, incollato in un file:</p>
+<pre translate="no"><code class="lang-bash">cat &gt; backup-app.sh &lt;&lt;'EOF'
+#!/bin/bash
+# backup-app.sh v1 - tudo fixo
+mkdir -p ~/backups
+tar -czf ~/backups/app-$(date +%F_%H%M).tar.gz -C ~/lab13/arquivo app
+ls -lh ~/backups
+EOF
+chmod +x backup-app.sh
+./backup-app.sh</code></pre>
+<p>Funziona, ma viene utilizzato solo per questa cartella e il nome del file appare solo all'interno di <code translate="no">tar</code>. Se vuoi testare e salvare <code translate="no">sha256sum</code> dovrai ripetere il nome, con l'ora, che è già cambiata.</p>
+<p><strong>Versione 2, con variabili.</strong> Il nome viene calcolato una volta e utilizzato ovunque:</p>
+<pre translate="no"><code class="lang-bash">cat &gt; backup-app.sh &lt;&lt;'EOF'
+#!/bin/bash
+# backup-app.sh v2 - variáveis
+origem="$HOME/lab13/arquivo/app"
+destino="$HOME/backups"
+data="$(date +%F_%H%M)"
+arquivo="$destino/app-$data.tar.gz"
+
+mkdir -p "$destino"
+tar -czf "$arquivo" -C "$HOME/lab13/arquivo" app
+tar -tzf "$arquivo" &gt; /dev/null &amp;&amp; echo "OK: o arquivo abre até o fim"
+sha256sum "$arquivo" &gt; "$arquivo.sha256"
+chmod 600 "$arquivo" "$arquivo.sha256"
+ls -lh "$arquivo" "$arquivo.sha256"
+EOF
+bash -n backup-app.sh
+./backup-app.sh</code></pre>
+<p><code translate="no">bash -n</code> non mostra nulla quando la sintassi è corretta. Da notare che all'interno dello script ho usato <code translate="no">$HOME</code>, e non <code translate="no">~</code>: <code translate="no">~</code> non viene scambiato tra virgolette, e una variabile tra virgolette è più sicura.</p>
+<p><strong>Preve.</strong> Eseguilo di nuovo, ora con <code translate="no">bash -x</code>. Quante righe che iniziano con <code translate="no">+</code> appariranno?</p>
+<pre translate="no"><code class="lang-bash">bash -x ./backup-app.sh</code></pre>
+<p>Una per ogni comando, con le variabili già scambiate per i valori: <code translate="no">+ data=2026-11-02_1430</code>, <code translate="no">+ tar -czf /home/rodrigo/backups/app-2026-11-02_1430.tar.gz ...</code>. <code translate="no">-x</code> è la radiografia dello script: quando qualcosa va storto, è la prima cosa che esegui.</p>
+<p><strong>Versione 3, con argomenti.</strong> Ora la cartella viene dall'esterno e la destinazione ha un valore predefinito:</p>
+<pre translate="no"><code class="lang-bash">cat &gt; backup-app.sh &lt;&lt;'EOF'
+#!/bin/bash
+# backup-app.sh - backup de uma pasta pelo Protocolo da Aula 1.7
+# Uso: backup-app.sh PASTA [DESTINO]
+#   PASTA    o que guardar, obrigatório
+#   DESTINO  onde guardar, padrão ~/backups
+
+origem="${1:?uso: $0 PASTA [DESTINO]}"
+destino="${2:-$HOME/backups}"
+nome="$(basename "$origem")"
+pai="$(dirname "$origem")"
+data="$(date +%F_%H%M)"
+arquivo="$destino/$nome-$data.tar.gz"
+
+echo "Backup de $origem para $arquivo"
+mkdir -p "$destino"
+tar -czf "$arquivo" -C "$pai" "$nome"
+tar -tzf "$arquivo" &gt; /dev/null &amp;&amp; echo "OK: o arquivo abre até o fim"
+sha256sum "$arquivo" &gt; "$arquivo.sha256"
+chmod 600 "$arquivo" "$arquivo.sha256"
+ls -lh "$arquivo" "$arquivo.sha256"
+EOF
+bash -n backup-app.sh</code></pre>
+<p><code translate="no">basename</code> restituisce l'ultimo bit del percorso e <code translate="no">dirname</code> il resto. Per <code translate="no">/home/rodrigo/lab13/arquivo/app</code> restituiscono <code translate="no">app</code> e <code translate="no">/home/rodrigo/lab13/arquivo</code>. È <code translate="no">-C</code> del Protocollo, calcolato da solo.</p>
+<p>Prova i tre casi:</p>
+<pre translate="no"><code class="lang-bash">./backup-app.sh
+./backup-app.sh ~/lab13/arquivo/app
+./backup-app.sh ~/lab13/arquivo/app /tmp/bkp-teste
+ls -l ~/backups /tmp/bkp-teste</code></pre>
+<p>Il primo si ferma subito con <code translate="no">./backup-app.sh: line 7: 1: uso: ./backup-app.sh PASTA [DESTINO]</code>, senza creare nulla. Il secondo utilizza la destinazione predefinita. Il terzo scrive al <code translate="no">/tmp/bkp-teste</code>. Controlla l'impronta digitale dell'ultimo:</p>
+<pre translate="no"><code class="lang-bash">sha256sum -c /tmp/bkp-teste/app-*.sha256</code></pre>
+<p><code translate="no">OK</code>. Poiché <code translate="no">sha256sum</code> ha registrato il percorso completo, la conferenza funziona da qualsiasi cartella.</p>
+<p><strong>Decidi 4 · Il backup di <code translate="no">/etc</code>.</strong> Esegui <code translate="no">./backup-app.sh /etc</code> come utente normale. Cosa succede?</p>
+<ul><li><strong>A)</strong> Funziona allo stesso modo, con tutti i <code translate="no">/etc</code> all'interno.</li>
+<li><strong>B)</strong> <code translate="no">tar</code> si lamenta di diversi file che non riesce a leggere, come <code translate="no">shadow</code>, crea un backup incompleto e <code translate="no">OK: o arquivo abre até o fim</code> appare ancora.</li>
+<li><strong>C)</strong> Lo script si ferma sulla prima riga, perché <code translate="no">/etc</code> non è una cartella utente.</li>
+<li><strong>D)</strong> <code translate="no">tar</code> rifiuta l'intero backup e non viene creato nulla.</li></ul>
+<p>Scegliere la lettera prima di guardare la tabella.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se hai selezionato</th><th scope="col">Risultato</th><th scope="col">Perché</th></tr></thead><tbody><tr><td>A</td><td>❌ Sbagliato</td><td>L'utente normale non legge <code translate="no">/etc/shadow</code>, <code translate="no">/etc/sudoers</code> e altri. <code translate="no">tar</code> non può memorizzare ciò che non può leggere.</td></tr><tr><td>B</td><td>✅ Giusto</td><td><code translate="no">tar</code> mostra per ognuno <code translate="no">Cannot open: Permission denied</code>, salva il resto e termina con un errore. Ma la riga successiva verifica solo se il file si apre, e lo fa. Lo script dice OK per un backup senza i file più importanti.</td></tr><tr><td>C</td><td>❌ Sbagliato</td><td><code translate="no">:?</code> controlla solo se è arrivato <code translate="no">$1</code>. È arrivato <code translate="no">/etc</code>, quindi segue la sceneggiatura.</td></tr><tr><td>D</td><td>❌ Sbagliato</td><td><code translate="no">tar</code> è testardo: salta ciò che non riesce a leggere e continua. Ecco perché esiste il backup, solo incompleto.</td></tr></tbody></table></div>
+<p><strong>Per risolvere:</strong> uno script che non controlla il risultato di ogni passaggio è colpa tua. La lezione 1.9 insegna <code translate="no">if</code> e <code translate="no">$?</code>, e questa è la prima cosa che risolverai con loro.</p>
+<p>Controlla, guardando la fine dell'output:</p>
+<pre translate="no"><code class="lang-bash">./backup-app.sh /etc /tmp/bkp-teste 2&gt;&amp;1 | tail -5
+sudo ./backup-app.sh /etc /tmp/bkp-teste | tail -3</code></pre>
+<p>Con <code translate="no">sudo</code>, non ci sono reclami e il file ha proprietario <code translate="no">root</code> e autorizzazione 600. Questo è ciò che dovrebbe essere un backup di <code translate="no">/etc</code>.</p>
+<h3 id="passo-6-installa-in-bin">Passo 6 · Installa in <code translate="no">~/bin</code></h3>
+<p>Uno script richiamato con <code translate="no">./</code> dall'interno di una cartella non è ancora uno strumento. Installa:</p>
+<pre translate="no"><code class="lang-bash">mkdir -p ~/bin
+cp backup-app.sh ~/bin/
+cd /
+backup-app.sh ~/lab13/arquivo/app</code></pre>
+<p><strong>Decidi 5 · Rocky e Debian.</strong> Hai fatto esattamente questo su entrambe le VM, senza uscire dalla sessione. Qual è il risultato?</p>
+<ul><li><strong>A)</strong> Funziona su entrambi.</li>
+<li><strong>B)</strong> Funziona su Rocky-Lab; su debian-lab, <code translate="no">command not found</code>.</li>
+<li><strong>C)</strong> Funziona su debian-lab; in rocky-lab, <code translate="no">command not found</code>.</li>
+<li><strong>D)</strong> Non funziona in nessuno finché non si riavvia la VM.</li></ul>
+<p>Scegli la lettera prima di guardare la tabella.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se hai selezionato</th><th scope="col">Risultato</th><th scope="col">Perché</th></tr></thead><tbody><tr><td>A</td><td>❌ Sbagliato</td><td>In Debian, <code translate="no">~/bin</code> entra in <code translate="no">PATH</code> solo se esiste al momento del login. Non esisteva quando sei entrato.</td></tr><tr><td>B</td><td>✅ Giusto</td><td>Il <code translate="no">~/.bashrc</code> di Rocky inserisce sempre <code translate="no">~/bin</code> in <code translate="no">PATH</code>. <code translate="no">~/.profile</code> di Debian lo inserisce solo se la cartella esiste già al momento dell'inserimento.</td></tr><tr><td>C</td><td>❌ Sbagliato</td><td>E' il contrario. Verificare con <code translate="no">echo "$PATH"</code> su entrambi.</td></tr><tr><td>D</td><td>❌ Sbagliato</td><td>Il riavvio risolve il problema, ma è eccessivo. Basta disconnettersi e riconnettersi oppure leggere nuovamente il file con <code translate="no">source ~/.profile</code>.</td></tr></tbody></table></div>
+<p><strong>Per risolvere:</strong> dopo aver creato <code translate="no">~/bin</code>, disconnettersi e riconnettersi. Controllare con <code translate="no">type nome-do-script</code>.</p>
+<p>Check, in debian-lab:</p>
+<pre translate="no"><code class="lang-bash">echo "$PATH" | tr ':' '\n' | grep bin
+source ~/.profile
+type backup-app.sh
+cd / &amp;&amp; backup-app.sh ~/lab13/arquivo/app</code></pre>
+<p><code translate="no">type</code> risponde a <code translate="no">backup-app.sh is /home/rodrigo/bin/backup-app.sh</code>. Lo script è diventato un comando.</p>
+<blockquote><p><strong>Protocollo · Script che non crea imbarazzo</strong></p>
+<ol><li>Prima riga: <code translate="no">#!/bin/bash</code>. Secondo: un commento che dice cosa fa. Terzo: <code translate="no"># Uso:</code> con argomenti.</li>
+<li>Argomento obbligatorio con <code translate="no">${1:?uso: ...}</code>; opzionale con <code translate="no">${2:-padrão}</code>.</li>
+<li>Calcola i nomi una volta, in variabili, e utilizza le variabili ovunque.</li>
+<li>Ogni variabile tra virgolette doppie: <code translate="no">"$arquivo"</code>.</li>
+<li>Prima dell'esecuzione: <code translate="no">bash -n</code>. Se succede qualcosa di strano: <code translate="no">bash -x</code>.</li>
+<li>Test senza argomenti, con un argomento e con un percorso che contenga spazio.</li>
+<li><code translate="no">chmod +x</code>, installa in <code translate="no">~/bin</code> o, per tutti gli utenti, in <code translate="no">/usr/local/bin</code>.</li></ol></blockquote>
+<h2 id="7-interrompi-e-correggi">7 · Interrompi e correggi</h2>
+<h3 id="interruzione-a-lo-script-fornito-da-windows">Interruzione A · Lo script fornito da Windows</h3>
+<p>Un collega invia uno script che ha scritto nel Blocco note. Simula il suo file: il <code translate="no">\r\n</code> alla fine di ogni riga è esattamente ciò che registra il Blocco note.</p>
+<pre translate="no"><code class="lang-bash">cd ~/lab13/scripts
+printf '#!/bin/bash\r\n# do colega\r\necho "versao do colega"\r\n' &gt; colega.sh
+chmod +x colega.sh
+./colega.sh</code></pre>
+<p><strong>Osserva.</strong> Il messaggio è qualcosa del tipo:</p>
+<pre translate="no"><code class="lang-text">bash: ./colega.sh: /bin/bash^M: bad interpreter: No such file or directory</code></pre>
+<p>Il <code translate="no">/bin/bash</code> esiste. Ma nota il <code translate="no">^M</code> incollato sopra.</p>
+<p><strong>Diagnostique.</strong> Mostra cosa nasconde il normale <code translate="no">cat</code>:</p>
+<pre translate="no"><code class="lang-bash">cat colega.sh
+cat -A colega.sh
+file colega.sh</code></pre>
+<p><code translate="no">cat -A</code> mostra <code translate="no">^M$</code> alla fine di ogni riga: <code translate="no">^M</code> è <code translate="no">\r</code> e <code translate="no">$</code> segna la fine della riga. <code translate="no">file</code> dice <code translate="no">with CRLF line terminators</code>. Il kernel leggeva la prima riga come <code translate="no">/bin/bash\r</code> e cercava un programma con quel nome, con un carattere invisibile alla fine. Non esiste.</p>
+<p><strong>Decidi A · La soluzione.</strong> Cosa risolve il problema una volta per tutte?</p>
+<ul><li><strong>A)</strong> Esegui con <code translate="no">bash colega.sh</code>.</li>
+<li><strong>B)</strong> Rimuovi <code translate="no">\r</code> dalla fine di ogni riga: <code translate="no">sed -i 's/\r$//' colega.sh</code>, o <code translate="no">dos2unix colega.sh</code>.</li>
+<li><strong>C)</strong> Reinstalla bash.</li>
+<li><strong>D)</strong> Cambia lo shebang in <code translate="no">#!/bin/sh</code>.</li></ul>
+<p>Scegli la lettera prima di guardare la tabella.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se hai selezionato</th><th scope="col">Risultato</th><th scope="col">Perché</th></tr></thead><tbody><tr><td>A</td><td>❌ Sbagliato</td><td>Sfugge allo shebang, ma bash legge ogni riga con <code translate="no">\r</code> alla fine. <code translate="no">echo</code> stampa un <code translate="no">\r</code> nascosto e un <code translate="no">cd /tmp\r</code> fallisce con <code translate="no">No such file or directory</code>. Il problema cambia sede.</td></tr><tr><td>B</td><td>✅ Giusto</td><td>Il file ora ha estremità di riga Linux. <code translate="no">sed</code> è già installato su entrambe le VM; <code translate="no">dos2unix</code> fa lo stesso e deve essere installato.</td></tr><tr><td>C</td><td>❌ Sbagliato</td><td>Bash è perfetto. È il caso della sezione 2: uma hora perdida no lugar errado.</td></tr><tr><td>D</td><td>❌ Sbagliato</td><td>A primeira linha continua com <code translate="no">\r</code>, agora <code translate="no">/bin/sh^M</code>, e o erro é o mesmo.</td></tr></tbody></table></div>
+<p><strong>Da correggere:</strong> <code translate="no">bad interpreter</code> con <code translate="no">^M</code> è sempre CRLF. Confira com <code translate="no">cat -A</code> e conserte com <code translate="no">sed -i 's/\r$//'</code>.</p>
+<p><strong>Conserte.</strong></p>
+<pre translate="no"><code class="lang-bash">sed -i 's/\r$//' colega.sh
+cat -A colega.sh
+file colega.sh
+./colega.sh</code></pre>
+<p>Agora o <code translate="no">cat -A</code> mostra só <code translate="no">$</code> no fim, e o script roda. Per non ricevere il problema: no VS Code, o canto inferiore direito mostra <code translate="no">CRLF</code>; fare clic e passare a <code translate="no">LF</code> prima di salvare. In Blocco note++, menu Modifica, Conversione fine riga.</p>
+<h3 id="interruzione-b-la-variabile-vuota">Interruzione B · La variabile vuota</h3>
+<p>Questo è l'errore che ha già eliminato interi server. Ti riprodurrai in tutta sicurezza: lo script <strong>mostra</strong> solo il comando, con <code translate="no">echo</code>, e non cancella nulla.</p>
+<pre translate="no"><code class="lang-bash">cat &gt; limpa.sh &lt;&lt;'EOF'
+#!/bin/bash
+# limpa.sh - limpa uma pasta de temporários (versão perigosa)
+PASTA=$1
+echo "Vou executar:" rm -rf $PASTA/*
+EOF
+chmod +x limpa.sh</code></pre>
+<p>Primo, utilizzo normale:</p>
+<pre translate="no"><code class="lang-bash">mkdir -p /tmp/temporarios &amp;&amp; touch /tmp/temporarios/a.tmp /tmp/temporarios/b.tmp
+./limpa.sh /tmp/temporarios</code></pre>
+<p><code translate="no">Vou executar: rm -rf /tmp/temporarios/a.tmp /tmp/temporarios/b.tmp</code>. Giusto. Adesso qualche cosa esquece l'argomento.</p>
+<p><strong>Observe.</strong></p>
+<pre translate="no"><code class="lang-bash">./limpa.sh</code></pre>
+<p><code translate="no">Vou executar: rm -rf /bin /boot /dev /etc /home /lib ...</code>. L'intero elenco delle radici; in Rocky inizia con <code translate="no">/afs</code>. Senza <code translate="no">echo</code>, questa era la fine del server.</p>
+<p><strong>Diagnose.</strong> Usa raggi X:</p>
+<pre translate="no"><code class="lang-bash">bash -x ./limpa.sh</code></pre>
+<p>La prima riga con <code translate="no">+</code> è <code translate="no">+ PASTA=</code>: la variabile non ha ricevuto nulla. Quindi <code translate="no">$PASTA/*</code> è diventato <code translate="no">/*</code> e la shell ha espanso l'asterisco a tutto ciò che si trova nella radice.</p>
+<p><strong>Decidere B · La cintura di sicurezza.</strong> Quale compromesso previene il disastro?</p>
+<ul><li><strong>A)</strong> Metti le virgolette: <code translate="no">rm -rf "$PASTA"/*</code>.</li>
+<li><strong>B)</strong> Richiedi l'argomento: <code translate="no">PASTA="${1:?informe a pasta}"</code> e mantieni le virgolette in <code translate="no">rm</code>.</li>
+<li><strong>C)</strong> Sostituisci <code translate="no">rm -rf</code> con <code translate="no">rm -r</code>.</li>
+<li><strong>D)</strong> Eseguire sempre lo script come utente normale.</li></ul>
+<p>Scegliere la lettera prima di guardare la tabella.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se hai selezionato</th><th scope="col">Risultato</th><th scope="col">Perché</th></tr></thead><tbody><tr><td>A</td><td>❌ Sbagliato</td><td>As aspas protegem contra espaços, mas <code translate="no">"$PASTA"/*</code> com <code translate="no">PASTA</code> vazio continua sendo <code translate="no">""/*</code>, ou seja, <code translate="no">/*</code>. Aiuta, non salva.</td></tr><tr><td>B</td><td>✅ Giusto</td><td>Senza argomento, lo script per la linea della variabile, prima di consultare il <code translate="no">rm</code>. As aspas continuam lá para o caso de a pasta ter espaço no nome.</td></tr><tr><td>C</td><td>❌ Sbagliato</td><td>Senza <code translate="no">f</code>, <code translate="no">rm</code> chiede i file protetti e mostra errori, ma cancella tutto ciò che ha il permesso di cancellare.</td></tr><tr><td>D</td><td>❌ Sbagliato</td><td>Riduce i danni, ma l'utente cancella comunque tutto ciò che è suo, compreso il suo <code translate="no">/home</code>. E gli script di pulizia di solito vengono eseguiti come root, in cron.</td></tr></tbody></table></div>
+<p><strong>Per correggere:</strong> ogni variabile utilizzata in un <code translate="no">rm</code>, <code translate="no">mv</code> o <code translate="no">chmod -R</code> deve essere obbligatoria, con <code translate="no">:?</code>, ed essere racchiusa tra virgolette.</p>
+<p><strong>Fix.</strong></p>
+<pre translate="no"><code class="lang-bash">sed -i 's|^PASTA=\$1$|PASTA="${1:?informe a pasta}"|' limpa.sh
+sed -i 's|rm -rf \$PASTA/\*|rm -rf "$PASTA"/*|' limpa.sh
+cat limpa.sh
+./limpa.sh
+./limpa.sh /tmp/temporarios</code></pre>
+<p>Ora, senza argomento, lo script si ferma con <code translate="no">line 3: 1: informe a pasta</code> e con un argomento funziona come prima. Apri <code translate="no">backup-app.sh</code> e vedi che è nato con questa cintura, in <code translate="no">$1</code>.</p>
+<h3 id="la-lezione">La lezione</h3>
+<p>I due errori di oggi hanno la stessa faccia: qualcosa di invisibile che cambia il comando. Un <code translate="no">\r</code> che non vedi alla fine della riga. Una variabile vuota che non vedi al centro di <code translate="no">rm</code>. Entrambi si rivelano con gli stessi strumenti: <code translate="no">cat -A</code> per vedere il file così com'è, e <code translate="no">bash -x</code> per vedere il comando mentre la shell lo eseguirà. Quando uno script fa qualcosa che non hai richiesto, non leggere lo script: eseguilo con <code translate="no">-x</code> e leggi cosa ha fatto.</p>
+<figure><a href="../img/1.8-erros-invisiveis.jpg"><img src="../img/1.8-erros-invisiveis.jpg" alt="I due errori invisibili" loading="lazy" decoding="async"></a><figcaption>Un carattere che non vedi e una variabile che non vedi: cat -A e bash -x li rivelano entrambi.</figcaption></figure>
+<h2 id="8-insidie">8 · Insidie</h2>
+<div class="tabela"><table><thead><tr><th scope="col">Digiti o vedi</th><th scope="col">Cosa succede</th><th scope="col">Quello giusto</th></tr></thead><tbody><tr><td><code translate="no">destino = /backup</code></td><td><code translate="no">destino: command not found</code></td><td><code translate="no">destino=/backup</code>, senza spazi</td></tr><tr><td><code translate="no">script.sh</code>, nella cartella degli script</td><td><code translate="no">command not found</code></td><td><code translate="no">./script.sh</code> oppure installarlo in <code translate="no">PATH</code></td></tr><tr><td><code translate="no">./script.sh</code> subito dopo aver creato</td><td><code translate="no">Permission denied</code></td><td><code translate="no">chmod +x script.sh</code></td></tr><tr><td><code translate="no">bad interpreter</code> con <code translate="no">^M</code></td><td>File CRLF di Windows</td><td><code translate="no">sed -i 's/\r$//' script.sh</code></td></tr><tr><td><code translate="no">echo '$HOME'</code></td><td>Mostra <code translate="no">$HOME</code>, letterale</td><td>Virgolette doppie: <code translate="no">echo "$HOME"</code></td></tr><tr><td><code translate="no">touch $arq</code> con spazio nel nome</td><td>Crea due file</td><td><code translate="no">touch "$arq"</code></td></tr><tr><td><code translate="no">"$nome_backup"</code></td><td>Cerca una variabile chiamata <code translate="no">nome_backup</code>, che non esiste, e risulta vuota, senza errori</td><td><code translate="no">"${nome}_backup"</code>, sempre tra parentesi graffe quando si incolla il testo</td></tr><tr><td><code translate="no">echo "$10"</code></td><td>Mostra <code translate="no">$1</code> seguito da <code translate="no">0</code></td><td><code translate="no">"${10}"</code></td></tr><tr><td><code translate="no">rm -rf "$PASTA"/*</code> senza verificare <code translate="no">$PASTA</code></td><td>Con la variabile vuota diventa <code translate="no">rm -rf /*</code></td><td><code translate="no">PASTA="${1:?...}"</code> prima</td></tr><tr><td><code translate="no">#!/bin/sh</code> e <code translate="no">{1..5}</code> nella scrittura</td><td>Funziona su Rocky, si rompe su Debian</td><td><code translate="no">#!/bin/bash</code></td></tr><tr><td><code translate="no">~</code> tra virgolette: <code translate="no">"~/backups"</code></td><td>Non viene scambiato; crea una cartella denominata <code translate="no">~</code></td><td><code translate="no">"$HOME/backups"</code></td></tr><tr><td><code translate="no">cd /var/log</code> all'interno della scrittura</td><td>Al termine, rimani nella cartella di prima</td><td>Normale: lo script viene eseguito in una shell figlia. Per restare, <code translate="no">source</code></td></tr><tr><td>Script con <code translate="no">tar</code> fallito e <code translate="no">OK</code> alla fine</td><td>Il seguente test non sa che <code translate="no">tar</code> ha fallito</td><td>Vedi <code translate="no">$?</code>. lezione 1.9</td></tr></tbody></table></div>
+<h2 id="9-quiz">9 · Quiz</h2>
+<p>Dieci domande, senza consultazione. Per ognuno scrivere la lettera o la risposta e solo dopo aprire il tasto di risposta.</p>
+<p><strong>1.</strong> Quale riga crea la variabile <code translate="no">porta</code> con il valore 8080?</p>
+<ul><li><strong>A)</strong> <code translate="no">porta = 8080</code></li>
+<li><strong>B)</strong> <code translate="no">$porta=8080</code></li>
+<li><strong>C)</strong> <code translate="no">porta=8080</code></li>
+<li><strong>D)</strong> <code translate="no">set porta 8080</code></li></ul>
+<p><strong>2.</strong> <code translate="no">s.sh</code> ha l'autorizzazione <code translate="no">-rw-r--r--</code>. Quale di queste chiamate <strong>fallisce</strong>?</p>
+<ul><li><strong>A)</strong> <code translate="no">bash s.sh</code></li>
+<li><strong>B)</strong> <code translate="no">./s.sh</code></li>
+<li><strong>C)</strong> <code translate="no">source s.sh</code></li>
+<li><strong>D)</strong> <code translate="no">sh s.sh</code></li></ul>
+<p><strong>3.</strong> Esegui <code translate="no">./args.sh "um dois" tres</code>. Quanto valgono i <code translate="no">$#</code> e <code translate="no">$1</code>?</p>
+<ul><li><strong>A)</strong> <code translate="no">3</code> e <code translate="no">um</code></li>
+<li><strong>B)</strong> <code translate="no">2</code> e <code translate="no">um dois</code></li>
+<li><strong>C)</strong> <code translate="no">2</code> e <code translate="no">"um dois"</code>, tra virgolette</li>
+<li><strong>D)</strong> <code translate="no">3</code> e <code translate="no">um dois</code></li></ul>
+<p><strong>4.</strong> Con <code translate="no">nome=web01</code>, cosa vale <code translate="no">echo 'Servidor: $nome'</code>?</p>
+<ul><li><strong>A)</strong> <code translate="no">Servidor: web01</code></li>
+<li><strong>B)</strong> <code translate="no">Servidor: $nome</code></li>
+<li><strong>C)</strong> <code translate="no">Servidor:</code></li>
+<li><strong>D)</strong> Errore di sintassi</li></ul>
+<p><strong>5.</strong> Lo shebang di uno script dice <code translate="no">#!/bin/bsh</code>, con un errore di battitura. Cosa succede con <code translate="no">./script.sh</code> e <code translate="no">bash script.sh</code>?</p>
+<ul><li><strong>A)</strong> Entrambi funzionano: bash corregge il nome.</li>
+<li><strong>B)</strong> Entrambi falliscono con <code translate="no">bad interpreter</code>.</li>
+<li><strong>C)</strong> <code translate="no">./script.sh</code> fallisce con <code translate="no">bad interpreter</code>; <code translate="no">bash script.sh</code> funziona, perché la faccenda diventa un commento.</li>
+<li><strong>D)</strong> <code translate="no">./script.sh</code> funziona; <code translate="no">bash script.sh</code> fallisce.</li></ul>
+<p><strong>6.</strong> Nello script, <code translate="no">destino="${2:-/backup}"</code>. Quanto vale <code translate="no">destino</code> in <code translate="no">./s.sh /etc</code> e <code translate="no">./s.sh /etc /mnt/usb</code>?</p>
+<ul><li><strong>A)</strong> <code translate="no">/backup</code> sia in</li>
+<li><strong>B)</strong> vuoto che in <code translate="no">/mnt/usb</code></li>
+<li><strong>C)</strong> <code translate="no">/backup</code> e <code translate="no">/mnt/usb</code></li>
+<li><strong>D)</strong> <code translate="no">/etc</code> e <code translate="no">/mnt/usb</code></li></ul>
+<p><strong>7.</strong> Cosa fa <code translate="no">origem="${1:?falta a pasta}"</code> quando lo script viene richiamato senza argomenti?</p>
+<p><strong>8.</strong> Hai creato <code translate="no">~/bin</code> e copiato <code translate="no">meu.sh</code> lì, su una VM Debian, senza uscire dalla sessione. <code translate="no">meu.sh</code> dà <code translate="no">command not found</code>. Qual è la causa più probabile e come confermarla?</p>
+<p><strong>9.</strong> <code translate="no">vai.sh</code> contiene solo <code translate="no">cd /var/log</code>. Dove ti trovi dopo <code translate="no">./vai.sh</code>? E dopo <code translate="no">source vai.sh</code>?</p>
+<p><strong>10.</strong> <em>Quale delle seguenti variabili contiene il numero di argomenti passati a uno script di shell?</em></p>
+<ul><li><strong>A)</strong> <code translate="no">$@</code></li>
+<li><strong>B)</strong> <code translate="no">$#</code></li>
+<li><strong>C)</strong> <code translate="no">$*</code></li>
+<li><strong>D)</strong> <code translate="no">$0</code></li>
+<li><strong>E)</strong> <code translate="no">$?</code></li></ul>
+<h2 id="10-flashcard-e-colla">10 · Flashcard e colla</h2>
+<h3 id="da-conoscere-a-memoria">Da conoscere a memoria</h3>
+<p>Questa parte è da tenere a mente. È lo scheletro di ogni script che scriverai.</p>
+<ul><li><code translate="no">#!/bin/bash</code> sulla prima riga, senza spazio prima di</li>
+<li><code translate="no">chmod +x script.sh</code> e poi <code translate="no">./script.sh</code></li>
+<li><code translate="no">nome=valor</code>, senza spazio; <code translate="no">"$nome"</code> da leggere sempre tra virgolette</li>
+<li><code translate="no">'...'</code> non cambia nulla; <code translate="no">"..."</code> scambia <code translate="no">$variável</code> e <code translate="no">$(comando)</code></li>
+<li><code translate="no">$1</code>, <code translate="no">$2</code>: argomenti; <code translate="no">$#</code>: quanti; <code translate="no">"$@"</code>: tutti; <code translate="no">$0</code>: il nome dello script</li>
+<li><code translate="no">${1:?mensagem}</code>: obbligatorio; <code translate="no">${2:-padrão}</code>: facoltativo</li>
+<li><code translate="no">bash -n script.sh</code>: verifica la sintassi; <code translate="no">bash -x script.sh</code>: mostra ogni riga eseguita</li>
+<li><code translate="no">cat -A script.sh</code>: mostra <code translate="no">^M</code> di Windows; <code translate="no">sed -i 's/\r$//' script.sh</code> fix</li></ul>
+<h3 id="per-consultare">Per consultare</h3>
+<p>Non è necessario memorizzare questa parte. Mantienilo dov'è.</p>
+<ul><li><code translate="no">"${nome}_texto"</code>: tasti per incollare il testo nel nome; <code translate="no">${10}</code> sopra 9</li>
+<li><code translate="no">basename /a/b/c</code> dà <code translate="no">c</code>; <code translate="no">dirname /a/b/c</code> restituisce <code translate="no">/a/b</code></li>
+<li><code translate="no">source script.sh</code> o <code translate="no">. script.sh</code>: viene eseguito nella shell corrente; <code translate="no">cd</code> e variabili get</li>
+<li><code translate="no">export NOME=valor</code>: la variabile raggiunge gli script chiamati dopo</li>
+<li><code translate="no">type comando</code> o <code translate="no">command -v comando</code>: da dove proviene per te il comando</li>
+<li><code translate="no">~/bin</code>; <code translate="no">/usr/local/bin</code> per tutti gli utenti, con <code translate="no">sudo</code></li>
+<li>Debian: <code translate="no">~/bin</code> inserisce <code translate="no">PATH</code> al login, se esiste. Rocky: sempre</li>
+<li><code translate="no">#!/bin/sh</code> in Debian è <code translate="no">dash</code>, senza le funzionalità bash</li>
+<li><code translate="no">set -u</code> si ferma in una variabile inesistente; <code translate="no">set -e</code> si ferma al primo errore. La lezione 1.9</li>
+<li><code translate="no">file script.sh</code> mostra <code translate="no">with CRLF line terminators</code> quando proviene da Windows</li></ul>
+<h3 id="flashcards">Flashcards</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Davanti</th><th scope="col">Verso</th></tr></thead><tbody><tr><td>Qual è lo shebang?</td><td>La prima riga, <code translate="no">#!/bin/bash</code>, indica al kernel quale programma legge lo script</td></tr><tr><td>Linux decide sull'estensione <code translate="no">.sh</code>?</td><td>No. Decidi per ordine e autorizzazione <code translate="no">x</code></td></tr><tr><td>Perché <code translate="no">script.sh</code> fornisce <code translate="no">command not found</code> nella cartella degli script?</td><td>La cartella attuale non si trova in <code translate="no">PATH</code>. Utilizzare <code translate="no">./script.sh</code></td></tr><tr><td>Quale autorizzazione richiede il <code translate="no">bash script.sh</code>?</td><td>Sola lettura. <code translate="no">bash</code></td></tr><tr><td>Cosa c'è che non va nel <code translate="no">nome = valor</code>?</td><td>Gli spazi. La shell esegue un comando chiamato <code translate="no">nome</code></td></tr><tr><td>Differenza tra <code translate="no">'$HOME'</code> e <code translate="no">"$HOME"</code>?</td><td>Semplice è letterale; le coppie si scambiano per valore</td></tr><tr><td>Cosa succede a <code translate="no">touch $arq</code> se <code translate="no">arq</code> ha spazio?</td><td>Crea un file per ogni parola</td></tr><tr><td>Cosa vale <code translate="no">$#</code>?</td><td>Quanti argomenti ha ricevuto lo script</td></tr><tr><td>Perché <code translate="no">"$@"</code> e non <code translate="no">$*</code>?</td><td><code translate="no">"$@"</code> mantiene ogni argomento intero, anche con lo spazio</td></tr><tr><td>Cosa mostra <code translate="no">"$10"</code>?</td><td><code translate="no">$1</code> seguito da un <code translate="no">0</code>. Utilizzare <code translate="no">${10}</code></td></tr><tr><td>Cosa fa <code translate="no">${1:?msg}</code>?</td><td>Per lo script con il messaggio se <code translate="no">$1</code> è vuoto</td></tr><tr><td>Cosa fa <code translate="no">${2:-/backup}</code>?</td><td>Utilizzare <code translate="no">/backup</code> se <code translate="no">$2</code> è vuoto</td></tr><tr><td><code translate="no">bad interpreter</code> con <code translate="no">^M</code>: causa?</td><td>La riga di Windows termina, CRLF</td></tr><tr><td>A cosa serve <code translate="no">bash -x</code>?</td><td>Mostra ciascun comando con le variabili modificate</td></tr><tr><td>Perché un <code translate="no">cd</code> all'interno dello script non cambia la sua cartella?</td><td>Lo script viene eseguito in una shell secondaria, che muore alla fine</td></tr></tbody></table></div>
+<h2 id="11-checklist-di-output">11 · Checklist di output</h2>
+<p>Controlla solo cosa puoi fare senza guardare la lezione:</p>
+<ul><li>[ ] Scrivi uno script con shebang, commenti sull'utilizzo e variabili</li>
+<li>[ ] Spiega perché <code translate="no">script.sh</code>, <code translate="no">./script.sh</code> e <code translate="no">bash script.sh</code> danno risultati diversi</li>
+<li>[ ] Usa virgolette singole e doppie e prevedi il risultato</li>
+<li>[ ] Ricevi argomenti con <code translate="no">$1</code>, <code translate="no">$2</code> e <code translate="no">$#</code> e mostrali tutti con <code translate="no">"$@"</code></li>
+<li>[ ] Rendi obbligatorio un argomento e assegna un valore predefinito a un altro</li>
+<li>[ ] Debug con <code translate="no">bash -n</code> e <code translate="no">bash -x</code></li>
+<li>[ ] Riconosci e correggi uno script con CRLF</li>
+<li>[ ] Spiega perché una variabile vuota in un <code translate="no">rm</code> è pericoloso e impedisce</li>
+<li>[ ] Installa uno script in <code translate="no">~/bin</code> e fallo funzionare in Rocky e Debian</li>
+<li>[ ] Spiega la differenza tra eseguire e utilizzare <code translate="no">source</code></li></ul>
+<p><strong>Ultimo esercizio, senza guardare.</strong> Chiudi questa lezione. In <code translate="no">~/lab13/scripts</code> creare <code translate="no">saudacao.sh</code>:</p>
+<ol><li>Richiede un nome come primo argomento, obbligatorio. Senza di esso si ferma con il messaggio <code translate="no">uso: saudacao.sh NOME [CIDADE]</code>.</li>
+<li>Riceve una città come secondo argomento facoltativo, con il valore predefinito <code translate="no">Roma</code>.</li>
+<li>Mostra <code translate="no">Olá, NOME, de CIDADE. Você me passou N argumentos.</code></li>
+<li>Funziona con <code translate="no">./saudacao.sh "Ana Maria" Milano</code>, mostrando il nome intero.</li>
+<li>Si installa in <code translate="no">~/bin</code> e funziona da <code translate="no">/tmp</code>.</li></ol>
+<p>Le risposte si trovano alla fine della chiave di risposta.</p>
+<p><strong>Chiusura snapshot.</strong> Nel nodo Proxmox:</p>
+<pre translate="no"><code class="lang-bash">qm snapshot 201 m1a8-fim
+qm snapshot 202 m1a8-fim</code></pre>
+<p>Non eliminare <code translate="no">~/bin/backup-app.sh</code>: nella lezione 1.9 guadagna <code translate="no">if</code>, codice di uscita e un log e smette di dire OK per un backup incompleto.</p>
+<h2 id="12-nella-vita-reale">12 · Nella vita reale</h2>
+<p><strong>Missione della settimana, sola lettura.</strong> Scegli un server che gestisci effettivamente. Se appartiene a un cliente, fai solo ciò che il contratto consente; In caso di dubbi, utilizzare rocky-lab e debian-lab. Nessun comando in questa missione crea, modifica, esegue o elimina alcuno script: basta leggerlo.</p>
+<p>Dove risiedono gli script della casa:</p>
+<pre translate="no"><code class="lang-bash">ls -l /usr/local/bin /usr/local/sbin ~/bin 2&gt; /dev/null
+ls -l /etc/cron.daily /etc/cron.d 2&gt; /dev/null
+sudo crontab -l 2&gt; /dev/null
+crontab -l 2&gt; /dev/null</code></pre>
+<p>Per ogni script che appare, guarda la prima riga e il tipo:</p>
+<pre translate="no"><code class="lang-bash">file /usr/local/bin/*
+head -n 1 /usr/local/bin/* 2&gt; /dev/null</code></pre>
+<p>Cerca gli script che provengono da Windows:</p>
+<pre translate="no"><code class="lang-bash">grep -l $'\r' /usr/local/bin/* /usr/local/sbin/* 2&gt; /dev/null</code></pre>
+<p><code translate="no">$'\r'</code> è il modo in cui bash scrive <code translate="no">\r</code> sulla riga di comando. Se appare un nome, questo script funziona per fortuna, o viene chiamato con <code translate="no">bash script</code>, oppure non funziona e nessuno se ne è accorto.</p>
+<p>Scegli lo script più importante, come il backup, e leggilo con calma:</p>
+<pre translate="no"><code class="lang-bash">less /usr/local/bin/NOME-DO-SCRIPT
+grep -n 'rm ' /usr/local/bin/NOME-DO-SCRIPT</code></pre>
+<p>Per ogni <code translate="no">rm</code> che <code translate="no">grep</code> mostra, guarda se la variabile è tra virgolette e se qualcuno garantisce che non sia vuota.</p>
+<p>In Proxmox, gli script di solito risiedono <code translate="no">/root</code>, in <code translate="no">/usr/local/bin</code> o negli hook di backup:</p>
+<pre translate="no"><code class="lang-bash">ls -l /root/*.sh /usr/local/bin 2&gt; /dev/null
+grep -n 'script' /etc/vzdump.conf</code></pre>
+<p><strong>Per il journal.</strong> Risposta in poche righe:</p>
+<ol><li>Quanti copioni domestici hai trovato? Quali funzionano da soli, tramite cron?</li>
+<li>Tutti hanno lo shebang? Qualcuno usa <code translate="no">#!/bin/sh</code> con risorse bash, su una Debian?</li>
+<li>Qualcuno ha avuto <code translate="no">^M</code>?</li>
+<li>Lo script più importante ha un commento che dice cosa fa e come usarlo?</li>
+<li>Qualsiasi <code translate="no">rm</code> con una variabile senza virgolette o senza controllo vuoto? Annotare il file e la riga, e non modificarlo: proporre la correzione a chi di competenza.</li></ol>
+<p><strong>Sfida della settimana.</strong> Una sceneggiatura al giorno. Copia uno script reale, da un server che gestisci, a Rocky-Lab, senza password o chiavi all'interno. Leggere il Protocollo nella sezione 6 a fianco e notare cosa manca: shebang, utilizzo, virgolette, <code translate="no">:?</code>. Riscrivere la copia, in laboratorio, con ciò che mancava, ed eseguirla con <code translate="no">bash -n</code> e <code translate="no">bash -x</code>. Nel diario, una riga al giorno: quale script, quanti elementi del Protocollo mancavano e quale era il più pericoloso.</p>
+<p><strong>Domani, senza guardare.</strong> Domani apri un terminale e, senza consultare nulla:</p>
+<ol><li>Scrivi uno script di tre righe che mostri <code translate="no">hostname</code> e la data.</li>
+<li>Esegui con <code translate="no">bash</code>, prova con <code translate="no">./</code>, dai il permesso ed esegui di nuovo.</li>
+<li>Fagli ricevere un nome come argomento obbligatorio.</li>
+<li>Ruotare con <code translate="no">bash -x</code> e spiegare ogni riga con <code translate="no">+</code>.</li>
+<li>Spiega ad alta voce perché <code translate="no">rm -rf $PASTA/*</code> è pericoloso.</li></ol>
+<p>Se rimani bloccato su uno, torna al passaggio relativo a quell'elemento.</p>
+<h2 id="13-con-deeptutor">13 · Con DeepTutor</h2>
+<p>Utilizza DeepTutor sulla rete locale dopo il laboratorio, non al suo posto. I comandi iniziano con <code translate="no">!</code>:</p>
+<ul><li><code translate="no">!quiz Aula 1.8</code>: pone dieci nuove domande su virgolette, argomenti e permessi, nel formato Decisioni.</li>
+<li><code translate="no">!explica aspas</code>: chiede la differenza tra singolo, doppio e nessuno, con un esempio che non funziona in ciascun caso.</li>
+<li><code translate="no">!feynman</code>: spiega a uno stagista perché <code translate="no">script.sh</code> fornisce <code translate="no">command not found</code> nella cartella degli script. DeepTutor indica dove è stato lasciato vacante.</li>
+<li><code translate="no">!quebra</code>: chiedi un nuovo script rotto, come un <code translate="no">$10</code>, un <code translate="no">~</code> tra virgolette o una variabile con spazio, e correggilo solo con <code translate="no">bash -x</code> e <code translate="no">cat -A</code>.</li>
+<li><code translate="no">!simulado RHCSA script</code>: chiedi tre attività di test del tipo "crea <code translate="no">/usr/local/bin/x</code> che accetta un argomento", ciascuna con il comando che il broker farebbe utilizzare.</li>
+<li><code translate="no">!cartoes</code>: generare flashcard dalla sezione 10 e rivedere in tre giorni.</li>
+<li><code translate="no">!erro</code>: incollare un messaggio vero e proprio, come <code translate="no">bad interpreter</code> o <code translate="no">unbound variable</code>, e chiedere la causa prima della soluzione.</li>
+<li><code translate="no">!revisao</code>: programmare la revisione della lezione 1.8 qui tre giorni e tra una settimana.</li></ul>
+<h2 id="risposta-commentata">Risposta commentata</h2>
+<h3 id="riscaldamento">Riscaldamento</h3>
+<ol><li><strong><code translate="no">gzip -t arquivo.tar.gz</code> o <code translate="no">tar -tzf arquivo.tar.gz &gt; /dev/null</code>.</strong> Entrambi leggono il file fino all'ultimo byte. <code translate="no">file</code> legge solo l'inizio e non esegue il backup tagliato.</li>
+<li><strong>Affinché i percorsi siano relativi e inizino in una cartella con un nome.</strong> In questo modo l'estrazione avviene nella cartella in cui ti trovi, all'interno di un'unica cartella e mai sul sistema. Oggi lo script ha calcolato solo questo <code translate="no">-C</code>, con <code translate="no">dirname</code>.</li>
+<li><strong><code translate="no">command not found</code>.</strong> La shell cerca il comando nelle cartelle <code translate="no">PATH</code> e la cartella corrente non è presente. Con <code translate="no">./ola.sh</code> l'errore cambia in <code translate="no">Permission denied</code> perché manca <code translate="no">x</code>. Sono presenti due ostacoli e il passaggio 2 li ha mostrati entrambi.</li></ol>
+<h3 id="quiz">Quiz</h3>
+<ol><li><strong>C.</strong> Nessuno spazio attorno a <code translate="no">=</code> e nessun <code translate="no">$</code> durante la creazione. <code translate="no">$</code> è di sola lettura. A è l'errore per chi proviene da PowerShell e D è la sintassi di <code translate="no">csh</code>.</li>
+<li><strong>B.</strong> <code translate="no">./</code> richiede <code translate="no">x</code>. Gli altri tre passano il file a una shell che deve solo leggerlo.</li>
+<li><strong>B.</strong> Le virgolette raggruppano <code translate="no">um dois</code> in un unico argomento e non fanno parte del valore. Sono disponibili due argomenti.</li>
+<li><strong>B.</strong> Le virgolette singole non cambiano nulla. Tra virgolette doppie sarebbe <code translate="no">Servidor: web01</code>.</li>
+<li><strong>C.</strong> Il kernel tenta di eseguire <code translate="no">/bin/bsh</code>, che non esiste. Con <code translate="no">bash script.sh</code>, bash lo esegue e la prima riga è solo un commento.</li>
+<li><strong>C.</strong> Senza <code translate="no">$2</code> vale la norma. Con <code translate="no">$2</code> vale quello per cui è venuto.</li>
+<li><strong>Lo script si ferma immediatamente</strong>, mostrando qualcosa come <code translate="no">./s.sh: line 3: 1: falta a pasta</code>, e termina con un codice di uscita diverso da zero. Nessuna riga successiva all'esecuzione.</li>
+<li><strong><code translate="no">~/.profile</code> di Debian inserisce <code translate="no">~/bin</code> in <code translate="no">PATH</code> solo se la cartella esiste al momento del login</strong>, e non esisteva quando hai effettuato il login. Conferma con <code translate="no">echo "$PATH"</code> o <code translate="no">type meu.sh</code>. Per risolvere, uscire e rientrare oppure eseguire <code translate="no">source ~/.profile</code>.</li>
+<li><strong>Con <code translate="no">./vai.sh</code> nella stessa cartella di prima</strong>: <code translate="no">cd</code> si è verificato in una shell figlia, che è terminata. <strong>Con <code translate="no">source vai.sh</code>, in <code translate="no">/var/log</code></strong>: le righe correvano nella propria shell.</li>
+<li><strong>B.</strong> Vedere ciascuna alternativa:</li></ol>
+<div class="tabela"><table><thead><tr><th scope="col">Se hai selezionato</th><th scope="col">Risultato</th><th scope="col">Perché</th></tr></thead><tbody><tr><td>A</td><td>❌ Sbagliato</td><td><code translate="no">$@</code> sono gli argomenti stessi, non la quantità.</td></tr><tr><td>B</td><td>✅ Giusto</td><td><code translate="no">$#</code> è il numero di argomenti posizionali.</td></tr><tr><td>C</td><td>❌ Sbagliato</td><td><code translate="no">$*</code> sono anche gli argomenti, riuniti in un unico testo.</td></tr><tr><td>D</td><td>❌ Sbagliato</td><td><code translate="no">$0</code> è il nome con cui è stato chiamato lo script.</td></tr><tr><td>E</td><td>❌ Sbagliato</td><td><code translate="no">$?</code> è il codice di uscita dell'ultimo comando.</td></tr></tbody></table></div>
+<h3 id="ultimo-esercizio">Ultimo esercizio</h3>
+<p>Una risposta possibile:</p>
+<pre translate="no"><code class="lang-bash">cat &gt; saudacao.sh &lt;&lt;'EOF'
+#!/bin/bash
+# saudacao.sh - cumprimenta alguém
+# Uso: saudacao.sh NOME [CIDADE]
+nome="${1:?uso: saudacao.sh NOME [CIDADE]}"
+cidade="${2:-Roma}"
+echo "Olá, $nome, de $cidade. Você me passou $# argumentos."
+EOF
+chmod +x saudacao.sh
+./saudacao.sh
+./saudacao.sh "Ana Maria" Milano
+cp saudacao.sh ~/bin/
+cd /tmp &amp;&amp; saudacao.sh Rodrigo</code></pre>
+<ol><li>Senza argomenti, <code translate="no">:?</code> interrompe lo script con il messaggio.</li>
+<li><code translate="no">:-</code> dà <code translate="no">Roma</code> quando non arriva in città.</li>
+<li><code translate="no">$#</code> conta gli argomenti arrivati.</li>
+<li>Tra virgolette nel bando, il <code translate="no">Ana Maria</code> giunge integralmente al <code translate="no">$1</code>. Tra virgolette in <code translate="no">echo</code> esce per intero.</li>
+<li>Su Debian, se <code translate="no">~/bin</code> è stato creato in questa sessione, esci e rientra prima dell'ultimo comando.</li></ol>
+</article><nav class="paginas" aria-label="Lezioni"><a class="ant" href="1.7-arquivar-e-compactar.it.html"><small>← Precedente</small>1.7 · Archiviare e comprimere</a><a class="prox" href="1.9-decidir-e-repetir.it.html"><small>Successiva →</small>1.9 · Decidere e ripetere</a></nav></main></div>
+<footer><div class="wrap">Generato dal Markdown del corso · Immagini in <code translate="no">img/</code></div></footer>
+</body>
+</html>

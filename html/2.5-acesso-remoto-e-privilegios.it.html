@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light dark">
+<title>2.5 · Accesso remoto e privilegi · Corso Linux Sysadmin</title>
+<link rel="alternate" hreflang="pt-BR" href="2.5-acesso-remoto-e-privilegios.html"><link rel="alternate" hreflang="it" href="2.5-acesso-remoto-e-privilegios.it.html">
+<style>
+:root{color-scheme:light dark;--bg:#f6f1e7;--card:#fffdf8;--ink:#201c16;--muted:#5e564a;--accent:#9a3412;--accent-2:#1f5f4a;--tint:#efe6d4;--line:#ddd2bc;--code:#f1eadb;--shadow:0 1px 2px rgba(60,40,10,.08);--serif:Georgia,"Iowan Old Style","Palatino Linotype",Palatino,serif;--sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--mono:"Cascadia Code",Consolas,"DejaVu Sans Mono",monospace}
+@media (prefers-color-scheme:dark){:root{--bg:#16130f;--card:#201b15;--ink:#f1eadb;--muted:#b9ad98;--accent:#f0a070;--accent-2:#7fd0b0;--tint:#2a231a;--line:#3d3427;--code:#191510;--shadow:none}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:5.5rem}
+body{margin:0;background:var(--bg);color:var(--ink);font:1rem/1.6 var(--sans)}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--accent-2);outline-offset:2px;border-radius:4px}
+.pular{position:absolute;left:-999px;top:0;background:var(--card);padding:.5rem 1rem;z-index:20}
+.pular:focus{left:.5rem;top:.5rem}
+.wrap{width:100%;max-width:84rem;margin:0 auto;padding-inline:max(1rem,env(safe-area-inset-left))}
+.top{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10;border-top:6px solid var(--accent)}
+.top-in{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding-block:.6rem}
+.titles{min-width:0}
+.marca{margin:0;font:700 clamp(1.15rem,1rem + 1vw,1.6rem)/1.15 var(--serif);letter-spacing:-.01em}
+.marca a{text-decoration:none}
+.marca a:hover{color:var(--accent)}
+.meta{margin:.1rem 0 0;color:var(--muted);font-size:.85rem}
+.acoes{display:flex;align-items:center;gap:.9rem;flex:none}
+.acoes>a{font-size:.9rem;font-weight:600;color:var(--muted);text-decoration:none}
+.acoes>a:hover{color:var(--accent);text-decoration:underline}
+.idioma{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--tint)}
+.idioma>*{padding:.35rem .9rem;font-size:.8rem;font-weight:700;letter-spacing:.06em;text-decoration:none;color:var(--muted);min-width:2.75rem;text-align:center}
+.idioma a:hover{color:var(--accent);text-decoration:underline}
+.idioma span{background:var(--accent);color:#fff}
+@media (prefers-color-scheme:dark){.idioma span{color:#16130f}}
+code{font-family:var(--mono);font-size:.9em;background:var(--tint);padding:.1rem .35rem;border-radius:4px;overflow-wrap:anywhere}
+/* índice */
+.capa{max-width:70rem;padding-block:2rem 3rem}
+.stats{border-left:4px solid var(--accent-2);background:var(--card);border-radius:0 10px 10px 0;padding:1rem 1.25rem;margin:0 0 2.5rem;box-shadow:var(--shadow);color:var(--muted)}
+.stats strong{color:var(--ink)}
+.modulo{display:grid;grid-template-columns:15rem minmax(0,1fr);gap:1rem 2rem;padding:1.75rem 0;border-top:1px solid var(--line)}
+.modulo h2{margin:0;font:700 1.25rem/1.25 var(--serif);align-self:start;position:sticky;top:6rem}
+.mn{display:block;font:700 .8rem var(--mono);letter-spacing:.12em;color:var(--accent);margin-bottom:.25rem}
+.sep{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.modulo ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,17rem),1fr));gap:.75rem}
+.modulo li{margin:0}
+.modulo a{display:flex;gap:.45rem;align-items:baseline;height:100%;padding:.85rem 1rem;background:var(--card);border:1px solid var(--line);border-radius:10px;text-decoration:none;font-weight:600;line-height:1.35;box-shadow:var(--shadow);transition:border-color .15s,transform .15s}
+.modulo a:hover{border-color:var(--accent);color:var(--accent)}
+.num{font:700 .85rem var(--mono);color:var(--accent);white-space:nowrap}
+/* aula */
+.doc{display:grid;grid-template-columns:17rem minmax(0,1fr);gap:2.5rem;align-items:start;padding-block:2rem 3rem}
+.lateral{position:sticky;top:5.5rem;max-height:calc(100vh - 6.5rem);overflow:auto;font-size:.875rem;padding-right:.5rem}
+.lateral h2{margin:0 0 .25rem;font:700 .95rem var(--serif);color:var(--muted)}
+.lateral h3{margin:1rem 0 .25rem;font:700 .75rem var(--mono);letter-spacing:.06em;color:var(--accent)}
+.lateral ul{list-style:none;margin:0;padding:0}
+.lateral a{display:flex;gap:.45rem;padding:.25rem .5rem;border-radius:6px;text-decoration:none;color:var(--muted);line-height:1.3}
+.lateral a:hover{background:var(--tint);color:var(--ink)}
+.lateral a[aria-current]{background:var(--tint);color:var(--ink);font-weight:700;box-shadow:inset 3px 0 0 var(--accent)}
+.lateral .num{font-size:.75rem}
+.aula{min-width:0;max-width:56rem;overflow-wrap:break-word;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:clamp(1.25rem,1rem + 2vw,2.75rem);box-shadow:var(--shadow)}
+.aula h1{margin:0 0 1.5rem;font:700 clamp(1.75rem,1.4rem + 1.6vw,2.5rem)/1.15 var(--serif);letter-spacing:-.015em;color:var(--ink)}
+.aula h2{margin:2.5rem 0 .75rem;padding-top:1.25rem;border-top:1px solid var(--line);font:700 1.5rem/1.25 var(--serif)}
+.aula h3{margin:2rem 0 .5rem;font:700 1.15rem/1.3 var(--serif);color:var(--accent)}
+.aula h4,.aula h5,.aula h6{margin:1.5rem 0 .5rem;font-size:1rem}
+.aula p,.aula ul,.aula ol{margin:1rem 0}
+.aula ul,.aula ol{padding-left:1.5rem}
+.aula li{margin:.35rem 0}
+.aula li>ul,.aula li>ol{margin:.35rem 0}
+.aula a{color:var(--accent);text-underline-offset:2px}
+.aula hr{border:0;border-top:1px solid var(--line);margin:2rem 0}
+.tabela{overflow-x:auto;margin:1.25rem 0;border:1px solid var(--line);border-radius:10px}
+.aula table{width:100%;border-collapse:collapse;font-size:.9rem}
+.aula th,.aula td{padding:.55rem .75rem;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+.aula tr:last-child td{border-bottom:0}
+.aula th{background:var(--tint);font-weight:700}
+.aula pre{background:var(--code);border:1px solid var(--line);border-radius:10px;padding:.9rem 1rem;overflow-x:auto;font:.85rem/1.5 var(--mono);margin:1rem 0;tab-size:4}
+.aula pre code{background:none;padding:0;font-size:inherit;overflow-wrap:normal}
+.aula blockquote{margin:1.25rem 0;padding:.75rem 1.25rem;border-left:4px solid var(--accent-2);background:var(--tint);border-radius:0 10px 10px 0}
+.aula blockquote>:first-child{margin-top:0}
+.aula blockquote>:last-child{margin-bottom:0}
+.aula figure{margin:1.75rem 0;text-align:center}
+.aula figure img{display:block;margin:0 auto;max-width:100%;height:auto;border:1px solid var(--line);border-radius:10px;background:#fff}
+.aula figcaption{margin-top:.5rem;color:var(--muted);font-size:.9rem;font-style:italic}
+.paginas{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:2.5rem;padding-top:1.5rem;border-top:1px solid var(--line)}
+.paginas a{display:block;padding:.75rem 1rem;border:1px solid var(--line);border-radius:10px;text-decoration:none;color:var(--ink);font-weight:600;line-height:1.3}
+.paginas a:hover{border-color:var(--accent);color:var(--accent)}
+.paginas small{display:block;color:var(--muted);font-weight:400}
+.paginas .prox{grid-column:2;text-align:right}
+footer{border-top:1px solid var(--line);padding-block:1.5rem;color:var(--muted);font-size:.85rem;text-align:center}
+@media (hover:hover) and (prefers-reduced-motion:no-preference){.modulo a:hover{transform:translateY(-2px)}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+@media (max-width:980px){.doc{grid-template-columns:minmax(0,1fr);padding-top:1rem}.lateral{position:static;max-height:none;order:2}.aula{max-width:none}}
+@media (max-width:860px){.modulo{grid-template-columns:minmax(0,1fr)}.modulo h2{position:static}.mn{display:inline;margin-right:.5rem}}
+@media (max-width:420px){.meta{display:none}.top-in{gap:.5rem}.acoes{gap:.6rem}.capa{padding-top:1.25rem}.paginas{grid-template-columns:minmax(0,1fr)}.paginas .prox{grid-column:1}}
+@media print{.top,.lateral,.paginas{display:none}.aula{border:0;box-shadow:none;padding:0;max-width:none}.doc{display:block}}
+</style>
+</head>
+<body>
+<a class="pular" href="#conteudo">Vai al contenuto</a>
+<header class="top"><div class="wrap top-in"><div class="titles"><p class="marca"><a href="index.it.html">Corso Linux Sysadmin</a></p><p class="meta">Rodrigo Antignani · Lezione 2.5</p></div><div class="acoes"><a href="index.it.html">Indice</a><div class="idioma" role="group" aria-label="Lingua"><a href="2.5-acesso-remoto-e-privilegios.html" hreflang="pt-BR" lang="pt-BR">PT</a><span aria-current="true">IT</span></div></div></div></header>
+<div class="wrap doc"><aside class="lateral" aria-label="Lezioni"><h2>Lezioni</h2><h3>M0 · Laboratorio</h3><ul><li><a href="0.1-montar-o-laboratorio.it.html"><span class="num">0.1</span><span>Allestire il laboratorio</span></a></li><li><a href="0.2-acesso-e-protecao.it.html"><span class="num">0.2</span><span>Accesso e protezione</span></a></li></ul><h3>M1 · Riga di comando</h3><ul><li><a href="1.1-o-que-e-linux.it.html"><span class="num">1.1</span><span>Che cos'è Linux</span></a></li><li><a href="1.2-o-shell-e-a-ajuda.it.html"><span class="num">1.2</span><span>La shell e la guida</span></a></li><li><a href="1.3-caminhos-e-navegacao.it.html"><span class="num">1.3</span><span>Percorsi e navigazione</span></a></li><li><a href="1.4-criar-copiar-mover-e-apagar.it.html"><span class="num">1.4</span><span>Creare, copiare, spostare ed eliminare</span></a></li><li><a href="1.5-ler-e-procurar-texto.it.html"><span class="num">1.5</span><span>Leggere e cercare testo</span></a></li><li><a href="1.6-redirecionamentos-e-pipes.it.html"><span class="num">1.6</span><span>Reindirizzamenti e pipe</span></a></li><li><a href="1.7-arquivar-e-compactar.it.html"><span class="num">1.7</span><span>Archiviare e comprimere</span></a></li><li><a href="1.8-primeiro-script.it.html"><span class="num">1.8</span><span>Primo script</span></a></li><li><a href="1.9-decidir-e-repetir.it.html"><span class="num">1.9</span><span>Decidere e ripetere</span></a></li><li><a href="1.10-software-livre-na-pratica.it.html"><span class="num">1.10</span><span>Il software libero in pratica</span></a></li></ul><h3>M2 · Sistema, utenti e permessi</h3><ul><li><a href="2.1-instalacao-e-provisionamento.it.html"><span class="num">2.1</span><span>Installazione e provisioning</span></a></li><li><a href="2.2-hardware-e-dispositivos.it.html"><span class="num">2.2</span><span>Hardware e dispositivi</span></a></li><li><a href="2.3-processos-e-logs.it.html"><span class="num">2.3</span><span>Processi e log</span></a></li><li><a href="2.4-rede-no-dia-a-dia.it.html"><span class="num">2.4</span><span>La rete di tutti i giorni</span></a></li><li><a href="2.5-acesso-remoto-e-privilegios.it.html" aria-current="page"><span class="num">2.5</span><span>Accesso remoto e privilegi</span></a></li><li><a href="2.6-usuarios-e-grupos.it.html"><span class="num">2.6</span><span>Utenti e gruppi</span></a></li><li><a href="2.7-permissoes-e-dono.it.html"><span class="num">2.7</span><span>Permessi e proprietario</span></a></li><li><a href="2.8-diretorios-e-arquivos-especiais.it.html"><span class="num">2.8</span><span>Directory e file speciali</span></a></li></ul><h3>M3 · Testo ed editor</h3><ul><li><a href="3.1-fluxos-a-fundo.it.html"><span class="num">3.1</span><span>I flussi in profondità</span></a></li><li><a href="3.2-filtros-de-texto.it.html"><span class="num">3.2</span><span>Filtri di testo</span></a></li><li><a href="3.3-regex-e-grep.it.html"><span class="num">3.3</span><span>Regex e grep</span></a></li><li><a href="3.4-sed-e-awk.it.html"><span class="num">3.4</span><span>sed e awk</span></a></li><li><a href="3.5-vi-e-vim-de-verdade.it.html"><span class="num">3.5</span><span>vi e vim sul serio</span></a></li></ul><h3>M4 · systemd e boot</h3><ul><li><a href="4.1-como-o-linux-liga.it.html"><span class="num">4.1</span><span>Come si avvia Linux</span></a></li><li><a href="4.2-systemd-servicos-e-units.it.html"><span class="num">4.2</span><span>systemd: servizi e unit</span></a></li><li><a href="4.3-targets-desligar-e-reiniciar.it.html"><span class="num">4.3</span><span>Target: spegnere e riavviare</span></a></li><li><a href="4.4-grub-e-acesso-de-emergencia.it.html"><span class="num">4.4</span><span>GRUB e accesso di emergenza</span></a></li></ul><h3>M5 · Kernel, moduli e VM</h3><ul><li><a href="5.1-hardware-pelo-kernel.it.html"><span class="num">5.1</span><span>L'hardware visto dal kernel</span></a></li><li><a href="5.2-modulos-e-parametros.it.html"><span class="num">5.2</span><span>Moduli e parametri</span></a></li><li><a href="5.3-linux-como-convidado.it.html"><span class="num">5.3</span><span>Linux come guest</span></a></li></ul><h3>M6 · Pacchetti e repository</h3><ul><li><a href="6.1-pacotes-no-debian.it.html"><span class="num">6.1</span><span>Pacchetti su Debian</span></a></li><li><a href="6.2-pacotes-na-rocky.it.html"><span class="num">6.2</span><span>Pacchetti su Rocky</span></a></li><li><a href="6.3-repositorios.it.html"><span class="num">6.3</span><span>Repository</span></a></li><li><a href="6.4-flatpak.it.html"><span class="num">6.4</span><span>Flatpak</span></a></li><li><a href="6.5-bibliotecas-compartilhadas.it.html"><span class="num">6.5</span><span>Librerie condivise</span></a></li></ul></aside><main id="conteudo" class="aula"><article><h1>Lezione 2.5 · Accesso remoto e privilegi</h1>
+<p>Quinta lezione del Modulo 2. Quasi tutto il lavoro su un server inizia con due cose: entrarci e acquisire il potere di cambiarlo. Entrambi sembrano semplici finché non falliscono. La chiave che "ha sempre funzionato" inizia a chiedere la password perché qualcuno ha inserito <code translate="no">chmod</code> nella cartella sbagliata. La regola in <code translate="no">sudo</code> creata ieri non è valida perché il file ha un punto nel nome. Appare l'avviso che l'identità del server è cambiata e il tecnico lo cancella senza pensarci. Oggi imparerai come SSH decide se farti entrare, come <code translate="no">sudo</code> decide cosa puoi fare e dove tutti lasciano scritto il motivo quando dicono di no. Alla fine, accedi da una VM all'altra senza password, con un breve nickname e sai come leggere il registro quando smette di funzionare.</p>
+<div class="tabela"><table><thead><tr><th scope="col">File</th><th scope="col">lezione 2.5</th></tr></thead><tbody><tr><td>Modulo</td><td>M2 · Sistema, utenti e permessi, lezione 5 di 8</td></tr><tr><td>Quando</td><td>Settimana 5</td></tr><tr><td>Alla fine puoi</td><td>Indica quale tipo di account possiede ciascun utente tramite UID e shell; utilizzare <code translate="no">sudo</code>, <code translate="no">sudo -i</code> e <code translate="no">su -</code> sapendo cosa cambia in ognuno di essi; leggere e creare regole in <code translate="no">/etc/sudoers.d</code> con <code translate="no">visudo</code>; verificare l'identità di un server alla prima connessione; creare una chiave SSH, installarla su un altro server e accedere senza password; utilizzare <code translate="no">~/.ssh/config</code> per i soprannomi; copiare file con <code translate="no">scp</code> e <code translate="no">rsync</code>; modificare la configurazione di <code translate="no">sshd</code> con un proprio file, testare prima dell'applicazione e verificare il valore; trovare nel registro il motivo per cui un login o un <code translate="no">sudo</code> è stato rifiutato</td></tr><tr><td>Articoli di prova</td><td>LE 015.1 (sicurezza di base e tipi di utente: root, utente normale, account di sistema; <code translate="no">id</code>, <code translate="no">who</code>, <code translate="no">w</code>, <code translate="no">last</code>, <code translate="no">su</code>, <code translate="no">sudo</code>) · LPIC-1 110.1 (attività di amministrazione della sicurezza: <code translate="no">sudo</code>, <code translate="no">su</code>, <code translate="no">who</code>, <code translate="no">w</code>, <code translate="no">last</code>) · LPIC-1 110.3 (protezione dei dati con crittografia: chiavi OpenSSH, <code translate="no">ssh-agent</code>, <code translate="no">known_hosts</code>, <code translate="no">authorized_keys</code>) · RHCSA (accesso a sistemi remoti con SSH; configurazione dell'autenticazione tramite chiave; trasferimento di file in modo sicuro; cambio utente; concessione <code translate="no">sudo</code>)</td></tr><tr><td>Prerequisiti</td><td>lezione 2.4 (la scala della rete; righe <code translate="no">rocky-lab</code> e <code translate="no">debian-lab</code> in <code translate="no">/etc/hosts</code>); lezione 2.3 (<code translate="no">journalctl -u</code>); lezione 1.4 (permessi letti con <code translate="no">ls -l</code>)</td></tr><tr><td>Tempo</td><td>Intorno alle 2:30</td></tr><tr><td>Istantanee</td><td>m2a5-start e m2a5-end in entrambe le VM</td></tr></tbody></table></div>
+<h2 id="1-riscaldamento">1 · Riscaldamento</h2>
+<p>Tre domande, appena mi vengono in mente. Scrivi le risposte; la chiave di risposta viene visualizzata alla fine.</p>
+<ol><li>Sono mesi che accedi a un server con una chiave SSH. Oggi chiede una password. Indovina: il problema è con il tuo computer o con il server?</li>
+<li>Su Windows, un amministratore fa clic su "Esegui come amministratore". Indovina: su Linux, <code translate="no">sudo</code> apre una sessione root o esegue semplicemente un comando come root?</li>
+<li>La prima volta che accedi tramite SSH a un server, viene richiesto <code translate="no">Are you sure you want to continue connecting (yes/no)?</code>. Indovina: cosa protegge questa domanda?</li></ol>
+<h2 id="2-perche-e-importante">2 · Perché è importante</h2>
+<p>La password su SSH è il primo obiettivo di qualsiasi server esposto. Basta guardare il log di un server con la porta 22 aperta verso internet: migliaia di tentativi al giorno, con <code translate="no">root</code>, <code translate="no">admin</code>, <code translate="no">test</code>, <code translate="no">oracle</code>. La chiave SSH risolve questo problema, ma solo per coloro che capiscono cosa stanno facendo. La chiave privata copiata sul server sbagliato, <code translate="no">authorized_keys</code> con chiavi di qualcuno che ha lasciato l'azienda tre anni fa e la cartella <code translate="no">.ssh</code> con autorizzazione aperta sono risultati comuni in ogni audit.</p>
+<p>Con <code translate="no">sudo</code> è lo stesso. Una buona regola dice chi può fare cosa e il registro mostra chi lo ha fatto. Una regola sbagliata dà <code translate="no">ALL</code> a tutti, oppure viene modificata senza <code translate="no">visudo</code> e smette di essere valida senza preavviso. E l'abitudine di inserire come <code translate="no">root</code> cancella direttamente la traccia: nel log risulta "root did", e nessuno sa quale dei cinque tecnici fosse.</p>
+<p>Il terzo punto è l'avviso di identità. Quando SSH dice che la chiave del server è cambiata, potrebbe trattarsi semplicemente di una reinstallazione. Potrebbe anche essere un'altra macchina che risponde al suo posto. Chiunque cancelli l'avviso senza controllare si allena a ignorare l'unico allarme di cui dispone SSH.</p>
+<h2 id="3-modello-mentale">3 · Modello mentale</h2>
+<blockquote><p>Enter e send sono due porte diverse. SSH decide se accedi; <code translate="no">sudo</code> decide cosa puoi fare dopo. Ognuno ha la sua lista e ognuno scrive nel registro il motivo per cui ha detto di no.</p></blockquote>
+<pre translate="no"><code class="lang-text">Seu computador                         Servidor
+──────────────                         ────────
+~/.ssh/known_hosts   ◄── confere ───   /etc/ssh/ssh_host_*_key.pub   "é mesmo esse servidor?"
+~/.ssh/id_ed25519    ─── prova ────►   ~/.ssh/authorized_keys        "você tem a chave privada
+ (privada, fica aqui)                   (só as públicas)               de uma destas públicas?"
+                                       sshd_config + sshd_config.d   "esse método é permitido?"
+                                              │
+                                              ▼  entrou como rodrigo
+                                       /etc/sudoers + sudoers.d      "rodrigo pode rodar isto
+                                                                       como root?"
+                                       journal / /var/log/secure     "por que disse não"</code></pre>
+<p>Quattro idee guidano la lezione:</p>
+<div class="tabela"><table><thead><tr><th scope="col">Idea</th><th scope="col">Cosa intendi</th><th scope="col">Conseguenza</th></tr></thead><tbody><tr><td>La chiave ha due metà</td><td>Il bagno resta con te e non se ne va mai; quello pubblico va ad ogni server in cui vuoi entrare</td><td>Se qualcuno ti chiede la chiave, la risposta è sempre <code translate="no">.pub</code></td></tr><tr><td>Le due parti si conferiscono</td><td>Il server controlla la tua chiave in <code translate="no">authorized_keys</code>; puoi controllare il server in <code translate="no">known_hosts</code></td><td>L'avviso di identità modificata è il tuo lato che dice "non sei quello che eri"</td></tr><tr><td><code translate="no">sshd</code> è sospetto</td><td>Se la vostra cartella Inizio, <code translate="no">.ssh</code> o <code translate="no">authorized_keys</code> può essere modificata da altri, ignora il</td><td>La chiave che ha smesso di funzionare ha quasi sempre l'autorizzazione o il proprietario sbagliato sul server</td></tr><tr><td><code translate="no">sudo</code> è a comando e lascia traccia</td><td>Ogni <code translate="no">sudo</code> viene controllato nel regolamento e annotato nel log con il suo nome</td><td>Preferisci <code translate="no">sudo comando</code> all'accesso come root; il registro indica chi ha eseguito l'operazione</td></tr></tbody></table></div>
+<figure><a href="../img/2.5-duas-portas.svg"><img src="../img/2.5-duas-portas.svg" alt="SSH e sudo come due porte" loading="lazy" decoding="async"></a><figcaption>Inserire non significa inviare: SSH e sudo sono due porte con i propri elenchi e registri.</figcaption></figure>
+<h2 id="4-concetto-a-piu-livelli">4 · Concetto a più livelli</h2>
+<h3 id="essenziale">Essenziale</h3>
+<p><strong>Che tipo di account è questo.</strong> Ogni account ha un numero, l'UID. Il sistema decide chi è chi in base al numero, non al nome:</p>
+<pre translate="no"><code class="lang-bash">id                                     # u: UID, gruppo principale, tutti i gruppi
+id root
+getent passwd root rodrigo chronyd     # ogni riga in /etc/passwd</code></pre>
+<pre translate="no"><code class="lang-text">root:x:0:0:root:/root:/bin/bash
+rodrigo:x:1000:1000:Rodrigo:/home/rodrigo:/bin/bash
+chronyd:x:994:991:chrony system user:/var/lib/chrony:/sbin/nologin</code></pre>
+<div class="tabela"><table><thead><tr><th scope="col">Campo</th><th scope="col">Esempio</th><th scope="col">Voglio dire</th></tr></thead><tbody><tr><td>1 · nome</td><td><code translate="no">rodrigo</code></td><td>Il nome immesso</td></tr><tr><td>2 · password</td><td><code translate="no">x</code></td><td>La password è in <code translate="no">/etc/shadow</code>, che solo root legge</td></tr><tr><td>3 · IDU</td><td><code translate="no">1000</code></td><td>Il numero di conto</td></tr><tr><td>4 · GID</td><td><code translate="no">1000</code></td><td>Il gruppo principale</td></tr><tr><td>5 · descrizione</td><td><code translate="no">Rodrigo</code></td><td>Testo libero, nome completo</td></tr><tr><td>6 · cartella personale</td><td><code translate="no">/home/rodrigo</code></td><td>Dove inizia il login</td></tr><tr><td>7 · conchiglia</td><td><code translate="no">/bin/bash</code></td><td>Il programma che viene eseguito all'accesso. <code translate="no">/sbin/nologin</code> o <code translate="no">/usr/sbin/nologin</code> = non inserire</td></tr></tbody></table></div>
+<p>Tre tipi di conto, per UID:</p>
+<div class="tabela"><table><thead><tr><th scope="col">Digitare</th><th scope="col">UID</th><th scope="col">Per cosa</th><th scope="col">Shell tipica</th></tr></thead><tbody><tr><td>radice</td><td>0</td><td>L'amministratore. Il kernel non concede l'autorizzazione per UID 0</td><td><code translate="no">/bin/bash</code></td></tr><tr><td>Conto di sistema</td><td>da 1 a 999</td><td>Con esso viene eseguito un servizio (<code translate="no">chronyd</code>, <code translate="no">sshd</code>, <code translate="no">apache</code>), quindi non viene eseguito come root</td><td><code translate="no">nologin</code></td></tr><tr><td>Utente comune</td><td>1000 in poi</td><td>Persone</td><td><code translate="no">/bin/bash</code></td></tr></tbody></table></div>
+<p>Il nome <code translate="no">root</code> non è niente di speciale: qualsiasi account con UID 0 è root. Una seconda riga con UID 0 in <code translate="no">/etc/passwd</code> è uno dei primi segnali di intrusione che un audit cerca.</p>
+<p><strong>Chi è qui.</strong> Tre comandi, dal più breve al più completo:</p>
+<pre translate="no"><code class="lang-bash">whoami                 # chi sono io adesso
+who                    # chi ha effettuato l'accesso, da dove
+w                      # chi ha effettuato l'accesso e cosa sta facendo
+last -n 10             # gli ultimi accessi, compresi quelli già usciti</code></pre>
+<p><strong><code translate="no">sudo</code>: un comando come root.</strong> <code translate="no">sudo</code> chiede la <strong>tua</strong> password, controlla le regole se puoi, esegue il comando e lo scrive nel log:</p>
+<pre translate="no"><code class="lang-bash">sudo whoami            # radice
+sudo -l                # cosa posso fare con sudo</code></pre>
+<p>Dopo la prima password, <code translate="no">sudo</code> fa non chiedere più per qualche minuto (5, per impostazione predefinita). <code translate="no">sudo -k</code> dimentica subito la password.</p>
+<p><strong>Accedi a un'altra macchina.</strong> SSH è già quello che usi per accedere alle VM:</p>
+<pre translate="no"><code class="lang-bash">ssh rodrigo@10.1.0.52          # utente@macchina
+ssh debian-lab                 # stesso utente che sei adesso; /etc/nome host
+ssh debian-lab 'uptime'        # eseguire un comando andata e ritorno
+exit                           # uscire dalla sessione remota</code></pre>
+<h3 id="intermediate">Intermediate</h3>
+<p><strong><code translate="no">sudo -i</code>, <code translate="no">su -</code> e <code translate="no">sudo su</code>.</strong> I tre aprono una shell di root e non sono la stessa cosa:</p>
+<div class="tabela"><table><thead><tr><th scope="col">Comando</th><th scope="col">Chiede la password a qualcuno</th><th scope="col">Rimane nel registro</th><th scope="col">Ambiente</th></tr></thead><tbody><tr><td><code translate="no">sudo comando</code></td><td>Tuo</td><td>Ogni comando, con il suo nome</td><td>Vostro, con l'assicurazione <code translate="no">PATH</code></td></tr><tr><td><code translate="no">sudo -i</code></td><td>Tuo</td><td>L'apertura della conchiglia, con il suo nome; quello che fai dentro, no</td><td>Quello root, come in un login</td></tr><tr><td><code translate="no">su -</code></td><td><strong>Radice</strong></td><td>Ma qualcuno è diventato root</td><td>Quello root, come in un login</td></tr><tr><td><code translate="no">sudo su</code></td><td>Tuo</td><td>Che hai eseguito <code translate="no">su</code></td><td>Ereditato a metà: evita</td></tr></tbody></table></div>
+<p><code translate="no">su -</code> richiede che root abbia una password e che tu la conosca, il che significa che ogni tecnico conosce la stessa password. Su un server ben configurato, la password di root viene salvata e nessuno la usa quotidianamente: ognuno entra con il proprio nome e usa <code translate="no">sudo</code>. <code translate="no">-</code> (o <code translate="no">-l</code>) di <code translate="no">su</code> è importante: senza di esso diventi root nel tuo ambiente utente e i comandi di <code translate="no">/usr/sbin</code> potrebbero non essere trovati.</p>
+<p><strong>Chi può usare <code translate="no">sudo</code>.</strong> Le regole sono in <code translate="no">/etc/sudoers</code> e nei file <code translate="no">/etc/sudoers.d/</code>. La linea che conta in Rocky:</p>
+<pre translate="no"><code class="lang-text">%wheel  ALL=(ALL)       ALL</code></pre>
+<p>E in Debian:</p>
+<pre translate="no"><code class="lang-text">%sudo   ALL=(ALL:ALL) ALL</code></pre>
+<div class="tabela"><table><thead><tr><th scope="col">Pezzo</th><th scope="col">Voglio dire</th></tr></thead><tbody><tr><td><code translate="no">%wheel</code></td><td>Chi: <code translate="no">%</code> significa gruppo. Senza <code translate="no">%</code> si tratta di un utente</td></tr><tr><td><code translate="no">ALL=</code></td><td>Su quali macchine si applica la regola? In pratica sempre <code translate="no">ALL</code></td></tr><tr><td><code translate="no">(ALL)</code> o <code translate="no">(ALL:ALL)</code></td><td>Come puoi eseguire: qualsiasi utente (e qualsiasi gruppo)</td></tr><tr><td><code translate="no">ALL</code> alla fine</td><td>Cosa comanda. Può essere un elenco con il percorso completo</td></tr></tbody></table></div>
+<p>Per dare <code translate="no">sudo</code> a qualcuno, la regola pratica è inserirlo nel gruppo, non scrivere una nuova regola: <code translate="no">wheel</code> in Rocky, <code translate="no">sudo</code> in Debian. Per dare un solo comando creare un file in <code translate="no">/etc/sudoers.d/</code>, <strong>sempre</strong> con <code translate="no">visudo</code>:</p>
+<pre translate="no"><code class="lang-bash">sudo visudo -f /etc/sudoers.d/backup</code></pre>
+<pre translate="no"><code class="lang-text">backup  ALL=(root)  NOPASSWD: /usr/bin/systemctl restart chronyd</code></pre>
+<p>O <code translate="no">visudo</code> apre l'editor, e al salvataggio controlla la sintassi; Se c'è un errore, chiede prima di registrare. <code translate="no">sudo visudo -c</code> controlla tutti i file contemporaneamente.</p>
+<p><strong>L'identità del server.</strong> Alla prima connessione, SSH mostra l'impronta digitale della chiave del server:</p>
+<pre translate="no"><code class="lang-text">The authenticity of host 'debian-lab (10.1.0.52)' can't be established.
+ED25519 key fingerprint is SHA256:Qm3k...x9E.
+Are you sure you want to continue connecting (yes/no/[fingerprint])?</code></pre>
+<p>La cosa giusta da fare è confrontarla con l'impronta digitale che il server stesso mostra, in un altro modo (la console Proxmox, la documentazione):</p>
+<pre translate="no"><code class="lang-bash">ssh-keygen -lf /etc/ssh/ssh_host_ed25519_key.pub     # sul server</code></pre>
+<p>Se corrispondono, <code translate="no">yes</code>. La chiave va al tuo <code translate="no">~/.ssh/known_hosts</code> e da quel momento in poi SSH la controlla da sola per ogni connessione.</p>
+<p><strong>Chiave SSH in quattro comandi.</strong></p>
+<pre translate="no"><code class="lang-bash">ssh-keygen -t ed25519 -C "rodrigo@rocky-lab"     # crea la coppia; chiedere una passphrase
+ls -l ~/.ssh/                                    # id_ed25519 (privato) e id_ed25519.pub (pubblico)
+ssh-copy-id debian-lab                           # installa lì quello pubblico; chiede la password un'ultima volta
+ssh debian-lab                                   # entrare con la chiave</code></pre>
+<p>Il <code translate="no">ssh-copy-id</code> aggiunge la chiave pubblica al <code translate="no">~/.ssh/authorized_keys</code> dall'altra parte e imposta le autorizzazioni. Ogni riga di questo file è una chiave che può essere immessa come utente.</p>
+<p>La passphrase protegge la chiave privata se qualcuno copia il file. Per evitare di digitarlo ad ogni connessione, <code translate="no">ssh-agent</code> mantiene in memoria la chiave aperta per tutta la durata della sessione:</p>
+<pre translate="no"><code class="lang-bash">eval "$(ssh-agent -s)"
+ssh-add                    # chiede la passphrase una volta
+ssh-add -l                 # le chiavi che l'agente conserva</code></pre>
+<p><strong>Copia file.</strong> <code translate="no">scp</code> copia come <code translate="no">cp</code>, con <code translate="no">máquina:</code> davanti al percorso remoto:</p>
+<pre translate="no"><code class="lang-bash">scp arquivo.txt debian-lab:/tmp/            # da qui a lì
+scp debian-lab:/etc/os-release ./           # da lì a qui</code></pre>
+<p>Per cartelle e copie ripetute, <code translate="no">rsync</code> copia solo ciò che è cambiato:</p>
+<pre translate="no"><code class="lang-bash">rsync -av pasta/ debian-lab:~/pasta/        # -a conserva permessi e date; -v mostra
+rsync -av --dry-run pasta/ debian-lab:~/pasta/   # Mostra cosa faresti, senza fare</code></pre>
+<p>La barra finale di <code translate="no">pasta/</code> cambia tutto: con la barra copia il <strong>contenuto</strong> della cartella; senza barra, copia la cartella <strong>all'interno</strong> della destinazione. In caso di dubbio, <code translate="no">--dry-run</code>.</p>
+<h3 id="ponte-windows">Ponte Windows</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Su Windows</th><th scope="col">Su Linux</th><th scope="col">Cosa cambia</th></tr></thead><tbody><tr><td>Gruppo Amministratori</td><td>Gruppo <code translate="no">wheel</code> (Rocky) o <code translate="no">sudo</code> (Debian)</td><td>Essere nel gruppo da soli non fa nulla: ordini comunque con <code translate="no">sudo</code></td></tr><tr><td>"Esegui come amministratore" (UAC)</td><td><code translate="no">sudo comando</code></td><td>Un comando alla volta, con la tua password, annotata nel registro</td></tr><tr><td><code translate="no">runas /user:outro</code></td><td><code translate="no">sudo -u outro comando</code></td><td></td></tr><tr><td>Account amministratore integrato</td><td><code translate="no">root</code></td><td>Su un server ben configurato, nessuno accede direttamente come root</td></tr><tr><td>Desktop remoto, comunicazione remota PowerShell</td><td><code translate="no">ssh</code></td><td>Testo, non schermo; lo stesso protocollo per inserire e copiare</td></tr><tr><td>PuTTY e spettacolo</td><td><code translate="no">ssh</code> e <code translate="no">ssh-agent</code></td><td>Windows 10 e 11 dispongono già di OpenSSH: <code translate="no">ssh</code> funziona in PowerShell</td></tr><tr><td>WinSCP</td><td><code translate="no">scp</code>, <code translate="no">sftp</code>, <code translate="no">rsync</code></td><td></td></tr><tr><td>Digitare <code translate="no">C:\Users\voce\.ssh\</code></td><td>Tasti in <code translate="no">~/.ssh/</code></td><td>Stesso formato. Su Windows non c'è <code translate="no">ssh-copy-id</code>: vedi sotto</td></tr></tbody></table></div>
+<p>Dal tuo PC Windows alle VM, senza <code translate="no">ssh-copy-id</code>, tramite PowerShell:</p>
+<pre translate="no"><code class="lang-text">ssh-keygen -t ed25519
+type $env:USERPROFILE\.ssh\id_ed25519.pub | ssh rodrigo@10.1.0.51 "mkdir -p ~/.ssh &amp;&amp; chmod 700 ~/.ssh &amp;&amp; cat &gt;&gt; ~/.ssh/authorized_keys &amp;&amp; chmod 600 ~/.ssh/authorized_keys"</code></pre>
+<h3 id="advanced">Advanced</h3>
+<p><strong>Perché <code translate="no">sshd</code> rifiuta una determinata chiave.</strong> Con <code translate="no">StrictModes yes</code>, quello predefinito, <code translate="no">sshd</code> controlla il proprietario e i permessi della tua cartella Inizio, <code translate="no">~/.ssh</code> e <code translate="no">~/.ssh/authorized_keys</code>. Se qualcuno di questi può essere modificato dal gruppo o da altri, salta i tasti e passa al metodo successivo, solitamente la password. Il cliente non sa perché: vede solo la richiesta di password. Il motivo è nel registro del server:</p>
+<pre translate="no"><code class="lang-text">Authentication refused: bad ownership or modes for directory /home/rodrigo</code></pre>
+<div class="tabela"><table><thead><tr><th scope="col">Percorso</th><th scope="col">Autorizzazione protetta</th></tr></thead><tbody><tr><td><code translate="no">~</code> (la cartella home)</td><td>Divieto di scrittura per gruppi e altri: <code translate="no">700</code> o <code translate="no">755</code></td></tr><tr><td><code translate="no">~/.ssh</code></td><td><code translate="no">700</code></td></tr><tr><td><code translate="no">~/.ssh/authorized_keys</code></td><td><code translate="no">600</code></td></tr><tr><td><code translate="no">~/.ssh/id_ed25519</code> (privato, a carico del cliente)</td><td><code translate="no">600</code>. Troppo aperto, lo stesso <code translate="no">ssh</code> rifiuta: <code translate="no">UNPROTECTED PRIVATE KEY FILE!</code></td></tr><tr><td><code translate="no">~/.ssh/config</code> (sul cliente)</td><td><code translate="no">600</code>. Troppo aperto: <code translate="no">Bad owner or permissions</code></td></tr></tbody></table></div>
+<p>In Rocky c'è una seconda causa: SELinux. Un <code translate="no">authorized_keys</code> creato in <code translate="no">/tmp</code> e spostato con <code translate="no">mv</code> porta l'etichetta sbagliata e <code translate="no">sshd</code> non può leggerlo. <code translate="no">restorecon -Rv ~/.ssh</code> risolve. SELinux ha il proprio modulo successivo; per ora, tieni presente che una chiave rifiutata in Rocky con determinate autorizzazioni è il prossimo sospettato.</p>
+<p><strong><code translate="no">ssh -v</code> mostra la conversazione.</strong> Sul lato client, <code translate="no">-v</code> mostra ogni metodo provato:</p>
+<pre translate="no"><code class="lang-text">debug1: Offering public key: /home/rodrigo/.ssh/id_ed25519 ED25519 SHA256:...
+debug1: Authentications that can continue: publickey,password
+debug1: Next authentication method: password</code></pre>
+<p>"Offerta" seguita da "può continuare" significa che il server ha ricevuto la chiave e non l'ha accettata. Se la riga "Offerta" non appare nemmeno, il problema è dalla tua parte: la chiave non esiste, è con un altro nome oppure <code translate="no">~/.ssh/config</code> punta a qualcos'altro.</p>
+<p><strong>La configurazione di <code translate="no">sshd</code> è valida per il primo valore.</strong> <code translate="no">/etc/ssh/sshd_config</code> inizia con <code translate="no">Include /etc/ssh/sshd_config.d/*.conf</code> e i file vengono letti in ordine alfabetico. Per la maggior parte delle opzioni, <strong>il primo valore trovato è valido</strong> e quelli successivi vengono ignorati. Ecco perché il tuo file deve avere un numero basso, come <code translate="no">10-empresa.conf</code>: un <code translate="no">99-empresa.conf</code> perde contro il <code translate="no">50-redhat.conf</code> di Rocky in tutto ciò che entrambi definiscono. Il modo per sapere cosa vale davvero:</p>
+<pre translate="no"><code class="lang-bash">sudo sshd -t                                   # controlla la sintassi; nessuna via d'uscita = ok
+sudo sshd -T | grep -i passwordauthentication  # quanto vale, dopo aver letto tutto</code></pre>
+<p>È cambiato? <code translate="no">sudo sshd -t</code> prima, <code translate="no">systemctl reload</code> dopo e una seconda sessione aperta durante il test. Un errore in <code translate="no">sshd_config</code> con l'unica sessione chiusa va alla console.</p>
+<p><strong><code translate="no">~/.ssh/config</code>, nickname e pattern.</strong> Sul client, un file unisce ciò che digiteresti ogni volta:</p>
+<pre translate="no"><code class="lang-text">Host deb
+    HostName debian-lab
+    User rodrigo
+    IdentityFile ~/.ssh/id_ed25519
+
+Host *
+    ServerAliveInterval 60</code></pre>
+<p><code translate="no">ssh deb</code>, <code translate="no">scp arquivo deb:/tmp/</code> e <code translate="no">rsync ... deb:</code> iniziano a utilizzare tutto questo. <code translate="no">ServerAliveInterval</code> invia un segnale ogni 60 secondi e impedisce ai firewall di eliminare la sessione interrotta.</p>
+<p><strong><code translate="no">sudoers.d</code> ignora i file con un punto.</strong> <code translate="no">sudo</code> legge i file da <code translate="no">/etc/sudoers.d/</code> ma salta quelli che hanno <code translate="no">.</code> nel nome o terminano in <code translate="no">~</code>. Un <code translate="no">/etc/sudoers.d/backup.conf</code> viene ignorato senza preavviso. È la causa numero uno del "Ho creato la regola e non funziona". E la riga <code translate="no">#includedir /etc/sudoers.d</code> alla fine del <code translate="no">/etc/sudoers</code> di Rocky <strong>non</strong> è un commento, nonostante <code translate="no">#</code>: è l'istruzione che legge la cartella. In Debian 13 appare come <code translate="no">@includedir</code>, che fa lo stesso.</p>
+<p><strong>Il <code translate="no">sudo</code> e il registro SSH.</strong></p>
+<pre translate="no"><code class="lang-bash">sudo journalctl _COMM=sudo -n 10          # l'ultimo sudo, in entrambi
+sudo journalctl -u sshd -n 20             # roccioso; su Debian, -u ssh
+sudo tail -20 /var/log/secure             # Rocky: sudo, su e SSH nello stesso file</code></pre>
+<h3 id="cosa-e-testato">Cosa è testato</h3>
+<ul><li><strong>LE 015.1</strong>: root, utente comune e account di sistema; ID 0; <code translate="no">id</code>, <code translate="no">whoami</code>, <code translate="no">who</code>, <code translate="no">w</code>, <code translate="no">last</code>; <code translate="no">su</code> × <code translate="no">sudo</code>; <code translate="no">/etc/passwd</code>, <code translate="no">/etc/shadow</code>, <code translate="no">/etc/group</code> (per riconoscere i campi).</li>
+<li><strong>LPIC-1 110.1</strong>: <code translate="no">sudo</code>, <code translate="no">/etc/sudoers</code>, <code translate="no">visudo</code>, <code translate="no">su -</code>; <code translate="no">who</code>, <code translate="no">w</code>, <code translate="no">last</code>; trova account con UID 0 o senza password.</li>
+<li><strong>LPIC-1 110.3</strong>: <code translate="no">ssh-keygen</code>, <code translate="no">ssh-copy-id</code>, <code translate="no">ssh-agent</code>, <code translate="no">ssh-add</code>; <code translate="no">~/.ssh/known_hosts</code>, <code translate="no">~/.ssh/authorized_keys</code>, <code translate="no">~/.ssh/id_*</code>; le chiavi del server in <code translate="no">/etc/ssh/ssh_host_*</code>; tipi di chiave (RSA, ECDSA, Ed25519).</li>
+<li><strong>RHCSA</strong>: ingresso tramite SSH; configurare l'autenticazione con chiave tra due macchine; copiare file con <code translate="no">scp</code>, <code translate="no">sftp</code> o <code translate="no">rsync</code>; cambiare utente con <code translate="no">su</code>; dare <code translate="no">sudo</code> ad un utente o gruppo; modificare <code translate="no">PermitRootLogin</code> o <code translate="no">PasswordAuthentication</code> e verificare. Nel test, una virgola sbagliata in <code translate="no">sudoers</code> senza <code translate="no">visudo</code> può costare l'intera domanda.</li></ul>
+<h2 id="5-rocky-debian">5 · Rocky × Debian</h2>
+<div class="tabela"><table><thead><tr><th scope="col">Cosa</th><th scope="col">Roccioso 9</th><th scope="col">Debian13</th></tr></thead><tbody><tr><td>Gruppo con <code translate="no">sudo</code></td><td><code translate="no">wheel</code></td><td><code translate="no">sudo</code></td></tr><tr><td>Inclusione di <code translate="no">sudoers.d</code></td><td><code translate="no">#includedir /etc/sudoers.d</code></td><td><code translate="no">@includedir /etc/sudoers.d</code></td></tr><tr><td>Unità SSH</td><td><code translate="no">sshd.service</code></td><td><code translate="no">ssh.service</code> (il nome <code translate="no">sshd</code> funziona anche come soprannome)</td></tr><tr><td>File aggiuntivo del produttore</td><td><code translate="no">/etc/ssh/sshd_config.d/50-redhat.conf</code></td><td>Nessuno per impostazione predefinita</td></tr><tr><td>Log di <code translate="no">sudo</code>, <code translate="no">su</code> e SSH</td><td><code translate="no">/var/log/secure</code> e il giornale</td><td>Solo il giornale, perché <code translate="no">rsyslog</code> non è installato</td></tr><tr><td><code translate="no">known_hosts</code></td><td>Nomi leggibili</td><td>Nomi criptati (<code translate="no">HashKnownHosts yes</code> in <code translate="no">/etc/ssh/ssh_config</code>): cercare con <code translate="no">ssh-keygen -F nome</code></td></tr><tr><td><code translate="no">PermitRootLogin</code>preimpostazione</td><td><code translate="no">prohibit-password</code> (solo root con chiave), a meno che non sia stata selezionata un'altra opzione durante l'installazione</td><td><code translate="no">prohibit-password</code></td></tr><tr><td>Shell degli account di sistema</td><td><code translate="no">/sbin/nologin</code></td><td><code translate="no">/usr/sbin/nologin</code></td></tr><tr><td>UID primo utente</td><td>1000</td><td>1000</td></tr><tr><td>Password di root</td><td>Impostato o bloccato a seconda dell'installazione: <code translate="no">sudo passwd -S root</code></td><td>Se durante l'installazione avete fornito a root una password, il primo utente non entrerà nel gruppo <code translate="no">sudo</code></td></tr><tr><td><code translate="no">last</code></td><td>Già installato</td><td>Se mancante, <code translate="no">sudo apt install wtmpdb</code> e utilizzare <code translate="no">wtmpdb last</code></td></tr><tr><td><code translate="no">rsync</code></td><td><code translate="no">dnf install rsync</code> se manca</td><td><code translate="no">apt install rsync</code> se manca</td></tr><tr><td>SELinux esamina <code translate="no">~/.ssh</code></td><td>Sì</td><td>No (Debian non attiva SELinux)</td></tr></tbody></table></div>
+<h2 id="6-laboratorio-guidato">6 · Laboratorio guidato</h2>
+<p>In questo laboratorio le due VM parlano tra loro: rock-lab è il "tuo computer" e debian-lab è il "server". Tieni aperto un terminale in ognuna, dal tuo PC, come nelle lezioni precedenti. I passaggi indicano su quale VM eseguire. I nomi <code translate="no">rocky-lab</code> e <code translate="no">debian-lab</code> provengono da <code translate="no">/etc/hosts</code> che hai modificato nella Lezione 2.4; se <code translate="no">getent hosts debian-lab</code> risulta vuoto in Rocky-Lab, aggiungere la riga prima di iniziare.</p>
+<figure><a href="../img/2.5-quando-usar-sudo.svg"><img src="../img/2.5-quando-usar-sudo.svg" alt="2.5 Quando utilizzare Sudo" loading="lazy" decoding="async"></a><figcaption>Inserire non equivale a inviare. Un utente può accedere tramite SSH e non avere alcun sudo.</figcaption></figure>
+<h3 id="passaggio-0-istantanea">Passaggio 0 · Istantanea</h3>
+<p>In Proxmox, acquisire uno snapshot <code translate="no">m2a5-inicio</code> delle due VM. In questo laboratorio tocchi <code translate="no">sshd</code> e <code translate="no">sudo</code>, le due porte da cui entri. Se li chiudi entrambi, la console Proxmox e l'istantanea saranno al tuo fianco.</p>
+<h3 id="passo-1-chi-e-chi-negli-account">Passo 1 · Chi è chi negli account</h3>
+<p>In Rocky-Lab:</p>
+<pre translate="no"><code class="lang-bash">id
+whoami
+getent passwd root "$USER"
+awk -F: '$3 == 0 {print $1}' /etc/passwd                        # chi ha UID 0
+awk -F: '$3 &gt;= 1 &amp;&amp; $3 &lt; 1000 {print $1, $3, $7}' /etc/passwd   # conti di sistema
+awk -F: '$3 &gt;= 1000 &amp;&amp; $3 &lt; 60000 {print $1, $3, $7}' /etc/passwd   # persone</code></pre>
+<p>Il primo <code translate="no">awk</code> dovrebbe elencare solo <code translate="no">root</code>. La seconda elenca decine di account, quasi tutti con <code translate="no">nologin</code> alla fine: si tratta di servizi. La terza parte deve elencare solo te. Il limite di 60000 rimuove dall'elenco l'account <code translate="no">nobody</code> (UID 65534), che nonostante il numero elevato è un account di sistema.</p>
+<p>Ora chi c'è sulla macchina:</p>
+<pre translate="no"><code class="lang-bash">who
+w
+last -n 5</code></pre>
+<p><code translate="no">who</code> mostra le vostre sessioni SSH, con l'IP del vostro PC tra parentesi. <code translate="no">w</code> mostra anche cosa è in esecuzione ciascuna sessione e da quanto tempo è stata interrotta. <code translate="no">last</code> legge la cronologia: inclusi gli accessi già terminati e i riavvii.</p>
+<p>Ripeti in debian-lab. Lì, la shell degli account di sistema appare come <code translate="no">/usr/sbin/nologin</code>. Se <code translate="no">last</code> non esiste, installa il sostituto: <code translate="no">sudo apt install wtmpdb</code> e usa <code translate="no">wtmpdb last -n 5</code>.</p>
+<p><strong>Decidi 1 · La riga strana.</strong> In un audit, il <code translate="no">getent passwd</code> di un server client mostra, tra gli account normali, questa riga:</p>
+<pre translate="no"><code class="lang-text">suporte:x:0:1001:Suporte Externo:/home/suporte:/bin/bash</code></pre>
+<p>Che cos'è?</p>
+<ul><li><strong>A)</strong> Un utente normale: il nome non è <code translate="no">root</code> e la cartella home è in <code translate="no">/home</code>.</li>
+<li><strong>B)</strong> Un secondo account root, con un altro nome. Da indagare.</li>
+<li><strong>C)</strong> Un account di sistema, perché il nome proviene da un servizio.</li>
+<li><strong>D)</strong> Innocuo, perché il gruppo principale è 1001, che è per un utente comune.</li></ul>
+<p>Scegliere la lettera prima di guardare la tabella.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se hai selezionato</th><th scope="col">Risultato</th><th scope="col">Perché</th></tr></thead><tbody><tr><td>A</td><td>❌ Sbagliato</td><td>Il sistema non guarda il nome o la cartella: guarda l'UID. Con UID 0 chi entra come <code translate="no">suporte</code> ha tutto il potere di root.</td></tr><tr><td>B</td><td>✅ Giusto</td><td>L'UID 0 è root, qualunque sia il nome. Potrebbe essere una scorciatoia creata da un vecchio tecnico o una backdoor. In entrambi i casi non è una correzione che fai da solo: scrivila, mostrala al responsabile e vedi nel <code translate="no">last suporte</code> chi l'ha utilizzata.</td></tr><tr><td>C</td><td>❌ Sbagliato</td><td>L'account di sistema ha un UID compreso tra 1 e 999 e generalmente <code translate="no">nologin</code>. Questo ha UID 0 e <code translate="no">/bin/bash</code>.</td></tr><tr><td>D</td><td>❌ Sbagliato</td><td>Il gruppo principale non limita nulla. Il kernel non concede l'autorizzazione all'UID 0, qualunque sia il gruppo.</td></tr></tbody></table></div>
+<p><strong>Da risolvere:</strong> il numero è in carica. <code translate="no">awk -F: '$3 == 0' /etc/passwd</code> dovrebbe elencare solo <code translate="no">root</code>.</p>
+<h3 id="passaggio-2-sudo-e-su-e-la-traccia-di-ciascuno">Passaggio 2 · <code translate="no">sudo</code> e <code translate="no">su</code> e la traccia di ciascuno</h3>
+<p>In rocky-lab:</p>
+<pre translate="no"><code class="lang-bash">getent group wheel           # dovresti apparire alla fine della riga
+sudo -l                      # cosa puoi fare?
+sudo -u nobody id            # esegui come un altro utente, non solo come root
+sudo -k                      # dimenticare la password
+sudo -n true; echo "rc=$?"   # -n = non chiedere; nessuna password salvata, errore</code></pre>
+<p>Il <code translate="no">sudo -l</code> termina con una riga <code translate="no">(ALL) ALL</code>: deriva dalla regola del gruppo <code translate="no">wheel</code>. <code translate="no">sudo -n</code> risponde a <code translate="no">a password is required</code> e <code translate="no">rc=1</code>. Ecco come uno script scopre, senza bloccarsi, che avrebbe bisogno di una password.</p>
+<p>Ora i tre modi per diventare root. Eseguirli tutti, guardare l'output ed uscire con <code translate="no">exit</code>:</p>
+<pre translate="no"><code class="lang-bash">sudo -i
+whoami; pwd; echo "$HOME"
+exit</code></pre>
+<p>Sei root, in <code translate="no">/root</code>, con l'ambiente root. Ora <code translate="no">su -</code>:</p>
+<pre translate="no"><code class="lang-bash">sudo passwd -S root
+su -</code></pre>
+<p><code translate="no">passwd -S</code> mostra lo stato della password root. Se appare <code translate="no">L</code> o <code translate="no">LK</code>, la password è bloccata e <code translate="no">su -</code> fallirà con <code translate="no">Authentication failure</code>. Questo è normale su un server ben configurato: nessuno usa la password di root. Se appare <code translate="no">P</code> o <code translate="no">PS</code> e conosci la password, <code translate="no">su -</code> funziona e richiede la password di <strong>root</strong>, non la tua. Non creare o modificare la password di root per questo passaggio.</p>
+<p>Ora il percorso. In rocky-lab:</p>
+<pre translate="no"><code class="lang-bash">sudo journalctl _COMM=sudo -n 6 --no-pager
+sudo grep -E 'sudo|su:' /var/log/secure | tail -6</code></pre>
+<p>Ogni <code translate="no">sudo</code> appare con il tuo nome, la directory in cui ti trovi e il comando completo: <code translate="no">rodrigo : TTY=pts/0 ; PWD=/home/rodrigo ; USER=nobody ; COMMAND=/usr/bin/id</code>. <code translate="no">sudo -i</code> appare come <code translate="no">COMMAND=/bin/bash</code> e ciò che hai fatto al suo interno non appare. Questo è il prezzo per restare in una shell root.</p>
+<p>Ripeti in debian-lab, cambiando <code translate="no">wheel</code> in <code translate="no">sudo</code> in <code translate="no">getent group</code> e saltando <code translate="no">grep</code> di <code translate="no">/var/log/secure</code>, che lì non esiste: il journal memorizza tutto.</p>
+<p><strong>Decidi 2 · Venti minuti di root.</strong> Stai per indagare su un problema e devi eseguire una sequenza di comandi come root per qualche ventina di minuti. L'azienda richiede di sapere chi ha eseguito ciascuna manutenzione. Quale usi?</p>
+<ul><li><strong>A)</strong> <code translate="no">sudo -i</code></li>
+<li><strong>B)</strong> <code translate="no">su -</code></li>
+<li><strong>C)</strong> <code translate="no">sudo su</code></li>
+<li><strong>D)</strong> <code translate="no">su</code>, senza trattino</li></ul>
+<p>Scegli la lettera prima di guardare la tabella.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se hai selezionato</th><th scope="col">Risultato</th><th scope="col">Perché</th></tr></thead><tbody><tr><td>A</td><td>✅ Giusto</td><td>Richiede la tua password, lascia nel registro che <strong>tu</strong> ha aperto la shell di root e fornisce l'ambiente di root, come un login. Affinché il percorso sia completo, l'opzione migliore è <code translate="no">sudo comando</code> per ogni comando, ma per una sessione lunga <code translate="no">sudo -i</code> è quella predefinita.</td></tr><tr><td>B</td><td>⚠️ Funziona, ma</td><td>Diventi root, ma avevi bisogno della password di root, che poi sarà conosciuta da più persone. Il log dice che qualcuno è diventato root dalla tua sessione, ma la politica "ognuno con il proprio nome" non è più valida quando tutti conoscono la stessa password.</td></tr><tr><td>C</td><td>⚠️ Funziona, ma</td><td>Il registro mostra che hai eseguito <code translate="no">su</code>, quindi la traccia esiste. Ma ci sono due programmi che fanno il lavoro di uno solo, e l'ambiente è per metà ereditato. <code translate="no">sudo -i</code> fa lo stesso, giusto.</td></tr><tr><td>D</td><td>❌ Sbagliato</td><td>Richiede la password di root e mantiene il tuo ambiente. In Debian, il <code translate="no">PATH</code> dell'utente non ha <code translate="no">/usr/sbin</code> e comandi come <code translate="no">useradd</code> danno <code translate="no">command not found</code>.</td></tr></tbody></table></div>
+<p><strong>Per risolvere:</strong> shell root con traccia = <code translate="no">sudo -i</code>. Solo un comando = <code translate="no">sudo comando</code>.</p>
+<h3 id="passo-3-la-prima-connessione-e-l-identita-del-server">Passo 3 · La prima connessione e l'identità del server</h3>
+<p>In <strong>debian-lab</strong>, trovare l'impronta digitale della chiave del server:</p>
+<pre translate="no"><code class="lang-bash">ssh-keygen -lf /etc/ssh/ssh_host_ed25519_key.pub</code></pre>
+<p>Notare il bit dopo <code translate="no">SHA256:</code>. Da <strong>rocky-lab</strong>, connettiti:</p>
+<pre translate="no"><code class="lang-bash">ssh debian-lab</code></pre>
+<p>SSH mostra <code translate="no">ED25519 key fingerprint is SHA256:...</code> e ti chiede se ti fidi. Confronta con quello che hai scritto. Se è lo stesso, <code translate="no">yes</code> e inserisci la tua password utente debian-lab. Al suo interno:</p>
+<pre translate="no"><code class="lang-bash">hostname
+who                  # la tua sessione proveniente da 10.1.0.51 (o da Rocky-Lab)
+exit</code></pre>
+<p>Se SSH non ha chiesto nulla, ti eri già connesso prima: <code translate="no">ssh-keygen -F debian-lab</code> mostra la riga salvata.</p>
+<p>Ora guarda cosa è stato salvato, in rocky-lab:</p>
+<pre translate="no"><code class="lang-bash">cat ~/.ssh/known_hosts
+ssh-keygen -F debian-lab</code></pre>
+<p>In Rocky, la riga inizia con il nome <code translate="no">debian-lab</code>, leggibile. SSH memorizza il nome <strong>che hai inserito</strong>: un <code translate="no">ssh 10.1.0.52</code> te lo chiederebbe di nuovo, perché per questo si tratta di un'altra registrazione.</p>
+<p>Ora al contrario. Nel laboratorio roccioso, esegui <code translate="no">ssh-keygen -lf /etc/ssh/ssh_host_ed25519_key.pub</code> e scrivi la sua impronta digitale. In debian-lab, connettersi, confrontare prima di <code translate="no">yes</code> e inserire la password:</p>
+<pre translate="no"><code class="lang-bash">ssh rocky-lab hostname
+cat ~/.ssh/known_hosts
+ssh-keygen -F rocky-lab</code></pre>
+<p>In Debian, la riga <code translate="no">known_hosts</code> inizia con <code translate="no">|1|</code> seguita da lettere: il nome è criptato (<code translate="no">HashKnownHosts yes</code>). Chi copia il file non scoprirà dove vai di solito. <code translate="no">ssh-keygen -F rocky-lab</code> trova comunque la linea.</p>
+<h3 id="passo-4-una-chiave-installata-sull-altro-lato">Passo 4 · Una chiave, installata sull'altro lato</h3>
+<p>In Rocky-Lab, creare la coppia di chiavi. Quando ti viene chiesta la passphrase, usane una vera: è quella che protegge la chiave se qualcuno copia il file.</p>
+<pre translate="no"><code class="lang-bash">ssh-keygen -t ed25519 -C "rodrigo@rocky-lab"
+ls -l ~/.ssh/
+cat ~/.ssh/id_ed25519.pub</code></pre>
+<p><code translate="no">ls -l</code> indica il <code translate="no">id_ed25519</code> privato con <code translate="no">-rw-------</code> (600) e il <code translate="no">id_ed25519.pub</code> pubblico con <code translate="no">-rw-r--r--</code> (644). Quella pubblica è una sola riga: il tipo, la chiave e il commento.</p>
+<p><strong>Decidi 3 · Il file che va.</strong> Un collega che amministra debian-lab scrive: "inviami la tua chiave SSH e ti darò l'accesso". Quale file inviare?</p>
+<ul><li><strong>A)</strong> <code translate="no">~/.ssh/id_ed25519.pub</code></li>
+<li><strong>B)</strong> <code translate="no">~/.ssh/id_ed25519</code></li>
+<li><strong>C)</strong> <code translate="no">~/.ssh/known_hosts</code></li>
+<li><strong>D)</strong> Rocky-lab's <code translate="no">~/.ssh/authorized_keys</code></li></ul>
+<p>Scegli la lettera prima di guardare la tabella.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se hai selezionato</th><th scope="col">Risultato</th><th scope="col">Perché</th></tr></thead><tbody><tr><td>A</td><td>✅ Giusto</td><td>Il pubblico è fatto per essere distribuito. Va nel <code translate="no">authorized_keys</code> del server e solo chi ha la toilette corrispondente può usarlo.</td></tr><tr><td>B</td><td>❌ Sbagliato</td><td>E' quello privato. Chiunque abbia questo file entra in ogni server che si fida di questa chiave come te. Se ha lasciato la tua macchina, la risposta è generarne un'altra e cambiarla ovunque.</td></tr><tr><td>C</td><td>❌ Sbagliato</td><td>È l'elenco delle impronte digitali dei server che <strong>tu</strong> hai visitato. Non ti dà accesso a nulla e lo consegna dove vai abitualmente.</td></tr><tr><td>D</td><td>❌ Sbagliato</td><td>E' la lista di chi può entrare in <strong>rocky-lab</strong>. Non c'è niente di tuo, a meno che tu non lo metta lì.</td></tr></tbody></table></div>
+<p><strong>Da risolvere:</strong> la toilette non lascia mai la macchina dove è stata creata. Hanno chiesto la chiave? È <code translate="no">.pub</code>.</p>
+<p>Ora installa quello pubblico in debian-lab. <code translate="no">ssh-copy-id</code> richiede la tua password debian-lab un'ultima volta:</p>
+<pre translate="no"><code class="lang-bash">ssh-copy-id debian-lab</code></pre>
+<p>In <strong>debian-lab</strong>, controlla cosa ha fatto:</p>
+<pre translate="no"><code class="lang-bash">ls -ld ~/.ssh ~/.ssh/authorized_keys
+cat ~/.ssh/authorized_keys</code></pre>
+<p>La cartella con <code translate="no">drwx------</code> (700), il file con <code translate="no">-rw-------</code> (600), e al suo interno la stessa riga di <code translate="no">cat ~/.ssh/id_ed25519.pub</code> da rocky-lab.</p>
+<p>Torna a rocky-lab e inserisci:</p>
+<pre translate="no"><code class="lang-bash">ssh debian-lab hostname</code></pre>
+<p>Leggi attentamente ciò che ti chiede. Non è più <code translate="no">rodrigo@debian-lab's password:</code>, la password del server. È <code translate="no">Enter passphrase for key '/home/rodrigo/.ssh/id_ed25519':</code>, la passphrase della tua chiave, che non viaggia mai attraverso la rete. Per evitare di digitare la frase per ogni connessione, caricare l'agente:</p>
+<pre translate="no"><code class="lang-bash">eval "$(ssh-agent -s)"
+ssh-add
+ssh-add -l
+ssh debian-lab hostname          # ora senza chiedere nulla</code></pre>
+<p>L'agente è valido per questo terminale. Chiudi il terminale e scomparirà, insieme alla chiave di apertura in memoria.</p>
+<h3 id="passo-5-un-nickname-e-comandi-remoti">Passo 5 · Un nickname e comandi remoti</h3>
+<p>In rocky-lab, crea <code translate="no">~/.ssh/config</code>:</p>
+<pre translate="no"><code class="lang-bash">cat &gt;&gt; ~/.ssh/config &lt;&lt;'EOF'
+Host deb
+    HostName debian-lab
+    User rodrigo
+    IdentityFile ~/.ssh/id_ed25519
+
+Host *
+    ServerAliveInterval 60
+EOF
+chmod 600 ~/.ssh/config</code></pre>
+<p>Ora è sufficiente <code translate="no">deb</code>:</p>
+<pre translate="no"><code class="lang-bash">ssh deb hostname
+ssh deb 'uptime; df -h /'
+ssh -t deb 'sudo systemctl status ssh --no-pager | head -5'</code></pre>
+<p><code translate="no">-t</code> fornisce alla sessione un terminale e <code translate="no">sudo</code> dall'altra parte ne ha bisogno per chiedere la password. Senza <code translate="no">-t</code>, il <code translate="no">sudo</code> remoto si lamenta di non sapere dove chiedere.</p>
+<p>Ora il test che utilizzano gli script. <code translate="no">BatchMode=yes</code> impedisce a SSH di chiedere qualsiasi cosa: se avesse bisogno di chiedere una password o una passphrase, fallisce immediatamente invece di bloccarsi.</p>
+<pre translate="no"><code class="lang-bash">ssh -o BatchMode=yes -o ConnectTimeout=5 deb true &amp;&amp; echo "chave ok"</code></pre>
+<p>Con l'agente caricato, risponde <code translate="no">chave ok</code>. Su un nuovo terminale, senza l'agente, lo stesso comando fallisce con <code translate="no">Permission denied</code>: la chiave esiste, ma è chiusa dalla passphrase. Ecco come verificare, in una lista di server, dove funziona già la chiave:</p>
+<pre translate="no"><code class="lang-bash">for h in deb; do
+    printf '%-12s ' "$h"
+    ssh -o BatchMode=yes -o ConnectTimeout=5 "$h" 'hostname' 2&gt;&amp;1 | head -1
+done</code></pre>
+<p>Oggi la lista ha un solo nome. Nella vita reale, ne ha venti e il loop mostra su uno schermo quali rispondono.</p>
+<h3 id="passo-6-copiare-i-file">Passo 6 · Copiare i file</h3>
+<p>In Rocky-Lab, preparare una cartella:</p>
+<pre translate="no"><code class="lang-bash">mkdir -p ~/lab-copia/sub
+echo um &gt; ~/lab-copia/a.txt
+echo dois &gt; ~/lab-copia/sub/b.txt</code></pre>
+<p>O <code translate="no">scp</code>, per un file:</p>
+<pre translate="no"><code class="lang-bash">scp ~/lab-copia/a.txt deb:/tmp/
+ssh deb cat /tmp/a.txt
+scp deb:/etc/os-release ~/os-release-debian
+head -2 ~/os-release-debian</code></pre>
+<p>O <code translate="no">rsync</code> deve essere installato <strong>ad entrambe le estremità</strong>. In rocky-lab:</p>
+<pre translate="no"><code class="lang-bash">sudo dnf install -y rsync
+ssh -t deb 'sudo apt install -y rsync'</code></pre>
+<p>Ora copia la cartella, mostrando prima cosa farebbe:</p>
+<pre translate="no"><code class="lang-bash">rsync -av --dry-run ~/lab-copia/ deb:lab-copia/
+rsync -av ~/lab-copia/ deb:lab-copia/
+ssh deb 'find ~/lab-copia -type f'</code></pre>
+<p>I due file appaiono lì, in <code translate="no">~/lab-copia/a.txt</code> e <code translate="no">~/lab-copia/sub/b.txt</code>. Esegui di nuovo lo stesso <code translate="no">rsync</code>: elenca la cartella e non copia nulla, perché non è cambiato nulla. Cambiare un file ed eseguirlo di nuovo:</p>
+<pre translate="no"><code class="lang-bash">echo um-mudado &gt; ~/lab-copia/a.txt
+rsync -av ~/lab-copia/ deb:lab-copia/       # solo un.txt
+sha256sum ~/lab-copia/a.txt
+ssh deb sha256sum lab-copia/a.txt           # lo stesso hashish</code></pre>
+<p>Ora il classico errore, apposta. Senza la barra alla fine della sorgente è apparso:</p>
+<pre translate="no"><code class="lang-bash">rsync -av ~/lab-copia deb:lab-copia/
+ssh deb 'find ~/lab-copia -type f'</code></pre>
+<p><code translate="no">~/lab-copia/lab-copia/a.txt</code>: senza la barra, <code translate="no">rsync</code> ha copiato la <strong>cartella</strong> nella destinazione. Con la barra, copia il <strong>contenuto</strong>. In un backup reale, questo errore duplica i dati o, peggio, con <code translate="no">--delete</code>, cancella la destinazione giusta.</p>
+<p>Pulisci entrambe le estremità:</p>
+<pre translate="no"><code class="lang-bash">ssh deb 'rm -r ~/lab-copia /tmp/a.txt'
+rm -r ~/lab-copia ~/os-release-debian</code></pre>
+<h3 id="passo-7-cambia-sshd-senza-chiuderti-in">Passo 7 · Cambia <code translate="no">sshd</code> senza chiuderti in</h3>
+<p>Prima di toccare <code translate="no">sshd</code>, la regola: <strong>una seconda sessione aperta nella stessa VM</strong>, che non si chiude fino alla fine del passo. Se la modifica va storta, ecco perché la annulli.</p>
+<p>Oggi si modifica un'opzione innocua, che non influisce sul login: <code translate="no">X11Forwarding</code>, che permette di aprire finestre grafiche tramite la connessione. <strong>Non</strong> toccare <code translate="no">PasswordAuthentication</code> o <code translate="no">PermitRootLogin</code> nel lab di oggi.</p>
+<p>In <strong>debian-lab</strong>:</p>
+<pre translate="no"><code class="lang-bash">grep -n -i -E '^include|x11forwarding' /etc/ssh/sshd_config
+ls /etc/ssh/sshd_config.d/
+sudo sshd -T | grep -i x11forwarding</code></pre>
+<p><code translate="no">Include</code> appare all'inizio del file e <code translate="no">X11Forwarding yes</code> sotto. <code translate="no">sshd -T</code> risponde <code translate="no">x11forwarding yes</code>. Crea il tuo file:</p>
+<pre translate="no"><code class="lang-bash">echo 'X11Forwarding no' | sudo tee /etc/ssh/sshd_config.d/10-lab.conf
+sudo sshd -t &amp;&amp; sudo systemctl reload ssh
+sudo sshd -T | grep -i x11forwarding</code></pre>
+<p>Ora rispondi <code translate="no">no</code>. Il tuo file viene letto da <code translate="no">Include</code>, in alto, prima della riga <code translate="no">X11Forwarding yes</code> del file principale, e conta il primo valore. Vicolo cieco <code translate="no">sshd -t</code> significa sintassi corretta; <code translate="no">&amp;&amp;</code> si ricarica solo se passa.</p>
+<p>Ora dimostra la regola del primo valore:</p>
+<pre translate="no"><code class="lang-bash">echo 'X11Forwarding yes' | sudo tee /etc/ssh/sshd_config.d/99-lab.conf
+sudo sshd -T | grep -i x11forwarding</code></pre>
+<p>Continua <code translate="no">no</code>. È stato letto <code translate="no">99-lab.conf</code>, ma dopo <code translate="no">10-lab.conf</code> e il suo valore è stato ignorato. Ora in <strong>rocky-lab</strong>:</p>
+<pre translate="no"><code class="lang-bash">ls /etc/ssh/sshd_config.d/
+grep -i x11 /etc/ssh/sshd_config.d/50-redhat.conf
+echo 'X11Forwarding no' | sudo tee /etc/ssh/sshd_config.d/99-lab.conf
+sudo sshd -t &amp;&amp; sudo systemctl reload sshd
+sudo sshd -T | grep -i x11forwarding</code></pre>
+<p><strong>Decidi 4 · Il valore che non è stato preso.</strong> In rocky-lab, <code translate="no">sshd -t</code> è stato superato, la ricarica è stata eseguita e <code translate="no">sshd -T</code> continua a rispondere a <code translate="no">x11forwarding yes</code>. Perché?</p>
+<ul><li><strong>A)</strong> <code translate="no">50-redhat.conf</code> si legge prima di <code translate="no">99-lab.conf</code> e definisce già <code translate="no">X11Forwarding yes</code>; il primo valore è valido. Il file necessita di un numero più piccolo, ad esempio <code translate="no">10-lab.conf</code>.</li>
+<li><strong>B)</strong> <code translate="no">reload</code> non è sufficiente: serve <code translate="no">systemctl restart sshd</code>.</li>
+<li><strong>C)</strong> C'è un errore di sintassi in <code translate="no">99-lab.conf</code>.</li>
+<li><strong>D)</strong> La cosa giusta da fare è scrivere la riga alla fine di <code translate="no">/etc/ssh/sshd_config</code>, non a <code translate="no">sshd_config.d</code>.</li></ul>
+<p>Scegliere la lettera prima di guardare tabella.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se hai selezionato</th><th scope="col">Risultato</th><th scope="col">Perché</th></tr></thead><tbody><tr><td>A</td><td>✅ Giusto</td><td><code translate="no">grep</code> ha mostrato la riga in <code translate="no">50-redhat.conf</code>. In ordine alfabetico, <code translate="no">50</code> precede <code translate="no">99</code> e <code translate="no">sshd</code> assume il primo valore che legge. Rinominarlo in modifiche <code translate="no">10-lab.conf</code> e <code translate="no">sshd -T</code>.</td></tr><tr><td>B</td><td>❌ Sbagliato</td><td><code translate="no">sshd -T</code> non guarda nemmeno il processo in esecuzione: legge i file e mostra il risultato. Se <code translate="no">-T</code> dice <code translate="no">yes</code>, i file dicono <code translate="no">yes</code> e nessun riavvio lo cambia.</td></tr><tr><td>C</td><td>❌ Sbagliato</td><td><code translate="no">sshd -t</code> avrebbe mostrato l'errore e <code translate="no">&amp;&amp;</code> avrebbe impedito il ricaricamento.</td></tr><tr><td>D</td><td>❌ Sbagliato</td><td><code translate="no">Include</code> è sopra <code translate="no">sshd_config</code>. Una riga alla fine del file principale viene letta <strong>dopo</strong> tutti i file in <code translate="no">sshd_config.d</code> e perde allo stesso modo in <code translate="no">50-redhat.conf</code>.</td></tr></tbody></table></div>
+<p><strong>Per correggere:</strong> in <code translate="no">sshd</code> vale il primo valore. Il tuo file = numero basso. E ciò che conta è <code translate="no">sshd -T</code>, non il file che hai modificato.</p>
+<p>Se il tuo <code translate="no">grep</code> in <code translate="no">50-redhat.conf</code> non mostrava alcuna riga <code translate="no">X11Forwarding</code>, la tua versione non definisce quell'opzione lì e <code translate="no">sshd -T</code> ha già risposto a <code translate="no">no</code>. La regola continua ad applicarsi alle opzioni che definisce: <code translate="no">grep -v '^#' /etc/ssh/sshd_config.d/50-redhat.conf</code> mostra quali.</p>
+<p>Correggi e controlla:</p>
+<pre translate="no"><code class="lang-bash">sudo mv /etc/ssh/sshd_config.d/99-lab.conf /etc/ssh/sshd_config.d/10-lab.conf
+sudo sshd -t &amp;&amp; sudo systemctl reload sshd
+sudo sshd -T | grep -i x11forwarding        # nodo</code></pre>
+<p>Annulla tutto in entrambe le VM. In Rocky-Lab:</p>
+<pre translate="no"><code class="lang-bash">sudo rm /etc/ssh/sshd_config.d/10-lab.conf
+sudo sshd -t &amp;&amp; sudo systemctl reload sshd
+sudo sshd -T | grep -i x11forwarding        # sì, come prima</code></pre>
+<p>In Debian-Lab:</p>
+<pre translate="no"><code class="lang-bash">sudo rm /etc/ssh/sshd_config.d/10-lab.conf /etc/ssh/sshd_config.d/99-lab.conf
+sudo sshd -t &amp;&amp; sudo systemctl reload ssh
+sudo sshd -T | grep -i x11forwarding        # sì, come prima</code></pre>
+<p>Solo ora chiudi la seconda sessione.</p>
+<h3 id="passo-8-lo-script-non-riesco-ad-accedere-tramite-ssh">Passo 8 · Lo script "Non riesco ad accedere tramite SSH"</h3>
+<p>Quando qualcuno dice che non riesce ad accedere, il messaggio del client punta al passaggio. I primi tre appartengono alla lezione 2.4; gli altri appartengono a questa lezione.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Il cliente mostra</th><th scope="col">Il passo</th><th scope="col">Cosa guardare</th></tr></thead><tbody><tr><td>Resta fermo fino al <code translate="no">Connection timed out</code></td><td>Interruzione della rete o del firewall</td><td>La scala della lezione 2.4</td></tr><tr><td><code translate="no">No route to host</code></td><td>Rete o firewall che rifiuta</td><td><code translate="no">sudo firewall-cmd --list-all</code> a destinazione</td></tr><tr><td><code translate="no">Connection refused</code></td><td><code translate="no">sshd</code> lì non ascolta</td><td><code translate="no">systemctl status sshd</code> (o <code translate="no">ssh</code>); <code translate="no">sudo ss -tlnp | grep :22</code></td></tr><tr><td><code translate="no">WARNING: REMOTE HOST IDENTIFICATION HAS CHANGED!</code></td><td>L'identità del server</td><td>Controllare l'impronta digitale nell'altro modo prima di fare qualsiasi cosa</td></tr><tr><td><code translate="no">Permission denied (publickey)</code></td><td>Il server accetta solo chiavi e nessuna è stata accettata</td><td><code translate="no">ssh -v</code>; sul server, il registro e le autorizzazioni</td></tr><tr><td>Richiede la password quando dovrebbe essere utilizzata la chiave</td><td>La chiave è stata offerta e rifiutata</td><td>Il registro del server indica il motivo</td></tr><tr><td><code translate="no">Permission denied (publickey,password)</code> dopo la password</td><td>Password errata oppure l'utente non riesce ad accedere</td><td>Il registro del server: <code translate="no">Failed password</code> o <code translate="no">not allowed</code></td></tr><tr><td><code translate="no">UNPROTECTED PRIVATE KEY FILE!</code></td><td>La tua chiave privata, sul client</td><td><code translate="no">chmod 600 ~/.ssh/id_ed25519</code></td></tr><tr><td><code translate="no">Bad owner or permissions on ~/.ssh/config</code></td><td>Il tuo <code translate="no">config</code>, sul client</td><td><code translate="no">chmod 600 ~/.ssh/config</code></td></tr></tbody></table></div>
+<p>In Rocky-Lab, vedi prima il percorso verso il successo, raccontato da <code translate="no">-v</code>:</p>
+<pre translate="no"><code class="lang-bash">ssh -v deb true 2&gt;&amp;1 | grep -E 'Offering|Authentications that|Authenticated to'</code></pre>
+<p>Vedi la chiave offerta e, alla fine, <code translate="no">Authenticated to debian-lab ... using "publickey"</code>. Ora forza un errore, disabilitando la chiave e le domande:</p>
+<pre translate="no"><code class="lang-bash">ssh -o PubkeyAuthentication=no -o BatchMode=yes deb true</code></pre>
+<p>La risposta è <code translate="no">Permission denied (publickey,password)</code>: il server offre entrambi i metodi e non sei riuscito a utilizzarne nessuno. In <strong>debian-lab</strong>, vedere come il server ha raccontato la stessa storia:</p>
+<pre translate="no"><code class="lang-bash">sudo journalctl -u ssh -n 5 --no-pager</code></pre>
+<p>Appare una riga come <code translate="no">Connection closed by authenticating user rodrigo 10.1.0.51 port ... [preauth]</code>: l'utente, l'IP da cui proviene e il fatto che non è mai entrato. Client e server, fianco a fianco, contano la stessa connessione. Questa è l'abitudine: <strong>quando SSH dice no, leggere entrambi i lati</strong>.</p>
+<h2 id="7-interrompere-e-correggere">7 · Interrompere e correggere</h2>
+<h3 id="interrompere-a-la-chiave-che-richiedeva-nuovamente-la-password">Interrompere A · La chiave che richiedeva nuovamente la password</h3>
+<p>La chiamata: "ieri sono entrato nel server senza password, oggi me la chiede". Nessuno ha toccato la chiave. Riproduci in <strong>debian-lab</strong>. Innanzitutto, assicurati che il terminale debian-lab che hai aperto sul tuo PC rimanga aperto e non chiuderlo durante l'arresto anomalo: le sessioni aperte non si interrompono, ma le nuove connessioni potrebbero iniziare a richiedere una password.</p>
+<pre translate="no"><code class="lang-bash">ls -ld ~                 # annota ora il permesso
+chmod g+w ~
+ls -ld ~</code></pre>
+<p>In rock-lab, con l'agente caricato:</p>
+<pre translate="no"><code class="lang-bash">ssh deb hostname</code></pre>
+<p><strong>Nota.</strong> Invece di rispondere <code translate="no">debian-lab</code>, SSH chiede <code translate="no">rodrigo@debian-lab's password:</code>. Premi Ctrl+C. La chiave c'è, l'agente è caricato, non è cambiato nulla da parte tua.</p>
+<p><strong>Diagnose.</strong> Prima il lato client, senza che SSH chieda nulla:</p>
+<pre translate="no"><code class="lang-bash">ssh -v -o BatchMode=yes deb true 2&gt;&amp;1 | grep -E 'Offering|Authentications that|denied'</code></pre>
+<p>Appare la riga <code translate="no">Offering public key: ... ED25519</code>, seguita da <code translate="no">Authentications that can continue: publickey,password</code>. Il client ha offerto la chiave e il server non l'ha accettata. La causa è dall'altra parte. In debian-lab:</p>
+<pre translate="no"><code class="lang-bash">sudo journalctl -u ssh -n 10 --no-pager | grep -i -E 'refused|bad'</code></pre>
+<pre translate="no"><code class="lang-text">Authentication refused: bad ownership or modes for directory /home/rodrigo</code></pre>
+<p><code translate="no">sshd</code> ho trovato la cartella home con la scritta per il gruppo. Chiunque possa scrivere nel <code translate="no">~</code> può modificare l'intero <code translate="no">~/.ssh</code>, compreso il <code translate="no">authorized_keys</code>. Nello standard <code translate="no">StrictModes yes</code> il <code translate="no">sshd</code> non si fida di nessuna chiave ivi memorizzata e passa alla password senza dire nulla al client. Nella vita reale, questo appare dopo che qualcuno esegue <code translate="no">chmod -R 775 /home/fulano</code> per "rilasciare una cartella condivisa" o uno script di distribuzione che ottiene il proprietario e l'autorizzazione della cartella sbagliata.</p>
+<p><strong>Decidi · La correzione.</strong> Cosa fai?</p>
+<ul><li><strong>A)</strong> Rimuovi la scrittura del gruppo nella cartella home, tornando all'autorizzazione che hai annotato.</li>
+<li><strong>B)</strong> Inserisci <code translate="no">StrictModes no</code> in un file in <code translate="no">/etc/ssh/sshd_config.d/</code>.</li>
+<li><strong>C)</strong> Generare una nuova chiave ed eseguire nuovamente <code translate="no">ssh-copy-id</code>.</li>
+<li><strong>D)</strong> <code translate="no">chmod 777 ~/.ssh</code>, in modo che <code translate="no">sshd</code> possa leggere la cartella.</li></ul>
+<p>Scegliere la lettera prima di guardare la tabella.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se hai selezionato</th><th scope="col">Risultato</th><th scope="col">Perché</th></tr></thead><tbody><tr><td>A</td><td>✅ Giusto</td><td>Il registro indicava la cartella esatta e il motivo. <code translate="no">chmod g-w ~</code> ritorna nello stato sicuro e la chiave funziona nuovamente senza modificare nient'altro.</td></tr><tr><td>B</td><td>⚠️ Funziona, ma</td><td>Il passaggio funziona di nuovo, ma hai disattivato le conferenze per <strong>tutti</strong> gli utenti sul server. La cartella rimane aperta e ora chiunque nel gruppo può inserire la propria chiave nel tuo <code translate="no">authorized_keys</code> ed entrare come te.</td></tr><tr><td>C</td><td>❌ Sbagliato</td><td>La chiave non è mai stata il problema. <code translate="no">ssh-copy-id</code> non modifica i permessi della cartella Inizio e la nuova chiave viene rifiutata per lo stesso motivo.</td></tr><tr><td>D</td><td>❌ Sbagliato</td><td>C'è di peggio: ora anche il <code translate="no">~/.ssh</code> è aperto a tutti, e il <code translate="no">sshd</code> continua a rifiutare. <code translate="no">sshd</code> legge tutto come root; non ha mai avuto bisogno di più permessi.</td></tr></tbody></table></div>
+<p><strong>Da risolvere:</strong> chiave corretta che ha iniziato a richiedere la password = autorizzazione o proprietario sul server. Il motivo esatto è nel registro <code translate="no">sshd</code>, mai nel client.</p>
+<p><strong>Risolvilo.</strong> In Debian-lab:</p>
+<pre translate="no"><code class="lang-bash">chmod g-w ~
+ls -ld ~                 # uguale a quello che hai scritto</code></pre>
+<p>In Rocky-Lab:</p>
+<pre translate="no"><code class="lang-bash">ssh -o BatchMode=yes deb hostname        # debian-lab, senza chiedere nulla</code></pre>
+<h3 id="interruzione-b-la-regola-sudo-non-valida">Interruzione B · La regola <code translate="no">sudo</code> non valida</h3>
+<p>Il ticket: "il collega ha creato una regola per il monitoraggio per riavviare chronyd senza password e continua a chiedere una password". Riproducilo in <strong>rocky-lab</strong>, creando il file come ha fatto il tuo collega:</p>
+<pre translate="no"><code class="lang-bash">echo 'rodrigo ALL=(root) NOPASSWD: /usr/bin/systemctl restart chronyd' | sudo tee /etc/sudoers.d/lab.conf
+sudo chmod 440 /etc/sudoers.d/lab.conf
+sudo visudo -cf /etc/sudoers.d/lab.conf</code></pre>
+<p><code translate="no">visudo -cf</code> controlla la sintassi di un singolo file e risponde <code translate="no">parsed OK</code>. La regola è giusta. Ora testa come testerebbe il monitoraggio, senza una password salvata e senza lasciare che <code translate="no">sudo</code> chieda:</p>
+<pre translate="no"><code class="lang-bash">sudo -k
+sudo -n systemctl restart chronyd; echo "rc=$?"</code></pre>
+<p><strong>Osserva.</strong> <code translate="no">sudo: a password is required</code> e <code translate="no">rc=1</code>. La regola dice <code translate="no">NOPASSWD</code>, la sintassi è passata, il percorso <code translate="no">systemctl</code> è corretto.</p>
+<p><strong>Diagnostique.</strong> Chiedi a <code translate="no">sudo</code> cosa pensa che tu possa fare:</p>
+<pre translate="no"><code class="lang-bash">sudo -l</code></pre>
+<p>L'elenco mostra la regola per <code translate="no">wheel</code>, <code translate="no">(ALL) ALL</code> e non mostra la riga <code translate="no">NOPASSWD</code>. <code translate="no">sudo</code> non ha letto il file. Guarda come è inclusa la cartella e cosa contiene:</p>
+<pre translate="no"><code class="lang-bash">sudo grep -n includedir /etc/sudoers
+ls -l /etc/sudoers.d/</code></pre>
+<p>La riga <code translate="no">#includedir /etc/sudoers.d</code> c'è, così come il file. Resta solo il nome: <code translate="no">sudo</code> salta i file di <code translate="no">sudoers.d</code> che hanno un punto nel nome o che terminano in <code translate="no">~</code>. L'idea è di ignorare le copie lasciate dagli editor e dai gestori dei pacchetti, come <code translate="no">backup.rpmsave</code> o <code translate="no">regra~</code>. L'effetto collaterale è che <code translate="no">lab.conf</code>, che sembra il nome più naturale del mondo, viene ignorato senza alcun preavviso. È scritto in <code translate="no">man sudoers</code>, nella parte relativa a <code translate="no">includedir</code>.</p>
+<p><strong>Decidi B · La correzione.</strong> Cosa rende valida la regola?</p>
+<ul><li><strong>A)</strong> Rinomina il file con un nome senza punto, come <code translate="no">/etc/sudoers.d/lab-chronyd</code>.</li>
+<li><strong>B)</strong> Copia la riga fino alla fine di <code translate="no">/etc/sudoers</code>, con <code translate="no">sudo visudo</code>.</li>
+<li><strong>C)</strong> Cambia i permessi del file in <code translate="no">600</code>.</li>
+<li><strong>D)</strong> Riavviare il servizio <code translate="no">sudo</code>.</li></ul>
+<p>Scegliere la lettera prima di guardare la tabella.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se hai selezionato</th><th scope="col">Risultato</th><th scope="col">Perché</th></tr></thead><tbody><tr><td>A</td><td>✅ Giusto</td><td>Senza il punto <code translate="no">includedir</code> legge il file. La regola resta isolata in un file con un nome che dice cosa fa, facile da trovare ed eliminare.</td></tr><tr><td>B</td><td>⚠️ Funziona, ma</td><td>La regola entra in vigore, ma mescolata con il file del pacchetto. In un aggiornamento a <code translate="no">sudo</code>, il nuovo file potrebbe presentarsi come <code translate="no">sudoers.rpmnew</code> e qualcuno dovrà assemblare le modifiche manualmente. La tua regola risiede nel <code translate="no">sudoers.d</code>.</td></tr><tr><td>C</td><td>❌ Sbagliato</td><td>Il problema non è l'autorizzazione: <code translate="no">440</code> è l'impostazione predefinita. Un'autorizzazione errata fa sì che <code translate="no">sudo</code> si lamenti ad alta voce, con un messaggio di errore. Qui è rimasto in silenzio perché non ha nemmeno aperto il fascicolo.</td></tr><tr><td>D</td><td>❌ Sbagliato</td><td>Non esiste un servizio <code translate="no">sudo</code>. Legge le regole ogni volta che lo chiami: se la regola fosse valida, lo sarebbe già nel comando successivo.</td></tr></tbody></table></div>
+<p><strong>Da correggere:</strong> in <code translate="no">/etc/sudoers.d/</code>, nome senza punto. E il test della regola è <code translate="no">sudo -l</code>, non <code translate="no">visudo -c</code>.</p>
+<p><strong>Fix.</strong></p>
+<pre translate="no"><code class="lang-bash">sudo mv /etc/sudoers.d/lab.conf /etc/sudoers.d/lab-chronyd
+sudo visudo -c
+sudo -l | grep -i nopasswd
+sudo -k
+sudo -n systemctl restart chronyd; echo "rc=$?"     # rc=0, nessuna password
+sudo journalctl _COMM=sudo -n 2 --no-pager</code></pre>
+<p><code translate="no">visudo -c</code> ora elenca <code translate="no">lab-chronyd</code> tra i file letti. <code translate="no">sudo -l</code> mostra la riga <code translate="no">NOPASSWD</code>. Il riavvio viene eseguito senza password e il registro mostra che sei stato tu.</p>
+<p>Annulla:</p>
+<pre translate="no"><code class="lang-bash">sudo rm /etc/sudoers.d/lab-chronyd
+sudo visudo -c</code></pre>
+<h3 id="la-lezione">La lezione</h3>
+<p>Entrambe le interruzioni falliscono silenziosamente. In A, <code translate="no">sshd</code> rifiuta la chiave e offre la password come se nulla fosse successo. In B, <code translate="no">sudo</code> ignora il file senza riga di avviso e <code translate="no">visudo -cf</code> dice ancora <code translate="no">parsed OK</code>. In nessuno dei due casi il messaggio visualizzato dall'utente ne spiega il motivo. L'abitudine di questa lezione: <strong>controlla l'effetto, non il file</strong>. Per SSH, <code translate="no">ssh -o BatchMode=yes</code> sul lato client e registrazione sul lato server. Per <code translate="no">sudo</code>, <code translate="no">sudo -l</code> e <code translate="no">sudo -n</code>. Per <code translate="no">sshd</code>, <code translate="no">sshd -T</code>. Il file dice quello che volevi; questi comandi dicono ciò che il sistema ha capito.</p>
+<h2 id="8-insidie">8 · Insidie</h2>
+<div class="tabela"><table><thead><tr><th scope="col">Digiti o vedi</th><th scope="col">Cosa succede</th><th scope="col">Quello giusto</th></tr></thead><tbody><tr><td>Invia <code translate="no">id_ed25519</code> quando ti viene richiesta la chiave</td><td>Chi riceve entra ovunque come te</td><td>Basta inviare <code translate="no">.pub</code>. Se la toilette non c'è più, generane un'altra e cambiala</td></tr><tr><td>Rispondi <code translate="no">yes</code> all'avviso d'identità senza controllare</td><td>Accetti qualsiasi macchina che risponda con quel nome</td><td>Confrontare con <code translate="no">ssh-keygen -lf</code> eseguito sul server stesso</td></tr><tr><td><code translate="no">ssh-keygen -R servidor</code> nella riflessione, vedendo <code translate="no">HOST IDENTIFICATION HAS CHANGED</code></td><td>Cancella l'unico allarme SSH</td><td>Scopri prima perché è cambiato: reinstallazione, IP riproposto o un altro computer</td></tr><tr><td>Chiave senza passphrase "per facilità"</td><td>Chi copia il file utilizza immediatamente la chiave</td><td>Passphrase e <code translate="no">ssh-agent</code>. Nessuna frase, solo chiave di automazione, con limitazione sul server</td></tr><tr><td><code translate="no">chmod -R 775</code> nella cartella home</td><td>La chiave smette di funzionare, senza preavviso sul client</td><td>Cartella personale senza scrittura per gruppi e altri</td></tr><tr><td>Modificare <code translate="no">/etc/sudoers</code> direttamente con <code translate="no">vim</code> o <code translate="no">nano</code></td><td>Un errore di sintassi può far sì che <code translate="no">sudo</code> rifiuti tutto, a seconda della versione</td><td><code translate="no">sudo visudo</code>, oppure <code translate="no">sudo visudo -f /etc/sudoers.d/nome</code></td></tr><tr><td><code translate="no">/etc/sudoers.d/regra.conf</code></td><td>Ignorato, senza preavviso</td><td>Nome senza punto: <code translate="no">/etc/sudoers.d/regra</code></td></tr><tr><td>Eliminare <code translate="no">#</code> da <code translate="no">#includedir</code> "perché è un commento"</td><td>Diventa una riga non valida in Rocky; <code translate="no">visudo</code> lamenta</td><td><code translate="no">#includedir</code> è un'istruzione. Lasciarlo così com'è</td></tr><tr><td><code translate="no">NOPASSWD: ALL</code> per "smettere di chiedere la password"</td><td>Chiunque abbia accesso alla tua sessione diventa root</td><td><code translate="no">NOPASSWD</code> solo per comandi esatti, con percorso completo</td></tr><tr><td><code translate="no">99-empresa.conf</code> in <code translate="no">sshd_config.d</code></td><td>Perde contro <code translate="no">50-redhat.conf</code> a Rocky</td><td>Numero basso: <code translate="no">10-empresa.conf</code>. Controllalo con <code translate="no">sshd -T</code></td></tr><tr><td><code translate="no">systemctl reload sshd</code> senza <code translate="no">sshd -t</code> prima</td><td>Con errore <code translate="no">sshd</code> non si ricarica; al riavvio non sale</td><td><code translate="no">sudo sshd -t &amp;&amp; sudo systemctl reload sshd</code></td></tr><tr><td>Cambia <code translate="no">sshd</code> con una sola sessione aperta</td><td>Se va storto, solo la console lo risolve</td><td>Seconda sessione aperta fino al check-in</td></tr><tr><td><code translate="no">systemctl restart sshd</code> su Debian</td><td><code translate="no">Unit sshd.service not found</code>, o funziona tramite nickname, a seconda della versione</td><td>In Debian, l'unità è <code translate="no">ssh</code></td></tr><tr><td><code translate="no">sudo</code> remoto senza <code translate="no">-t</code></td><td><code translate="no">sudo</code> non può chiedere la password da nessuna parte</td><td><code translate="no">ssh -t servidor 'sudo comando'</code></td></tr><tr><td><code translate="no">rsync -av pasta destino/</code> senza la barra all'origine</td><td>Crea <code translate="no">destino/pasta/</code></td><td><code translate="no">pasta/</code> copia il contenuto. In caso di dubbio, <code translate="no">--dry-run</code></td></tr><tr><td><code translate="no">su</code> senza <code translate="no">-</code></td><td>Root con il tuo ambiente; in Debian, <code translate="no">useradd</code> scompare da <code translate="no">PATH</code></td><td><code translate="no">sudo -i</code>, o <code translate="no">su -</code> se hai davvero bisogno della password di root</td></tr></tbody></table></div>
+<h2 id="9-quiz">9 · Quiz</h2>
+<p>Dieci domande, senza consultazione. Scrivi la lettera o la risposta a ciascuna e solo dopo apri la chiave di risposta.</p>
+<p><strong>1.</strong> Cosa rende un account dotato di poteri di root?</p>
+<ul><li><strong>A)</strong> Si chiama <code translate="no">root</code>.</li>
+<li><strong>B)</strong> Avere UID 0.</li>
+<li><strong>C)</strong> Essere nel gruppo <code translate="no">wheel</code> o <code translate="no">sudo</code>.</li>
+<li><strong>D)</strong> Avere <code translate="no">/bin/bash</code> come shell.</li></ul>
+<p><strong>2.</strong> Qual è la differenza tra <code translate="no">sudo -i</code> e <code translate="no">su -</code> in termini di password richiesta e cosa si trova nel log?</p>
+<p><strong>3.</strong> Un collega ha creato <code translate="no">/etc/sudoers.d/backup.conf</code> con una regola corretta e il <code translate="no">sudo -l</code> dell'utente <code translate="no">backup</code> non la mostra. Perché e qual è la soluzione?</p>
+<p><strong>4.</strong> Quale comando installa la tua chiave pubblica su <code translate="no">authorized_keys</code> di un altro server?</p>
+<ul><li><strong>A)</strong> <code translate="no">ssh-keygen -R servidor</code></li>
+<li><strong>B)</strong> <code translate="no">ssh-add servidor</code></li>
+<li><strong>C)</strong> <code translate="no">ssh-copy-id servidor</code></li>
+<li><strong>D)</strong> <code translate="no">scp ~/.ssh/id_ed25519 servidor:~/.ssh/</code></li></ul>
+<p><strong>5.</strong> Un utente è entrato in un server con una chiave e oggi SSH chiede una password. Dove guardi prima e quale comando mostra il motivo?</p>
+<p><strong>6.</strong> In Rocky, hai creato <code translate="no">/etc/ssh/sshd_config.d/99-empresa.conf</code> con <code translate="no">X11Forwarding no</code>, hai eseguito <code translate="no">sshd -t</code> e <code translate="no">reload</code> e <code translate="no">sshd -T</code> continua a dire <code translate="no">x11forwarding yes</code>. Perché e cosa fai?</p>
+<p><strong>7.</strong> Qual è la shell tipica per un account di sistema e cosa fa?</p>
+<ul><li><strong>A)</strong> <code translate="no">/bin/bash</code>: il conto entra normalmente.</li>
+<li><strong>B)</strong> <code translate="no">/bin/sh</code>: il conto entra con una shell più semplice.</li>
+<li><strong>C)</strong> <code translate="no">/sbin/nologin</code> o <code translate="no">/usr/sbin/nologin</code>: rifiuta il login interattivo.</li>
+<li><strong>D)</strong> <code translate="no">/bin/false</code>: cancella l'account al prossimo accesso.</li></ul>
+<p><strong>8.</strong> Scrivi il comando che copia il <strong>contenuto</strong> di <code translate="no">/srv/site</code> in <code translate="no">/srv/site</code> sul server <code translate="no">web01</code>, preservando permessi e date e mostrando in anticipo cosa farebbe.</p>
+<p><strong>9.</strong> Quando ti connetti a un server che usi ogni giorno, appare <code translate="no">WARNING: REMOTE HOST IDENTIFICATION HAS CHANGED!</code>. In ordine, cosa fai?</p>
+<p><strong>10.</strong> <em>Quale file sul server elenca le chiavi pubbliche a cui è consentito accedere come un determinato utente?</em></p>
+<ul><li><strong>A)</strong> <code translate="no">~/.ssh/known_hosts</code></li>
+<li><strong>B)</strong> <code translate="no">~/.ssh/authorized_keys</code></li>
+<li><strong>C)</strong> <code translate="no">/etc/ssh/ssh_host_ed25519_key.pub</code></li>
+<li><strong>D)</strong> <code translate="no">~/.ssh/id_ed25519</code></li></ul>
+<h2 id="10-flashcard-e-colla">10 · Flashcard e colla</h2>
+<h3 id="conoscerlo-a-memoria">Conoscerlo a memoria</h3>
+<ul><li>L'UID è responsabile. 0 è radice; da 1 a 999, conti di sistema; 1000 persone in poi.</li>
+<li><code translate="no">sudo comando</code> = la tua password, un comando, annotato con il tuo nome. <code translate="no">sudo -i</code> = guscio di radice con traccia di apertura. <code translate="no">su -</code> = la password di root.</li>
+<li>La chiave ha due metà: rimane quella privata; quello pubblico va al <code translate="no">authorized_keys</code> di ogni server.</li>
+<li>Il server controlla la tua chiave in <code translate="no">authorized_keys</code>; puoi controllare quello del server in <code translate="no">known_hosts</code>.</li>
+<li>Tasto destro che richiede password = autorizzazione o proprietario sbagliato sul server. Leggere il log <code translate="no">sshd</code>.</li>
+<li>In <code translate="no">sshd</code> è valido il primo valore. Il tuo file in <code translate="no">sshd_config.d</code> con un numero basso e verifica con <code translate="no">sshd -T</code>.</li>
+<li>In <code translate="no">sudoers.d</code>, nome senza punto. Modificare con <code translate="no">visudo</code>, verificare con <code translate="no">sudo -l</code>.</li>
+<li>Prima di toccare <code translate="no">sshd</code>: <code translate="no">sshd -t</code>, seconda sessione aperta, solo allora <code translate="no">reload</code>.</li></ul>
+<h3 id="consultare">Consultare</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Domanda</th><th scope="col">Comando</th></tr></thead><tbody><tr><td>Chi sono, i miei gruppi</td><td><code translate="no">id</code>; <code translate="no">whoami</code></td></tr><tr><td>La linea di un conto</td><td><code translate="no">getent passwd nome</code></td></tr><tr><td>Conti con UID 0</td><td><code translate="no">awk -F: '$3 == 0' /etc/passwd</code></td></tr><tr><td>Chi ha effettuato l'accesso</td><td><code translate="no">who</code>; con quello che stai facendo: <code translate="no">w</code></td></tr><tr><td>Ultimi accessi</td><td><code translate="no">last -n 10</code>; in Debian 13, se mancante: <code translate="no">wtmpdb last</code></td></tr><tr><td>Tentativi falliti</td><td><code translate="no">sudo lastb -n 10</code> (Roccioso); in entrambi: <code translate="no">sudo journalctl -u sshd | grep -i failed</code></td></tr><tr><td>Stato della password di root</td><td><code translate="no">sudo passwd -S root</code></td></tr><tr><td>Cosa posso fare con <code translate="no">sudo</code></td><td><code translate="no">sudo -l</code></td></tr><tr><td>Dimenticare la password <code translate="no">sudo</code></td><td><code translate="no">sudo -k</code></td></tr><tr><td>Prova senza fare domande</td><td><code translate="no">sudo -n comando</code></td></tr><tr><td>Esegui come un altro utente</td><td><code translate="no">sudo -u nome comando</code></td></tr><tr><td>Modifica regole</td><td><code translate="no">sudo visudo</code>; proprio file: <code translate="no">sudo visudo -f /etc/sudoers.d/nome</code></td></tr><tr><td>Controlla la sintassi</td><td><code translate="no">sudo visudo -c</code>; un file: <code translate="no">sudo visudo -cf arquivo</code></td></tr><tr><td><code translate="no">sudo</code> Registro</td><td><code translate="no">sudo journalctl _COMM=sudo -n 20</code>; Rocky: <code translate="no">/var/log/secure</code></td></tr><tr><td>Impronta digitale del server</td><td><code translate="no">ssh-keygen -lf /etc/ssh/ssh_host_ed25519_key.pub</code></td></tr><tr><td>Trovare ed eliminare in <code translate="no">known_hosts</code></td><td><code translate="no">ssh-keygen -F nome</code>; <code translate="no">ssh-keygen -R nome</code></td></tr><tr><td>Crea chiave</td><td><code translate="no">ssh-keygen -t ed25519 -C "comentário"</code></td></tr><tr><td>Installare la chiave</td><td><code translate="no">ssh-copy-id servidor</code>; Finestre: <code translate="no">type ...\id_ed25519.pub | ssh servidor "cat &gt;&gt; ~/.ssh/authorized_keys"</code></td></tr><tr><td>Agente</td><td><code translate="no">eval "$(ssh-agent -s)"</code>; <code translate="no">ssh-add</code>; <code translate="no">ssh-add -l</code></td></tr><tr><td>Prova la chiave senza domande</td><td><code translate="no">ssh -o BatchMode=yes -o ConnectTimeout=5 servidor true</code></td></tr><tr><td>Vedi la conversazione</td><td><code translate="no">ssh -v servidor</code></td></tr><tr><td>Controllo remoto con <code translate="no">sudo</code></td><td><code translate="no">ssh -t servidor 'sudo comando'</code></td></tr><tr><td>Copia file</td><td><code translate="no">scp origem servidor:/destino/</code>; da lì: <code translate="no">scp servidor:/arquivo ./</code></td></tr><tr><td>Copia cartella</td><td><code translate="no">rsync -av --dry-run pasta/ servidor:pasta/</code>, quindi senza <code translate="no">--dry-run</code></td></tr><tr><td>Configurazione <code translate="no">sshd</code></td><td><code translate="no">/etc/ssh/sshd_config</code> e <code translate="no">/etc/ssh/sshd_config.d/*.conf</code></td></tr><tr><td>Sintassi e valore che conta</td><td><code translate="no">sudo sshd -t</code>; <code translate="no">sudo sshd -T | grep -i opção</code></td></tr><tr><td>Applicare</td><td>Roccioso: <code translate="no">sudo systemctl reload sshd</code>; Debian: <code translate="no">sudo systemctl reload ssh</code></td></tr><tr><td>Registro SSH</td><td>Roccioso: <code translate="no">sudo journalctl -u sshd</code>; Debian: <code translate="no">sudo journalctl -u ssh</code></td></tr><tr><td>Autorizzazioni richieste dal <code translate="no">sshd</code></td><td><code translate="no">ls -ld ~ ~/.ssh ~/.ssh/authorized_keys</code>; in Rocky, anche <code translate="no">ls -Z ~/.ssh</code></td></tr><tr><td><code translate="no">~/.ssh</code> (Rocky) Etichetta SELinux</td><td><code translate="no">restorecon -Rv ~/.ssh</code></td></tr></tbody></table></div>
+<h3 id="flashcard">Flashcard</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Davanti</th><th scope="col">Verso</th></tr></thead><tbody><tr><td>UID root, account di sistema e persone</td><td>0; da 1 a 999; 1000 in poi</td></tr><tr><td>Due account con UID 0</td><td>Due account root. Investiga su quello che non si chiama <code translate="no">root</code></td></tr><tr><td><code translate="no">sudo -i</code> × <code translate="no">su -</code></td><td><code translate="no">sudo -i</code> chiede la tua password e registra il tuo nome; <code translate="no">su -</code> richiede la password di root</td></tr><tr><td>A cosa serve <code translate="no">-</code> di <code translate="no">su -</code></td><td>Carica l'ambiente root, come un login</td></tr><tr><td>Gruppo <code translate="no">sudo</code> su Rocky e Debian</td><td><code translate="no">wheel</code> e <code translate="no">sudo</code></td></tr><tr><td><code translate="no">#includedir</code> in <code translate="no">/etc/sudoers</code></td><td>Non è un commento: è l'istruzione che recita <code translate="no">/etc/sudoers.d</code></td></tr><tr><td><code translate="no">/etc/sudoers.d/regra.conf</code></td><td>Ignorati: i nomi con punto o che terminano con <code translate="no">~</code> vengono saltati</td></tr><tr><td>Perché usare <code translate="no">visudo</code></td><td>Controlla la sintassi prima di scrivere</td></tr><tr><td><code translate="no">sudo -n</code></td><td>Non chiede mai; senza password salvata o <code translate="no">NOPASSWD</code>, guasto</td></tr><tr><td>File che va al server</td><td>Il <code translate="no">.pub</code>. Il bagno non esce mai</td></tr><tr><td><code translate="no">authorized_keys</code></td><td>Sul server: le chiavi pubbliche che possono accedere come quell'utente</td></tr><tr><td><code translate="no">known_hosts</code></td><td>Sul client: le impronte digitali dei server che hai accettato</td></tr><tr><td><code translate="no">|1|...</code> in <code translate="no">known_hosts</code></td><td>Nome codificato (<code translate="no">HashKnownHosts yes</code>, predefinito in Debian). Cercare con <code translate="no">ssh-keygen -F</code></td></tr><tr><td>Autorizzazioni <code translate="no">~/.ssh</code> e <code translate="no">authorized_keys</code></td><td>700 e 600</td></tr><tr><td><code translate="no">Authentication refused: bad ownership or modes</code></td><td><code translate="no">StrictModes</code> chiave rifiutata per autorizzazione o proprietario errato</td></tr><tr><td>Passphrase × password</td><td>La passphrase apre la tua chiave privata e non viaggia; la password appartiene all'utente sul server</td></tr><tr><td><code translate="no">BatchMode=yes</code></td><td>SSH non chiede nulla; se necessario, fallisce</td></tr><tr><td><code translate="no">sshd -t</code> × <code translate="no">sshd -T</code></td><td><code translate="no">-t</code> controlla la sintassi; <code translate="no">-T</code> mostra il valore di ciascuna opzione</td></tr><tr><td>Qual è il valore in <code translate="no">sshd</code></td><td>La prima lettura. I drop-in vengono prima del resto del <code translate="no">sshd_config</code>, in ordine alfabetico</td></tr><tr><td>Unità SSH su Rocky e Debian</td><td><code translate="no">sshd</code> e <code translate="no">ssh</code></td></tr><tr><td><code translate="no">rsync pasta/</code> × <code translate="no">rsync pasta</code></td><td>Con la barra, copia il contenuto; senza barra crea <code translate="no">pasta</code> all'interno della destinazione</td></tr><tr><td><code translate="no">scp</code> moderno</td><td>Utilizza il protocollo SFTP sottostante, poiché OpenSSH 9</td></tr></tbody></table></div>
+<h2 id="11-checklist-di-output">11 · Checklist di output</h2>
+<ul><li>[ ] Indico il tipo di un account guardando la riga <code translate="no">/etc/passwd</code> e trovo account con UID 0.</li>
+<li>[ ] Spiego la differenza tra <code translate="no">sudo comando</code>, <code translate="no">sudo -i</code> e <code translate="no">su -</code> e lascia traccia di cosa.</li>
+<li>[ ] Creo una regola in <code translate="no">/etc/sudoers.d</code> con <code translate="no">visudo</code>, con un nome che funziona, e la provo con <code translate="no">sudo -l</code> e <code translate="no">sudo -n</code>.</li>
+<li>[ ] Controllo l'impronta digitale di un server prima di rispondere <code translate="no">yes</code>.</li>
+<li>[ ] Creo una chiave con una passphrase, la installo su un altro server e accedo senza password.</li>
+<li>[ ] Utilizzo <code translate="no">ssh-agent</code> e <code translate="no">~/.ssh/config</code> con nickname.</li>
+<li>[ ] Copio un file con <code translate="no">scp</code> e una cartella con <code translate="no">rsync</code>, premendo la barra.</li>
+<li>[ ] Cambio un'opzione in <code translate="no">sshd</code> per un file in <code translate="no">sshd_config.d</code>, testo, applico e controllo con <code translate="no">sshd -T</code>.</li>
+<li>[ ] Quando SSH dice no, leggo <code translate="no">ssh -v</code> sul client e il log sul server.</li></ul>
+<p><strong>Ultimo esercizio, senza guardare.</strong> Questo volta, debian-lab è il "tuo computer" e rocky-lab è il "server". Senza aprire questa lezione:</p>
+<ol><li>In debian-lab, creare una chiave Ed25519 con passphrase e commento <code translate="no">rodrigo@debian-lab</code>.</li>
+<li>Installa la chiave in rocky-lab e accedi senza la password dell'utente.</li>
+<li>Creare il nickname <code translate="no">rk</code> in <code translate="no">~/.ssh/config</code> di debian-lab, con i giusti permessi, ed eseguire <code translate="no">ssh rk 'hostname; id'</code>.</li>
+<li>Dimostrare, con una riga che non chiede nulla, che la chiave funziona.</li>
+<li>In Rocky-Lab, crea una regola che permetta al tuo utente di eseguire <code translate="no">systemctl status chronyd</code> come root senza password. Dimostra che ne vale la pena ed eliminalo.</li>
+<li>In rock-lab, scoprire il valore di <code translate="no">PermitRootLogin</code> e <code translate="no">PasswordAuthentication</code>, senza aprire alcun file.</li></ol>
+<p>Aprire il template solo dopo, o dopo tre tentativi.</p>
+<p><strong>Chiusura istantanee.</strong> La chiave rock-lab installata in debian-lab e il nickname <code translate="no">deb</code> rimangono: si usano entrambi nella lezione 2.6, per creare utenti in una VM dall'altro. I file di test per <code translate="no">sshd</code> e <code translate="no">sudoers.d</code> sono già stati cancellati nei passaggi. Sul nodo Proxmox:</p>
+<pre translate="no"><code class="lang-bash">qm snapshot 201 m2a5-fim
+qm snapshot 202 m2a5-fim</code></pre>
+<h2 id="12-nella-vita-reale">12 · Nella vita reale</h2>
+<p><strong>Missione della settimana, sola lettura.</strong> Scegli tre server reali: preferibilmente uno esposto a Internet (web, email, VPN), uno interno e uno gestito da più persone. In ognuno, senza cambiare nulla:</p>
+<ol><li><code translate="no">sudo sshd -T | grep -E '^(permitrootlogin|passwordauthentication|pubkeyauthentication|port|allowusers|allowgroups) '</code>: entra root? Accedi con la password? Ci sono restrizioni su chi entra?</li>
+<li><code translate="no">ls /etc/ssh/sshd_config.d/</code> e <code translate="no">grep -v -E '^#|^$' /etc/ssh/sshd_config.d/*.conf</code>: chi ha modificato cosa ed eventuali file con un numero elevato che potrebbero essere persi a favore di un altro?</li>
+<li><code translate="no">sudo ls -l /etc/sudoers.d/</code> e <code translate="no">sudo grep -v -E '^#|^$' /etc/sudoers /etc/sudoers.d/*</code>, ricordando che in questo filtro non compaiono le righe <code translate="no">#includedir</code>: chi ha <code translate="no">ALL</code>? C'è <code translate="no">NOPASSWD: ALL</code>? Qualche file con un punto nel nome che non è mai stato valido?</li>
+<li><code translate="no">getent group wheel sudo</code> e <code translate="no">awk -F: '$3 == 0' /etc/passwd</code>: chi può diventare root e c'è qualcun altro con UID 0?</li>
+<li><code translate="no">last -n 20</code> e <code translate="no">sudo lastb -n 20</code> (o, in Debian 13, <code translate="no">wtmpdb last</code>): chi entra, da dove e quanti tentativi falliscono. Nella rivista: <code translate="no">sudo journalctl -u sshd --since today | grep -c 'Failed password'</code> (in Debian, <code translate="no">-u ssh</code>).</li>
+<li>Per ogni utente con cartella in <code translate="no">/home</code> e root: <code translate="no">sudo wc -l /home/*/.ssh/authorized_keys /root/.ssh/authorized_keys 2&gt;/dev/null</code> e <code translate="no">sudo awk '{print FILENAME": "$NF}' /home/*/.ssh/authorized_keys 2&gt;/dev/null</code>. Quante chiavi e nel commento di ognuna è indicato a chi appartiene?</li></ol>
+<p><strong>Per l'agenda.</strong> Una riga per server: <code translate="no">nome · root entra? com senha? · arquivos em sshd_config.d · quem tem sudo · NOPASSWD? · UID 0 extra? · falhas de login hoje · chaves no authorized_keys (sem dono conhecido?)</code>. Chiave senza commento, di qualcuno che se n'è andato o di provenienza sconosciuta: annotatela e portatela al responsabile. È lui che decide di rimuoverlo.</p>
+<p><strong>Sfida della settimana.</strong> Su uno dei server che segui, scrivi la raccomandazione per rafforzare l'accesso in un massimo di cinque frasi: cosa hai visto (password accettata per root? password accettata su Internet? <code translate="no">NOPASSWD: ALL</code>? chiavi senza proprietario?), il rischio di ogni punto e cosa cambieresti, nel giusto ordine. L'ordine è importante: prima di raccomandare il <code translate="no">PasswordAuthentication no</code>, la raccomandazione deve garantire che tutti coloro che entrano abbiano già una chiave funzionante e che ci sia una console per quando le cose vanno male. Non cambiare nulla; consegnato al responsabile.</p>
+<p><strong>Domani, senza guardare.</strong> Prima di aprire il terminale, rispondi a testa in giù: quale UID è root, quale è l'account di sistema? Quale password richiede <code translate="no">sudo -i</code> e quale password richiede <code translate="no">su -</code>? Che file invii quando ti chiedono la chiave? Dove conserva il server le chiavi che possono accedere e dove conservi le impronte digitali dei server? La chiave improvvisamente chiede una password: dove guardi? Perché il <code translate="no">regra.conf</code> non si applica al <code translate="no">sudoers.d</code>? Quale valore è valido in <code translate="no">sshd</code>, il primo o l'ultimo? Se commetti errori, torna alla sezione 10, non all'intera lezione.</p>
+<h2 id="13-con-deeptutor">13 · Con DeepTutor</h2>
+<p>Utilizza DeepTutor sulla rete locale dopo il laboratorio, non al suo posto. I comandi iniziano con <code translate="no">!</code>:</p>
+<ul><li><code translate="no">!quiz Aula 2.5</code>: dieci nuove domande sugli account, <code translate="no">sudo</code>, chiavi SSH e <code translate="no">sshd</code>.</li>
+<li><code translate="no">!explica StrictModes</code>: perché <code translate="no">sshd</code> rifiuta una determinata chiave e come leggere il registro quando accade.</li>
+<li><code translate="no">!feynman sudo -i e su -</code>: spieghi la differenza e indica dove è rimasta libera.</li>
+<li><code translate="no">!quebra ssh pede senha</code>: descrive un server in cui la chiave ha smesso di funzionare e ti fornisce gli output di <code translate="no">ssh -v</code>, il log e <code translate="no">ls -ld</code>, uno alla volta, in modo da poter trovare la causa.</li>
+<li><code translate="no">!simulado RHCSA ssh</code>: attività di tipo prova, come configurare una chiave tra due macchine e dare <code translate="no">sudo</code> a un group.</li>
+<li><code translate="no">!cartoes Aula 2.5</code>: la sezione 10 flashcard, in ordine di revisione.</li>
+<li><code translate="no">!erro</code>: incolla il messaggio da un <code translate="no">ssh</code>, <code translate="no">scp</code> o <code translate="no">sudo</code> fallito e ti dice il passaggio e cosa guardare dopo.</li>
+<li><code translate="no">!revisao</code>: cosa rivedere da questa lezione e da quelle precedenti, in base agli errori che hai sbagliato finora.</li></ul>
+<h2 id="commentati-risposta">Commentati risposta</h2>
+<h3 id="riscaldamento">Riscaldamento</h3>
+<ol><li>Quasi sempre sul server. La chiave dalla tua parte è la stessa di ieri; ciò che è cambiato è che <code translate="no">sshd</code> ha smesso di fidarsi di lei. Il motivo più comune è l'autorizzazione o il proprietario errato nella cartella home, in <code translate="no">~/.ssh</code> o <code translate="no">authorized_keys</code>, ed è scritto nel registro <code translate="no">sshd</code>: <code translate="no">Authentication refused: bad ownership or modes</code>. La seconda causa comune è che qualcuno cancella o sovrascrive <code translate="no">authorized_keys</code>. <code translate="no">ssh -v</code> da parte tua conferma che la chiave è stata offerta e rifiutata.</li>
+<li>Un solo comando, come root. <code translate="no">sudo</code> chiede la tua password, controlla le regole, esegue quel comando e lo annota nel log. Per una sessione root, esiste <code translate="no">sudo -i</code>, ma l'utilizzo normale è <code translate="no">sudo</code> comando per comando, che è più simile all'UAC che all'accesso come amministratore.</li>
+<li>Ti protegge dal parlare con la macchina sbagliata. La domanda mostra l'impronta digitale della chiave del server; Se controlli cosa mostra il server stesso, è sicuro che sia lui. Da quel momento in poi, <code translate="no">known_hosts</code> mantiene questa impressione e SSH ti avvisa se cambia, il che è un segno di reinstallazione o di un'altra macchina al suo posto.</li></ol>
+<h3 id="quiz">Quiz</h3>
+<ol><li><strong>B.</strong> Il kernel decide il numero. Il nome <code translate="no">root</code> è semplicemente il nome dell'account che ha UID 0; i gruppi <code translate="no">wheel</code> e <code translate="no">sudo</code> danno diritto di <strong>chiedere</strong> solo con <code translate="no">sudo</code>; il guscio non fornisce alcuna alimentazione.</li>
+<li><code translate="no">sudo -i</code> chiede la <strong>tua</strong> password e registra nel log, con il tuo nome, che hai aperto una shell di root. <code translate="no">su -</code> richiede la password di <strong>root</strong> e il log registra solo che qualcuno è diventato root dalla tua sessione; inoltre è necessario che root abbia una password e che sia conosciuta.</li>
+<li>A causa del punto nel nome: <code translate="no">sudo</code> ignora i file da <code translate="no">sudoers.d</code> con <code translate="no">.</code> nel nome o che terminano in <code translate="no">~</code>. Correzione: <code translate="no">sudo mv /etc/sudoers.d/backup.conf /etc/sudoers.d/backup</code>, <code translate="no">sudo visudo -c</code> e, come utente <code translate="no">backup</code>, <code translate="no">sudo -l</code> per vedere la regola.</li>
+<li><strong>C.</strong> <code translate="no">ssh-copy-id</code> aggiunge la sua chiave pubblica a <code translate="no">~/.ssh/authorized_keys</code> sul server e imposta i permessi. <code translate="no">ssh-keygen -R</code> cancella una riga da <code translate="no">known_hosts</code>; <code translate="no">ssh-add</code> carica la chiave nell'agent; <code translate="no">scp</code> dell'opzione D copia la tua chiave <strong>privata</strong> sul server, che è esattamente ciò che non fai mai.</li>
+<li>Sul server, nel log <code translate="no">sshd</code>: <code translate="no">sudo journalctl -u sshd -n 20</code> su Rocky, <code translate="no">-u ssh</code> su Debian, cercando <code translate="no">Authentication refused</code>. Quindi utente <code translate="no">ls -ld ~ ~/.ssh ~/.ssh/authorized_keys</code>. Dal lato del cliente, <code translate="no">ssh -v</code> conferma che la chiave è stata offerta. In Rocky, se le autorizzazioni sono corrette, <code translate="no">ls -Z ~/.ssh</code> e <code translate="no">restorecon -Rv ~/.ssh</code>.</li>
+<li><code translate="no">50-redhat.conf</code> si legge prima di <code translate="no">99-empresa.conf</code> e definisce già <code translate="no">X11Forwarding yes</code>; in <code translate="no">sshd</code> conta il primo valore. Rinominalo con un numero inferiore a 50, come <code translate="no">10-empresa.conf</code>, esegui <code translate="no">sudo sshd -t &amp;&amp; sudo systemctl reload sshd</code> e controllalo con <code translate="no">sudo sshd -T | grep -i x11forwarding</code>.</li>
+<li><strong>C.</strong> <code translate="no">nologin</code> mostra un messaggio e si chiude e l'account non ottiene una shell interattiva, che è ciò che desideri da un servizio. <code translate="no">/bin/false</code> fa qualcosa di simile, senza il messaggio, e non cancella nulla.</li>
+<li><code translate="no">rsync -av --dry-run /srv/site/ web01:/srv/site/</code>, controllare l'elenco e poi lo stesso comando senza <code translate="no">--dry-run</code>. La barra alla fine di <code translate="no">/srv/site/</code> è ciò che provoca la copia del contenuto; senza di essa il risultato sarebbe <code translate="no">/srv/site/site/</code> a destinazione.</li>
+<li>Fermati e non rispondere ancora a nulla. Scopri perché la chiave è cambiata: il server è stato reinstallato? L'IP apparteneva a un'altra macchina? Controlla la nuova impronta in un altro modo, eseguendo <code translate="no">ssh-keygen -lf /etc/ssh/ssh_host_ed25519_key.pub</code> sulla console o chiedendo a chi la amministra. Se va a segno, cancella la vecchia linea con <code translate="no">ssh-keygen -R servidor</code> e riconnettiti, accettando quella nuova. Se non c'è alcuna spiegazione, trattalo come un incidente.</li>
+<li>Tabella seguente.</li></ol>
+<div class="tabela"><table><thead><tr><th scope="col">Se hai selezionato</th><th scope="col">Risultato</th><th scope="col">Perché</th></tr></thead><tbody><tr><td>A</td><td>❌ Sbagliato</td><td><code translate="no">known_hosts</code> si trova sul client e detiene le chiavi dei <strong>server</strong> che hai accettato. Non dà accesso a nessuno.</td></tr><tr><td>B</td><td>✅ Giusto</td><td><code translate="no">~/.ssh/authorized_keys</code> nella cartella utente sul server ha una chiave pubblica per riga. Chiunque dimostri di avere accesso ad uno di essi entra come tale utente.</td></tr><tr><td>C</td><td>❌ Sbagliato</td><td>È la chiave pubblica del server stesso, quella che appare nella prima domanda di connessione. Identifica la macchina, non autorizza gli utenti.</td></tr><tr><td>D</td><td>❌ Sbagliato</td><td>È la chiave privata di chiunque si trovi sul client. Non dovrebbe mai essere sul server.</td></tr></tbody></table></div>
+<h3 id="ultimo-esercizio">Ultimo esercizio</h3>
+<p>Da Debian Lab:</p>
+<pre translate="no"><code class="lang-bash">ssh-keygen -t ed25519 -C "rodrigo@debian-lab"
+ssh-copy-id rocky-lab
+ssh rocky-lab hostname
+cat &gt;&gt; ~/.ssh/config &lt;&lt;'EOF'
+Host rk
+    HostName rocky-lab
+    User rodrigo
+EOF
+chmod 600 ~/.ssh/config
+eval "$(ssh-agent -s)"; ssh-add
+ssh rk 'hostname; id'
+ssh -o BatchMode=yes -o ConnectTimeout=5 rk true &amp;&amp; echo "chave ok"</code></pre>
+<p><code translate="no">ssh rocky-lab hostname</code> subito dopo <code translate="no">ssh-copy-id</code> chiede la passphrase della chiave, non la password dell'utente: è il segno che la chiave è stata accettata. Senza l'agente caricato il test con <code translate="no">BatchMode</code> fallisce perché lo switch è chiuso.</p>
+<p>Presso Rocky-Lab:</p>
+<pre translate="no"><code class="lang-bash">sudo visudo -f /etc/sudoers.d/lab-status</code></pre>
+<pre translate="no"><code class="lang-text">rodrigo ALL=(root) NOPASSWD: /usr/bin/systemctl status chronyd</code></pre>
+<pre translate="no"><code class="lang-bash">sudo -l | grep -i nopasswd
+sudo -k
+sudo -n systemctl status chronyd | cat; echo "rc=${PIPESTATUS[0]}"
+sudo rm /etc/sudoers.d/lab-status
+sudo visudo -c
+sudo sshd -T | grep -E '^(permitrootlogin|passwordauthentication) '</code></pre>
+<p>Fare attenzione al test della regola: <code translate="no">sudo</code> accetta solo il comando <strong>esattamente</strong> come indicato nella regola senza password. Un <code translate="no">sudo -n systemctl status chronyd --no-pager</code> chiederebbe una password, perché <code translate="no">--no-pager</code> non è nella regola. <code translate="no">| cat</code> evita il cercapersone senza modificare il comando dato da <code translate="no">sudo</code>, e <code translate="no">PIPESTATUS</code> mostra il codice di <code translate="no">systemctl</code>, non quello di <code translate="no">cat</code>. Nella regola, potresti scrivere <code translate="no">/usr/bin/systemctl status chronyd *</code> per accettare opzioni extra, ma ogni <code translate="no">*</code> in una regola <code translate="no">sudo</code> espande ciò che consente; Nella produzione, la preferenza è il comando esatto.</p>
+<p><code translate="no">PermitRootLogin</code> dovrebbe essere <code translate="no">prohibit-password</code> e <code translate="no">PasswordAuthentication</code> <code translate="no">yes</code>, a meno che non si scelga qualcos'altro durante l'installazione. Il nome del file delle regole non ha un punto e <code translate="no">visudo -f</code> ha controllato la sintassi al momento del salvataggio.</p>
+<p>Se <code translate="no">ssh rk</code> richiedeva la password dell'utente al posto della passphrase, la chiave non veniva accettata: verificare il log di rocky-lab con <code translate="no">sudo journalctl -u sshd -n 10</code> e i permessi con <code translate="no">ls -ld ~ ~/.ssh ~/.ssh/authorized_keys</code>. Se tutto è in <code translate="no">700</code> e <code translate="no">600</code>, esegui <code translate="no">restorecon -Rv ~/.ssh</code> in rocky-lab: in Rocky, SELinux è il prossimo sospettato.</p>
+</article><nav class="paginas" aria-label="Lezioni"><a class="ant" href="2.4-rede-no-dia-a-dia.it.html"><small>← Precedente</small>2.4 · La rete di tutti i giorni</a><a class="prox" href="2.6-usuarios-e-grupos.it.html"><small>Successiva →</small>2.6 · Utenti e gruppi</a></nav></main></div>
+<footer><div class="wrap">Generato dal Markdown del corso · Immagini in <code translate="no">img/</code></div></footer>
+</body>
+</html>

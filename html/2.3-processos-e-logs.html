@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light dark">
+<title>2.3 · Processos e logs · Curso Linux Sysadmin</title>
+<link rel="alternate" hreflang="pt-BR" href="2.3-processos-e-logs.html"><link rel="alternate" hreflang="it" href="2.3-processos-e-logs.it.html">
+<style>
+:root{color-scheme:light dark;--bg:#f6f1e7;--card:#fffdf8;--ink:#201c16;--muted:#5e564a;--accent:#9a3412;--accent-2:#1f5f4a;--tint:#efe6d4;--line:#ddd2bc;--code:#f1eadb;--shadow:0 1px 2px rgba(60,40,10,.08);--serif:Georgia,"Iowan Old Style","Palatino Linotype",Palatino,serif;--sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--mono:"Cascadia Code",Consolas,"DejaVu Sans Mono",monospace}
+@media (prefers-color-scheme:dark){:root{--bg:#16130f;--card:#201b15;--ink:#f1eadb;--muted:#b9ad98;--accent:#f0a070;--accent-2:#7fd0b0;--tint:#2a231a;--line:#3d3427;--code:#191510;--shadow:none}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:5.5rem}
+body{margin:0;background:var(--bg);color:var(--ink);font:1rem/1.6 var(--sans)}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--accent-2);outline-offset:2px;border-radius:4px}
+.pular{position:absolute;left:-999px;top:0;background:var(--card);padding:.5rem 1rem;z-index:20}
+.pular:focus{left:.5rem;top:.5rem}
+.wrap{width:100%;max-width:84rem;margin:0 auto;padding-inline:max(1rem,env(safe-area-inset-left))}
+.top{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10;border-top:6px solid var(--accent)}
+.top-in{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding-block:.6rem}
+.titles{min-width:0}
+.marca{margin:0;font:700 clamp(1.15rem,1rem + 1vw,1.6rem)/1.15 var(--serif);letter-spacing:-.01em}
+.marca a{text-decoration:none}
+.marca a:hover{color:var(--accent)}
+.meta{margin:.1rem 0 0;color:var(--muted);font-size:.85rem}
+.acoes{display:flex;align-items:center;gap:.9rem;flex:none}
+.acoes>a{font-size:.9rem;font-weight:600;color:var(--muted);text-decoration:none}
+.acoes>a:hover{color:var(--accent);text-decoration:underline}
+.idioma{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--tint)}
+.idioma>*{padding:.35rem .9rem;font-size:.8rem;font-weight:700;letter-spacing:.06em;text-decoration:none;color:var(--muted);min-width:2.75rem;text-align:center}
+.idioma a:hover{color:var(--accent);text-decoration:underline}
+.idioma span{background:var(--accent);color:#fff}
+@media (prefers-color-scheme:dark){.idioma span{color:#16130f}}
+code{font-family:var(--mono);font-size:.9em;background:var(--tint);padding:.1rem .35rem;border-radius:4px;overflow-wrap:anywhere}
+/* índice */
+.capa{max-width:70rem;padding-block:2rem 3rem}
+.stats{border-left:4px solid var(--accent-2);background:var(--card);border-radius:0 10px 10px 0;padding:1rem 1.25rem;margin:0 0 2.5rem;box-shadow:var(--shadow);color:var(--muted)}
+.stats strong{color:var(--ink)}
+.modulo{display:grid;grid-template-columns:15rem minmax(0,1fr);gap:1rem 2rem;padding:1.75rem 0;border-top:1px solid var(--line)}
+.modulo h2{margin:0;font:700 1.25rem/1.25 var(--serif);align-self:start;position:sticky;top:6rem}
+.mn{display:block;font:700 .8rem var(--mono);letter-spacing:.12em;color:var(--accent);margin-bottom:.25rem}
+.sep{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.modulo ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,17rem),1fr));gap:.75rem}
+.modulo li{margin:0}
+.modulo a{display:flex;gap:.45rem;align-items:baseline;height:100%;padding:.85rem 1rem;background:var(--card);border:1px solid var(--line);border-radius:10px;text-decoration:none;font-weight:600;line-height:1.35;box-shadow:var(--shadow);transition:border-color .15s,transform .15s}
+.modulo a:hover{border-color:var(--accent);color:var(--accent)}
+.num{font:700 .85rem var(--mono);color:var(--accent);white-space:nowrap}
+/* aula */
+.doc{display:grid;grid-template-columns:17rem minmax(0,1fr);gap:2.5rem;align-items:start;padding-block:2rem 3rem}
+.lateral{position:sticky;top:5.5rem;max-height:calc(100vh - 6.5rem);overflow:auto;font-size:.875rem;padding-right:.5rem}
+.lateral h2{margin:0 0 .25rem;font:700 .95rem var(--serif);color:var(--muted)}
+.lateral h3{margin:1rem 0 .25rem;font:700 .75rem var(--mono);letter-spacing:.06em;color:var(--accent)}
+.lateral ul{list-style:none;margin:0;padding:0}
+.lateral a{display:flex;gap:.45rem;padding:.25rem .5rem;border-radius:6px;text-decoration:none;color:var(--muted);line-height:1.3}
+.lateral a:hover{background:var(--tint);color:var(--ink)}
+.lateral a[aria-current]{background:var(--tint);color:var(--ink);font-weight:700;box-shadow:inset 3px 0 0 var(--accent)}
+.lateral .num{font-size:.75rem}
+.aula{min-width:0;max-width:56rem;overflow-wrap:break-word;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:clamp(1.25rem,1rem + 2vw,2.75rem);box-shadow:var(--shadow)}
+.aula h1{margin:0 0 1.5rem;font:700 clamp(1.75rem,1.4rem + 1.6vw,2.5rem)/1.15 var(--serif);letter-spacing:-.015em;color:var(--ink)}
+.aula h2{margin:2.5rem 0 .75rem;padding-top:1.25rem;border-top:1px solid var(--line);font:700 1.5rem/1.25 var(--serif)}
+.aula h3{margin:2rem 0 .5rem;font:700 1.15rem/1.3 var(--serif);color:var(--accent)}
+.aula h4,.aula h5,.aula h6{margin:1.5rem 0 .5rem;font-size:1rem}
+.aula p,.aula ul,.aula ol{margin:1rem 0}
+.aula ul,.aula ol{padding-left:1.5rem}
+.aula li{margin:.35rem 0}
+.aula li>ul,.aula li>ol{margin:.35rem 0}
+.aula a{color:var(--accent);text-underline-offset:2px}
+.aula hr{border:0;border-top:1px solid var(--line);margin:2rem 0}
+.tabela{overflow-x:auto;margin:1.25rem 0;border:1px solid var(--line);border-radius:10px}
+.aula table{width:100%;border-collapse:collapse;font-size:.9rem}
+.aula th,.aula td{padding:.55rem .75rem;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+.aula tr:last-child td{border-bottom:0}
+.aula th{background:var(--tint);font-weight:700}
+.aula pre{background:var(--code);border:1px solid var(--line);border-radius:10px;padding:.9rem 1rem;overflow-x:auto;font:.85rem/1.5 var(--mono);margin:1rem 0;tab-size:4}
+.aula pre code{background:none;padding:0;font-size:inherit;overflow-wrap:normal}
+.aula blockquote{margin:1.25rem 0;padding:.75rem 1.25rem;border-left:4px solid var(--accent-2);background:var(--tint);border-radius:0 10px 10px 0}
+.aula blockquote>:first-child{margin-top:0}
+.aula blockquote>:last-child{margin-bottom:0}
+.aula figure{margin:1.75rem 0;text-align:center}
+.aula figure img{display:block;margin:0 auto;max-width:100%;height:auto;border:1px solid var(--line);border-radius:10px;background:#fff}
+.aula figcaption{margin-top:.5rem;color:var(--muted);font-size:.9rem;font-style:italic}
+.paginas{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:2.5rem;padding-top:1.5rem;border-top:1px solid var(--line)}
+.paginas a{display:block;padding:.75rem 1rem;border:1px solid var(--line);border-radius:10px;text-decoration:none;color:var(--ink);font-weight:600;line-height:1.3}
+.paginas a:hover{border-color:var(--accent);color:var(--accent)}
+.paginas small{display:block;color:var(--muted);font-weight:400}
+.paginas .prox{grid-column:2;text-align:right}
+footer{border-top:1px solid var(--line);padding-block:1.5rem;color:var(--muted);font-size:.85rem;text-align:center}
+@media (hover:hover) and (prefers-reduced-motion:no-preference){.modulo a:hover{transform:translateY(-2px)}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+@media (max-width:980px){.doc{grid-template-columns:minmax(0,1fr);padding-top:1rem}.lateral{position:static;max-height:none;order:2}.aula{max-width:none}}
+@media (max-width:860px){.modulo{grid-template-columns:minmax(0,1fr)}.modulo h2{position:static}.mn{display:inline;margin-right:.5rem}}
+@media (max-width:420px){.meta{display:none}.top-in{gap:.5rem}.acoes{gap:.6rem}.capa{padding-top:1.25rem}.paginas{grid-template-columns:minmax(0,1fr)}.paginas .prox{grid-column:1}}
+@media print{.top,.lateral,.paginas{display:none}.aula{border:0;box-shadow:none;padding:0;max-width:none}.doc{display:block}}
+</style>
+</head>
+<body>
+<a class="pular" href="#conteudo">Pular para o conteúdo</a>
+<header class="top"><div class="wrap top-in"><div class="titles"><p class="marca"><a href="index.html">Curso Linux Sysadmin</a></p><p class="meta">Rodrigo Antignani · Aula 2.3</p></div><div class="acoes"><a href="index.html">Índice</a><div class="idioma" role="group" aria-label="Idioma"><span aria-current="true">PT</span><a href="2.3-processos-e-logs.it.html" hreflang="it" lang="it">IT</a></div></div></div></header>
+<div class="wrap doc"><aside class="lateral" aria-label="Aulas"><h2>Aulas</h2><h3>M0 · Laboratório</h3><ul><li><a href="0.1-montar-o-laboratorio.html"><span class="num">0.1</span><span>Montar o laboratório</span></a></li><li><a href="0.2-acesso-e-protecao.html"><span class="num">0.2</span><span>Acesso e proteção</span></a></li></ul><h3>M1 · Linha de comando</h3><ul><li><a href="1.1-o-que-e-linux.html"><span class="num">1.1</span><span>O que é Linux</span></a></li><li><a href="1.2-o-shell-e-a-ajuda.html"><span class="num">1.2</span><span>O shell e a ajuda</span></a></li><li><a href="1.3-caminhos-e-navegacao.html"><span class="num">1.3</span><span>Caminhos e navegação</span></a></li><li><a href="1.4-criar-copiar-mover-e-apagar.html"><span class="num">1.4</span><span>Criar, copiar, mover e apagar</span></a></li><li><a href="1.5-ler-e-procurar-texto.html"><span class="num">1.5</span><span>Ler e procurar texto</span></a></li><li><a href="1.6-redirecionamentos-e-pipes.html"><span class="num">1.6</span><span>Redirecionamentos e pipes</span></a></li><li><a href="1.7-arquivar-e-compactar.html"><span class="num">1.7</span><span>Arquivar e compactar</span></a></li><li><a href="1.8-primeiro-script.html"><span class="num">1.8</span><span>Primeiro script</span></a></li><li><a href="1.9-decidir-e-repetir.html"><span class="num">1.9</span><span>Decidir e repetir</span></a></li><li><a href="1.10-software-livre-na-pratica.html"><span class="num">1.10</span><span>Software livre na prática</span></a></li></ul><h3>M2 · Sistema, usuários e permissões</h3><ul><li><a href="2.1-instalacao-e-provisionamento.html"><span class="num">2.1</span><span>Instalação e provisionamento</span></a></li><li><a href="2.2-hardware-e-dispositivos.html"><span class="num">2.2</span><span>Hardware e dispositivos</span></a></li><li><a href="2.3-processos-e-logs.html" aria-current="page"><span class="num">2.3</span><span>Processos e logs</span></a></li><li><a href="2.4-rede-no-dia-a-dia.html"><span class="num">2.4</span><span>Rede no dia a dia</span></a></li><li><a href="2.5-acesso-remoto-e-privilegios.html"><span class="num">2.5</span><span>Acesso remoto e privilégios</span></a></li><li><a href="2.6-usuarios-e-grupos.html"><span class="num">2.6</span><span>Usuários e grupos</span></a></li><li><a href="2.7-permissoes-e-dono.html"><span class="num">2.7</span><span>Permissões e dono</span></a></li><li><a href="2.8-diretorios-e-arquivos-especiais.html"><span class="num">2.8</span><span>Diretórios e arquivos especiais</span></a></li></ul><h3>M3 · Texto e editor</h3><ul><li><a href="3.1-fluxos-a-fundo.html"><span class="num">3.1</span><span>Fluxos a fundo</span></a></li><li><a href="3.2-filtros-de-texto.html"><span class="num">3.2</span><span>Filtros de texto</span></a></li><li><a href="3.3-regex-e-grep.html"><span class="num">3.3</span><span>Regex e grep</span></a></li><li><a href="3.4-sed-e-awk.html"><span class="num">3.4</span><span>sed e awk</span></a></li><li><a href="3.5-vi-e-vim-de-verdade.html"><span class="num">3.5</span><span>vi e vim de verdade</span></a></li></ul><h3>M4 · systemd e boot</h3><ul><li><a href="4.1-como-o-linux-liga.html"><span class="num">4.1</span><span>Como o Linux liga</span></a></li><li><a href="4.2-systemd-servicos-e-units.html"><span class="num">4.2</span><span>systemd: serviços e units</span></a></li><li><a href="4.3-targets-desligar-e-reiniciar.html"><span class="num">4.3</span><span>Targets: desligar e reiniciar</span></a></li><li><a href="4.4-grub-e-acesso-de-emergencia.html"><span class="num">4.4</span><span>GRUB e acesso de emergência</span></a></li></ul><h3>M5 · Kernel, módulos e VM</h3><ul><li><a href="5.1-hardware-pelo-kernel.html"><span class="num">5.1</span><span>Hardware pelo kernel</span></a></li><li><a href="5.2-modulos-e-parametros.html"><span class="num">5.2</span><span>Módulos e parâmetros</span></a></li><li><a href="5.3-linux-como-convidado.html"><span class="num">5.3</span><span>Linux como convidado</span></a></li></ul><h3>M6 · Pacotes e repositórios</h3><ul><li><a href="6.1-pacotes-no-debian.html"><span class="num">6.1</span><span>Pacotes no Debian</span></a></li><li><a href="6.2-pacotes-na-rocky.html"><span class="num">6.2</span><span>Pacotes na Rocky</span></a></li><li><a href="6.3-repositorios.html"><span class="num">6.3</span><span>Repositórios</span></a></li><li><a href="6.4-flatpak.html"><span class="num">6.4</span><span>Flatpak</span></a></li><li><a href="6.5-bibliotecas-compartilhadas.html"><span class="num">6.5</span><span>Bibliotecas compartilhadas</span></a></li></ul></aside><main id="conteudo" class="aula"><article><h1>Aula 2.3 · Processos e logs</h1>
+<p>Terceira aula do Módulo 2. O telefone toca: "o servidor está lento". É a frase mais comum do suporte e a mais vaga. Lento por quê? Um processo comendo processador? A memória acabou e o sistema está usando swap? Um disco engasgado segurando todo mundo? Hoje você aprende a responder em cinco minutos, pelo SSH, sem reiniciar nada: quem está rodando, quanto cada um consome, como pedir educadamente que um programa pare e como obrigá-lo, e onde o sistema anotou o que aconteceu antes de você chegar. No fim, você sabe ler o journal como quem lê o prontuário de um paciente.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Ficha</th><th scope="col">Aula 2.3</th></tr></thead><tbody><tr><td>Módulo</td><td>M2 · Sistema, usuários e permissões, aula 3 de 8</td></tr><tr><td>Quando</td><td>Semana 4</td></tr><tr><td>Ao final você consegue</td><td>Listar e filtrar processos com <code translate="no">ps</code>, <code translate="no">pgrep</code> e <code translate="no">top</code>; ler as colunas que importam (PID, PPID, <code translate="no">%CPU</code>, <code translate="no">%MEM</code>, <code translate="no">STAT</code>); explicar o que é a carga média; enviar sinais com <code translate="no">kill</code> e saber quando usar cada um; mudar a prioridade com <code translate="no">nice</code> e <code translate="no">renice</code>; rodar trabalhos em segundo plano que sobrevivem ao logout; achar no journal o que aconteceu, quando e com quem; tornar o journal permanente</td></tr><tr><td>Itens de prova</td><td>LE 014.3 (o sistema em execução: processos, <code translate="no">ps</code>, <code translate="no">top</code>, <code translate="no">free</code>, logs, <code translate="no">journalctl</code>) · LPIC-1 103.5 (criar, monitorar e terminar processos) · LPIC-1 103.6 (prioridade de processos) · RHCSA (identificar e terminar processos que consomem muito; ajustar prioridade; localizar e interpretar logs e o journal; preservar o journal)</td></tr><tr><td>Pré-requisitos</td><td>Aula 2.2 (<code translate="no">free -h</code>, coluna <code translate="no">available</code>; <code translate="no">journalctl -k</code>); Aulas 1.5 e 1.6 (<code translate="no">grep</code> e pipes)</td></tr><tr><td>Tempo</td><td>Cerca de 2h</td></tr><tr><td>Snapshots</td><td>m2a3-inicio e m2a3-fim nas duas VMs</td></tr></tbody></table></div>
+<h2 id="1-aquecimento">1 · Aquecimento</h2>
+<p>Três perguntas, de cabeça. Escreva as respostas; o Gabarito confere no fim.</p>
+<ol><li>No Windows, você abre o Gerenciador de Tarefas e clica em "Finalizar tarefa". Palpite: o programa tem chance de salvar o que estava fazendo antes de fechar, ou ele simplesmente some?</li>
+<li>Você roda um script longo pelo SSH, a sua conexão cai. Palpite: o script continua rodando no servidor ou morre junto?</li>
+<li>O <code translate="no">top</code> mostra <code translate="no">load average: 4.00</code>. Palpite: isso é bom, ruim, ou depende de quê?</li></ol>
+<h2 id="2-por-que-importa">2 · Por que importa</h2>
+<p>"Está lento" e "parou" são metade dos chamados. Quem resolve não é quem sabe mais comandos; é quem tem um roteiro e o segue sempre na mesma ordem: carga → processador → memória → disco → o processo culpado → o que o log diz. Com esse roteiro, você chega no servidor, roda quatro comandos e diz ao cliente o que está acontecendo, antes de ele terminar de explicar.</p>
+<p>E há o reflexo que faz estrago: <code translate="no">kill -9</code>. O programa travou, o administrador manda o <code translate="no">-9</code>, o programa some. Mas o banco de dados não teve tempo de gravar o que estava na memória, o arquivo de trava ficou para trás, e o serviço não sobe mais. Saber a diferença entre pedir para sair e arrancar da tomada é o que separa resolver de criar o próximo chamado.</p>
+<p>Por fim, o log. Quando o cliente diz "ontem à noite caiu", você não estava lá. O journal estava. Mas só se ele for gravado em disco: na configuração padrão do Rocky, o journal fica na memória e some a cada boot. O "o que aconteceu antes de reiniciar?" morre junto. Hoje você conserta isso nas duas VMs.</p>
+<h2 id="3-modelo-mental">3 · Modelo mental</h2>
+<blockquote><p>Todo processo é um filho. Ele tem um número (PID), um pai (PPID), um dono, um estado e uma caixa de correio de sinais. Você não manda num processo; você manda uma carta a ele.</p></blockquote>
+<pre translate="no"><code class="lang-text">systemd (PID 1)                       ← o avô de todos; adota os órfãos
+ ├─ sshd                              ← serviço
+ │   └─ sshd: rodrigo                 ← a sua conexão
+ │       └─ bash                      ← o seu shell
+ │           ├─ sleep 600 &amp;           ← um filho em segundo plano (job)
+ │           └─ ps -ef --forest       ← o comando que você acabou de digitar
+ ├─ chronyd
+ └─ crond</code></pre>
+<p>Quatro ideias carregam a aula:</p>
+<div class="tabela"><table><thead><tr><th scope="col">Ideia</th><th scope="col">O que quer dizer</th><th scope="col">Consequência</th></tr></thead><tbody><tr><td>Árvore</td><td>Todo processo nasce de outro (<code translate="no">fork</code>); o primeiro é o <code translate="no">systemd</code>, PID 1</td><td>Matar o pai pode levar os filhos junto, ou deixá-los órfãos, adotados pelo PID 1</td></tr><tr><td>Estado</td><td>Rodando (<code translate="no">R</code>), dormindo esperando algo (<code translate="no">S</code>), preso esperando disco (<code translate="no">D</code>), parado (<code translate="no">T</code>), zumbi (<code translate="no">Z</code>)</td><td>Um <code translate="no">D</code> não responde a sinal nenhum, nem ao <code translate="no">-9</code>: ele espera o disco</td></tr><tr><td>Sinal</td><td>Uma mensagem numerada: 15 pede para sair, 9 mata, 1 avisa "o terminal sumiu"</td><td>O processo pode tratar o 15 e o 1; o 9 nunca chega até ele, o kernel age direto</td></tr><tr><td>Registro</td><td>Tudo o que o processo escreve na saída de erro, e tudo o que o kernel e o systemd veem, vai para o journal</td><td>Se não foi gravado em disco, sumiu no boot</td></tr></tbody></table></div>
+<figure><a href="../img/2.3-arvore-processos.svg"><img src="../img/2.3-arvore-processos.svg" alt="A árvore de processos do Linux" loading="lazy" decoding="async"></a><figcaption>Todo processo é filho de outro: PID, PPID, dono, estado e uma caixa de sinais.</figcaption></figure>
+<h2 id="4-conceito-em-camadas">4 · Conceito em camadas</h2>
+<h3 id="essencial">Essencial</h3>
+<p><strong>Ver os processos.</strong> Dois estilos de <code translate="no">ps</code> sobreviveram na prática; decore um de cada:</p>
+<pre translate="no"><code class="lang-bash">ps aux                       # estilo BSD: todos, com %CPU, %MEM, dono
+ps -ef                       # estilo Unix: todos, com PPID (o pai)
+ps -ef --forest              # a árvore
+ps -o pid,ppid,user,stat,%cpu,%mem,cmd -p 1234     # só as colunas que você quer, de um PID</code></pre>
+<div class="tabela"><table><thead><tr><th scope="col">Coluna</th><th scope="col">Quer dizer</th></tr></thead><tbody><tr><td><code translate="no">PID</code></td><td>O número do processo; único enquanto ele vive</td></tr><tr><td><code translate="no">PPID</code></td><td>O número do pai</td></tr><tr><td><code translate="no">USER</code></td><td>O dono; é com as permissões dele que o processo age (Aula 2.7)</td></tr><tr><td><code translate="no">%CPU</code></td><td>Quanto do processador ele usou (média desde que começou, no <code translate="no">ps</code>; agora, no <code translate="no">top</code>)</td></tr><tr><td><code translate="no">%MEM</code> e <code translate="no">RSS</code></td><td>Quanto da memória física ele ocupa</td></tr><tr><td><code translate="no">STAT</code></td><td>O estado: <code translate="no">R</code>, <code translate="no">S</code>, <code translate="no">D</code>, <code translate="no">T</code>, <code translate="no">Z</code>, mais letras de detalhe (<code translate="no">s</code> = líder de sessão, <code translate="no">+</code> = em primeiro plano, <code translate="no">&lt;</code> = prioridade alta, <code translate="no">N</code> = prioridade baixa)</td></tr><tr><td><code translate="no">TTY</code></td><td>O terminal; <code translate="no">?</code> quer dizer que não tem, como os serviços</td></tr></tbody></table></div>
+<p><strong>Achar um processo pelo nome.</strong> <code translate="no">pgrep</code> responde com o PID; <code translate="no">pidof</code> também; <code translate="no">ps</code> com <code translate="no">grep</code> funciona, mas aparece o próprio <code translate="no">grep</code> na lista:</p>
+<pre translate="no"><code class="lang-bash">pgrep -a sshd          # PID e linha de comando
+pgrep -u rodrigo       # todos os processos do usuário
+pidof chronyd</code></pre>
+<p><strong>O painel ao vivo: <code translate="no">top</code>.</strong> Abra e aprenda cinco teclas: <code translate="no">P</code> ordena por processador, <code translate="no">M</code> por memória, <code translate="no">1</code> mostra cada núcleo, <code translate="no">k</code> manda um sinal, <code translate="no">q</code> sai. As cinco primeiras linhas são o resumo do servidor:</p>
+<pre translate="no"><code class="lang-text">top - 14:02:11 up 3 days,  2 users,  load average: 0.42, 0.30, 0.25   ← carga de 1, 5 e 15 minutos
+Tasks: 128 total,   1 running, 127 sleeping,   0 stopped,   0 zombie
+%Cpu(s):  2.0 us,  1.0 sy,  0.0 ni, 96.5 id,  0.5 wa,  0.0 hi,  0.0 si,  0.0 st
+MiB Mem :   1967.4 total,    210.3 free,    612.9 used,   1144.2 buff/cache
+MiB Swap:   2048.0 total,   2048.0 free,      0.0 used.   1354.5 avail Mem</code></pre>
+<p>Na linha <code translate="no">%Cpu(s)</code>, três números contam a história: <code translate="no">us</code> (programas trabalhando), <code translate="no">wa</code> (processador parado <strong>esperando disco</strong>) e <code translate="no">st</code> (tempo que o hipervisor roubou da VM para dar a outra). <code translate="no">id</code> alto e <code translate="no">wa</code> alto ao mesmo tempo: o problema é o disco, não o processador.</p>
+<p><strong>A carga média.</strong> O <code translate="no">load average</code> é o número médio de processos que querem o processador ou estão esperando disco (estados <code translate="no">R</code> e <code translate="no">D</code>). Compare com o número de núcleos (<code translate="no">nproc</code>): carga 4 numa máquina de 4 núcleos é cheia; numa de 16, é folga; numa de 1, é fila. Os três números, de 1, 5 e 15 minutos, dizem para onde vai: <code translate="no">4.0, 2.0, 0.5</code> está piorando agora; <code translate="no">0.5, 2.0, 4.0</code> está melhorando.</p>
+<p><strong>Sinais.</strong> <code translate="no">kill</code> não mata: manda um sinal. Os que você usa:</p>
+<div class="tabela"><table><thead><tr><th scope="col">Sinal</th><th scope="col">Número</th><th scope="col">O que faz</th><th scope="col">Quando</th></tr></thead><tbody><tr><td><code translate="no">SIGTERM</code></td><td>15</td><td>Pede para terminar; o programa pode salvar, fechar arquivos, apagar o arquivo de trava</td><td>Sempre primeiro. É o padrão do <code translate="no">kill</code></td></tr><tr><td><code translate="no">SIGKILL</code></td><td>9</td><td>O kernel remove o processo na hora; ele não fica sabendo</td><td>Só depois que o 15 falhou e você esperou</td></tr><tr><td><code translate="no">SIGHUP</code></td><td>1</td><td>"O terminal desligou". Muitos serviços entendem como "releia a configuração"</td><td>Recarregar um serviço antigo sem derrubar</td></tr><tr><td><code translate="no">SIGINT</code></td><td>2</td><td>O que o <code translate="no">Ctrl+C</code> manda</td><td>Interromper o que está no terminal</td></tr><tr><td><code translate="no">SIGSTOP</code> e <code translate="no">SIGCONT</code></td><td>19 e 18</td><td>Congelar e descongelar; o <code translate="no">Ctrl+Z</code> manda um primo do 19, o <code translate="no">SIGTSTP</code></td><td>Pausar sem matar</td></tr></tbody></table></div>
+<pre translate="no"><code class="lang-bash">kill 1234              # manda o 15
+kill -9 1234           # manda o 9
+kill -l                # lista todos os sinais
+pkill -u fulano sleep  # manda o 15 a todos os "sleep" do fulano
+killall sleep          # manda o 15 a todos os "sleep", de todo mundo</code></pre>
+<p><strong>Onde ficam os logs.</strong> Duas fontes, que hoje convivem:</p>
+<div class="tabela"><table><thead><tr><th scope="col">Fonte</th><th scope="col">O que é</th><th scope="col">Como ler</th></tr></thead><tbody><tr><td>Journal do systemd</td><td>Banco binário com tudo: kernel, serviços, login, com data, prioridade e unidade</td><td><code translate="no">journalctl</code></td></tr><tr><td>Arquivos em <code translate="no">/var/log</code></td><td>Texto, gravado pelo <code translate="no">rsyslog</code> a partir do journal, e por programas que escrevem direto</td><td><code translate="no">less</code>, <code translate="no">tail -f</code>, <code translate="no">grep</code></td></tr></tbody></table></div>
+<p>No Rocky, o <code translate="no">rsyslog</code> vem instalado e grava <code translate="no">/var/log/messages</code> e <code translate="no">/var/log/secure</code> (logins e <code translate="no">sudo</code>). No Debian 13, ele não vem: o journal é a fonte, e <code translate="no">/var/log</code> tem pouca coisa além dos logs do <code translate="no">apt</code> e do <code translate="no">dpkg</code>.</p>
+<h3 id="intermediario">Intermediário</h3>
+<p><strong><code translate="no">journalctl</code>, os filtros que resolvem.</strong> O journal é grande; o valor está em filtrar:</p>
+<div class="tabela"><table><thead><tr><th scope="col">Pergunta</th><th scope="col">Comando</th></tr></thead><tbody><tr><td>O que aconteceu neste boot?</td><td><code translate="no">journalctl -b</code></td></tr><tr><td>E no boot anterior, antes de cair?</td><td><code translate="no">journalctl -b -1</code> (só se o journal for permanente)</td></tr><tr><td>Que boots o journal conhece?</td><td><code translate="no">journalctl --list-boots</code></td></tr><tr><td>Só um serviço</td><td><code translate="no">journalctl -u sshd</code> (Rocky) ou <code translate="no">-u ssh</code> (Debian)</td></tr><tr><td>Só erros e piores</td><td><code translate="no">journalctl -p err</code> (níveis: <code translate="no">emerg</code>, <code translate="no">alert</code>, <code translate="no">crit</code>, <code translate="no">err</code>, <code translate="no">warning</code>, <code translate="no">notice</code>, <code translate="no">info</code>, <code translate="no">debug</code>)</td></tr><tr><td>Numa janela de tempo</td><td><code translate="no">journalctl --since '2026-11-02 08:00' --until '09:30'</code>; ou <code translate="no">--since '-1h'</code>, <code translate="no">--since yesterday</code></td></tr><tr><td>Ao vivo</td><td><code translate="no">journalctl -f</code></td></tr><tr><td>As últimas linhas</td><td><code translate="no">journalctl -n 50</code></td></tr><tr><td>De um programa, pelo nome</td><td><code translate="no">journalctl -t sudo</code>; <code translate="no">journalctl _COMM=sshd</code></td></tr><tr><td>De um PID</td><td><code translate="no">journalctl _PID=1234</code></td></tr><tr><td>Sem paginação, para usar com <code translate="no">grep</code></td><td><code translate="no">journalctl --no-pager</code></td></tr><tr><td>Com a explicação do erro, quando existe</td><td><code translate="no">journalctl -xe</code></td></tr></tbody></table></div>
+<p>Os filtros se somam: <code translate="no">journalctl -u sshd -p warning --since today</code> é "os avisos do SSH de hoje".</p>
+<p><strong>O journal que some no boot.</strong> O <code translate="no">systemd-journald</code> guarda em <code translate="no">/var/log/journal/</code> <strong>se a pasta existir</strong>; se não, guarda em <code translate="no">/run/log/journal/</code>, que fica na memória e some no boot. Quem decide é a opção <code translate="no">Storage=</code> em <code translate="no">/etc/systemd/journald.conf</code>:</p>
+<div class="tabela"><table><thead><tr><th scope="col"><code translate="no">Storage=</code></th><th scope="col">Comportamento</th></tr></thead><tbody><tr><td><code translate="no">auto</code> (o padrão)</td><td>Grava em disco se <code translate="no">/var/log/journal/</code> existir; senão, só na memória</td></tr><tr><td><code translate="no">persistent</code></td><td>Cria a pasta e grava em disco</td></tr><tr><td><code translate="no">volatile</code></td><td>Só na memória</td></tr></tbody></table></div>
+<p>No Rocky 9, a pasta não existe depois da instalação: o journal é volátil e o <code translate="no">rsyslog</code> é quem guarda o histórico em <code translate="no">/var/log/messages</code>. No Debian 13, a pasta é criada na instalação e o journal já é permanente. Você vai conferir as duas no lab, porque "o padrão" muda entre versões e o que vale é o que está na máquina.</p>
+<p><strong>Prioridade: <code translate="no">nice</code> e <code translate="no">renice</code>.</strong> O <em>nice</em> vai de <code translate="no">-20</code> (mais prioridade) a <code translate="no">19</code> (menos). O padrão é <code translate="no">0</code>. Um processo "gentil" (nice alto) cede o processador aos outros:</p>
+<pre translate="no"><code class="lang-bash">nice -n 10 tar czf /tmp/backup.tgz /etc     # começa já com nice 10
+renice -n 15 -p 1234                        # muda um que já está rodando
+ps -o pid,ni,cmd -p 1234                    # confere</code></pre>
+<p>Usuário comum só pode <strong>aumentar</strong> o nice dos próprios processos (ficar mais gentil). Diminuir, ou mexer nos dos outros, exige root. No <code translate="no">top</code>, a coluna <code translate="no">NI</code> mostra o valor, e <code translate="no">PR</code> mostra a prioridade que o kernel calculou a partir dele.</p>
+<p><strong>Primeiro e segundo plano.</strong> No shell, um comando com <code translate="no">&amp;</code> no fim roda em segundo plano, como um <em>job</em>:</p>
+<div class="tabela"><table><thead><tr><th scope="col">Comando</th><th scope="col">O que faz</th></tr></thead><tbody><tr><td><code translate="no">comando &amp;</code></td><td>Roda em segundo plano; o shell mostra <code translate="no">[1] 4321</code> (número do job e PID)</td></tr><tr><td><code translate="no">Ctrl+Z</code></td><td>Pausa o que está em primeiro plano</td></tr><tr><td><code translate="no">jobs -l</code></td><td>Lista os jobs deste shell</td></tr><tr><td><code translate="no">bg %1</code></td><td>Continua o job 1 em segundo plano</td></tr><tr><td><code translate="no">fg %1</code></td><td>Traz o job 1 para o primeiro plano</td></tr><tr><td><code translate="no">kill %1</code></td><td>Manda o 15 ao job 1</td></tr></tbody></table></div>
+<p>Jobs são do <strong>shell</strong>: se o shell morre, ele manda <code translate="no">SIGHUP</code> aos filhos, e eles morrem junto. Para sobreviver ao logout:</p>
+<div class="tabela"><table><thead><tr><th scope="col">Jeito</th><th scope="col">Como</th><th scope="col">Quando</th></tr></thead><tbody><tr><td><code translate="no">nohup comando &amp;</code></td><td>Ignora o <code translate="no">SIGHUP</code>; a saída vai para <code translate="no">nohup.out</code></td><td>Um comando avulso, rápido de lembrar; cai na prova</td></tr><tr><td><code translate="no">tmux</code> (ou <code translate="no">screen</code>)</td><td>Uma sessão de terminal que continua no servidor; você sai e volta com <code translate="no">tmux attach</code></td><td>O jeito do dia a dia: atualização longa, cópia grande</td></tr><tr><td><code translate="no">systemd-run --user</code> ou uma unidade de serviço</td><td>O systemd cuida do processo</td><td>Coisas que precisam rodar sempre (Módulo 4)</td></tr></tbody></table></div>
+<h3 id="ponte-windows">Ponte Windows</h3>
+<div class="tabela"><table><thead><tr><th scope="col">No Windows</th><th scope="col">No Linux</th><th scope="col">O que muda</th></tr></thead><tbody><tr><td>Gerenciador de Tarefas, aba Processos</td><td><code translate="no">top</code>, <code translate="no">ps aux</code></td><td>O <code translate="no">top</code> funciona pelo SSH e mostra a carga média, que o Windows não mostra</td></tr><tr><td>"Finalizar tarefa"</td><td><code translate="no">kill PID</code> (15)</td><td>O Linux pede primeiro; o programa pode se despedir</td></tr><tr><td>"Finalizar árvore de processos"</td><td><code translate="no">kill -9</code>, ou <code translate="no">pkill -P PPID</code> para os filhos</td><td></td></tr><tr><td>Prioridade: "Abaixo do normal"</td><td><code translate="no">renice -n 10</code></td><td>A escala é invertida: número maior, prioridade menor</td></tr><tr><td>Visualizador de Eventos</td><td><code translate="no">journalctl</code></td><td>Filtros na linha de comando em vez de cliques</td></tr><tr><td>Logs de Aplicativo, Sistema, Segurança</td><td><code translate="no">journalctl -u serviço</code>, <code translate="no">journalctl -k</code>, <code translate="no">/var/log/secure</code> ou <code translate="no">journalctl -t sudo</code></td><td></td></tr><tr><td>Tarefa que continua depois do logoff</td><td><code translate="no">tmux</code>, <code translate="no">nohup</code>, ou um serviço</td><td></td></tr></tbody></table></div>
+<h3 id="avancado">Avançado</h3>
+<p><strong><code translate="no">/proc/PID/</code>, o processo por dentro.</strong> Cada processo tem uma pasta: <code translate="no">/proc/1234/cmdline</code> (a linha de comando), <code translate="no">/proc/1234/status</code> (estado, memória, dono), <code translate="no">/proc/1234/fd/</code> (os arquivos abertos, como links), <code translate="no">/proc/1234/cwd</code> (a pasta em que ele está). O <code translate="no">ps</code> e o <code translate="no">top</code> leem dali. Quando um disco está cheio e você não acha o arquivo, <code translate="no">ls -l /proc/*/fd 2&gt;/dev/null | grep deleted</code> mostra o arquivo apagado que um processo ainda segura aberto: o espaço só volta quando o processo fecha.</p>
+<p><strong>Zumbi e órfão.</strong> Um processo que terminou fica na tabela como <code translate="no">Z</code> até o pai ler o código de saída dele. Um zumbi não gasta processador nem memória, só uma linha na tabela; não adianta mandar <code translate="no">kill</code> a ele, porque ele já morreu. Quem resolve é o pai: ou ele lê, ou ele morre, e aí o <code translate="no">systemd</code> adota e limpa. Um <strong>órfão</strong> é o contrário: o pai morreu e o filho continua vivo, adotado pelo PID 1.</p>
+<p><strong>O estado <code translate="no">D</code>.</strong> Um processo em <code translate="no">D</code> (<em>uninterruptible sleep</em>) está dentro do kernel esperando o disco ou a rede (um NFS que caiu, por exemplo). Nenhum sinal o tira de lá, nem o 9. Se você vê vários em <code translate="no">D</code> e a carga alta com o processador parado, o problema está no armazenamento. Reiniciar o servidor pode até travar no desligamento por causa deles.</p>
+<p><strong><code translate="no">systemd-cgls</code> e <code translate="no">systemd-cgtop</code>.</strong> O systemd agrupa os processos de cada serviço num <em>cgroup</em>. O <code translate="no">systemd-cgls</code> mostra a árvore por serviço; o <code translate="no">systemd-cgtop</code> mostra o consumo por serviço, e não por processo. Num servidor com um serviço que abre cem processos, é ali que você vê quem é o culpado.</p>
+<p><strong><code translate="no">sudo journalctl</code> × grupos.</strong> Sem <code translate="no">sudo</code>, o <code translate="no">journalctl</code> mostra só as mensagens do próprio usuário. Membros do grupo <code translate="no">wheel</code> (Rocky), <code translate="no">adm</code> (Debian) ou <code translate="no">systemd-journal</code> (os dois) leem tudo sem <code translate="no">sudo</code>.</p>
+<h3 id="o-que-cai-na-prova">O que cai na prova</h3>
+<ul><li><strong>LE 014.3</strong>: o que é um processo, <code translate="no">ps</code>, <code translate="no">top</code>, <code translate="no">free</code>, onde ficam os logs, <code translate="no">journalctl</code> básico.</li>
+<li><strong>LPIC-1 103.5</strong>: <code translate="no">ps</code>, <code translate="no">pgrep</code>, <code translate="no">pkill</code>, <code translate="no">kill</code>, <code translate="no">killall</code>, <code translate="no">top</code>, <code translate="no">free</code>, <code translate="no">uptime</code>, <code translate="no">watch</code>, <code translate="no">nohup</code>, <code translate="no">jobs</code>, <code translate="no">bg</code>, <code translate="no">fg</code>, <code translate="no">&amp;</code>, <code translate="no">screen</code> e <code translate="no">tmux</code>; os sinais, pelo nome e pelo número.</li>
+<li><strong>LPIC-1 103.6</strong>: <code translate="no">nice</code>, <code translate="no">renice</code>, a faixa de <code translate="no">-20</code> a <code translate="no">19</code>, quem pode baixar o nice, as colunas <code translate="no">NI</code> e <code translate="no">PR</code>.</li>
+<li><strong>RHCSA</strong>: achar e matar o processo que mais consome; ajustar a prioridade; <code translate="no">journalctl</code> com filtros de unidade, prioridade e tempo; tornar o journal permanente.</li></ul>
+<h2 id="5-rocky-debian">5 · Rocky × Debian</h2>
+<div class="tabela"><table><thead><tr><th scope="col">O quê</th><th scope="col">Rocky 9</th><th scope="col">Debian 13</th></tr></thead><tbody><tr><td>Journal em disco depois da instalação</td><td>Não: <code translate="no">/var/log/journal/</code> não existe, journal volátil</td><td>Sim: a pasta existe e o journal é permanente</td></tr><tr><td><code translate="no">rsyslog</code></td><td>Instalado e ativo; grava <code translate="no">/var/log/messages</code> e <code translate="no">/var/log/secure</code></td><td>Não vem instalado; o journal é a fonte</td></tr><tr><td>Log de logins e <code translate="no">sudo</code> em texto</td><td><code translate="no">/var/log/secure</code></td><td>Não há; use <code translate="no">journalctl -t sudo</code> e <code translate="no">journalctl -u ssh</code></td></tr><tr><td>Nome da unidade do SSH</td><td><code translate="no">sshd</code></td><td><code translate="no">ssh</code></td></tr><tr><td>Quem lê o journal inteiro sem <code translate="no">sudo</code></td><td>Grupos <code translate="no">wheel</code> e <code translate="no">systemd-journal</code></td><td>Grupos <code translate="no">adm</code> e <code translate="no">systemd-journal</code></td></tr><tr><td><code translate="no">tmux</code></td><td><code translate="no">dnf install tmux</code></td><td><code translate="no">apt install tmux</code></td></tr><tr><td><code translate="no">pstree</code></td><td>Pacote <code translate="no">psmisc</code>, em geral instalado</td><td>Pacote <code translate="no">psmisc</code>, pode faltar</td></tr><tr><td><code translate="no">killall</code></td><td>Pacote <code translate="no">psmisc</code></td><td>Pacote <code translate="no">psmisc</code></td></tr></tbody></table></div>
+<h2 id="6-lab-guiado">6 · Lab guiado</h2>
+<p>Faça tudo na rocky-lab primeiro e repita na debian-lab. Onde o Debian muda, o passo avisa. Abra <strong>dois</strong> terminais SSH na mesma VM: o terminal 1 para criar os processos, o terminal 2 para observar.</p>
+<figure><a href="../img/2.3-roteiro-lento.svg"><img src="../img/2.3-roteiro-lento.svg" alt="2.3 Roteiro Lento" loading="lazy" decoding="async"></a><figcaption>Leia da primeira à sexta linha, sem pular. Um ping que não responde não prova que a máquina está fora; um firewall pode estar bloqueando ICMP.</figcaption></figure>
+<h3 id="passo-0-snapshot">Passo 0 · Snapshot</h3>
+<p>No Proxmox, tire o snapshot <code translate="no">m2a3-inicio</code> das duas VMs. Se algo der muito errado, você volta para cá.</p>
+<h3 id="passo-1-a-sua-arvore">Passo 1 · A sua árvore</h3>
+<p>No terminal 1:</p>
+<pre translate="no"><code class="lang-bash">echo $$                          # o PID do seu shell
+ps -o pid,ppid,user,stat,cmd -p $$
+ps -ef --forest | grep -B3 -A1 "$$"</code></pre>
+<p>Siga o <code translate="no">PPID</code> para cima: o seu <code translate="no">bash</code> é filho de um <code translate="no">sshd: rodrigo</code>, que é filho de outro <code translate="no">sshd</code>, que é filho do <code translate="no">systemd</code>, PID 1. Agora confira o avô:</p>
+<pre translate="no"><code class="lang-bash">ps -o pid,user,cmd -p 1
+nproc                            # quantos núcleos a VM tem
+uptime                           # há quanto tempo está ligada e a carga</code></pre>
+<p>Anote o <code translate="no">nproc</code>. Você vai precisar dele para ler a carga daqui a pouco.</p>
+<h3 id="passo-2-primeiro-e-segundo-plano">Passo 2 · Primeiro e segundo plano</h3>
+<p>Ainda no terminal 1:</p>
+<pre translate="no"><code class="lang-bash">sleep 600 &amp;                      # [1] e um PID
+sleep 700                        # este prende o terminal</code></pre>
+<p>O segundo <code translate="no">sleep</code> prendeu o terminal. Aperte <code translate="no">Ctrl+Z</code>. O shell responde <code translate="no">[2]+ Stopped</code>. Agora:</p>
+<pre translate="no"><code class="lang-bash">jobs -l                          # o 1 rodando, o 2 parado
+ps -o pid,stat,cmd -C sleep      # o parado aparece com STAT T
+bg %2                            # o 2 volta a rodar, em segundo plano
+jobs -l
+fg %1                            # traz o 1 para a frente</code></pre>
+<p>O terminal está preso de novo, agora no <code translate="no">sleep 600</code>. Aperte <code translate="no">Ctrl+C</code>: ele recebe o <code translate="no">SIGINT</code> e termina. Limpe o outro:</p>
+<pre translate="no"><code class="lang-bash">kill %2
+jobs -l                          # vazio</code></pre>
+<p><strong>Decida 1 · O terminal preso.</strong> Você rodou pelo SSH uma cópia que vai levar uma hora, sem <code translate="no">&amp;</code>. O terminal está preso e você precisa dele. O que faz sem perder a cópia?</p>
+<ul><li><strong>A)</strong> <code translate="no">Ctrl+C</code> e roda de novo com <code translate="no">&amp;</code> no fim.</li>
+<li><strong>B)</strong> <code translate="no">Ctrl+Z</code> e depois <code translate="no">bg</code>.</li>
+<li><strong>C)</strong> Abre outro terminal e manda <code translate="no">kill -STOP</code> na cópia.</li>
+<li><strong>D)</strong> Fecha a janela do SSH; a cópia continua sozinha.</li></ul>
+<p>Escolha a letra antes de olhar a tabela.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se você marcou</th><th scope="col">Resultado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>A</td><td>❌ Errada</td><td>O <code translate="no">Ctrl+C</code> interrompe a cópia, e você recomeça do zero.</td></tr><tr><td>B</td><td>✅ Certa</td><td>O <code translate="no">Ctrl+Z</code> pausa e devolve o terminal; o <code translate="no">bg</code> faz a cópia continuar em segundo plano, do ponto em que estava.</td></tr><tr><td>C</td><td>❌ Errada</td><td>O <code translate="no">SIGSTOP</code> congela a cópia, mas o terminal 1 continua preso esperando por ela. Você só trocou de problema.</td></tr><tr><td>D</td><td>❌ Errada</td><td>Quando a conexão cai, o shell recebe <code translate="no">SIGHUP</code> e repassa aos filhos. A cópia morre. O Passo 5 mostra isso ao vivo.</td></tr></tbody></table></div>
+<p><strong>Para fixar:</strong> <code translate="no">Ctrl+Z</code>, <code translate="no">bg</code>. E, se ela precisar sobreviver ao logout, isso ainda não basta: veja o Passo 5.</p>
+<h3 id="passo-3-fazer-barulho-e-achar-o-culpado">Passo 3 · Fazer barulho e achar o culpado</h3>
+<p>No terminal 1, crie um processo que come um núcleo inteiro:</p>
+<pre translate="no"><code class="lang-bash">yes &gt; /dev/null &amp;</code></pre>
+<p>No terminal 2, abra o <code translate="no">top</code>. Aperte <code translate="no">P</code> (ordena por processador). O <code translate="no">yes</code> vai para o topo, perto de 100%. Aperte <code translate="no">1</code> para ver os núcleos separados: um deles está cheio. Repare na linha <code translate="no">%Cpu(s)</code>: o <code translate="no">us</code> subiu. Espere um minuto e olhe a carga: o primeiro número caminha para 1.</p>
+<p>Saia com <code translate="no">q</code> e confira a mesma coisa sem painel, do jeito que você cola num chamado:</p>
+<pre translate="no"><code class="lang-bash">uptime
+ps aux --sort=-%cpu | head -5
+top -bn1 | head -12              # um retrato do top, em texto</code></pre>
+<p>Agora baixe a prioridade dele. No terminal 2, como o seu usuário:</p>
+<pre translate="no"><code class="lang-bash">PID=$(pgrep -x yes)
+ps -o pid,ni,pri,cmd -p $PID     # NI 0
+renice -n 10 -p $PID
+ps -o pid,ni,pri,cmd -p $PID     # NI 10
+renice -n 0 -p $PID              # tente voltar</code></pre>
+<p>O último <code translate="no">renice</code> falha com <code translate="no">Permission denied</code>. Você conseguiu ficar mais gentil, mas não consegue voltar atrás sem ser root.</p>
+<p><strong>Decida 2 · Quem pode o quê.</strong> Um usuário comum roda um processo com nice <code translate="no">10</code>. Qual destes ele consegue fazer sozinho?</p>
+<ul><li><strong>A)</strong> <code translate="no">renice -n 5</code> (de volta para 5)</li>
+<li><strong>B)</strong> <code translate="no">renice -n 15</code></li>
+<li><strong>C)</strong> <code translate="no">renice -n -5</code></li>
+<li><strong>D)</strong> <code translate="no">renice -n 15</code> num processo de outro usuário</li></ul>
+<p>Escolha a letra antes de olhar a tabela.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se você marcou</th><th scope="col">Resultado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>A</td><td>❌ Errada</td><td>Baixar o nice é pedir mais prioridade. Usuário comum só sobe.</td></tr><tr><td>B</td><td>✅ Certa</td><td>Subir o nice do próprio processo é sempre permitido: ele está cedendo lugar aos outros.</td></tr><tr><td>C</td><td>❌ Errada</td><td>Nice negativo é prioridade acima do normal, só root.</td></tr><tr><td>D</td><td>❌ Errada</td><td>Processo de outro usuário, só root, nem que seja para deixar mais gentil.</td></tr></tbody></table></div>
+<p><strong>Para fixar:</strong> nice maior, prioridade menor. Usuário comum só sobe, e só nos seus.</p>
+<p>Termine o <code translate="no">yes</code> do jeito educado e confira:</p>
+<pre translate="no"><code class="lang-bash">kill $PID
+pgrep -x yes; echo "rc=$?"       # rc=1: não há mais nenhum</code></pre>
+<h3 id="passo-4-pedir-para-sair-e-arrancar-da-tomada">Passo 4 · Pedir para sair e arrancar da tomada</h3>
+<p>Crie um "serviço" de mentira que se comporta como um de verdade: grava um arquivo de trava quando sobe, recusa subir se a trava existe e apaga a trava quando recebe <code translate="no">SIGTERM</code>.</p>
+<pre translate="no"><code class="lang-bash">cat &gt; ~/lab-servico.sh &lt;&lt;'EOF'
+#!/bin/bash
+TRAVA=/tmp/lab-servico.lock
+if [ -e "$TRAVA" ]; then
+  echo "ERRO: já está rodando (PID $(cat "$TRAVA")). Saindo." &gt;&amp;2
+  logger -t lab-servico "recusei subir: trava $TRAVA existe"
+  exit 1
+fi
+echo $$ &gt; "$TRAVA"
+trap 'logger -t lab-servico "TERM recebido, trava removida"; rm -f "$TRAVA"; exit 0' TERM
+logger -t lab-servico "iniciado, PID $$"
+while true; do sleep 2; done
+EOF
+chmod +x ~/lab-servico.sh</code></pre>
+<p>No terminal 1:</p>
+<pre translate="no"><code class="lang-bash">~/lab-servico.sh &amp;
+cat /tmp/lab-servico.lock        # o PID dele</code></pre>
+<p>No terminal 2, acompanhe o que ele diz:</p>
+<pre translate="no"><code class="lang-bash">journalctl -t lab-servico -f</code></pre>
+<p>No terminal 1, mande o <code translate="no">SIGTERM</code>:</p>
+<pre translate="no"><code class="lang-bash">kill $(cat /tmp/lab-servico.lock)
+ls /tmp/lab-servico.lock         # No such file</code></pre>
+<p>O terminal 2 mostrou <code translate="no">TERM recebido, trava removida</code>, uns dois segundos depois do <code translate="no">kill</code>. Essa demora é o programa terminando o que estava fazendo (o <code translate="no">sleep 2</code>) antes de tratar o sinal. É o que um banco de dados faz para gravar o que estava na memória. Deixe o terminal 2 aberto; você volta a usar a trava na Quebra B.</p>
+<p><strong>Decida 3 · Os segundos de espera.</strong> Você manda <code translate="no">kill</code> num serviço e ele não some na hora. O que faz?</p>
+<ul><li><strong>A)</strong> Manda <code translate="no">kill -9</code> imediatamente: ele travou.</li>
+<li><strong>B)</strong> Espera alguns segundos e confere com <code translate="no">ps -p PID</code>; só se ele continuar vivo depois de um tempo razoável, <code translate="no">kill -9</code>.</li>
+<li><strong>C)</strong> Reinicia o servidor.</li>
+<li><strong>D)</strong> Manda <code translate="no">kill -1</code>, que é mais forte que o 15.</li></ul>
+<p>Escolha a letra antes de olhar a tabela.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se você marcou</th><th scope="col">Resultado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>A</td><td>❌ Errada</td><td>O programa está se despedindo: gravando, fechando, apagando a trava. O <code translate="no">-9</code> interrompe isso no meio e deixa sujeira.</td></tr><tr><td>B</td><td>✅ Certa</td><td>O 15 é um pedido. Dê tempo. O <code translate="no">systemctl stop</code> faz exatamente isso: manda o 15, espera 90 segundos por padrão, e só então manda o 9.</td></tr><tr><td>C</td><td>❌ Errada</td><td>Reiniciar manda o 15 a todo mundo, inclusive a ele, e derruba o resto junto.</td></tr><tr><td>D</td><td>❌ Errada</td><td>O 1 não é "mais forte"; é outro recado ("o terminal sumiu", ou "releia a configuração"). Muitos serviços nem terminam com ele.</td></tr></tbody></table></div>
+<p><strong>Para fixar:</strong> 15, espere, confira; só então 9. É o que o próprio systemd faz.</p>
+<h3 id="passo-5-sobreviver-a-queda-da-conexao">Passo 5 · Sobreviver à queda da conexão</h3>
+<p>Agora o teste que responde à pergunta 2 do Aquecimento. No terminal 1:</p>
+<pre translate="no"><code class="lang-bash">sleep 901 &amp;                      # um job comum
+nohup sleep 902 &gt; /dev/null 2&gt;&amp;1 &amp;   # um job imune ao SIGHUP
+pgrep -a sleep
+kill -HUP $$                     # simula a queda: o seu shell recebe o SIGHUP</code></pre>
+<p>A conexão do terminal 1 fecha, como se a rede tivesse caído. No terminal 2:</p>
+<pre translate="no"><code class="lang-bash">pgrep -a sleep</code></pre>
+<p>Só o <code translate="no">sleep 902</code> sobreviveu. Quando o shell recebe <code translate="no">SIGHUP</code>, ele o repassa a cada job, e o <code translate="no">sleep 901</code> morreu. O <code translate="no">nohup</code> fez o <code translate="no">902</code> ignorar esse sinal, e ele foi adotado pelo <code translate="no">systemd</code>: confira o pai dele.</p>
+<pre translate="no"><code class="lang-bash">ps -o pid,ppid,cmd -p $(pgrep -f 'sleep 902')</code></pre>
+<p>O <code translate="no">PPID</code> não é mais o seu shell, que morreu: é o <code translate="no">systemd --user</code> ou o PID 1. Um detalhe que engana: se você sair digitando <code translate="no">exit</code>, o Bash, por padrão, <strong>não</strong> manda <code translate="no">SIGHUP</code> aos jobs, e o <code translate="no">sleep 901</code> sobreviveria. O que mata é a queda, não o <code translate="no">exit</code>. Por isso o teste usou a queda.</p>
+<p>Agora o jeito do dia a dia. Instale o <code translate="no">tmux</code> (<code translate="no">sudo dnf install -y tmux</code> no Rocky, <code translate="no">sudo apt install -y tmux</code> no Debian), reconecte o terminal 1 e:</p>
+<pre translate="no"><code class="lang-bash">tmux new -s lab
+sleep 903                        # dentro do tmux, em primeiro plano mesmo</code></pre>
+<p>Aperte <code translate="no">Ctrl+B</code> e depois <code translate="no">D</code> (de <em>detach</em>). Você sai do tmux e o <code translate="no">sleep 903</code> continua lá dentro. Simule a queda de novo com <code translate="no">kill -HUP $$</code>, reconecte e:</p>
+<pre translate="no"><code class="lang-bash">tmux ls                          # a sessão "lab" continua
+tmux attach -t lab               # você volta para dentro, com o sleep ainda rodando</code></pre>
+<p>Aperte <code translate="no">Ctrl+C</code> para terminar o <code translate="no">sleep</code>, saia do tmux com <code translate="no">exit</code> e limpe o outro: <code translate="no">pkill -f 'sleep 902'</code>.</p>
+<h3 id="passo-6-ler-o-journal">Passo 6 · Ler o journal</h3>
+<p>Grave uma mensagem sua e ache de volta:</p>
+<pre translate="no"><code class="lang-bash">logger -t lab-aula23 "teste de leitura do journal"
+journalctl -t lab-aula23</code></pre>
+<p>Se algum <code translate="no">journalctl</code> desta aula vier vazio ou avisar que você não vê as mensagens dos outros, o seu usuário não está num grupo que lê o journal inteiro (veja o Avançado). Repita com <code translate="no">sudo</code> e anote no diário em que grupo o <code translate="no">rodrigo</code> está: <code translate="no">id rodrigo</code>.</p>
+<p>Agora os filtros que você vai usar toda semana. Rode um por um e leia a saída:</p>
+<pre translate="no"><code class="lang-bash">journalctl -b -n 20                         # o fim deste boot
+journalctl -u sshd --since today            # no Debian: -u ssh
+journalctl -p err -b                        # só erros e piores, neste boot
+journalctl -t sudo --since '-1h'            # quem usou sudo na última hora
+journalctl --since '-10min' -o short-precise   # com milissegundos
+journalctl -t lab-servico -o verbose -n 1   # todos os campos de uma linha</code></pre>
+<p>O último mostra que cada linha do journal é um registro com campos: <code translate="no">_PID</code>, <code translate="no">_UID</code>, <code translate="no">_COMM</code>, <code translate="no">_SYSTEMD_UNIT</code>, <code translate="no">_BOOT_ID</code>. É por esses campos que o <code translate="no">-u</code>, o <code translate="no">-t</code> e o <code translate="no">_PID=</code> filtram.</p>
+<p>No Rocky, compare com o arquivo em texto:</p>
+<pre translate="no"><code class="lang-bash">sudo tail -5 /var/log/messages
+sudo grep lab-aula23 /var/log/messages
+sudo tail -5 /var/log/secure                # logins e sudo</code></pre>
+<p>No Debian, os dois arquivos não existem: confirme com <code translate="no">ls /var/log/messages /var/log/secure</code>.</p>
+<h3 id="passo-7-o-journal-sobrevive-ao-boot">Passo 7 · O journal sobrevive ao boot?</h3>
+<pre translate="no"><code class="lang-bash">ls -ld /var/log/journal /run/log/journal 2&gt;&amp;1
+journalctl --list-boots
+journalctl --disk-usage</code></pre>
+<p>Se <code translate="no">/var/log/journal</code> não existe e o <code translate="no">--list-boots</code> mostra uma linha só, mesmo com a VM já reiniciada antes, o journal é volátil. O resultado esperado é volátil no Rocky e permanente no Debian, mas o que vale é o que a sua máquina mostrou.</p>
+<p><strong>Decida 4 · Tornar permanente.</strong> No Rocky, você quer que o journal sobreviva ao boot, de um jeito que uma atualização do pacote <code translate="no">systemd</code> não desfaça. O que faz?</p>
+<ul><li><strong>A)</strong> Editar <code translate="no">/usr/lib/systemd/journald.conf</code> e pôr <code translate="no">Storage=persistent</code>.</li>
+<li><strong>B)</strong> Criar <code translate="no">/etc/systemd/journald.conf.d/50-lab.conf</code> com <code translate="no">[Journal]</code> e <code translate="no">Storage=persistent</code>, e reiniciar o <code translate="no">systemd-journald</code>.</li>
+<li><strong>C)</strong> <code translate="no">sudo cp -r /run/log/journal /var/log/</code>.</li>
+<li><strong>D)</strong> Instalar o <code translate="no">rsyslog</code>: ele já guarda tudo.</li></ul>
+<p>Escolha a letra antes de olhar a tabela.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se você marcou</th><th scope="col">Resultado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>A</td><td>❌ Errada</td><td>Arquivos em <code translate="no">/usr/lib</code> pertencem ao pacote; a próxima atualização pode sobrescrever. A regra é a mesma da Aula 2.2 com o udev: o administrador escreve em <code translate="no">/etc</code>.</td></tr><tr><td>B</td><td>✅ Certa</td><td>Um arquivo em <code translate="no">/etc/systemd/journald.conf.d/</code> é seu, sobrevive às atualizações e mostra a mudança num lugar só. Editar o <code translate="no">/etc/systemd/journald.conf</code> direto também funciona e também cai na prova.</td></tr><tr><td>C</td><td>❌ Errada</td><td>Você copiou o que já existia, mas o journald continua gravando na memória. No próximo boot, nada novo foi para o disco.</td></tr><tr><td>D</td><td>❌ Errada</td><td>O <code translate="no">rsyslog</code> já está instalado no Rocky e guarda o texto. Mas o <code translate="no">journalctl -b -1</code>, com os filtros por unidade e prioridade, continua vazio.</td></tr></tbody></table></div>
+<p><strong>Para fixar:</strong> <code translate="no">Storage=persistent</code> num arquivo de <code translate="no">/etc/systemd/journald.conf.d/</code>, reiniciar o journald, conferir com <code translate="no">--list-boots</code> depois de um boot.</p>
+<p>Faça nas duas VMs, mesmo que o Debian já esteja permanente: assim fica explícito, e uma mudança de padrão no futuro não muda o seu servidor.</p>
+<pre translate="no"><code class="lang-bash">sudo mkdir -p /etc/systemd/journald.conf.d
+printf '[Journal]\nStorage=persistent\n' | sudo tee /etc/systemd/journald.conf.d/50-lab.conf
+sudo systemctl restart systemd-journald
+ls -ld /var/log/journal
+journalctl --disk-usage</code></pre>
+<p>A pasta <code translate="no">/var/log/journal</code> passou a existir. Reinicie a VM (<code translate="no">sudo systemctl reboot</code>), reconecte e:</p>
+<pre translate="no"><code class="lang-bash">journalctl --list-boots          # agora duas linhas, ou mais
+journalctl -b -1 -n 5            # o fim do boot anterior: o desligamento</code></pre>
+<p>Você acabou de ler o que aconteceu antes de reiniciar. É isso que o cliente quer saber quando diz "ontem à noite caiu".</p>
+<h3 id="passo-8-o-roteiro-esta-lento">Passo 8 · O roteiro "está lento"</h3>
+<p>Junte tudo num roteiro de cinco comandos e rode na ordem. Não há nada errado nas VMs agora; o objetivo é saber o que é normal nelas, para reconhecer o anormal depois.</p>
+<pre translate="no"><code class="lang-bash">uptime                                       # 1. a carga, comparada com o nproc
+top -bn1 | head -5                           # 2. us, wa, st na linha %Cpu
+free -h                                      # 3. a coluna available
+vmstat 1 5                                   # 4. r (fila), b (presos em D), si/so (swap), wa
+ps aux --sort=-%cpu | head -5                # 5. o culpado de processador
+ps aux --sort=-%mem | head -5                #    e o de memória
+journalctl -p warning --since '-1h' --no-pager | tail -20   # 6. o que o sistema reclamou</code></pre>
+<p>No <code translate="no">vmstat</code>, a primeira linha é a média desde o boot; leia da segunda em diante. As colunas que contam: <code translate="no">r</code> (processos querendo processador), <code translate="no">b</code> (presos em <code translate="no">D</code>), <code translate="no">si</code> e <code translate="no">so</code> (memória indo e voltando do swap: acima de zero o tempo todo é sinal de memória curta) e <code translate="no">wa</code>.</p>
+<p>Copie a saída dos seis comandos das duas VMs para o seu diário, com a data. É a sua linha de base.</p>
+<h2 id="7-quebre-e-conserte">7 · Quebre e conserte</h2>
+<h3 id="quebra-a-o-disco-cheio-que-ninguem-acha">Quebra A · O disco cheio que ninguém acha</h3>
+<p>O chamado: "o disco está cheio, mas apagamos o arquivo grande e não liberou nada". Reproduza na rocky-lab. No terminal 1:</p>
+<pre translate="no"><code class="lang-bash">df -h /var/tmp
+dd if=/dev/zero of=/var/tmp/lab-grande.log bs=1M count=200
+sleep 3600 &lt; /var/tmp/lab-grande.log &amp;      # um processo que segura o arquivo aberto
+rm /var/tmp/lab-grande.log</code></pre>
+<p><strong>Observe.</strong></p>
+<pre translate="no"><code class="lang-bash">df -h /var/tmp                    # os 200 MB continuam ocupados
+sudo du -sh /var/tmp              # mas a pasta não tem quase nada
+ls -l /var/tmp/lab-grande.log     # No such file</code></pre>
+<p>O <code translate="no">df</code> diz que o espaço está ocupado; o <code translate="no">du</code> não acha quem ocupa. Os dois estão certos.</p>
+<p><strong>Diagnostique.</strong> No Linux, <code translate="no">rm</code> não apaga o conteúdo; apaga o <strong>nome</strong>. O conteúdo só é liberado quando nenhum nome aponta para ele <strong>e</strong> nenhum processo o mantém aberto. O <code translate="no">du</code> soma os nomes que encontra; o <code translate="no">df</code> pergunta ao sistema de arquivos quanto está ocupado. Quem segura o arquivo? A pasta <code translate="no">/proc/PID/fd/</code> de cada processo mostra os arquivos abertos, e o kernel marca os apagados com <code translate="no">(deleted)</code>:</p>
+<pre translate="no"><code class="lang-bash">sudo find /proc/[0-9]*/fd -lname '*(deleted)' -printf '%p -&gt; %l\n' 2&gt;/dev/null | grep -v memfd</code></pre>
+<p>Uma linha aponta <code translate="no">/var/tmp/lab-grande.log (deleted)</code>, e o número no meio do caminho é o PID do <code translate="no">sleep</code>. Se o <code translate="no">lsof</code> estiver instalado, <code translate="no">sudo lsof +L1</code> mostra o mesmo, com o nome do programa. No mundo real, esse processo é um serviço que escreve num log que alguém apagou na mão, em vez de usar o <code translate="no">logrotate</code>.</p>
+<p><strong>Decida A · O conserto.</strong> O que libera o espaço?</p>
+<ul><li><strong>A)</strong> Terminar ou reiniciar o processo que segura o arquivo.</li>
+<li><strong>B)</strong> Reiniciar o servidor.</li>
+<li><strong>C)</strong> Rodar <code translate="no">rm -f /var/tmp/lab-grande.log</code> de novo, com <code translate="no">-f</code>.</li>
+<li><strong>D)</strong> Rodar <code translate="no">fsck</code> no sistema de arquivos.</li></ul>
+<p>Escolha a letra antes de olhar a tabela.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se você marcou</th><th scope="col">Resultado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>A</td><td>✅ Certa</td><td>Quando o processo fecha o arquivo, o kernel vê que não sobrou nome nem leitor e libera os blocos na hora. Num serviço de verdade, <code translate="no">systemctl restart</code> nele.</td></tr><tr><td>B</td><td>⚠️ Funciona, mas</td><td>O espaço volta, porque todos os processos fecham. Só que você derrubou o servidor inteiro para resolver um processo.</td></tr><tr><td>C</td><td>❌ Errada</td><td>Não há mais nome para apagar. O <code translate="no">rm</code> responde que o arquivo não existe, com ou sem <code translate="no">-f</code>.</td></tr><tr><td>D</td><td>❌ Errada</td><td>Não há erro no sistema de arquivos: ele está fazendo exatamente o que deve. E <code translate="no">fsck</code> em sistema montado é perigoso.</td></tr></tbody></table></div>
+<p><strong>Para fixar:</strong> <code translate="no">df</code> cheio e <code translate="no">du</code> vazio = arquivo apagado e ainda aberto. <code translate="no">/proc/*/fd</code> ou <code translate="no">lsof +L1</code> mostram quem segura.</p>
+<p><strong>Conserte.</strong></p>
+<pre translate="no"><code class="lang-bash">kill %1                           # ou o PID que o find mostrou
+df -h /var/tmp                    # os 200 MB voltaram</code></pre>
+<p>Quando o processo não pode ser reiniciado (um banco de dados no meio do expediente, por exemplo), há um truque de emergência: esvaziar o arquivo pelo caminho em <code translate="no">/proc</code>, com <code translate="no">sudo truncate -s 0 /proc/PID/fd/N</code>. O processo continua com o arquivo aberto, mas agora vazio. Use com cuidado, e só em logs: num arquivo de dados, você acabou de apagar os dados.</p>
+<h3 id="quebra-b-o-servico-que-nao-sobe-depois-do-kill-9">Quebra B · O serviço que não sobe depois do kill -9</h3>
+<p>O chamado: "o serviço travou, matei e agora ele não sobe mais". Use o <code translate="no">lab-servico.sh</code> do Passo 4. No terminal 2, deixe o journal aberto:</p>
+<pre translate="no"><code class="lang-bash">journalctl -t lab-servico -f</code></pre>
+<p>No terminal 1, suba o serviço e mate do jeito errado:</p>
+<pre translate="no"><code class="lang-bash">~/lab-servico.sh &amp;
+kill -9 $(cat /tmp/lab-servico.lock)
+~/lab-servico.sh &amp;</code></pre>
+<p><strong>Observe.</strong></p>
+<pre translate="no"><code class="lang-bash">jobs -l
+cat /tmp/lab-servico.lock</code></pre>
+<p>O segundo início falhou com <code translate="no">ERRO: já está rodando</code>. O journal mostra <code translate="no">iniciado</code> e logo depois <code translate="no">recusei subir</code>, mas nenhum <code translate="no">TERM recebido</code>: o programa nunca soube que ia morrer.</p>
+<p><strong>Diagnostique.</strong> O <code translate="no">SIGKILL</code> não é entregue ao programa: o kernel o remove direto. O <code translate="no">trap</code> que apagava a trava nunca rodou, e a trava ficou com o PID de um processo morto. Confirme que ninguém tem esse PID:</p>
+<pre translate="no"><code class="lang-bash">PIDVELHO=$(cat /tmp/lab-servico.lock)
+ps -p "$PIDVELHO" -o pid,cmd; echo "rc=$?"     # rc=1: não existe
+pgrep -af lab-servico; echo "rc=$?"           # nenhum lab-servico rodando</code></pre>
+<p>É o mesmo que acontece com o <code translate="no">dnf</code> ("waiting for lock"), com um PostgreSQL que deixa o <code translate="no">postmaster.pid</code>, com qualquer serviço que usa arquivo de PID.</p>
+<p><strong>Decida B · O conserto.</strong> O que você faz?</p>
+<ul><li><strong>A)</strong> Conferir que o PID da trava não existe mais, apagar a trava e subir o serviço.</li>
+<li><strong>B)</strong> Mandar <code translate="no">kill -9</code> de novo no PID da trava.</li>
+<li><strong>C)</strong> Apagar a trava direto, sem conferir nada, e subir.</li>
+<li><strong>D)</strong> Reiniciar o servidor para limpar o <code translate="no">/tmp</code>.</li></ul>
+<p>Escolha a letra antes de olhar a tabela.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se você marcou</th><th scope="col">Resultado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>A</td><td>✅ Certa</td><td>A trava existe para impedir duas cópias. Você provou que não há cópia nenhuma; agora ela é lixo e pode ir.</td></tr><tr><td>B</td><td>❌ Errada</td><td>Não há processo com esse número. O <code translate="no">kill</code> responde <code translate="no">No such process</code>. Pior: se o número já foi reusado por outro processo, você acabou de matar um inocente.</td></tr><tr><td>C</td><td>⚠️ Funciona, mas</td><td>Hoje funciona. No dia em que o serviço estiver mesmo rodando e "só lento", você sobe uma segunda cópia em cima da primeira, e as duas escrevem nos mesmos dados.</td></tr><tr><td>D</td><td>❌ Errada</td><td>Derruba tudo para apagar um arquivo. E nem sempre resolve: no Debian 13 o <code translate="no">/tmp</code> é limpo no boot, no Rocky ele fica no disco e a trava sobrevive.</td></tr></tbody></table></div>
+<p><strong>Para fixar:</strong> depois de um <code translate="no">kill -9</code>, procure a sujeira: trava, PID, arquivo temporário. Confira que o dono morreu antes de limpar.</p>
+<p><strong>Conserte.</strong></p>
+<pre translate="no"><code class="lang-bash">ps -p "$(cat /tmp/lab-servico.lock)" &gt; /dev/null || rm -f /tmp/lab-servico.lock
+~/lab-servico.sh &amp;
+kill %1                           # agora do jeito certo
+ls /tmp/lab-servico.lock          # No such file: a trava saiu com ele</code></pre>
+<p>O journal, no terminal 2, mostra <code translate="no">iniciado</code> e <code translate="no">TERM recebido, trava removida</code>. O ciclo fechou limpo.</p>
+<h3 id="a-licao">A lição</h3>
+<p>As duas quebras são o mesmo tipo de problema: <strong>o efeito continua depois que a causa sumiu da vista</strong>. O arquivo apagado continuava ocupando o disco porque um processo o segurava. A trava continuava bloqueando porque o processo que devia apagá-la foi arrancado da tomada. Em processos, o que você vê no <code translate="no">ls</code> não é o estado inteiro: o resto está em <code translate="no">/proc</code>, no journal e nos arquivos que os programas deixam para trás. O hábito desta aula: <strong>antes de matar, pergunte o que o processo segura; depois de matar, confira o que ele deixou</strong>.</p>
+<h2 id="8-armadilhas">8 · Armadilhas</h2>
+<div class="tabela"><table><thead><tr><th scope="col">Você digita ou vê</th><th scope="col">O que acontece</th><th scope="col">O certo</th></tr></thead><tbody><tr><td><code translate="no">kill -9</code> como primeira tentativa</td><td>O programa não grava, não fecha, não limpa a trava</td><td><code translate="no">kill PID</code>, esperar, conferir; <code translate="no">-9</code> só no fim</td></tr><tr><td><code translate="no">kill</code> num processo em estado <code translate="no">D</code></td><td>Nada: nem o 9 o tira de lá</td><td>Investigar o disco ou a rede que ele espera (<code translate="no">dmesg</code>, <code translate="no">journalctl -k</code>)</td></tr><tr><td><code translate="no">kill</code> num zumbi (<code translate="no">Z</code>)</td><td>Nada: ele já morreu</td><td>Tratar o pai: reiniciar o serviço que o criou</td></tr><tr><td><code translate="no">ps aux | grep nginx</code></td><td>Aparece o próprio <code translate="no">grep</code> na lista</td><td><code translate="no">pgrep -a nginx</code>, ou <code translate="no">ps aux | grep [n]ginx</code></td></tr><tr><td><code translate="no">killall</code> sem pensar</td><td>Mata todos os processos com esse nome, de todos os usuários (como root)</td><td><code translate="no">pkill -u usuario nome</code>, ou o PID</td></tr><tr><td><code translate="no">load average: 4.00</code> e a conclusão "está sobrecarregado"</td><td>Depende dos núcleos</td><td>Comparar com <code translate="no">nproc</code></td></tr><tr><td>Carga alta e <code translate="no">%Cpu</code> quase parado</td><td>Não é processador: é disco ou rede (<code translate="no">wa</code> alto, processos em <code translate="no">D</code>)</td><td><code translate="no">vmstat 1</code>, coluna <code translate="no">b</code>; <code translate="no">top</code>, linha <code translate="no">wa</code></td></tr><tr><td><code translate="no">comando &amp;</code> e fechar o SSH</td><td>O job morre com a queda</td><td><code translate="no">nohup</code>, <code translate="no">tmux</code> ou um serviço</td></tr><tr><td><code translate="no">renice -n -5</code> como usuário comum</td><td><code translate="no">Permission denied</code></td><td>Só root baixa o nice</td></tr><tr><td><code translate="no">journalctl -b -1</code> dá <code translate="no">Specified boot ID not found</code></td><td>O journal é volátil: o boot anterior não foi guardado</td><td><code translate="no">Storage=persistent</code></td></tr><tr><td>Editar <code translate="no">/usr/lib/systemd/journald.conf</code></td><td>A atualização sobrescreve</td><td><code translate="no">/etc/systemd/journald.conf.d/*.conf</code></td></tr><tr><td><code translate="no">journalctl</code> sem filtro</td><td>Milhares de linhas, você desiste</td><td><code translate="no">-u</code>, <code translate="no">-p</code>, <code translate="no">--since</code>, <code translate="no">-t</code>, <code translate="no">-b</code></td></tr><tr><td><code translate="no">rm</code> no log gigante de um serviço rodando</td><td>O espaço não volta</td><td>Reiniciar o serviço, ou <code translate="no">truncate -s 0</code> no arquivo <strong>antes</strong> de apagar</td></tr><tr><td><code translate="no">journalctl -u sshd</code> no Debian</td><td>Vazio</td><td>No Debian a unidade é <code translate="no">ssh</code></td></tr></tbody></table></div>
+<h2 id="9-quiz">9 · Quiz</h2>
+<p>Dez perguntas, sem consultar. Escreva a letra ou a resposta de cada uma e só depois abra o Gabarito.</p>
+<p><strong>1.</strong> Qual sinal o <code translate="no">kill</code> manda quando você não diz nenhum?</p>
+<ul><li><strong>A)</strong> <code translate="no">SIGKILL</code> (9)</li>
+<li><strong>B)</strong> <code translate="no">SIGHUP</code> (1)</li>
+<li><strong>C)</strong> <code translate="no">SIGTERM</code> (15)</li>
+<li><strong>D)</strong> <code translate="no">SIGINT</code> (2)</li></ul>
+<p><strong>2.</strong> Uma VM com 2 núcleos mostra <code translate="no">load average: 6.10, 3.20, 1.05</code>. O que você diz sobre a carga, agora e na tendência?</p>
+<p><strong>3.</strong> Qual comando mostra só os erros e piores do boot atual?</p>
+<ul><li><strong>A)</strong> <code translate="no">journalctl -b -p err</code></li>
+<li><strong>B)</strong> <code translate="no">journalctl --errors</code></li>
+<li><strong>C)</strong> <code translate="no">journalctl -b -1</code></li>
+<li><strong>D)</strong> <code translate="no">journalctl -k</code></li></ul>
+<p><strong>4.</strong> O <code translate="no">df</code> mostra o disco 100% cheio, mas o <code translate="no">du</code> na raiz soma muito menos. Qual é a causa mais provável, e com que comando você confirma?</p>
+<p><strong>5.</strong> Qual faixa de valores o <em>nice</em> aceita, e qual deles dá mais prioridade?</p>
+<ul><li><strong>A)</strong> 0 a 99; 99 é mais prioridade</li>
+<li><strong>B)</strong> -20 a 19; -20 é mais prioridade</li>
+<li><strong>C)</strong> -20 a 19; 19 é mais prioridade</li>
+<li><strong>D)</strong> 1 a 10; 10 é mais prioridade</li></ul>
+<p><strong>6.</strong> Você roda <code translate="no">tar</code> pelo SSH, a conexão cai, e o <code translate="no">tar</code> morreu. Cite dois jeitos de rodar de novo para que ele sobreviva à próxima queda.</p>
+<p><strong>7.</strong> Num <code translate="no">ps aux</code>, um processo aparece com <code translate="no">STAT</code> igual a <code translate="no">Z</code>. O que é, e por que <code translate="no">kill -9</code> não adianta?</p>
+<p><strong>8.</strong> Onde você coloca a configuração para tornar o journal permanente, de um jeito que a atualização do pacote não desfaça?</p>
+<ul><li><strong>A)</strong> <code translate="no">/usr/lib/systemd/journald.conf</code></li>
+<li><strong>B)</strong> <code translate="no">/etc/systemd/journald.conf.d/50-meu.conf</code></li>
+<li><strong>C)</strong> <code translate="no">/var/log/journal/journald.conf</code></li>
+<li><strong>D)</strong> <code translate="no">/run/systemd/journald.conf</code></li></ul>
+<p><strong>9.</strong> Escreva um comando que mostre as mensagens do serviço <code translate="no">sshd</code> desde as 8h de hoje.</p>
+<p><strong>10.</strong> <em>A process is in state <code translate="no">D</code> and ignores <code translate="no">kill -9</code>. What does the <code translate="no">D</code> state mean?</em></p>
+<ul><li><strong>A)</strong> <em>The process is a daemon and is protected from signals</em></li>
+<li><strong>B)</strong> <em>The process has been stopped by <code translate="no">SIGSTOP</code></em></li>
+<li><strong>C)</strong> <em>The process is in uninterruptible sleep, waiting for I/O inside the kernel</em></li>
+<li><strong>D)</strong> <em>The process is dead and waiting for its parent to collect the exit status</em></li></ul>
+<h2 id="10-flashcards-e-cola">10 · Flashcards e cola</h2>
+<h3 id="para-saber-de-cor">Para saber de cor</h3>
+<ul><li>O roteiro "está lento": <code translate="no">uptime</code> → <code translate="no">top</code> (us, wa, st) → <code translate="no">free -h</code> → <code translate="no">vmstat 1 5</code> → <code translate="no">ps aux --sort=-%cpu</code> → <code translate="no">journalctl -p warning</code>.</li>
+<li>Carga média se compara com <code translate="no">nproc</code>. Carga alta com processador parado é disco.</li>
+<li><code translate="no">kill</code> manda o 15. Espere, confira, e só então o 9.</li>
+<li>Nice vai de <code translate="no">-20</code> (mais prioridade) a <code translate="no">19</code> (menos). Usuário comum só sobe, e só nos seus.</li>
+<li>Job morre na queda da conexão; <code translate="no">nohup</code> e <code translate="no">tmux</code> sobrevivem.</li>
+<li>Journal permanente: <code translate="no">Storage=persistent</code> em <code translate="no">/etc/systemd/journald.conf.d/</code>, reiniciar o journald, conferir com <code translate="no">--list-boots</code>.</li>
+<li><code translate="no">df</code> cheio e <code translate="no">du</code> vazio: arquivo apagado e ainda aberto.</li></ul>
+<h3 id="para-consultar">Para consultar</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Pergunta</th><th scope="col">Comando</th></tr></thead><tbody><tr><td>Todos os processos, com dono e consumo</td><td><code translate="no">ps aux</code></td></tr><tr><td>Com o pai, em árvore</td><td><code translate="no">ps -ef --forest</code>; <code translate="no">pstree -p</code></td></tr><tr><td>Colunas escolhidas</td><td><code translate="no">ps -o pid,ppid,user,stat,ni,%cpu,%mem,cmd -p PID</code></td></tr><tr><td>Os que mais gastam</td><td><code translate="no">ps aux --sort=-%cpu | head</code>; <code translate="no">ps aux --sort=-%mem | head</code></td></tr><tr><td>PID pelo nome</td><td><code translate="no">pgrep -a nome</code>; <code translate="no">pidof nome</code></td></tr><tr><td>Painel ao vivo</td><td><code translate="no">top</code> (<code translate="no">P</code>, <code translate="no">M</code>, <code translate="no">1</code>, <code translate="no">k</code>, <code translate="no">q</code>); retrato em texto: <code translate="no">top -bn1</code></td></tr><tr><td>Carga e núcleos</td><td><code translate="no">uptime</code>; <code translate="no">nproc</code></td></tr><tr><td>Fila, swap e espera de disco</td><td><code translate="no">vmstat 1 5</code></td></tr><tr><td>Pedir para sair</td><td><code translate="no">kill PID</code>; <code translate="no">pkill -u usuario nome</code></td></tr><tr><td>Arrancar da tomada</td><td><code translate="no">kill -9 PID</code></td></tr><tr><td>Recarregar configuração (serviço antigo)</td><td><code translate="no">kill -HUP PID</code></td></tr><tr><td>Prioridade</td><td><code translate="no">nice -n 10 comando</code>; <code translate="no">renice -n 10 -p PID</code></td></tr><tr><td>Jobs</td><td><code translate="no">comando &amp;</code>, <code translate="no">Ctrl+Z</code>, <code translate="no">jobs -l</code>, <code translate="no">bg %1</code>, <code translate="no">fg %1</code>, <code translate="no">kill %1</code></td></tr><tr><td>Sobreviver ao logout</td><td><code translate="no">nohup comando &amp;</code>; <code translate="no">tmux new -s nome</code>, <code translate="no">Ctrl+B D</code>, <code translate="no">tmux attach -t nome</code></td></tr><tr><td>Arquivos abertos de um processo</td><td><code translate="no">ls -l /proc/PID/fd</code>; <code translate="no">lsof -p PID</code></td></tr><tr><td>Apagados e ainda abertos</td><td><code translate="no">sudo lsof +L1</code>; <code translate="no">sudo find /proc/[0-9]*/fd -lname '*(deleted)'</code></td></tr><tr><td>Consumo por serviço</td><td><code translate="no">systemd-cgtop</code>; árvore: <code translate="no">systemd-cgls</code></td></tr><tr><td>Journal deste boot, do anterior, a lista</td><td><code translate="no">journalctl -b</code>; <code translate="no">journalctl -b -1</code>; <code translate="no">journalctl --list-boots</code></td></tr><tr><td>Por serviço, prioridade, tempo</td><td><code translate="no">journalctl -u sshd -p warning --since '-1h'</code></td></tr><tr><td>Por programa ou PID</td><td><code translate="no">journalctl -t sudo</code>; <code translate="no">journalctl _PID=1234</code></td></tr><tr><td>Ao vivo</td><td><code translate="no">journalctl -f</code>; <code translate="no">journalctl -u nome -f</code></td></tr><tr><td>Escrever no journal</td><td><code translate="no">logger -t etiqueta "mensagem"</code></td></tr><tr><td>Espaço do journal</td><td><code translate="no">journalctl --disk-usage</code>; limpar: <code translate="no">sudo journalctl --vacuum-time=30d</code></td></tr><tr><td>Logs em texto (Rocky)</td><td><code translate="no">/var/log/messages</code>, <code translate="no">/var/log/secure</code></td></tr></tbody></table></div>
+<h3 id="flashcards">Flashcards</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Frente</th><th scope="col">Verso</th></tr></thead><tbody><tr><td>PID × PPID</td><td>O número do processo × o número do pai dele</td></tr><tr><td>Quem é o PID 1?</td><td>O <code translate="no">systemd</code>: pai de todos e quem adota os órfãos</td></tr><tr><td><code translate="no">STAT</code> <code translate="no">R</code>, <code translate="no">S</code>, <code translate="no">D</code>, <code translate="no">T</code>, <code translate="no">Z</code></td><td>Rodando, dormindo, preso esperando disco, parado, zumbi</td></tr><tr><td>Sinal 15 × 9</td><td>15 pede para sair e o programa pode limpar; 9 o kernel remove na hora</td></tr><tr><td>Sinal 1</td><td><code translate="no">SIGHUP</code>: o terminal sumiu; em muitos serviços, "releia a configuração"</td></tr><tr><td>O que o <code translate="no">Ctrl+C</code> manda? E o <code translate="no">Ctrl+Z</code>?</td><td><code translate="no">SIGINT</code> (2); <code translate="no">SIGTSTP</code> (20), que pausa</td></tr><tr><td>Zumbi</td><td>Processo que já terminou e espera o pai ler o código de saída; não gasta recursos e não morre com <code translate="no">kill</code></td></tr><tr><td>Órfão</td><td>Processo cujo pai morreu; o PID 1 o adota</td></tr><tr><td>Nice 19 × -20</td><td>19: o mais gentil, menos prioridade; -20: o mais prioritário, só root</td></tr><tr><td><code translate="no">wa</code> alto no <code translate="no">top</code></td><td>O processador está parado esperando disco</td></tr><tr><td><code translate="no">st</code> alto no <code translate="no">top</code></td><td>O hipervisor está tirando processador da VM</td></tr><tr><td><code translate="no">Storage=auto</code></td><td>Grava em disco só se <code translate="no">/var/log/journal</code> existir</td></tr><tr><td>Onde ver <code translate="no">sudo</code> e logins no Rocky? E no Debian?</td><td><code translate="no">/var/log/secure</code>; <code translate="no">journalctl -t sudo</code> e <code translate="no">journalctl -u ssh</code></td></tr><tr><td>Por que o <code translate="no">exit</code> não matou o job, mas a queda matou?</td><td>O Bash só manda <code translate="no">SIGHUP</code> aos jobs quando ele mesmo recebe <code translate="no">SIGHUP</code> (ou com <code translate="no">huponexit</code> ligado)</td></tr></tbody></table></div>
+<h2 id="11-checklist-de-saida">11 · Checklist de saída</h2>
+<ul><li>[ ] Leio a árvore de processos e acho o pai de qualquer processo.</li>
+<li>[ ] Rodo o roteiro "está lento" na ordem e explico o que cada número diz.</li>
+<li>[ ] Comparo a carga com o número de núcleos e sei quando a culpa é do disco.</li>
+<li>[ ] Mando o sinal certo, na ordem certa, e explico por que o 9 é o último.</li>
+<li>[ ] Ajusto a prioridade com <code translate="no">nice</code> e <code translate="no">renice</code> e sei o que o usuário comum pode.</li>
+<li>[ ] Rodo um trabalho longo que sobrevive à queda da conexão, com <code translate="no">nohup</code> e com <code translate="no">tmux</code>.</li>
+<li>[ ] Filtro o journal por boot, serviço, prioridade, programa e tempo.</li>
+<li>[ ] Deixo o journal permanente e leio o que aconteceu antes do último boot.</li>
+<li>[ ] Acho o processo que segura um arquivo apagado.</li></ul>
+<p><strong>Último exercício, sem olhar.</strong> Na debian-lab, sem abrir esta aula:</p>
+<ol><li>Suba dois processos que comem processador: <code translate="no">yes &gt; /dev/null &amp;</code> duas vezes.</li>
+<li>Ache os dois pelo nome e mostre o PID, o nice e o <code translate="no">%CPU</code> de cada um num comando só.</li>
+<li>Deixe um deles com nice 15 e confira no <code translate="no">top</code> que a coluna <code translate="no">NI</code> mudou.</li>
+<li>Termine os dois com o sinal certo e prove que não sobrou nenhum.</li>
+<li>Mostre, do journal, todas as vezes que você usou <code translate="no">sudo</code> hoje.</li>
+<li>Mostre as cinco últimas linhas do boot anterior.</li></ol>
+<p>Só abra o Gabarito depois disso, ou depois de três tentativas.</p>
+<p><strong>Snapshots de fechamento.</strong> O journal permanente e o <code translate="no">~/lab-servico.sh</code> ficam: você volta a usar os dois no Módulo 4. No nó Proxmox:</p>
+<pre translate="no"><code class="lang-bash">qm snapshot 201 m2a3-fim
+qm snapshot 202 m2a3-fim</code></pre>
+<h2 id="12-na-vida-real">12 · Na vida real</h2>
+<p><strong>Missão da semana, só leitura.</strong> Escolha três servidores reais: de preferência um que alguém já chamou de "lento", um que reiniciou sozinho alguma vez e um que está tranquilo. Em cada um, sem mudar nada e sem matar nada:</p>
+<ol><li><code translate="no">nproc; uptime</code>: a carga, comparada com os núcleos. Os três números estão subindo ou descendo?</li>
+<li><code translate="no">top -bn1 | head -12</code>: os valores de <code translate="no">us</code>, <code translate="no">wa</code> e <code translate="no">st</code>, e os três processos no topo.</li>
+<li><code translate="no">free -h</code> e <code translate="no">vmstat 1 5</code>: quanto está <code translate="no">available</code>, e se as colunas <code translate="no">si</code> e <code translate="no">so</code> passam de zero.</li>
+<li><code translate="no">ps aux --sort=-%mem | head -5</code>: quem ocupa mais memória. Você sabe o que é cada um? Se não sabe, descubra pelo nome do pacote: <code translate="no">rpm -qf $(command -v nome)</code> ou <code translate="no">dpkg -S $(command -v nome)</code>.</li>
+<li><code translate="no">journalctl --list-boots | tail -5</code> e <code translate="no">ls -ld /var/log/journal</code>: o journal é permanente? Quantos boots ele lembra? Quando foi o último?</li>
+<li><code translate="no">sudo journalctl -p err -b --no-pager | tail -20</code>: os erros deste boot. Escolha um que você não entende e pesquise.</li>
+<li>Se você tem acesso a um que reiniciou sozinho: <code translate="no">sudo journalctl -b -1 -n 50 --no-pager</code>. O fim do boot anterior foi um desligamento normal, ou o journal simplesmente para?</li></ol>
+<p><strong>Para o diário.</strong> Uma linha por servidor: <code translate="no">nome · núcleos · carga 1/5/15 · us/wa/st · available · swap em uso? · journal permanente? boots guardados · erro que mais apareceu</code>. No servidor "lento", escreva a sua hipótese em uma frase: processador, memória, disco ou nenhum deles. Se o journal de um servidor de cliente for volátil, anote e leve ao responsável como sugestão: quem decide a mudança é ele.</p>
+<p><strong>Desafio da semana.</strong> Nos servidores que você acompanha, procure um processo que alguém deixou rodando com <code translate="no">nohup</code> ou dentro de um <code translate="no">screen</code> ou <code translate="no">tmux</code> esquecido (<code translate="no">pgrep -a tmux</code>, <code translate="no">pgrep -a screen</code>, <code translate="no">ps -ef | grep -i nohup</code>). Em duas frases, escreva o que ele faz e por que deveria ser um serviço do systemd. Não mude nada; guarde para o Módulo 4.</p>
+<p><strong>Amanhã, sem olhar.</strong> Antes de abrir o terminal, responda de cabeça: quais são os passos do roteiro "está lento", na ordem? Qual a diferença entre o sinal 15 e o 9? Quem pode baixar o nice? O que torna o journal permanente? Por que o <code translate="no">df</code> e o <code translate="no">du</code> discordam? Se errar alguma, volte à seção 10, não à aula inteira.</p>
+<h2 id="13-com-o-deeptutor">13 · Com o DeepTutor</h2>
+<p>Use o DeepTutor da sua rede local depois do lab, não no lugar dele. Os comandos começam com <code translate="no">!</code>:</p>
+<ul><li><code translate="no">!quiz Aula 2.3</code>: dez perguntas novas sobre processos, sinais, prioridade e journal.</li>
+<li><code translate="no">!explica carga média</code>: o que entra na conta, por que se compara com os núcleos e por que disco lento sobe a carga.</li>
+<li><code translate="no">!feynman SIGTERM e SIGKILL</code>: você explica a diferença e ele aponta onde ficou vago.</li>
+<li><code translate="no">!quebra servidor lento</code>: ele te entrega a saída de um <code translate="no">top</code> e de um <code translate="no">vmstat</code> para você achar o culpado.</li>
+<li><code translate="no">!simulado LPIC-1 103.5</code>: questões no estilo da prova sobre processos, sinais e jobs.</li>
+<li><code translate="no">!cartoes Aula 2.3</code>: os flashcards da seção 10, em ordem de revisão.</li>
+<li><code translate="no">!erro</code>: cole uma linha do <code translate="no">journalctl -p err</code> e ele explica o que ela diz e onde olhar a seguir.</li>
+<li><code translate="no">!revisao</code>: o que rever desta aula e das anteriores, pelo que você errou até agora.</li></ul>
+<h2 id="gabarito-comentado">Gabarito comentado</h2>
+<h3 id="aquecimento">Aquecimento</h3>
+<ol><li>O "Finalizar tarefa" do Windows primeiro pede ao programa que feche (como o 15) e, se ele não responde, encerra à força (como o 9). No Linux, você escolhe: <code translate="no">kill</code> pede, <code translate="no">kill -9</code> encerra à força. A diferença é que aqui você controla o tempo de espera.</li>
+<li>Depende de como você saiu. Se a conexão cai, o shell recebe <code translate="no">SIGHUP</code> e o repassa aos jobs, e o script morre. Se você sai com <code translate="no">exit</code>, o Bash, por padrão, não repassa o sinal, e um job em segundo plano costuma sobreviver. Para não depender disso: <code translate="no">nohup</code>, <code translate="no">tmux</code> ou um serviço.</li>
+<li>Depende do número de núcleos. Carga 4 com 4 núcleos é cheia; com 16 é folga; com 1 é fila de 3 esperando. E depende do que está esperando: se é processador ou disco.</li></ol>
+<h3 id="quiz">Quiz</h3>
+<ol><li><strong>C.</strong> O padrão é o <code translate="no">SIGTERM</code>. O 9 é preciso pedir (<code translate="no">-9</code> ou <code translate="no">-KILL</code>); o 1 e o 2 são outros recados.</li>
+<li>Agora está sobrecarregada: 6 processos querendo vez para 2 núcleos, uma fila de 4. E está piorando rápido: 1 em 15 minutos, 3 em 5, 6 no último minuto. Algo começou há poucos minutos. Próximo passo: <code translate="no">top</code>, olhando <code translate="no">us</code> e <code translate="no">wa</code>.</li>
+<li><strong>A.</strong> O <code translate="no">-b</code> é o boot atual, o <code translate="no">-p err</code> é a prioridade <code translate="no">err</code> e as piores. <code translate="no">--errors</code> não existe; <code translate="no">-b -1</code> é o boot anterior; <code translate="no">-k</code> é só o kernel.</li>
+<li>Um arquivo apagado que algum processo ainda mantém aberto. Confirma com <code translate="no">sudo lsof +L1</code> ou <code translate="no">sudo find /proc/[0-9]*/fd -lname '*(deleted)'</code>. Resolve reiniciando o processo que o segura.</li>
+<li><strong>B.</strong> De <code translate="no">-20</code> a <code translate="no">19</code>; quanto menor, mais prioridade. Os valores de 0 a 99 são das prioridades de tempo real, outro assunto.</li>
+<li><code translate="no">nohup tar ... &amp;</code> (ignora o <code translate="no">SIGHUP</code>, a saída vai para <code translate="no">nohup.out</code>) e rodar dentro do <code translate="no">tmux</code> ou do <code translate="no">screen</code>, saindo com <code translate="no">Ctrl+B D</code>. Um terceiro jeito, para coisas que se repetem: transformar em serviço ou rodar com <code translate="no">systemd-run</code> (Módulo 4).</li>
+<li>É um zumbi: já terminou e só espera o pai ler o código de saída. O <code translate="no">kill -9</code> não adianta porque não há mais nada para matar. Quem resolve é o pai: ou ele lê, ou é reiniciado; quando ele morre, o <code translate="no">systemd</code> adota o zumbi e o limpa.</li>
+<li><strong>B.</strong> Arquivos em <code translate="no">/etc/systemd/journald.conf.d/</code> são do administrador e sobrevivem às atualizações. O <code translate="no">/usr/lib</code> é do pacote; <code translate="no">/var/log/journal</code> guarda os dados, não a configuração; o <code translate="no">/run</code> some no boot.</li>
+<li><code translate="no">journalctl -u sshd --since '08:00'</code> (ou <code translate="no">--since 'today 08:00'</code>). No Debian, <code translate="no">-u ssh</code>.</li>
+<li>Tabela abaixo.</li></ol>
+<div class="tabela"><table><thead><tr><th scope="col">Se você marcou</th><th scope="col">Resultado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>A</td><td>❌ Errada</td><td>Ser um serviço não protege de sinal nenhum. Um serviço em <code translate="no">S</code> morre com o 9 como qualquer outro.</td></tr><tr><td>B</td><td>❌ Errada</td><td>Esse é o estado <code translate="no">T</code>. E um processo em <code translate="no">T</code> morre com o 9.</td></tr><tr><td>C</td><td>✅ Certa</td><td>O <code translate="no">D</code> é o sono ininterruptível: o processo está dentro do kernel esperando uma operação de disco ou de rede terminar, e nenhum sinal é tratado até ela acabar.</td></tr><tr><td>D</td><td>❌ Errada</td><td>Esse é o zumbi, estado <code translate="no">Z</code>.</td></tr></tbody></table></div>
+<h3 id="ultimo-exercicio">Último exercício</h3>
+<pre translate="no"><code class="lang-bash">yes &gt; /dev/null &amp; yes &gt; /dev/null &amp;
+ps -o pid,ni,%cpu,cmd -C yes
+renice -n 15 -p $(pgrep -x yes | head -1)
+top                                   # P, coluna NI; q para sair
+pkill -x yes                          # manda o 15 aos dois
+pgrep -x yes; echo "rc=$?"            # rc=1
+journalctl -t sudo --since today
+journalctl -b -1 -n 5</code></pre>
+<p>Se o <code translate="no">journalctl -t sudo</code> veio vazio sem <code translate="no">sudo</code>, você não está num grupo que lê o journal inteiro: repita com <code translate="no">sudo</code>, ou confira com <code translate="no">id</code>. Se o <code translate="no">-b -1</code> respondeu <code translate="no">Specified boot ID not found</code>, o journal ainda não é permanente na debian-lab ou a VM não reiniciou desde o Passo 7: confira o <code translate="no">50-lab.conf</code> e o <code translate="no">--list-boots</code>.</p>
+</article><nav class="paginas" aria-label="Aulas"><a class="ant" href="2.2-hardware-e-dispositivos.html"><small>← Anterior</small>2.2 · Hardware e dispositivos</a><a class="prox" href="2.4-rede-no-dia-a-dia.html"><small>Próxima →</small>2.4 · Rede no dia a dia</a></nav></main></div>
+<footer><div class="wrap">Gerado a partir do Markdown do curso · Imagens em <code translate="no">img/</code></div></footer>
+</body>
+</html>

@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light dark">
+<title>3.1 · Fluxos a fundo · Curso Linux Sysadmin</title>
+<link rel="alternate" hreflang="pt-BR" href="3.1-fluxos-a-fundo.html"><link rel="alternate" hreflang="it" href="3.1-fluxos-a-fundo.it.html">
+<style>
+:root{color-scheme:light dark;--bg:#f6f1e7;--card:#fffdf8;--ink:#201c16;--muted:#5e564a;--accent:#9a3412;--accent-2:#1f5f4a;--tint:#efe6d4;--line:#ddd2bc;--code:#f1eadb;--shadow:0 1px 2px rgba(60,40,10,.08);--serif:Georgia,"Iowan Old Style","Palatino Linotype",Palatino,serif;--sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--mono:"Cascadia Code",Consolas,"DejaVu Sans Mono",monospace}
+@media (prefers-color-scheme:dark){:root{--bg:#16130f;--card:#201b15;--ink:#f1eadb;--muted:#b9ad98;--accent:#f0a070;--accent-2:#7fd0b0;--tint:#2a231a;--line:#3d3427;--code:#191510;--shadow:none}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:5.5rem}
+body{margin:0;background:var(--bg);color:var(--ink);font:1rem/1.6 var(--sans)}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--accent-2);outline-offset:2px;border-radius:4px}
+.pular{position:absolute;left:-999px;top:0;background:var(--card);padding:.5rem 1rem;z-index:20}
+.pular:focus{left:.5rem;top:.5rem}
+.wrap{width:100%;max-width:84rem;margin:0 auto;padding-inline:max(1rem,env(safe-area-inset-left))}
+.top{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10;border-top:6px solid var(--accent)}
+.top-in{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding-block:.6rem}
+.titles{min-width:0}
+.marca{margin:0;font:700 clamp(1.15rem,1rem + 1vw,1.6rem)/1.15 var(--serif);letter-spacing:-.01em}
+.marca a{text-decoration:none}
+.marca a:hover{color:var(--accent)}
+.meta{margin:.1rem 0 0;color:var(--muted);font-size:.85rem}
+.acoes{display:flex;align-items:center;gap:.9rem;flex:none}
+.acoes>a{font-size:.9rem;font-weight:600;color:var(--muted);text-decoration:none}
+.acoes>a:hover{color:var(--accent);text-decoration:underline}
+.idioma{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--tint)}
+.idioma>*{padding:.35rem .9rem;font-size:.8rem;font-weight:700;letter-spacing:.06em;text-decoration:none;color:var(--muted);min-width:2.75rem;text-align:center}
+.idioma a:hover{color:var(--accent);text-decoration:underline}
+.idioma span{background:var(--accent);color:#fff}
+@media (prefers-color-scheme:dark){.idioma span{color:#16130f}}
+code{font-family:var(--mono);font-size:.9em;background:var(--tint);padding:.1rem .35rem;border-radius:4px;overflow-wrap:anywhere}
+/* índice */
+.capa{max-width:70rem;padding-block:2rem 3rem}
+.stats{border-left:4px solid var(--accent-2);background:var(--card);border-radius:0 10px 10px 0;padding:1rem 1.25rem;margin:0 0 2.5rem;box-shadow:var(--shadow);color:var(--muted)}
+.stats strong{color:var(--ink)}
+.modulo{display:grid;grid-template-columns:15rem minmax(0,1fr);gap:1rem 2rem;padding:1.75rem 0;border-top:1px solid var(--line)}
+.modulo h2{margin:0;font:700 1.25rem/1.25 var(--serif);align-self:start;position:sticky;top:6rem}
+.mn{display:block;font:700 .8rem var(--mono);letter-spacing:.12em;color:var(--accent);margin-bottom:.25rem}
+.sep{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.modulo ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,17rem),1fr));gap:.75rem}
+.modulo li{margin:0}
+.modulo a{display:flex;gap:.45rem;align-items:baseline;height:100%;padding:.85rem 1rem;background:var(--card);border:1px solid var(--line);border-radius:10px;text-decoration:none;font-weight:600;line-height:1.35;box-shadow:var(--shadow);transition:border-color .15s,transform .15s}
+.modulo a:hover{border-color:var(--accent);color:var(--accent)}
+.num{font:700 .85rem var(--mono);color:var(--accent);white-space:nowrap}
+/* aula */
+.doc{display:grid;grid-template-columns:17rem minmax(0,1fr);gap:2.5rem;align-items:start;padding-block:2rem 3rem}
+.lateral{position:sticky;top:5.5rem;max-height:calc(100vh - 6.5rem);overflow:auto;font-size:.875rem;padding-right:.5rem}
+.lateral h2{margin:0 0 .25rem;font:700 .95rem var(--serif);color:var(--muted)}
+.lateral h3{margin:1rem 0 .25rem;font:700 .75rem var(--mono);letter-spacing:.06em;color:var(--accent)}
+.lateral ul{list-style:none;margin:0;padding:0}
+.lateral a{display:flex;gap:.45rem;padding:.25rem .5rem;border-radius:6px;text-decoration:none;color:var(--muted);line-height:1.3}
+.lateral a:hover{background:var(--tint);color:var(--ink)}
+.lateral a[aria-current]{background:var(--tint);color:var(--ink);font-weight:700;box-shadow:inset 3px 0 0 var(--accent)}
+.lateral .num{font-size:.75rem}
+.aula{min-width:0;max-width:56rem;overflow-wrap:break-word;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:clamp(1.25rem,1rem + 2vw,2.75rem);box-shadow:var(--shadow)}
+.aula h1{margin:0 0 1.5rem;font:700 clamp(1.75rem,1.4rem + 1.6vw,2.5rem)/1.15 var(--serif);letter-spacing:-.015em;color:var(--ink)}
+.aula h2{margin:2.5rem 0 .75rem;padding-top:1.25rem;border-top:1px solid var(--line);font:700 1.5rem/1.25 var(--serif)}
+.aula h3{margin:2rem 0 .5rem;font:700 1.15rem/1.3 var(--serif);color:var(--accent)}
+.aula h4,.aula h5,.aula h6{margin:1.5rem 0 .5rem;font-size:1rem}
+.aula p,.aula ul,.aula ol{margin:1rem 0}
+.aula ul,.aula ol{padding-left:1.5rem}
+.aula li{margin:.35rem 0}
+.aula li>ul,.aula li>ol{margin:.35rem 0}
+.aula a{color:var(--accent);text-underline-offset:2px}
+.aula hr{border:0;border-top:1px solid var(--line);margin:2rem 0}
+.tabela{overflow-x:auto;margin:1.25rem 0;border:1px solid var(--line);border-radius:10px}
+.aula table{width:100%;border-collapse:collapse;font-size:.9rem}
+.aula th,.aula td{padding:.55rem .75rem;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+.aula tr:last-child td{border-bottom:0}
+.aula th{background:var(--tint);font-weight:700}
+.aula pre{background:var(--code);border:1px solid var(--line);border-radius:10px;padding:.9rem 1rem;overflow-x:auto;font:.85rem/1.5 var(--mono);margin:1rem 0;tab-size:4}
+.aula pre code{background:none;padding:0;font-size:inherit;overflow-wrap:normal}
+.aula blockquote{margin:1.25rem 0;padding:.75rem 1.25rem;border-left:4px solid var(--accent-2);background:var(--tint);border-radius:0 10px 10px 0}
+.aula blockquote>:first-child{margin-top:0}
+.aula blockquote>:last-child{margin-bottom:0}
+.aula figure{margin:1.75rem 0;text-align:center}
+.aula figure img{display:block;margin:0 auto;max-width:100%;height:auto;border:1px solid var(--line);border-radius:10px;background:#fff}
+.aula figcaption{margin-top:.5rem;color:var(--muted);font-size:.9rem;font-style:italic}
+.paginas{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:2.5rem;padding-top:1.5rem;border-top:1px solid var(--line)}
+.paginas a{display:block;padding:.75rem 1rem;border:1px solid var(--line);border-radius:10px;text-decoration:none;color:var(--ink);font-weight:600;line-height:1.3}
+.paginas a:hover{border-color:var(--accent);color:var(--accent)}
+.paginas small{display:block;color:var(--muted);font-weight:400}
+.paginas .prox{grid-column:2;text-align:right}
+footer{border-top:1px solid var(--line);padding-block:1.5rem;color:var(--muted);font-size:.85rem;text-align:center}
+@media (hover:hover) and (prefers-reduced-motion:no-preference){.modulo a:hover{transform:translateY(-2px)}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+@media (max-width:980px){.doc{grid-template-columns:minmax(0,1fr);padding-top:1rem}.lateral{position:static;max-height:none;order:2}.aula{max-width:none}}
+@media (max-width:860px){.modulo{grid-template-columns:minmax(0,1fr)}.modulo h2{position:static}.mn{display:inline;margin-right:.5rem}}
+@media (max-width:420px){.meta{display:none}.top-in{gap:.5rem}.acoes{gap:.6rem}.capa{padding-top:1.25rem}.paginas{grid-template-columns:minmax(0,1fr)}.paginas .prox{grid-column:1}}
+@media print{.top,.lateral,.paginas{display:none}.aula{border:0;box-shadow:none;padding:0;max-width:none}.doc{display:block}}
+</style>
+</head>
+<body>
+<a class="pular" href="#conteudo">Pular para o conteúdo</a>
+<header class="top"><div class="wrap top-in"><div class="titles"><p class="marca"><a href="index.html">Curso Linux Sysadmin</a></p><p class="meta">Rodrigo Antignani · Aula 3.1</p></div><div class="acoes"><a href="index.html">Índice</a><div class="idioma" role="group" aria-label="Idioma"><span aria-current="true">PT</span><a href="3.1-fluxos-a-fundo.it.html" hreflang="it" lang="it">IT</a></div></div></div></header>
+<div class="wrap doc"><aside class="lateral" aria-label="Aulas"><h2>Aulas</h2><h3>M0 · Laboratório</h3><ul><li><a href="0.1-montar-o-laboratorio.html"><span class="num">0.1</span><span>Montar o laboratório</span></a></li><li><a href="0.2-acesso-e-protecao.html"><span class="num">0.2</span><span>Acesso e proteção</span></a></li></ul><h3>M1 · Linha de comando</h3><ul><li><a href="1.1-o-que-e-linux.html"><span class="num">1.1</span><span>O que é Linux</span></a></li><li><a href="1.2-o-shell-e-a-ajuda.html"><span class="num">1.2</span><span>O shell e a ajuda</span></a></li><li><a href="1.3-caminhos-e-navegacao.html"><span class="num">1.3</span><span>Caminhos e navegação</span></a></li><li><a href="1.4-criar-copiar-mover-e-apagar.html"><span class="num">1.4</span><span>Criar, copiar, mover e apagar</span></a></li><li><a href="1.5-ler-e-procurar-texto.html"><span class="num">1.5</span><span>Ler e procurar texto</span></a></li><li><a href="1.6-redirecionamentos-e-pipes.html"><span class="num">1.6</span><span>Redirecionamentos e pipes</span></a></li><li><a href="1.7-arquivar-e-compactar.html"><span class="num">1.7</span><span>Arquivar e compactar</span></a></li><li><a href="1.8-primeiro-script.html"><span class="num">1.8</span><span>Primeiro script</span></a></li><li><a href="1.9-decidir-e-repetir.html"><span class="num">1.9</span><span>Decidir e repetir</span></a></li><li><a href="1.10-software-livre-na-pratica.html"><span class="num">1.10</span><span>Software livre na prática</span></a></li></ul><h3>M2 · Sistema, usuários e permissões</h3><ul><li><a href="2.1-instalacao-e-provisionamento.html"><span class="num">2.1</span><span>Instalação e provisionamento</span></a></li><li><a href="2.2-hardware-e-dispositivos.html"><span class="num">2.2</span><span>Hardware e dispositivos</span></a></li><li><a href="2.3-processos-e-logs.html"><span class="num">2.3</span><span>Processos e logs</span></a></li><li><a href="2.4-rede-no-dia-a-dia.html"><span class="num">2.4</span><span>Rede no dia a dia</span></a></li><li><a href="2.5-acesso-remoto-e-privilegios.html"><span class="num">2.5</span><span>Acesso remoto e privilégios</span></a></li><li><a href="2.6-usuarios-e-grupos.html"><span class="num">2.6</span><span>Usuários e grupos</span></a></li><li><a href="2.7-permissoes-e-dono.html"><span class="num">2.7</span><span>Permissões e dono</span></a></li><li><a href="2.8-diretorios-e-arquivos-especiais.html"><span class="num">2.8</span><span>Diretórios e arquivos especiais</span></a></li></ul><h3>M3 · Texto e editor</h3><ul><li><a href="3.1-fluxos-a-fundo.html" aria-current="page"><span class="num">3.1</span><span>Fluxos a fundo</span></a></li><li><a href="3.2-filtros-de-texto.html"><span class="num">3.2</span><span>Filtros de texto</span></a></li><li><a href="3.3-regex-e-grep.html"><span class="num">3.3</span><span>Regex e grep</span></a></li><li><a href="3.4-sed-e-awk.html"><span class="num">3.4</span><span>sed e awk</span></a></li><li><a href="3.5-vi-e-vim-de-verdade.html"><span class="num">3.5</span><span>vi e vim de verdade</span></a></li></ul><h3>M4 · systemd e boot</h3><ul><li><a href="4.1-como-o-linux-liga.html"><span class="num">4.1</span><span>Como o Linux liga</span></a></li><li><a href="4.2-systemd-servicos-e-units.html"><span class="num">4.2</span><span>systemd: serviços e units</span></a></li><li><a href="4.3-targets-desligar-e-reiniciar.html"><span class="num">4.3</span><span>Targets: desligar e reiniciar</span></a></li><li><a href="4.4-grub-e-acesso-de-emergencia.html"><span class="num">4.4</span><span>GRUB e acesso de emergência</span></a></li></ul><h3>M5 · Kernel, módulos e VM</h3><ul><li><a href="5.1-hardware-pelo-kernel.html"><span class="num">5.1</span><span>Hardware pelo kernel</span></a></li><li><a href="5.2-modulos-e-parametros.html"><span class="num">5.2</span><span>Módulos e parâmetros</span></a></li><li><a href="5.3-linux-como-convidado.html"><span class="num">5.3</span><span>Linux como convidado</span></a></li></ul><h3>M6 · Pacotes e repositórios</h3><ul><li><a href="6.1-pacotes-no-debian.html"><span class="num">6.1</span><span>Pacotes no Debian</span></a></li><li><a href="6.2-pacotes-na-rocky.html"><span class="num">6.2</span><span>Pacotes na Rocky</span></a></li><li><a href="6.3-repositorios.html"><span class="num">6.3</span><span>Repositórios</span></a></li><li><a href="6.4-flatpak.html"><span class="num">6.4</span><span>Flatpak</span></a></li><li><a href="6.5-bibliotecas-compartilhadas.html"><span class="num">6.5</span><span>Bibliotecas compartilhadas</span></a></li></ul></aside><main id="conteudo" class="aula"><article><h1>Aula 3.1 · Fluxos a fundo</h1>
+<p>Primeira aula do Módulo 3 e da Fase 2. No Módulo 2 você montou usuários, grupos e uma pasta de equipe que funciona de verdade. Duas vezes, na Aula 2.7 e na Aula 2.8, um comando com <code translate="no">sudo</code> falhou por um motivo que não era permissão: o <code translate="no">*</code> foi expandido pelo <strong>seu</strong> shell, antes de o <code translate="no">sudo</code> começar. Hoje você entende essa família inteira de problemas. O shell monta os fluxos de um comando (de onde ele lê, para onde escreve, onde vão os erros) <strong>antes</strong> de rodá-lo, e quem não sabe disso escreve <code translate="no">sudo echo ... &gt; /etc/arquivo</code>, perde erros de backup dentro de um pipe e apaga o arquivo errado com um <code translate="no">xargs</code>. Na Aula 1.6 você viu <code translate="no">&gt;</code>, <code translate="no">&gt;&gt;</code>, <code translate="no">2&gt;</code> e <code translate="no">|</code>. Agora vêm as ferramentas que o admin usa todo dia: <code translate="no">tee</code>, <code translate="no">xargs</code>, here-doc, substituição de processo, <code translate="no">/dev/null</code> e o <code translate="no">pipefail</code>, que faz o pipe parar de esconder erro.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Ficha</th><th scope="col">Aula 3.1</th></tr></thead><tbody><tr><td>Módulo</td><td>M3 · Texto e editor, aula 1 de 5</td></tr><tr><td>Quando</td><td>Semana 7</td></tr><tr><td>Ao final você consegue</td><td>Prever o resultado de qualquer combinação de <code translate="no">&gt;</code>, <code translate="no">&gt;&gt;</code>, <code translate="no">2&gt;</code>, <code translate="no">2&gt;&amp;1</code> e <code translate="no">&amp;&gt;</code>, inclusive a ordem; gravar em arquivo do root com <code translate="no">sudo tee</code>, sem cair no <code translate="no">sudo echo &gt;</code>; criar arquivos de configuração com here-doc, sabendo quando o shell expande variáveis e quando não; usar <code translate="no">xargs</code> com nomes que têm espaço, e com entrada vazia, sem surpresa; comparar a saída de duas VMs com <code translate="no">diff &lt;( ) &lt;( )</code>; fazer um pipe de backup que falha quando deve falhar, com <code translate="no">pipefail</code> e <code translate="no">PIPESTATUS</code>; explicar por que um script <code translate="no">#!/bin/sh</code> se comporta diferente na Rocky e na Debian</td></tr><tr><td>Itens de prova</td><td>LE 3.2 (redirecionamento e pipes) · LPIC-1 103.4 (usar fluxos, pipes e redirecionamentos: <code translate="no">tee</code>, <code translate="no">xargs</code>) · RHCSA (usar redirecionamento de entrada e saída: <code translate="no">&gt;</code>, <code translate="no">&gt;&gt;</code>, <code translate="no">|</code>, <code translate="no">2&gt;</code> e afins)</td></tr><tr><td>Pré-requisitos</td><td>Aula 1.6 (redirecionamentos e pipes básicos); Aula 2.5 (<code translate="no">sudo</code>); Aula 2.7 e Aula 2.8 (o <code translate="no">*</code> expandido antes do <code translate="no">sudo</code>, e o <code translate="no">sudo sh -c</code>); as duas VMs acessíveis, e o <code translate="no">ssh deb</code> funcionando</td></tr><tr><td>Tempo</td><td>Cerca de 2h30</td></tr><tr><td>Snapshots</td><td>m3a1-inicio e m3a1-fim nas duas VMs</td></tr></tbody></table></div>
+<h2 id="1-aquecimento">1 · Aquecimento</h2>
+<p>Três perguntas, de cabeça. Escreva as respostas; o Gabarito confere no fim.</p>
+<ol><li>Você roda <code translate="no">sudo echo "nameserver 1.1.1.1" &gt; /etc/resolv.conf</code> e recebe <code translate="no">Permission denied</code>. O <code translate="no">sudo</code> está configurado e funcionando. Palpite: por quê?</li>
+<li>Um script de backup faz <code translate="no">tar cf - /dados | gzip &gt; /backup/dados.tar.gz</code> e termina com <code translate="no">echo "status: $?"</code>. O <code translate="no">tar</code> falha no meio por falta de permissão. Palpite: o status mostra <code translate="no">0</code> ou outro número?</li>
+<li><code translate="no">cmd &gt; saida.txt 2&gt;&amp;1</code> e <code translate="no">cmd 2&gt;&amp;1 &gt; saida.txt</code>. Palpite: os dois guardam os erros no arquivo?</li></ol>
+<h2 id="2-por-que-importa">2 · Por que importa</h2>
+<p>Fluxos parecem assunto de iniciante até virarem incidente:</p>
+<div class="tabela"><table><thead><tr><th scope="col">O chamado</th><th scope="col">A resposta errada</th><th scope="col">O que ela causa</th></tr></thead><tbody><tr><td>"Preciso adicionar uma linha no <code translate="no">/etc/hosts</code> pelo script"</td><td><code translate="no">sudo echo "10.1.0.60 app" &gt;&gt; /etc/hosts</code></td><td><code translate="no">Permission denied</code>. Na pressa, alguém troca por <code translate="no">chmod 666 /etc/hosts</code>, e o arquivo fica aberto para qualquer conta</td></tr><tr><td>"O backup roda toda noite e diz OK, mas o arquivo tem 40 bytes"</td><td>Confiar no <code translate="no">$?</code> do fim do pipe</td><td>Meses de backups vazios. O status é o do <code translate="no">gzip</code>, que comprimiu com sucesso um nada</td></tr><tr><td>"O cron manda e-mail toda madrugada, desliga isso"</td><td>Acrescentar <code translate="no">&gt; /dev/null 2&gt;&amp;1</code> em tudo</td><td>O e-mail para, e com ele o único aviso de que o job falha há semanas</td></tr><tr><td>"Apaga os <code translate="no">.tmp</code> antigos da pasta de uploads"</td><td><code translate="no">find /srv/uploads -name '*.tmp' | xargs rm</code></td><td>O arquivo <code translate="no">relatorio final.tmp</code> vira <code translate="no">relatorio</code> e <code translate="no">final.tmp</code>; se existir um <code translate="no">relatorio</code>, ele some no lugar</td></tr><tr><td>"O script funciona na Rocky e dá erro de sintaxe na Debian"</td><td>Reescrever o script na Debian</td><td>Duas versões do mesmo script. O problema era o <code translate="no">#!/bin/sh</code>: na Debian, o <code translate="no">sh</code> não é o <code translate="no">bash</code></td></tr></tbody></table></div>
+<p>Quem resolve de verdade sabe <strong>quem</strong> abre cada arquivo, <strong>quando</strong> e <strong>com qual identidade</strong>. É isso que você treina hoje.</p>
+<h2 id="3-modelo-mental">3 · Modelo mental</h2>
+<blockquote><p>Todo processo nasce com três canais numerados, os <strong>descritores de arquivo</strong>: <code translate="no">0</code> é a entrada (stdin), <code translate="no">1</code> é a saída (stdout) e <code translate="no">2</code> é a saída de erros (stderr). Redirecionar é <strong>o shell trocar para onde cada número aponta, antes de o comando começar</strong>, lendo da esquerda para a direita. O comando nunca vê o <code translate="no">&gt;</code>: ele só escreve no <code translate="no">1</code> e no <code translate="no">2</code>, sem saber se é tela, arquivo ou pipe.</p></blockquote>
+<pre translate="no"><code class="lang-text">  Você digita:   sudo echo oi &gt; /etc/teste.conf
+                 └─────┬─────┘ └───────┬───────┘
+                       │               └─ 1º: o SEU shell (rodrigo) abre /etc/teste.conf
+                       │                       para escrita. Falha aqui: Permission denied.
+                       └─ 2º: só depois o sudo rodaria, já como root. Nem chega a rodar.
+
+  Você digita:   echo oi | sudo tee /etc/teste.conf &gt; /dev/null
+                 └──┬──┘   └──────────┬──────────┘   └────┬────┘
+                    │                 │                   └─ o seu shell abre /dev/null (pode)
+                    │                 └─ o tee, rodando como ROOT, abre /etc/teste.conf (pode)
+                    └─ o echo escreve "oi" no pipe, que vira a entrada do tee
+
+  A ordem do 2&gt;&amp;1 (o shell lê da esquerda para a direita):
+
+  cmd &gt; f 2&gt;&amp;1         1 → f            depois 2 → para onde o 1 aponta AGORA (f)
+                       resultado:  1 → f    2 → f          tudo no arquivo
+
+  cmd 2&gt;&amp;1 &gt; f         2 → para onde o 1 aponta AGORA (tela)   depois 1 → f
+                       resultado:  1 → f    2 → tela       erros na tela
+
+  Um pipe:   tar cf - /dados  |  gzip  &gt;  dados.tar.gz
+             └─── processo ───┘  └── processo ──┘
+                status 2 (falhou)   status 0  ──▶  $? = 0   (só o último conta)
+                ${PIPESTATUS[@]} = "2 0"           com set -o pipefail: $? = 2</code></pre>
+<p>O <code translate="no">2&gt;&amp;1</code> não quer dizer "junte os erros com a saída". Quer dizer "faça o <code translate="no">2</code> apontar para onde o <code translate="no">1</code> aponta <strong>neste momento</strong>". É uma cópia, não um vínculo: se o <code translate="no">1</code> mudar depois, o <code translate="no">2</code> não acompanha.</p>
+<figure><a href="../img/3.1-tres-canais.svg"><img src="../img/3.1-tres-canais.svg" alt="Os três canais e a ordem do redirecionamento" loading="lazy" decoding="async"></a><figcaption>O shell troca o destino antes de o comando começar, da esquerda para a direita.</figcaption></figure>
+<h2 id="4-conceito-em-camadas">4 · Conceito em camadas</h2>
+<h3 id="essencial">Essencial</h3>
+<p><strong>Os redirecionamentos, de uma vez.</strong> Os que você já conhece e os que faltavam:</p>
+<div class="tabela"><table><thead><tr><th scope="col">Você escreve</th><th scope="col">O que o shell faz</th></tr></thead><tbody><tr><td><code translate="no">cmd &gt; f</code></td><td><code translate="no">1</code> vai para <code translate="no">f</code>, apagando o conteúdo anterior</td></tr><tr><td><code translate="no">cmd &gt;&gt; f</code></td><td><code translate="no">1</code> vai para o fim de <code translate="no">f</code></td></tr><tr><td><code translate="no">cmd 2&gt; f</code></td><td><code translate="no">2</code> vai para <code translate="no">f</code></td></tr><tr><td><code translate="no">cmd &gt; f 2&gt;&amp;1</code></td><td><code translate="no">1</code> e <code translate="no">2</code> vão para <code translate="no">f</code>. Funciona em qualquer shell</td></tr><tr><td><code translate="no">cmd &amp;&gt; f</code></td><td>O mesmo, em forma curta. Só no <code translate="no">bash</code></td></tr><tr><td><code translate="no">cmd 2&gt; /dev/null</code></td><td>Joga os erros fora</td></tr><tr><td><code translate="no">cmd &lt; f</code></td><td><code translate="no">0</code> lê de <code translate="no">f</code></td></tr><tr><td><code translate="no">cmd1 | cmd2</code></td><td>O <code translate="no">1</code> do <code translate="no">cmd1</code> vira o <code translate="no">0</code> do <code translate="no">cmd2</code>. O <code translate="no">2</code> continua indo para a tela</td></tr><tr><td><code translate="no">cmd1 |&amp; cmd2</code></td><td>O <code translate="no">1</code> e o <code translate="no">2</code> do <code translate="no">cmd1</code> vão para o pipe. Só no <code translate="no">bash</code>; é o mesmo que <code translate="no">2&gt;&amp;1 |</code></td></tr><tr><td><code translate="no">echo erro &gt;&amp;2</code></td><td>Escreve no <code translate="no">2</code>. É assim que um script manda mensagem de erro</td></tr></tbody></table></div>
+<p><strong>O <code translate="no">/dev/null</code>.</strong> Um dispositivo que aceita tudo e guarda nada, e que, lido, termina na hora. Serve para jogar fora (<code translate="no">2&gt; /dev/null</code>) e para dar entrada vazia a um comando (<code translate="no">cmd &lt; /dev/null</code>). Jogar fora é uma decisão: o que vai para o <code translate="no">/dev/null</code> não volta.</p>
+<p><strong>O <code translate="no">tee</code>.</strong> Lê a entrada e escreve em dois lugares: na saída e nos arquivos que você der. O nome vem do encanamento: um T que divide o fluxo.</p>
+<pre translate="no"><code class="lang-bash">dnf check-update | tee ~/atualizacoes.txt          # na tela e no arquivo
+journalctl -b -p err | tee -a ~/erros-boot.txt     # -a acrescenta em vez de apagar</code></pre>
+<p>Em administração, o uso mais importante do <code translate="no">tee</code> é outro: <strong>escrever em arquivo do root</strong>. Quem abre o arquivo é o <code translate="no">tee</code>, e o <code translate="no">tee</code> pode rodar com <code translate="no">sudo</code>:</p>
+<pre translate="no"><code class="lang-bash">echo "10.1.0.60 app" | sudo tee -a /etc/hosts &gt; /dev/null</code></pre>
+<p>O <code translate="no">&gt; /dev/null</code> no fim só tira da tela a cópia que o <code translate="no">tee</code> também escreve na saída.</p>
+<p><strong>O <code translate="no">xargs</code>.</strong> Um pipe leva <strong>texto</strong> para a <strong>entrada</strong> de um comando. Mas muitos comandos não leem a entrada: querem <strong>argumentos</strong>. O <code translate="no">rm</code>, o <code translate="no">ls</code>, o <code translate="no">chmod</code>, o <code translate="no">ssh</code> ignoram o que chega pelo <code translate="no">0</code>. O <code translate="no">xargs</code> lê a entrada e transforma em argumentos:</p>
+<pre translate="no"><code class="lang-bash">echo "/etc/hostname /etc/os-release" | ls -l          # o ls ignora a entrada e lista a pasta atual
+echo "/etc/hostname /etc/os-release" | xargs ls -l    # o xargs roda: ls -l /etc/hostname /etc/os-release</code></pre>
+<p><strong>O here-doc.</strong> Um bloco de texto que vira a entrada de um comando, escrito no próprio terminal ou script. É o jeito limpo de criar um arquivo de configuração inteiro:</p>
+<pre translate="no"><code class="lang-bash">sudo tee /etc/motd &gt; /dev/null &lt;&lt;'EOF'
+Servidor de laboratório. Mudanças só com chamado aberto.
+EOF</code></pre>
+<p>O <code translate="no">&lt;&lt;'EOF'</code> diz: "a entrada é tudo o que vier até uma linha que tenha só <code translate="no">EOF</code>". O nome <code translate="no">EOF</code> é convenção; pode ser qualquer palavra.</p>
+<h3 id="intermediario">Intermediário</h3>
+<p><strong>A ordem importa, sempre.</strong> O shell aplica os redirecionamentos da esquerda para a direita, e cada <code translate="no">N&gt;&amp;M</code> copia o destino <strong>atual</strong> de <code translate="no">M</code>. Por isso:</p>
+<pre translate="no"><code class="lang-bash">ls /etc/hostname /naoexiste &gt; f 2&gt;&amp;1     # tudo em f
+ls /etc/hostname /naoexiste 2&gt;&amp;1 &gt; f     # o erro na tela, a listagem em f
+ls /etc/hostname /naoexiste 2&gt;&amp;1 | wc -l # 2: no pipe, o | é montado ANTES dos redirecionamentos</code></pre>
+<p>A terceira linha engana muita gente: o <code translate="no">|</code> é ligado primeiro, então quando o <code translate="no">2&gt;&amp;1</code> é lido o <code translate="no">1</code> já é o pipe, e os dois vão para o <code translate="no">wc</code>.</p>
+<p><strong>Aspas no here-doc decidem tudo.</strong> Sem aspas na palavra (<code translate="no">&lt;&lt;EOF</code>), o shell expande <code translate="no">$VARIAVEL</code>, <code translate="no">$(comando)</code> e <code translate="no">`comando`</code> <strong>na hora de criar</strong> o texto. Com aspas (<code translate="no">&lt;&lt;'EOF'</code>), o texto vai exatamente como está escrito. Para gerar um script, quase sempre você quer aspas: as variáveis devem ser lidas quando o <strong>script</strong> rodar, não quando você o cria.</p>
+<pre translate="no"><code class="lang-bash">cat &lt;&lt;EOF
+criado em $(hostname) por $USER
+EOF
+# criado em rocky-lab por rodrigo
+
+cat &lt;&lt;'EOF'
+criado em $(hostname) por $USER
+EOF
+# criado em $(hostname) por $USER</code></pre>
+<p>O <code translate="no">&lt;&lt;-EOF</code>, com hífen, tira as <strong>tabulações</strong> do começo de cada linha, para você indentar o bloco dentro de um <code translate="no">if</code> num script. Só tabulação: espaços ficam.</p>
+<p><strong>O here-string.</strong> O <code translate="no">&lt;&lt;&lt;</code> entrega uma única string como entrada, sem <code translate="no">echo</code> e sem pipe:</p>
+<pre translate="no"><code class="lang-bash">tr a-z A-Z &lt;&lt;&lt; "rocky-lab"      # ROCKY-LAB
+read -r usuario uid &lt;&lt;&lt; "ana 2001"</code></pre>
+<p><strong>O <code translate="no">xargs</code> e os nomes com espaço.</strong> Por padrão, o <code translate="no">xargs</code> separa a entrada em <strong>qualquer</strong> espaço, tabulação ou quebra de linha, e ainda interpreta aspas e barras invertidas. Um arquivo chamado <code translate="no">relatorio final.txt</code> vira dois argumentos, e um chamado <code translate="no">conta d'agua.txt</code> dá <code translate="no">unmatched single quote</code>. O conserto é separar por um caractere que não pode existir em nome de arquivo, o nulo (<code translate="no">\0</code>), dos dois lados:</p>
+<pre translate="no"><code class="lang-bash">find ~/lab31 -name '*.txt' -print0 | xargs -0 ls -l</code></pre>
+<p>Ou dispensar o <code translate="no">xargs</code>, com o <code translate="no">-exec ... +</code> do próprio <code translate="no">find</code>, que monta a linha de comando sem passar por texto:</p>
+<pre translate="no"><code class="lang-bash">find ~/lab31 -name '*.txt' -exec ls -l {} +</code></pre>
+<p><strong>Opções do <code translate="no">xargs</code> que você vai usar:</strong></p>
+<div class="tabela"><table><thead><tr><th scope="col">Opção</th><th scope="col">O que faz</th><th scope="col">Exemplo</th></tr></thead><tbody><tr><td><code translate="no">-0</code></td><td>Entrada separada por nulo (par do <code translate="no">find -print0</code>)</td><td><code translate="no">find . -print0 | xargs -0 ...</code></td></tr><tr><td><code translate="no">-r</code></td><td>Não roda nada se a entrada vier vazia</td><td><code translate="no">... | xargs -r rm</code></td></tr><tr><td><code translate="no">-n N</code></td><td>No máximo N argumentos por execução</td><td><code translate="no">xargs -n 1 ping -c1</code></td></tr><tr><td><code translate="no">-I{}</code></td><td>Uma execução por linha, trocando <code translate="no">{}</code> pela linha</td><td><code translate="no">xargs -I{} cp {} {}.bak</code></td></tr><tr><td><code translate="no">-t</code></td><td>Mostra cada comando antes de rodar</td><td><code translate="no">xargs -t chmod 640</code></td></tr><tr><td><code translate="no">-P N</code></td><td>Até N execuções ao mesmo tempo</td><td><code translate="no">xargs -P 4 -n 1 ...</code></td></tr></tbody></table></div>
+<p>O <code translate="no">-r</code> merece atenção: o <code translate="no">xargs</code> do GNU, que é o das duas VMs, roda o comando <strong>uma vez, sem argumento nenhum</strong>, quando a entrada vem vazia. Um <code translate="no">ls -l</code> sem argumento lista a pasta atual; um <code translate="no">chown -R ana</code> sem argumento só reclama. Mas um relatório que deveria estar vazio aparece cheio de coisa que não tem nada a ver.</p>
+<p><strong>A substituição de processo.</strong> O <code translate="no">&lt;(comando)</code> roda o comando e entrega a saída dele <strong>como se fosse um arquivo</strong>. Serve para comandos que só aceitam nomes de arquivo, como o <code translate="no">diff</code>, que compara dois arquivos:</p>
+<pre translate="no"><code class="lang-bash">diff &lt;(ssh deb 'cat /etc/os-release') /etc/os-release
+echo &lt;(true)          # /dev/fd/63: o "arquivo" é um descritor aberto pelo bash</code></pre>
+<p>Sem isso, você salvaria duas saídas em arquivos temporários, compararia e apagaria. É do <code translate="no">bash</code>: o <code translate="no">sh</code> da Debian não entende.</p>
+<p><strong>O pipe esconde erros.</strong> O status de um pipe é o do <strong>último</strong> comando. Num <code translate="no">dump | gzip &gt; arquivo</code>, se o <code translate="no">dump</code> morre no meio, o <code translate="no">gzip</code> comprime o que chegou, termina com <code translate="no">0</code>, e o pipe inteiro diz que deu certo. Duas ferramentas do <code translate="no">bash</code>:</p>
+<pre translate="no"><code class="lang-bash">false | true; echo "$?"                   # 0
+false | true; echo "${PIPESTATUS[@]}"     # 1 0: o status de cada comando, em ordem
+set -o pipefail
+false | true; echo "$?"                   # 1: o pipe falha se qualquer comando falhar</code></pre>
+<p>O <code translate="no">PIPESTATUS</code> é sobrescrito pelo <strong>próximo</strong> comando, inclusive por um <code translate="no">echo</code>: leia-o logo em seguida, ou copie para outra variável. O <code translate="no">set -o pipefail</code> vale para o shell onde você o ligou, até ele terminar; num script, ponha no começo.</p>
+<h3 id="ponte-windows">Ponte Windows</h3>
+<div class="tabela"><table><thead><tr><th scope="col">No Windows (cmd ou PowerShell)</th><th scope="col">No Linux</th><th scope="col">A diferença que importa</th></tr></thead><tbody><tr><td><code translate="no">dir &gt; lista.txt 2&gt;&amp;1</code> (cmd)</td><td><code translate="no">ls &gt; lista.txt 2&gt;&amp;1</code></td><td>Igual, inclusive a ordem. O cmd aprendeu com o Unix</td></tr><tr><td><code translate="no">&gt; NUL</code></td><td><code translate="no">&gt; /dev/null</code></td><td>No Linux é um arquivo de dispositivo de verdade, com dono e modo</td></tr><tr><td><code translate="no">Tee-Object -FilePath f</code></td><td><code translate="no">tee f</code></td><td>O <code translate="no">tee</code> aceita vários arquivos e o <code translate="no">-a</code></td></tr><tr><td><code translate="no">ForEach-Object { ... }</code> com o objeto no pipe</td><td><code translate="no">xargs</code></td><td>O PowerShell passa <strong>objetos</strong> no pipe; o Linux passa <strong>texto</strong>, e o <code translate="no">xargs</code> precisa saber onde um item termina e o próximo começa</td></tr><tr><td><code translate="no">@" ... "@</code> e <code translate="no">@' ... '@</code> (here-string)</td><td><code translate="no">&lt;&lt;EOF</code> e <code translate="no">&lt;&lt;'EOF'</code> (here-doc)</td><td>A mesma ideia das aspas: duplas expandem variáveis, simples não</td></tr><tr><td><code translate="no">Compare-Object (cmd1) (cmd2)</code></td><td><code translate="no">diff &lt;(cmd1) &lt;(cmd2)</code></td><td>No Linux, a saída vira um "arquivo" <code translate="no">/dev/fd/N</code></td></tr><tr><td><code translate="no">$LASTEXITCODE</code> e <code translate="no">$?</code></td><td><code translate="no">$?</code> e <code translate="no">${PIPESTATUS[@]}</code></td><td>No PowerShell, um erro no meio do pipe aparece; no <code translate="no">bash</code>, sem <code translate="no">pipefail</code>, some</td></tr><tr><td>"Executar como administrador" no terminal inteiro</td><td><code translate="no">sudo</code> num comando, ou <code translate="no">sudo tee</code> num arquivo</td><td>No Linux, a elevação é por processo: o <code translate="no">&gt;</code> do seu shell continua sendo você</td></tr></tbody></table></div>
+<h3 id="avancado">Avançado</h3>
+<p><strong>O <code translate="no">sudo</code> e o shell, a regra geral.</strong> O seu shell faz quatro coisas antes de o <code translate="no">sudo</code> existir: expande <code translate="no">*</code> e <code translate="no">?</code> (Aula 2.7), expande <code translate="no">$VARIAVEL</code> e <code translate="no">$(comando)</code>, abre os redirecionamentos e liga os pipes. Tudo isso acontece <strong>como você</strong>. As três saídas, conforme o caso:</p>
+<div class="tabela"><table><thead><tr><th scope="col">Você quer</th><th scope="col">Use</th></tr></thead><tbody><tr><td>Escrever ou acrescentar num arquivo do root</td><td><code translate="no">... | sudo tee [-a] arquivo &gt; /dev/null</code></td></tr><tr><td>Uma linha com redirecionamentos, <code translate="no">*</code> ou pipes, tudo como root</td><td><code translate="no">sudo sh -c 'cmd1 | cmd2 &gt; /etc/arquivo'</code></td></tr><tr><td>Um bloco de configuração inteiro</td><td><code translate="no">sudo tee arquivo &gt; /dev/null &lt;&lt;'EOF'</code> ... <code translate="no">EOF</code></td></tr><tr><td>Ler um arquivo do root num pipe</td><td><code translate="no">sudo cat arquivo | grep ...</code>; o <code translate="no">grep</code> não precisa de root</td></tr></tbody></table></div>
+<p><strong>O <code translate="no">noclobber</code>.</strong> Com <code translate="no">set -o noclobber</code>, o <code translate="no">&gt;</code> se recusa a apagar um arquivo que já existe (<code translate="no">cannot overwrite existing file</code>). Quando você quer mesmo sobrescrever, usa <code translate="no">&gt;|</code>. É uma rede de segurança boa para o shell interativo de quem administra servidor.</p>
+<p><strong>Redirecionar o script inteiro.</strong> O <code translate="no">exec</code> sem comando muda os descritores do <strong>próprio</strong> shell, até ele terminar. A primeira linha abaixo, no começo de um script, manda tudo o que ele escrever, saída e erro, para a tela e para um log ao mesmo tempo:</p>
+<pre translate="no"><code class="lang-bash">exec &gt; &gt;(tee -a /var/log/meu-script.log) 2&gt;&amp;1
+exec 2&gt;&gt; /var/log/meu-script.err             # ou: só os erros, para um arquivo</code></pre>
+<p><strong>O <code translate="no">sh</code> não é o <code translate="no">bash</code> em todo lugar.</strong> Na Rocky, <code translate="no">/bin/sh</code> é o próprio <code translate="no">bash</code>, rodando em modo de compatibilidade POSIX: quase tudo do <code translate="no">bash</code> continua funcionando. Na Debian, <code translate="no">/bin/sh</code> é o <code translate="no">dash</code>, um shell menor e mais rápido, que só entende o padrão POSIX. Num script <code translate="no">#!/bin/sh</code> na Debian, ou num <code translate="no">sh -c '...'</code>:</p>
+<div class="tabela"><table><thead><tr><th scope="col">Recurso do <code translate="no">bash</code></th><th scope="col">No <code translate="no">dash</code></th></tr></thead><tbody><tr><td><code translate="no">&lt;( )</code></td><td><code translate="no">Syntax error: "(" unexpected</code></td></tr><tr><td><code translate="no">&amp;&gt; f</code></td><td>Lido como <code translate="no">&amp;</code> (rodar em segundo plano) seguido de <code translate="no">&gt; f</code>. O comando vai para o fundo e a saída <strong>não</strong> é redirecionada. Sem mensagem de erro</td></tr><tr><td><code translate="no">|&amp;</code></td><td>Erro de sintaxe</td></tr><tr><td><code translate="no">&lt;&lt;&lt;</code></td><td>Erro de sintaxe</td></tr><tr><td><code translate="no">PIPESTATUS</code></td><td>Não existe: vem vazio</td></tr><tr><td><code translate="no">set -o pipefail</code></td><td>Depende da versão do <code translate="no">dash</code>: só entrou no padrão POSIX em 2024. Num <code translate="no">#!/bin/sh</code>, não conte com ele</td></tr></tbody></table></div>
+<p>O conserto não é evitar o <code translate="no">bash</code>: é escrever <code translate="no">#!/bin/bash</code> quando o script usa <code translate="no">bash</code>, e rodá-lo com <code translate="no">bash script.sh</code>, nunca com <code translate="no">sh script.sh</code>.</p>
+<p><strong>O pipe nomeado.</strong> Um <code translate="no">mkfifo /tmp/canal</code> cria um arquivo do tipo <code translate="no">p</code>, que funciona como um pipe com nome: um processo escreve, outro lê, e nada fica gravado em disco. É o que o <code translate="no">&lt;( )</code> faz por baixo, de forma anônima.</p>
+<h3 id="o-que-cai-na-prova">O que cai na prova</h3>
+<p><strong>Linux Essentials e LPIC-1 (103.4):</strong></p>
+<ul><li>Os números <code translate="no">0</code>, <code translate="no">1</code> e <code translate="no">2</code>, e os nomes stdin, stdout e stderr.</li>
+<li>A diferença entre <code translate="no">&gt;</code> e <code translate="no">&gt;&gt;</code>, e entre <code translate="no">2&gt;&amp;1</code> antes e depois do <code translate="no">&gt;</code>.</li>
+<li>O <code translate="no">tee</code>, com e sem <code translate="no">-a</code>, e para que ele serve num pipe.</li>
+<li>O <code translate="no">xargs</code>: o que ele faz, o <code translate="no">-0</code> com <code translate="no">find -print0</code>, o <code translate="no">-n</code> e o <code translate="no">-I</code>.</li>
+<li>Here-doc (<code translate="no">&lt;&lt;</code>) e here-string (<code translate="no">&lt;&lt;&lt;</code>).</li>
+<li>Perguntas de "qual comando grava a saída na tela e num arquivo ao mesmo tempo" (<code translate="no">tee</code>) e de "qual comando transforma a saída de um em argumentos de outro" (<code translate="no">xargs</code>).</li></ul>
+<p><strong>RHCSA:</strong></p>
+<ul><li>Usar redirecionamento para <strong>entregar</strong> resultado: "salve a lista de arquivos de tal usuário em <code translate="no">/root/arquivos</code>", "grave as linhas que contêm X em <code translate="no">/root/linhas</code>". O script de correção lê o arquivo: se você mandou o erro junto, ou esqueceu o <code translate="no">&gt;</code>, perde a questão.</li>
+<li>Criar arquivos de configuração do root sem editor, com <code translate="no">sudo tee</code> ou here-doc.</li></ul>
+<h2 id="5-rocky-debian">5 · Rocky × Debian</h2>
+<div class="tabela"><table><thead><tr><th scope="col">O quê</th><th scope="col">rocky-lab</th><th scope="col">debian-lab</th><th scope="col">Como conferir</th></tr></thead><tbody><tr><td><code translate="no">/bin/sh</code></td><td><code translate="no">bash</code> (modo POSIX)</td><td><code translate="no">dash</code></td><td><code translate="no">readlink -f /bin/sh</code></td></tr><tr><td>Shell de login do <code translate="no">rodrigo</code></td><td><code translate="no">bash</code></td><td><code translate="no">bash</code></td><td><code translate="no">getent passwd rodrigo</code></td></tr><tr><td><code translate="no">&lt;( )</code>, <code translate="no">&amp;&gt;</code>, <code translate="no">PIPESTATUS</code> num <code translate="no">sh -c</code></td><td>Funcionam</td><td>Erro de sintaxe, ou comportamento errado sem aviso</td><td><code translate="no">sh -c 'diff &lt;(echo a) &lt;(echo b)'</code></td></tr><tr><td><code translate="no">tee</code>, <code translate="no">xargs</code>, <code translate="no">find</code></td><td>GNU (coreutils e findutils)</td><td>GNU (coreutils e findutils)</td><td><code translate="no">xargs --version | head -1</code></td></tr><tr><td><code translate="no">xargs</code> com entrada vazia</td><td>Roda o comando uma vez</td><td>Roda o comando uma vez</td><td><code translate="no">true | xargs echo ok</code></td></tr><tr><td>Logs de texto em <code translate="no">/var/log</code></td><td><code translate="no">rsyslog</code> instalado: <code translate="no">/var/log/messages</code> e <code translate="no">/var/log/secure</code></td><td>Debian 12 não traz <code translate="no">rsyslog</code>: os logs ficam só no journal</td><td><code translate="no">ls /var/log/messages /var/log/secure /var/log/syslog /var/log/auth.log</code></td></tr><tr><td>Ler o journal do sistema como <code translate="no">rodrigo</code></td><td>Pelo grupo <code translate="no">wheel</code></td><td>Só com <code translate="no">sudo</code>, ou no grupo <code translate="no">adm</code></td><td><code translate="no">journalctl -n 3</code>, sem <code translate="no">sudo</code></td></tr></tbody></table></div>
+<p>A linha dos logs vai importar no Módulo 3 inteiro: a mesma pergunta ("quem errou a senha no SSH?") se responde com um arquivo na Rocky e com o <code translate="no">journalctl</code> na Debian. Um pipe bem montado funciona igual nos dois, desde que você saiba o que está na entrada dele.</p>
+<h2 id="6-lab-guiado">6 · Lab guiado</h2>
+<p>Você é o <code translate="no">rodrigo</code>, na rocky-lab, e alcança a debian-lab pelo <code translate="no">ssh deb</code>. Os experimentos ficam em <code translate="no">~/lab31</code>, nas duas VMs; só o Passo 2 mexe em arquivo do sistema, o <code translate="no">/etc/lab31.conf</code>, e ele fica até o fim do módulo, para você conferir depois do reboot. O Passo 7 é o desafio da aula.</p>
+<figure><a href="../img/3.1-fluxo-redirecionamento.svg"><img src="../img/3.1-fluxo-redirecionamento.svg" alt="3.1 Fluxo Redirecionamento" loading="lazy" decoding="async"></a><figcaption>2&gt;&amp;1 &gt; f e &gt; f 2&gt;&amp;1 dão resultados diferentes: a ordem é da esquerda para a direita.</figcaption></figure>
+<h3 id="passo-0-snapshot-caminho-e-qual-sh-e-qual">Passo 0 · Snapshot, caminho e qual <code translate="no">sh</code> é qual</h3>
+<p>No Proxmox, tire o snapshot <code translate="no">m3a1-inicio</code> das duas VMs. Na rocky-lab:</p>
+<pre translate="no"><code class="lang-bash">eval "$(ssh-agent -s)"; ssh-add
+ssh -o BatchMode=yes deb hostname
+readlink -f /bin/sh; ssh deb 'readlink -f /bin/sh'
+mkdir -p ~/lab31; ssh deb 'mkdir -p ~/lab31'
+cd ~/lab31</code></pre>
+<pre translate="no"><code class="lang-text">debian-lab
+/usr/bin/bash
+/usr/bin/dash</code></pre>
+<p>Guarde as duas últimas linhas: na rocky-lab, o <code translate="no">sh</code> é o <code translate="no">bash</code>; na debian-lab, é o <code translate="no">dash</code>. O Passo 6 mostra o que isso muda.</p>
+<h3 id="passo-1-a-ordem-do-2-1">Passo 1 · A ordem do <code translate="no">2&gt;&amp;1</code></h3>
+<p>Um arquivo que existe e um que não existe, para ter saída <strong>e</strong> erro no mesmo comando:</p>
+<pre translate="no"><code class="lang-bash">ls /etc/hostname /naoexiste &gt; a.txt 2&gt;&amp;1</code></pre>
+<p>Nada aparece na tela: as duas linhas foram para o <code translate="no">a.txt</code>. Agora, com o <code translate="no">2&gt;&amp;1</code> antes:</p>
+<p><strong>Decida 1 · Você roda <code translate="no">ls /etc/hostname /naoexiste 2&gt;&amp;1 &gt; b.txt</code>. O que aparece na tela, e o que fica no <code translate="no">b.txt</code>?</strong></p>
+<ul><li><strong>A)</strong> Nada na tela; o <code translate="no">b.txt</code> tem as duas linhas</li>
+<li><strong>B)</strong> O erro na tela; o <code translate="no">b.txt</code> tem só <code translate="no">/etc/hostname</code></li>
+<li><strong>C)</strong> As duas linhas na tela; o <code translate="no">b.txt</code> fica vazio</li>
+<li><strong>D)</strong> Nada na tela; o <code translate="no">b.txt</code> tem só o erro</li></ul>
+<p>Escolha a letra antes de olhar a tabela.</p>
+<pre translate="no"><code class="lang-bash">ls /etc/hostname /naoexiste 2&gt;&amp;1 &gt; b.txt
+echo "--- a.txt"; cat a.txt; echo "--- b.txt"; cat b.txt</code></pre>
+<div class="tabela"><table><thead><tr><th scope="col">Se você marcou</th><th scope="col">Resultado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>A</td><td>❌ Errada</td><td>Seria o resultado do primeiro comando. Aqui, o shell lê o <code translate="no">2&gt;&amp;1</code> primeiro, quando o <code translate="no">1</code> ainda aponta para a tela, e copia esse destino para o <code translate="no">2</code>. Só depois o <code translate="no">&gt; b.txt</code> muda o <code translate="no">1</code>.</td></tr><tr><td>B</td><td>✅ Certa</td><td><code translate="no">ls: cannot access '/naoexiste': No such file or directory</code> na tela, e o <code translate="no">b.txt</code> só com <code translate="no">/etc/hostname</code>. O <code translate="no">2</code> ficou com o destino antigo do <code translate="no">1</code>.</td></tr><tr><td>C</td><td>❌ Errada</td><td>O <code translate="no">&gt; b.txt</code> foi aplicado: a saída normal foi para o arquivo. Só o erro ficou de fora.</td></tr><tr><td>D</td><td>❌ Errada</td><td>Inverte os papéis. O <code translate="no">2&gt;&amp;1</code> não "troca" o <code translate="no">1</code> com o <code translate="no">2</code>; ele copia o destino do <code translate="no">1</code> para o <code translate="no">2</code>.</td></tr></tbody></table></div>
+<p><strong>Para fixar:</strong> leia os redirecionamentos da esquerda para a direita, e trate o <code translate="no">2&gt;&amp;1</code> como "o <code translate="no">2</code> vai para onde o <code translate="no">1</code> está <strong>agora</strong>". Quer tudo no arquivo? O arquivo primeiro: <code translate="no">&gt; f 2&gt;&amp;1</code>.</p>
+<h3 id="passo-2-o-sudo-que-nao-alcanca-o">Passo 2 · O <code translate="no">sudo</code> que não alcança o <code translate="no">&gt;</code></h3>
+<p>Você quer criar um arquivo de configuração do sistema, de uma linha:</p>
+<pre translate="no"><code class="lang-bash">sudo echo "lab31=ok" &gt; /etc/lab31.conf</code></pre>
+<pre translate="no"><code class="lang-text">-bash: /etc/lab31.conf: Permission denied</code></pre>
+<p>O <code translate="no">sudo</code> está configurado, e a senha nem foi pedida.</p>
+<p><strong>Decida 2 · Por que o <code translate="no">Permission denied</code>?</strong></p>
+<ul><li><strong>A)</strong> O <code translate="no">echo</code> é um comando interno do shell, e o <code translate="no">sudo</code> não roda comandos internos</li>
+<li><strong>B)</strong> Quem abre o <code translate="no">/etc/lab31.conf</code> é o seu shell, como <code translate="no">rodrigo</code>, antes de o <code translate="no">sudo</code> começar</li>
+<li><strong>C)</strong> O SELinux protege o <code translate="no">/etc</code> e bloqueia o <code translate="no">echo</code></li>
+<li><strong>D)</strong> Faltou o <code translate="no">-i</code>: com <code translate="no">sudo -i</code> funciona</li></ul>
+<p>Escolha a letra antes de olhar a tabela.</p>
+<pre translate="no"><code class="lang-bash">ls -l /etc/lab31.conf
+ssh deb 'sudo echo "lab31=ok" &gt; /etc/lab31.conf'</code></pre>
+<div class="tabela"><table><thead><tr><th scope="col">Se você marcou</th><th scope="col">Resultado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>A</td><td>❌ Errada</td><td>O <code translate="no">sudo</code> procura um <strong>programa</strong>, e acha o <code translate="no">/usr/bin/echo</code>. Ele rodaria, como root, se chegasse a rodar. O arquivo nem foi criado, e o erro veio do <code translate="no">-bash</code>, não do <code translate="no">echo</code>.</td></tr><tr><td>B</td><td>✅ Certa</td><td>O redirecionamento é do shell. O <code translate="no">bash</code> do <code translate="no">rodrigo</code> tenta abrir <code translate="no">/etc/lab31.conf</code> para escrita, não consegue, e desiste antes de chamar o <code translate="no">sudo</code>. É a mesma família do <code translate="no">*</code> da Aula 2.7: tudo o que o shell faz antes do comando, ele faz como você.</td></tr><tr><td>C</td><td>❌ Errada</td><td>A debian-lab não tem SELinux e dá o mesmo erro, como o <code translate="no">ssh deb</code> acabou de mostrar. Um bloqueio do SELinux também não apareceria como erro do <code translate="no">bash</code>.</td></tr><tr><td>D</td><td>⚠️ Funciona, mas</td><td>Com <code translate="no">sudo -i</code>, você abre um shell de root, e ali o <code translate="no">&gt;</code> funciona. Mas é um shell de root inteiro para gravar uma linha, num terminal onde o próximo erro de digitação também roda como root. E num script não serve: o <code translate="no">sudo -i</code> espera você digitar.</td></tr></tbody></table></div>
+<p><strong>Para fixar:</strong> <code translate="no">Permission denied</code> vindo do <code translate="no">-bash:</code> num comando com <code translate="no">sudo</code> quer dizer que foi o <strong>shell</strong> que falhou, não o comando. Procure um <code translate="no">&gt;</code>, um <code translate="no">*</code> ou um <code translate="no">$( )</code> na linha.</p>
+<p>Os três jeitos certos, um de cada vez:</p>
+<pre translate="no"><code class="lang-bash">echo "lab31=ok" | sudo tee /etc/lab31.conf
+echo "criado=$(date +%F)" | sudo tee -a /etc/lab31.conf &gt; /dev/null
+sudo sh -c 'echo "via=sh-c" &gt;&gt; /etc/lab31.conf'
+cat /etc/lab31.conf
+stat -c '%A %U:%G %n' /etc/lab31.conf</code></pre>
+<p>O primeiro <code translate="no">tee</code> mostra <code translate="no">lab31=ok</code> na tela, porque também copia para a saída. O segundo não mostra nada: o <code translate="no">&gt; /dev/null</code> jogou a cópia fora. No fim, o arquivo tem três linhas e é <code translate="no">-rw-r--r-- root:root</code>, criado pelo <code translate="no">tee</code>, como root.</p>
+<p>Na debian-lab, o jeito de bloco, com here-doc. Entre na VM, porque o <code translate="no">sudo</code> vai pedir senha e precisa do terminal:</p>
+<pre translate="no"><code class="lang-bash">ssh deb
+sudo tee /etc/lab31.conf &gt; /dev/null &lt;&lt;'EOF'
+lab31=ok
+via=here-doc
+EOF
+cat /etc/lab31.conf
+exit</code></pre>
+<h3 id="passo-3-o-here-doc-que-congelou-o-valor-errado">Passo 3 · O here-doc que congelou o valor errado</h3>
+<p>Você quer um script pequeno, que diga em que máquina está rodando, para copiar para as duas VMs. Na rocky-lab:</p>
+<pre translate="no"><code class="lang-bash">cat &gt; ~/lab31/info.sh &lt;&lt;EOF
+#!/bin/bash
+echo "máquina: $(hostname)"
+echo "usuário: $USER"
+EOF
+chmod +x ~/lab31/info.sh
+ssh deb 'cat &gt; ~/lab31/info.sh; chmod +x ~/lab31/info.sh' &lt; ~/lab31/info.sh</code></pre>
+<p>A última linha copia o script para a debian-lab sem <code translate="no">scp</code>: o <code translate="no">&lt;</code> entrega o arquivo local como entrada do <code translate="no">ssh</code>, e o <code translate="no">cat</code> do outro lado grava.</p>
+<p><strong>Decida 3 · Você roda <code translate="no">ssh deb '~/lab31/info.sh'</code>. Qual é a primeira linha da saída?</strong></p>
+<ul><li><strong>A)</strong> <code translate="no">máquina: debian-lab</code></li>
+<li><strong>B)</strong> <code translate="no">máquina: rocky-lab</code></li>
+<li><strong>C)</strong> <code translate="no">máquina: $(hostname)</code></li>
+<li><strong>D)</strong> Um erro do <code translate="no">bash</code>, porque o arquivo veio de outra máquina</li></ul>
+<p>Escolha a letra antes de olhar a tabela.</p>
+<pre translate="no"><code class="lang-bash">ssh deb '~/lab31/info.sh'
+cat ~/lab31/info.sh</code></pre>
+<div class="tabela"><table><thead><tr><th scope="col">Se você marcou</th><th scope="col">Resultado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>A</td><td>❌ Errada</td><td>Seria o certo se o script tivesse o <code translate="no">$(hostname)</code> dentro. O <code translate="no">cat</code> mostra que não tem: a linha é <code translate="no">echo "máquina: rocky-lab"</code>.</td></tr><tr><td>B</td><td>✅ Certa</td><td>Sem aspas no <code translate="no">EOF</code>, o shell expandiu o <code translate="no">$(hostname)</code> e o <code translate="no">$USER</code> <strong>na hora de criar o arquivo</strong>, na rocky-lab. O script nasceu com os valores congelados. Na debian-lab, ele só repete o que recebeu.</td></tr><tr><td>C</td><td>❌ Errada</td><td>Seria o texto do arquivo com <code translate="no">&lt;&lt;'EOF'</code>. Mesmo assim, ao <strong>rodar</strong>, o script mostraria o nome certo, porque aí quem expande é o <code translate="no">bash</code> do script.</td></tr><tr><td>D</td><td>❌ Errada</td><td>Um script é texto: vale em qualquer máquina com o interpretador da primeira linha. A Debian tem <code translate="no">/bin/bash</code>.</td></tr></tbody></table></div>
+<p><strong>Para fixar:</strong> here-doc que gera script ou configuração com variáveis para <strong>depois</strong> leva aspas: <code translate="no">&lt;&lt;'EOF'</code>. Sem aspas, só quando você quer mesmo o valor de <strong>agora</strong>, como uma data de criação.</p>
+<p>Conserte, copie de novo e rode nas duas:</p>
+<pre translate="no"><code class="lang-bash">cat &gt; ~/lab31/info.sh &lt;&lt;'EOF'
+#!/bin/bash
+echo "máquina: $(hostname)"
+echo "usuário: $USER"
+EOF
+ssh deb 'cat &gt; ~/lab31/info.sh' &lt; ~/lab31/info.sh
+~/lab31/info.sh; ssh deb '~/lab31/info.sh'</code></pre>
+<p>Agora cada VM diz o próprio nome. O <code translate="no">chmod +x</code> não precisou ser repetido: o <code translate="no">&gt;</code> reescreve o conteúdo, e o modo do arquivo fica.</p>
+<h3 id="passo-4-o-xargs-e-o-nome-com-espaco">Passo 4 · O <code translate="no">xargs</code> e o nome com espaço</h3>
+<p>Dois arquivos, um deles com espaço no nome, como acontece em qualquer pasta que recebe arquivo de gente:</p>
+<pre translate="no"><code class="lang-bash">mkdir -p ~/lab31/xa
+touch ~/lab31/xa/notas.txt "$HOME/lab31/xa/relatorio final.txt"
+ls ~/lab31/xa</code></pre>
+<p>Você quer o <code translate="no">ls -l</code> de todos os <code translate="no">.txt</code> dessa pasta, achados pelo <code translate="no">find</code>.</p>
+<p><strong>Decida 4 · Você roda <code translate="no">find ~/lab31/xa -name '*.txt' | xargs ls -l</code>. O que acontece?</strong></p>
+<ul><li><strong>A)</strong> O <code translate="no">ls -l</code> mostra os dois arquivos</li>
+<li><strong>B)</strong> O <code translate="no">ls -l</code> mostra o <code translate="no">notas.txt</code> e dá dois erros, um para <code translate="no">relatorio</code> e um para <code translate="no">final.txt</code></li>
+<li><strong>C)</strong> O <code translate="no">xargs</code> recusa a entrada por causa do espaço</li>
+<li><strong>D)</strong> O <code translate="no">ls -l</code> mostra só o <code translate="no">relatorio final.txt</code></li></ul>
+<p>Escolha a letra antes de olhar a tabela.</p>
+<pre translate="no"><code class="lang-bash">find ~/lab31/xa -name '*.txt' | xargs ls -l</code></pre>
+<div class="tabela"><table><thead><tr><th scope="col">Se você marcou</th><th scope="col">Resultado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>A</td><td>❌ Errada</td><td>Seria verdade se o <code translate="no">xargs</code> separasse só por linha. Ele separa por <strong>qualquer</strong> espaço, e o nome virou dois argumentos.</td></tr><tr><td>B</td><td>✅ Certa</td><td><code translate="no">ls: cannot access '/home/rodrigo/lab31/xa/relatorio': No such file or directory</code> e <code translate="no">ls: cannot access 'final.txt': ...</code>. Com <code translate="no">ls</code>, é só um erro na tela. Com <code translate="no">rm</code>, se existisse um arquivo <code translate="no">relatorio</code> na pasta, ele seria apagado no lugar do certo.</td></tr><tr><td>C</td><td>❌ Errada</td><td>O <code translate="no">xargs</code> só reclama de aspas sem par (um nome como <code translate="no">conta d'agua.txt</code>). Espaço ele aceita e separa, sem aviso.</td></tr><tr><td>D</td><td>❌ Errada</td><td>O nome com espaço é exatamente o que se perde.</td></tr></tbody></table></div>
+<p><strong>Para fixar:</strong> <code translate="no">find | xargs</code> sem <code translate="no">-print0</code> e <code translate="no">-0</code> é um bug esperando o primeiro nome com espaço. Use o par, ou o <code translate="no">-exec ... +</code> do <code translate="no">find</code>.</p>
+<p>Os dois consertos:</p>
+<pre translate="no"><code class="lang-bash">find ~/lab31/xa -name '*.txt' -print0 | xargs -0 ls -l
+find ~/lab31/xa -name '*.txt' -exec ls -l {} +</code></pre>
+<p>Os dois mostram os dois arquivos. O <code translate="no">-print0</code> termina cada nome com um byte nulo, e o <code translate="no">-0</code> faz o <code translate="no">xargs</code> separar só por ele. O <code translate="no">-exec ... +</code> monta a linha de comando direto, sem virar texto no meio.</p>
+<h3 id="passo-5-o-pipe-que-mente">Passo 5 · O pipe que mente</h3>
+<p>Um backup em uma linha, do jeito que aparece em muito script de cron: o <code translate="no">tar</code> empacota, o <code translate="no">gzip</code> comprime. Um dos caminhos não existe, como um diretório que alguém renomeou:</p>
+<pre translate="no"><code class="lang-bash">tar cf - /etc/hostname /etc/naoexiste | gzip &gt; ~/lab31/bkp.tar.gz
+echo "status: $?"</code></pre>
+<p>O <code translate="no">tar</code> reclama na tela: <code translate="no">tar: /etc/naoexiste: Cannot stat: No such file or directory</code> e <code translate="no">tar: Exiting with failure status due to previous errors</code>.</p>
+<p><strong>Decida 5 · Que número o <code translate="no">echo</code> mostra?</strong></p>
+<ul><li><strong>A)</strong> <code translate="no">0</code></li>
+<li><strong>B)</strong> <code translate="no">2</code>, o status do <code translate="no">tar</code></li>
+<li><strong>C)</strong> <code translate="no">1</code></li>
+<li><strong>D)</strong> <code translate="no">141</code>, porque o pipe foi interrompido</li></ul>
+<p>Escolha a letra antes de olhar a tabela.</p>
+<pre translate="no"><code class="lang-bash">tar cf - /etc/hostname /etc/naoexiste | gzip &gt; ~/lab31/bkp.tar.gz; echo "${PIPESTATUS[@]}"</code></pre>
+<div class="tabela"><table><thead><tr><th scope="col">Se você marcou</th><th scope="col">Resultado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>A</td><td>✅ Certa</td><td>O status de um pipe é o do <strong>último</strong> comando, e o <code translate="no">gzip</code> comprimiu sem problema o que recebeu. O <code translate="no">PIPESTATUS</code> mostra a verdade: <code translate="no">2 0</code>. Num cron, o <code translate="no">&amp;&amp; echo OK</code> depois disso diria OK todo dia.</td></tr><tr><td>B</td><td>❌ Errada</td><td>O <code translate="no">2</code> existe, mas fica escondido no <code translate="no">PIPESTATUS</code>. Sem <code translate="no">pipefail</code>, o pipe não o repassa.</td></tr><tr><td>C</td><td>❌ Errada</td><td>Nenhum dos dois comandos terminou com <code translate="no">1</code>. O <code translate="no">tar</code> do GNU usa <code translate="no">2</code> para erro fatal, e <code translate="no">1</code> para "um arquivo mudou enquanto eu lia".</td></tr><tr><td>D</td><td>❌ Errada</td><td>O <code translate="no">141</code> (128 + 13, o sinal <code translate="no">SIGPIPE</code>) aparece quando o comando da <strong>direita</strong> fecha o pipe antes da hora, como um <code translate="no">head</code>, e o da esquerda morre ao escrever. Aqui o <code translate="no">gzip</code> leu tudo.</td></tr></tbody></table></div>
+<p><strong>Para fixar:</strong> num pipe, <code translate="no">$?</code> é o status do último comando. Para backup, deploy e qualquer coisa que decide "deu certo", ligue o <code translate="no">pipefail</code> ou confira o <code translate="no">PIPESTATUS</code>.</p>
+<p>Ligue o <code translate="no">pipefail</code> neste shell e repita:</p>
+<pre translate="no"><code class="lang-bash">set -o pipefail
+tar cf - /etc/hostname /etc/naoexiste | gzip &gt; ~/lab31/bkp.tar.gz; echo "status: $?"
+tar tzf ~/lab31/bkp.tar.gz</code></pre>
+<p>Agora o status é <code translate="no">2</code>. O <code translate="no">tar tzf</code> mostra que o <code translate="no">etc/hostname</code> está no arquivo: o backup não é vazio, é <strong>incompleto</strong>, que é pior, porque parece bom. O <code translate="no">pipefail</code> fica ligado neste shell até você sair dele ou rodar <code translate="no">set +o pipefail</code>; deixe ligado para o Passo 7.</p>
+<h3 id="passo-6-duas-vms-um-diff-e-o-sh-da-debian">Passo 6 · Duas VMs, um <code translate="no">diff</code>, e o <code translate="no">sh</code> da Debian</h3>
+<p>Compare a identificação das duas VMs, sem arquivo temporário:</p>
+<pre translate="no"><code class="lang-bash">diff &lt;(grep -E '^(ID|VERSION_ID)=' /etc/os-release | sort) \
+     &lt;(ssh deb "grep -E '^(ID|VERSION_ID)=' /etc/os-release | sort")</code></pre>
+<pre translate="no"><code class="lang-text">1,2c1,2
+&lt; ID="rocky"
+&lt; VERSION_ID="9.6"
+---
+&gt; ID=debian
+&gt; VERSION_ID="12"</code></pre>
+<p>O número da versão da Rocky pode ser outro. O <code translate="no">&lt;</code> mostra as linhas do primeiro "arquivo", e o <code translate="no">&gt;</code>, as do segundo. O <code translate="no">diff</code> recebeu dois nomes, <code translate="no">/dev/fd/63</code> e <code translate="no">/dev/fd/62</code>, e nunca soube que eram comandos. O <code translate="no">| sort</code> dos dois lados é para a ordem das linhas não virar diferença.</p>
+<p>Agora, o mesmo recurso dentro de um <code translate="no">sh -c</code>, como acontece num script <code translate="no">#!/bin/sh</code> ou numa linha de cron:</p>
+<p><strong>Decida 6 · Você roda <code translate="no">sh -c 'diff &lt;(echo a) &lt;(echo b)'</code> na rocky-lab e na debian-lab. O que acontece?</strong></p>
+<ul><li><strong>A)</strong> Funciona nas duas: o <code translate="no">diff</code> mostra <code translate="no">a</code> e <code translate="no">b</code></li>
+<li><strong>B)</strong> Dá erro nas duas: o <code translate="no">&lt;( )</code> só funciona no terminal</li>
+<li><strong>C)</strong> Funciona na rocky-lab e dá erro de sintaxe na debian-lab</li>
+<li><strong>D)</strong> Funciona na debian-lab e dá erro na rocky-lab</li></ul>
+<p>Escolha a letra antes de olhar a tabela.</p>
+<pre translate="no"><code class="lang-bash">sh -c 'diff &lt;(echo a) &lt;(echo b)'
+ssh deb "sh -c 'diff &lt;(echo a) &lt;(echo b)'"</code></pre>
+<div class="tabela"><table><thead><tr><th scope="col">Se você marcou</th><th scope="col">Resultado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>A</td><td>❌ Errada</td><td>Seria verdade se o <code translate="no">sh</code> fosse o mesmo programa nas duas. O Passo 0 mostrou que não é.</td></tr><tr><td>B</td><td>❌ Errada</td><td>O <code translate="no">&lt;( )</code> é do <code translate="no">bash</code>, interativo ou não. Um script <code translate="no">#!/bin/bash</code> usa à vontade.</td></tr><tr><td>C</td><td>✅ Certa</td><td>Na rocky-lab, o <code translate="no">sh</code> é o <code translate="no">bash</code> em modo POSIX, que aceita o <code translate="no">&lt;( )</code>. Na debian-lab, o <code translate="no">dash</code> responde <code translate="no">sh: 1: Syntax error: "(" unexpected</code>. O mesmo script, duas distribuições, dois resultados.</td></tr><tr><td>D</td><td>❌ Errada</td><td>Inverte as VMs. O <code translate="no">sh</code> mais restrito é o da Debian.</td></tr></tbody></table></div>
+<p><strong>Para fixar:</strong> script que usa recurso do <code translate="no">bash</code> começa com <code translate="no">#!/bin/bash</code> e roda com <code translate="no">bash script.sh</code>. "Funciona na Rocky" não prova nada sobre a Debian, porque o <code translate="no">sh</code> da Rocky é o <code translate="no">bash</code>.</p>
+<p>O pior caso do <code translate="no">dash</code> não dá erro. Veja o <code translate="no">&amp;&gt;</code>:</p>
+<pre translate="no"><code class="lang-bash">ssh deb "sh -c 'ls /naoexiste &amp;&gt; /dev/null; echo fim'"</code></pre>
+<p>O erro do <code translate="no">ls</code> aparece na tela, e às vezes <strong>depois</strong> do <code translate="no">fim</code>. O <code translate="no">dash</code> leu <code translate="no">ls /naoexiste &amp;</code> (rodar em segundo plano) e <code translate="no">&gt; /dev/null</code> (um redirecionamento sozinho, sem comando). O <code translate="no">ls</code> foi para o fundo, sem redirecionamento nenhum. Num script de cron, isso é uma saída que você achava silenciada e um comando que não terminou quando você pensava. O jeito portátil é <code translate="no">&gt; /dev/null 2&gt;&amp;1</code>.</p>
+<h3 id="passo-7-desafio-da-aula-o-relatorio-das-duas-vms">Passo 7 · Desafio da aula: o relatório das duas VMs</h3>
+<p>A tarefa, como chegaria num chamado: "quero um relatório das duas VMs, num arquivo, com o nome da máquina, o <code translate="no">uptime</code> e o uso do disco raiz. Erros num arquivo separado. Quero ver na tela enquanto roda. E se qualquer parte falhar, o comando tem que terminar com erro, para o monitoramento pegar."</p>
+<p>Tente sozinho antes de ler a solução. As peças: um grupo de comandos <code translate="no">{ ...; }</code>, o <code translate="no">ssh deb</code>, o <code translate="no">2&gt;</code>, o <code translate="no">tee</code> e o <code translate="no">pipefail</code>.</p>
+<p>A solução:</p>
+<pre translate="no"><code class="lang-bash">set -o pipefail
+{ hostname; uptime; df -h /; ssh deb 'hostname; uptime; df -h /'; } 2&gt; ~/lab31/erros.txt | tee ~/lab31/relatorio.txt
+echo "status: $?"
+wc -l ~/lab31/relatorio.txt ~/lab31/erros.txt</code></pre>
+<p>O <code translate="no">{ ...; }</code> junta os comandos num só bloco, com uma saída e um status. O <code translate="no">2&gt;</code> do grupo manda os erros de todos para o <code translate="no">erros.txt</code>. O <code translate="no">tee</code> mostra e grava. O status é <code translate="no">0</code>, e o <code translate="no">erros.txt</code> tem <code translate="no">0</code> linhas.</p>
+<p>Agora simule a falha: a debian-lab fora do ar. Troque <code translate="no">deb</code> por <code translate="no">deb-x</code>, um nome que não existe:</p>
+<pre translate="no"><code class="lang-bash">{ hostname; uptime; df -h /; ssh deb-x 'hostname; uptime; df -h /'; } 2&gt; ~/lab31/erros.txt | tee ~/lab31/relatorio.txt</code></pre>
+<p><strong>Decida 7 · Com o <code translate="no">pipefail</code> ligado, que status o <code translate="no">echo "status: $?"</code> mostra logo depois?</strong></p>
+<ul><li><strong>A)</strong> <code translate="no">0</code>, porque o <code translate="no">tee</code> gravou o arquivo</li>
+<li><strong>B)</strong> <code translate="no">255</code>, o status do <code translate="no">ssh</code></li>
+<li><strong>C)</strong> <code translate="no">1</code>, porque um dos comandos falhou</li>
+<li><strong>D)</strong> <code translate="no">2</code>, porque houve erro na saída de erros</li></ul>
+<p>Escolha a letra antes de olhar a tabela.</p>
+<pre translate="no"><code class="lang-bash">echo "status: $?"
+cat ~/lab31/erros.txt</code></pre>
+<div class="tabela"><table><thead><tr><th scope="col">Se você marcou</th><th scope="col">Resultado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>A</td><td>❌ Errada</td><td>Seria o resultado <strong>sem</strong> o <code translate="no">pipefail</code>: o último comando do pipe é o <code translate="no">tee</code>, que terminou bem. Com o <code translate="no">pipefail</code>, vale o último status diferente de zero do pipe.</td></tr><tr><td>B</td><td>✅ Certa</td><td>O <code translate="no">ssh</code> usa <code translate="no">255</code> para erro dele próprio (<code translate="no">Could not resolve hostname deb-x</code>, no <code translate="no">erros.txt</code>). O grupo termina com o status do seu último comando, o <code translate="no">ssh</code>; o <code translate="no">pipefail</code> repassa. O monitoramento vê <code translate="no">255</code> e sabe que foi conexão, não o comando remoto.</td></tr><tr><td>C</td><td>❌ Errada</td><td>O <code translate="no">pipefail</code> não resume em <code translate="no">1</code>: ele repassa o número de verdade, que diz <strong>o que</strong> falhou.</td></tr><tr><td>D</td><td>❌ Errada</td><td>Escrever no <code translate="no">2</code> não muda status nenhum. Status é o número com que cada processo termina.</td></tr></tbody></table></div>
+<p><strong>Para fixar:</strong> o status de um grupo <code translate="no">{ }</code> é o do <strong>último</strong> comando dentro dele. Se o <code translate="no">ssh deb-x</code> estivesse no começo do grupo e o <code translate="no">df</code> no fim, o grupo terminaria com <code translate="no">0</code>, mesmo com <code translate="no">pipefail</code>. Para um relatório que tem que falhar em qualquer ponto, rode-o num script com <code translate="no">set -e -o pipefail</code>, que volta com detalhe no módulo de scripts.</p>
+<p>Volte o relatório para o estado bom, rodando de novo a linha com <code translate="no">deb</code>.</p>
+<h2 id="7-quebre-e-conserte">7 · Quebre e conserte</h2>
+<h3 id="quebra-a-o-backup-que-dizia-ok">Quebra A · O backup que dizia OK</h3>
+<p>O cenário: um script de backup de configuração roda todo dia no cron e sempre escreve <code translate="no">OK</code> no log. Ninguém nunca precisou restaurar. Monte o script como ele está em produção, na rocky-lab:</p>
+<pre translate="no"><code class="lang-bash">cat &gt; ~/lab31/backup.sh &lt;&lt;'EOF'
+#!/bin/bash
+destino=~/lab31/etc-$(date +%F).tar.gz
+tar cf - /etc/lab31.conf /etc/hostname /etc/naoexiste 2&gt;/dev/null | gzip &gt; "$destino" &amp;&amp; echo "OK: $destino"
+EOF
+chmod +x ~/lab31/backup.sh
+~/lab31/backup.sh</code></pre>
+<p><strong>Observe.</strong> A saída é <code translate="no">OK: /home/rodrigo/lab31/etc-2026-11-03.tar.gz</code> (com a data de hoje), sem nenhum aviso. O <code translate="no">/etc/naoexiste</code> está na lista, e o <code translate="no">pipefail</code> está ligado no seu terminal desde o Passo 5.</p>
+<p><strong>Diagnostique.</strong> Rode o pipe à mão, com o <code translate="no">PIPESTATUS</code>, e olhe o que foi para dentro do arquivo:</p>
+<pre translate="no"><code class="lang-bash">tar cf - /etc/lab31.conf /etc/hostname /etc/naoexiste 2&gt;/dev/null | gzip &gt; /dev/null; echo "${PIPESTATUS[@]}"
+tar tzf ~/lab31/etc-$(date +%F).tar.gz</code></pre>
+<pre translate="no"><code class="lang-text">2 0
+etc/lab31.conf
+etc/hostname</code></pre>
+<p>São dois problemas empilhados. O <code translate="no">2&gt;/dev/null</code> jogou fora a única mensagem que dizia o que faltou. E o <code translate="no">&amp;&amp;</code> olhou o status do pipe, que é o do <code translate="no">gzip</code>. O <code translate="no">pipefail</code> do seu terminal não ajudou: o script roda num <strong>outro</strong> <code translate="no">bash</code>, que nasce com as opções padrão.</p>
+<p><strong>Decida A · O conserto.</strong> O que você faz?</p>
+<ul><li><strong>A)</strong> Rodar <code translate="no">set -o pipefail</code> no terminal antes de chamar o script</li>
+<li><strong>B)</strong> Pôr <code translate="no">set -o pipefail</code> no começo do script, trocar o <code translate="no">2&gt;/dev/null</code> por um log de erros e tratar o status</li>
+<li><strong>C)</strong> Trocar o <code translate="no">&amp;&amp;</code> por <code translate="no">;</code>, para o <code translate="no">echo</code> rodar sempre</li>
+<li><strong>D)</strong> Trocar o pipe por <code translate="no">tar czf "$destino" ...</code>, que comprime sozinho</li></ul>
+<p>Escolha a letra antes de olhar a tabela.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se você marcou</th><th scope="col">Resultado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>A</td><td>❌ Errada</td><td>Você acabou de ver: o terminal já estava com <code translate="no">pipefail</code> e o script disse OK. Opções do <code translate="no">set</code> não passam para um processo novo, e o cron nem tem o seu terminal.</td></tr><tr><td>B</td><td>✅ Certa</td><td>O <code translate="no">pipefail</code> dentro do script faz o pipe falhar quando o <code translate="no">tar</code> falha, e o log de erros guarda o motivo. O script passa a sair com o status certo, que o cron e o monitoramento enxergam.</td></tr><tr><td>C</td><td>❌ Errada</td><td>Piora: o <code translate="no">OK</code> aparece até quando o <code translate="no">gzip</code> falha.</td></tr><tr><td>D</td><td>⚠️ Funciona, mas</td><td>Sem pipe, o <code translate="no">$?</code> é o do <code translate="no">tar</code>, e o <code translate="no">&amp;&amp;</code> passa a funcionar. Resolve este script. Mas o <code translate="no">2&gt;/dev/null</code> continua escondendo <strong>qual</strong> arquivo faltou, e o hábito do pipe sem <code translate="no">pipefail</code> volta no próximo script, com <code translate="no">mysqldump | gzip</code> ou <code translate="no">pg_dump | ssh</code>.</td></tr></tbody></table></div>
+<p><strong>Para fixar:</strong> num script, o <code translate="no">pipefail</code> mora <strong>dentro</strong> do script. E um <code translate="no">2&gt;/dev/null</code> num backup é uma decisão de não saber por que ele falhou.</p>
+<p><strong>Conserte.</strong></p>
+<pre translate="no"><code class="lang-bash">cat &gt; ~/lab31/backup.sh &lt;&lt;'EOF'
+#!/bin/bash
+set -o pipefail
+destino=~/lab31/etc-$(date +%F).tar.gz
+tar cf - /etc/lab31.conf /etc/hostname /etc/naoexiste 2&gt;&gt; ~/lab31/backup.err | gzip &gt; "$destino"
+status=$?
+if [ "$status" -ne 0 ]; then
+    echo "FALHOU: status $status, veja ~/lab31/backup.err" &gt;&amp;2
+    exit "$status"
+fi
+echo "OK: $destino"
+EOF
+~/lab31/backup.sh; echo "saiu com $?"
+tail -n 2 ~/lab31/backup.err</code></pre>
+<p>Agora o script diz <code translate="no">FALHOU: status 2</code>, sai com <code translate="no">2</code>, e o <code translate="no">backup.err</code> mostra o <code translate="no">Cannot stat</code> do <code translate="no">/etc/naoexiste</code>. Tire o <code translate="no">/etc/naoexiste</code> da linha do <code translate="no">tar</code> (com <code translate="no">nano</code> ou recriando o arquivo) e rode de novo: <code translate="no">OK</code>, e <code translate="no">saiu com 0</code>. O <code translate="no">chmod +x</code> não precisou ser repetido.</p>
+<h3 id="quebra-b-o-relatorio-que-achou-o-que-nao-existe">Quebra B · O relatório que achou o que não existe</h3>
+<p>O cenário: antes de uma limpeza, alguém pede "quanto espaço os <code translate="no">.bak</code> da pasta de uploads ocupam". Um colega responde com uma linha, rodada da pasta pessoal:</p>
+<pre translate="no"><code class="lang-bash">cd ~
+find ~/lab31/xa -name '*.bak' -print0 | xargs -0 du -sch</code></pre>
+<p><strong>Observe.</strong> A resposta vem com um tamanho, e a última linha diz <code translate="no">total</code>:</p>
+<pre translate="no"><code class="lang-text">1.2M	.
+1.2M	total</code></pre>
+<p>O número depende do que há na sua pasta pessoal. O colega já ia agendar a limpeza.</p>
+<p><strong>Diagnostique.</strong> Quantos <code translate="no">.bak</code> existem, e que comando o <code translate="no">xargs</code> rodou de fato?</p>
+<pre translate="no"><code class="lang-bash">find ~/lab31/xa -name '*.bak' | wc -l
+find ~/lab31/xa -name '*.bak' -print0 | xargs -0 -t du -sch</code></pre>
+<p>O <code translate="no">find</code> acha <code translate="no">0</code> arquivos. O <code translate="no">-t</code> mostra a linha que o <code translate="no">xargs</code> rodou: <code translate="no">du -sch</code>, sem argumento nenhum. Sem argumento, o <code translate="no">du</code> mede a pasta atual, o <code translate="no">.</code> da primeira linha. O <code translate="no">xargs</code> do GNU roda o comando uma vez, mesmo com a entrada vazia.</p>
+<p><strong>Decida B · O conserto.</strong> O que você usa?</p>
+<ul><li><strong>A)</strong> <code translate="no">xargs -0 -r du -sch</code></li>
+<li><strong>B)</strong> <code translate="no">xargs -0 -n 1 du -sch</code></li>
+<li><strong>C)</strong> <code translate="no">xargs -0 du -sch 2&gt;/dev/null</code></li>
+<li><strong>D)</strong> <code translate="no">find ~/lab31/xa -name '*.bak' -exec du -sch {} +</code></li></ul>
+<p>Escolha a letra antes de olhar a tabela.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se você marcou</th><th scope="col">Resultado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>A</td><td>✅ Certa</td><td>O <code translate="no">-r</code> (<code translate="no">--no-run-if-empty</code>) faz o <code translate="no">xargs</code> não rodar nada quando a entrada vem vazia. Sem <code translate="no">.bak</code>, a resposta é vazia, que é a verdade.</td></tr><tr><td>B</td><td>❌ Errada</td><td>O <code translate="no">-n 1</code> muda quantos argumentos vão em cada execução, não o que acontece sem nenhum. Com a entrada vazia, roda o mesmo <code translate="no">du -sch</code> sozinho.</td></tr><tr><td>C</td><td>❌ Errada</td><td>Não havia erro nenhum para esconder. O <code translate="no">du</code> mediu a pasta errada com sucesso.</td></tr><tr><td>D</td><td>✅ Certa</td><td>O <code translate="no">-exec ... +</code> do <code translate="no">find</code> só roda quando há pelo menos um arquivo. Sem <code translate="no">xargs</code>, sem o problema.</td></tr></tbody></table></div>
+<p><strong>Para fixar:</strong> em todo <code translate="no">| xargs</code>, pergunte "e se a entrada vier vazia?". A resposta segura é o <code translate="no">-r</code>, ou o <code translate="no">find -exec ... +</code>.</p>
+<p><strong>Conserte.</strong></p>
+<pre translate="no"><code class="lang-bash">find ~/lab31/xa -name '*.bak' -print0 | xargs -0 -r du -sch
+touch ~/lab31/xa/velho.bak
+find ~/lab31/xa -name '*.bak' -print0 | xargs -0 -r du -sch</code></pre>
+<p>A primeira linha não mostra nada. Depois do <code translate="no">touch</code>, a segunda mostra o <code translate="no">velho.bak</code> e o <code translate="no">total</code>, os dois com <code translate="no">0</code>.</p>
+<h3 id="a-licao">A lição</h3>
+<p>As duas quebras têm a mesma causa: um pedaço da linha fez algo que você não via. O <code translate="no">gzip</code> respondeu pelo <code translate="no">tar</code>; o <code translate="no">xargs</code> rodou um comando que você não escreveu. Os instrumentos para ver são poucos e valem para qualquer linha: o <code translate="no">${PIPESTATUS[@]}</code> mostra o status de cada comando do pipe; o <code translate="no">xargs -t</code> mostra o comando que ele monta; o <code translate="no">bash -x script.sh</code> mostra cada linha do script depois das expansões; e o <code translate="no">readlink -f /bin/sh</code> diz qual shell vai interpretar um <code translate="no">#!/bin/sh</code>. Antes de confiar numa linha que decide alguma coisa, olhe o que cada pedaço recebeu e o que devolveu.</p>
+<h2 id="8-armadilhas">8 · Armadilhas</h2>
+<div class="tabela"><table><thead><tr><th scope="col">Você digita ou vê</th><th scope="col">O que acontece</th><th scope="col">O certo</th></tr></thead><tbody><tr><td><code translate="no">sudo echo x &gt; /etc/arquivo</code></td><td><code translate="no">-bash: ... Permission denied</code>: o <code translate="no">&gt;</code> é do seu shell</td><td><code translate="no">echo x | sudo tee /etc/arquivo &gt; /dev/null</code></td></tr><tr><td><code translate="no">sudo echo x &gt;&gt; /etc/hosts</code></td><td>O mesmo, com <code translate="no">&gt;&gt;</code></td><td><code translate="no">echo x | sudo tee -a /etc/hosts &gt; /dev/null</code></td></tr><tr><td><code translate="no">echo x | sudo tee /etc/hosts</code> querendo acrescentar</td><td>Sem <code translate="no">-a</code>, o <code translate="no">tee</code> <strong>apaga</strong> o <code translate="no">/etc/hosts</code> e deixa só a linha nova</td><td><code translate="no">sudo tee -a</code>. Confira o arquivo antes e depois</td></tr><tr><td><code translate="no">cmd 2&gt;&amp;1 &gt; f</code></td><td>Os erros vão para a tela, não para <code translate="no">f</code></td><td><code translate="no">cmd &gt; f 2&gt;&amp;1</code></td></tr><tr><td><code translate="no">cmd &gt; f &gt; g</code></td><td>Só o <code translate="no">g</code> recebe a saída; o <code translate="no">f</code> é criado vazio</td><td><code translate="no">cmd | tee f &gt; g</code></td></tr><tr><td><code translate="no">sort f &gt; f</code></td><td>O <code translate="no">&gt;</code> apaga o <code translate="no">f</code> <strong>antes</strong> de o <code translate="no">sort</code> ler: o arquivo fica vazio</td><td><code translate="no">sort f &gt; f.novo &amp;&amp; mv f.novo f</code>, ou <code translate="no">sort -o f f</code></td></tr><tr><td><code translate="no">tar ... | gzip &gt; b.tgz &amp;&amp; echo OK</code></td><td><code translate="no">OK</code> mesmo com o <code translate="no">tar</code> falhando</td><td><code translate="no">set -o pipefail</code> no script, e conferir o status</td></tr><tr><td><code translate="no">PIPESTATUS</code> lido depois de um <code translate="no">echo</code></td><td>Mostra o status do <code translate="no">echo</code></td><td>Ler na mesma linha do pipe, ou guardar: <code translate="no">st=("${PIPESTATUS[@]}")</code></td></tr><tr><td><code translate="no">find ... | xargs rm</code></td><td>Nome com espaço vira dois argumentos</td><td><code translate="no">find ... -print0 | xargs -0 -r rm</code>, ou <code translate="no">find ... -delete</code></td></tr><tr><td><code translate="no">... | xargs comando</code> com entrada vazia</td><td>O comando roda uma vez, sem argumentos</td><td><code translate="no">xargs -r</code></td></tr><tr><td><code translate="no">cat &lt;&lt;EOF</code> gerando um script</td><td><code translate="no">$VAR</code> e <code translate="no">$( )</code> são expandidos agora, na sua máquina</td><td><code translate="no">&lt;&lt;'EOF'</code></td></tr><tr><td><code translate="no">&lt;&lt;-EOF</code> com o bloco indentado por espaços</td><td>Os espaços ficam, e o <code translate="no">EOF</code> indentado não fecha o bloco</td><td>Indentar com tabulação, ou não indentar</td></tr><tr><td><code translate="no">#!/bin/sh</code> com <code translate="no">&lt;( )</code>, <code translate="no">&amp;&gt;</code> ou <code translate="no">[[ ]]</code></td><td>Funciona na Rocky; na Debian, erro ou comportamento errado sem aviso</td><td><code translate="no">#!/bin/bash</code>, e rodar com <code translate="no">bash script.sh</code></td></tr><tr><td><code translate="no">&gt; /dev/null 2&gt;&amp;1</code> em toda linha do cron</td><td>O job falha em silêncio por meses</td><td>Silenciar só a saída normal: <code translate="no">&gt; /dev/null</code>, e deixar os erros chegarem por e-mail ou log</td></tr><tr><td><code translate="no">sudo cmd *</code> numa pasta que você não lê</td><td>O <code translate="no">*</code> não expande (Aula 2.7)</td><td><code translate="no">sudo sh -c 'cmd /pasta/*'</code></td></tr></tbody></table></div>
+<h2 id="9-quiz">9 · Quiz</h2>
+<p>Dez perguntas, sem consultar. Escreva a letra ou a resposta de cada uma e só depois abra o Gabarito.</p>
+<p><strong>1.</strong> Para onde vão a saída e os erros em <code translate="no">cmd &gt; f 2&gt;&amp;1</code>? E em <code translate="no">cmd 2&gt;&amp;1 &gt; f</code>?</p>
+<p><strong>2.</strong> Você é o <code translate="no">rodrigo</code>, com <code translate="no">sudo</code>. Qual linha grava <code translate="no">vm.swappiness=10</code> em <code translate="no">/etc/sysctl.d/99-lab.conf</code>?</p>
+<ul><li><strong>A)</strong> <code translate="no">sudo echo "vm.swappiness=10" &gt; /etc/sysctl.d/99-lab.conf</code></li>
+<li><strong>B)</strong> <code translate="no">echo "vm.swappiness=10" | sudo tee /etc/sysctl.d/99-lab.conf</code></li>
+<li><strong>C)</strong> <code translate="no">sudo "echo vm.swappiness=10 &gt; /etc/sysctl.d/99-lab.conf"</code></li>
+<li><strong>D)</strong> <code translate="no">echo "vm.swappiness=10" &gt; sudo /etc/sysctl.d/99-lab.conf</code></li></ul>
+<p><strong>3.</strong> O que <code translate="no">false | true; echo $?</code> mostra? E depois de <code translate="no">set -o pipefail</code>?</p>
+<p><strong>4.</strong> Qual opção do <code translate="no">find</code> faz par com o <code translate="no">xargs -0</code>?</p>
+<ul><li><strong>A)</strong> <code translate="no">-print0</code></li>
+<li><strong>B)</strong> <code translate="no">-0</code></li>
+<li><strong>C)</strong> <code translate="no">-null</code></li>
+<li><strong>D)</strong> <code translate="no">-exec</code></li></ul>
+<p><strong>5.</strong> O que cada bloco abaixo grava no arquivo, se o seu <code translate="no">HOME</code> é <code translate="no">/home/rodrigo</code>?</p>
+<pre translate="no"><code class="lang-bash">cat &gt; a.txt &lt;&lt;EOF
+pasta: $HOME
+EOF
+cat &gt; b.txt &lt;&lt;'EOF'
+pasta: $HOME
+EOF</code></pre>
+<p><strong>6.</strong> <code translate="no">sudo grep ana /etc/shadow &gt; /root/ana.txt</code> dá <code translate="no">Permission denied</code>. Qual parte da linha falhou, e como você escreve a linha certa?</p>
+<p><strong>7.</strong> Por que <code translate="no">find /srv/uploads -name '*.tmp' | xargs rm</code> é perigoso, e qual é a versão segura?</p>
+<p><strong>8.</strong> Um script <code translate="no">#!/bin/sh</code> tem a linha <code translate="no">rsync -a /dados /backup &amp;&gt; /dev/null</code>. Na debian-lab, o que acontece?</p>
+<ul><li><strong>A)</strong> Funciona igual à Rocky: tudo vai para o <code translate="no">/dev/null</code></li>
+<li><strong>B)</strong> O <code translate="no">rsync</code> roda em segundo plano, e a saída e os erros não são redirecionados</li>
+<li><strong>C)</strong> O script para com erro de sintaxe</li>
+<li><strong>D)</strong> Só os erros vão para o <code translate="no">/dev/null</code></li></ul>
+<p><strong>9.</strong> Qual comando mostra na tela a saída do <code translate="no">dnf check-update</code> e, ao mesmo tempo, acrescenta essa saída ao fim do <code translate="no">~/historico.txt</code>?</p>
+<p><strong>10.</strong> <em>You must find all files owned by the user <code translate="no">ana</code> and save the list to <code translate="no">/root/ana-files</code>. The file must contain only the file paths. Which command achieves this?</em></p>
+<ul><li><strong>A)</strong> <em><code translate="no">find / -user ana &gt; /root/ana-files 2&gt;&amp;1</code></em></li>
+<li><strong>B)</strong> <em><code translate="no">find / -user ana 2&gt;/dev/null &gt; /root/ana-files</code></em></li>
+<li><strong>C)</strong> <em><code translate="no">find / -user ana | tee /root/ana-files</code></em></li>
+<li><strong>D)</strong> <em><code translate="no">find / -user ana &gt;&gt; /root/ana-files 2&gt;/dev/null</code></em></li></ul>
+<h2 id="10-flashcards-e-cola">10 · Flashcards e cola</h2>
+<h3 id="para-saber-de-cor">Para saber de cor</h3>
+<ul><li><code translate="no">0</code> é a entrada, <code translate="no">1</code> é a saída, <code translate="no">2</code> são os erros. O comando só escreve nos números; quem decide para onde eles vão é o shell.</li>
+<li>O shell monta os redirecionamentos da esquerda para a direita, <strong>antes</strong> de rodar o comando, e com a <strong>sua</strong> identidade.</li>
+<li><code translate="no">2&gt;&amp;1</code> copia o destino atual do <code translate="no">1</code> para o <code translate="no">2</code>. Tudo no arquivo: <code translate="no">&gt; f 2&gt;&amp;1</code>, nessa ordem.</li>
+<li>O pipe é ligado antes dos redirecionamentos: em <code translate="no">cmd 2&gt;&amp;1 | outro</code>, os erros entram no pipe.</li>
+<li><code translate="no">sudo</code> não alcança o <code translate="no">&gt;</code>. Para arquivo do root: <code translate="no">| sudo tee</code> (com <code translate="no">-a</code> para acrescentar), ou <code translate="no">sudo sh -c '...'</code>.</li>
+<li><code translate="no">tee</code> escreve na saída <strong>e</strong> nos arquivos. Sem <code translate="no">-a</code>, apaga o arquivo antes.</li>
+<li><code translate="no">xargs</code> transforma entrada em argumentos. Separa em qualquer espaço; com nomes de arquivo, use <code translate="no">find -print0 | xargs -0</code>.</li>
+<li><code translate="no">xargs</code> do GNU roda o comando uma vez com a entrada vazia. <code translate="no">-r</code> impede.</li>
+<li><code translate="no">&lt;&lt;EOF</code> expande <code translate="no">$VAR</code> e <code translate="no">$( )</code> agora. <code translate="no">&lt;&lt;'EOF'</code> grava o texto como está.</li>
+<li><code translate="no">&lt;( )</code> entrega a saída de um comando como um arquivo (<code translate="no">/dev/fd/N</code>). É do <code translate="no">bash</code>.</li>
+<li>O status de um pipe é o do último comando. <code translate="no">PIPESTATUS</code> mostra todos; <code translate="no">set -o pipefail</code> faz o pipe falhar se qualquer um falhar.</li>
+<li>Opções do <code translate="no">set</code> valem para o shell atual. Um script novo começa sem elas.</li>
+<li>Na Rocky, <code translate="no">sh</code> é o <code translate="no">bash</code>. Na Debian, é o <code translate="no">dash</code>: sem <code translate="no">&lt;( )</code>, sem <code translate="no">&amp;&gt;</code>, sem <code translate="no">PIPESTATUS</code>.</li></ul>
+<h3 id="para-consultar">Para consultar</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Pergunta</th><th scope="col">Comando</th></tr></thead><tbody><tr><td>Saída e erros no mesmo arquivo</td><td><code translate="no">cmd &gt; f 2&gt;&amp;1</code> (ou <code translate="no">cmd &amp;&gt; f</code>, só <code translate="no">bash</code>)</td></tr><tr><td>Saída num arquivo, erros em outro</td><td><code translate="no">cmd &gt; saida.txt 2&gt; erros.txt</code></td></tr><tr><td>Jogar só os erros fora</td><td><code translate="no">cmd 2&gt; /dev/null</code></td></tr><tr><td>Erros também pelo pipe</td><td><code translate="no">cmd 2&gt;&amp;1 | outro</code>, ou <code translate="no">cmd |&amp; outro</code></td></tr><tr><td>Mensagem de erro num script</td><td><code translate="no">echo "falhou" &gt;&amp;2</code></td></tr><tr><td>Ver na tela e gravar</td><td><code translate="no">cmd | tee f</code>; acrescentar: <code translate="no">cmd | tee -a f</code></td></tr><tr><td>Gravar arquivo do root</td><td><code translate="no">echo linha | sudo tee /etc/f &gt; /dev/null</code></td></tr><tr><td>Acrescentar em arquivo do root</td><td><code translate="no">echo linha | sudo tee -a /etc/f &gt; /dev/null</code></td></tr><tr><td>Bloco de configuração do root</td><td><code translate="no">sudo tee /etc/f &gt; /dev/null &lt;&lt;'EOF'</code> ... <code translate="no">EOF</code></td></tr><tr><td>Linha inteira como root</td><td><code translate="no">sudo sh -c 'cmd1 | cmd2 &gt; /etc/f'</code></td></tr><tr><td>Entrada vira argumentos</td><td><code translate="no">... | xargs cmd</code></td></tr><tr><td>Nomes com espaço</td><td><code translate="no">find ... -print0 | xargs -0 -r cmd</code></td></tr><tr><td>Sem <code translate="no">xargs</code></td><td><code translate="no">find ... -exec cmd {} +</code></td></tr><tr><td>Uma execução por linha</td><td><code translate="no">... | xargs -I{} cmd {}</code></td></tr><tr><td>Ver o que o <code translate="no">xargs</code> monta</td><td><code translate="no">xargs -t</code></td></tr><tr><td>Comparar a saída de dois comandos</td><td><code translate="no">diff &lt;(cmd1) &lt;(cmd2)</code></td></tr><tr><td>Comparar uma VM com a outra</td><td><code translate="no">diff &lt;(cmd) &lt;(ssh deb 'cmd')</code></td></tr><tr><td>Copiar um arquivo pelo <code translate="no">ssh</code>, sem <code translate="no">scp</code></td><td><code translate="no">ssh deb 'cat &gt; destino' &lt; origem</code></td></tr><tr><td>Uma string como entrada</td><td><code translate="no">cmd &lt;&lt;&lt; "texto"</code></td></tr><tr><td>Status de cada comando do pipe</td><td><code translate="no">echo "${PIPESTATUS[@]}"</code>, logo depois do pipe</td></tr><tr><td>Pipe que falha de verdade</td><td><code translate="no">set -o pipefail</code> (no começo do script)</td></tr><tr><td>Proteger arquivos do <code translate="no">&gt;</code></td><td><code translate="no">set -o noclobber</code>; forçar: <code translate="no">&gt;|</code></td></tr><tr><td>Qual é o <code translate="no">sh</code> desta máquina</td><td><code translate="no">readlink -f /bin/sh</code></td></tr><tr><td>Ver cada linha de um script expandida</td><td><code translate="no">bash -x script.sh</code></td></tr></tbody></table></div>
+<h3 id="flashcards">Flashcards</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Frente</th><th scope="col">Verso</th></tr></thead><tbody><tr><td><code translate="no">0</code>, <code translate="no">1</code> e <code translate="no">2</code></td><td>stdin, stdout, stderr</td></tr><tr><td><code translate="no">cmd &gt; f 2&gt;&amp;1</code></td><td>Saída e erros em <code translate="no">f</code></td></tr><tr><td><code translate="no">cmd 2&gt;&amp;1 &gt; f</code></td><td>Saída em <code translate="no">f</code>, erros na tela</td></tr><tr><td><code translate="no">cmd 2&gt;&amp;1 | wc -l</code></td><td>Conta as linhas de saída <strong>e</strong> de erro</td></tr><tr><td><code translate="no">sudo echo x &gt; /etc/f</code></td><td><code translate="no">Permission denied</code> do <code translate="no">-bash</code>: o <code translate="no">&gt;</code> é do seu shell</td></tr><tr><td><code translate="no">echo x | sudo tee /etc/f</code></td><td>Grava como root e mostra <code translate="no">x</code> na tela</td></tr><tr><td><code translate="no">tee</code> sem <code translate="no">-a</code> num arquivo que existe</td><td>Apaga o conteúdo anterior</td></tr><tr><td><code translate="no">&gt; /dev/null</code> no fim do <code translate="no">sudo tee</code></td><td>Tira da tela a cópia do <code translate="no">tee</code></td></tr><tr><td><code translate="no">xargs</code> sem <code translate="no">-0</code> com <code translate="no">relatorio final.txt</code></td><td>Dois argumentos: <code translate="no">relatorio</code> e <code translate="no">final.txt</code></td></tr><tr><td><code translate="no">xargs</code> com a entrada vazia (GNU)</td><td>Roda o comando uma vez, sem argumentos</td></tr><tr><td><code translate="no">xargs -r</code></td><td>Não roda nada se a entrada vier vazia</td></tr><tr><td><code translate="no">xargs -I{}</code></td><td>Uma execução por linha, <code translate="no">{}</code> trocado pela linha</td></tr><tr><td><code translate="no">find -print0 | xargs -0</code></td><td>Nomes separados por nulo: espaço não quebra</td></tr><tr><td><code translate="no">&lt;&lt;EOF</code> com <code translate="no">$(hostname)</code> dentro</td><td>Grava o nome da máquina <strong>de agora</strong></td></tr><tr><td><code translate="no">&lt;&lt;'EOF'</code> com <code translate="no">$(hostname)</code> dentro</td><td>Grava o texto <code translate="no">$(hostname)</code></td></tr><tr><td><code translate="no">&lt;&lt;-EOF</code></td><td>Tira as tabulações do começo das linhas</td></tr><tr><td><code translate="no">&lt;&lt;&lt;</code></td><td>Here-string: uma string como entrada</td></tr><tr><td><code translate="no">&lt;(cmd)</code></td><td>A saída de <code translate="no">cmd</code> como arquivo <code translate="no">/dev/fd/N</code></td></tr><tr><td><code translate="no">false | true; echo $?</code></td><td><code translate="no">0</code></td></tr><tr><td>O mesmo, com <code translate="no">pipefail</code></td><td><code translate="no">1</code></td></tr><tr><td><code translate="no">PIPESTATUS</code> depois de um <code translate="no">echo</code></td><td>Já é o status do <code translate="no">echo</code></td></tr><tr><td>Status <code translate="no">141</code></td><td><code translate="no">SIGPIPE</code>: o leitor do pipe fechou antes (<code translate="no">head</code>)</td></tr><tr><td>Status <code translate="no">255</code> do <code translate="no">ssh</code></td><td>Erro do próprio <code translate="no">ssh</code>, como conexão ou nome</td></tr><tr><td><code translate="no">sort f &gt; f</code></td><td><code translate="no">f</code> vazio: o <code translate="no">&gt;</code> apaga antes de o <code translate="no">sort</code> ler</td></tr><tr><td><code translate="no">/bin/sh</code> na Debian</td><td><code translate="no">dash</code></td></tr><tr><td><code translate="no">&amp;&gt; f</code> num <code translate="no">#!/bin/sh</code> na Debian</td><td>O comando vai para segundo plano, sem redirecionamento</td></tr><tr><td><code translate="no">set -o pipefail</code> no terminal e um script</td><td>O script não herda: começa sem</td></tr></tbody></table></div>
+<h2 id="11-checklist-de-saida">11 · Checklist de saída</h2>
+<ul><li>[ ] Prevejo, antes de rodar, para onde vão a saída e os erros em qualquer combinação de <code translate="no">&gt;</code>, <code translate="no">&gt;&gt;</code>, <code translate="no">2&gt;</code>, <code translate="no">2&gt;&amp;1</code> e <code translate="no">|</code>, inclusive com a ordem trocada.</li>
+<li>[ ] Explico por que <code translate="no">sudo echo &gt; /etc/f</code> falha, e gravo e acrescento em arquivo do root com <code translate="no">sudo tee</code>, com here-doc e com <code translate="no">sudo sh -c</code>.</li>
+<li>[ ] Escolho entre <code translate="no">&lt;&lt;EOF</code> e <code translate="no">&lt;&lt;'EOF'</code> pelo momento em que as variáveis devem ser lidas.</li>
+<li>[ ] Uso <code translate="no">xargs</code> com nomes que têm espaço e com entrada vazia sem surpresa, e sei quando o <code translate="no">find -exec ... +</code> resolve melhor.</li>
+<li>[ ] Comparo a saída das duas VMs com <code translate="no">diff &lt;( ) &lt;( )</code>.</li>
+<li>[ ] Mostro, com <code translate="no">PIPESTATUS</code>, um pipe que esconde erro, e faço ele falhar com <code translate="no">pipefail</code>, dentro de um script.</li>
+<li>[ ] Explico por que um script <code translate="no">#!/bin/sh</code> funciona na Rocky e falha na Debian, e como escrever para não depender disso.</li></ul>
+<p><strong>Último exercício, sem olhar.</strong> Tudo na debian-lab: entre com <code translate="no">ssh deb</code> e trabalhe lá. Sem abrir esta aula:</p>
+<ol><li>Com <strong>um</strong> comando, sem abrir shell de root, crie <code translate="no">/etc/lab31-aviso.txt</code> com três linhas: <code translate="no">Aviso de manutenção</code>, <code translate="no">Responsável: $USER</code> (o texto <code translate="no">$USER</code>, literalmente, não o seu nome) e <code translate="no">Voltamos em 1 hora</code>.</li>
+<li>Acrescente uma quarta linha, <code translate="no">Atualizado em</code> seguido da data de hoje, já expandida, sem apagar as outras.</li>
+<li>Rode <code translate="no">ls /etc/hostname /etc/naoexiste /root</code> com a saída em <code translate="no">~/lab31/saida.txt</code> e os erros em <code translate="no">~/lab31/erros.txt</code>. Diga, antes de conferir com <code translate="no">wc -l</code>, quantas linhas cada arquivo vai ter.</li>
+<li>Crie três arquivos com espaço no nome em <code translate="no">~/lab31/ex</code> e mostre o <code translate="no">ls -l</code> dos três com <code translate="no">find</code> e <code translate="no">xargs</code>. Depois, com a mesma linha procurando <code translate="no">*.bak</code>, prove que nada é listado.</li>
+<li>Faça um <code translate="no">tar cf - ~/lab31 /naoexiste | gzip &gt; /tmp/lab31.tgz</code> terminar com status diferente de zero, e mostre o status de cada comando do pipe na mesma linha.</li></ol>
+<p>Só abra o Gabarito depois disso, ou depois de três tentativas.</p>
+<p><strong>Reboot e conferência.</strong> A meta da Fase 2: todo lab termina com um reboot, e você confere o que sobreviveu. Reinicie as duas VMs:</p>
+<pre translate="no"><code class="lang-bash">ssh -t deb 'sudo reboot'
+sudo reboot</code></pre>
+<p>Depois de voltar, na rocky-lab, com um shell novo:</p>
+<pre translate="no"><code class="lang-bash">eval "$(ssh-agent -s)"; ssh-add
+cat /etc/lab31.conf; ssh deb 'cat /etc/lab31.conf'
+set -o | grep pipefail
+~/lab31/backup.sh; echo "saiu com $?"</code></pre>
+<p>Os dois <code translate="no">/etc/lab31.conf</code> continuam lá, com as linhas do Passo 2: arquivo é disco, e disco sobrevive. O <code translate="no">set -o</code> mostra <code translate="no">pipefail off</code>: a opção era do shell que morreu no reboot. E o <code translate="no">backup.sh</code> continua certo, porque o <code translate="no">pipefail</code> dele está <strong>dentro</strong> do script. É a diferença que a Quebra A ensinou, confirmada.</p>
+<p><strong>Snapshots de fechamento.</strong> Ficam nas duas VMs: o <code translate="no">/etc/lab31.conf</code> e a pasta <code translate="no">~/lab31</code>, que as próximas aulas do módulo não usam, mas não atrapalham. Nada do Módulo 2 mudou: a <code translate="no">/srv/equipe</code> segue em <code translate="no">3770 root:equipe</code>. Confira:</p>
+<pre translate="no"><code class="lang-bash">sudo find /srv/equipe -maxdepth 0 -printf '%M %m %u:%g %p\n'
+ssh -t deb "sudo find /srv/equipe -maxdepth 0 -printf '%M %m %u:%g %p\n'"</code></pre>
+<p>No nó Proxmox:</p>
+<pre translate="no"><code class="lang-bash">qm snapshot 201 m3a1-fim
+qm snapshot 202 m3a1-fim</code></pre>
+<h2 id="12-na-vida-real">12 · Na vida real</h2>
+<p><strong>Missão da semana, só leitura.</strong> Três servidores reais que você administra. Em cada um, sem mudar nada:</p>
+<ol><li><code translate="no">readlink -f /bin/sh</code>: qual <code translate="no">sh</code> esta máquina usa? Anote ao lado do nome do servidor.</li>
+<li>Os scripts locais escritos para <code translate="no">sh</code> que usam recurso do <code translate="no">bash</code>: <code translate="no">grep -lZ '^#!/bin/sh' /usr/local/bin/* /usr/local/sbin/* /etc/cron.daily/* 2&gt;/dev/null | xargs -0 -r grep -nE '&amp;&gt;|&lt;\(|\[\[|PIPESTATUS'</code>. Num servidor Debian ou Ubuntu, cada linha que aparecer é um script que faz algo diferente do que parece.</li>
+<li>Os jobs de cron que silenciam tudo: <code translate="no">sudo sh -c 'cat /etc/crontab /etc/cron.d/* /var/spool/cron/* /var/spool/cron/crontabs/* 2&gt;/dev/null' | grep -n '2&gt;&amp;1'</code>. O <code translate="no">sudo sh -c</code> é porque as pastas de crontab só o root lê, e o <code translate="no">*</code> tem que ser expandido por ele (Aula 2.7). Para cada linha: se esse job falhar hoje, quem fica sabendo, e como?</li>
+<li>Os scripts de backup com pipe e sem <code translate="no">pipefail</code>: <code translate="no">sudo sh -c 'grep -rlE "\| *(gzip|xz|zstd|ssh)" /usr/local/bin /usr/local/sbin /etc/cron.* /root 2&gt;/dev/null' | xargs -r sudo grep -L pipefail</code>. O <code translate="no">grep -L</code> lista os arquivos que <strong>não</strong> têm a palavra. Cada nome que sair é um candidato a "backup que diz OK".</li>
+<li>Os logs de autenticação: <code translate="no">ls -l /var/log/secure /var/log/auth.log /var/log/messages /var/log/syslog 2&gt;/dev/null</code> e <code translate="no">systemctl is-active rsyslog</code>. Este servidor tem log em texto, ou só no journal? Você vai precisar disso no desafio do módulo.</li>
+<li>Os padrões da equipe: no procedimento, wiki ou repositório de scripts da sua equipe, procure <code translate="no">sudo echo</code>, <code translate="no">&gt; /dev/null 2&gt;&amp;1</code> e <code translate="no">| xargs</code> sem <code translate="no">-0</code>. Anote onde estão; não corrija ainda.</li>
+<li><code translate="no">grep -n 'noclobber\|pipefail' /etc/bashrc /etc/bash.bashrc ~/.bashrc 2&gt;/dev/null</code>: algum servidor já protege o shell interativo do <code translate="no">&gt;</code> acidental?</li></ol>
+<p><strong>Para o diário.</strong> Uma linha por servidor: <code translate="no">nome · sh = bash ou dash · scripts sh com bashismo · jobs de cron silenciados · backups com pipe sem pipefail · log de autenticação em texto ou só journal</code>. Ao lado de cada achado, o conserto que você <strong>faria</strong> e quem precisaria aprovar. Não corrija nada nesta semana: a missão é ver.</p>
+<p><strong>Desafio da semana.</strong> Escreva o "cabeçalho padrão" de script da sua equipe, em até dez linhas: o <code translate="no">#!/bin/bash</code>, o <code translate="no">set -o pipefail</code>, para onde vão os erros (um log com data no nome, por exemplo), como o script grava arquivo do root (<code translate="no">sudo tee</code>, nunca <code translate="no">sudo echo &gt;</code>), e como ele termina com o status certo. No próximo script que alguém pedir, comece por ele.</p>
+<p><strong>Amanhã, sem olhar.</strong> Antes de abrir o terminal, responda de cabeça: para onde vão os erros em <code translate="no">cmd 2&gt;&amp;1 &gt; f</code>? Por que <code translate="no">sudo echo x &gt; /etc/f</code> falha, e quais são os três jeitos certos? O que muda entre <code translate="no">&lt;&lt;EOF</code> e <code translate="no">&lt;&lt;'EOF'</code>? O que o <code translate="no">xargs -r</code> evita, e o que o <code translate="no">-0</code> evita? Por que um backup com pipe diz OK quando falha, e onde vai o <code translate="no">pipefail</code>? Depois, numa das VMs, rode <code translate="no">false | true; echo "${PIPESTATUS[@]}"</code> e <code translate="no">sh -c 'echo &lt;(true)'</code>, e explique cada resultado em voz alta, dizendo em qual VM você está.</p>
+<h2 id="13-com-o-deeptutor">13 · Com o DeepTutor</h2>
+<p>Use o DeepTutor da sua rede local depois do lab, não no lugar dele. Os comandos começam com <code translate="no">!</code>:</p>
+<ul><li><code translate="no">!quiz Aula 3.1</code>: dez perguntas novas sobre redirecionamento, <code translate="no">tee</code>, <code translate="no">xargs</code>, here-doc e <code translate="no">pipefail</code>.</li>
+<li><code translate="no">!explica 2&gt;&amp;1</code>: por que a ordem importa, com o desenho dos descritores antes e depois de cada redirecionamento.</li>
+<li><code translate="no">!feynman sudo tee</code>: você explica por que <code translate="no">sudo echo &gt;</code> falha e o <code translate="no">sudo tee</code> funciona, e ele aponta onde ficou vago.</li>
+<li><code translate="no">!quebra pipe de backup</code>: ele descreve um backup que "diz OK" e te entrega as saídas de <code translate="no">PIPESTATUS</code>, <code translate="no">bash -x</code> e <code translate="no">tar tzf</code>, uma por vez, até você achar onde o erro some.</li>
+<li><code translate="no">!simulado LPIC-1 103.4</code>: perguntas no estilo da prova, com <code translate="no">tee</code>, <code translate="no">xargs</code> e a ordem dos redirecionamentos.</li>
+<li><code translate="no">!cartoes Aula 3.1</code>: os flashcards da seção 10, em ordem de revisão.</li>
+<li><code translate="no">!erro</code>: cole a mensagem de um redirecionamento, <code translate="no">xargs</code> ou script <code translate="no">sh</code> que falhou, e ele diz a causa provável e o que olhar.</li>
+<li><code translate="no">!revisao Aula 3.1</code>: o que rever antes da Aula 3.2, pelo que você errou até agora.</li></ul>
+<h2 id="gabarito-comentado">Gabarito comentado</h2>
+<h3 id="aquecimento">Aquecimento</h3>
+<ol><li>O <code translate="no">&gt;</code> é do seu shell. O <code translate="no">bash</code> do <code translate="no">rodrigo</code> tenta abrir o <code translate="no">/etc/resolv.conf</code> para escrita <strong>antes</strong> de chamar o <code translate="no">sudo</code>, e o <code translate="no">rodrigo</code> não pode escrever ali. O <code translate="no">sudo</code> nem chega a rodar. O certo é <code translate="no">echo "nameserver 1.1.1.1" | sudo tee /etc/resolv.conf &gt; /dev/null</code>. É o Passo 2.</li>
+<li><code translate="no">0</code>. O status de um pipe é o do último comando, e o <code translate="no">gzip</code> comprimiu sem erro o que o <code translate="no">tar</code> mandou antes de falhar. O <code translate="no">2</code> do <code translate="no">tar</code> só aparece no <code translate="no">${PIPESTATUS[@]}</code>, ou no <code translate="no">$?</code> com <code translate="no">set -o pipefail</code>. É o Passo 5 e a Quebra A.</li>
+<li>Não. O primeiro guarda tudo no arquivo. O segundo deixa os erros na tela: o <code translate="no">2&gt;&amp;1</code> foi lido quando o <code translate="no">1</code> ainda apontava para a tela, e o <code translate="no">&gt; saida.txt</code> só mudou o <code translate="no">1</code> depois. É o Passo 1.</li></ol>
+<h3 id="quiz">Quiz</h3>
+<ol><li>Em <code translate="no">cmd &gt; f 2&gt;&amp;1</code>, a saída e os erros vão para <code translate="no">f</code>. Em <code translate="no">cmd 2&gt;&amp;1 &gt; f</code>, a saída vai para <code translate="no">f</code> e os erros vão para a tela, porque o <code translate="no">2</code> copiou o destino do <code translate="no">1</code> antes de o <code translate="no">1</code> mudar.</li>
+<li><strong>B.</strong> O <code translate="no">tee</code> roda como root e é ele quem abre o arquivo. O A falha no <code translate="no">&gt;</code>, que é do seu shell. O C faz o <code translate="no">sudo</code> procurar um programa chamado, literalmente, <code translate="no">echo vm.swappiness=10 &gt; /etc/sysctl.d/99-lab.conf</code>, e responder <code translate="no">command not found</code>. O D cria, na pasta atual, um arquivo chamado <code translate="no">sudo</code>, com o texto <code translate="no">vm.swappiness=10 /etc/sysctl.d/99-lab.conf</code> dentro.</li>
+<li><code translate="no">0</code> sem <code translate="no">pipefail</code>, porque vale o <code translate="no">true</code>, o último. <code translate="no">1</code> com <code translate="no">pipefail</code>, porque vale o último status diferente de zero do pipe, o do <code translate="no">false</code>.</li>
+<li><strong>A.</strong> O <code translate="no">-print0</code> termina cada nome com um byte nulo, que é o separador que o <code translate="no">xargs -0</code> espera. O B e o C não existem no <code translate="no">find</code>. O D é a alternativa ao <code translate="no">xargs</code>, não o par dele.</li>
+<li>O <code translate="no">a.txt</code> fica com <code translate="no">pasta: /home/rodrigo</code>: sem aspas, o shell expandiu o <code translate="no">$HOME</code>. O <code translate="no">b.txt</code> fica com <code translate="no">pasta: $HOME</code>, o texto exato.</li>
+<li>Falhou o <code translate="no">&gt; /root/ana.txt</code>, aberto pelo seu shell, como <code translate="no">rodrigo</code>, antes do <code translate="no">sudo</code>. O <code translate="no">grep</code> nem rodou. As versões certas: <code translate="no">sudo grep ana /etc/shadow | sudo tee /root/ana.txt &gt; /dev/null</code>, ou <code translate="no">sudo sh -c 'grep ana /etc/shadow &gt; /root/ana.txt'</code>.</li>
+<li>O <code translate="no">xargs</code> separa os nomes em qualquer espaço: <code translate="no">relatorio final.tmp</code> vira <code translate="no">relatorio</code> e <code translate="no">final.tmp</code>, e um arquivo chamado <code translate="no">relatorio</code> nessa pasta seria apagado no lugar do certo. E um nome com aspas simples faz o <code translate="no">xargs</code> parar com erro no meio da lista. As versões seguras: <code translate="no">find /srv/uploads -type f -name '*.tmp' -print0 | xargs -0 -r rm --</code>, ou, mais simples, <code translate="no">find /srv/uploads -type f -name '*.tmp' -delete</code>.</li>
+<li><strong>B.</strong> O <code translate="no">dash</code> lê <code translate="no">rsync -a /dados /backup &amp;</code> (segundo plano) e, depois, <code translate="no">&gt; /dev/null</code> sozinho. O <code translate="no">rsync</code> roda no fundo, com a saída e os erros na tela ou no e-mail do cron, e o script segue sem esperar ele terminar. O A é o que acontece com o <code translate="no">bash</code>, na Rocky. O C não acontece: para o <code translate="no">dash</code>, a linha é válida. O D descreveria <code translate="no">2&gt; /dev/null</code>.</li>
+<li><code translate="no">dnf check-update | tee -a ~/historico.txt</code>. Sem o <code translate="no">-a</code>, o <code translate="no">tee</code> apagaria o histórico a cada execução.</li>
+<li>Tabela abaixo.</li></ol>
+<div class="tabela"><table><thead><tr><th scope="col">Se você marcou</th><th scope="col">Resultado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>A</td><td>❌ Errada</td><td>O <code translate="no">2&gt;&amp;1</code> manda os erros para o mesmo arquivo. Mesmo como root, o <code translate="no">find /</code> reclama de entradas do <code translate="no">/proc</code> que somem durante a busca, e essas linhas entram no <code translate="no">/root/ana-files</code>. O script de correção lê o arquivo e acha linhas que não são caminhos.</td></tr><tr><td>B</td><td>✅ Certa</td><td>Os erros vão para o <code translate="no">/dev/null</code>, a lista vai para o arquivo, e o <code translate="no">&gt;</code> começa o arquivo do zero. Se a tarefa disser "only regular files", acrescente <code translate="no">-type f</code>: sem ele, aparecem também pastas e, se a Ana tiver um processo rodando, entradas do <code translate="no">/proc</code>.</td></tr><tr><td>C</td><td>⚠️ Funciona, mas</td><td>O arquivo sai certo, porque o pipe só leva a saída normal. Mas os erros enchem a tela, e o <code translate="no">tee</code> duplica a lista inteira no terminal. Passa na correção; não é o que você faria num servidor.</td></tr><tr><td>D</td><td>⚠️ Funciona, mas</td><td>Na primeira vez, o resultado é o mesmo do B. Mas o <code translate="no">&gt;&gt;</code> acrescenta: se você já tinha rodado uma tentativa antes, a lista sai duplicada, e o script de correção pode recusar. Na prova, use <code translate="no">&gt;</code>.</td></tr></tbody></table></div>
+<h3 id="ultimo-exercicio">Último exercício</h3>
+<p>Na debian-lab:</p>
+<pre translate="no"><code class="lang-bash">sudo tee /etc/lab31-aviso.txt &gt; /dev/null &lt;&lt;'EOF'
+Aviso de manutenção
+Responsável: $USER
+Voltamos em 1 hora
+EOF
+echo "Atualizado em $(date +%F)" | sudo tee -a /etc/lab31-aviso.txt &gt; /dev/null
+cat /etc/lab31-aviso.txt</code></pre>
+<p>As aspas no <code translate="no">'EOF'</code> mantêm o <code translate="no">$USER</code> como texto. Na quarta linha, a data tem que sair expandida, então ela vem de um <code translate="no">echo</code> com aspas duplas, e o <code translate="no">-a</code> impede o <code translate="no">tee</code> de apagar as três primeiras. Se o <code translate="no">$USER</code> saiu como <code translate="no">rodrigo</code>, faltaram as aspas no <code translate="no">EOF</code>; se o arquivo ficou com uma linha só, faltou o <code translate="no">-a</code>.</p>
+<pre translate="no"><code class="lang-bash">ls /etc/hostname /etc/naoexiste /root &gt; ~/lab31/saida.txt 2&gt; ~/lab31/erros.txt
+wc -l ~/lab31/saida.txt ~/lab31/erros.txt</code></pre>
+<p>O <code translate="no">saida.txt</code> com <code translate="no">1</code> linha (<code translate="no">/etc/hostname</code>) e o <code translate="no">erros.txt</code> com <code translate="no">2</code>: o <code translate="no">cannot access '/etc/naoexiste'</code> e o <code translate="no">cannot open directory '/root': Permission denied</code>, porque a <code translate="no">/root</code> da Debian é <code translate="no">700</code>.</p>
+<pre translate="no"><code class="lang-bash">mkdir -p ~/lab31/ex
+touch ~/lab31/ex/"plano a.txt" ~/lab31/ex/"plano b.txt" ~/lab31/ex/"plano c.txt"
+find ~/lab31/ex -name '*.txt' -print0 | xargs -0 -r ls -l
+find ~/lab31/ex -name '*.bak' -print0 | xargs -0 -r ls -l</code></pre>
+<p>A primeira linha do <code translate="no">find</code> mostra os três arquivos; a segunda não mostra nada. Sem o <code translate="no">-r</code>, a segunda listaria a pasta atual. <code translate="no">find ~/lab31/ex -name '*.txt' -exec ls -l {} +</code> também vale.</p>
+<pre translate="no"><code class="lang-bash">set -o pipefail
+tar cf - ~/lab31 /naoexiste | gzip &gt; /tmp/lab31.tgz; echo "status: $? · cada um: ${PIPESTATUS[*]}"</code></pre>
+<p>A saída é <code translate="no">status: 2 · cada um: 2 0</code>. O <code translate="no">$?</code> e o <code translate="no">PIPESTATUS</code> são lidos na mesma linha, antes de qualquer outro comando sobrescrevê-los. Sem o <code translate="no">set -o pipefail</code>, a mesma linha mostraria <code translate="no">status: 0 · cada um: 2 0</code>.</p>
+</article><nav class="paginas" aria-label="Aulas"><a class="ant" href="2.8-diretorios-e-arquivos-especiais.html"><small>← Anterior</small>2.8 · Diretórios e arquivos especiais</a><a class="prox" href="3.2-filtros-de-texto.html"><small>Próxima →</small>3.2 · Filtros de texto</a></nav></main></div>
+<footer><div class="wrap">Gerado a partir do Markdown do curso · Imagens em <code translate="no">img/</code></div></footer>
+</body>
+</html>

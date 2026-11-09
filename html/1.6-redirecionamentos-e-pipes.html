@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light dark">
+<title>1.6 · Redirecionamentos e pipes · Curso Linux Sysadmin</title>
+<link rel="alternate" hreflang="pt-BR" href="1.6-redirecionamentos-e-pipes.html"><link rel="alternate" hreflang="it" href="1.6-redirecionamentos-e-pipes.it.html">
+<style>
+:root{color-scheme:light dark;--bg:#f6f1e7;--card:#fffdf8;--ink:#201c16;--muted:#5e564a;--accent:#9a3412;--accent-2:#1f5f4a;--tint:#efe6d4;--line:#ddd2bc;--code:#f1eadb;--shadow:0 1px 2px rgba(60,40,10,.08);--serif:Georgia,"Iowan Old Style","Palatino Linotype",Palatino,serif;--sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--mono:"Cascadia Code",Consolas,"DejaVu Sans Mono",monospace}
+@media (prefers-color-scheme:dark){:root{--bg:#16130f;--card:#201b15;--ink:#f1eadb;--muted:#b9ad98;--accent:#f0a070;--accent-2:#7fd0b0;--tint:#2a231a;--line:#3d3427;--code:#191510;--shadow:none}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:5.5rem}
+body{margin:0;background:var(--bg);color:var(--ink);font:1rem/1.6 var(--sans)}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--accent-2);outline-offset:2px;border-radius:4px}
+.pular{position:absolute;left:-999px;top:0;background:var(--card);padding:.5rem 1rem;z-index:20}
+.pular:focus{left:.5rem;top:.5rem}
+.wrap{width:100%;max-width:84rem;margin:0 auto;padding-inline:max(1rem,env(safe-area-inset-left))}
+.top{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10;border-top:6px solid var(--accent)}
+.top-in{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding-block:.6rem}
+.titles{min-width:0}
+.marca{margin:0;font:700 clamp(1.15rem,1rem + 1vw,1.6rem)/1.15 var(--serif);letter-spacing:-.01em}
+.marca a{text-decoration:none}
+.marca a:hover{color:var(--accent)}
+.meta{margin:.1rem 0 0;color:var(--muted);font-size:.85rem}
+.acoes{display:flex;align-items:center;gap:.9rem;flex:none}
+.acoes>a{font-size:.9rem;font-weight:600;color:var(--muted);text-decoration:none}
+.acoes>a:hover{color:var(--accent);text-decoration:underline}
+.idioma{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--tint)}
+.idioma>*{padding:.35rem .9rem;font-size:.8rem;font-weight:700;letter-spacing:.06em;text-decoration:none;color:var(--muted);min-width:2.75rem;text-align:center}
+.idioma a:hover{color:var(--accent);text-decoration:underline}
+.idioma span{background:var(--accent);color:#fff}
+@media (prefers-color-scheme:dark){.idioma span{color:#16130f}}
+code{font-family:var(--mono);font-size:.9em;background:var(--tint);padding:.1rem .35rem;border-radius:4px;overflow-wrap:anywhere}
+/* índice */
+.capa{max-width:70rem;padding-block:2rem 3rem}
+.stats{border-left:4px solid var(--accent-2);background:var(--card);border-radius:0 10px 10px 0;padding:1rem 1.25rem;margin:0 0 2.5rem;box-shadow:var(--shadow);color:var(--muted)}
+.stats strong{color:var(--ink)}
+.modulo{display:grid;grid-template-columns:15rem minmax(0,1fr);gap:1rem 2rem;padding:1.75rem 0;border-top:1px solid var(--line)}
+.modulo h2{margin:0;font:700 1.25rem/1.25 var(--serif);align-self:start;position:sticky;top:6rem}
+.mn{display:block;font:700 .8rem var(--mono);letter-spacing:.12em;color:var(--accent);margin-bottom:.25rem}
+.sep{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.modulo ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,17rem),1fr));gap:.75rem}
+.modulo li{margin:0}
+.modulo a{display:flex;gap:.45rem;align-items:baseline;height:100%;padding:.85rem 1rem;background:var(--card);border:1px solid var(--line);border-radius:10px;text-decoration:none;font-weight:600;line-height:1.35;box-shadow:var(--shadow);transition:border-color .15s,transform .15s}
+.modulo a:hover{border-color:var(--accent);color:var(--accent)}
+.num{font:700 .85rem var(--mono);color:var(--accent);white-space:nowrap}
+/* aula */
+.doc{display:grid;grid-template-columns:17rem minmax(0,1fr);gap:2.5rem;align-items:start;padding-block:2rem 3rem}
+.lateral{position:sticky;top:5.5rem;max-height:calc(100vh - 6.5rem);overflow:auto;font-size:.875rem;padding-right:.5rem}
+.lateral h2{margin:0 0 .25rem;font:700 .95rem var(--serif);color:var(--muted)}
+.lateral h3{margin:1rem 0 .25rem;font:700 .75rem var(--mono);letter-spacing:.06em;color:var(--accent)}
+.lateral ul{list-style:none;margin:0;padding:0}
+.lateral a{display:flex;gap:.45rem;padding:.25rem .5rem;border-radius:6px;text-decoration:none;color:var(--muted);line-height:1.3}
+.lateral a:hover{background:var(--tint);color:var(--ink)}
+.lateral a[aria-current]{background:var(--tint);color:var(--ink);font-weight:700;box-shadow:inset 3px 0 0 var(--accent)}
+.lateral .num{font-size:.75rem}
+.aula{min-width:0;max-width:56rem;overflow-wrap:break-word;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:clamp(1.25rem,1rem + 2vw,2.75rem);box-shadow:var(--shadow)}
+.aula h1{margin:0 0 1.5rem;font:700 clamp(1.75rem,1.4rem + 1.6vw,2.5rem)/1.15 var(--serif);letter-spacing:-.015em;color:var(--ink)}
+.aula h2{margin:2.5rem 0 .75rem;padding-top:1.25rem;border-top:1px solid var(--line);font:700 1.5rem/1.25 var(--serif)}
+.aula h3{margin:2rem 0 .5rem;font:700 1.15rem/1.3 var(--serif);color:var(--accent)}
+.aula h4,.aula h5,.aula h6{margin:1.5rem 0 .5rem;font-size:1rem}
+.aula p,.aula ul,.aula ol{margin:1rem 0}
+.aula ul,.aula ol{padding-left:1.5rem}
+.aula li{margin:.35rem 0}
+.aula li>ul,.aula li>ol{margin:.35rem 0}
+.aula a{color:var(--accent);text-underline-offset:2px}
+.aula hr{border:0;border-top:1px solid var(--line);margin:2rem 0}
+.tabela{overflow-x:auto;margin:1.25rem 0;border:1px solid var(--line);border-radius:10px}
+.aula table{width:100%;border-collapse:collapse;font-size:.9rem}
+.aula th,.aula td{padding:.55rem .75rem;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+.aula tr:last-child td{border-bottom:0}
+.aula th{background:var(--tint);font-weight:700}
+.aula pre{background:var(--code);border:1px solid var(--line);border-radius:10px;padding:.9rem 1rem;overflow-x:auto;font:.85rem/1.5 var(--mono);margin:1rem 0;tab-size:4}
+.aula pre code{background:none;padding:0;font-size:inherit;overflow-wrap:normal}
+.aula blockquote{margin:1.25rem 0;padding:.75rem 1.25rem;border-left:4px solid var(--accent-2);background:var(--tint);border-radius:0 10px 10px 0}
+.aula blockquote>:first-child{margin-top:0}
+.aula blockquote>:last-child{margin-bottom:0}
+.aula figure{margin:1.75rem 0;text-align:center}
+.aula figure img{display:block;margin:0 auto;max-width:100%;height:auto;border:1px solid var(--line);border-radius:10px;background:#fff}
+.aula figcaption{margin-top:.5rem;color:var(--muted);font-size:.9rem;font-style:italic}
+.paginas{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:2.5rem;padding-top:1.5rem;border-top:1px solid var(--line)}
+.paginas a{display:block;padding:.75rem 1rem;border:1px solid var(--line);border-radius:10px;text-decoration:none;color:var(--ink);font-weight:600;line-height:1.3}
+.paginas a:hover{border-color:var(--accent);color:var(--accent)}
+.paginas small{display:block;color:var(--muted);font-weight:400}
+.paginas .prox{grid-column:2;text-align:right}
+footer{border-top:1px solid var(--line);padding-block:1.5rem;color:var(--muted);font-size:.85rem;text-align:center}
+@media (hover:hover) and (prefers-reduced-motion:no-preference){.modulo a:hover{transform:translateY(-2px)}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+@media (max-width:980px){.doc{grid-template-columns:minmax(0,1fr);padding-top:1rem}.lateral{position:static;max-height:none;order:2}.aula{max-width:none}}
+@media (max-width:860px){.modulo{grid-template-columns:minmax(0,1fr)}.modulo h2{position:static}.mn{display:inline;margin-right:.5rem}}
+@media (max-width:420px){.meta{display:none}.top-in{gap:.5rem}.acoes{gap:.6rem}.capa{padding-top:1.25rem}.paginas{grid-template-columns:minmax(0,1fr)}.paginas .prox{grid-column:1}}
+@media print{.top,.lateral,.paginas{display:none}.aula{border:0;box-shadow:none;padding:0;max-width:none}.doc{display:block}}
+</style>
+</head>
+<body>
+<a class="pular" href="#conteudo">Pular para o conteúdo</a>
+<header class="top"><div class="wrap top-in"><div class="titles"><p class="marca"><a href="index.html">Curso Linux Sysadmin</a></p><p class="meta">Rodrigo Antignani · Aula 1.6</p></div><div class="acoes"><a href="index.html">Índice</a><div class="idioma" role="group" aria-label="Idioma"><span aria-current="true">PT</span><a href="1.6-redirecionamentos-e-pipes.it.html" hreflang="it" lang="it">IT</a></div></div></div></header>
+<div class="wrap doc"><aside class="lateral" aria-label="Aulas"><h2>Aulas</h2><h3>M0 · Laboratório</h3><ul><li><a href="0.1-montar-o-laboratorio.html"><span class="num">0.1</span><span>Montar o laboratório</span></a></li><li><a href="0.2-acesso-e-protecao.html"><span class="num">0.2</span><span>Acesso e proteção</span></a></li></ul><h3>M1 · Linha de comando</h3><ul><li><a href="1.1-o-que-e-linux.html"><span class="num">1.1</span><span>O que é Linux</span></a></li><li><a href="1.2-o-shell-e-a-ajuda.html"><span class="num">1.2</span><span>O shell e a ajuda</span></a></li><li><a href="1.3-caminhos-e-navegacao.html"><span class="num">1.3</span><span>Caminhos e navegação</span></a></li><li><a href="1.4-criar-copiar-mover-e-apagar.html"><span class="num">1.4</span><span>Criar, copiar, mover e apagar</span></a></li><li><a href="1.5-ler-e-procurar-texto.html"><span class="num">1.5</span><span>Ler e procurar texto</span></a></li><li><a href="1.6-redirecionamentos-e-pipes.html" aria-current="page"><span class="num">1.6</span><span>Redirecionamentos e pipes</span></a></li><li><a href="1.7-arquivar-e-compactar.html"><span class="num">1.7</span><span>Arquivar e compactar</span></a></li><li><a href="1.8-primeiro-script.html"><span class="num">1.8</span><span>Primeiro script</span></a></li><li><a href="1.9-decidir-e-repetir.html"><span class="num">1.9</span><span>Decidir e repetir</span></a></li><li><a href="1.10-software-livre-na-pratica.html"><span class="num">1.10</span><span>Software livre na prática</span></a></li></ul><h3>M2 · Sistema, usuários e permissões</h3><ul><li><a href="2.1-instalacao-e-provisionamento.html"><span class="num">2.1</span><span>Instalação e provisionamento</span></a></li><li><a href="2.2-hardware-e-dispositivos.html"><span class="num">2.2</span><span>Hardware e dispositivos</span></a></li><li><a href="2.3-processos-e-logs.html"><span class="num">2.3</span><span>Processos e logs</span></a></li><li><a href="2.4-rede-no-dia-a-dia.html"><span class="num">2.4</span><span>Rede no dia a dia</span></a></li><li><a href="2.5-acesso-remoto-e-privilegios.html"><span class="num">2.5</span><span>Acesso remoto e privilégios</span></a></li><li><a href="2.6-usuarios-e-grupos.html"><span class="num">2.6</span><span>Usuários e grupos</span></a></li><li><a href="2.7-permissoes-e-dono.html"><span class="num">2.7</span><span>Permissões e dono</span></a></li><li><a href="2.8-diretorios-e-arquivos-especiais.html"><span class="num">2.8</span><span>Diretórios e arquivos especiais</span></a></li></ul><h3>M3 · Texto e editor</h3><ul><li><a href="3.1-fluxos-a-fundo.html"><span class="num">3.1</span><span>Fluxos a fundo</span></a></li><li><a href="3.2-filtros-de-texto.html"><span class="num">3.2</span><span>Filtros de texto</span></a></li><li><a href="3.3-regex-e-grep.html"><span class="num">3.3</span><span>Regex e grep</span></a></li><li><a href="3.4-sed-e-awk.html"><span class="num">3.4</span><span>sed e awk</span></a></li><li><a href="3.5-vi-e-vim-de-verdade.html"><span class="num">3.5</span><span>vi e vim de verdade</span></a></li></ul><h3>M4 · systemd e boot</h3><ul><li><a href="4.1-como-o-linux-liga.html"><span class="num">4.1</span><span>Como o Linux liga</span></a></li><li><a href="4.2-systemd-servicos-e-units.html"><span class="num">4.2</span><span>systemd: serviços e units</span></a></li><li><a href="4.3-targets-desligar-e-reiniciar.html"><span class="num">4.3</span><span>Targets: desligar e reiniciar</span></a></li><li><a href="4.4-grub-e-acesso-de-emergencia.html"><span class="num">4.4</span><span>GRUB e acesso de emergência</span></a></li></ul><h3>M5 · Kernel, módulos e VM</h3><ul><li><a href="5.1-hardware-pelo-kernel.html"><span class="num">5.1</span><span>Hardware pelo kernel</span></a></li><li><a href="5.2-modulos-e-parametros.html"><span class="num">5.2</span><span>Módulos e parâmetros</span></a></li><li><a href="5.3-linux-como-convidado.html"><span class="num">5.3</span><span>Linux como convidado</span></a></li></ul><h3>M6 · Pacotes e repositórios</h3><ul><li><a href="6.1-pacotes-no-debian.html"><span class="num">6.1</span><span>Pacotes no Debian</span></a></li><li><a href="6.2-pacotes-na-rocky.html"><span class="num">6.2</span><span>Pacotes na Rocky</span></a></li><li><a href="6.3-repositorios.html"><span class="num">6.3</span><span>Repositórios</span></a></li><li><a href="6.4-flatpak.html"><span class="num">6.4</span><span>Flatpak</span></a></li><li><a href="6.5-bibliotecas-compartilhadas.html"><span class="num">6.5</span><span>Bibliotecas compartilhadas</span></a></li></ul></aside><main id="conteudo" class="aula"><article><h1>Aula 1.6 · Redirecionamentos e pipes</h1>
+<p>Você aprende a mandar a saída de qualquer comando para onde quiser: um arquivo, o fim de um arquivo, o lixo ou a entrada de outro comando. Com isso, uma pergunta como "quais IPs mais erraram a senha hoje?" vira uma linha só, e você para de copiar resultado da tela para o Bloco de Notas. Você também aprende os jeitos clássicos de destruir um arquivo com um único <code translate="no">&gt;</code>, para nunca cair neles num servidor de cliente.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Ficha</th><th scope="col">Aula 1.6</th></tr></thead><tbody><tr><td>Módulo</td><td>M1 · Linha de comando, aula 6 de 10</td></tr><tr><td>Quando</td><td>Semana 2</td></tr><tr><td>Ao final você consegue</td><td>Gravar a saída de um comando num arquivo sem apagar o que já havia; separar os erros da saída normal e jogar fora o que não interessa; criar um arquivo inteiro de uma vez com here-doc; escrever num arquivo do root sem levar <code translate="no">Permission denied</code>; montar pipes que respondem perguntas de verdade, como "quantos IPs diferentes" e "quem mais aparece"; ver e guardar a saída ao mesmo tempo com <code translate="no">tee</code></td></tr><tr><td>Itens de prova</td><td>LE 013.2 · LPIC-1 103.4 e a parte de <code translate="no">sort</code>, <code translate="no">uniq</code>, <code translate="no">cut</code> e <code translate="no">wc</code> da 103.2 · RHCSA: usar redirecionamento de entrada e saída, com <code translate="no">&gt;</code>, <code translate="no">&gt;&gt;</code>, pipe e <code translate="no">2&gt;</code></td></tr><tr><td>Pré-requisitos</td><td>Aula 1.5, com o <code translate="no">~/lab13</code> ainda nas VMs</td></tr><tr><td>Tempo</td><td>Cerca de 2h30</td></tr><tr><td>Snapshots</td><td>m1a6-inicio e m1a6-fim nas duas VMs</td></tr></tbody></table></div>
+<h2 id="1-aquecimento">1 · Aquecimento</h2>
+<p>Três perguntas, de cabeça, antes de ler qualquer coisa. Escreva as respostas; o Gabarito confere no fim.</p>
+<ol><li>Na Aula 1.5, qual comando contava as linhas do <code translate="no">app1.log</code> com <code translate="no">ERROR</code>, sem mostrá-las? Qual era o número?</li>
+<li>O <code translate="no">grep</code> não achou nada e não escreveu nada. Como você descobre, logo depois, que ele não achou?</li>
+<li>Palpite: <code translate="no">ls /etc/hostname /naoexiste</code> mostra duas linhas, uma normal e uma de erro. Para o shell, as duas saem pelo mesmo caminho?</li></ol>
+<h2 id="2-por-que-importa">2 · Por que importa</h2>
+<p>Quarta, 18h. Você precisa acrescentar o novo servidor de banco ao <code translate="no">/etc/hosts</code> de uma máquina de cliente. Como root, digita <code translate="no">echo '10.0.5.40 pg03' &gt; /etc/hosts</code>. Um <code translate="no">&gt;</code> só, onde deveriam ser dois. O arquivo agora tem uma linha: a sua. O <code translate="no">localhost</code> sumiu, e com ele os nomes dos outros servidores. Meia hora depois, o suporte liga: a aplicação não acha mais o banco antigo. Foi um caractere.</p>
+<p>Segundo caso. Um backup roda todo dia às 2h pelo cron, com a saída indo para <code translate="no">/var/log/backup.log</code>. Todo dia o log diz <code translate="no">backup iniciado</code> e <code translate="no">backup concluído</code>. Três semanas depois, o cliente precisa restaurar um arquivo, e o backup está vazio. O <code translate="no">tar</code> reclamava toda noite que a pasta não existia, mas reclamava pelo canal de erros, e esse canal não ia para o log. Ninguém viu. Faltaram quatro caracteres na linha do cron: <code translate="no">2&gt;&amp;1</code>.</p>
+<p>Terceiro caso, o bom. Sexta, 17h, o gestor pergunta: "quantos IPs diferentes tentaram entrar como root esta semana, e quais os cinco que mais tentaram?". Sem pipes, você abre o log no editor e começa a contar. Com pipes, é uma linha:</p>
+<pre translate="no"><code class="lang-bash">sudo grep 'Failed password for root' /var/log/secure | grep -o 'from [0-9.]*' | sort | uniq -c | sort -rn | head -5</code></pre>
+<p>Em dois segundos você tem a tabela para colar no e-mail. No fim desta aula, você lê essa linha sem esforço e monta outras iguais.</p>
+<p>E o quarto caso, que pega todo mundo uma vez: <code translate="no">sudo echo 'x' &gt; /etc/arquivo</code> responde <code translate="no">Permission denied</code>, mesmo com <code translate="no">sudo</code>. Até o fim da aula você sabe por quê, e o conserto tem três letras: <code translate="no">tee</code>.</p>
+<h2 id="3-modelo-mental">3 · Modelo mental</h2>
+<blockquote><p>Todo programa nasce com três canos. Pelo cano 0 entra o que ele lê; pelo cano 1 sai a resposta; pelo cano 2 saem os erros. Sem você dizer nada, o 0 vem do teclado, e o 1 e o 2 vão para a tela. Redirecionar é trocar a ponta de um cano. Quem troca é o shell, antes de o programa começar.</p></blockquote>
+<pre translate="no"><code class="lang-text">                    ┌─────────────┐
+  teclado ───0────► │  programa   │ ───1───► tela   (saída: stdout)
+  (stdin)           │  ls, grep…  │ ───2───► tela   (erros: stderr)
+                    └─────────────┘</code></pre>
+<p>Os nomes em inglês caem na prova: <strong>stdin</strong> é o 0, <strong>stdout</strong> é o 1, <strong>stderr</strong> é o 2. Esses números se chamam descritores de arquivo.</p>
+<p>Por que dois canos de saída, se os dois vão para a tela? Para você poder separá-los. A resposta vai para um arquivo, e os erros continuam na tela, ou vão para outro arquivo, ou para o lixo:</p>
+<pre translate="no"><code class="lang-text">  ls /etc/hostname /naoexiste  &gt; saida.txt  2&gt; erros.txt
+
+                    ┌─────────────┐ ───1───► saida.txt   /etc/hostname
+                    │     ls      │
+                    └─────────────┘ ───2───► erros.txt   ls: cannot access '/naoexiste'…</code></pre>
+<p>O pipe liga o cano 1 de um programa ao cano 0 do próximo. Repare no que <strong>não</strong> entra no pipe:</p>
+<pre translate="no"><code class="lang-text">  grep 'ERROR' app1.log | wc -l
+
+    ┌──────┐ ──1──►━━━━ pipe ━━━━►──0──┌──────┐ ──1──► tela: 4
+    │ grep │                           │  wc  │
+    └──────┘ ──2──► tela               └──────┘
+             (os erros do grep passam por fora do pipe)</code></pre>
+<p><strong>A primeira ideia: o shell arruma os canos antes de o comando rodar.</strong> Quando você escreve <code translate="no">&gt; arquivo</code>, o shell abre esse arquivo para escrita, e abrir com <code translate="no">&gt;</code> quer dizer zerar. Só depois o comando começa. Duas consequências derrubam gente experiente:</p>
+<ul><li><code translate="no">sort nomes.txt &gt; nomes.txt</code> apaga a lista. O shell zera o <code translate="no">nomes.txt</code>, e só depois o <code translate="no">sort</code> vai ler, e encontra um arquivo vazio. A Quebra A faz você ver isso.</li>
+<li><code translate="no">sudo echo 'x' &gt; /etc/arquivo</code> dá <code translate="no">Permission denied</code>. O <code translate="no">sudo</code> eleva só o <code translate="no">echo</code>. Quem abre o <code translate="no">/etc/arquivo</code> é o seu shell, rodando como você, antes de o <code translate="no">sudo</code> começar.</li></ul>
+<p><strong>A segunda ideia: o <code translate="no">2&gt;&amp;1</code> se lê da esquerda para a direita.</strong> Ele quer dizer "o cano 2 passa a apontar para onde o cano 1 aponta <strong>agora</strong>". Por isso a ordem importa:</p>
+<pre translate="no"><code class="lang-text">  cmd &gt; log.txt 2&gt;&amp;1              cmd 2&gt;&amp;1 &gt; log.txt
+
+  1º  1 ──► log.txt               1º  2 ──► tela   (para onde o 1 apontava)
+  2º  2 ──► log.txt               2º  1 ──► log.txt
+      resultado: tudo no log          resultado: erros na tela, log sem erros</code></pre>
+<p>A primeira forma é a certa. A segunda é o erro do backup do segundo caso, e vira a Quebra B.</p>
+<p><strong>A terceira ideia: no Linux, o pipe carrega texto.</strong> Cada programa da fila faz uma coisa só, e bem: o <code translate="no">grep</code> peneira, o <code translate="no">cut</code> corta colunas, o <code translate="no">sort</code> ordena, o <code translate="no">uniq</code> junta repetidos vizinhos, o <code translate="no">wc</code> conta, o <code translate="no">head</code> pega o topo. Juntando peças pequenas, você monta a pergunta que quiser, como num lego.</p>
+<pre translate="no"><code class="lang-text">  log ─► grep          ─► grep -o         ─► sort ─► uniq -c ─► sort -rn         ─► head
+         só as linhas     só o pedaço                 conta      maior primeiro      o topo
+         que importam     que interessa</code></pre>
+<p><strong>Ponte Windows.</strong> O cmd e o PowerShell têm os mesmos <code translate="no">&gt;</code>, <code translate="no">&gt;&gt;</code>, <code translate="no">2&gt;</code> e <code translate="no">2&gt;&amp;1</code>, e também o pipe. A diferença está no que passa pelo pipe. No PowerShell, passam objetos com propriedades: você pede <code translate="no">Sort-Object Length</code> e pronto. No Linux, passam linhas de texto, e você corta o texto com <code translate="no">cut</code> antes de ordenar. Parece mais primitivo, mas funciona com qualquer programa já escrito, e não só com os que conhecem objetos. Uma pegadinha de quem vive nos dois mundos: no Windows PowerShell 5.1, o <code translate="no">&gt;</code> grava o arquivo em UTF-16. Copie um arquivo desses para o Linux, e o <code translate="no">grep</code> pode responder <code translate="no">binary file matches</code>, ou simplesmente não achar nada.</p>
+<figure><a href="../img/1.6-tres-canos.jpg"><img src="../img/1.6-tres-canos.jpg" alt="Os três canos e para onde apontam" loading="lazy" decoding="async"></a><figcaption>Os três canos de todo programa, e por que a ordem do 2&gt;&amp;1 decide o que vai para o log.</figcaption></figure>
+<h2 id="4-conceito-em-camadas">4 · Conceito em camadas</h2>
+<h3 id="essencial">Essencial</h3>
+<p><strong>Redirecionamentos.</strong> O shell faz; o programa nem fica sabendo.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Escreva</th><th scope="col">O que faz</th><th scope="col">Exemplo</th></tr></thead><tbody><tr><td><code translate="no">&gt; arq</code></td><td>Manda a saída, o cano 1, para o arquivo. Cria o arquivo, ou <strong>zera</strong> o que já existe</td><td><code translate="no">ls /etc &gt; lista.txt</code></td></tr><tr><td><code translate="no">&gt;&gt; arq</code></td><td>Manda a saída para o fim do arquivo, sem apagar nada</td><td><code translate="no">date &gt;&gt; historico.txt</code></td></tr><tr><td><code translate="no">2&gt; arq</code></td><td>Manda os erros, o cano 2, para o arquivo</td><td><code translate="no">find /etc -name '*.conf' 2&gt; erros.txt</code></td></tr><tr><td><code translate="no">2&gt; /dev/null</code></td><td>Joga os erros fora</td><td><code translate="no">find /etc -name '*.conf' 2&gt; /dev/null</code></td></tr><tr><td><code translate="no">&gt; arq 2&gt;&amp;1</code></td><td>Saída e erros no mesmo arquivo, nesta ordem</td><td><code translate="no">bash backup.sh &gt; backup.log 2&gt;&amp;1</code></td></tr><tr><td><code translate="no">&gt;&gt; arq 2&gt;&amp;1</code></td><td>O mesmo, acrescentando</td><td>A forma certa para o cron</td></tr><tr><td><code translate="no">&amp;&gt; arq</code></td><td>Atalho do bash para <code translate="no">&gt; arq 2&gt;&amp;1</code></td><td><code translate="no">bash backup.sh &amp;&gt; backup.log</code></td></tr><tr><td><code translate="no">&lt; arq</code></td><td>O cano 0 lê do arquivo, não do teclado</td><td><code translate="no">wc -l &lt; app1.log</code></td></tr><tr><td><code translate="no">&lt;&lt;'EOF'</code></td><td>Here-doc: o cano 0 lê o texto que vem até a linha <code translate="no">EOF</code></td><td>No Passo 5</td></tr><tr><td><code translate="no">&gt; arq</code>, sem comando</td><td>Zera o arquivo, ou cria um vazio</td><td><code translate="no">&gt; app.log</code></td></tr></tbody></table></div>
+<p>O <code translate="no">/dev/null</code> é o buraco negro do Linux: tudo o que entra some, e quem lê dele recebe um arquivo vazio. Ele existe em qualquer Linux.</p>
+<p><strong>O pipe.</strong> É a barra vertical. Ele liga o cano 1 de um comando ao cano 0 do próximo, sem arquivo no meio:</p>
+<pre translate="no"><code class="lang-bash">grep 'ERROR' app1.log | wc -l
+cut -d: -f7 /etc/passwd | sort | uniq -c</code></pre>
+<p><strong>Os filtros que vivem no meio dos pipes.</strong> Todos leem de um arquivo, se você der o nome, ou do cano 0, se vierem depois de um pipe.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Comando</th><th scope="col">O que faz</th><th scope="col">Exemplo</th></tr></thead><tbody><tr><td><code translate="no">sort</code></td><td>Ordena as linhas em ordem alfabética</td><td><code translate="no">sort nomes.txt</code></td></tr><tr><td><code translate="no">sort -n</code></td><td>Ordena por número: 9 antes de 10</td><td><code translate="no">sort -n tamanhos.txt</code></td></tr><tr><td><code translate="no">sort -r</code></td><td>Inverte a ordem</td><td><code translate="no">sort -rn</code>: o maior primeiro</td></tr><tr><td><code translate="no">sort -u</code></td><td>Ordena e tira as linhas repetidas</td><td><code translate="no">sort -u ips.txt</code></td></tr><tr><td><code translate="no">sort -t: -k3 -n</code></td><td>Ordena pela 3ª coluna, com colunas separadas por <code translate="no">:</code></td><td><code translate="no">sort -t: -k3 -n /etc/passwd</code></td></tr><tr><td><code translate="no">uniq</code></td><td>Junta linhas repetidas <strong>vizinhas</strong>: precisa de <code translate="no">sort</code> antes</td><td>Sempre depois de um <code translate="no">sort</code></td></tr><tr><td><code translate="no">uniq -c</code></td><td>Junta e conta quantas eram</td><td>Sempre depois de um <code translate="no">sort</code></td></tr><tr><td><code translate="no">cut -d: -f1</code></td><td>Corta a 1ª coluna, com colunas separadas por <code translate="no">:</code></td><td><code translate="no">cut -d: -f1 /etc/passwd</code></td></tr><tr><td><code translate="no">cut -d' ' -f3</code></td><td>Corta a 3ª coluna, separada por espaço</td><td><code translate="no">cut -d' ' -f3 app1.log</code></td></tr><tr><td><code translate="no">tr -s ' '</code></td><td>Junta espaços repetidos num só</td><td>Antes de um <code translate="no">cut -d' '</code></td></tr><tr><td><code translate="no">grep -o</code></td><td>Mostra só o pedaço que casou, um por linha</td><td><code translate="no">grep -o 'ip=[0-9.]*' app1.log</code></td></tr><tr><td><code translate="no">wc -l</code></td><td>Conta as linhas que chegam</td><td>No fim do pipe</td></tr><tr><td><code translate="no">head -n 5</code></td><td>Só as cinco primeiras</td><td>Depois de um <code translate="no">sort -rn</code>: o top 5</td></tr><tr><td><code translate="no">tee arq</code></td><td>Mostra na tela <strong>e</strong> grava no arquivo</td><td>No Passo 8</td></tr><tr><td><code translate="no">tee -a arq</code></td><td>O mesmo, acrescentando</td><td>Com <code translate="no">sudo</code>, escreve em arquivo do root</td></tr></tbody></table></div>
+<p>Duas receitas que caem na prova e no dia a dia: <code translate="no">sort | uniq</code> dá o mesmo que <code translate="no">sort -u</code>, e <code translate="no">sort | uniq -c | sort -rn</code> é a receita do ranking.</p>
+<h3 id="ponte-windows">Ponte Windows</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Linux</th><th scope="col">cmd</th><th scope="col">PowerShell</th></tr></thead><tbody><tr><td><code translate="no">cmd &gt; arq</code></td><td><code translate="no">cmd &gt; arq</code></td><td><code translate="no">cmd &gt; arq</code> ou <code translate="no">Out-File arq</code></td></tr><tr><td><code translate="no">cmd &gt;&gt; arq</code></td><td><code translate="no">cmd &gt;&gt; arq</code></td><td><code translate="no">cmd &gt;&gt; arq</code> ou <code translate="no">Out-File arq -Append</code></td></tr><tr><td><code translate="no">cmd 2&gt; arq</code></td><td><code translate="no">cmd 2&gt; arq</code></td><td><code translate="no">cmd 2&gt; arq</code></td></tr><tr><td><code translate="no">cmd &gt; arq 2&gt;&amp;1</code></td><td><code translate="no">cmd &gt; arq 2&gt;&amp;1</code></td><td><code translate="no">cmd &gt; arq 2&gt;&amp;1</code>, ou <code translate="no">*&gt; arq</code> para todos os fluxos</td></tr><tr><td><code translate="no">/dev/null</code></td><td><code translate="no">nul</code></td><td><code translate="no">$null</code> ou <code translate="no">Out-Null</code></td></tr><tr><td><code translate="no">tee arq</code></td><td>Não tem</td><td><code translate="no">Tee-Object arq</code></td></tr><tr><td><code translate="no">sort</code></td><td><code translate="no">sort</code></td><td><code translate="no">Sort-Object</code></td></tr><tr><td><code translate="no">sort -u</code></td><td>Não tem</td><td><code translate="no">Sort-Object -Unique</code></td></tr><tr><td><code translate="no">uniq -c</code></td><td>Não tem</td><td><code translate="no">Group-Object</code></td></tr><tr><td><code translate="no">cut -d: -f1</code></td><td>Não tem</td><td><code translate="no">ForEach-Object { $_.Split(':')[0] }</code></td></tr><tr><td><code translate="no">wc -l</code></td><td><code translate="no">find /c /v ""</code></td><td><code translate="no">Measure-Object -Line</code></td></tr><tr><td>Here-doc <code translate="no">&lt;&lt;'EOF'</code></td><td>Não tem</td><td>Here-string <code translate="no">@' … '@</code></td></tr></tbody></table></div>
+<h3 id="avancado">Avançado</h3>
+<ul><li><strong><code translate="no">set -o noclobber</code></strong> faz o <code translate="no">&gt;</code> recusar sobrescrever um arquivo que já existe: <code translate="no">cannot overwrite existing file</code>. Para forçar, escreva <code translate="no">&gt;|</code>. Desliga com <code translate="no">set +o noclobber</code>. Não protege o <code translate="no">&gt;&gt;</code>, que nunca apaga.</li>
+<li><strong><code translate="no">|&amp;</code></strong> é o atalho do bash para <code translate="no">2&gt;&amp;1 |</code>: manda saída e erros juntos para o próximo comando.</li>
+<li><strong><code translate="no">${PIPESTATUS[@]}</code> e <code translate="no">set -o pipefail</code>.</strong> O <code translate="no">$?</code> de um pipe é o do último comando. <code translate="no">grep x naoexiste.txt | wc -l</code> mostra um erro e o número <code translate="no">0</code>, e o <code translate="no">$?</code> é 0, porque o <code translate="no">wc</code> funcionou. Logo depois, <code translate="no">echo ${PIPESTATUS[@]}</code> mostra <code translate="no">2 0</code>: o código de cada peça. Em script, <code translate="no">set -o pipefail</code> faz o pipe falhar se qualquer peça falhar. Você usa isso no módulo de scripts.</li>
+<li><strong><code translate="no">&lt;&lt;&lt;</code></strong>, a here-string, entrega uma frase curta no cano 0: <code translate="no">wc -w &lt;&lt;&lt; 'uma frase curta'</code> responde 3.</li>
+<li><strong><code translate="no">&lt;&lt;-EOF</code></strong> tira os tabs do começo de cada linha. Serve para recuar um here-doc dentro de um script.</li>
+<li><strong><code translate="no">&lt;(comando)</code></strong>, a substituição de processo, entrega a saída de um comando como se fosse um arquivo: <code translate="no">diff &lt;(sort ontem.txt) &lt;(sort hoje.txt)</code> compara duas listas sem criar arquivos temporários. É o jeito clássico de comparar os pacotes de dois servidores.</li>
+<li><strong><code translate="no">xargs</code></strong> transforma linhas em argumentos: <code translate="no">find ~/lab13 -name '*.log' | xargs wc -l</code> conta as linhas de todos os logs de uma vez. Com nomes que têm espaço, use <code translate="no">find … -print0 | xargs -0 …</code>. O Passo 9 mostra por quê.</li>
+<li><strong><code translate="no">exec &gt; arq 2&gt;&amp;1</code></strong>, dentro de um script, manda para o arquivo tudo o que vem depois. Fica para o módulo de scripts.</li></ul>
+<h2 id="5-rocky-debian">5 · Rocky × Debian</h2>
+<p>O bash é o mesmo nas duas, e todo redirecionamento desta aula funciona igual no terminal. As diferenças aparecem em três lugares: no <code translate="no">/bin/sh</code>, nos programas que você põe no pipe e na ordem do <code translate="no">sort</code>.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Ponto</th><th scope="col">Rocky 9</th><th scope="col">Debian 13</th></tr></thead><tbody><tr><td>Quem é o <code translate="no">/bin/sh</code></td><td>O próprio bash</td><td>O <code translate="no">dash</code>, um shell menor e mais rápido</td></tr><tr><td><code translate="no">&amp;&gt;</code> num script <code translate="no">#!/bin/sh</code> ou numa linha do cron</td><td>Funciona</td><td>Quebra em silêncio: o comando vai para segundo plano, e o arquivo fica vazio</td></tr><tr><td>Contar pacotes instalados</td><td><code translate="no">rpm -qa</code>, contado com <code translate="no">wc -l</code></td><td><code translate="no">dpkg -l</code>, só as linhas que começam com <code translate="no">ii</code>, contadas com <code translate="no">wc -l</code></td></tr><tr><td>Gerenciador que reclama no pipe</td><td>O <code translate="no">dnf</code> não reclama</td><td>O <code translate="no">apt</code> escreve <code translate="no">WARNING: apt does not have a stable CLI interface</code> no cano 2</td></tr><tr><td>Logs para montar pipes</td><td><code translate="no">/var/log/secure</code> e <code translate="no">/var/log/messages</code></td><td><code translate="no">journalctl</code>, que já sai pronto para o pipe</td></tr><tr><td>Ordem do <code translate="no">sort</code></td><td>Depende do idioma, na variável <code translate="no">LANG</code></td><td>Igual</td></tr></tbody></table></div>
+<p>Confira com <code translate="no">ls -l /bin/sh</code> nas duas: algo como <code translate="no">/bin/sh -&gt; bash</code> na Rocky e <code translate="no">/bin/sh -&gt; dash</code> na Debian.</p>
+<p>A segunda linha da tabela é a mais traiçoeira. O cron roda cada linha com <code translate="no">/bin/sh</code>. Na Debian, <code translate="no">bash backup.sh &amp;&gt; backup.log</code> vira duas coisas: <code translate="no">bash backup.sh &amp;</code>, que roda em segundo plano com a saída indo para o e-mail do cron, que quase ninguém lê, e <code translate="no">&gt; backup.log</code>, que só zera o arquivo. O backup roda, o log fica vazio todo dia, e ninguém entende. A regra prática: no terminal, use <code translate="no">&amp;&gt;</code> à vontade. Em script e no cron, escreva sempre <code translate="no">&gt; arq 2&gt;&amp;1</code>, que funciona em qualquer shell.</p>
+<p>O aviso do <code translate="no">apt</code> é o exemplo perfeito de por que existem dois canos. Na Debian, compare:</p>
+<pre translate="no"><code class="lang-bash">apt list --installed | wc -l
+apt list --installed 2&gt; /dev/null | wc -l</code></pre>
+<p>Os dois números são iguais, e só o primeiro mostra o aviso na tela. O aviso saiu pelo cano 2 e passou por fora do pipe. O <code translate="no">wc</code> nunca o viu.</p>
+<h2 id="6-lab-guiado">6 · Lab guiado</h2>
+<p>Faça tudo nas duas VMs, a não ser quando o passo disser só uma. Os arquivos ficam em <code translate="no">~/lab13/pipes</code>, e a matéria-prima é o <code translate="no">app1.log</code> da Aula 1.5. Em cada passo, quando aparecer <strong>Preveja</strong>, escreva a resposta antes de apertar Enter.</p>
+<h3 id="passo-1-preparar">Passo 1 · Preparar</h3>
+<p>No nó Proxmox:</p>
+<pre translate="no"><code class="lang-bash">qm snapshot 201 m1a6-inicio
+qm snapshot 202 m1a6-inicio</code></pre>
+<p>Em cada VM:</p>
+<pre translate="no"><code class="lang-bash">mkdir -p ~/lab13/pipes
+cd ~/lab13/pipes
+wc -l ~/lab13/logs/app1.log
+cp ~/lab13/logs/app1.log .
+ls -l</code></pre>
+<p>O <code translate="no">wc</code> deve responder <code translate="no">20 /home/rodrigo/lab13/logs/app1.log</code>. Se o número for outro, ou o arquivo não existir, volte ao Passo 1 da Aula 1.5 e crie o <code translate="no">app1.log</code> de novo. A cópia local existe para você poder errar à vontade: o original fica guardado em <code translate="no">~/lab13/logs</code>.</p>
+<h3 id="passo-2-e-o-arquivo-que-some-e-o-que-cresce">Passo 2 · <code translate="no">&gt;</code> e <code translate="no">&gt;&gt;</code>: o arquivo que some e o que cresce</h3>
+<pre translate="no"><code class="lang-bash">echo 'primeira' &gt; notas.txt
+cat notas.txt
+echo 'segunda' &gt; notas.txt</code></pre>
+<p><strong>Preveja.</strong> O que o próximo <code translate="no">cat</code> vai mostrar: uma linha ou duas?</p>
+<pre translate="no"><code class="lang-bash">cat notas.txt</code></pre>
+<p>Só <code translate="no">segunda</code>. O segundo <code translate="no">&gt;</code> zerou o arquivo antes de o <code translate="no">echo</code> escrever. Agora acrescente:</p>
+<pre translate="no"><code class="lang-bash">echo 'terceira' &gt;&gt; notas.txt
+date &gt;&gt; notas.txt
+cat -n notas.txt</code></pre>
+<p>Três linhas: <code translate="no">segunda</code>, <code translate="no">terceira</code> e a data. O <code translate="no">&gt;&gt;</code> nunca apaga.</p>
+<p>Agora a promessa da Aula 1.4: esvaziar um arquivo sem trocar o inode.</p>
+<pre translate="no"><code class="lang-bash">ls -li notas.txt
+&gt; notas.txt
+ls -li notas.txt
+&gt; novo-vazio.txt
+ls -l novo-vazio.txt</code></pre>
+<p>O número do inode, na primeira coluna, é o mesmo antes e depois, e o tamanho caiu para 0. É assim que se esvazia um log que um programa está usando: o programa continua escrevendo no mesmo arquivo, e o espaço volta na hora. O <code translate="no">&gt; novo-vazio.txt</code> mostra o outro uso: sem comando, o <code translate="no">&gt;</code> cria um arquivo vazio.</p>
+<p>O mesmo efeito existe como comando, e isso vai importar no Passo 8:</p>
+<pre translate="no"><code class="lang-bash">echo 'de novo' &gt; notas.txt
+truncate -s 0 notas.txt
+ls -l notas.txt</code></pre>
+<p>O <code translate="no">truncate -s 0</code> deixa o arquivo com tamanho zero, igual ao <code translate="no">&gt;</code> sozinho.</p>
+<p>Para a Decida, faça uma cópia do <code translate="no">hosts</code> do sistema. Você mexe na cópia, nunca no original:</p>
+<pre translate="no"><code class="lang-bash">cp /etc/hosts hosts.txt
+wc -l hosts.txt</code></pre>
+<p><strong>Decida 1 · O <code translate="no">/etc/hosts</code>.</strong> Cenário: você precisa acrescentar a linha <code translate="no">10.0.5.40 pg03</code> ao fim do <code translate="no">hosts.txt</code>, sem perder nada do que já existe. Qual comando?</p>
+<ul><li><strong>A)</strong> <code translate="no">echo '10.0.5.40 pg03' &gt; hosts.txt</code></li>
+<li><strong>B)</strong> <code translate="no">echo '10.0.5.40 pg03' &gt;&gt; hosts.txt</code></li>
+<li><strong>C)</strong> <code translate="no">echo '10.0.5.40 pg03' &lt; hosts.txt</code></li>
+<li><strong>D)</strong> <code translate="no">cat '10.0.5.40 pg03' &gt;&gt; hosts.txt</code></li></ul>
+<p>Escolha a letra antes de olhar a tabela.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se você marcou</th><th scope="col">Resultado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>A</td><td>❌ Errada</td><td>O <code translate="no">&gt;</code> zera o arquivo antes de o <code translate="no">echo</code> rodar, e sobra só a linha nova. É o caso da quarta-feira da seção 2.</td></tr><tr><td>B</td><td>✅ Certa</td><td>O <code translate="no">&gt;&gt;</code> acrescenta no fim. O <code translate="no">wc -l</code> passa a mostrar uma linha a mais, e o <code translate="no">tail -n 2</code> mostra a linha nova no fim.</td></tr><tr><td>C</td><td>❌ Errada</td><td>O <code translate="no">&lt;</code> liga o arquivo à entrada do <code translate="no">echo</code>, e o <code translate="no">echo</code> nunca lê a entrada. A linha aparece na tela, e o arquivo fica igual.</td></tr><tr><td>D</td><td>❌ Errada</td><td>O <code translate="no">cat</code> procura um arquivo chamado <code translate="no">10.0.5.40 pg03</code>, responde <code translate="no">No such file or directory</code>, e nada é acrescentado.</td></tr></tbody></table></div>
+<p><strong>Para fixar:</strong> antes de apertar Enter numa linha com <code translate="no">&gt;</code>, leia o <code translate="no">&gt;</code> em voz alta como "zera". Se não era isso que você queria, são dois.</p>
+<p>Rode a B e confira:</p>
+<pre translate="no"><code class="lang-bash">echo '10.0.5.40 pg03' &gt;&gt; hosts.txt
+tail -n 2 hosts.txt
+wc -l hosts.txt</code></pre>
+<h3 id="passo-3-o-cano-2-os-erros-nao-vao-para-o-arquivo">Passo 3 · O cano 2: os erros não vão para o arquivo</h3>
+<pre translate="no"><code class="lang-bash">ls /etc/hostname /naoexiste</code></pre>
+<p>Duas linhas: o nome do arquivo e o erro. Agora mande a saída para um arquivo.</p>
+<p><strong>Preveja.</strong> Com <code translate="no">&gt; saida.txt</code>, o que ainda aparece na tela?</p>
+<pre translate="no"><code class="lang-bash">ls /etc/hostname /naoexiste &gt; saida.txt
+cat saida.txt</code></pre>
+<p>O erro continua na tela: <code translate="no">ls: cannot access '/naoexiste': No such file or directory</code>. O <code translate="no">saida.txt</code> tem só <code translate="no">/etc/hostname</code>. O <code translate="no">&gt;</code> desviou o cano 1; o cano 2 continuou apontando para a tela. Agora separe os dois e depois jogue os erros fora:</p>
+<pre translate="no"><code class="lang-bash">ls /etc/hostname /naoexiste 2&gt; erros.txt
+cat erros.txt
+ls /etc/hostname /naoexiste &gt; saida.txt 2&gt; erros.txt
+ls /etc/hostname /naoexiste 2&gt; /dev/null</code></pre>
+<p>O último é o mais usado na vida real. Um exemplo que você vai repetir muito: o <code translate="no">find</code> como usuário comum reclama de cada pasta que ele não pode abrir.</p>
+<pre translate="no"><code class="lang-bash">find /etc -name '*.conf' | wc -l
+find /etc -name '*.conf' 2&gt; /dev/null | wc -l</code></pre>
+<p>O primeiro enche a tela de <code translate="no">find: '/etc/sudoers.d': Permission denied</code> e de outras pastas fechadas, e no fim mostra um número. O segundo mostra só o número. A lista exata de pastas muda entre a Rocky e a Debian.</p>
+<p><strong>Decida 2 · O número que não mudou.</strong> Cenário: você esperava que o primeiro número fosse maior, porque as linhas de erro "estavam na saída". Mas os dois números são iguais. Por quê?</p>
+<ul><li><strong>A)</strong> O <code translate="no">wc</code> ignora as linhas que começam com <code translate="no">find:</code></li>
+<li><strong>B)</strong> Os erros saíram pelo cano 2, que passa por fora do pipe; o <code translate="no">wc</code> recebeu só o cano 1</li>
+<li><strong>C)</strong> O <code translate="no">2&gt; /dev/null</code> não funciona com o <code translate="no">find</code></li>
+<li><strong>D)</strong> A segunda execução usou um cache, por isso deu igual</li></ul>
+<p>Escolha a letra antes de olhar a tabela.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se você marcou</th><th scope="col">Resultado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>A</td><td>❌ Errada</td><td>O <code translate="no">wc</code> não lê o conteúdo para decidir o que contar: conta toda linha que chega. As linhas de erro simplesmente não chegaram.</td></tr><tr><td>B</td><td>✅ Certa</td><td>O pipe liga só o cano 1. Os erros foram direto para a tela, nos dois casos. O <code translate="no">wc</code> contou exatamente a mesma coisa.</td></tr><tr><td>C</td><td>❌ Errada</td><td>Funciona: na segunda vez, os erros sumiram da tela. O número igual tem outra causa.</td></tr><tr><td>D</td><td>❌ Errada</td><td>Não há cache nenhum. O <code translate="no">find</code> percorreu as pastas de novo, e a lista de arquivos era a mesma.</td></tr></tbody></table></div>
+<p><strong>Para fixar:</strong> o pipe só carrega o cano 1. Se você quiser os erros dentro do pipe, escreva <code translate="no">2&gt;&amp;1</code> antes do pipe.</p>
+<p>Confira:</p>
+<pre translate="no"><code class="lang-bash">find /etc -name '*.conf' 2&gt;&amp;1 | wc -l</code></pre>
+<p>Agora o número é maior: entraram as linhas de erro.</p>
+<h3 id="passo-4-saida-e-erros-juntos-e-a-ordem-que-muda-tudo">Passo 4 · Saída e erros juntos, e a ordem que muda tudo</h3>
+<pre translate="no"><code class="lang-bash">ls /etc/hostname /naoexiste &gt; tudo.txt 2&gt;&amp;1
+cat tudo.txt
+ls /etc/hostname /naoexiste &amp;&gt; tudo2.txt
+cat tudo2.txt</code></pre>
+<p>Os dois arquivos têm as duas linhas. O <code translate="no">ls</code> costuma escrever o erro primeiro, porque ele reclama dos nomes que não existem antes de listar os que existem.</p>
+<p><strong>Preveja.</strong> Agora a ordem invertida. Onde vai aparecer o erro?</p>
+<pre translate="no"><code class="lang-bash">ls /etc/hostname /naoexiste 2&gt;&amp;1 &gt; errado.txt
+cat errado.txt</code></pre>
+<p>O erro aparece na tela, e o <code translate="no">errado.txt</code> tem só <code translate="no">/etc/hostname</code>. Volte ao desenho da seção 3: no momento do <code translate="no">2&gt;&amp;1</code>, o cano 1 ainda apontava para a tela, então o 2 foi para a tela. Só depois o 1 foi para o arquivo.</p>
+<p>A mesma regra, usada a seu favor: contar só os erros do <code translate="no">find</code>.</p>
+<pre translate="no"><code class="lang-bash">find /etc -name '*.conf' 2&gt;&amp;1 &gt; /dev/null | wc -l</code></pre>
+<p>Leia da esquerda para a direita. O 2 vai para onde o 1 aponta agora, o pipe. Depois o 1 vai para o lixo. Só os erros chegam ao <code translate="no">wc</code>: algo como 3 a 6, conforme a VM.</p>
+<p>Por fim, o acumulado, que é a forma do cron:</p>
+<pre translate="no"><code class="lang-bash">date &gt;&gt; exec.log 2&gt;&amp;1
+ls /naoexiste &gt;&gt; exec.log 2&gt;&amp;1
+date &gt;&gt; exec.log 2&gt;&amp;1
+cat exec.log</code></pre>
+<p>Três linhas: a data, o erro e a data. Cada execução acrescenta, nada se perde, e os erros ficam registrados na ordem em que aconteceram.</p>
+<p><strong>Decida 3 · Guardar tudo.</strong> Cenário: você vai rodar um comando demorado e quer a saída e os erros em <code translate="no">upd.log</code>, para ler depois com calma. Qual linha?</p>
+<ul><li><strong>A)</strong> <code translate="no">cmd 2&gt;&amp;1 &gt; upd.log</code></li>
+<li><strong>B)</strong> <code translate="no">cmd &gt; upd.log 2&gt;1</code></li>
+<li><strong>C)</strong> <code translate="no">cmd &gt; upd.log 2&gt;&amp;1</code></li>
+<li><strong>D)</strong> <code translate="no">cmd &gt; upd.log 2&gt; upd.log</code></li></ul>
+<p>Escolha a letra antes de olhar a tabela.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se você marcou</th><th scope="col">Resultado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>A</td><td>❌ Errada</td><td>A ordem está invertida: o 2 vai para a tela, para onde o 1 apontava, e só a saída vai para o arquivo.</td></tr><tr><td>B</td><td>❌ Errada</td><td>Sem o <code translate="no">&amp;</code>, o <code translate="no">1</code> é um nome de arquivo. Os erros vão para um arquivo chamado <code translate="no">1</code>. Teste com <code translate="no">ls /naoexiste &gt; upd.log 2&gt;1</code> e depois <code translate="no">ls -l 1</code>.</td></tr><tr><td>C</td><td>✅ Certa</td><td>Primeiro o 1 vai para o <code translate="no">upd.log</code>; depois o 2 vai para onde o 1 aponta. Tudo no mesmo arquivo, na ordem certa.</td></tr><tr><td>D</td><td>❌ Errada</td><td>Os dois canos abrem o mesmo arquivo separadamente, cada um escrevendo a partir do começo. Um escreve por cima do outro, e o texto sai embaralhado. Teste com <code translate="no">ls /etc/hostname /naoexiste &gt; d.txt 2&gt; d.txt</code> e <code translate="no">cat d.txt</code>.</td></tr></tbody></table></div>
+<p><strong>Para fixar:</strong> o <code translate="no">&amp;</code> em <code translate="no">2&gt;&amp;1</code> diz "é um cano, não um arquivo". E a ordem é sempre: primeiro o destino, depois o <code translate="no">2&gt;&amp;1</code>.</p>
+<p>Se você testou a B e a D, limpe: <code translate="no">rm -v 1 d.txt</code>.</p>
+<h3 id="passo-5-a-entrada-e-o-here-doc">Passo 5 · A entrada: <code translate="no">&lt;</code> e o here-doc</h3>
+<pre translate="no"><code class="lang-bash">wc -l app1.log
+wc -l &lt; app1.log</code></pre>
+<p>O primeiro responde <code translate="no">20 app1.log</code>; o segundo, só <code translate="no">20</code>. Com o <code translate="no">&lt;</code>, quem abre o arquivo é o shell, e o <code translate="no">wc</code> recebe só o conteúdo, sem saber o nome. É a forma que você usa em script, quando quer só o número: <code translate="no">total=$(wc -l &lt; app1.log)</code>.</p>
+<p>Alguns programas só sabem ler do cano 0. O <code translate="no">tr</code>, que troca caracteres, é o mais comum:</p>
+<pre translate="no"><code class="lang-bash">tr 'a-z' 'A-Z' app1.log
+tr 'a-z' 'A-Z' &lt; app1.log | head -n 3</code></pre>
+<p>O primeiro responde <code translate="no">tr: extra operand 'app1.log'</code>. O segundo mostra as três primeiras linhas em maiúsculas. Repare em <code translate="no">CONEXãO</code>: o <code translate="no">tr</code> troca só as letras de a a z, sem acento.</p>
+<p>Agora o here-doc, que você usa desde a Aula 1.5 como receita:</p>
+<pre translate="no"><code class="lang-bash">cat &gt; app.conf &lt;&lt;'EOF'
+# configuração da aplicação
+PORTA=8080
+MODO=producao
+LOG=/var/log/app/app.log
+EOF
+cat -n app.conf</code></pre>
+<p>Cada pedaço tem uma função. O <code translate="no">&lt;&lt;'EOF'</code> diz ao shell: leia as próximas linhas até achar uma linha só com <code translate="no">EOF</code> e entregue tudo no cano 0. O <code translate="no">cat</code> sem nome de arquivo lê do cano 0 e escreve no cano 1. O <code translate="no">&gt; app.conf</code> manda o cano 1 para o arquivo. A palavra <code translate="no">EOF</code> é só um costume; vale qualquer palavra, desde que a linha final tenha só ela, sem espaço antes nem depois.</p>
+<p>É o jeito mais seguro de colar uma configuração pronta num servidor por SSH: nada de editor, nada de linha cortada no meio.</p>
+<p><strong>Preveja.</strong> As duas versões abaixo só diferem nas aspas do <code translate="no">EOF</code>. O que cada uma mostra?</p>
+<pre translate="no"><code class="lang-bash">cat &lt;&lt;EOF
+Usuário: $USER
+Pasta: $HOME
+Hoje: $(date +%F)
+EOF
+cat &lt;&lt;'EOF'
+Usuário: $USER
+Pasta: $HOME
+Hoje: $(date +%F)
+EOF</code></pre>
+<p>A primeira troca cada <code translate="no">$</code> pelo valor: algo como <code translate="no">Usuário: rodrigo</code>, <code translate="no">Pasta: /home/rodrigo</code> e a data de hoje. A segunda mostra o texto exatamente como foi escrito, com os cifrões. Sem aspas, o shell preenche as variáveis; com aspas, ele não mexe em nada.</p>
+<p><strong>Decida 4 · O script que perdeu o <code translate="no">$1</code>.</strong> Cenário: você cria um script pelo terminal e testa:</p>
+<pre translate="no"><code class="lang-bash">cat &gt; saudacao.sh &lt;&lt;EOF
+#!/bin/bash
+echo "Olá, $1"
+EOF
+bash saudacao.sh Rodrigo</code></pre>
+<p>A resposta é só <code translate="no">Olá, </code>, sem o nome. Por quê?</p>
+<ul><li><strong>A)</strong> O script precisa de <code translate="no">chmod +x</code> para ler o <code translate="no">$1</code></li>
+<li><strong>B)</strong> Sem aspas no <code translate="no">EOF</code>, o shell trocou o <code translate="no">$1</code> pelo valor dele na hora de criar o arquivo, e o valor era vazio</li>
+<li><strong>C)</strong> O here-doc não aceita aspas duplas dentro</li>
+<li><strong>D)</strong> O <code translate="no">$1</code> só funciona quando o script roda como <code translate="no">./saudacao.sh</code></li></ul>
+<p>Escolha a letra antes de olhar a tabela.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se você marcou</th><th scope="col">Resultado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>A</td><td>❌ Errada</td><td>Com <code translate="no">bash saudacao.sh</code>, o script roda sem <code translate="no">chmod</code>. O problema está dentro do arquivo, não na permissão.</td></tr><tr><td>B</td><td>✅ Certa</td><td>O <code translate="no">cat saudacao.sh</code> mostra <code translate="no">echo "Olá, "</code>: o <code translate="no">$1</code> sumiu antes de o script existir. No seu terminal, o <code translate="no">$1</code> estava vazio.</td></tr><tr><td>C</td><td>❌ Errada</td><td>O here-doc aceita qualquer texto, com aspas simples ou duplas.</td></tr><tr><td>D</td><td>❌ Errada</td><td>O <code translate="no">$1</code> é o primeiro argumento nos dois jeitos de rodar.</td></tr></tbody></table></div>
+<p><strong>Para fixar:</strong> here-doc que grava script ou configuração com <code translate="no">$</code> dentro leva sempre <code translate="no">&lt;&lt;'EOF'</code>, com aspas. Sem aspas, só quando você quer que o shell preencha as variáveis.</p>
+<p>Conserte e teste:</p>
+<pre translate="no"><code class="lang-bash">cat saudacao.sh
+cat &gt; saudacao.sh &lt;&lt;'EOF'
+#!/bin/bash
+echo "Olá, $1"
+EOF
+cat saudacao.sh
+bash saudacao.sh Rodrigo</code></pre>
+<p>Agora a resposta é <code translate="no">Olá, Rodrigo</code>.</p>
+<h3 id="passo-6-pipes-contar-ordenar-juntar">Passo 6 · Pipes: contar, ordenar, juntar</h3>
+<p>Comece pelo que você já sabe, de dois jeitos:</p>
+<pre translate="no"><code class="lang-bash">grep -c 'ERROR' app1.log
+grep 'ERROR' app1.log | wc -l</code></pre>
+<p>Os dois respondem 4. Agora a dúvida que ficou da Aula 1.5, linhas contra ocorrências:</p>
+<pre translate="no"><code class="lang-bash">echo 'ERROR ERROR ERROR' | grep -c 'ERROR'
+echo 'ERROR ERROR ERROR' | grep -o 'ERROR' | wc -l</code></pre>
+<p>O primeiro responde 1, porque é uma linha. O segundo responde 3: o <code translate="no">grep -o</code> põe cada ocorrência numa linha própria, e o <code translate="no">wc -l</code> conta essas linhas.</p>
+<p>Agora uma pergunta de verdade: quais IPs aparecem no log, e quantas vezes? Monte o pipe uma peça por vez, olhando a saída a cada passo:</p>
+<pre translate="no"><code class="lang-bash">grep -o 'ip=[0-9.]*' app1.log
+grep -o 'ip=[0-9.]*' app1.log | sort
+grep -o 'ip=[0-9.]*' app1.log | sort | uniq -c</code></pre>
+<p>O <code translate="no">[0-9.]</code> quer dizer "um dígito ou um ponto", e o <code translate="no">*</code>, "quantos vierem". Expressões regulares têm aula própria; por enquanto, use como receita. O último comando mostra algo como:</p>
+<pre translate="no"><code class="lang-text">      1 ip=10.0.5.10
+      1 ip=10.0.5.21
+      1 ip=10.0.5.30
+      3 ip=203.0.113.50</code></pre>
+<p>E quantos IPs diferentes:</p>
+<pre translate="no"><code class="lang-bash">grep -o 'ip=[0-9.]*' app1.log | sort -u | wc -l</code></pre>
+<p>Responde 4. Essa é a contagem que a Aula 1.5 prometeu.</p>
+<p><strong>Preveja.</strong> Agora os usuários, mas sem o <code translate="no">sort</code>. Quantas vezes a palavra <code translate="no">ana</code> vai aparecer na saída do segundo comando?</p>
+<pre translate="no"><code class="lang-bash">grep -o 'usuario=[a-z]*' app1.log
+grep -o 'usuario=[a-z]*' app1.log | uniq -c</code></pre>
+<p>Algo como:</p>
+<pre translate="no"><code class="lang-text">      1 usuario=ana
+      2 usuario=root
+      1 usuario=admin
+      1 usuario=bruno
+      1 usuario=ana
+      1 usuario=rodrigo</code></pre>
+<p>A <code translate="no">ana</code> aparece duas vezes, com 1 em cada. O <code translate="no">uniq</code> só compara uma linha com a anterior: as duas linhas do <code translate="no">root</code> estavam juntas e viraram uma; as duas da <code translate="no">ana</code> estavam separadas e ficaram separadas. Com o <code translate="no">sort</code> antes, os iguais ficam vizinhos:</p>
+<pre translate="no"><code class="lang-bash">grep -o 'usuario=[a-z]*' app1.log | sort | uniq -c
+grep -o 'usuario=[a-z]*' app1.log | sort | uniq -c | sort -rn
+grep -o 'usuario=[a-z]*' app1.log | sort | uniq -c | sort -rn | head -n 2</code></pre>
+<p>O último é a receita do ranking, o top 2: <code translate="no">root</code> e <code translate="no">ana</code>, com 2 cada.</p>
+<p><strong>Decida 5 · Quantos IPs diferentes.</strong> Cenário: o gestor quer saber quantos IPs diferentes aparecem no <code translate="no">app1.log</code>. Qual comando dá a resposta certa, hoje e em qualquer log?</p>
+<ul><li><strong>A)</strong> <code translate="no">grep -c 'ip=' app1.log</code></li>
+<li><strong>B)</strong> <code translate="no">grep -o 'ip=[0-9.]*' app1.log | uniq | wc -l</code></li>
+<li><strong>C)</strong> <code translate="no">grep -o 'ip=[0-9.]*' app1.log | sort -u | wc -l</code></li>
+<li><strong>D)</strong> <code translate="no">grep -o 'ip=[0-9.]*' app1.log | wc -l</code></li></ul>
+<p>Escolha a letra antes de olhar a tabela.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se você marcou</th><th scope="col">Resultado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>A</td><td>❌ Errada</td><td>Responde 6: conta as linhas que têm IP, e o <code translate="no">203.0.113.50</code> entra três vezes.</td></tr><tr><td>B</td><td>❌ Incompleta</td><td>Aqui dá 4 por sorte, porque as três linhas do <code translate="no">203.0.113.50</code> estão juntas. Num log real, com os IPs intercalados, a conta sai maior que a verdade.</td></tr><tr><td>C</td><td>✅ Certa</td><td>O <code translate="no">sort -u</code> ordena e tira os repetidos, onde quer que estejam. O <code translate="no">wc -l</code> conta o que sobrou: 4.</td></tr><tr><td>D</td><td>❌ Errada</td><td>Responde 6: conta todas as ocorrências, com repetição.</td></tr></tbody></table></div>
+<p><strong>Para fixar:</strong> "diferentes" é <code translate="no">sort -u</code>, ou <code translate="no">sort</code> e depois <code translate="no">uniq</code>, e só então <code translate="no">wc -l</code>. O <code translate="no">uniq</code> sozinho só enxerga o vizinho.</p>
+<h3 id="passo-7-colunas-com-cut-e-o-espaco-duplo">Passo 7 · Colunas com <code translate="no">cut</code>, e o espaço duplo</h3>
+<p>O <code translate="no">/etc/passwd</code> é o arquivo perfeito para treinar: uma linha por usuário, sete colunas separadas por <code translate="no">:</code>. Usuário, senha, que hoje é só um <code translate="no">x</code>, UID, GID, comentário, pasta pessoal e shell. Os detalhes ficam para a aula de usuários.</p>
+<pre translate="no"><code class="lang-bash">head -n 3 /etc/passwd
+cut -d: -f1 /etc/passwd | head -n 5
+cut -d: -f1,7 /etc/passwd | tail -n 3
+cut -d: -f7 /etc/passwd | sort | uniq -c | sort -rn
+sort -t: -k3 -n /etc/passwd | tail -n 3</code></pre>
+<p>O quarto comando responde "quais shells os usuários têm, e quantos de cada". Algo como, na Rocky:</p>
+<pre translate="no"><code class="lang-text">     17 /sbin/nologin
+      2 /bin/bash
+      1 /sbin/shutdown
+      1 /sbin/halt
+      1 /bin/sync</code></pre>
+<p>Na Debian, o mais comum é <code translate="no">/usr/sbin/nologin</code>, e os números mudam. O que importa: só quem tem um shell de verdade, como o <code translate="no">/bin/bash</code>, consegue entrar e digitar comandos. Essa é uma pergunta de auditoria que você vai responder em servidor de cliente. O último comando ordena pelo UID, a terceira coluna, como número, e mostra os três maiores: o <code translate="no">rodrigo</code> e, no fim, o <code translate="no">nobody</code>, com 65534.</p>
+<p>Agora o <code translate="no">app1.log</code>, cujas colunas são separadas por espaço. A terceira é o nível:</p>
+<pre translate="no"><code class="lang-bash">cut -d' ' -f3 app1.log | sort | uniq -c</code></pre>
+<p>Algo como:</p>
+<pre translate="no"><code class="lang-text">      1 error
+      4 ERROR
+     11 INFO
+      4 WARN</code></pre>
+<p>A ordem depende do idioma do sistema: com <code translate="no">LANG=C</code>, o <code translate="no">ERROR</code> vem primeiro e o <code translate="no">error</code> por último.</p>
+<p><strong>Preveja.</strong> A quarta coluna deveria ser o serviço: <code translate="no">web:</code>, <code translate="no">db:</code>, <code translate="no">auth:</code>. O que aparece nas seis primeiras linhas?</p>
+<pre translate="no"><code class="lang-bash">cut -d' ' -f4 app1.log | head -n 6
+cut -d' ' -f4 app1.log | head -n 6 | cat -A</code></pre>
+<p>Quatro linhas vazias e duas com <code translate="no">auth:</code>. O <code translate="no">cat -A</code> confirma: quatro <code translate="no">$</code> sozinhos. Olhe o log de novo: depois de <code translate="no">INFO</code> e de <code translate="no">WARN</code> há <strong>dois</strong> espaços, para alinhar com o <code translate="no">ERROR</code>. Para o <code translate="no">cut</code>, cada espaço separa uma coluna, então entre os dois espaços existe uma coluna vazia. Nas linhas de <code translate="no">ERROR</code>, com um espaço só, a quarta coluna é o serviço.</p>
+<p>O conserto é juntar os espaços antes de cortar:</p>
+<pre translate="no"><code class="lang-bash">tr -s ' ' &lt; app1.log | cut -d' ' -f4 | head -n 6</code></pre>
+<p>Agora sim: <code translate="no">web:</code>, <code translate="no">db:</code>, <code translate="no">web:</code>, <code translate="no">auth:</code>, <code translate="no">auth:</code>, <code translate="no">auth:</code>. Na aula de <code translate="no">awk</code>, você verá que ele já trata vários espaços como um só.</p>
+<p><strong>Decida 6 · O relatório por nível.</strong> Cenário: o gestor quer quantas linhas há de cada nível no <code translate="no">app1.log</code>, e o <code translate="no">error</code> em minúsculas deve contar junto com o <code translate="no">ERROR</code>. Qual comando?</p>
+<ul><li><strong>A)</strong> <code translate="no">cut -d' ' -f3 app1.log | uniq -c</code></li>
+<li><strong>B)</strong> <code translate="no">cut -d' ' -f3 app1.log | sort | uniq -c</code></li>
+<li><strong>C)</strong> <code translate="no">cut -d' ' -f3 app1.log | tr 'a-z' 'A-Z' | sort | uniq -c</code></li>
+<li><strong>D)</strong> <code translate="no">cut -d' ' -f4 app1.log | sort | uniq -c</code></li></ul>
+<p>Escolha a letra antes de olhar a tabela.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se você marcou</th><th scope="col">Resultado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>A</td><td>❌ Errada</td><td>Sem <code translate="no">sort</code>, o <code translate="no">uniq</code> junta só os vizinhos, e o <code translate="no">INFO</code> aparece picado em várias linhas.</td></tr><tr><td>B</td><td>❌ Incompleta</td><td>A contagem é certa, mas mostra <code translate="no">error</code> e <code translate="no">ERROR</code> separados. O gestor pediu juntos.</td></tr><tr><td>C</td><td>✅ Certa</td><td>O <code translate="no">tr</code> deixa tudo em maiúsculas antes de ordenar e contar: 5 <code translate="no">ERROR</code>, 11 <code translate="no">INFO</code> e 4 <code translate="no">WARN</code>.</td></tr><tr><td>D</td><td>❌ Errada</td><td>A quarta coluna é o serviço, e vem vazia nas linhas com espaço duplo. Nem é o nível.</td></tr></tbody></table></div>
+<p><strong>Para fixar:</strong> normalize antes de contar. Maiúsculas com <code translate="no">tr 'a-z' 'A-Z'</code>, espaços com <code translate="no">tr -s ' '</code>, e sempre <code translate="no">sort</code> antes de <code translate="no">uniq</code>. Outra forma da C: <code translate="no">sort -f</code> com <code translate="no">uniq -ci</code>, que ignoram maiúsculas.</p>
+<h3 id="passo-8-tee-e-escrever-onde-so-o-root-escreve">Passo 8 · <code translate="no">tee</code>, e escrever onde só o root escreve</h3>
+<p>O <code translate="no">tee</code> é um T de encanamento: copia para um arquivo tudo o que passa e deixa o fluxo seguir.</p>
+<pre translate="no"><code class="lang-bash">grep 'ERROR' app1.log | tee erros-hoje.txt | wc -l
+cat erros-hoje.txt
+grep 'WARN' app1.log | tee -a erros-hoje.txt
+wc -l erros-hoje.txt</code></pre>
+<p>O primeiro comando mostra só o <code translate="no">4</code>, mas o arquivo ficou com as quatro linhas. O terceiro mostra os avisos na tela e os acrescenta ao arquivo, que fica com 8 linhas. Na vida real, é assim que você acompanha um comando longo na tela e guarda tudo para o chamado ao mesmo tempo.</p>
+<p>Agora o caso do <code translate="no">sudo</code>. Crie uma pasta que só o root pode escrever:</p>
+<pre translate="no"><code class="lang-bash">sudo mkdir -p /opt/lab16
+ls -ld /opt/lab16
+echo 'PORTA=8080' &gt; /opt/lab16/app.conf</code></pre>
+<p>Algo como <code translate="no">bash: /opt/lab16/app.conf: Permission denied</code>. Normal: a pasta é do root.</p>
+<p><strong>Preveja.</strong> E com <code translate="no">sudo</code> na frente?</p>
+<pre translate="no"><code class="lang-bash">sudo echo 'PORTA=8080' &gt; /opt/lab16/app.conf</code></pre>
+<p>O mesmo <code translate="no">Permission denied</code>. Volte à primeira ideia da seção 3: o seu shell, rodando como você, tenta abrir o arquivo para o <code translate="no">&gt;</code> antes de o <code translate="no">sudo</code> começar. O <code translate="no">sudo</code> só elevaria o <code translate="no">echo</code>, que nem chega a rodar.</p>
+<p>O conserto é pedir a um programa que rode como root para abrir o arquivo. O <code translate="no">tee</code> faz isso:</p>
+<pre translate="no"><code class="lang-bash">echo 'PORTA=8080' | sudo tee /opt/lab16/app.conf
+echo 'MODO=producao' | sudo tee -a /opt/lab16/app.conf &gt; /dev/null
+cat /opt/lab16/app.conf
+ls -l /opt/lab16/app.conf</code></pre>
+<p>O primeiro mostra <code translate="no">PORTA=8080</code> na tela: é a cópia que o <code translate="no">tee</code> deixa passar. No segundo, o <code translate="no">&gt; /dev/null</code> joga fora essa cópia, e a tela fica limpa. Esse <code translate="no">&gt;</code> pode ser seu, sem root, porque escreve no <code translate="no">/dev/null</code>, não no arquivo do root. O arquivo final tem duas linhas e pertence ao root.</p>
+<p>Para um arquivo inteiro como root, junte o <code translate="no">sudo tee</code> com o here-doc:</p>
+<pre translate="no"><code class="lang-bash">sudo tee /opt/lab16/limites.conf &gt; /dev/null &lt;&lt;'EOF'
+# limites da aplicação
+MAX_CONEXOES=200
+TIMEOUT=30
+EOF
+cat /opt/lab16/limites.conf</code></pre>
+<p>E para esvaziar um arquivo do root, o comando que você viu no Passo 2:</p>
+<pre translate="no"><code class="lang-bash">sudo truncate -s 0 /opt/lab16/limites.conf
+ls -l /opt/lab16/limites.conf</code></pre>
+<p>Existe também o <code translate="no">sudo sh -c 'echo PORTA=8080 &gt; /opt/lab16/app.conf'</code>, que roda um shell inteiro como root. Funciona, mas as aspas se complicam rápido. Prefira o <code translate="no">tee</code>.</p>
+<p><strong>Decida 7 · O <code translate="no">/var</code> cheio.</strong> Cenário: o <code translate="no">/var</code> está com 98%. O <code translate="no">/var/log/app/app.log</code> tem 4 GB, e a aplicação está escrevendo nele agora. Você precisa liberar espaço já, sem parar a aplicação, e o histórico do log pode ir embora. Qual comando?</p>
+<ul><li><strong>A)</strong> <code translate="no">sudo rm /var/log/app/app.log</code></li>
+<li><strong>B)</strong> <code translate="no">sudo &gt; /var/log/app/app.log</code></li>
+<li><strong>C)</strong> <code translate="no">sudo truncate -s 0 /var/log/app/app.log</code></li>
+<li><strong>D)</strong> <code translate="no">sudo mv /var/log/app/app.log /tmp/</code></li></ul>
+<p>Escolha a letra antes de olhar a tabela.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se você marcou</th><th scope="col">Resultado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>A</td><td>❌ Errada</td><td>É a Aula 1.4: o <code translate="no">rm</code> tira o nome, mas a aplicação continua segurando o inode. O espaço não volta, e ela segue escrevendo num arquivo sem nome.</td></tr><tr><td>B</td><td>❌ Errada</td><td>Quem faz o <code translate="no">&gt;</code> é o seu shell, sem root: <code translate="no">Permission denied</code>, e nada muda. O <code translate="no">sudo</code> sem comando nem chega a rodar.</td></tr><tr><td>C</td><td>✅ Certa</td><td>O <code translate="no">truncate</code> roda como root e zera o mesmo inode. O espaço volta na hora, e a aplicação continua escrevendo no mesmo arquivo.</td></tr><tr><td>D</td><td>❌ Errada</td><td>Se o <code translate="no">/tmp</code> estiver no mesmo sistema de arquivos, nada muda: é a Aula 1.4. Se estiver em outro, o <code translate="no">mv</code> copia 4 GB e apaga o original, e o espaço do <code translate="no">/var</code> continua preso, porque a aplicação ainda segura o inode.</td></tr></tbody></table></div>
+<p><strong>Para fixar:</strong> para zerar um arquivo do root, use <code translate="no">sudo truncate -s 0</code>. Para escrever num arquivo do root, mande o texto pelo pipe para <code translate="no">sudo tee</code>, ou <code translate="no">sudo tee -a</code> para acrescentar. E nunca use <code translate="no">rm</code> num log aberto.</p>
+<figure><a href="../img/1.6-sudo-tee.jpg"><img src="../img/1.6-sudo-tee.jpg" alt="sudo echo &gt; contra sudo tee" loading="lazy" decoding="async"></a><figcaption>O sudo eleva o comando, não o redirecionamento: quem precisa ser root é quem abre o arquivo.</figcaption></figure>
+<h3 id="passo-9-xargs-de-linhas-para-argumentos">Passo 9 · <code translate="no">xargs</code>: de linhas para argumentos</h3>
+<p>O pipe entrega texto no cano 0. Mas muitos comandos, como <code translate="no">wc</code>, <code translate="no">ls</code> e <code translate="no">rm</code>, esperam nomes de arquivo como argumentos, e não no cano 0. O <code translate="no">xargs</code> faz essa ponte: lê linhas e as entrega como argumentos ao comando que vem depois dele.</p>
+<pre translate="no"><code class="lang-bash">find ~/lab13 -name '*.log' | wc -l
+find ~/lab13 -name '*.log' | xargs wc -l</code></pre>
+<p>O primeiro conta <strong>quantos arquivos</strong> <code translate="no">.log</code> existem, porque o <code translate="no">wc</code> recebeu a lista de nomes como texto. O segundo conta <strong>as linhas dentro</strong> de cada arquivo, com um total no fim, porque o <code translate="no">wc</code> recebeu os nomes como argumentos, como se você os tivesse digitado.</p>
+<p>Agora a armadilha. Crie um log com espaço no nome, como o <code translate="no">relatorio final.txt</code> da Aula 1.3:</p>
+<pre translate="no"><code class="lang-bash">echo 'teste' &gt; ~/lab13/pipes/'relatorio final.log'
+find ~/lab13 -name '*.log' | xargs wc -l</code></pre>
+<p>Algo como <code translate="no">wc: /home/rodrigo/lab13/pipes/relatorio: No such file or directory</code> e <code translate="no">wc: final.log: No such file or directory</code>. O <code translate="no">xargs</code> separa os argumentos por espaço, e um nome virou dois. O conserto:</p>
+<pre translate="no"><code class="lang-bash">find ~/lab13 -name '*.log' -print0 | xargs -0 wc -l</code></pre>
+<p>O <code translate="no">-print0</code> separa os nomes com um caractere nulo, que nenhum nome de arquivo pode ter, e o <code translate="no">-0</code> diz ao <code translate="no">xargs</code> para separar por ele. Agora o <code translate="no">relatorio final.log</code> aparece com 1 linha.</p>
+<p><strong>Decida 8 · A limpeza dos <code translate="no">.tmp</code>.</strong> Cenário: num servidor de arquivos, você precisa apagar todos os <code translate="no">.tmp</code> de <code translate="no">/srv/dados</code>. Alguns nomes têm espaço, como <code translate="no">relatorio final.tmp</code>, e existe também um arquivo importante chamado só <code translate="no">relatorio</code>. Qual comando?</p>
+<ul><li><strong>A)</strong> <code translate="no">find /srv/dados -name '*.tmp' | xargs rm</code></li>
+<li><strong>B)</strong> <code translate="no">find /srv/dados -name '*.tmp' -print0 | xargs -0 rm</code></li>
+<li><strong>C)</strong> <code translate="no">rm $(find /srv/dados -name '*.tmp')</code></li>
+<li><strong>D)</strong> <code translate="no">find /srv/dados -name '*.tmp' | rm</code></li></ul>
+<p>Escolha a letra antes de olhar a tabela.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se você marcou</th><th scope="col">Resultado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>A</td><td>❌ Errada</td><td>O <code translate="no">relatorio final.tmp</code> vira dois argumentos: <code translate="no">relatorio</code> e <code translate="no">final.tmp</code>. O <code translate="no">relatorio</code> importante é apagado, e o <code translate="no">.tmp</code> fica.</td></tr><tr><td>B</td><td>✅ Certa</td><td>Com <code translate="no">-print0</code> e <code translate="no">-0</code>, cada nome chega inteiro ao <code translate="no">rm</code>, com espaço e tudo.</td></tr><tr><td>C</td><td>❌ Errada</td><td>O mesmo problema da A: o shell quebra a saída do <code translate="no">find</code> nos espaços antes de entregá-la ao <code translate="no">rm</code>.</td></tr><tr><td>D</td><td>❌ Errada</td><td>O <code translate="no">rm</code> não lê nomes do cano 0: responde <code translate="no">rm: missing operand</code>, e nada é apagado.</td></tr></tbody></table></div>
+<p><strong>Para fixar:</strong> quando o pipe leva nomes de arquivo para o <code translate="no">xargs</code>, use sempre <code translate="no">-print0</code> com <code translate="no">-0</code>. E, antes de qualquer <code translate="no">rm</code>, rode a mesma linha com <code translate="no">ls -l</code> no lugar dele e leia a lista.</p>
+<p>No lab, faça só a conferência, sem apagar nada:</p>
+<pre translate="no"><code class="lang-bash">find ~/lab13 -name '*.log' -print0 | xargs -0 ls -l</code></pre>
+<h3 id="protocolo-montar-um-pipe-sem-errar">Protocolo · Montar um pipe sem errar</h3>
+<ol><li><strong>Rode a primeira peça sozinha</strong> e olhe a saída. Se ela não tem o que você quer, nenhuma peça depois conserta.</li>
+<li><strong>Acrescente uma peça por vez.</strong> Use a seta para cima e termine com <code translate="no">| head</code> enquanto testa.</li>
+<li><strong>Normalize antes de contar:</strong> <code translate="no">grep -o</code> isola o pedaço, <code translate="no">tr -s ' '</code> junta os espaços, <code translate="no">tr 'a-z' 'A-Z'</code> iguala as maiúsculas.</li>
+<li><strong><code translate="no">sort</code> sempre antes de <code translate="no">uniq</code>.</strong> O ranking é <code translate="no">sort | uniq -c | sort -rn | head</code>.</li>
+<li><strong>Só no fim, grave o resultado</strong>: num arquivo novo ou com <code translate="no">&gt;&gt;</code>, nunca no arquivo que você está lendo. Se o destino for do root, use <code translate="no">sudo tee</code>.</li></ol>
+<figure><a href="../img/1.6-pipe-ranking.jpg"><img src="../img/1.6-pipe-ranking.jpg" alt="O pipe peça por peça: do log ao ranking" loading="lazy" decoding="async"></a><figcaption>Um pipe se monta como lego: uma peça por vez, olhando a saída de cada uma.</figcaption></figure>
+<h2 id="7-quebre-e-conserte">7 · Quebre e conserte</h2>
+<p>Duas quebras que acontecem de verdade, e com frequência. Nenhuma das duas dá erro na hora, e é isso que as torna perigosas. Faça tudo em <code translate="no">~/lab13/pipes</code>, nas duas VMs.</p>
+<h3 id="quebra-a-o-sort-que-apagou-a-lista">Quebra A · O <code translate="no">sort</code> que apagou a lista</h3>
+<p><strong>Quebre.</strong></p>
+<pre translate="no"><code class="lang-bash">cd ~/lab13/pipes
+printf '%s\n' carla ana bruno ana davi &gt; nomes.txt
+cp nomes.txt nomes.bak
+cat nomes.txt
+sort nomes.txt &gt; nomes.txt</code></pre>
+<p>Você quis ordenar a lista "no lugar", gravando o resultado no próprio arquivo. O prompt voltou sem nenhuma mensagem.</p>
+<p><strong>Preveja.</strong> Antes de olhar: o que o <code translate="no">cat nomes.txt</code> mostra agora? Os cinco nomes em ordem, os cinco na ordem antiga, ou nada?</p>
+<p><strong>Descubra.</strong></p>
+<pre translate="no"><code class="lang-bash">cat nomes.txt
+wc -l nomes.txt
+ls -l nomes.txt nomes.bak</code></pre>
+<p>O <code translate="no">cat</code> não mostra nada, o <code translate="no">wc</code> responde <code translate="no">0 nomes.txt</code>, e o <code translate="no">ls -l</code> mostra 0 bytes no <code translate="no">nomes.txt</code> e 25 no <code translate="no">nomes.bak</code>. A lista sumiu.</p>
+<p><strong>Decida 9 · Por que sumiu.</strong> Cenário: o <code translate="no">sort nomes.txt &gt; nomes.txt</code> deixou o arquivo vazio, sem nenhuma mensagem de erro. Qual é a explicação?</p>
+<ul><li><strong>A)</strong> O <code translate="no">sort</code> tirou os nomes repetidos e, junto, levou os outros.</li>
+<li><strong>B)</strong> O shell abriu o <code translate="no">nomes.txt</code> para o <code translate="no">&gt;</code> e o zerou antes de o <code translate="no">sort</code> começar. O <code translate="no">sort</code> leu um arquivo vazio e gravou nada.</li>
+<li><strong>C)</strong> O <code translate="no">sort</code> só grava em arquivo com <code translate="no">-o</code>. Com <code translate="no">&gt;</code>, a saída se perde.</li>
+<li><strong>D)</strong> O <code translate="no">sort</code> ainda está rodando em segundo plano e vai gravar daqui a pouco.</li></ul>
+<p>Escolha a letra antes de olhar a tabela.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se você marcou</th><th scope="col">Resultado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>A</td><td>❌ Errada</td><td>O <code translate="no">sort</code> só tira repetidos com <code translate="no">-u</code>. E, mesmo com <code translate="no">-u</code>, sobrariam quatro nomes.</td></tr><tr><td>B</td><td>✅ Certa</td><td>É a primeira ideia da seção 3: o shell prepara os canos antes de rodar o comando. Abrir com <code translate="no">&gt;</code> zera o arquivo na hora, e o <code translate="no">sort</code> chega tarde.</td></tr><tr><td>C</td><td>❌ Errada</td><td>Com <code translate="no">&gt;</code>, a saída vai para o arquivo, sim. O problema é o momento em que o shell abre esse arquivo. O <code translate="no">-o</code> é o conserto, não a causa.</td></tr><tr><td>D</td><td>❌ Errada</td><td>Sem <code translate="no">&amp;</code> no fim, o comando roda em primeiro plano, e o prompt só volta quando ele termina. O arquivo já está vazio, e vai continuar assim.</td></tr></tbody></table></div>
+<p><strong>Para fixar:</strong> nunca redirecione para o arquivo que o comando está lendo. Vale para <code translate="no">sort</code>, <code translate="no">grep</code>, <code translate="no">tr</code>, <code translate="no">cut</code>, qualquer um.</p>
+<p><strong>Conserte.</strong> Recupere a lista do <code translate="no">.bak</code> e ordene do jeito certo:</p>
+<pre translate="no"><code class="lang-bash">cp nomes.bak nomes.txt
+sort -o nomes.txt nomes.txt
+cat nomes.txt</code></pre>
+<p>O <code translate="no">-o</code> é do próprio <code translate="no">sort</code>: ele lê toda a entrada primeiro e só depois abre o arquivo de saída. Agora aparecem <code translate="no">ana</code>, <code translate="no">ana</code>, <code translate="no">bruno</code>, <code translate="no">carla</code> e <code translate="no">davi</code>. Para qualquer outro comando, o jeito universal é um arquivo temporário:</p>
+<pre translate="no"><code class="lang-bash">cp nomes.bak nomes.txt
+grep -v 'ana' nomes.txt &gt; nomes.tmp &amp;&amp; mv nomes.tmp nomes.txt
+cat nomes.txt</code></pre>
+<p>O <code translate="no">&amp;&amp;</code> só roda o <code translate="no">mv</code> se o <code translate="no">grep</code> deu certo. Sobram <code translate="no">carla</code>, <code translate="no">bruno</code> e <code translate="no">davi</code>.</p>
+<p>E para não cair nisso de novo, o shell tem uma trava, o <code translate="no">noclobber</code>:</p>
+<pre translate="no"><code class="lang-bash">cp nomes.bak nomes.txt
+set -o noclobber
+sort nomes.txt &gt; nomes.txt
+wc -l nomes.txt</code></pre>
+<p>Algo como <code translate="no">bash: nomes.txt: cannot overwrite existing file</code>, e o arquivo continua com 5 linhas. Com a trava ligada, o <code translate="no">&gt;</code> se recusa a sobrescrever um arquivo que já existe. Para forçar, use <code translate="no">&gt;|</code>. O <code translate="no">&gt;&gt;</code> continua funcionando, porque não apaga nada. Para desligar a trava:</p>
+<pre translate="no"><code class="lang-bash">set +o noclobber</code></pre>
+<p>Um detalhe: o <code translate="no">cat nomes.txt &gt;&gt; nomes.txt</code> dá <code translate="no">cat: nomes.txt: input file is output file</code>. O <code translate="no">cat</code> do GNU percebe esse caso e se recusa. Com <code translate="no">&gt;</code> não há o que perceber: quando o comando começa, o arquivo já foi zerado.</p>
+<p><strong>Verifique.</strong></p>
+<pre translate="no"><code class="lang-bash">wc -l nomes.txt
+diff nomes.txt nomes.bak &amp;&amp; echo 'igual ao backup'</code></pre>
+<p>Cinco linhas e <code translate="no">igual ao backup</code>.</p>
+<h3 id="quebra-b-o-log-de-backup-que-mente">Quebra B · O log de backup que mente</h3>
+<p><strong>Quebre.</strong> Crie um script de backup com um erro de propósito: uma das pastas não existe.</p>
+<pre translate="no"><code class="lang-bash">cd ~/lab13/pipes
+cat &gt; backup.sh &lt;&lt;'EOF'
+#!/bin/bash
+echo "$(date +%T) backup iniciado"
+tar -czf /tmp/backup-lab.tar.gz ~/lab13/logs ~/lab13/naoexiste
+echo "$(date +%T) backup concluído"
+EOF
+bash backup.sh &gt; backup.log</code></pre>
+<p>O <code translate="no">EOF</code> entre aspas guarda o <code translate="no">$(date +%T)</code> e o <code translate="no">~</code> como texto, para serem calculados quando o script rodar. Na tela, aparece algo como:</p>
+<pre translate="no"><code class="lang-text">tar: Removing leading `/' from member names
+tar: /home/rodrigo/lab13/naoexiste: Cannot stat: No such file or directory
+tar: Exiting with failure status due to previous errors</code></pre>
+<p><strong>Preveja.</strong> O que o <code translate="no">backup.log</code> diz? E o código de saída do script, é 0 ou não?</p>
+<p><strong>Descubra.</strong></p>
+<pre translate="no"><code class="lang-bash">cat backup.log
+bash backup.sh &gt; backup.log 2&gt; /dev/null
+echo $?</code></pre>
+<p>O log tem algo como:</p>
+<pre translate="no"><code class="lang-text">10:42:01 backup iniciado
+10:42:01 backup concluído</code></pre>
+<p>E o <code translate="no">echo $?</code> responde 0. O log diz que deu tudo certo, e o código de saída também. O erro do <code translate="no">tar</code> foi pelo cano 2, para a tela, e no cron não há tela: ninguém ia ver. Na vida real, é assim que se descobre, no dia do desastre, que o backup falhava havia meses.</p>
+<p>Agora a tentativa com a ordem errada:</p>
+<pre translate="no"><code class="lang-bash">bash backup.sh 2&gt;&amp;1 &gt; backup.log
+cat backup.log</code></pre>
+<p>Os erros continuam na tela, e o log continua limpo. O <code translate="no">2&gt;&amp;1</code> copiou o destino do cano 1 no momento em que foi lido, quando o cano 1 ainda apontava para a tela.</p>
+<p><strong>Decida 10 · A linha do crontab.</strong> Cenário: você vai agendar o <code translate="no">backup.sh</code> no cron, todo dia às 2h. Cada execução deve acrescentar ao <code translate="no">backup.log</code> as mensagens normais e os erros, juntos e na ordem. Qual redirecionamento?</p>
+<ul><li><strong>A)</strong> <code translate="no">bash backup.sh &gt; backup.log 2&gt;&amp;1</code></li>
+<li><strong>B)</strong> <code translate="no">bash backup.sh 2&gt;&amp;1 &gt;&gt; backup.log</code></li>
+<li><strong>C)</strong> <code translate="no">bash backup.sh &gt;&gt; backup.log 2&gt;&amp;1</code></li>
+<li><strong>D)</strong> <code translate="no">bash backup.sh &amp;&gt;&gt; backup.log</code></li></ul>
+<p>Escolha a letra antes de olhar a tabela.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se você marcou</th><th scope="col">Resultado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>A</td><td>❌ Incompleta</td><td>Junta os dois canos na ordem certa, mas o <code translate="no">&gt;</code> zera o log a cada execução. Amanhã você só vê a noite de hoje.</td></tr><tr><td>B</td><td>❌ Errada</td><td>É a ordem errada: os erros vão para onde o cron manda a saída, que é um e-mail local que ninguém lê ou lugar nenhum.</td></tr><tr><td>C</td><td>✅ Certa</td><td>O <code translate="no">&gt;&gt;</code> acrescenta o cano 1 ao log, e o <code translate="no">2&gt;&amp;1</code> manda o cano 2 para o mesmo lugar. Funciona em qualquer shell.</td></tr><tr><td>D</td><td>❌ Errada</td><td>Na Rocky funciona, porque o <code translate="no">sh</code> do cron é o bash. Na Debian o cron usa o dash, que lê o <code translate="no">&amp;</code> como "rode em segundo plano": o backup roda solto, a saída vai para o e-mail do cron, e o log não recebe nada.</td></tr></tbody></table></div>
+<p><strong>Para fixar:</strong> no crontab, é sempre <code translate="no">&gt;&gt; arquivo 2&gt;&amp;1</code>, nessa ordem, e com caminhos completos, porque o cron não sabe em que pasta você está. A linha completa ficaria assim, mas não a instale agora; o cron tem aula própria:</p>
+<pre translate="no"><code class="lang-text">0 2 * * * /bin/bash /home/rodrigo/lab13/pipes/backup.sh &gt;&gt; /home/rodrigo/lab13/pipes/backup.log 2&gt;&amp;1</code></pre>
+<p><strong>Conserte.</strong> Rode com o redirecionamento certo:</p>
+<pre translate="no"><code class="lang-bash">bash backup.sh &gt;&gt; backup.log 2&gt;&amp;1
+cat backup.log</code></pre>
+<p>Agora o erro do <code translate="no">tar</code> aparece no log, entre o "iniciado" e o "concluído". Mas repare: o script ainda escreve "concluído" depois do erro, e o código de saída continua 0, porque o último comando é o <code translate="no">echo</code>, que sempre dá certo. O script mente de outro jeito. O conserto disso, com <code translate="no">set -e</code>, <code translate="no">set -o pipefail</code> e o teste do <code translate="no">$?</code>, vem no módulo de scripts. Por enquanto, o hábito: leia o log inteiro, não só a última linha.</p>
+<p><strong>Verifique.</strong></p>
+<pre translate="no"><code class="lang-bash">grep -c 'Cannot stat' backup.log
+tail -n 5 backup.log</code></pre>
+<p>O <code translate="no">grep -c</code> responde 1: só a última execução guardou o erro. As três anteriores gravaram um log limpo, que mentia.</p>
+<h3 id="e-o-snapshot">E o snapshot?</h3>
+<p>Nenhuma das duas quebras precisou dele, e isso é a lição. Na Quebra A, você só recuperou a lista porque tinha feito o <code translate="no">nomes.bak</code>. Num servidor de verdade, voltar a VM inteira para recuperar um arquivo desfaz tudo o que aconteceu depois, inclusive o trabalho dos usuários. O hábito que salva é <code translate="no">cp arquivo arquivo.bak</code> antes de mexer, ou o <code translate="no">sort -o</code>. Na Quebra B, nenhum snapshot ajuda: o estrago é não saber que o backup falhava. Só o <code translate="no">2&gt;&amp;1</code> no lugar certo resolve.</p>
+<h3 id="bonus-debian">Bônus Debian</h3>
+<p>Primeiro, o <code translate="no">&amp;&gt;</code> no <code translate="no">sh</code>, que na Debian é o dash. Rode nas duas VMs e compare:</p>
+<pre translate="no"><code class="lang-bash">sh -c 'ls /etc/hostname /naoexiste &amp;&gt; amp.txt'
+cat amp.txt</code></pre>
+<p>Na Rocky, o <code translate="no">amp.txt</code> tem as duas linhas, a saída e o erro. Na Debian, as duas linhas aparecem na tela, e o <code translate="no">amp.txt</code> fica vazio: o dash rodou o <code translate="no">ls</code> em segundo plano e depois criou o arquivo vazio com o <code translate="no">&gt; amp.txt</code>. É exatamente o que acontece num script <code translate="no">sh</code> ou no cron da Debian.</p>
+<p>Depois, os pacotes, usando o que você aprendeu hoje:</p>
+<pre translate="no"><code class="lang-bash">[ "$(hostname)" = debian-lab ] &amp;&amp; dpkg -l | grep '^ii' | wc -l
+[ "$(hostname)" = debian-lab ] &amp;&amp; dpkg -l | grep '^ii' | tr -s ' ' | cut -d' ' -f2 | head -n 5</code></pre>
+<p>O primeiro conta os pacotes instalados. O segundo junta os espaços e corta a segunda coluna, o nome do pacote. É o problema do espaço duplo do Passo 7, num arquivo de verdade.</p>
+<p>Por último, os logins por SSH, que na Debian ficam só no journal:</p>
+<pre translate="no"><code class="lang-bash">[ "$(hostname)" = debian-lab ] &amp;&amp; sudo journalctl -u ssh --no-pager | grep -c 'Accepted'</code></pre>
+<p>Quantos logins deram certo desde o último boot. Para ver falhas, gere algumas no lab: rode <code translate="no">ssh errado@127.0.0.1</code> e digite qualquer coisa errada como senha, três vezes. Depois:</p>
+<pre translate="no"><code class="lang-bash">[ "$(hostname)" = debian-lab ] &amp;&amp; sudo journalctl -u ssh --no-pager | grep 'Failed password' | grep -o 'from [0-9.]*' | sort | uniq -c</code></pre>
+<p>Algo como <code translate="no">3 from 127.0.0.1</code>.</p>
+<h3 id="bonus-rocky">Bônus Rocky</h3>
+<pre translate="no"><code class="lang-bash">[ "$(hostname)" = rocky-lab ] &amp;&amp; rpm -qa | wc -l
+[ "$(hostname)" = rocky-lab ] &amp;&amp; rpm -qa | sort | head -n 5
+[ "$(hostname)" = rocky-lab ] &amp;&amp; rpm -qa --last | head -n 5</code></pre>
+<p>Quantos pacotes, os cinco primeiros em ordem alfabética e os cinco instalados mais recentemente. Agora o pipe da história do gestor, da seção 2. Gere as falhas como no bônus da Debian, com <code translate="no">ssh errado@127.0.0.1</code>, e rode:</p>
+<pre translate="no"><code class="lang-bash">[ "$(hostname)" = rocky-lab ] &amp;&amp; sudo grep 'Failed password' /var/log/secure | grep -o 'from [0-9.]*' | sort | uniq -c | sort -rn</code></pre>
+<p>Algo como <code translate="no">3 from 127.0.0.1</code>. Num servidor exposto à internet, esta mesma linha mostra, em segundos, quem está tentando adivinhar a senha do root.</p>
+<h3 id="a-licao">A lição</h3>
+<p>O shell prepara os canos antes de rodar o comando: o <code translate="no">&gt;</code> zera o arquivo antes de alguém ler. E quem não manda o cano 2 para o log perde justamente a mensagem que importava. Nenhuma das duas quebras avisa na hora, então o que protege é o hábito: <code translate="no">sort -o</code> ou um arquivo temporário, <code translate="no">&gt;&gt; log 2&gt;&amp;1</code> em tudo o que roda sozinho, e ler o log inteiro.</p>
+<h2 id="8-armadilhas">8 · Armadilhas</h2>
+<div class="tabela"><table><thead><tr><th scope="col">Armadilha</th><th scope="col">O que acontece</th><th scope="col">Como evitar</th></tr></thead><tbody><tr><td><code translate="no">sort f &gt; f</code>, ou <code translate="no">grep x f &gt; f</code></td><td>O arquivo fica vazio, sem nenhum erro.</td><td><code translate="no">sort -o f f</code>, ou um arquivo temporário e depois <code translate="no">mv</code>.</td></tr><tr><td><code translate="no">&gt;</code> quando você queria <code translate="no">&gt;&gt;</code></td><td>O conteúdo antigo se perde.</td><td>Leia a linha antes do Enter. Em sessões arriscadas, <code translate="no">set -o noclobber</code>.</td></tr><tr><td><code translate="no">2&gt;&amp;1 &gt; arq</code></td><td>Os erros continuam na tela.</td><td><code translate="no">&gt; arq 2&gt;&amp;1</code>: primeiro o destino, depois a cópia.</td></tr><tr><td><code translate="no">2&gt;1</code>, sem o <code translate="no">&amp;</code></td><td>Cria um arquivo chamado <code translate="no">1</code>.</td><td><code translate="no">2&gt;&amp;1</code>.</td></tr><tr><td><code translate="no">sudo echo x &gt; /etc/arq</code></td><td><code translate="no">Permission denied</code>: quem abre o arquivo é o seu shell, sem root.</td><td>Mande o texto pelo pipe para <code translate="no">sudo tee /etc/arq</code>.</td></tr><tr><td><code translate="no">sudo &gt; arq</code> para zerar</td><td><code translate="no">Permission denied</code>, e nada muda.</td><td><code translate="no">sudo truncate -s 0 arq</code>.</td></tr><tr><td><code translate="no">rm</code> num log aberto</td><td>O espaço não volta.</td><td><code translate="no">truncate -s 0</code>.</td></tr><tr><td><code translate="no">uniq</code> sem <code translate="no">sort</code></td><td>Repetidos que não estão lado a lado continuam separados.</td><td><code translate="no">sort</code> sempre antes de <code translate="no">uniq</code>.</td></tr><tr><td><code translate="no">cut -d' '</code> com espaços duplos</td><td>Aparecem colunas vazias.</td><td><code translate="no">tr -s ' '</code> antes do <code translate="no">cut</code>, ou <code translate="no">awk</code>.</td></tr><tr><td><code translate="no">grep -c</code> para contar ocorrências</td><td>Conta linhas, não ocorrências.</td><td><code translate="no">grep -o</code> e depois <code translate="no">wc -l</code>.</td></tr><tr><td><code translate="no">wc -l</code> na lista do <code translate="no">find</code></td><td>Conta arquivos, não linhas.</td><td><code translate="no">xargs wc -l</code>, com <code translate="no">-print0</code> e <code translate="no">-0</code>.</td></tr><tr><td><code translate="no">xargs</code> com nomes que têm espaço</td><td>Um nome vira dois, e o <code translate="no">rm</code> pode apagar o arquivo errado.</td><td><code translate="no">find -print0</code> com <code translate="no">xargs -0</code>. Teste antes com <code translate="no">ls -l</code>.</td></tr><tr><td><code translate="no">&amp;&gt;</code> num script <code translate="no">sh</code> ou no cron da Debian</td><td>O comando vai para segundo plano, e o log fica vazio.</td><td><code translate="no">&gt; arq 2&gt;&amp;1</code>, que funciona em qualquer shell.</td></tr><tr><td><code translate="no">&lt;&lt;EOF</code> sem aspas</td><td><code translate="no">$1</code>, <code translate="no">$HOME</code> e <code translate="no">$(...)</code> são trocados na hora.</td><td><code translate="no">&lt;&lt;'EOF'</code> quando o texto deve ir literal.</td></tr><tr><td>Esperar que os erros passem pelo pipe</td><td>O <code translate="no">wc</code> e o <code translate="no">grep</code> não veem o cano 2.</td><td><code translate="no">2&gt;&amp;1</code> antes do pipe, ou <code translate="no">2&gt; /dev/null</code> para descartar.</td></tr><tr><td><code translate="no">tr 'a-z' 'A-Z' arquivo</code></td><td><code translate="no">extra operand</code>: o <code translate="no">tr</code> só lê do cano 0.</td><td><code translate="no">tr 'a-z' 'A-Z' &lt; arquivo</code>.</td></tr><tr><td><code translate="no">sort</code> em servidores com idiomas diferentes</td><td>A ordem muda de um servidor para o outro.</td><td><code translate="no">LC_ALL=C sort</code> quando a ordem precisa ser igual em toda parte.</td></tr></tbody></table></div>
+<h2 id="9-quiz">9 · Quiz</h2>
+<p>Dez perguntas, sem consultar. Escreva a letra ou a resposta de cada uma e só depois abra o Gabarito.</p>
+<p><strong>1.</strong> O <code translate="no">notas.txt</code> já existe e tem dez linhas. O que acontece com ele em <code translate="no">echo 'oi' &gt; notas.txt</code>?</p>
+<ul><li><strong>A)</strong> A linha <code translate="no">oi</code> vai para o fim</li>
+<li><strong>B)</strong> O arquivo é zerado e fica só com <code translate="no">oi</code></li>
+<li><strong>C)</strong> O shell se recusa, porque o arquivo já existe</li>
+<li><strong>D)</strong> O <code translate="no">oi</code> aparece na tela, e o arquivo não muda</li></ul>
+<p><strong>2.</strong> O <code translate="no">find /etc -name '*.conf' | wc -l</code> mostra o número e também algumas linhas <code translate="no">Permission denied</code> na tela. Por quê?</p>
+<ul><li><strong>A)</strong> O <code translate="no">wc</code> não consegue contar linhas de erro</li>
+<li><strong>B)</strong> Os erros saem pelo cano 2, e o pipe só leva o cano 1</li>
+<li><strong>C)</strong> O <code translate="no">find</code> precisa de <code translate="no">-print0</code> para o pipe funcionar</li>
+<li><strong>D)</strong> O pipe só funciona com <code translate="no">sudo</code></li></ul>
+<p><strong>3.</strong> Qual linha grava a saída normal e os erros de <code translate="no">cmd</code> no mesmo arquivo?</p>
+<ul><li><strong>A)</strong> <code translate="no">cmd 2&gt;&amp;1 &gt; tudo.log</code></li>
+<li><strong>B)</strong> <code translate="no">cmd &gt; tudo.log 2&gt;1</code></li>
+<li><strong>C)</strong> <code translate="no">cmd &gt; tudo.log 2&gt;&amp;1</code></li>
+<li><strong>D)</strong> <code translate="no">cmd 2&gt; tudo.log</code></li></ul>
+<p><strong>4.</strong> O <code translate="no">grep -o 'usuario=[a-z]*' app1.log | uniq -c</code> mostra a <code translate="no">ana</code> duas vezes, com 1 em cada. O que falta?</p>
+<ul><li><strong>A)</strong> Um <code translate="no">sort</code> antes do <code translate="no">uniq</code></li>
+<li><strong>B)</strong> O <code translate="no">-i</code> no <code translate="no">grep</code></li>
+<li><strong>C)</strong> Um <code translate="no">sort -rn</code> depois do <code translate="no">uniq -c</code></li>
+<li><strong>D)</strong> Um <code translate="no">wc -l</code> no fim</li></ul>
+<p><strong>5.</strong> Complete: para acrescentar uma linha ao <code translate="no">/etc/motd</code>, que é do root, sem mostrar nada na tela, rode <code translate="no">echo 'Manutenção às 22h' | ___ &gt; /dev/null</code>.</p>
+<p><strong>6.</strong> No <code translate="no">app1.log</code>, depois de <code translate="no">INFO</code> e de <code translate="no">WARN</code> há dois espaços. O que o <code translate="no">cut -d' ' -f4 app1.log</code> mostra nessas linhas?</p>
+<ul><li><strong>A)</strong> O serviço, como <code translate="no">web:</code></li>
+<li><strong>B)</strong> Uma linha vazia</li>
+<li><strong>C)</strong> O nível, como <code translate="no">INFO</code></li>
+<li><strong>D)</strong> Um erro do <code translate="no">cut</code></li></ul>
+<p><strong>7.</strong> Você precisa gravar <code translate="no">PORTA=9090</code> no <code translate="no">/etc/app.conf</code>, que é do root, no lugar do conteúdo atual. Qual comando funciona?</p>
+<ul><li><strong>A)</strong> <code translate="no">sudo echo 'PORTA=9090' &gt; /etc/app.conf</code></li>
+<li><strong>B)</strong> <code translate="no">echo 'PORTA=9090' | sudo tee /etc/app.conf</code></li>
+<li><strong>C)</strong> <code translate="no">sudo &gt; /etc/app.conf echo 'PORTA=9090'</code></li>
+<li><strong>D)</strong> <code translate="no">echo 'PORTA=9090' | sudo cat /etc/app.conf</code></li></ul>
+<p><strong>8.</strong> Qual pipe mostra os três usuários que mais aparecem no <code translate="no">app1.log</code>, com a contagem?</p>
+<ul><li><strong>A)</strong> <code translate="no">grep -o 'usuario=[a-z]*' app1.log | uniq -c | head -n 3</code></li>
+<li><strong>B)</strong> <code translate="no">grep -o 'usuario=[a-z]*' app1.log | sort | uniq -c | sort -rn | head -n 3</code></li>
+<li><strong>C)</strong> <code translate="no">grep -o 'usuario=[a-z]*' app1.log | sort -u | head -n 3</code></li>
+<li><strong>D)</strong> <code translate="no">grep -c 'usuario=' app1.log | sort -rn | head -n 3</code></li></ul>
+<p><strong>9.</strong> No estilo do Linux Essentials, em inglês: Which command writes only the error messages of <code translate="no">find /</code> to the file <code translate="no">errors.txt</code> and discards the normal output?</p>
+<ul><li><strong>A)</strong> <code translate="no">find / &gt; errors.txt</code></li>
+<li><strong>B)</strong> <code translate="no">find / 2&gt; errors.txt &gt; /dev/null</code></li>
+<li><strong>C)</strong> <code translate="no">find / 2&gt;&amp;1 errors.txt</code></li>
+<li><strong>D)</strong> <code translate="no">find / | errors.txt</code></li></ul>
+<p><strong>10.</strong> Na Debian, um script com <code translate="no">#!/bin/sh</code> tem a linha <code translate="no">backup &amp;&gt; /var/log/bkp.log</code>, e o log sempre fica vazio. Qual é a linha certa?</p>
+<ul><li><strong>A)</strong> <code translate="no">backup &amp;&gt;&gt; /var/log/bkp.log</code></li>
+<li><strong>B)</strong> <code translate="no">backup &gt; /var/log/bkp.log 2&gt;&amp;1</code></li>
+<li><strong>C)</strong> <code translate="no">backup 2&gt;&amp;1 &gt; /var/log/bkp.log</code></li>
+<li><strong>D)</strong> <code translate="no">backup | /var/log/bkp.log</code></li></ul>
+<h2 id="10-flashcards-e-cola">10 · Flashcards e cola</h2>
+<h3 id="para-saber-de-cor">Para saber de cor</h3>
+<p>Esta parte é para guardar na cabeça. São os comandos que você usa toda semana.</p>
+<ul><li><code translate="no">&gt;</code> cria ou zera; <code translate="no">&gt;&gt;</code> acrescenta; <code translate="no">&lt;</code> entrega um arquivo no cano 0</li>
+<li>Cano 0 é a entrada, 1 a saída, 2 os erros; o pipe leva só o 1</li>
+<li><code translate="no">2&gt; /dev/null</code>: some com os erros</li>
+<li><code translate="no">&gt; arq 2&gt;&amp;1</code>: tudo no mesmo arquivo; primeiro o destino, depois a cópia</li>
+<li><code translate="no">&gt;&gt; arq 2&gt;&amp;1</code>: a forma do cron, que funciona em qualquer shell</li>
+<li><code translate="no">sort | uniq -c | sort -rn | head</code>: o ranking</li>
+<li><code translate="no">sort -u | wc -l</code>: quantos diferentes</li>
+<li><code translate="no">grep -o 'texto' arquivo | wc -l</code>: ocorrências, não linhas</li>
+<li><code translate="no">cut -d: -f1</code>: uma coluna; <code translate="no">tr -s ' '</code> antes, se houver espaços repetidos</li>
+<li><code translate="no">echo texto | sudo tee arquivo</code>: escrever onde só o root escreve; <code translate="no">-a</code> acrescenta</li>
+<li>Nunca <code translate="no">comando arquivo &gt; arquivo</code>: use <code translate="no">sort -o</code> ou um arquivo temporário</li></ul>
+<h3 id="para-consultar">Para consultar</h3>
+<p>Esta parte você não precisa decorar. Guarde onde ela está.</p>
+<ul><li><code translate="no">sort -n</code>, <code translate="no">-r</code>, <code translate="no">-f</code> e <code translate="no">-t: -k3</code>: por número, invertido, ignorando maiúsculas, pela coluna 3 separada por <code translate="no">:</code></li>
+<li><code translate="no">sort -o arq arq</code>: ordenar no lugar</li>
+<li><code translate="no">uniq -d</code>: só os repetidos; <code translate="no">uniq -ci</code>: conta ignorando maiúsculas</li>
+<li><code translate="no">tr 'a-z' 'A-Z' &lt; arq</code>: maiúsculas; <code translate="no">tr -d '\r' &lt; arq</code>: tira o fim de linha do Windows</li>
+<li><code translate="no">sudo tee arq &gt; /dev/null &lt;&lt;'EOF'</code>: um arquivo inteiro como root</li>
+<li><code translate="no">sudo truncate -s 0 arq</code>: zera sem trocar o inode</li>
+<li><code translate="no">find /pasta -name '*.log' -print0 | xargs -0 wc -l</code>: nomes com espaço</li>
+<li><code translate="no">set -o noclobber</code> e <code translate="no">&gt;|</code>: a trava do <code translate="no">&gt;</code> e como passar por cima dela</li>
+<li><code translate="no">&lt;&lt;'EOF'</code> vai literal; <code translate="no">&lt;&lt;EOF</code> troca o <code translate="no">$</code>; <code translate="no">&lt;&lt;&lt;</code> entrega uma palavra só</li>
+<li><code translate="no">diff &lt;(sort a.txt) &lt;(sort b.txt)</code>: compara a saída de dois comandos</li>
+<li><code translate="no">echo "${PIPESTATUS[@]}"</code> e <code translate="no">set -o pipefail</code>: o código de saída de cada parte do pipe</li>
+<li><code translate="no">LC_ALL=C sort</code>: a mesma ordem em qualquer servidor</li>
+<li>Rocky: <code translate="no">rpm -qa | wc -l</code>. Debian: <code translate="no">dpkg -l | grep '^ii' | wc -l</code></li></ul>
+<h3 id="flashcards">Flashcards</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Frente</th><th scope="col">Verso</th></tr></thead><tbody><tr><td>O que o <code translate="no">&gt;</code> faz com um arquivo que já existe?</td><td>Zera o arquivo antes de o comando rodar</td></tr><tr><td>Qual é o número do cano de erros?</td><td>2. A entrada é o 0 e a saída normal é o 1</td></tr><tr><td>O que passa por um pipe?</td><td>Só o cano 1, a saída normal</td></tr><tr><td>Ordem certa para juntar saída e erros num arquivo</td><td><code translate="no">&gt; arq 2&gt;&amp;1</code></td></tr><tr><td>O que o <code translate="no">2&gt;1</code> faz?</td><td>Cria um arquivo chamado <code translate="no">1</code></td></tr><tr><td>Por que <code translate="no">sort</code> antes de <code translate="no">uniq</code>?</td><td>O <code translate="no">uniq</code> só compara uma linha com a anterior</td></tr><tr><td>Contar ocorrências, não linhas</td><td><code translate="no">grep -o</code>, e depois <code translate="no">wc -l</code></td></tr><tr><td>Contar valores diferentes</td><td><code translate="no">sort -u</code>, e depois <code translate="no">wc -l</code></td></tr><tr><td>Por que <code translate="no">sudo echo x &gt; /etc/arq</code> falha?</td><td>Quem abre o arquivo é o seu shell, sem root</td></tr><tr><td>Escrever num arquivo do root</td><td>Mande o texto pelo pipe para <code translate="no">sudo tee</code>; <code translate="no">-a</code> acrescenta</td></tr><tr><td>Esvaziar um log aberto</td><td><code translate="no">sudo truncate -s 0 arquivo</code></td></tr><tr><td>O <code translate="no">cut</code> devolve colunas vazias</td><td>Há espaços repetidos: <code translate="no">tr -s ' '</code> antes</td></tr><tr><td>Nomes com espaço no <code translate="no">xargs</code></td><td><code translate="no">find -print0</code> com <code translate="no">xargs -0</code></td></tr><tr><td><code translate="no">&lt;&lt;EOF</code> ou <code translate="no">&lt;&lt;'EOF'</code>?</td><td>Com aspas, o texto vai literal; sem aspas, o <code translate="no">$</code> é trocado</td></tr><tr><td>Por que evitar <code translate="no">&amp;&gt;</code> no cron da Debian?</td><td>O <code translate="no">sh</code> é o dash, que lê o <code translate="no">&amp;</code> como segundo plano</td></tr></tbody></table></div>
+<h2 id="11-checklist-de-saida">11 · Checklist de saída</h2>
+<p>Marque só o que você consegue fazer sem olhar a aula:</p>
+<ul><li>[ ] Explicar os três canos, 0, 1 e 2, e qual deles passa pelo pipe</li>
+<li>[ ] Escolher entre <code translate="no">&gt;</code> e <code translate="no">&gt;&gt;</code> sem hesitar, e dizer por que <code translate="no">sort f &gt; f</code> zera o arquivo</li>
+<li>[ ] Escrever <code translate="no">&gt; arq 2&gt;&amp;1</code> na ordem certa e explicar por que a outra ordem falha</li>
+<li>[ ] Descartar os erros com <code translate="no">2&gt; /dev/null</code> e contar só os erros</li>
+<li>[ ] Montar um ranking com <code translate="no">sort</code>, <code translate="no">uniq -c</code>, <code translate="no">sort -rn</code> e <code translate="no">head</code></li>
+<li>[ ] Contar valores diferentes sem cair no <code translate="no">uniq</code> sozinho</li>
+<li>[ ] Cortar colunas com <code translate="no">cut</code>, inclusive quando há espaços repetidos</li>
+<li>[ ] Escrever num arquivo do root com <code translate="no">sudo tee</code> e esvaziá-lo com <code translate="no">sudo truncate</code></li>
+<li>[ ] Passar nomes de arquivo para outro comando com <code translate="no">find -print0</code> e <code translate="no">xargs -0</code></li>
+<li>[ ] Criar um arquivo com here-doc e saber quando o <code translate="no">EOF</code> vai entre aspas</li>
+<li>[ ] Escrever o redirecionamento certo para o cron, inclusive na Debian</li></ul>
+<p><strong>Último exercício, sem olhar.</strong> Feche esta aula. Em <code translate="no">~/lab13/pipes</code>, responda cada pergunta com um comando:</p>
+<ol><li>Quantos usuários diferentes aparecem no <code translate="no">app1.log</code>?</li>
+<li>Qual serviço tem mais linhas de <code translate="no">WARN</code>, e quantas?</li>
+<li>Grave em <code translate="no">confs.txt</code> a lista dos arquivos <code translate="no">.conf</code> de <code translate="no">/etc</code>, sem nenhum erro na tela, e diga quantos são.</li>
+<li>Recrie o <code translate="no">/opt/lab16/limites.conf</code> com as três linhas do Passo 8, usando <code translate="no">sudo tee</code> e um here-doc, sem nada na tela.</li>
+<li>Explique em duas frases por que <code translate="no">cmd 2&gt;&amp;1 &gt; arq</code> não grava os erros no arquivo.</li></ol>
+<p>As respostas estão no fim do Gabarito.</p>
+<p><strong>Snapshots de fechamento.</strong> No nó Proxmox:</p>
+<pre translate="no"><code class="lang-bash">qm snapshot 201 m1a6-fim
+qm snapshot 202 m1a6-fim</code></pre>
+<p>Não apague o <code translate="no">~/lab13</code>: os logs voltam nas próximas aulas. O <code translate="no">/opt/lab16</code> não será mais usado; se quiser, remova-o depois do snapshot com <code translate="no">sudo rm -rv /opt/lab16</code>.</p>
+<h2 id="12-na-vida-real">12 · Na vida real</h2>
+<p><strong>Missão da semana, só leitura.</strong> Escolha um servidor que você administra de verdade. Se ele for de cliente, faça só o que o contrato permite; se tiver dúvida, use a rocky-lab e a debian-lab. Nenhum comando desta missão altera o sistema: não abra editor, não reinicie serviço e não redirecione nada para fora da sua pasta pessoal.</p>
+<p>Num servidor Rocky, RHEL ou Alma, quem tenta adivinhar senhas, e quantos são:</p>
+<pre translate="no"><code class="lang-bash">sudo grep 'Failed password' /var/log/secure | grep -o 'from [0-9.]*' | sort | uniq -c | sort -rn | head -n 10
+sudo grep 'Failed password' /var/log/secure | grep -o 'from [0-9.]*' | sort -u | wc -l
+sudo grep -c 'Failed password for root' /var/log/secure</code></pre>
+<p>Num servidor Debian sem <code translate="no">rsyslog</code>, o mesmo pelo journal:</p>
+<pre translate="no"><code class="lang-bash">sudo journalctl -u ssh --since '7 days ago' --no-pager | grep 'Failed password' | grep -o 'from [0-9.]*' | sort | uniq -c | sort -rn | head -n 10
+sudo journalctl -u ssh --since '7 days ago' --no-pager | grep 'Failed password' | grep -o 'from [0-9.]*' | sort -u | wc -l</code></pre>
+<p>Se o servidor tiver <code translate="no">/var/log/auth.log</code>, como o Ubuntu, use-o no lugar do <code translate="no">secure</code>. Para guardar o ranking sem tocar no servidor, acrescente <code translate="no">| tee ~/ips-$(date +%F).txt</code> ao fim do primeiro comando.</p>
+<p>Em qualquer um deles, quem pode entrar com shell e como o cron guarda os logs:</p>
+<pre translate="no"><code class="lang-bash">cut -d: -f7 /etc/passwd | sort | uniq -c | sort -rn
+grep 'bash$' /etc/passwd | cut -d: -f1
+sudo crontab -l
+cat /etc/crontab
+ls /etc/cron.d
+sudo grep -rn '&amp;&gt;' /etc/crontab /etc/cron.d
+sudo grep -rn '/dev/null' /etc/crontab /etc/cron.d</code></pre>
+<p>Se o root não tiver crontab, o <code translate="no">sudo crontab -l</code> responde <code translate="no">no crontab for root</code>, pelo cano 2. Os dois últimos comandos mostram as linhas de cron que usam <code translate="no">&amp;&gt;</code> ou que jogam a saída no <code translate="no">/dev/null</code>.</p>
+<p><strong>Para o diário.</strong> Responda em poucas linhas:</p>
+<ol><li>Quantos IPs diferentes tentaram senha errada? Essa pergunta ficou aberta na Aula 1.5, e agora se responde com uma linha. Algum IP é da sua própria rede?</li>
+<li>No top 3, quantas tentativas tem cada IP? É um ataque insistente de poucos IPs ou muitos IPs tentando pouco?</li>
+<li>Quantas contas têm <code translate="no">/bin/bash</code>? Você reconhece todas?</li>
+<li>Alguma linha de cron joga a saída no <code translate="no">/dev/null</code> ou usa <code translate="no">&amp;&gt;</code>? Se for um backup, você saberia se ele falhasse? Não mude nada: anote o arquivo e a linha.</li></ol>
+<p><strong>Desafio da semana.</strong> Monte o "boletim da manhã" de um servidor num arquivo da sua pasta pessoal, acrescentando um bloco por dia com <code translate="no">&gt;&gt;</code>. Cada bloco tem a data, o uso do <code translate="no">/var</code>, o top 3 de IPs com senha errada e o número de IPs diferentes. Comece assim e complete o resto com o que você aprendeu hoje:</p>
+<pre translate="no"><code class="lang-bash">echo "== $(date +%F) ==" &gt;&gt; ~/boletim.txt
+df -h /var &gt;&gt; ~/boletim.txt 2&gt;&amp;1</code></pre>
+<p>Em cinco dias, compare os blocos: os IPs mudam? O <code translate="no">/var</code> cresce? No diário, uma linha por dia com o que mudou.</p>
+<p><strong>Amanhã, sem olhar.</strong> Abra um terminal amanhã e, sem consultar nada:</p>
+<ol><li>Mostre o ranking de usuários do <code translate="no">app1.log</code>, com a contagem, numa linha só.</li>
+<li>Escreva o redirecionamento certo para uma linha de cron que guarda a saída e os erros.</li>
+<li>Grave <code translate="no">PORTA=9090</code> no <code translate="no">/opt/lab16/app.conf</code>, que é do root. Se já apagou a pasta, recrie-a com <code translate="no">sudo mkdir -p /opt/lab16</code>.</li>
+<li>Ordene um arquivo no lugar, sem perder o conteúdo.</li>
+<li>Explique em voz alta por que <code translate="no">sudo echo x &gt; /etc/arquivo</code> falha.</li></ol>
+<p>Se travar em algum, volte só ao Passo daquele item.</p>
+<h2 id="13-com-o-deeptutor">13 · Com o DeepTutor</h2>
+<p>Use o DeepTutor da sua rede local depois do lab, não no lugar dele:</p>
+<ul><li><code translate="no">!quiz Aula 1.6</code>: peça dez perguntas novas sobre redirecionamento e pipes, no formato das Decidas.</li>
+<li><code translate="no">!explica 2&gt;&amp;1</code>: peça a explicação com o desenho dos canos, e confira com a ordem errada que você testou no Passo 4.</li>
+<li><code translate="no">!feynman</code>: explique por que <code translate="no">sort f &gt; f</code> zera o arquivo, como se fosse para um estagiário. O DeepTutor aponta onde ficou vago.</li>
+<li><code translate="no">!quebra</code>: peça um log novo, com espaços irregulares e maiúsculas misturadas, e monte o ranking certo seguindo o Protocolo.</li>
+<li><code translate="no">!cartoes</code>: gere flashcards a partir da seção 10 e revise em três dias.</li>
+<li><code translate="no">!erro</code>: cole uma mensagem real, como <code translate="no">extra operand</code>, <code translate="no">cannot overwrite existing file</code> ou <code translate="no">missing operand</code>, e peça a causa antes da solução.</li>
+<li><code translate="no">!revisao</code>: agende a revisão das Aulas 1.3 a 1.6 para daqui a três dias e para daqui a uma semana. É o fim da semana 2.</li></ul>
+<h2 id="gabarito-comentado">Gabarito comentado</h2>
+<h3 id="aquecimento">Aquecimento</h3>
+<ol><li><strong><code translate="no">grep -c 'ERROR' app1.log</code>, que responde 4.</strong> O <code translate="no">-c</code> conta as linhas sem mostrá-las. Hoje você viu outro jeito de chegar ao mesmo número: <code translate="no">grep 'ERROR' app1.log | wc -l</code>.</li>
+<li><strong>Com <code translate="no">echo $?</code>, logo depois.</strong> O <code translate="no">grep</code> termina com 0 quando acha, com 1 quando não acha e com 2 quando dá erro, como um arquivo que não existe.</li>
+<li><strong>Não.</strong> A linha normal sai pelo cano 1, e a de erro pelo cano 2. Na tela as duas parecem iguais, mas o <code translate="no">&gt;</code> desvia só o cano 1, e o erro continua aparecendo. Foi o Passo 3.</li></ol>
+<h3 id="quiz">Quiz</h3>
+<ol><li><strong>B.</strong> O <code translate="no">&gt;</code> zera o arquivo antes de o <code translate="no">echo</code> rodar. O shell só se recusaria, como na C, com o <code translate="no">set -o noclobber</code> ligado.</li>
+<li><strong>B.</strong> O <code translate="no">wc</code> nunca viu os erros: eles foram direto para a tela. Para contá-los também, use <code translate="no">2&gt;&amp;1</code> antes do pipe; para escondê-los, <code translate="no">2&gt; /dev/null</code>.</li>
+<li><strong>C.</strong> A A é a ordem errada: os erros ficam na tela. A B cria um arquivo chamado <code translate="no">1</code>. A D grava só os erros.</li>
+<li><strong>A.</strong> O <code translate="no">uniq</code> só junta linhas iguais que estão lado a lado. A C ordenaria o resultado, mas a <code translate="no">ana</code> já teria sido contada em duas partes.</li>
+<li><strong><code translate="no">sudo tee -a /etc/motd</code>.</strong> O <code translate="no">-a</code> acrescenta; sem ele, o <code translate="no">tee</code> zeraria o arquivo. O <code translate="no">&gt; /dev/null</code> joga fora a cópia que o <code translate="no">tee</code> mostraria na tela, e pode ser seu, sem root.</li>
+<li><strong>B.</strong> Entre os dois espaços existe uma coluna vazia, e é ela que o <code translate="no">-f4</code> pega. O conserto é <code translate="no">tr -s ' '</code> antes do <code translate="no">cut</code>.</li>
+<li><strong>B.</strong> Na A e na C, quem abre o arquivo é o seu shell, sem root, e a resposta é <code translate="no">Permission denied</code>. Na D, o <code translate="no">cat</code> recebe um nome de arquivo, ignora o pipe e só mostra o conteúdo atual.</li>
+<li><strong>B.</strong> É a receita do ranking. A A conta errado, porque falta o <code translate="no">sort</code>. A C tira os repetidos, mas perde a contagem. A D conta linhas e devolve um número só.</li>
+<li><strong>B.</strong> Veja cada alternativa:</li></ol>
+<div class="tabela"><table><thead><tr><th scope="col">Se você marcou</th><th scope="col">Resultado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>A</td><td>❌ Errada</td><td>Grava a saída normal no arquivo, e os erros ficam na tela.</td></tr><tr><td>B</td><td>✅ Certa</td><td>O <code translate="no">2&gt;</code> manda os erros para o arquivo, e o <code translate="no">&gt; /dev/null</code> descarta a saída normal. Aqui a ordem não importa, porque nenhum dos dois copia o outro.</td></tr><tr><td>C</td><td>❌ Errada</td><td>O <code translate="no">2&gt;&amp;1</code> manda os erros para onde já vai a saída normal, a tela. O <code translate="no">errors.txt</code> vira mais um caminho para o <code translate="no">find</code> procurar, e nenhum arquivo é criado.</td></tr><tr><td>D</td><td>❌ Errada</td><td>O pipe tenta rodar um programa chamado <code translate="no">errors.txt</code>, e a resposta é algo como <code translate="no">command not found</code>.</td></tr></tbody></table></div>
+<ol start="10"><li><strong>B.</strong> O <code translate="no">sh</code> da Debian é o dash, que lê o <code translate="no">&amp;</code> como "rode em segundo plano" e depois cria o log vazio com o <code translate="no">&gt;</code>. A A tem o mesmo problema. A C é a ordem errada. A D tenta rodar o arquivo de log como programa.</li></ol>
+<h3 id="ultimo-exercicio">Último exercício</h3>
+<ol><li><code translate="no">grep -o 'usuario=[a-z]*' app1.log | sort -u | wc -l</code> responde 5.</li>
+<li><code translate="no">grep 'WARN' app1.log | tr -s ' ' | cut -d' ' -f4 | sort | uniq -c | sort -rn</code> mostra <code translate="no">3 web:</code> e <code translate="no">1 db:</code>. É o <code translate="no">web:</code>, com 3. Sem o <code translate="no">tr -s ' '</code>, a quarta coluna sairia vazia.</li>
+<li><code translate="no">find /etc -name '*.conf' &gt; confs.txt 2&gt; /dev/null</code> e depois <code translate="no">wc -l &lt; confs.txt</code>. O número muda de uma VM para a outra; o que importa é a tela limpa.</li>
+<li>O mesmo bloco do Passo 8: <code translate="no">sudo tee /opt/lab16/limites.conf &gt; /dev/null &lt;&lt;'EOF'</code>, as três linhas e o <code translate="no">EOF</code> sozinho na última linha. Confira com <code translate="no">cat /opt/lab16/limites.conf</code>.</li>
+<li>O shell lê da esquerda para a direita. No <code translate="no">2&gt;&amp;1</code>, o cano 2 copia o destino que o cano 1 tem naquele momento, a tela; o <code translate="no">&gt; arq</code> muda o cano 1 depois, e o cano 2 continua apontando para a tela.</li></ol>
+</article><nav class="paginas" aria-label="Aulas"><a class="ant" href="1.5-ler-e-procurar-texto.html"><small>← Anterior</small>1.5 · Ler e procurar texto</a><a class="prox" href="1.7-arquivar-e-compactar.html"><small>Próxima →</small>1.7 · Arquivar e compactar</a></nav></main></div>
+<footer><div class="wrap">Gerado a partir do Markdown do curso · Imagens em <code translate="no">img/</code></div></footer>
+</body>
+</html>

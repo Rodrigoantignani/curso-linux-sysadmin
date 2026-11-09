@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light dark">
+<title>1.9 · Decidere e ripetere · Corso Linux Sysadmin</title>
+<link rel="alternate" hreflang="pt-BR" href="1.9-decidir-e-repetir.html"><link rel="alternate" hreflang="it" href="1.9-decidir-e-repetir.it.html">
+<style>
+:root{color-scheme:light dark;--bg:#f6f1e7;--card:#fffdf8;--ink:#201c16;--muted:#5e564a;--accent:#9a3412;--accent-2:#1f5f4a;--tint:#efe6d4;--line:#ddd2bc;--code:#f1eadb;--shadow:0 1px 2px rgba(60,40,10,.08);--serif:Georgia,"Iowan Old Style","Palatino Linotype",Palatino,serif;--sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--mono:"Cascadia Code",Consolas,"DejaVu Sans Mono",monospace}
+@media (prefers-color-scheme:dark){:root{--bg:#16130f;--card:#201b15;--ink:#f1eadb;--muted:#b9ad98;--accent:#f0a070;--accent-2:#7fd0b0;--tint:#2a231a;--line:#3d3427;--code:#191510;--shadow:none}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:5.5rem}
+body{margin:0;background:var(--bg);color:var(--ink);font:1rem/1.6 var(--sans)}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--accent-2);outline-offset:2px;border-radius:4px}
+.pular{position:absolute;left:-999px;top:0;background:var(--card);padding:.5rem 1rem;z-index:20}
+.pular:focus{left:.5rem;top:.5rem}
+.wrap{width:100%;max-width:84rem;margin:0 auto;padding-inline:max(1rem,env(safe-area-inset-left))}
+.top{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10;border-top:6px solid var(--accent)}
+.top-in{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding-block:.6rem}
+.titles{min-width:0}
+.marca{margin:0;font:700 clamp(1.15rem,1rem + 1vw,1.6rem)/1.15 var(--serif);letter-spacing:-.01em}
+.marca a{text-decoration:none}
+.marca a:hover{color:var(--accent)}
+.meta{margin:.1rem 0 0;color:var(--muted);font-size:.85rem}
+.acoes{display:flex;align-items:center;gap:.9rem;flex:none}
+.acoes>a{font-size:.9rem;font-weight:600;color:var(--muted);text-decoration:none}
+.acoes>a:hover{color:var(--accent);text-decoration:underline}
+.idioma{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--tint)}
+.idioma>*{padding:.35rem .9rem;font-size:.8rem;font-weight:700;letter-spacing:.06em;text-decoration:none;color:var(--muted);min-width:2.75rem;text-align:center}
+.idioma a:hover{color:var(--accent);text-decoration:underline}
+.idioma span{background:var(--accent);color:#fff}
+@media (prefers-color-scheme:dark){.idioma span{color:#16130f}}
+code{font-family:var(--mono);font-size:.9em;background:var(--tint);padding:.1rem .35rem;border-radius:4px;overflow-wrap:anywhere}
+/* índice */
+.capa{max-width:70rem;padding-block:2rem 3rem}
+.stats{border-left:4px solid var(--accent-2);background:var(--card);border-radius:0 10px 10px 0;padding:1rem 1.25rem;margin:0 0 2.5rem;box-shadow:var(--shadow);color:var(--muted)}
+.stats strong{color:var(--ink)}
+.modulo{display:grid;grid-template-columns:15rem minmax(0,1fr);gap:1rem 2rem;padding:1.75rem 0;border-top:1px solid var(--line)}
+.modulo h2{margin:0;font:700 1.25rem/1.25 var(--serif);align-self:start;position:sticky;top:6rem}
+.mn{display:block;font:700 .8rem var(--mono);letter-spacing:.12em;color:var(--accent);margin-bottom:.25rem}
+.sep{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.modulo ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,17rem),1fr));gap:.75rem}
+.modulo li{margin:0}
+.modulo a{display:flex;gap:.45rem;align-items:baseline;height:100%;padding:.85rem 1rem;background:var(--card);border:1px solid var(--line);border-radius:10px;text-decoration:none;font-weight:600;line-height:1.35;box-shadow:var(--shadow);transition:border-color .15s,transform .15s}
+.modulo a:hover{border-color:var(--accent);color:var(--accent)}
+.num{font:700 .85rem var(--mono);color:var(--accent);white-space:nowrap}
+/* aula */
+.doc{display:grid;grid-template-columns:17rem minmax(0,1fr);gap:2.5rem;align-items:start;padding-block:2rem 3rem}
+.lateral{position:sticky;top:5.5rem;max-height:calc(100vh - 6.5rem);overflow:auto;font-size:.875rem;padding-right:.5rem}
+.lateral h2{margin:0 0 .25rem;font:700 .95rem var(--serif);color:var(--muted)}
+.lateral h3{margin:1rem 0 .25rem;font:700 .75rem var(--mono);letter-spacing:.06em;color:var(--accent)}
+.lateral ul{list-style:none;margin:0;padding:0}
+.lateral a{display:flex;gap:.45rem;padding:.25rem .5rem;border-radius:6px;text-decoration:none;color:var(--muted);line-height:1.3}
+.lateral a:hover{background:var(--tint);color:var(--ink)}
+.lateral a[aria-current]{background:var(--tint);color:var(--ink);font-weight:700;box-shadow:inset 3px 0 0 var(--accent)}
+.lateral .num{font-size:.75rem}
+.aula{min-width:0;max-width:56rem;overflow-wrap:break-word;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:clamp(1.25rem,1rem + 2vw,2.75rem);box-shadow:var(--shadow)}
+.aula h1{margin:0 0 1.5rem;font:700 clamp(1.75rem,1.4rem + 1.6vw,2.5rem)/1.15 var(--serif);letter-spacing:-.015em;color:var(--ink)}
+.aula h2{margin:2.5rem 0 .75rem;padding-top:1.25rem;border-top:1px solid var(--line);font:700 1.5rem/1.25 var(--serif)}
+.aula h3{margin:2rem 0 .5rem;font:700 1.15rem/1.3 var(--serif);color:var(--accent)}
+.aula h4,.aula h5,.aula h6{margin:1.5rem 0 .5rem;font-size:1rem}
+.aula p,.aula ul,.aula ol{margin:1rem 0}
+.aula ul,.aula ol{padding-left:1.5rem}
+.aula li{margin:.35rem 0}
+.aula li>ul,.aula li>ol{margin:.35rem 0}
+.aula a{color:var(--accent);text-underline-offset:2px}
+.aula hr{border:0;border-top:1px solid var(--line);margin:2rem 0}
+.tabela{overflow-x:auto;margin:1.25rem 0;border:1px solid var(--line);border-radius:10px}
+.aula table{width:100%;border-collapse:collapse;font-size:.9rem}
+.aula th,.aula td{padding:.55rem .75rem;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+.aula tr:last-child td{border-bottom:0}
+.aula th{background:var(--tint);font-weight:700}
+.aula pre{background:var(--code);border:1px solid var(--line);border-radius:10px;padding:.9rem 1rem;overflow-x:auto;font:.85rem/1.5 var(--mono);margin:1rem 0;tab-size:4}
+.aula pre code{background:none;padding:0;font-size:inherit;overflow-wrap:normal}
+.aula blockquote{margin:1.25rem 0;padding:.75rem 1.25rem;border-left:4px solid var(--accent-2);background:var(--tint);border-radius:0 10px 10px 0}
+.aula blockquote>:first-child{margin-top:0}
+.aula blockquote>:last-child{margin-bottom:0}
+.aula figure{margin:1.75rem 0;text-align:center}
+.aula figure img{display:block;margin:0 auto;max-width:100%;height:auto;border:1px solid var(--line);border-radius:10px;background:#fff}
+.aula figcaption{margin-top:.5rem;color:var(--muted);font-size:.9rem;font-style:italic}
+.paginas{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:2.5rem;padding-top:1.5rem;border-top:1px solid var(--line)}
+.paginas a{display:block;padding:.75rem 1rem;border:1px solid var(--line);border-radius:10px;text-decoration:none;color:var(--ink);font-weight:600;line-height:1.3}
+.paginas a:hover{border-color:var(--accent);color:var(--accent)}
+.paginas small{display:block;color:var(--muted);font-weight:400}
+.paginas .prox{grid-column:2;text-align:right}
+footer{border-top:1px solid var(--line);padding-block:1.5rem;color:var(--muted);font-size:.85rem;text-align:center}
+@media (hover:hover) and (prefers-reduced-motion:no-preference){.modulo a:hover{transform:translateY(-2px)}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+@media (max-width:980px){.doc{grid-template-columns:minmax(0,1fr);padding-top:1rem}.lateral{position:static;max-height:none;order:2}.aula{max-width:none}}
+@media (max-width:860px){.modulo{grid-template-columns:minmax(0,1fr)}.modulo h2{position:static}.mn{display:inline;margin-right:.5rem}}
+@media (max-width:420px){.meta{display:none}.top-in{gap:.5rem}.acoes{gap:.6rem}.capa{padding-top:1.25rem}.paginas{grid-template-columns:minmax(0,1fr)}.paginas .prox{grid-column:1}}
+@media print{.top,.lateral,.paginas{display:none}.aula{border:0;box-shadow:none;padding:0;max-width:none}.doc{display:block}}
+</style>
+</head>
+<body>
+<a class="pular" href="#conteudo">Vai al contenuto</a>
+<header class="top"><div class="wrap top-in"><div class="titles"><p class="marca"><a href="index.it.html">Corso Linux Sysadmin</a></p><p class="meta">Rodrigo Antignani · Lezione 1.9</p></div><div class="acoes"><a href="index.it.html">Indice</a><div class="idioma" role="group" aria-label="Lingua"><a href="1.9-decidir-e-repetir.html" hreflang="pt-BR" lang="pt-BR">PT</a><span aria-current="true">IT</span></div></div></div></header>
+<div class="wrap doc"><aside class="lateral" aria-label="Lezioni"><h2>Lezioni</h2><h3>M0 · Laboratorio</h3><ul><li><a href="0.1-montar-o-laboratorio.it.html"><span class="num">0.1</span><span>Allestire il laboratorio</span></a></li><li><a href="0.2-acesso-e-protecao.it.html"><span class="num">0.2</span><span>Accesso e protezione</span></a></li></ul><h3>M1 · Riga di comando</h3><ul><li><a href="1.1-o-que-e-linux.it.html"><span class="num">1.1</span><span>Che cos'è Linux</span></a></li><li><a href="1.2-o-shell-e-a-ajuda.it.html"><span class="num">1.2</span><span>La shell e la guida</span></a></li><li><a href="1.3-caminhos-e-navegacao.it.html"><span class="num">1.3</span><span>Percorsi e navigazione</span></a></li><li><a href="1.4-criar-copiar-mover-e-apagar.it.html"><span class="num">1.4</span><span>Creare, copiare, spostare ed eliminare</span></a></li><li><a href="1.5-ler-e-procurar-texto.it.html"><span class="num">1.5</span><span>Leggere e cercare testo</span></a></li><li><a href="1.6-redirecionamentos-e-pipes.it.html"><span class="num">1.6</span><span>Reindirizzamenti e pipe</span></a></li><li><a href="1.7-arquivar-e-compactar.it.html"><span class="num">1.7</span><span>Archiviare e comprimere</span></a></li><li><a href="1.8-primeiro-script.it.html"><span class="num">1.8</span><span>Primo script</span></a></li><li><a href="1.9-decidir-e-repetir.it.html" aria-current="page"><span class="num">1.9</span><span>Decidere e ripetere</span></a></li><li><a href="1.10-software-livre-na-pratica.it.html"><span class="num">1.10</span><span>Il software libero in pratica</span></a></li></ul><h3>M2 · Sistema, utenti e permessi</h3><ul><li><a href="2.1-instalacao-e-provisionamento.it.html"><span class="num">2.1</span><span>Installazione e provisioning</span></a></li><li><a href="2.2-hardware-e-dispositivos.it.html"><span class="num">2.2</span><span>Hardware e dispositivi</span></a></li><li><a href="2.3-processos-e-logs.it.html"><span class="num">2.3</span><span>Processi e log</span></a></li><li><a href="2.4-rede-no-dia-a-dia.it.html"><span class="num">2.4</span><span>La rete di tutti i giorni</span></a></li><li><a href="2.5-acesso-remoto-e-privilegios.it.html"><span class="num">2.5</span><span>Accesso remoto e privilegi</span></a></li><li><a href="2.6-usuarios-e-grupos.it.html"><span class="num">2.6</span><span>Utenti e gruppi</span></a></li><li><a href="2.7-permissoes-e-dono.it.html"><span class="num">2.7</span><span>Permessi e proprietario</span></a></li><li><a href="2.8-diretorios-e-arquivos-especiais.it.html"><span class="num">2.8</span><span>Directory e file speciali</span></a></li></ul><h3>M3 · Testo ed editor</h3><ul><li><a href="3.1-fluxos-a-fundo.it.html"><span class="num">3.1</span><span>I flussi in profondità</span></a></li><li><a href="3.2-filtros-de-texto.it.html"><span class="num">3.2</span><span>Filtri di testo</span></a></li><li><a href="3.3-regex-e-grep.it.html"><span class="num">3.3</span><span>Regex e grep</span></a></li><li><a href="3.4-sed-e-awk.it.html"><span class="num">3.4</span><span>sed e awk</span></a></li><li><a href="3.5-vi-e-vim-de-verdade.it.html"><span class="num">3.5</span><span>vi e vim sul serio</span></a></li></ul><h3>M4 · systemd e boot</h3><ul><li><a href="4.1-como-o-linux-liga.it.html"><span class="num">4.1</span><span>Come si avvia Linux</span></a></li><li><a href="4.2-systemd-servicos-e-units.it.html"><span class="num">4.2</span><span>systemd: servizi e unit</span></a></li><li><a href="4.3-targets-desligar-e-reiniciar.it.html"><span class="num">4.3</span><span>Target: spegnere e riavviare</span></a></li><li><a href="4.4-grub-e-acesso-de-emergencia.it.html"><span class="num">4.4</span><span>GRUB e accesso di emergenza</span></a></li></ul><h3>M5 · Kernel, moduli e VM</h3><ul><li><a href="5.1-hardware-pelo-kernel.it.html"><span class="num">5.1</span><span>L'hardware visto dal kernel</span></a></li><li><a href="5.2-modulos-e-parametros.it.html"><span class="num">5.2</span><span>Moduli e parametri</span></a></li><li><a href="5.3-linux-como-convidado.it.html"><span class="num">5.3</span><span>Linux come guest</span></a></li></ul><h3>M6 · Pacchetti e repository</h3><ul><li><a href="6.1-pacotes-no-debian.it.html"><span class="num">6.1</span><span>Pacchetti su Debian</span></a></li><li><a href="6.2-pacotes-na-rocky.it.html"><span class="num">6.2</span><span>Pacchetti su Rocky</span></a></li><li><a href="6.3-repositorios.it.html"><span class="num">6.3</span><span>Repository</span></a></li><li><a href="6.4-flatpak.it.html"><span class="num">6.4</span><span>Flatpak</span></a></li><li><a href="6.5-bibliotecas-compartilhadas.it.html"><span class="num">6.5</span><span>Librerie condivise</span></a></li></ul></aside><main id="conteudo" class="aula"><article><h1>Lezione 1.9 · Decidi e ripeti</h1>
+<p>Nella Lezione 1.8, <code translate="no">backup-app.sh</code> ha detto OK per un backup di <code translate="no">/etc</code> che è stato lasciato senza i file più importanti. Oggi impara a essere diffidente: controlla il risultato di ogni passaggio, così quando qualcosa va storto lascia un record nel log e restituisce un codice che un altro script, o cron, può leggere. Quindi esegui lo stesso backup per un elenco di cartelle, con un ciclo, senza ripetere una riga.</p>
+<div class="tabela"><table><thead><tr><th scope="col">File</th><th scope="col">lezione 1.9</th></tr></thead><tbody><tr><td>Modulo</td><td>M1 · Riga di comando, lezione 9 di 10</td></tr><tr><td>Quando</td><td>Settimana 3</td></tr><tr><td>Alla fine puoi</td><td>Leggere e utilizzare il codice di uscita, <code translate="no">$?</code>; testare file, testi e numeri con <code translate="no">test</code> e <code translate="no">[ ]</code>; decidere con <code translate="no">if</code>, <code translate="no">elif</code>, <code translate="no">else</code>, <code translate="no">&amp;&amp;</code> e <code translate="no">||</code>; ripetere con <code translate="no">for</code> e <code translate="no">while read</code>; salvare l'output di un comando con <code translate="no">$(...)</code> ed eseguire calcoli con <code translate="no">$((...))</code>; terminare uno script con <code translate="no">exit N</code>; log con <code translate="no">logger</code></td></tr><tr><td>Articoli di prova</td><td>LE 013.3 · LPIC-1 105.2: <code translate="no">test</code>, <code translate="no">if</code>, <code translate="no">for</code>, <code translate="no">while</code>, codice di uscita, sostituzione di comandi · RHCSA: esegue il codice in modo condizionale, utilizza cicli per elaborare file e argomenti, elaborare l'output del comando all'interno dello script</td></tr><tr><td>Prerequisiti</td><td>lezione 1.8 completata, con <code translate="no">~/bin/backup-app.sh</code> su entrambe le VM</td></tr><tr><td>Tempo</td><td>Intorno alle 2:30</td></tr><tr><td>Istantanee</td><td>m1a9-start e m1a9-end su entrambe le VM</td></tr></tbody></table></div>
+<h2 id="1-riscaldamento">1 · Riscaldamento</h2>
+<p>Tre domande, a mente fredda, prima di leggere qualsiasi cosa. Scrivi le risposte; la chiave di risposta viene visualizzata alla fine.</p>
+<ol><li>Nella Lezione 1.8, cosa fa <code translate="no">origem="${1:?uso: ...}"</code> quando lo script viene chiamato senza argomenti?</li>
+<li>Nella lezione 1.8, perché <code translate="no">backup-app.sh /etc</code>, eseguito come utente comune, finisce per dire che il file è aperto fino alla fine?</li>
+<li>Indovina: esegui <code translate="no">ls /naoexiste</code> e poi <code translate="no">echo $?</code>. Quale numero appare?</li></ol>
+<h2 id="2-perche-e-importante">2 · Perché è importante</h2>
+<p>Uno script di backup viene eseguito in cron, ogni giorno alle 2 del mattino, per otto mesi. Nessuno guarda l'uscita perché "ha sempre funzionato". Il giorno in cui il disco del server muore, apri la cartella dei backup e trovi file da 45 byte di marzo: <code translate="no">tar</code> falliva ogni notte e lo script andava avanti e copiava il file vuoto sul NAS. Il comando ha avvertito. Lo script non ha chiesto.</p>
+<p>Ogni comando Linux risponde, una volta terminato, con un numero: zero se ha funzionato, un altro numero se non ha funzionato. Sono le informazioni più importanti di uno script e quasi tutti gli script scadenti la ignorano. Oggi impari a leggere questo numero e decidi in base ad esso.</p>
+<p>Secondo caso. È necessario eseguire il backup di sei cartelle, controllare dieci server o rinominare trecento registri. Copiare la stessa riga sei volte funziona fino al giorno in cui ne correggi una e dimentichi le altre cinque. Un ciclo scrive la riga una volta e la ripete per ciascun elemento.</p>
+<p>E la prova: RHCSA richiede script che decidano e si ripetano. Un'attività tipica è "creare uno script che, per ogni utente in un elenco, esegua X; se l'argomento non viene fornito, termina con il codice 1". Il broker controlla il codice di uscita.</p>
+<h2 id="3-modello-mentale">3 · Modello mentale</h2>
+<blockquote><p>Ogni comando termina con l'accensione di un semaforo. Lo zero è verde; qualsiasi altro numero è rosso e il numero indica quale era il problema.</p></blockquote>
+<p>Il semaforo non è quello che il comando mostra sullo schermo. Un <code translate="no">grep</code> potrebbe non mostrare nulla e funzionare comunque; a <code translate="no">tar</code> potrebbe mostrare un mucchio di righe e non essere riuscito. La shell memorizza il semaforo dell'<strong>ultimo</strong> comando in <code translate="no">$?</code> e lo modifica con ogni nuovo comando, incluso un <code translate="no">echo</code>.</p>
+<p>Con il semaforo, tre strumenti:</p>
+<ul><li><strong><code translate="no">if</code> decide.</strong> Esegue un comando e guarda il semaforo. Verde, entra in <code translate="no">then</code>; rosso, vai al <code translate="no">else</code>. <code translate="no">if</code> non capisce testi né numeri: solo il semaforo.</li>
+<li><strong>chiede <code translate="no">[ ]</code>.</strong> È un comando come un altro, il cui unico compito è rispondere con il verde o il rosso. <code translate="no">[ -d /etc ]</code> chiede "<code translate="no">/etc</code> è una cartella?" e risponde con il semaforo. Ecco perché appare così spesso all'interno di <code translate="no">if</code>, ma non è obbligatorio.</li>
+<li><strong><code translate="no">for</code> e <code translate="no">while</code> si ripetono.</strong> <code translate="no">for</code> si ripete una volta per ogni elemento di un elenco. <code translate="no">while</code> si ripete finché un comando è verde, come <code translate="no">read</code>, che è verde finché ci sono ancora righe da leggere.</li></ul>
+<pre translate="no"><code class="lang-text">  if  tar -czf ...  ;  then  ...  else  ...  fi
+      └── roda ───┘
+            │
+            └─ semáforo ($?)   0 ──► then
+                              ≠0 ──► else
+
+  [ -d "$origem" ]   é só um comando que responde 0 (sim) ou 1 (não)</code></pre>
+<figure><a href="../img/1.9-semaforo-codigos-saida.jpg"><img src="../img/1.9-semaforo-codigos-saida.jpg" alt="Il semaforo Linux: codici di uscita e logica nella shell" loading="lazy" decoding="async"></a><figcaption>Lo zero è verde, qualsiasi altro numero è rosso: la mappa dei codici di uscita, <code translate="no">if</code>, <code translate="no">[ ]</code> e <code translate="no">&amp;&amp;</code>/<code translate="no">||</code>.</figcaption></figure>
+<h2 id="4-concetto-a-piu-livelli">4 · Concetto a più livelli</h2>
+<h3 id="essenziale">Essenziale</h3>
+<p><strong>Il codice di uscita.</strong></p>
+<pre translate="no"><code class="lang-bash">ls /etc/hostname
+echo $?          # 0: ha funzionato
+ls /naoexiste
+echo $?          # 2: è andato storto; 2 è il codice ls per "Non potevo farlo"</code></pre>
+<div class="tabela"><table><thead><tr><th scope="col">Codice</th><th scope="col">Significato più comune</th></tr></thead><tbody><tr><td><code translate="no">0</code></td><td>Ha funzionato</td></tr><tr><td><code translate="no">1</code></td><td>Fallimento generale. In <code translate="no">grep</code> "Non ho trovato nessuna riga", che non è un errore</td></tr><tr><td><code translate="no">2</code></td><td>Uso improprio o errore grave. In <code translate="no">grep</code> e <code translate="no">tar</code> errore vero</td></tr><tr><td><code translate="no">126</code></td><td>Il file esiste ma non può essere eseguito</td></tr><tr><td><code translate="no">127</code></td><td>Comando non trovato</td></tr><tr><td><code translate="no">130</code></td><td>Arrestato con Ctrl+C</td></tr></tbody></table></div>
+<p>Anche il vostro script termina con un codice: quello dell'ultimo comando eseguito, oppure quello scelto da voi con <code translate="no">exit N</code>. Chiunque chiami il tuo script, che tu, un altro script o cron, legge questo numero.</p>
+<p><strong><code translate="no">&amp;&amp;</code> e <code translate="no">||</code>.</strong> Il modo più breve per decidere in una riga:</p>
+<pre translate="no"><code class="lang-bash">mkdir -p "$destino" &amp;&amp; echo "pasta pronta"     # esegui echo solo se mkdir ha funzionato
+cd "$destino" || exit 1                         # se il cd fallisce, termina lo script</code></pre>
+<p><strong><code translate="no">test</code> e <code translate="no">[ ]</code>.</strong> Sono lo stesso comando con due grafie. All'interno delle parentesi, <strong>spazio dopo <code translate="no">[</code> e prima di <code translate="no">]</code></strong>, sempre.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Domanda</th><th scope="col">Verde quando</th></tr></thead><tbody><tr><td><code translate="no">[ -e "$x" ]</code></td><td><code translate="no">$x</code> esiste, qualunque sia</td></tr><tr><td><code translate="no">[ -f "$x" ]</code></td><td><code translate="no">$x</code> è un file comune</td></tr><tr><td><code translate="no">[ -d "$x" ]</code></td><td><code translate="no">$x</code> è una cartella</td></tr><tr><td><code translate="no">[ -r "$x" ]</code>, <code translate="no">-w</code>, <code translate="no">-x</code></td><td>Puoi leggere, scrivere, eseguire</td></tr><tr><td><code translate="no">[ -s "$x" ]</code></td><td><code translate="no">$x</code> esiste e non è vuoto</td></tr><tr><td><code translate="no">[ -z "$v" ]</code></td><td>Il testo è vuoto</td></tr><tr><td><code translate="no">[ -n "$v" ]</code></td><td>Il testo non è vuoto</td></tr><tr><td><code translate="no">[ "$a" = "$b" ]</code>, <code translate="no">!=</code></td><td>Stessi testi diversi</td></tr><tr><td><code translate="no">[ "$n" -eq 5 ]</code>, <code translate="no">-ne</code>, <code translate="no">-lt</code>, <code translate="no">-le</code>, <code translate="no">-gt</code>, <code translate="no">-ge</code></td><td>Numeri: uguali, diversi, minori, minori o uguali, maggiori, maggiori o uguali</td></tr><tr><td><code translate="no">[ ! -d "$x" ]</code></td><td><code translate="no">!</code> inverte la domanda</td></tr></tbody></table></div>
+<p><strong><code translate="no">if</code>.</strong></p>
+<pre translate="no"><code class="lang-bash">if [ -d "$origem" ]; then
+    echo "pasta encontrada"
+elif [ -e "$origem" ]; then
+    echo "existe, mas não é uma pasta"
+else
+    echo "não existe"
+fi</code></pre>
+<p><code translate="no">if</code> accetta qualsiasi comando, non solo <code translate="no">[ ]</code>:</p>
+<pre translate="no"><code class="lang-bash">if grep -q root /etc/passwd; then echo "tem root"; fi
+if ! tar -czf "$arquivo" -C "$pai" "$nome"; then echo "o tar falhou"; fi</code></pre>
+<p><strong><code translate="no">for</code>.</strong> Una volta per ogni elemento:</p>
+<pre translate="no"><code class="lang-bash">for servidor in rocky-lab debian-lab; do
+    echo "conferindo $servidor"
+done
+
+for arquivo in /var/log/*.log; do      # la shell assembla l'elenco, anche con spazi nei nomi
+    echo "$arquivo"
+done
+
+for i in {1..5}; do echo "$i"; done    # da 1 a 5</code></pre>
+<p><strong><code translate="no">while read</code>.</strong> Una volta per ogni riga di un file:</p>
+<pre translate="no"><code class="lang-bash">while read -r pasta; do
+    echo "vou guardar $pasta"
+done &lt; pastas.txt</code></pre>
+<p><code translate="no">-r</code> fa o <code translate="no">read</code> non utilizza le barre rovesciate. Utilizzare sempre.</p>
+<p><strong><code translate="no">$(...)</code> e <code translate="no">$((...))</code>.</strong></p>
+<pre translate="no"><code class="lang-bash">hoje="$(date +%F)"              # memorizza l'output di un comando
+linhas="$(wc -l &lt; /etc/passwd)" # con &lt;, wc mostra solo il numero
+total=$((total + 1))            # conta con numeri interi</code></pre>
+<p>Il backtick, <code translate="no">`date`</code>, ha la stessa funzione di <code translate="no">$(date)</code>. Lo troverai nelle vecchie scritture; scrivere con <code translate="no">$(...)</code>, che è più facile da leggere e annidare.</p>
+<p><strong><code translate="no">exit N</code>.</strong> Termina immediatamente lo script, con il codice <code translate="no">N</code>. D'accordo con chi leggerà: 0 per successo e numeri diversi per errori diversi, documentati nel commento in alto.</p>
+<p><strong><code translate="no">logger</code>.</strong> Scrive una riga nel log di sistema, con un'etichetta: <code translate="no">logger -t backup-app "OK /etc"</code>. Da leggere: <code translate="no">journalctl -t backup-app</code>. Ecco come uno script cron racconta ciò che ha fatto, senza che nessuno guardi lo schermo.</p>
+<h3 id="windows-bridge">Windows Bridge</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Su Windows</th><th scope="col">Su Linux</th><th scope="col">Attenzione</th></tr></thead><tbody><tr><td><code translate="no">%ERRORLEVEL%</code> in <code translate="no">cmd</code>, <code translate="no">$LASTEXITCODE</code> in PowerShell</td><td><code translate="no">$?</code></td><td>Su Linux, <code translate="no">$?</code> cambia dopo <strong>qualsiasi</strong> comando, fino a <code translate="no">echo</code></td></tr><tr><td>In PowerShell, <code translate="no">$?</code> è <code translate="no">True</code> o <code translate="no">False</code></td><td>In bash, <code translate="no">$?</code> è un numero e 0 è successo</td><td>È l'opposto dell'intuizione: 0 è buono</td></tr><tr><td><code translate="no">if exist arquivo</code></td><td><code translate="no">if [ -e "$arquivo" ]</code></td><td>Gli spazi all'interno del <code translate="no">[ ]</code> sono obbligatori</td></tr><tr><td>In PowerShell, <code translate="no">-eq</code> e <code translate="no">-gt</code> confrontano qualsiasi cosa</td><td>Al <code translate="no">[ ]</code>, <code translate="no">-eq</code> e <code translate="no">-gt</code> sono solo per numeri; i testi usano <code translate="no">=</code></td><td><code translate="no">[ 10 \&gt; 9 ]</code> confronta come testo e restituisce false</td></tr><tr><td><code translate="no">for %%f in (*.log) do</code></td><td><code translate="no">for f in *.log; do ...; done</code></td><td></td></tr><tr><td><code translate="no">exit /b 1</code></td><td><code translate="no">exit 1</code></td><td></td></tr><tr><td>Visualizzatore eventi, <code translate="no">Write-EventLog</code></td><td><code translate="no">logger</code> e <code translate="no">journalctl</code></td><td></td></tr></tbody></table></div>
+<h3 id="avanzato">Avanzato</h3>
+<ul><li><strong><code translate="no">[[ ]]</code></strong> è la versione bash: accetta <code translate="no">&amp;&amp;</code> e <code translate="no">||</code> all'interno, confronta i modelli con <code translate="no">==</code> e non si interrompe con variabili vuote senza virgolette. Non esiste in <code translate="no">dash</code>, <code translate="no">/bin/sh</code> di Debian. In questa lezione, <code translate="no">[ ]</code> tra virgolette, che funziona in qualsiasi shell.</li>
+<li><strong>Pipeline.</strong> <code translate="no">$?</code> di <code translate="no">comando1 | comando2</code> è l'<strong>ultimo</strong> comando. Un <code translate="no">tar ... | gzip</code> con <code translate="no">tar</code> fallito dà il verde. <code translate="no">set -o pipefail</code> rende la tubazione rossa se qualche parte si guasta; <code translate="no">${PIPESTATUS[@]}</code> mostra il codice per ogni parte.</li>
+<li><strong><code translate="no">set -e</code></strong> per lo script nel primo comando che fallisce, ma non è valido all'interno di <code translate="no">if</code>, né prima di <code translate="no">&amp;&amp;</code> e <code translate="no">||</code>, né nelle pipeline senza <code translate="no">pipefail</code>. Aiuta, ma non sostituisce l'esplicito <code translate="no">if</code> nei passaggi che contano.</li>
+<li><strong><code translate="no">while read</code> e <code translate="no">ssh</code>.</strong> Un <code translate="no">ssh</code> all'interno di un <code translate="no">while read ... done &lt; lista</code> mangia il resto dell'elenco, perché legge dalla stessa voce. Utilizzare <code translate="no">ssh -n</code>.</li>
+<li><strong><code translate="no">case</code></strong> decide tra più testi contemporaneamente, come <code translate="no">start</code>, <code translate="no">stop</code> e <code translate="no">status</code>. È per il Modulo 4, negli script di servizio.</li>
+<li><strong><code translate="no">tar</code> e i suoi codici.</strong> GNU tar esce con 1 quando un file viene modificato durante il salvataggio e con 2 in caso di errore fatale, come <code translate="no">Permission denied</code>. Entrambi sono rossi per <code translate="no">if</code>.</li></ul>
+<h3 id="cosa-rientra-nel-test">Cosa rientra nel test</h3>
+<ul><li><strong>LE 013.3:</strong> cos'è <code translate="no">$?</code>, <code translate="no">if</code> e <code translate="no">test</code> base, <code translate="no">for</code> in un elenco. Domande come "qual è il valore di <code translate="no">$?</code> dopo...".</li>
+<li><strong>LPIC-1 105.2:</strong> <code translate="no">test</code> con <code translate="no">-f</code>, <code translate="no">-d</code>, <code translate="no">-z</code>, <code translate="no">-eq</code>; <code translate="no">if</code>, <code translate="no">for</code>, <code translate="no">while</code>, <code translate="no">seq</code>; <code translate="no">exit</code>; sostituzione dei comandi; codici di uscita. C'è molta differenza tra <code translate="no">-eq</code> e <code translate="no">=</code>.</li>
+<li><strong>RHCSA:</strong> uno script che riceve argomenti, decide e ripete e termina con un codice di uscita specifico. Esempio: "crea <code translate="no">/usr/local/bin/checa</code>, che riceve nomi utente; per ognuno che non esiste, mostra un messaggio; termina con 1 se ne manca uno."</li></ul>
+<h2 id="5-rocky-debian">5 · Rocky × Debian</h2>
+<div class="tabela"><table><thead><tr><th scope="col"></th><th scope="col">Rocky Linux 9 e 10</th><th scope="col">Debian 13</th></tr></thead><tbody><tr><td><code translate="no">[[ ]]</code> in una scrittura con <code translate="no">#!/bin/sh</code></td><td>Funziona, perché <code translate="no">/bin/sh</code> è bash</td><td><code translate="no">[[: not found</code>, perché <code translate="no">/bin/sh</code> è <code translate="no">dash</code></td></tr><tr><td><code translate="no">{1..5}</code> in una scrittura con <code translate="no">#!/bin/sh</code></td><td>Funziona</td><td>Mostra <code translate="no">{1..5}</code>, letterale</td></tr><tr><td>Messaggio di <code translate="no">[ "abc" -gt 1 ]</code></td><td><code translate="no">integer expression expected</code></td><td><code translate="no">integer expression expected</code>. Nella nuova bash 5.3, la frase è stata abbreviata in <code translate="no">integer expected</code></td></tr><tr><td><code translate="no">logger -t backup-app "msg"</code></td><td>Vai al diario; <code translate="no">rsyslog</code> copia anche in <code translate="no">/var/log/messages</code></td><td>Vai al diario; senza <code translate="no">rsyslog</code> installato non c'è <code translate="no">/var/log/syslog</code></td></tr><tr><td>Leggi cosa ha registrato <code translate="no">logger</code></td><td><code translate="no">journalctl -t backup-app</code></td><td><code translate="no">journalctl -t backup-app</code></td></tr><tr><td><code translate="no">seq 1 5</code></td><td>Installato</td><td>Installato</td></tr></tbody></table></div>
+<p>La regola che si applica a entrambi: <strong><code translate="no">#!/bin/bash</code> in ogni script di questa lezione, <code translate="no">[ ]</code> tra virgolette e <code translate="no">journalctl -t</code> per leggere il registro</strong>.</p>
+<h2 id="6-laboratorio-guidato">6 · Laboratorio guidato</h2>
+<p>Fai tutto in entrambe le VM, a meno che il passaggio non ne indichi solo uno. I test rapidi sono al terminal; le scritture sono in <code translate="no">~/lab13/scripts</code>; <code translate="no">backup-app.sh</code> installato nella lezione 1.8 è in <code translate="no">~/bin</code>. In ogni passaggio, quando appare <strong>Predict</strong>, scrivere la risposta prima di premere Invio.</p>
+<h3 id="passaggio-1-prepara">Passaggio 1 · Prepara</h3>
+<p>Nel nodo Proxmox:</p>
+<pre translate="no"><code class="lang-bash">qm snapshot 201 m1a9-inicio
+qm snapshot 202 m1a9-inicio</code></pre>
+<p>In ogni VM:</p>
+<pre translate="no"><code class="lang-bash">type backup-app.sh
+ls ~/lab13/arquivo/app
+cd ~/lab13/scripts</code></pre>
+<p><code translate="no">type</code> deve rispondere <code translate="no">backup-app.sh is /home/SEU_USUARIO/bin/backup-app.sh</code>. Se rispondi <code translate="no">not found</code>, rifai il passo 6 della Lezione 1.8.</p>
+<h3 id="passo-2-il-semaforo">Passo 2 · Il semaforo, <code translate="no">$?</code></h3>
+<pre translate="no"><code class="lang-bash">ls /etc/hostname
+echo $?
+ls /naoexiste
+echo $?</code></pre>
+<p><code translate="no">0</code> e poi <code translate="no">2</code>. Sullo schermo appare il messaggio di errore <code translate="no">ls</code>; il codice va a <code translate="no">$?</code>.</p>
+<p><strong>Preveja.</strong> Subito dopo <code translate="no">ls /naoexiste</code>, esegui <code translate="no">echo $?</code> due volte di seguito. Cosa mostra ognuno?</p>
+<pre translate="no"><code class="lang-bash">ls /naoexiste
+echo $?
+echo $?</code></pre>
+<p><code translate="no">2</code> e poi <code translate="no">0</code>. Il secondo <code translate="no">echo</code> mostra il codice del <strong>primo</strong> <code translate="no">echo</code> che ha funzionato. <code translate="no">$?</code> viene cancellato ad ogni comando. Tienilo: è il Break A di questo corso.</p>
+<p>Ora <code translate="no">grep</code>, che ha tre risposte:</p>
+<pre translate="no"><code class="lang-bash">grep -q root /etc/passwd;        echo "achou: $?"
+grep -q naoexiste /etc/passwd;   echo "não achou: $?"
+grep -q root /arquivo/inexistente; echo "erro: $?"</code></pre>
+<p><code translate="no">0</code>, <code translate="no">1</code> e <code translate="no">2</code>. <code translate="no">-q</code> lascia stare <code translate="no">grep</code>: non mostra nulla, risponde solo con il codice.</p>
+<p><strong>Decidi 1 · Cosa significa 1.</strong> In uno script, <code translate="no">grep -q "ERRO" app.log</code> terminava con il codice 1. Cos'è successo?</p>
+<ul><li><strong>A)</strong> <code translate="no">grep</code> non riuscito: il file probabilmente non esiste.</li>
+<li><strong>B)</strong> <code translate="no">grep</code> ha funzionato e non ha trovato alcuna riga con <code translate="no">ERRO</code>.</li>
+<li><strong>C)</strong> <code translate="no">grep</code> trovato esattamente una riga con <code translate="no">ERRO</code>.</li>
+<li><strong>D)</strong> <code translate="no">grep</code> è stato interrotto.</li></ul>
+<p>Scegliere la lettera prima di guardare la tabella.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se hai selezionato</th><th scope="col">Risultato</th><th scope="col">Perché</th></tr></thead><tbody><tr><td>A</td><td>❌ Sbagliato</td><td>File inesistente riporta <code translate="no">2</code>, con messaggio <code translate="no">No such file or directory</code>.</td></tr><tr><td>B</td><td>✅ Giusto</td><td>Per <code translate="no">grep</code>, 1 è "Ho cercato e non l'ho trovato". Nel monitoraggio dei log, questa è la buona notizia.</td></tr><tr><td>C</td><td>❌ Sbagliato</td><td>Il codice non conta le righe. Trovarne uno o mille dà <code translate="no">0</code>. Per contare, <code translate="no">grep -c</code>.</td></tr><tr><td>D</td><td>❌ Sbagliato</td><td>Interrotto con Ctrl+C restituisce <code translate="no">130</code>.</td></tr></tbody></table></div>
+<p><strong>Da risolvere:</strong> il rosso non è sempre un errore. Leggi <code translate="no">man</code> del comando, nella sezione <em>STATO USCITA</em>, prima di decidere cosa significa ciascun numero.</p>
+<p>Check out:</p>
+<pre translate="no"><code class="lang-bash">man grep | grep -A6 'EXIT STATUS'</code></pre>
+<h3 id="passo-3-chiedi-con">Passo 3 · Chiedi con <code translate="no">[ ]</code></h3>
+<pre translate="no"><code class="lang-bash">[ -d /etc ];            echo "pasta: $?"
+[ -f /etc ];            echo "arquivo: $?"
+[ -f /etc/hostname ];   echo "arquivo: $?"
+[ -z "" ];              echo "vazio: $?"
+[ 10 -gt 9 ];           echo "maior: $?"</code></pre>
+<p><code translate="no">0</code>, <code translate="no">1</code>, <code translate="no">0</code>, <code translate="no">0</code>, <code translate="no">0</code>. <code translate="no">[</code> è un comando vero e proprio:</p>
+<pre translate="no"><code class="lang-bash">type [
+ls -l /usr/bin/[</code></pre>
+<p>Essendo un comando necessita di spazi, come tutti gli altri. Guarda cosa succede senza:</p>
+<pre translate="no"><code class="lang-bash">[-d /etc]</code></pre>
+<p><code translate="no">bash: [-d: command not found</code>, codice 127. La shell ha cercato un programma chiamato <code translate="no">[-d</code>.</p>
+<p><strong>Predict.</strong> <code translate="no">[ 10 \&gt; 9 ]</code> confronta 10 con 9 usando <code translate="no">&gt;</code>. Verde o rosso?</p>
+<pre translate="no"><code class="lang-bash">[ 10 \&gt; 9 ];  echo $?
+[ 10 -gt 9 ]; echo $?</code></pre>
+<p><code translate="no">1</code> e <code translate="no">0</code>. Con <code translate="no">&gt;</code> i due lati vengono confrontati come <strong>testo</strong>, lettera per lettera, come nel dizionario: <code translate="no">"1"</code> viene prima di <code translate="no">"9"</code>, quindi <code translate="no">"10"</code> è più piccolo. I numeri si confrontano con <code translate="no">-gt</code>, <code translate="no">-lt</code> e azienda.</p>
+<p><strong>Decidi 2 · La variabile vuota in <code translate="no">[ ]</code>.</strong> Lo script ha <code translate="no">if [ $resposta = sim ]; then</code>. Un giorno <code translate="no">resposta</code> arriva vuoto. Cosa succede?</p>
+<ul><li><strong>A)</strong> Il test restituisce falso, in silenzio, e lo script va a <code translate="no">else</code>.</li>
+<li><strong>B)</strong> Appare <code translate="no">[: =: unary operator expected</code>, il test restituisce 2 e lo script va a <code translate="no">else</code>.</li>
+<li><strong>C)</strong> Lo script si interrompe immediatamente con un errore di sintassi.</li>
+<li><strong>D)</strong> Il test restituisce vero, perché vuoto è uguale a qualsiasi cosa.</li></ul>
+<p>Scegli la lettera prima di guardare la tabella.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se hai selezionato</th><th scope="col">Risultato</th><th scope="col">Perché</th></tr></thead><tbody><tr><td>A</td><td>❌ Sbagliato</td><td>Sarebbe così tra virgolette. Senza virgolette, la variabile vuota scompare dalla riga.</td></tr><tr><td>B</td><td>✅ Giusto</td><td>Senza virgolette, la shell assembla <code translate="no">[ = sim ]</code>. <code translate="no">[</code> vede solo due pezzi e si lamenta. Il codice 2 è rosso, quindi <code translate="no">if</code> va a <code translate="no">else</code> e lo script segue, con uno strano messaggio sullo schermo.</td></tr><tr><td>C</td><td>❌ Sbagliato</td><td>Non è un errore di sintassi di bash: è <code translate="no">[</code>, un comando, che si lamenta degli argomenti. La sceneggiatura continua.</td></tr><tr><td>D</td><td>❌ Sbagliato</td><td>Nessun comando considera vuoto come un carattere jolly.</td></tr></tbody></table></div>
+<p><strong>Da correggere:</strong> variabile tra <code translate="no">[ ]</code> sempre tra virgolette: <code translate="no">[ "$resposta" = sim ]</code>. È la regola della lezione 1.8 con un motivo in più.</p>
+<p>Check out:</p>
+<pre translate="no"><code class="lang-bash">resposta=
+[ $resposta = sim ];   echo $?
+[ "$resposta" = sim ]; echo $?</code></pre>
+<p><code translate="no">unary operator expected</code> e <code translate="no">2</code>, poi solo <code translate="no">1</code>, pulito.</p>
+<h3 id="passo-4-decidi-con-if">Passo 4 · Decidi con <code translate="no">if</code></h3>
+<pre translate="no"><code class="lang-bash">cat &gt; existe.sh &lt;&lt;'EOF'
+#!/bin/bash
+# existe.sh - diz o que é cada caminho recebido
+# Uso: existe.sh CAMINHO
+alvo="${1:?uso: $0 CAMINHO}"
+
+if [ -d "$alvo" ]; then
+    echo "$alvo é uma pasta"
+elif [ -f "$alvo" ]; then
+    echo "$alvo é um arquivo de $(wc -c &lt; "$alvo") bytes"
+elif [ -e "$alvo" ]; then
+    echo "$alvo existe, mas não é pasta nem arquivo comum"
+else
+    echo "$alvo não existe" &gt;&amp;2
+    exit 1
+fi
+EOF
+chmod +x existe.sh
+./existe.sh /etc;           echo "rc=$?"
+./existe.sh /etc/hostname;  echo "rc=$?"
+./existe.sh /dev/null;      echo "rc=$?"
+./existe.sh /naoexiste;     echo "rc=$?"</code></pre>
+<p>Cartella, file, "esiste ma non è" e <code translate="no">não existe</code> con <code translate="no">rc=1</code>. <code translate="no">&gt;&amp;2</code> invia il messaggio di errore all'output di errore, lezione 1.5: chi reindirizza solo l'output normale vede comunque l'errore.</p>
+<p><strong>Decidi 3 · Quale <code translate="no">if</code> è corretto?</strong> Vuoi sapere se l'utente <code translate="no">root</code> appare in <code translate="no">/etc/passwd</code>.</p>
+<ul><li><strong>A)</strong> <code translate="no">if [ grep -q root /etc/passwd ]; then</code></li>
+<li><strong>B)</strong> <code translate="no">if grep -q root /etc/passwd; then</code></li>
+<li><strong>C)</strong> <code translate="no">if [ $(grep root /etc/passwd) ]; then</code></li>
+<li><strong>D)</strong> <code translate="no">if grep -q root /etc/passwd = 0; then</code></li></ul>
+<p>Scegli la lettera prima di guardare la tabella.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se hai selezionato</th><th scope="col">Risultato</th><th scope="col">Perché</th></tr></thead><tbody><tr><td>A</td><td>❌ Sbagliato</td><td><code translate="no">[</code> riceve le parole <code translate="no">grep</code>, <code translate="no">-q</code>, <code translate="no">root</code> e <code translate="no">/etc/passwd</code> come testo e non sa cosa farne: si lamenta con un errore di sintassi, la cui frase cambia a seconda della versione di bash, e restituisce 2. <code translate="no">grep</code> non viene mai eseguito, e <code translate="no">if</code> va a <code translate="no">else</code>.</td></tr><tr><td>B</td><td>✅ Giusto</td><td><code translate="no">if</code> corre <code translate="no">grep</code> e guarda il semaforo. È la forma più breve e corretta.</td></tr><tr><td>C</td><td>❌ Sbagliato</td><td>Funziona per caso finché l'output è una sola parola: la riga fondamentale non ha spazi. Se <code translate="no">grep</code> trova due righe, oppure una con spazio, <code translate="no">[</code> riceve troppi pezzi e protesta. Usa l'output, quando ciò che conta è il codice.</td></tr><tr><td>D</td><td>❌ Sbagliato</td><td><code translate="no">grep</code> riceve <code translate="no">=</code> e <code translate="no">0</code> come nomi di file. Con <code translate="no">-q</code> si ferma al primo colpo e non apre nemmeno i due, quindi sembra funzionare. Il giorno in cui non lo trovi, lamentati che <code translate="no">=</code> e <code translate="no">0</code> non esistono e restituisci 2. Giusto sembra essere sbagliato.</td></tr></tbody></table></div>
+<p><strong>Per risolvere:</strong> <code translate="no">if</code> riceve un <strong>comando</strong>. Utilizzare <code translate="no">[ ]</code> solo quando la domanda riguarda file, testi o numeri; Quando è "questo comando ha funzionato?", inserisci il comando diretto.</p>
+<p>Selezionare A per visualizzare il messaggio:</p>
+<pre translate="no"><code class="lang-bash">if [ grep -q root /etc/passwd ]; then echo sim; else echo não; fi
+if grep -q root /etc/passwd; then echo sim; else echo não; fi</code></pre>
+<p>E nel modo più breve, con <code translate="no">&amp;&amp;</code> e <code translate="no">||</code>:</p>
+<pre translate="no"><code class="lang-bash">grep -q root /etc/passwd &amp;&amp; echo "tem root" || echo "sem root"</code></pre>
+<h3 id="passaggio-5-ripetere-con-for">Passaggio 5 · Ripetere con <code translate="no">for</code></h3>
+<pre translate="no"><code class="lang-bash">for vm in rocky-lab debian-lab; do
+    echo "vou conferir $vm"
+done
+
+for i in {1..3}; do echo "volta $i"; done
+for i in $(seq 1 3); do echo "volta $i"; done</code></pre>
+<p>Ora, una cartella con nomi di registro, uno dei quali con uno spazio, come accade quando il file proviene da Windows:</p>
+<pre translate="no"><code class="lang-bash">mkdir -p ~/lab13/logs-teste
+cd ~/lab13/logs-teste
+touch app.log "nota fiscal.log" erro.log
+ls -l</code></pre>
+<p><strong>Decidi 4 · Esamina i registri.</strong> Quale ciclo esamina i tre file, uno alla volta, con il nome intero?</p>
+<ul><li><strong>A)</strong> <code translate="no">for f in $(ls); do echo "[$f]"; done</code></li>
+<li><strong>B)</strong> <code translate="no">for f in *.log; do echo "[$f]"; done</code></li>
+<li><strong>C)</strong> <code translate="no">for f in "$(ls)"; do echo "[$f]"; done</code></li>
+<li><strong>D)</strong> <code translate="no">for f in $(ls *.log); do echo "[$f]"; done</code></li></ul>
+<p>Scegli la lettera prima di guardare la tabella.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se hai selezionato</th><th scope="col">Risultato</th><th scope="col">Perché</th></tr></thead><tbody><tr><td>A</td><td>❌ Sbagliato</td><td>L'output di <code translate="no">ls</code> è suddiviso in spazi: <code translate="no">[nota]</code> e <code translate="no">[fiscal.log]</code> compaiono separatamente. Quattro giri, due sbagliati.</td></tr><tr><td>B</td><td>✅ Giusto</td><td>La shell stessa assembla la lista con <code translate="no">*</code>, e ogni nome diventa un intero elemento, con o senza spazio. Tre giri.</td></tr><tr><td>C</td><td>❌ Sbagliato</td><td>Le virgolette riuniscono tutto in un unico elemento: un ritorno a capo, con all'interno i tre nomi e le interruzioni di riga.</td></tr><tr><td>D</td><td>❌ Sbagliato</td><td>Lo stesso problema di A. <code translate="no">*.log</code> aiuta <code translate="no">ls</code>, ma l'interruzione degli spazi avviene più tardi.</td></tr></tbody></table></div>
+<p><strong>Per risolvere:</strong> per scorrere i file, utilizzare <code translate="no">*</code> direttamente in <code translate="no">for</code>. Mai <code translate="no">for f in $(ls)</code>.</p>
+<p>Check out:</p>
+<pre translate="no"><code class="lang-bash">for f in $(ls); do echo "[$f]"; done
+for f in *.log; do echo "[$f]"; done</code></pre>
+<p>E un ciclo utile, che conta le righe di ogni registro:</p>
+<pre translate="no"><code class="lang-bash">for f in *.log; do
+    echo "$(wc -l &lt; "$f") linhas  $f"
+done
+cd ~/lab13/scripts</code></pre>
+<h3 id="passo-6-ripeti-con-while-read-e-conta">Passo 6 · Ripeti con <code translate="no">while read</code> e conta</h3>
+<p>Un elenco di cartelle, una per riga, con una riga vuota e una cartella che non esiste, apposta:</p>
+<pre translate="no"><code class="lang-bash">cat &gt; pastas.txt &lt;&lt;'EOF'
+/home/SEU_USUARIO/lab13/arquivo/app
+/home/SEU_USUARIO/lab13/logs-teste
+
+/home/SEU_USUARIO/naoexiste
+EOF
+sed -i "s|SEU_USUARIO|$USER|" pastas.txt
+cat -A pastas.txt</code></pre>
+<p>Il <code translate="no">cat -A</code> mostra la riga vuota solo come <code translate="no">$</code>. Ora leggi riga per riga, saltando quella vuota:</p>
+<pre translate="no"><code class="lang-bash">total=0
+while read -r pasta; do
+    [ -z "$pasta" ] &amp;&amp; continue
+    total=$((total + 1))
+    if [ -d "$pasta" ]; then
+        echo "OK      $pasta"
+    else
+        echo "FALTA   $pasta"
+    fi
+done &lt; pastas.txt
+echo "Total: $total"</code></pre>
+<p>Due righe <code translate="no">OK</code>, una <code translate="no">FALTA</code>, <code translate="no">Total: 3</code>. <code translate="no">continue</code> passa al ciclo successivo.</p>
+<p><strong>Decidi 5 · Il totale che somma.</strong> Un collega ha scritto lo stesso ciclo in questo modo: <code translate="no">cat pastas.txt | while read -r pasta; do ... done</code>, quindi <code translate="no">echo "Total: $total"</code>. Cosa appare alla fine?</p>
+<ul><li><strong>A)</strong> <code translate="no">Total: 3</code>, lo stesso.</li>
+<li><strong>B)</strong> <code translate="no">Total: 0</code>.</li>
+<li><strong>C)</strong> <code translate="no">Total: 4</code>, perché ora conta la riga vuota.</li>
+<li><strong>D)</strong> Errore: <code translate="no">while</code> non accetta pipe.</li></ul>
+<p>Scegliere la lettera prima di guardare la tabella.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se hai selezionato</th><th scope="col">Risultato</th><th scope="col">Perché</th></tr></thead><tbody><tr><td>A</td><td>❌ Sbagliato</td><td>All'interno del loop il conteggio arriva a 3. Ma succede altrove.</td></tr><tr><td>B</td><td>✅ Giusto</td><td>In una pipe, bash esegue <code translate="no">while</code> in una shell figlia. Il <code translate="no">total</code> che arriva a 3 è quello del figlio, e muore con lui. Il <code translate="no">echo</code> all'esterno vede il <code translate="no">total</code> prima del loop: 0. È lo stesso motivo del <code translate="no">cd</code> che non resta, nella lezione 1.8.</td></tr><tr><td>C</td><td>❌ Sbagliato</td><td><code translate="no">[ -z ]</code> con <code translate="no">continue</code> salta la riga vuota in entrambe le direzioni.</td></tr><tr><td>D</td><td>❌ Sbagliato</td><td><code translate="no">while</code> accetta la pipa senza lamentarsi. Ecco perché l'errore è insidioso: non c'è nessun messaggio.</td></tr></tbody></table></div>
+<p><strong>Per risolvere:</strong> in un ciclo che memorizza qualcosa per dopo, leggere il file con <code translate="no">done &lt; arquivo</code>, mai con <code translate="no">cat arquivo |</code>.</p>
+<p>Check out:</p>
+<pre translate="no"><code class="lang-bash">total=0
+cat pastas.txt | while read -r pasta; do [ -z "$pasta" ] &amp;&amp; continue; total=$((total + 1)); done
+echo "Total pelo pipe: $total"
+total=0
+while read -r pasta; do [ -z "$pasta" ] &amp;&amp; continue; total=$((total + 1)); done &lt; pastas.txt
+echo "Total pelo &lt;: $total"</code></pre>
+<h3 id="passo-7-backup-app-sh-impara-a-diffidare">Passo 7 · <code translate="no">backup-app.sh</code> impara a diffidare</h3>
+<p>È la correzione promessa nella Decisione 4 della lezione 1.8. La nuova versione controlla ogni passaggio, restituisce un codice diverso per ogni tipo di problema, registra tutto nel proprio registro e diario e non lascia un backup incompleto che sembra buono.</p>
+<pre translate="no"><code class="lang-bash">cp ~/bin/backup-app.sh ~/bin/backup-app.sh.v3
+cat &gt; ~/bin/backup-app.sh &lt;&lt;'EOF'
+#!/bin/bash
+# backup-app.sh - backup de uma pasta pelo Protocolo da Aula 1.7
+# Uso: backup-app.sh PASTA [DESTINO]
+#   PASTA    o que guardar, obrigatório
+#   DESTINO  onde guardar, padrão ~/backups
+# Saída: 0 = backup completo e conferido
+#        1 = o backup falhou ou ficou incompleto
+#        2 = a pasta não existe
+
+origem="${1:?uso: $0 PASTA [DESTINO]}"
+destino="${2:-$HOME/backups}"
+nome="$(basename "$origem")"
+pai="$(dirname "$origem")"
+data="$(date +%F_%H%M)"
+arquivo="$destino/$nome-$data.tar.gz"
+log="$destino/backup-app.log"
+
+mkdir -p "$destino" || exit 1
+
+if [ ! -d "$origem" ]; then
+    echo "ERRO: $origem não é uma pasta" &gt;&amp;2
+    echo "$(date '+%F %T') ERRO pasta $origem" &gt;&gt; "$log"
+    logger -t backup-app "ERRO pasta $origem"
+    exit 2
+fi
+
+echo "Backup de $origem para $arquivo"
+
+if ! tar -czf "$arquivo" -C "$pai" "$nome"; then
+    echo "ERRO: o tar falhou; o backup de $origem está incompleto" &gt;&amp;2
+    mv "$arquivo" "$arquivo.INCOMPLETO" 2&gt; /dev/null
+    echo "$(date '+%F %T') ERRO tar $origem" &gt;&gt; "$log"
+    logger -t backup-app "ERRO tar $origem"
+    exit 1
+fi
+
+if ! tar -tzf "$arquivo" &gt; /dev/null; then
+    echo "ERRO: $arquivo não abre até o fim" &gt;&amp;2
+    echo "$(date '+%F %T') ERRO teste $arquivo" &gt;&gt; "$log"
+    logger -t backup-app "ERRO teste $arquivo"
+    exit 1
+fi
+
+sha256sum "$arquivo" &gt; "$arquivo.sha256"
+chmod 600 "$arquivo" "$arquivo.sha256"
+echo "$(date '+%F %T') OK $origem $arquivo" &gt;&gt; "$log"
+logger -t backup-app "OK $origem $arquivo"
+ls -lh "$arquivo" "$arquivo.sha256"
+EOF
+bash -n ~/bin/backup-app.sh &amp;&amp; echo "sintaxe ok"</code></pre>
+<p>Leggi lo script dall'alto verso il basso prima di eseguirlo. Notare tre scelte:</p>
+<ul><li>La cartella test viene <strong>prima</strong> di qualsiasi <code translate="no">tar</code>. Prima l'errore di poco conto.</li>
+<li><code translate="no">tar</code> è <strong>dentro</strong> <code translate="no">if</code>. Non c'è nessun <code translate="no">$?</code> da eliminare lungo il percorso.</li>
+<li>Un backup non riuscito non viene eliminato: viene rinominato <code translate="no">.INCOMPLETO</code>. Nessuno lo confonde con uno buono e puoi ancora guardare quello che hai inserito.</li></ul>
+<p>Ora i tre percorsi, controllando il codice di ognuno:</p>
+<pre translate="no"><code class="lang-bash">backup-app.sh ~/lab13/arquivo/app /tmp/bkp9;  echo "rc=$?"
+backup-app.sh ~/naoexiste /tmp/bkp9;          echo "rc=$?"
+backup-app.sh /etc /tmp/bkp9 2&gt; /tmp/bkp9-erros.txt;  echo "rc=$?"</code></pre>
+<p><strong>Predict.</strong> Prima di eseguire la terza riga: quale <code translate="no">rc</code> e quali nuovi file compaiono in <code translate="no">/tmp/bkp9</code>?</p>
+<pre translate="no"><code class="lang-bash">ls -l /tmp/bkp9
+tail -3 /tmp/bkp9-erros.txt
+cat /tmp/bkp9/backup-app.log</code></pre>
+<p><code translate="no">rc=0</code>, <code translate="no">rc=2</code> e <code translate="no">rc=1</code>. Per <code translate="no">/etc</code>, <code translate="no">tar</code> si è lamentato dei file che l'utente medio non legge, si è concluso con l'avviso <code translate="no">Exiting with failure status due to previous errors</code> e lo script ha rinominato il file in <code translate="no">etc-...tar.gz.INCOMPLETO</code>. Il registro ha una riga <code translate="no">OK</code>, una <code translate="no">ERRO pasta</code> e una <code translate="no">ERRO tar</code>. Nella lezione 1.8, questo stesso comando diceva OK.</p>
+<p>Lo stesso record è nel diario di sistema, dove cron e monitoraggio cercano:</p>
+<pre translate="no"><code class="lang-bash">journalctl -t backup-app --since today</code></pre>
+<p>Con <code translate="no">sudo</code>, <code translate="no">/etc</code> va per intero:</p>
+<pre translate="no"><code class="lang-bash">sudo ~/bin/backup-app.sh /etc /tmp/bkp9; echo "rc=$?"</code></pre>
+<p><code translate="no">rc=0</code>.</p>
+<p><strong>Il loop in alto.</strong> Ora lo script che esegue il backup di un intero elenco, chiama <code translate="no">backup-app.sh</code> per ogni riga e conta il risultato:</p>
+<pre translate="no"><code class="lang-bash">cat &gt; ~/bin/backup-lista.sh &lt;&lt;'EOF'
+#!/bin/bash
+# backup-lista.sh - roda o backup-app.sh para cada pasta de uma lista
+# Uso: backup-lista.sh LISTA [DESTINO]
+#   LISTA    arquivo com uma pasta por linha
+#   DESTINO  repassado ao backup-app.sh
+
+lista="${1:?uso: $0 LISTA [DESTINO]}"
+destino="${2:-$HOME/backups}"
+ok=0
+falhas=0
+
+while read -r pasta; do
+    [ -z "$pasta" ] &amp;&amp; continue
+    if backup-app.sh "$pasta" "$destino"; then
+        ok=$((ok + 1))
+    else
+        falhas=$((falhas + 1))
+    fi
+done &lt; "$lista"
+
+echo "Resumo: $ok OK, $falhas com erro"
+[ "$falhas" -eq 0 ]
+EOF
+chmod +x ~/bin/backup-lista.sh
+backup-lista.sh ~/lab13/scripts/pastas.txt /tmp/bkp9; echo "rc=$?"</code></pre>
+<p><code translate="no">Resumo: 2 OK, 1 com erro</code> e <code translate="no">rc=1</code>. L'ultima riga dello script è un test: diventa il codice di uscita. Zero guasti, verde; qualsiasi guasto, rosso. Cron, o chi lo chiama, sa che qualcosa è andato storto senza leggere l'output.</p>
+<p>Fai lo stesso sull'altra VM e confronta i log.</p>
+<blockquote><p><strong>Protocollo · Script che ti avvisa quando fallisce</strong></p>
+<ol><li>Nel commento in alto, documenta i codici di uscita: <code translate="no"># Saída: 0 = ..., 1 = ..., 2 = ...</code>.</li>
+<li>Controlla cosa è economico prima di ciò che è costoso: argomenti e cartelle prima di <code translate="no">tar</code>.</li>
+<li>Inserisci il comando che conta <strong>dentro</strong> <code translate="no">if</code>: <code translate="no">if ! tar ...; then</code>. Se avete bisogno del numero, salvatelo nella riga successiva: <code translate="no">rc=$?</code>.</li>
+<li>Messaggio di errore per <code translate="no">&gt;&amp;2</code> e una riga nel registro con la data, <code translate="no">ERRO</code> e il motivo. Utilizzare <code translate="no">logger -t nome</code> per andare al diario.</li>
+<li>Il risultato non riuscito non sembra corretto: rinominare, contrassegnare o spostare.</li>
+<li>Terminare con <code translate="no">exit N</code> in ogni output di errore; alla fine, l'ultimo comando decide.</li>
+<li>Testare i tre percorsi, successo, errore di input ed errore centrale, controllando il <code translate="no">echo $?</code> di ciascuno.</li></ol></blockquote>
+<h2 id="7-interrompi-e-correggi">7 · Interrompi e correggi</h2>
+<h3 id="interruzione-a-il-che-giace">Interruzione A · Il <code translate="no">$?</code> che giace</h3>
+<p>Un collega ha scritto un backup di <code translate="no">/etc</code> "con conferenza". Fate come lui, da utente comune, senza <code translate="no">sudo</code>:</p>
+<pre translate="no"><code class="lang-bash">cd ~/lab13/scripts
+cat &gt; confere.sh &lt;&lt;'EOF'
+#!/bin/bash
+# confere.sh - backup do /etc com conferência (versão do colega)
+tar -czf /tmp/etc-colega.tar.gz /etc 2&gt; /dev/null
+echo "tar terminou"
+if [ $? -eq 0 ]; then
+    echo "OK: backup completo"
+else
+    echo "ERRO: backup com problema"
+fi
+EOF
+chmod +x confere.sh</code></pre>
+<p><strong>Osservare.</strong></p>
+<pre translate="no"><code class="lang-bash">./confere.sh; echo "rc=$?"</code></pre>
+<p><code translate="no">tar terminou</code>, <code translate="no">OK: backup completo</code> e <code translate="no">rc=0</code>. Ma si sa dalla lezione 1.8 che un utente comune non legge l'intero <code translate="no">/etc</code>.</p>
+<p><strong>Diagnostique.</strong> Eseguitelo con la radiografia e controllate solo il <code translate="no">tar</code>:</p>
+<pre translate="no"><code class="lang-bash">bash -x ./confere.sh
+tar -czf /tmp/etc-colega.tar.gz /etc 2&gt; /dev/null; echo "tar sozinho: $?"</code></pre>
+<p><code translate="no">tar</code> da solo dà <code translate="no">2</code>. Nel <code translate="no">bash -x</code>, la riga <code translate="no">+ '[' 0 -eq 0 ']'</code> mostra che <code translate="no">if</code> ha ricevuto <code translate="no">0</code>. Questo <code translate="no">0</code> proviene da <code translate="no">echo "tar terminou"</code>, che si trovava tra <code translate="no">tar</code> e <code translate="no">if</code>, ha funzionato e ha cancellato il codice da <code translate="no">tar</code>.</p>
+<p><strong>Decidi A · La correzione.</strong> Cosa risolve?</p>
+<ul><li><strong>A)</strong> Scambia <code translate="no">-eq</code> con <code translate="no">=</code>: <code translate="no">if [ $? = 0 ]</code>.</li>
+<li><strong>B)</strong> Rimuovi <code translate="no">2&gt; /dev/null</code>, per vedere gli errori.</li>
+<li><strong>C)</strong> Inserisci <code translate="no">tar</code> all'interno di <code translate="no">if</code>, <code translate="no">if tar -czf ...; then</code>, o salva il codice subito dopo, <code translate="no">rc=$?</code>, e prova <code translate="no">"$rc"</code>.</li>
+<li><strong>D)</strong> Cambia <code translate="no">echo</code> con <code translate="no">printf</code>.</li></ul>
+<p>Scegli la lettera prima di guardare la tabella.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se hai selezionato</th><th scope="col">Risultato</th><th scope="col">Perché</th></tr></thead><tbody><tr><td>A</td><td>❌ Sbagliato</td><td>Confronta come testo invece che come numero, ma <code translate="no">$?</code> rimane quello di <code translate="no">echo</code>: <code translate="no">0</code>.</td></tr><tr><td>B</td><td>❌ Sbagliato</td><td>Sullo schermo vengono visualizzati errori, il che aiuta chiunque guardi. In cron nessuno guarda e lo script continua a dire OK.</td></tr><tr><td>C</td><td>✅ Giusto</td><td>Con <code translate="no">tar</code> all'interno di <code translate="no">if</code> non c'è nessun <code translate="no">$?</code> da cancellare. Se avete bisogno del numero, per la registrazione o per decidere tra 1 e 2, salvatelo in <code translate="no">rc</code> nella riga <strong>subito</strong> successiva.</td></tr><tr><td>D</td><td>❌ Sbagliato</td><td>Anche <code translate="no">printf</code> funziona e cancella anche il codice. Qualsiasi comando intermedio fa lo stesso.</td></tr></tbody></table></div>
+<p><strong>Da risolvere:</strong> <code translate="no">$?</code> è valido solo fino al comando successivo. Testare il comando direttamente in <code translate="no">if</code> o salvare <code translate="no">rc=$?</code> nella riga successiva, senza nulla in mezzo.</p>
+<p><strong>Fix.</strong></p>
+<pre translate="no"><code class="lang-bash">cat &gt; confere.sh &lt;&lt;'EOF'
+#!/bin/bash
+# confere.sh - backup do /etc com conferência (consertado)
+tar -czf /tmp/etc-colega.tar.gz /etc 2&gt; /dev/null
+rc=$?
+echo "tar terminou com código $rc"
+if [ "$rc" -eq 0 ]; then
+    echo "OK: backup completo"
+else
+    echo "ERRO: backup com problema" &gt;&amp;2
+    exit 1
+fi
+EOF
+./confere.sh; echo "rc=$?"
+sudo ./confere.sh; echo "rc=$?"</code></pre>
+<p>Come utente: <code translate="no">tar terminou com código 2</code>, <code translate="no">ERRO</code> e <code translate="no">rc=1</code>. Con <code translate="no">sudo</code>: codice 0, <code translate="no">OK</code> e <code translate="no">rc=0</code>.</p>
+<h3 id="interruzione-b-il-numero-che-non-e-un-numero">Interruzione B · Il numero che non è un numero</h3>
+<p>Uno script di avviso conta gli account utente e avvisa se supera 10:</p>
+<pre translate="no"><code class="lang-bash">cat &gt; contas.sh &lt;&lt;'EOF'
+#!/bin/bash
+# contas.sh - avisa se há muitas contas no sistema
+linhas=$(wc -l /etc/passwd)
+if [ "$linhas" -gt 10 ]; then
+    echo "ALERTA: $linhas contas"
+else
+    echo "normal: $linhas contas"
+fi
+EOF
+chmod +x contas.sh</code></pre>
+<p><strong>Nota.</strong></p>
+<pre translate="no"><code class="lang-bash">./contas.sh; echo "rc=$?"</code></pre>
+<p>Qualcosa come <code translate="no">[: 35 /etc/passwd: integer expression expected</code>, seguito da <code translate="no">normal: 35 /etc/passwd contas</code> e <code translate="no">rc=0</code>. Sì, <code translate="no">normal</code>: <code translate="no">[</code> ha presentato reclamo, ne ha restituiti 2 e <code translate="no">if</code> è andato a <code translate="no">else</code>. Su un server con 500 account, il messaggio sarebbe lo stesso. In bash 5.3, più recente di VMs, la frase è <code translate="no">integer expected</code>.</p>
+<p><strong>Diagnostique.</strong> Scopri cosa ha memorizzato la variabile:</p>
+<pre translate="no"><code class="lang-bash">linhas=$(wc -l /etc/passwd)
+echo "[$linhas]"
+wc -l &lt; /etc/passwd</code></pre>
+<p><code translate="no">[35 /etc/passwd]</code>. Quando viene fornito il nome del file, <code translate="no">wc</code> visualizza il numero <strong>e</strong> il nome. <code translate="no">-gt</code> accetta solo numeri interi. Con <code translate="no">&lt;</code>, <code translate="no">wc</code> legge dall'input, non conosce il nome del file e mostra solo il numero.</p>
+<p><strong>Decidi B · La correzione.</strong> Cosa risolve?</p>
+<ul><li><strong>A)</strong> Sostituisci <code translate="no">-gt</code> con <code translate="no">&gt;</code>: <code translate="no">[ "$linhas" \&gt; 10 ]</code>.</li>
+<li><strong>B)</strong> Togliere le virgolette: <code translate="no">[ $linhas -gt 10 ]</code>.</li>
+<li><strong>C)</strong> <code translate="no">linhas=$(wc -l &lt; /etc/passwd)</code>.</li>
+<li><strong>D)</strong> Utilizzare <code translate="no">[[ ]]</code> al posto di <code translate="no">[ ]</code>.</li></ul>
+<p>Scegliere la lettera prima di guardare la tabella.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se hai selezionato</th><th scope="col">Risultato</th><th scope="col">Perché</th></tr></thead><tbody><tr><td>A</td><td>❌ Sbagliato</td><td>Aggiungete il messaggio, ma il confronto diventa testo: <code translate="no">"35 /etc/passwd"</code> contro <code translate="no">"10"</code>, lettera per lettera. Un sistema con 9 account darebbe un avviso, perché <code translate="no">"9"</code> viene dopo <code translate="no">"1"</code>.</td></tr><tr><td>B</td><td>❌ Sbagliato</td><td>Senza virgolette, <code translate="no">[</code> riceve quattro pezzi, <code translate="no">35</code>, <code translate="no">/etc/passwd</code>, <code translate="no">-gt</code> e <code translate="no">10</code>, e rivendica un altro modo: <code translate="no">too many arguments</code>. Il problema è il contenuto, non le virgolette.</td></tr><tr><td>C</td><td>✅ Giusto</td><td>La variabile riceve solo <code translate="no">35</code> e <code translate="no">-gt</code> funziona. È lo stesso <code translate="no">&lt;</code> del passaggio 4 e <code translate="no">for</code> dei log.</td></tr><tr><td>D</td><td>❌ Sbagliato</td><td>Anche <code translate="no">[[ ]]</code> richiede un numero in <code translate="no">-gt</code> e dà un errore simile.</td></tr></tbody></table></div>
+<p><strong>Per risolvere:</strong> prima di confrontare i numeri, guardare la variabile con <code translate="no">echo "[$var]"</code>. Le parentesi mostrano spazi e bit extra che non ti aspettavi.</p>
+<p><strong>Risolvi il problema.</strong></p>
+<pre translate="no"><code class="lang-bash">sed -i 's|wc -l /etc/passwd|wc -l &lt; /etc/passwd|' contas.sh
+cat contas.sh
+./contas.sh; echo "rc=$?"</code></pre>
+<p><code translate="no">ALERTA: 35 contas</code> o <code translate="no">normal</code>, se la tua VM ne ha 10 o meno. Nessun messaggio strano.</p>
+<h3 id="la-lezione">La lezione</h3>
+<p>I due errori di oggi hanno la stessa faccia: lo script <strong>sembra</strong> aver deciso, ma ha deciso sopra qualcos'altro. Nella pausa A, da un <code translate="no">$?</code> che proveniva già da un altro comando. Nella pausa B, da un test che non ha nemmeno confrontato e ha restituito 2, che <code translate="no">if</code> considera "no". In entrambi i casi, la sceneggiatura terminava con <code translate="no">rc=0</code> e un messaggio silenzioso. La difesa è la stessa: <code translate="no">bash -x</code> vedere cosa <code translate="no">if</code> ha effettivamente ricevuto e testare apposta il percorso di errore, come nel passo 7, prima di fidarsi del percorso felice.</p>
+<figure><a href="../img/1.9-erros-de-decisao.jpg"><img src="../img/1.9-erros-de-decisao.jpg" alt="Lo script che sembra aver deciso" loading="lazy" decoding="async"></a><figcaption>In entrambi i casi, lo script terminava con rc=0 e ha deciso qualcos'altro.</figcaption></figure>
+<h2 id="8-traps">8 · Traps</h2>
+<div class="tabela"><table><thead><tr><th scope="col">Digiti o vedi</th><th scope="col">Cosa succede</th><th scope="col">Quello giusto</th></tr></thead><tbody><tr><td><code translate="no">[-d /etc]</code></td><td><code translate="no">[-d: command not found</code></td><td><code translate="no">[ -d /etc ]</code>, con spazi</td></tr><tr><td><code translate="no">if [ $var = sim ]</code> con <code translate="no">var</code> vuoto</td><td><code translate="no">unary operator expected</code> e <code translate="no">if</code> vanno a <code translate="no">else</code></td><td><code translate="no">[ "$var" = sim ]</code></td></tr><tr><td><code translate="no">[ "$n" &gt; 5 ]</code></td><td>Non confronta nulla: <strong>crea un file chiamato <code translate="no">5</code></strong>, perché <code translate="no">&gt;</code> è il reindirizzamento</td><td><code translate="no">[ "$n" -gt 5 ]</code></td></tr><tr><td><code translate="no">[ 10 \&gt; 9 ]</code></td><td>Falso: confronta come testo</td><td><code translate="no">-gt</code>, <code translate="no">-lt</code> per i numeri</td></tr><tr><td><code translate="no">[ "$a" -eq "$b" ]</code> con testi</td><td><code translate="no">integer expression expected</code></td><td><code translate="no">=</code> per i testi</td></tr><tr><td><code translate="no">comando; echo "..."; if [ $? -eq 0 ]</code></td><td>Testare il codice <code translate="no">echo</code></td><td><code translate="no">if comando; then</code>, oppure <code translate="no">rc=$?</code> subito dopo</td></tr><tr><td><code translate="no">if [ grep -q x arq ]</code></td><td><code translate="no">[</code> lamenta; <code translate="no">grep</code> non viene mai eseguito</td><td><code translate="no">if grep -q x arq; then</code></td></tr><tr><td><code translate="no">grep</code> con codice 1 trattato come errore</td><td>Falso allarme ogni volta che tutto è chiaro</td><td>1 è "non trovato"; 2 è l'errore</td></tr><tr><td><code translate="no">for f in $(ls)</code></td><td>I nomi con spazi diventano due elementi</td><td><code translate="no">for f in *</code></td></tr><tr><td><code translate="no">cat arq | while read ...</code> e poi utilizzare la variabile</td><td>La variabile ritorna al valore prima del ciclo</td><td><code translate="no">while read ...; done &lt; arq</code></td></tr><tr><td><code translate="no">read</code> senza <code translate="no">-r</code></td><td>Le barre rovesciate scompaiono dal testo letto</td><td><code translate="no">read -r</code></td></tr><tr><td><code translate="no">x=$(wc -l arquivo)</code></td><td>Salva numero <strong>e</strong> nome</td><td><code translate="no">x=$(wc -l &lt; arquivo)</code></td></tr><tr><td><code translate="no">total=total+1</code></td><td>Salvare il testo <code translate="no">total+1</code></td><td><code translate="no">total=$((total + 1))</code></td></tr><tr><td>Script senza <code translate="no">exit</code> in errore</td><td>Cron ottiene 0 anche in caso di fallimento</td><td><code translate="no">exit 1</code> su ciascun percorso di errore</td></tr><tr><td><code translate="no">tar ... | gzip</code> e verificare <code translate="no">$?</code></td><td>È valido il codice <code translate="no">gzip</code></td><td><code translate="no">set -o pipefail</code>, oppure <code translate="no">tar -czf</code> diretto</td></tr><tr><td><code translate="no">ssh servidor cmd</code> all'interno <code translate="no">while read</code></td><td>Il ciclo si interrompe dopo il primo server</td><td><code translate="no">ssh -n servidor cmd</code></td></tr></tbody></table></div>
+<h2 id="9-quiz">9 · Quiz</h2>
+<p>Dieci domande, senza consultazione. Scrivi la lettera o rispondi a ciascuna e solo dopo apri la chiave di risposta.</p>
+<p><strong>1.</strong> Esegui <code translate="no">ls /naoexiste</code>, poi <code translate="no">echo $?</code> e ancora <code translate="no">echo $?</code>. Cosa mostra il secondo <code translate="no">echo</code>?</p>
+<ul><li><strong>A)</strong> <code translate="no">2</code></li>
+<li><strong>B)</strong> <code translate="no">0</code></li>
+<li><strong>C)</strong> <code translate="no">1</code></li>
+<li><strong>D)</strong> <code translate="no">127</code></li></ul>
+<p><strong>2.</strong> Quale riga verifica correttamente se <code translate="no">/backup</code> è una cartella?</p>
+<ul><li><strong>A)</strong> <code translate="no">[ -f /backup ]</code></li>
+<li><strong>B)</strong> <code translate="no">[-d /backup]</code></li>
+<li><strong>C)</strong> <code translate="no">[ -d /backup ]</code></li>
+<li><strong>D)</strong> <code translate="no">[ -e /backup ]</code></li></ul>
+<p><strong>3.</strong> La variabile <code translate="no">n</code> vale <code translate="no">7</code>. Quale test risponde in verde se <code translate="no">n</code> è maggiore di 5, senza effetti collaterali?</p>
+<ul><li><strong>A)</strong> <code translate="no">[ "$n" &gt; 5 ]</code></li>
+<li><strong>B)</strong> <code translate="no">[ "$n" -gt 5 ]</code></li>
+<li><strong>C)</strong> <code translate="no">[ "$n" \&gt; 5 ]</code></li>
+<li><strong>D)</strong> <code translate="no">[ n -gt 5 ]</code></li></ul>
+<p><strong>4.</strong> <code translate="no">grep -q ERRO app.log</code> termina con il codice 1. Cosa è successo?</p>
+<ul><li><strong>A)</strong> Il file non non esiste.</li>
+<li><strong>B)</strong> C'è esattamente una riga con <code translate="no">ERRO</code>.</li>
+<li><strong>C)</strong> <code translate="no">grep</code> ha funzionato e non ha trovato <code translate="no">ERRO</code>.</li>
+<li><strong>D)</strong> <code translate="no">grep</code> non ha il permesso di leggere il file.</li></ul>
+<p><strong>5.</strong> In una cartella con file <code translate="no">a b.log</code> e <code translate="no">c.log</code>, quanti giri fa <code translate="no">for f in *.log; do echo "$f"; done</code>? E <code translate="no">for f in $(ls *.log); do echo "$f"; done</code>?</p>
+<ul><li><strong>A)</strong> 2 e 2</li>
+<li><strong>B)</strong> 3 e 3</li>
+<li><strong>C)</strong> 2 e 3</li>
+<li><strong>D)</strong> 3 e 2</li></ul>
+<p><strong>6.</strong> Con <code translate="no">n=0</code> e un file <code translate="no">lista</code> di tre righe, che mostra <code translate="no">cat lista | while read -r l; do n=$((n + 1)); done; echo "$n"</code>?</p>
+<ul><li><strong>A)</strong> <code translate="no">3</code></li>
+<li><strong>B)</strong> <code translate="no">0</code></li>
+<li><strong>C)</strong> Vuoto</li>
+<li><strong>D)</strong> Errore di sintassi</li></ul>
+<p><strong>7.</strong> Spiega, in una frase, cosa fa <code translate="no">cd "$destino" || exit 1</code> all'interno di uno script.</p>
+<p><strong>8.</strong> Lo script ha rilevato che il backup non è riuscito. Quale riga fa sì che cron o un altro script lo sappiano senza leggere l'output? E come controlli, nel terminale, che abbia funzionato?</p>
+<p><strong>9.</strong> <code translate="no">linhas=$(wc -l /etc/passwd)</code> seguito da <code translate="no">[ "$linhas" -gt 10 ]</code> dà <code translate="no">integer expression expected</code>. Perché e come risolverlo?</p>
+<p><strong>10.</strong> <em>Uno script di shell contiene la riga <code translate="no">if [ -f "$1" ]; then</code>. Quando è vera questa condizione?</em></p>
+<ul><li><strong>A)</strong> Quando <code translate="no">$1</code> è una directory</li>
+<li><strong>B)</strong> Quando <code translate="no">$1</code> esiste ed è un file normale</li>
+<li><strong>C)</strong> Quando <code translate="no">$1</code> non è vuoto</li>
+<li><strong>D)</strong> Quando <code translate="no">$1</code> è un file eseguibile</li>
+<li><strong>E)</strong> Quando <code translate="no">$1</code> è un file che non vuoto</li></ul>
+<h2 id="10-flashcard-e-colla">10 · Flashcard e colla</h2>
+<h3 id="da-sapere-a-memoria">Da sapere a memoria</h3>
+<p>Questa parte è da tenere a mente. È ciò che trasforma un elenco di comandi in uno script che decide.</p>
+<ul><li><code translate="no">$?</code>: il codice dell'ultimo comando. <code translate="no">0</code> è il successo; qualsiasi altro numero è fallimento</li>
+<li><code translate="no">$?</code> cambia dopo <strong>qualsiasi</strong> comando, fino a <code translate="no">echo</code>. Salvare con <code translate="no">rc=$?</code> nella riga successiva</li>
+<li><code translate="no">if comando; then ...; elif ...; else ...; fi</code>. <code translate="no">if</code> guarda il codice, non l'output</li>
+<li>Cartella <code translate="no">[ -d "$x" ]</code>, file <code translate="no">[ -f "$x" ]</code>, <code translate="no">[ -e "$x" ]</code> esiste, <code translate="no">[ -z "$v" ]</code> vuoto, <code translate="no">[ ! ... ]</code> inverte</li>
+<li>Spazio dopo <code translate="no">[</code> e prima <code translate="no">]</code>; variabile sempre racchiusa tra virgolette</li>
+<li>Testi: <code translate="no">=</code> e <code translate="no">!=</code>. Numeri: <code translate="no">-eq -ne -lt -le -gt -ge</code></li>
+<li><code translate="no">comando &amp;&amp; se_deu_certo</code>; <code translate="no">comando || se_falhou</code></li>
+<li><code translate="no">for f in *.log; do ...; done</code>, mai <code translate="no">for f in $(ls)</code></li>
+<li><code translate="no">while read -r linha; do ...; done &lt; arquivo</code>, mai <code translate="no">cat arquivo | while</code></li>
+<li><code translate="no">x="$(comando)"</code> sorveglia l'uscita; <code translate="no">n=$((n + 1))</code> conta</li>
+<li><code translate="no">exit N</code> termina con il codice <code translate="no">N</code></li></ul>
+<h3 id="per-consultare">Per consultare</h3>
+<p>Non è necessario memorizzare questa parte. Tienilo dov'è.</p>
+<ul><li><code translate="no">grep</code>: 0 trovato, 1 non trovato, 2 errore. <code translate="no">tar</code>: 0 ok, 1 file modificato durante il backup, 2 errori fatali</li>
+<li><code translate="no">126</code> nessun permesso di esecuzione; <code translate="no">127</code> comando non trovato; <code translate="no">130</code> Ctrl+C</li>
+<li>Sezione <code translate="no">man COMANDO</code>, <em>STATO USCITA</em>, per i codici di ciascun permesso</li>
+<li><code translate="no">[ -r ]</code>, <code translate="no">[ -w ]</code>, <code translate="no">[ -x ]</code>; <code translate="no">[ -s ]</code> esiste e non è vuoto</li>
+<li><code translate="no">{1..5}</code> o <code translate="no">$(seq 1 5)</code> da contare; <code translate="no">continue</code> salta il turno; <code translate="no">break</code> esce dal loop</li>
+<li><code translate="no">wc -l &lt; arquivo</code> mostra solo il numero</li>
+<li><code translate="no">logger -t etiqueta "mensagem"</code> scrive sul giornale; <code translate="no">journalctl -t etiqueta</code> legge</li>
+<li><code translate="no">[[ ]]</code> solo in bash; su Debian, <code translate="no">#!/bin/sh</code> è <code translate="no">dash</code>, senza <code translate="no">[[</code></li>
+<li><code translate="no">set -o pipefail</code> e <code translate="no">${PIPESTATUS[@]}</code> per i codici pipeline</li>
+<li><code translate="no">set -e</code> si ferma al primo errore, ma non all'interno di <code translate="no">if</code>, <code translate="no">&amp;&amp;</code> e <code translate="no">||</code></li>
+<li><code translate="no">ssh -n</code> all'interno di <code translate="no">while read</code></li></ul>
+<h3 id="flashcards">Flashcards</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Davanti</th><th scope="col">Verso</th></tr></thead><tbody><tr><td>Quale codice indica il successo?</td><td><code translate="no">0</code>. Qualsiasi altro numero è un errore</td></tr><tr><td>Dov'è il codice per l'ultimo comando?</td><td>In <code translate="no">$?</code></td></tr><tr><td>Perché <code translate="no">echo $?</code> fornisce numeri diversi due volte di seguito?</td><td>Il secondo riporta il codice del primo <code translate="no">echo</code></td></tr><tr><td>Cosa esamina il <code translate="no">if</code>?</td><td>Il codice di uscita del comando, non quello che mostra</td></tr><tr><td>Cos'è <code translate="no">[</code>?</td><td>Un comando, come qualsiasi altro, che risponde 0 o 1</td></tr><tr><td>Perché <code translate="no">[-d /etc]</code> dà <code translate="no">command not found</code>?</td><td>Senza spazio, la shell cerca un programma chiamato <code translate="no">[-d</code></td></tr><tr><td><code translate="no">[ $v = sim ]</code> con <code translate="no">v</code> vuoto: cosa succede?</td><td><code translate="no">unary operator expected</code>, codice 2, e <code translate="no">if</code> va a <code translate="no">else</code></td></tr><tr><td><code translate="no">-eq</code> o <code translate="no">=</code>?</td><td><code translate="no">-eq</code> per numeri, <code translate="no">=</code> per testi</td></tr><tr><td>Cosa fa <code translate="no">[ "$n" &gt; 5 ]</code>?</td><td>Crea un file chiamato <code translate="no">5</code>. <code translate="no">&gt;</code> è il reindirizzamento</td></tr><tr><td><code translate="no">grep -q</code> ha dato 1. È un errore?</td><td>No. Significa "Non l'ho trovato"</td></tr><tr><td>Come scorrere i file con spazio nel nome?</td><td><code translate="no">for f in *</code></td></tr><tr><td>Perché <code translate="no">cat arq | while</code> perde il contatore?</td><td>Il ciclo viene eseguito in una shell figlia, che termina alla fine della pipe</td></tr><tr><td>Come salvare solo il numero di righe?</td><td><code translate="no">n=$(wc -l &lt; arquivo)</code></td></tr><tr><td>Come fa cron a sapere che lo script non è riuscito?</td><td>Per codice di uscita: <code translate="no">exit 1</code></td></tr><tr><td>Dove leggere cosa ha scritto uno script con <code translate="no">logger -t x</code>?</td><td><code translate="no">journalctl -t x</code></td></tr></tbody></table></div>
+<h2 id="11-checklist-di-uscita">11 · Checklist di uscita</h2>
+<p>Controlla solo cosa puoi fare senza guardare la lezione:</p>
+<ul><li>[ ] Spiega qual è il codice di uscita e controlla con <code translate="no">echo $?</code></li>
+<li>[ ] Spiega cosa significano 0, 1 e 2 in <code translate="no">grep</code> e in <code translate="no">tar</code></li>
+<li>[ ] Verifica se qualcosa è una cartella, un file o esiste, con <code translate="no">[ ]</code> e virgolette</li>
+<li>[ ] Confrontare testi con <code translate="no">=</code> e numeri con <code translate="no">-gt</code>, sapendo perché non scambiare</li>
+<li>[ ] Scrivere un <code translate="no">if</code> con <code translate="no">elif</code> e <code translate="no">else</code>, e un altro con comando diretto, senza <code translate="no">[ ]</code></li>
+<li>[ ] Scorrere i file con <code translate="no">for</code>, anche con uno spazio nel nome</li>
+<li>[ ] Leggere un file riga per riga con <code translate="no">while read -r</code>, contare, senza perdere il totale</li>
+<li>[ ] Salvare l'output di un comando e fare i calcoli con <code translate="no">$((...))</code></li>
+<li>[ ] Terminare uno script con codici diversi per errori diversi</li>
+<li>[ ] Registrarsi nel diario con <code translate="no">logger</code> e leggere con <code translate="no">journalctl -t</code></li></ul>
+<p><strong>Ultimo esercizio, senza guardare.</strong> Chiudere questa lezione. In <code translate="no">~/lab13/scripts</code> creare <code translate="no">conta-linhas.sh</code>:</p>
+<ol><li>Richiede uno o più file come argomenti. Senza alcuno, mostra <code translate="no">uso: conta-linhas.sh ARQUIVO...</code> e termina con 1.</li>
+<li>Per ogni argomento che è un file, mostrare <code translate="no">N linhas  NOME</code>, solo con il numero.</li>
+<li>Per ogni argomento che non è un file, mostra <code translate="no">AVISO: NOME não existe</code> nell'output degli errori e conta gli errori.</li>
+<li>Funziona con nomi che contengono uno spazio.</li>
+<li>Termina con 0 se esistono tutti e con 1 se ne mancano.</li></ol>
+<p>Prova con <code translate="no">./conta-linhas.sh /etc/passwd /etc/hostname /naoexiste; echo $?</code>. Le risposte si trovano alla fine della chiave di risposta.</p>
+<p><strong>Chiusura degli snapshot.</strong> Nel nodo Proxmox:</p>
+<pre translate="no"><code class="lang-bash">qm snapshot 201 m1a9-fim
+qm snapshot 202 m1a9-fim</code></pre>
+<p>Non eliminare <code translate="no">~/bin/backup-app.sh</code> o <code translate="no">~/lab13</code>: la lezione 1.10 è la sfida del modulo e ti servirà tutto ciò che è stato creato dal Modulo 1.</p>
+<h2 id="12-nella-vita-reale">12 · Nella vita reale</h2>
+<p><strong>Missione della settimana, sola lettura.</strong> Scegli un server che gestisci effettivamente. Se appartiene a un cliente, fai solo ciò che il contratto consente; In caso di dubbi, utilizzare rocky-lab e debian-lab. Nessun comando in questa missione cambia nulla: basta chiedere e leggere il codice di uscita.</p>
+<p>Il semaforo dei servizi e della rete:</p>
+<pre translate="no"><code class="lang-bash">systemctl is-active sshd; echo "ssh: $?"
+systemctl is-active ssh;  echo "ssh no Debian: $?"
+ip route | grep default
+ping -c1 -W1 IP_DO_GATEWAY &gt; /dev/null; echo "gateway: $?"</code></pre>
+<p>Sostituisci <code translate="no">IP_DO_GATEWAY</code> con l'indirizzo indicato da <code translate="no">ip route</code>. <code translate="no">systemctl is-active</code> risponde <code translate="no">active</code> e codice 0, o qualcos'altro e codice diverso da 0: ecco come gli script di monitoraggio chiedono se un servizio è attivo.</p>
+<p>Ora, gli script per la casa che hai trovato nella missione della lezione 1.8. Controllano qualcosa?</p>
+<pre translate="no"><code class="lang-bash">grep -n -E '\$\?|if |exit ' /usr/local/bin/* 2&gt; /dev/null | head -30
+grep -L -E '\$\?|if |exit ' /usr/local/bin/* 2&gt; /dev/null</code></pre>
+<p>Il primo mostra dove decidono gli script. Il secondo, con <code translate="no">-L</code>, elenca quelli che <strong>non</strong> hanno né <code translate="no">$?</code>, né <code translate="no">if</code>, né <code translate="no">exit</code>: script che fanno tutto in sequenza e non chiedono mai se ha funzionato.</p>
+<p>In Proxmox, controlla se è avvenuto il backup di ieri sera, contando i nuovi file:</p>
+<pre translate="no"><code class="lang-bash">find /var/lib/vz/dump -newermt "$(date -d yesterday +%F)" -name '*.zst' | wc -l
+grep -l 'ERROR' /var/log/vzdump/*.log 2&gt; /dev/null | tail -5</code></pre>
+<p>Se l'archivio dei tuoi backup non è <code translate="no">/var/lib/vz/dump</code>, cambia il suo percorso. Confronta il numero con il numero di VM che avrebbero dovuto essere salvate.</p>
+<p><strong>Per il diario.</strong> Risposta in poche righe:</p>
+<ol><li>Quali codici hanno restituito <code translate="no">systemctl is-active</code> e <code translate="no">ping</code>? Qualsiasi diverso da 0?</li>
+<li>Quanti script domestici non controllano mai nulla? Qualcuno di loro viene eseguito tramite cron?</li>
+<li>Lo script di backup più importante può dirti che ha fallito? Con <code translate="no">exit</code>, con log, con email?</li>
+<li>Il backup Proxmox di ieri ha generato il numero previsto di file?</li>
+<li>Quale correzione della Sezione 6 proporresti per prima e a chi? Annotatelo e non cambiatelo: la produzione è di sola lettura.</li></ol>
+<p><strong>Sfida della settimana.</strong> In rocky-lab, scrivete <code translate="no">checa-servidor.sh</code>, di sola lettura:</p>
+<ol><li>Accetta un limite come argomento facoltativo, il valore predefinito è 80.</li>
+<li>Per ogni file system di <code translate="no">df --output=pcent,target -x tmpfs -x devtmpfs</code> viene visualizzato <code translate="no">ok</code> o <code translate="no">ALERTA</code> con utilizzo e punto di montaggio. Suggerimento: <code translate="no">tail -n +2</code> rimuove l'intestazione e <code translate="no">tr -d '%'</code> rimuove <code translate="no">%</code>.</li>
+<li>Mostra <code translate="no">Alertas: N</code> alla fine e termina con 1 se ce n'è uno.</li>
+<li>Attenzione alla Decisione 5: se leggete <code translate="no">df</code> attraverso un tubo, il contatore scompare. Scrivere l'output in un file in <code translate="no">/tmp</code> e leggerlo con <code translate="no">done &lt;</code>.</li></ol>
+<p>Prova con il limite 1, per vedere gli avvisi, e con 99. Quando funziona su entrambe le VM, eseguilo una volta sul server reale, solo per leggere. Nel diario, una riga al giorno con il risultato.</p>
+<p><strong>Domani, senza guardare.</strong> Domani apri un terminale e, senza consultare nulla:</p>
+<ol><li>Esegui un comando che funziona e uno che fallisce e mostra il codice per ciascuno.</li>
+<li>Scrivere un <code translate="no">if</code> che indichi se <code translate="no">/etc/hostname</code> è un file.</li>
+<li>Scrivi un <code translate="no">for</code> che mostri la dimensione di ciascun <code translate="no">.conf</code> in <code translate="no">/etc</code>, con <code translate="no">wc -c &lt;</code>.</li>
+<li>Leggi <code translate="no">/etc/passwd</code> con <code translate="no">while read -r</code> e conta le righe che finiscono in <code translate="no">bash</code>.</li>
+<li>Spiegare ad alta voce perché il <code translate="no">echo</code> tra <code translate="no">tar</code> e <code translate="no">if</code> rovina la conferenza.</li></ol>
+<p>Se rimani bloccato su uno, torna al passaggio relativo a quell'elemento.</p>
+<h2 id="13-con-deeptutor">13 · Con DeepTutor</h2>
+<p>Utilizza DeepTutor sulla tua rete locale dopo il laboratorio, non al suo posto. I comandi iniziano con <code translate="no">!</code>:</p>
+<ul><li><code translate="no">!quiz Aula 1.9</code>: porre dieci nuove domande su <code translate="no">$?</code>, <code translate="no">[ ]</code>, <code translate="no">if</code> e parità, nel formato Decide.</li>
+<li><code translate="no">!explica $?</code>: chiedere tre esempi in cui il codice di uscita è fuorviante, come <code translate="no">grep</code> con 1 e <code translate="no">echo</code> in mezzo.</li>
+<li><code translate="no">!feynman</code>: spiegare a uno stagista perché <code translate="no">cat arquivo | while read</code> perde il commercialista. DeepTutor indica dove è rimasto libero.</li>
+<li><code translate="no">!quebra</code>: ordina un nuovo script rotto, come un <code translate="no">[ $v -eq 1 ]</code> con un <code translate="no">v</code> vuoto, un <code translate="no">for f in $(ls)</code> o un <code translate="no">if [ comando ]</code>, e correggilo solo con <code translate="no">bash -x</code> e <code translate="no">echo "[$var]"</code>.</li>
+<li><code translate="no">!simulado RHCSA script</code>: chiedere tre attività di test del tipo "crea uno script che, per ogni utente in una lista, faccia X e finisca con 1 se ne manca qualcuno", ciascuno con il comando che utilizzerebbe il correttore.</li>
+<li><code translate="no">!cartoes</code>: genera flashcard dalla sezione 10 e rivedi in tre giorni.</li>
+<li><code translate="no">!erro</code>: incolla un messaggio vero e proprio, come <code translate="no">integer expression expected</code> o <code translate="no">unary operator expected</code>, e chiedi la causa prima della soluzione.</li>
+<li><code translate="no">!revisao</code>: programmare la revisione della lezione 1.9 tra tre giorni e una settimana da oggi.</li></ul>
+<h2 id="feedback-commentato">Feedback commentato</h2>
+<h3 id="riscaldamento">Riscaldamento</h3>
+<ol><li><strong>Arresta immediatamente lo script</strong>, mostrando il messaggio dopo <code translate="no">?</code> e termina con un codice diverso da zero. Non viene eseguita alcuna riga successiva. Oggi avete visto lo stesso effetto con <code translate="no">if</code> e <code translate="no">exit 2</code>, solo con più controllo.</li>
+<li><strong>Perché lo script verificava solo se il file si apriva, non se <code translate="no">tar</code> aveva funzionato.</strong> <code translate="no">tar</code> saltava ciò che non poteva leggere, terminava con il codice 2 e nessuno guardava quel codice. Il file incompleto si è aperto perfettamente. La versione del passaggio 7 inserisce <code translate="no">tar</code> all'interno di <code translate="no">if</code> e rinomina il file in <code translate="no">.INCOMPLETO</code>.</li>
+<li><strong><code translate="no">2</code>.</strong> <code translate="no">ls</code> usa 2 per "Non sono riuscito ad accedere". Non è 1, come molti pensano: ogni comando ha la propria tabella, nella sezione <em>STATO USCITA</em> di <code translate="no">man</code>.</li></ol>
+<h3 id="quiz">Quiz</h3>
+<ol><li><strong>B.</strong> Il secondo <code translate="no">echo</code> mostra il codice del primo <code translate="no">echo</code> che ha funzionato. <code translate="no">2</code> di <code translate="no">ls</code> è sopravvissuto solo fino al primo.</li>
+<li><strong>C.</strong> A testa un file comune, B non ha spazi e diventa <code translate="no">command not found</code>, D dice semplicemente che esiste, qualunque cosa.</li>
+<li><strong>B.</strong> A crea un file chiamato <code translate="no">5</code> e risponde verde perché <code translate="no">"7"</code> non è vuoto. C si confronta come testo e lo azzecca per caso: con <code translate="no">n=10</code> sarebbe falso. D confronta la lettera <code translate="no">n</code>, non la variabile, e si lamenta di <code translate="no">integer expression expected</code>.</li>
+<li><strong>C.</strong> Per <code translate="no">grep</code>, 1 è "Non l'ho trovato". Un file inesistente o non autorizzato dà 2, mentre trovare una o mille righe dà 0.</li>
+<li><strong>C.</strong> <code translate="no">*.log</code> fornisce due nomi interi. <code translate="no">$(ls *.log)</code> è suddiviso negli spazi dopo: <code translate="no">a</code>, <code translate="no">b.log</code> e <code translate="no">c.log</code>.</li>
+<li><strong>B.</strong> <code translate="no">while</code> viene eseguito in una shell figlia, a causa della pipe. Il <code translate="no">n</code> che arriva a 3 muore con esso, e il <code translate="no">echo</code> vede dall'esterno il <code translate="no">n</code> che è ancora 0.</li>
+<li><strong>Cerca di entrare nella cartella; se fallisce, lo script termina con il codice 1.</strong> Senza questo, lo script rimarrebbe nella cartella sbagliata e un successivo <code translate="no">tar</code> o <code translate="no">rm</code> agirebbe nel posto sbagliato.</li>
+<li><strong><code translate="no">exit 1</code></strong>, o altro numero diverso da zero, documentato in alto. Nel terminale: eseguire lo script e poi <code translate="no">echo $?</code>.</li>
+<li><strong>Perché <code translate="no">wc</code> mostra il numero e il nome del file</strong>, e la variabile ha <code translate="no">35 /etc/passwd</code>, che non è un numero. Correggere con <code translate="no">linhas=$(wc -l &lt; /etc/passwd)</code>. Per individuare il problema, <code translate="no">echo "[$linhas]"</code>.</li>
+<li><strong>B.</strong> Vedere ciascuna alternativa:</li></ol>
+<div class="tabela"><table><thead><tr><th scope="col">Se hai selezionato</th><th scope="col">Risultato</th><th scope="col">Perché</th></tr></thead><tbody><tr><td>A</td><td>❌ Sbagliato</td><td>La cartella è <code translate="no">-d</code>. <code translate="no">-f</code> risponde 1 per una cartella.</td></tr><tr><td>B</td><td>✅ Giusto</td><td><code translate="no">-f</code> è vero quando il percorso esiste ed è un file normale.</td></tr><tr><td>C</td><td>❌ Sbagliato</td><td>Il testo non vuoto è <code translate="no">-n "$1"</code>.</td></tr><tr><td>D</td><td>❌ Sbagliato</td><td>L'eseguibile è <code translate="no">-x</code>.</td></tr><tr><td>E</td><td>❌ Sbagliato</td><td>Il file non vuoto è <code translate="no">-s</code>. Un file vuoto passa <code translate="no">-f</code>.</td></tr></tbody></table></div>
+<h3 id="ultimo-esercizio">Ultimo esercizio</h3>
+<p>Una risposta possibile:</p>
+<pre translate="no"><code class="lang-bash">cat &gt; conta-linhas.sh &lt;&lt;'EOF'
+#!/bin/bash
+# conta-linhas.sh - mostra quantas linhas tem cada arquivo
+# Uso: conta-linhas.sh ARQUIVO...
+# Saída: 0 = todos existem; 1 = faltou algum
+if [ "$#" -eq 0 ]; then
+    echo "uso: conta-linhas.sh ARQUIVO..." &gt;&amp;2
+    exit 1
+fi
+
+faltou=0
+for arq in "$@"; do
+    if [ -f "$arq" ]; then
+        echo "$(wc -l &lt; "$arq") linhas  $arq"
+    else
+        echo "AVISO: $arq não existe" &gt;&amp;2
+        faltou=$((faltou + 1))
+    fi
+done
+
+[ "$faltou" -eq 0 ]
+EOF
+chmod +x conta-linhas.sh
+./conta-linhas.sh; echo "rc=$?"
+./conta-linhas.sh /etc/passwd /etc/hostname /naoexiste; echo "rc=$?"
+./conta-linhas.sh /etc/passwd /etc/hostname; echo "rc=$?"</code></pre>
+<ol><li><code translate="no">$#</code> conta gli argomenti; con zero, lo script si ferma con 1 prima di tutto.</li>
+<li><code translate="no">wc -l &lt;</code> mostra solo il numero, senza il nome.</li>
+<li><code translate="no">&gt;&amp;2</code> invia l'avviso all'uscita errore e il contatore memorizza l'errore.</li>
+<li><code translate="no">"$@"</code>, tra virgolette, consegna ogni intero argomento a <code translate="no">for</code>.</li>
+<li>L'ultima riga è un test: zero fallimenti danno 0; ogni fallimento dà 1. È lo stesso trucco di <code translate="no">backup-lista.sh</code>.</li></ol>
+</article><nav class="paginas" aria-label="Lezioni"><a class="ant" href="1.8-primeiro-script.it.html"><small>← Precedente</small>1.8 · Primo script</a><a class="prox" href="1.10-software-livre-na-pratica.it.html"><small>Successiva →</small>1.10 · Il software libero in pratica</a></nav></main></div>
+<footer><div class="wrap">Generato dal Markdown del corso · Immagini in <code translate="no">img/</code></div></footer>
+</body>
+</html>

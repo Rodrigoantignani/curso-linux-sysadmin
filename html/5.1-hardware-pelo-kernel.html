@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light dark">
+<title>5.1 · Hardware pelo kernel · Curso Linux Sysadmin</title>
+<link rel="alternate" hreflang="pt-BR" href="5.1-hardware-pelo-kernel.html"><link rel="alternate" hreflang="it" href="5.1-hardware-pelo-kernel.it.html">
+<style>
+:root{color-scheme:light dark;--bg:#f6f1e7;--card:#fffdf8;--ink:#201c16;--muted:#5e564a;--accent:#9a3412;--accent-2:#1f5f4a;--tint:#efe6d4;--line:#ddd2bc;--code:#f1eadb;--shadow:0 1px 2px rgba(60,40,10,.08);--serif:Georgia,"Iowan Old Style","Palatino Linotype",Palatino,serif;--sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--mono:"Cascadia Code",Consolas,"DejaVu Sans Mono",monospace}
+@media (prefers-color-scheme:dark){:root{--bg:#16130f;--card:#201b15;--ink:#f1eadb;--muted:#b9ad98;--accent:#f0a070;--accent-2:#7fd0b0;--tint:#2a231a;--line:#3d3427;--code:#191510;--shadow:none}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:5.5rem}
+body{margin:0;background:var(--bg);color:var(--ink);font:1rem/1.6 var(--sans)}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--accent-2);outline-offset:2px;border-radius:4px}
+.pular{position:absolute;left:-999px;top:0;background:var(--card);padding:.5rem 1rem;z-index:20}
+.pular:focus{left:.5rem;top:.5rem}
+.wrap{width:100%;max-width:84rem;margin:0 auto;padding-inline:max(1rem,env(safe-area-inset-left))}
+.top{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10;border-top:6px solid var(--accent)}
+.top-in{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding-block:.6rem}
+.titles{min-width:0}
+.marca{margin:0;font:700 clamp(1.15rem,1rem + 1vw,1.6rem)/1.15 var(--serif);letter-spacing:-.01em}
+.marca a{text-decoration:none}
+.marca a:hover{color:var(--accent)}
+.meta{margin:.1rem 0 0;color:var(--muted);font-size:.85rem}
+.acoes{display:flex;align-items:center;gap:.9rem;flex:none}
+.acoes>a{font-size:.9rem;font-weight:600;color:var(--muted);text-decoration:none}
+.acoes>a:hover{color:var(--accent);text-decoration:underline}
+.idioma{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--tint)}
+.idioma>*{padding:.35rem .9rem;font-size:.8rem;font-weight:700;letter-spacing:.06em;text-decoration:none;color:var(--muted);min-width:2.75rem;text-align:center}
+.idioma a:hover{color:var(--accent);text-decoration:underline}
+.idioma span{background:var(--accent);color:#fff}
+@media (prefers-color-scheme:dark){.idioma span{color:#16130f}}
+code{font-family:var(--mono);font-size:.9em;background:var(--tint);padding:.1rem .35rem;border-radius:4px;overflow-wrap:anywhere}
+/* índice */
+.capa{max-width:70rem;padding-block:2rem 3rem}
+.stats{border-left:4px solid var(--accent-2);background:var(--card);border-radius:0 10px 10px 0;padding:1rem 1.25rem;margin:0 0 2.5rem;box-shadow:var(--shadow);color:var(--muted)}
+.stats strong{color:var(--ink)}
+.modulo{display:grid;grid-template-columns:15rem minmax(0,1fr);gap:1rem 2rem;padding:1.75rem 0;border-top:1px solid var(--line)}
+.modulo h2{margin:0;font:700 1.25rem/1.25 var(--serif);align-self:start;position:sticky;top:6rem}
+.mn{display:block;font:700 .8rem var(--mono);letter-spacing:.12em;color:var(--accent);margin-bottom:.25rem}
+.sep{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.modulo ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,17rem),1fr));gap:.75rem}
+.modulo li{margin:0}
+.modulo a{display:flex;gap:.45rem;align-items:baseline;height:100%;padding:.85rem 1rem;background:var(--card);border:1px solid var(--line);border-radius:10px;text-decoration:none;font-weight:600;line-height:1.35;box-shadow:var(--shadow);transition:border-color .15s,transform .15s}
+.modulo a:hover{border-color:var(--accent);color:var(--accent)}
+.num{font:700 .85rem var(--mono);color:var(--accent);white-space:nowrap}
+/* aula */
+.doc{display:grid;grid-template-columns:17rem minmax(0,1fr);gap:2.5rem;align-items:start;padding-block:2rem 3rem}
+.lateral{position:sticky;top:5.5rem;max-height:calc(100vh - 6.5rem);overflow:auto;font-size:.875rem;padding-right:.5rem}
+.lateral h2{margin:0 0 .25rem;font:700 .95rem var(--serif);color:var(--muted)}
+.lateral h3{margin:1rem 0 .25rem;font:700 .75rem var(--mono);letter-spacing:.06em;color:var(--accent)}
+.lateral ul{list-style:none;margin:0;padding:0}
+.lateral a{display:flex;gap:.45rem;padding:.25rem .5rem;border-radius:6px;text-decoration:none;color:var(--muted);line-height:1.3}
+.lateral a:hover{background:var(--tint);color:var(--ink)}
+.lateral a[aria-current]{background:var(--tint);color:var(--ink);font-weight:700;box-shadow:inset 3px 0 0 var(--accent)}
+.lateral .num{font-size:.75rem}
+.aula{min-width:0;max-width:56rem;overflow-wrap:break-word;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:clamp(1.25rem,1rem + 2vw,2.75rem);box-shadow:var(--shadow)}
+.aula h1{margin:0 0 1.5rem;font:700 clamp(1.75rem,1.4rem + 1.6vw,2.5rem)/1.15 var(--serif);letter-spacing:-.015em;color:var(--ink)}
+.aula h2{margin:2.5rem 0 .75rem;padding-top:1.25rem;border-top:1px solid var(--line);font:700 1.5rem/1.25 var(--serif)}
+.aula h3{margin:2rem 0 .5rem;font:700 1.15rem/1.3 var(--serif);color:var(--accent)}
+.aula h4,.aula h5,.aula h6{margin:1.5rem 0 .5rem;font-size:1rem}
+.aula p,.aula ul,.aula ol{margin:1rem 0}
+.aula ul,.aula ol{padding-left:1.5rem}
+.aula li{margin:.35rem 0}
+.aula li>ul,.aula li>ol{margin:.35rem 0}
+.aula a{color:var(--accent);text-underline-offset:2px}
+.aula hr{border:0;border-top:1px solid var(--line);margin:2rem 0}
+.tabela{overflow-x:auto;margin:1.25rem 0;border:1px solid var(--line);border-radius:10px}
+.aula table{width:100%;border-collapse:collapse;font-size:.9rem}
+.aula th,.aula td{padding:.55rem .75rem;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+.aula tr:last-child td{border-bottom:0}
+.aula th{background:var(--tint);font-weight:700}
+.aula pre{background:var(--code);border:1px solid var(--line);border-radius:10px;padding:.9rem 1rem;overflow-x:auto;font:.85rem/1.5 var(--mono);margin:1rem 0;tab-size:4}
+.aula pre code{background:none;padding:0;font-size:inherit;overflow-wrap:normal}
+.aula blockquote{margin:1.25rem 0;padding:.75rem 1.25rem;border-left:4px solid var(--accent-2);background:var(--tint);border-radius:0 10px 10px 0}
+.aula blockquote>:first-child{margin-top:0}
+.aula blockquote>:last-child{margin-bottom:0}
+.aula figure{margin:1.75rem 0;text-align:center}
+.aula figure img{display:block;margin:0 auto;max-width:100%;height:auto;border:1px solid var(--line);border-radius:10px;background:#fff}
+.aula figcaption{margin-top:.5rem;color:var(--muted);font-size:.9rem;font-style:italic}
+.paginas{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:2.5rem;padding-top:1.5rem;border-top:1px solid var(--line)}
+.paginas a{display:block;padding:.75rem 1rem;border:1px solid var(--line);border-radius:10px;text-decoration:none;color:var(--ink);font-weight:600;line-height:1.3}
+.paginas a:hover{border-color:var(--accent);color:var(--accent)}
+.paginas small{display:block;color:var(--muted);font-weight:400}
+.paginas .prox{grid-column:2;text-align:right}
+footer{border-top:1px solid var(--line);padding-block:1.5rem;color:var(--muted);font-size:.85rem;text-align:center}
+@media (hover:hover) and (prefers-reduced-motion:no-preference){.modulo a:hover{transform:translateY(-2px)}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+@media (max-width:980px){.doc{grid-template-columns:minmax(0,1fr);padding-top:1rem}.lateral{position:static;max-height:none;order:2}.aula{max-width:none}}
+@media (max-width:860px){.modulo{grid-template-columns:minmax(0,1fr)}.modulo h2{position:static}.mn{display:inline;margin-right:.5rem}}
+@media (max-width:420px){.meta{display:none}.top-in{gap:.5rem}.acoes{gap:.6rem}.capa{padding-top:1.25rem}.paginas{grid-template-columns:minmax(0,1fr)}.paginas .prox{grid-column:1}}
+@media print{.top,.lateral,.paginas{display:none}.aula{border:0;box-shadow:none;padding:0;max-width:none}.doc{display:block}}
+</style>
+</head>
+<body>
+<a class="pular" href="#conteudo">Pular para o conteúdo</a>
+<header class="top"><div class="wrap top-in"><div class="titles"><p class="marca"><a href="index.html">Curso Linux Sysadmin</a></p><p class="meta">Rodrigo Antignani · Aula 5.1</p></div><div class="acoes"><a href="index.html">Índice</a><div class="idioma" role="group" aria-label="Idioma"><span aria-current="true">PT</span><a href="5.1-hardware-pelo-kernel.it.html" hreflang="it" lang="it">IT</a></div></div></div></header>
+<div class="wrap doc"><aside class="lateral" aria-label="Aulas"><h2>Aulas</h2><h3>M0 · Laboratório</h3><ul><li><a href="0.1-montar-o-laboratorio.html"><span class="num">0.1</span><span>Montar o laboratório</span></a></li><li><a href="0.2-acesso-e-protecao.html"><span class="num">0.2</span><span>Acesso e proteção</span></a></li></ul><h3>M1 · Linha de comando</h3><ul><li><a href="1.1-o-que-e-linux.html"><span class="num">1.1</span><span>O que é Linux</span></a></li><li><a href="1.2-o-shell-e-a-ajuda.html"><span class="num">1.2</span><span>O shell e a ajuda</span></a></li><li><a href="1.3-caminhos-e-navegacao.html"><span class="num">1.3</span><span>Caminhos e navegação</span></a></li><li><a href="1.4-criar-copiar-mover-e-apagar.html"><span class="num">1.4</span><span>Criar, copiar, mover e apagar</span></a></li><li><a href="1.5-ler-e-procurar-texto.html"><span class="num">1.5</span><span>Ler e procurar texto</span></a></li><li><a href="1.6-redirecionamentos-e-pipes.html"><span class="num">1.6</span><span>Redirecionamentos e pipes</span></a></li><li><a href="1.7-arquivar-e-compactar.html"><span class="num">1.7</span><span>Arquivar e compactar</span></a></li><li><a href="1.8-primeiro-script.html"><span class="num">1.8</span><span>Primeiro script</span></a></li><li><a href="1.9-decidir-e-repetir.html"><span class="num">1.9</span><span>Decidir e repetir</span></a></li><li><a href="1.10-software-livre-na-pratica.html"><span class="num">1.10</span><span>Software livre na prática</span></a></li></ul><h3>M2 · Sistema, usuários e permissões</h3><ul><li><a href="2.1-instalacao-e-provisionamento.html"><span class="num">2.1</span><span>Instalação e provisionamento</span></a></li><li><a href="2.2-hardware-e-dispositivos.html"><span class="num">2.2</span><span>Hardware e dispositivos</span></a></li><li><a href="2.3-processos-e-logs.html"><span class="num">2.3</span><span>Processos e logs</span></a></li><li><a href="2.4-rede-no-dia-a-dia.html"><span class="num">2.4</span><span>Rede no dia a dia</span></a></li><li><a href="2.5-acesso-remoto-e-privilegios.html"><span class="num">2.5</span><span>Acesso remoto e privilégios</span></a></li><li><a href="2.6-usuarios-e-grupos.html"><span class="num">2.6</span><span>Usuários e grupos</span></a></li><li><a href="2.7-permissoes-e-dono.html"><span class="num">2.7</span><span>Permissões e dono</span></a></li><li><a href="2.8-diretorios-e-arquivos-especiais.html"><span class="num">2.8</span><span>Diretórios e arquivos especiais</span></a></li></ul><h3>M3 · Texto e editor</h3><ul><li><a href="3.1-fluxos-a-fundo.html"><span class="num">3.1</span><span>Fluxos a fundo</span></a></li><li><a href="3.2-filtros-de-texto.html"><span class="num">3.2</span><span>Filtros de texto</span></a></li><li><a href="3.3-regex-e-grep.html"><span class="num">3.3</span><span>Regex e grep</span></a></li><li><a href="3.4-sed-e-awk.html"><span class="num">3.4</span><span>sed e awk</span></a></li><li><a href="3.5-vi-e-vim-de-verdade.html"><span class="num">3.5</span><span>vi e vim de verdade</span></a></li></ul><h3>M4 · systemd e boot</h3><ul><li><a href="4.1-como-o-linux-liga.html"><span class="num">4.1</span><span>Como o Linux liga</span></a></li><li><a href="4.2-systemd-servicos-e-units.html"><span class="num">4.2</span><span>systemd: serviços e units</span></a></li><li><a href="4.3-targets-desligar-e-reiniciar.html"><span class="num">4.3</span><span>Targets: desligar e reiniciar</span></a></li><li><a href="4.4-grub-e-acesso-de-emergencia.html"><span class="num">4.4</span><span>GRUB e acesso de emergência</span></a></li></ul><h3>M5 · Kernel, módulos e VM</h3><ul><li><a href="5.1-hardware-pelo-kernel.html" aria-current="page"><span class="num">5.1</span><span>Hardware pelo kernel</span></a></li><li><a href="5.2-modulos-e-parametros.html"><span class="num">5.2</span><span>Módulos e parâmetros</span></a></li><li><a href="5.3-linux-como-convidado.html"><span class="num">5.3</span><span>Linux como convidado</span></a></li></ul><h3>M6 · Pacotes e repositórios</h3><ul><li><a href="6.1-pacotes-no-debian.html"><span class="num">6.1</span><span>Pacotes no Debian</span></a></li><li><a href="6.2-pacotes-na-rocky.html"><span class="num">6.2</span><span>Pacotes na Rocky</span></a></li><li><a href="6.3-repositorios.html"><span class="num">6.3</span><span>Repositórios</span></a></li><li><a href="6.4-flatpak.html"><span class="num">6.4</span><span>Flatpak</span></a></li><li><a href="6.5-bibliotecas-compartilhadas.html"><span class="num">6.5</span><span>Bibliotecas compartilhadas</span></a></li></ul></aside><main id="conteudo" class="aula"><article><h1>Aula 5.1 · Hardware pelo kernel</h1>
+<p>O kernel é quem conversa com o hardware. Tudo o que ele vê, ele mostra em dois lugares: o <code translate="no">/proc</code> e o <code translate="no">/sys</code>. Nesta aula você aprende a perguntar ao kernel que hardware existe, qual driver cuida de cada peça e o que aconteceu quando algo foi conectado. Numa VM, também vai ver que o "hardware" é o que o Proxmox inventou para ela.</p>
+<blockquote><p><strong>Núcleo desta aula:</strong> <code translate="no">lspci -k</code>, <code translate="no">lsblk</code>, <code translate="no">lsusb</code>, <code translate="no">dmesg</code> (ou <code translate="no">journalctl -k</code>), <code translate="no">/proc/cpuinfo</code> e <code translate="no">/proc/meminfo</code>, a ideia de driver, e o udev criando os arquivos em <code translate="no">/dev</code>. O resto é aprofundamento.</p></blockquote>
+<div class="tabela"><table><thead><tr><th scope="col">Ficha</th><th scope="col"></th></tr></thead><tbody><tr><td>Módulo</td><td>M5 · Hardware, kernel e virtualização, aula 1 de 3</td></tr><tr><td>Quando</td><td>Semana 9</td></tr><tr><td>Semana</td><td>9</td></tr><tr><td>Tempo</td><td>2 h a 2 h 30</td></tr><tr><td>VMs</td><td>rocky-lab (201) e debian-lab (202)</td></tr><tr><td>Antes</td><td>Snapshot <code translate="no">m5a1-inicio</code> nas duas</td></tr><tr><td>Prova</td><td>LPIC 101.1</td></tr></tbody></table></div>
+<h2 id="1-aquecimento">1 Aquecimento</h2>
+<p>Responda sem pesquisar. As respostas estão no Gabarito.</p>
+<ol><li>Se você plugar um disco novo num servidor ligado, precisa reiniciar para o Linux enxergar?</li>
+<li>O que é um driver, em uma frase?</li>
+<li>Onde o kernel anota o que aconteceu desde o boot: num arquivo de log comum ou em outro lugar?</li></ol>
+<h2 id="2-por-que-importa">2 Por que importa</h2>
+<div class="tabela"><table><thead><tr><th scope="col">Situação real</th><th scope="col">O que você faz com esta aula</th></tr></thead><tbody><tr><td>O cliente diz que "a placa de rede sumiu" depois de uma atualização</td><td><code translate="no">lspci -k</code> mostra se a placa existe e se algum driver a assumiu</td></tr><tr><td>Você acrescentou um disco no Proxmox e quer saber o nome dele</td><td><code translate="no">lsblk</code> e <code translate="no">dmesg</code> mostram o disco novo, sem reiniciar</td></tr><tr><td>Um servidor físico está lento e você suspeita do disco</td><td><code translate="no">dmesg</code> mostra erros de I/O, reset de controladora e setores ruins</td></tr><tr><td>Você precisa inventariar memória e CPU de 20 máquinas</td><td><code translate="no">/proc/meminfo</code>, <code translate="no">/proc/cpuinfo</code> e <code translate="no">lscpu</code> dão a resposta por script</td></tr></tbody></table></div>
+<h2 id="3-modelo-mental">3 Modelo mental</h2>
+<p>Pense no kernel como a <strong>portaria de um prédio</strong>:</p>
+<ul><li>Cada peça de hardware é um <strong>morador</strong>. Quando ele chega, a portaria registra a chegada no <strong>livro de ocorrências</strong>, que é o <code translate="no">dmesg</code>.</li>
+<li>Para cada morador, a portaria escala um <strong>funcionário</strong> que sabe falar com ele: o <strong>driver</strong>. Sem funcionário, o morador existe, mas ninguém conversa com ele.</li>
+<li>O <code translate="no">/sys</code> é o <strong>cadastro organizado</strong> de todos os moradores, por andar e por tipo. O <code translate="no">/proc</code> é o <strong>quadro de avisos</strong> com números do dia: memória, CPU e processos.</li>
+<li>O <strong>udev</strong> é o funcionário que, a cada chegada, coloca uma <strong>plaquinha na porta</strong>, ou seja, cria o arquivo em <code translate="no">/dev</code>, como <code translate="no">/dev/sdb</code>, e dá a ele nomes estáveis em <code translate="no">/dev/disk/by-id</code>.</li></ul>
+<p>Os comandos <code translate="no">lspci</code>, <code translate="no">lsusb</code> e <code translate="no">lsblk</code> são só jeitos bonitos de ler esse cadastro.</p>
+<figure><a href="../img/5.1-portaria-do-kernel.svg"><img src="../img/5.1-portaria-do-kernel.svg" alt="O kernel como portaria do hardware" loading="lazy" decoding="async"></a><figcaption>Sem driver, a peça existe mas ninguém conversa com ela.</figcaption></figure>
+<h2 id="4-o-essencial">4 O essencial</h2>
+<h3 id="proc-e-sys">/proc e /sys</h3>
+<p>Os dois são sistemas de arquivos <strong>virtuais</strong>: não ocupam disco, e o kernel gera o conteúdo na hora em que você lê.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Caminho</th><th scope="col">Mostra</th></tr></thead><tbody><tr><td><code translate="no">/proc/cpuinfo</code></td><td>Cada CPU, o modelo e as flags, como <code translate="no">vmx</code> ou <code translate="no">svm</code> para virtualização</td></tr><tr><td><code translate="no">/proc/meminfo</code></td><td>Memória total, livre, disponível, cache e swap</td></tr><tr><td><code translate="no">/proc/cmdline</code></td><td>Os parâmetros com que o kernel subiu (4.4)</td></tr><tr><td><code translate="no">/proc/partitions</code></td><td>Os discos e partições que o kernel conhece</td></tr><tr><td><code translate="no">/proc/interrupts</code> e <code translate="no">/proc/ioports</code></td><td>Interrupções e portas de I/O, que caem na prova</td></tr><tr><td><code translate="no">/sys/class/net/</code></td><td>Uma pasta por placa de rede</td></tr><tr><td><code translate="no">/sys/block/</code></td><td>Uma pasta por disco</td></tr><tr><td><code translate="no">/sys/bus/pci/devices/</code></td><td>Um item por dispositivo PCI</td></tr></tbody></table></div>
+<p>Atalhos que leem esses arquivos por você: <code translate="no">lscpu</code>, <code translate="no">free -h</code> e <code translate="no">lsmem</code>.</p>
+<h3 id="os-comandos-ls">Os comandos ls*</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Comando</th><th scope="col">Lista</th><th scope="col">Opção que mais vale</th></tr></thead><tbody><tr><td><code translate="no">lspci</code></td><td>Dispositivos PCI: rede, disco, vídeo</td><td><code translate="no">-k</code> mostra o driver em uso; <code translate="no">-nn</code> mostra os IDs de fabricante e modelo</td></tr><tr><td><code translate="no">lsusb</code></td><td>Dispositivos USB</td><td><code translate="no">-t</code> mostra em árvore</td></tr><tr><td><code translate="no">lsblk</code></td><td>Discos e partições</td><td><code translate="no">-f</code> mostra o sistema de arquivos e o UUID</td></tr><tr><td><code translate="no">lscpu</code></td><td>CPU</td><td>sem opção</td></tr><tr><td><code translate="no">lshw</code></td><td>Tudo</td><td><code translate="no">-short</code> dá um resumo; precisa de root e, às vezes, de instalação</td></tr></tbody></table></div>
+<p>Se o <code translate="no">lspci</code> ou o <code translate="no">lsusb</code> não existirem, instale os pacotes <code translate="no">pciutils</code> e <code translate="no">usbutils</code>.</p>
+<h3 id="o-que-e-um-driver">O que é um driver</h3>
+<p>Um driver é o código do kernel que sabe falar com um tipo de hardware. Ele pode estar <strong>embutido</strong> no kernel ou ser um <strong>módulo</strong> carregado quando o hardware aparece. A 5.2 trata dos módulos. No <code translate="no">lspci -k</code>, a linha <em>Kernel driver in use</em> diz quem assumiu o dispositivo. Se ela não aparece, nenhum driver assumiu, e o dispositivo não funciona.</p>
+<h3 id="dmesg-e-journalctl-k">dmesg e journalctl -k</h3>
+<p>O kernel guarda as mensagens num <strong>anel de memória</strong> (<em>ring buffer</em>). Quando o anel enche, as mais antigas somem.</p>
+<pre translate="no"><code class="lang-bash">sudo dmesg -T | less          # -T: horário legível
+sudo dmesg -w                 # acompanha ao vivo
+sudo dmesg -l err,warn        # só erros e avisos
+journalctl -k -b              # mensagens do kernel deste boot, via journal
+journalctl -k -b -1           # do boot anterior, se o journal for persistente</code></pre>
+<p>O <code translate="no">journalctl -k</code> tem uma vantagem: ele guarda as mensagens de boots anteriores, coisa que o <code translate="no">dmesg</code> não faz.</p>
+<h3 id="udev-e-dev">udev e /dev</h3>
+<p>Quando o kernel detecta um dispositivo, ele avisa o <strong>systemd-udevd</strong>. O udev cria o arquivo em <code translate="no">/dev</code>, ajusta as permissões e cria os links estáveis:</p>
+<pre translate="no"><code class="lang-bash">ls -l /dev/disk/by-id/ /dev/disk/by-uuid/ /dev/disk/by-path/
+udevadm info /dev/sda          # tudo o que o udev sabe sobre o disco
+sudo udevadm monitor           # mostra os eventos ao vivo</code></pre>
+<p><strong>Regra de ouro:</strong> nomes como <code translate="no">sda</code> e <code translate="no">sdb</code> dependem da ordem em que os discos aparecem e podem mudar no próximo boot. Em <code translate="no">/etc/fstab</code> e em scripts, use o UUID ou o <code translate="no">by-id</code>.</p>
+<h3 id="rocky-debian">Rocky × Debian</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Item</th><th scope="col">Rocky</th><th scope="col">Debian</th></tr></thead><tbody><tr><td><code translate="no">dmesg</code> sem sudo</td><td>Normalmente funciona</td><td>Recusado: <code translate="no">kernel.dmesg_restrict = 1</code></td></tr><tr><td><code translate="no">lspci</code> na instalação mínima</td><td>Pode faltar: <code translate="no">dnf install pciutils</code></td><td>Pode faltar: <code translate="no">apt install pciutils</code></td></tr><tr><td>Regras do udev</td><td><code translate="no">/usr/lib/udev/rules.d/</code> (do sistema) e <code translate="no">/etc/udev/rules.d/</code> (suas)</td><td>Iguais</td></tr></tbody></table></div>
+<h3 id="o-que-cai-na-prova">O que cai na prova</h3>
+<p>A LPIC 101.1 cobra a diferença entre <code translate="no">/proc</code>, <code translate="no">/sys</code> e <code translate="no">/dev</code>; para que servem o udev e o <code translate="no">udevadm</code>; os comandos <code translate="no">lspci</code>, <code translate="no">lsusb</code>, <code translate="no">lsblk</code> e <code translate="no">dmesg</code>; e o conceito de <em>hotplug</em> (o dispositivo entra com a máquina ligada) contra <em>coldplug</em> (o dispositivo já estava lá no boot). Eles adoram perguntar onde estão as informações de interrupções: é em <code translate="no">/proc/interrupts</code>.</p>
+<h2 id="5-lab-guiado">5 Lab guiado</h2>
+<h3 id="passo-0-snapshot-e-pasta">Passo 0 · Snapshot e pasta</h3>
+<p>No nó Proxmox:</p>
+<pre translate="no"><code class="lang-bash">qm snapshot 201 m5a1-inicio
+qm snapshot 202 m5a1-inicio</code></pre>
+<p>Em cada VM:</p>
+<pre translate="no"><code class="lang-bash">mkdir -p ~/lab51 &amp;&amp; cd ~/lab51</code></pre>
+<h3 id="passo-1-inventario-pelo-proc">Passo 1 · Inventário pelo /proc</h3>
+<p>Nas duas VMs:</p>
+<pre translate="no"><code class="lang-bash">lscpu | head -20
+grep -c ^processor /proc/cpuinfo
+grep -m1 'model name' /proc/cpuinfo
+free -h
+grep -E 'MemTotal|MemAvailable|SwapTotal' /proc/meminfo
+cat /proc/partitions
+lsblk -f</code></pre>
+<p>Compare o modelo de CPU das duas com o do nó Proxmox. Com o tipo de CPU <code translate="no">host</code>, a VM enxerga o mesmo modelo do processador físico. Anote em <code translate="no">~/lab51/inventario.txt</code>: CPUs, memória total, discos e partições.</p>
+<h3 id="passo-2-quem-e-quem-no-pci-e-no-usb">Passo 2 · Quem é quem no PCI e no USB</h3>
+<pre translate="no"><code class="lang-bash">lspci
+lspci -k | grep -A3 -iE 'ethernet|scsi|sata|virtio'
+lsusb
+lsusb -t</code></pre>
+<p>Você vai ver dispositivos com o nome <em>Red Hat, Inc. Virtio</em>: são as peças virtuais que o Proxmox (QEMU) oferece, com drivers <em>virtio</em> do lado do Linux. No <code translate="no">lsusb</code>, aparece um <em>QEMU USB Tablet</em>: é o mouse do console noVNC.</p>
+<p>Anote: qual driver cuida da placa de rede, e qual cuida da controladora de disco?</p>
+<h3 id="decida-1">Decida 1</h3>
+<p>No próximo passo você vai acrescentar um disco de 1 GB na debian-lab, com ela ligada. Antes, responda: o que o <code translate="no">lsblk</code> mostra logo depois?</p>
+<ul><li>A) Nada novo: o disco só aparece depois de reiniciar.</li>
+<li>B) Um disco novo, <code translate="no">sdb</code> por exemplo, sem partições.</li>
+<li>C) Um disco novo, já com uma partição formatada.</li></ul>
+<p>Marque uma opção antes de seguir.</p>
+<h3 id="passo-3-hotplug-ao-vivo">Passo 3 · Hotplug ao vivo</h3>
+<p>Na debian-lab, abra <strong>duas sessões SSH</strong>. Na primeira:</p>
+<pre translate="no"><code class="lang-bash">sudo udevadm monitor --udev --subsystem-match=block</code></pre>
+<p>Na segunda:</p>
+<pre translate="no"><code class="lang-bash">sudo dmesg -wT</code></pre>
+<p>Agora acrescente o disco. Pela interface do Proxmox: VM 202, depois <em>Hardware</em>, <em>Add</em> e <em>Hard Disk</em>, com barramento <strong>SCSI</strong>, storage <code translate="no">vm-hdd</code> e tamanho 1 GB. Ou, no shell do nó:</p>
+<pre translate="no"><code class="lang-bash">qm set 202 --scsi1 vm-hdd:1</code></pre>
+<p>Olhe as duas sessões: o <code translate="no">dmesg</code> mostra o kernel achando o disco, e o <code translate="no">udevadm monitor</code> mostra o evento <code translate="no">add</code> para o udev. Pare os dois com <code translate="no">Ctrl+C</code> e confira:</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se você marcou</th><th scope="col">Resultado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>A</td><td>Errou</td><td>O barramento SCSI virtual avisa o kernel na hora: isso é hotplug</td></tr><tr><td>B</td><td>Acertou</td><td>O kernel vê o disco, e o udev cria o <code translate="no">/dev/sdb</code>. Disco novo vem vazio</td></tr><tr><td>C</td><td>Errou</td><td>Ninguém particiona nem formata sozinho. Isso é com você, no M9</td></tr></tbody></table></div>
+<pre translate="no"><code class="lang-bash">lsblk
+ls -l /dev/disk/by-id/ | grep -v part
+udevadm info /dev/sdb | head -30</code></pre>
+<p><strong>Confirme pelo tamanho</strong> que o disco de 1 GB é mesmo o <code translate="no">sdb</code>. Se for outro nome, use esse nome no resto da aula.</p>
+<p><strong>Para fixar:</strong> disco novo aparece sem reiniciar, e o nome <code translate="no">sdX</code> é só a ordem de chegada. O nome estável está em <code translate="no">/dev/disk/by-id</code>.</p>
+<h3 id="decida-2">Decida 2</h3>
+<p>Nas duas VMs, como <strong>usuário comum e sem sudo</strong>, você vai rodar <code translate="no">dmesg | tail -3</code>. O que acontece?</p>
+<ul><li>A) As duas mostram as mensagens.</li>
+<li>B) As duas recusam.</li>
+<li>C) Uma mostra, e a outra recusa.</li></ul>
+<p>Marque uma opção antes. Depois rode nas duas, e também <code translate="no">sysctl kernel.dmesg_restrict</code>.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se você marcou</th><th scope="col">Resultado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>A</td><td>Errou</td><td>A Debian protege o anel do kernel de usuários comuns</td></tr><tr><td>B</td><td>Errou, na maioria das instalações</td><td>A Rocky costuma vir com <code translate="no">dmesg_restrict = 0</code></td></tr><tr><td>C</td><td>Acertou</td><td>A Debian vem com <code translate="no">kernel.dmesg_restrict = 1</code>, e a Rocky normalmente com 0. Confira o valor real nas suas VMs</td></tr></tbody></table></div>
+<p><strong>Para fixar:</strong> o <code translate="no">dmesg</code> pode revelar endereços e detalhes úteis a um atacante. Por isso a Debian o restringe. Em script de monitoração, rode com sudo ou use <code translate="no">journalctl -k</code> num grupo com acesso ao journal.</p>
+<h3 id="passo-4-passear-pelo-sys">Passo 4 · Passear pelo /sys</h3>
+<pre translate="no"><code class="lang-bash">ls /sys/class/net/
+cat /sys/class/net/*/address
+cat /sys/class/net/*/operstate
+cat /sys/block/sdb/size              # em setores de 512 bytes
+echo $(( $(cat /sys/block/sdb/size) * 512 / 1024 / 1024 )) MiB
+cat /sys/block/sdb/queue/rotational  # 1 = disco girando, 0 = SSD ou virtual sem dizer
+readlink -f /sys/class/net/*/device/driver</code></pre>
+<p>Repare: o <code translate="no">lsblk</code> e o <code translate="no">ip link</code> que você já usa leem exatamente esses arquivos.</p>
+<h2 id="6-quebre-e-conserte">6 Quebre e conserte</h2>
+<p>Você vai fazer o kernel "esquecer" o disco de teste e depois fazê-lo procurar de novo, sem reiniciar. Isso é o que se faz num servidor físico quando um disco novo não aparece.</p>
+<figure><a href="../img/5.1-uuid-by-id.svg"><img src="../img/5.1-uuid-by-id.svg" alt="5.1 Uuid By Id" loading="lazy" decoding="async"></a><figcaption>A ordem sda/sdb muda se você adicionar ou remover um disco. No fstab, use UUID ou by-id.</figcaption></figure>
+<p><strong>Antes, confira de novo</strong> com <code translate="no">lsblk</code> que o <code translate="no">sdb</code> é o disco de 1 GB e que ele não tem nada montado. Nunca faça isto no disco do sistema.</p>
+<pre translate="no"><code class="lang-bash">lsblk /dev/sdb
+echo 1 | sudo tee /sys/block/sdb/device/delete
+lsblk
+sudo dmesg | tail -5</code></pre>
+<p>O disco sumiu para o Linux, embora continue ligado na VM. Agora, sem olhar a resposta abaixo, tente descobrir como mandá-lo procurar de novo. Dica: o caminho fica em <code translate="no">/sys/class/scsi_host/</code>.</p>
+<p>O conserto:</p>
+<pre translate="no"><code class="lang-bash">for h in /sys/class/scsi_host/host*/scan; do echo "- - -" | sudo tee "$h" &gt;/dev/null; done
+lsblk</code></pre>
+<p>Os três traços querem dizer "qualquer canal, qualquer alvo, qualquer LUN". O disco volta, às vezes com outro nome. Por isso, mais uma vez, scripts e fstab usam UUID ou <code translate="no">by-id</code>.</p>
+<h2 id="7-armadilhas">7 Armadilhas</h2>
+<ul><li><strong>Confiar em <code translate="no">sda</code> e <code translate="no">sdb</code>.</strong> A ordem pode mudar num boot com um disco a mais ou a menos. Use UUID ou <code translate="no">by-id</code>.</li>
+<li><strong>Achar que o <code translate="no">dmesg</code> guarda tudo.</strong> O anel tem tamanho fixo e se apaga no boot. Para o histórico, use <code translate="no">journalctl -k</code>, com o journal persistente da 3.x.</li>
+<li><strong>Esquecer o <code translate="no">-k</code> no <code translate="no">lspci</code>.</strong> Sem ele, você vê o hardware mas não o driver, que é justamente o que importa num "a placa sumiu".</li>
+<li><strong>Rodar o <code translate="no">device/delete</code> no disco errado.</strong> O sistema perde o disco com tudo montado nele. Confirme pelo tamanho e pelo <code translate="no">lsblk</code> antes.</li>
+<li><strong>Editar arquivos em <code translate="no">/usr/lib/udev/rules.d/</code>.</strong> A próxima atualização sobrescreve. As suas regras vão em <code translate="no">/etc/udev/rules.d/</code>.</li>
+<li><strong>Esperar ver o hardware físico numa VM.</strong> Dentro da VM, você vê o hardware virtual que o Proxmox oferece. A saúde dos discos físicos se olha no nó, e não na VM.</li></ul>
+<h2 id="8-quiz">8 Quiz</h2>
+<ol><li>Qual a diferença entre o <code translate="no">/proc</code> e o <code translate="no">/sys</code>, em uma frase cada?</li>
+<li>Qual comando mostra qual driver assumiu a placa de rede?</li>
+<li>Por que não se usa <code translate="no">/dev/sdb</code> no <code translate="no">/etc/fstab</code>?</li>
+<li>Em que arquivo estão as interrupções em uso?</li>
+<li>Como ver as mensagens do kernel do boot anterior?</li>
+<li><em>What does udev do when the kernel detects a new device?</em></li></ol>
+<h2 id="9-cola">9 Cola</h2>
+<h3 id="para-saber-de-cor">Para saber de cor</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Comando</th><th scope="col">Faz</th></tr></thead><tbody><tr><td><code translate="no">lspci -k</code></td><td>Dispositivos PCI e o driver de cada um</td></tr><tr><td><code translate="no">lsusb</code> / <code translate="no">lsusb -t</code></td><td>Dispositivos USB, em lista ou em árvore</td></tr><tr><td><code translate="no">lsblk -f</code></td><td>Discos, partições, sistema de arquivos e UUID</td></tr><tr><td><code translate="no">lscpu</code> / <code translate="no">free -h</code></td><td>CPU e memória</td></tr><tr><td><code translate="no">sudo dmesg -T</code> / <code translate="no">-w</code></td><td>Mensagens do kernel, com hora, ou ao vivo</td></tr><tr><td><code translate="no">journalctl -k -b</code> / <code translate="no">-b -1</code></td><td>Mensagens do kernel deste boot ou do anterior</td></tr><tr><td><code translate="no">udevadm info /dev/X</code> / <code translate="no">udevadm monitor</code></td><td>O que o udev sabe de um dispositivo / eventos ao vivo</td></tr><tr><td><code translate="no">/dev/disk/by-id</code>, <code translate="no">by-uuid</code></td><td>Nomes estáveis dos discos</td></tr></tbody></table></div>
+<h3 id="para-consultar">Para consultar</h3>
+<p><code translate="no">lspci -nn</code>, <code translate="no">lspci -v</code>, <code translate="no">lshw -short</code>, <code translate="no">lsmem</code>, <code translate="no">/proc/interrupts</code>, <code translate="no">/proc/ioports</code>, <code translate="no">/proc/dma</code>, <code translate="no">/sys/class/</code>, <code translate="no">/sys/bus/pci/devices/</code>, <code translate="no">/sys/block/*/queue/rotational</code>, <code translate="no">/sys/class/scsi_host/host*/scan</code>, <code translate="no">/sys/block/*/device/delete</code>, <code translate="no">/etc/udev/rules.d/</code>, <code translate="no">udevadm trigger</code>, <code translate="no">kernel.dmesg_restrict</code>.</p>
+<h3 id="flashcards">Flashcards</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Pergunta</th><th scope="col">Resposta</th></tr></thead><tbody><tr><td><code translate="no">/proc</code> e <code translate="no">/sys</code> ocupam disco?</td><td>Não: o kernel gera o conteúdo na hora</td></tr><tr><td>Quem cria os arquivos em <code translate="no">/dev</code>?</td><td>O udev (<code translate="no">systemd-udevd</code>)</td></tr><tr><td>Disco novo numa VM ligada exige reboot?</td><td>Não: é hotplug</td></tr><tr><td>Onde ficam as regras de udev do administrador?</td><td><code translate="no">/etc/udev/rules.d/</code></td></tr><tr><td>Por que o <code translate="no">dmesg</code> falha sem sudo na Debian?</td><td><code translate="no">kernel.dmesg_restrict = 1</code></td></tr></tbody></table></div>
+<h2 id="10-checklist-e-fechamento">10 Checklist e fechamento</h2>
+<ul><li>[ ] Fiz o inventário de CPU, memória e discos pelo <code translate="no">/proc</code> e pelos comandos <code translate="no">ls*</code></li>
+<li>[ ] Achei o driver da placa de rede e da controladora de disco</li>
+<li>[ ] Vi um disco entrar ao vivo no <code translate="no">dmesg</code> e no <code translate="no">udevadm monitor</code></li>
+<li>[ ] Entendi por que o <code translate="no">dmesg</code> se comporta diferente nas duas distros</li>
+<li>[ ] Fiz o kernel esquecer um disco e procurar de novo</li>
+<li>[ ] Sei por que nomes <code translate="no">sdX</code> não servem para o fstab</li></ul>
+<p><strong>Último exercício, sem olhar a aula:</strong> tire o disco de teste do jeito limpo. Primeiro, dentro da debian-lab, faça o kernel soltá-lo:</p>
+<pre translate="no"><code class="lang-bash">echo 1 | sudo tee /sys/block/sdb/device/delete</code></pre>
+<p>Depois, na interface do Proxmox, vá em VM 202, depois <em>Hardware</em>, selecione o disco <code translate="no">scsi1</code>, clique em <em>Detach</em> e, em seguida, em <em>Remove</em> no <em>Unused Disk</em>. Isso apaga o disco de teste de 1 GB, que não tem nada.</p>
+<p><strong>Reboot e conferência:</strong> reinicie as duas VMs e confira:</p>
+<pre translate="no"><code class="lang-bash">lsblk                            # só os discos originais
+systemctl is-system-running      # running
+ls ~/lab51</code></pre>
+<p><strong>Snapshot de fim</strong>, no nó Proxmox:</p>
+<pre translate="no"><code class="lang-bash">qm snapshot 201 m5a1-fim
+qm snapshot 202 m5a1-fim</code></pre>
+<h2 id="11-na-vida-real">11 Na vida real</h2>
+<p><strong>Missão, só leitura.</strong> Num servidor real que você administra, de preferência um físico, rode apenas estes comandos, que não mudam nada:</p>
+<pre translate="no"><code class="lang-bash">lscpu | grep -E 'Model name|^CPU\(s\)'
+free -h
+lsblk -o NAME,SIZE,TYPE,MODEL,ROTA,MOUNTPOINTS
+lspci -k | grep -A3 -iE 'ethernet|raid|sas|nvme'
+sudo dmesg -T -l err,warn | tail -20
+journalctl -k -p warning -b --no-pager | tail -20</code></pre>
+<p>Responda: os discos são girando ou SSD? A placa de rede tem driver em uso? Os erros e avisos do kernel falam de disco, memória ou rede? Num servidor físico, mensagens com <code translate="no">I/O error</code>, <code translate="no">reset</code> ou <code translate="no">Machine Check</code> merecem uma conversa com o responsável. Não mude nada sozinho.</p>
+<p><strong>Diário:</strong> escreva três linhas sobre o que você aprendeu hoje e uma dúvida que ficou.</p>
+<p><strong>Amanhã, sem olhar:</strong></p>
+<ol><li>Diga três arquivos do <code translate="no">/proc</code> e o que cada um mostra.</li>
+<li>Escreva o comando que mostra o driver de cada dispositivo PCI.</li>
+<li>Explique, em uma frase, o que o udev faz quando chega um disco.</li></ol>
+<h2 id="12-aprofundar-quando-quiser">12 Aprofundar quando quiser</h2>
+<ul><li>Escrever uma regra de udev em <code translate="no">/etc/udev/rules.d/</code> que dá um nome fixo a um disco ou a uma placa de rede.</li>
+<li><code translate="no">udevadm test</code> e <code translate="no">udevadm trigger</code> para testar regras sem plugar nada.</li>
+<li>Saúde de hardware físico: <code translate="no">smartctl</code> (pacote <code translate="no">smartmontools</code>), <code translate="no">rasdaemon</code> e as mensagens EDAC de memória.</li>
+<li><code translate="no">lshw -html</code> para um inventário completo em página.</li>
+<li><em>Coldplug</em>: como o udev reprocessa, no boot, os dispositivos que já estavam lá.</li></ul>
+<p>No DeepTutor: <code translate="no">!explica /proc, /sys e /dev</code>, <code translate="no">!feynman o que o udev faz</code>, <code translate="no">!quiz hardware pelo kernel</code>.</p>
+<h2 id="gabarito-comentado">Gabarito comentado</h2>
+<h3 id="aquecimento">Aquecimento</h3>
+<ol><li>Em geral, não. Discos SAS, SATA com hotplug, NVMe com suporte e discos virtuais aparecem com a máquina ligada. Se não aparecerem, dá para pedir uma nova varredura pelo <code translate="no">/sys</code>.</li>
+<li>Um driver é o código do kernel que sabe conversar com um tipo de hardware.</li>
+<li>Num anel de memória do kernel, lido pelo <code translate="no">dmesg</code>. O journal também guarda uma cópia, que o <code translate="no">journalctl -k</code> lê.</li></ol>
+<h3 id="quiz">Quiz</h3>
+<ol><li>O <code translate="no">/proc</code> mostra processos e números do kernel, como memória e CPU. O <code translate="no">/sys</code> mostra os dispositivos e drivers de forma organizada, por barramento e por classe.</li>
+<li><code translate="no">lspci -k</code>, na linha <em>Kernel driver in use</em>.</li>
+<li>Porque o nome <code translate="no">sdX</code> depende da ordem em que os discos aparecem e pode mudar. O UUID e o <code translate="no">by-id</code> não mudam.</li>
+<li>Em <code translate="no">/proc/interrupts</code>.</li>
+<li><code translate="no">journalctl -k -b -1</code>, desde que o journal seja persistente.</li>
+<li><em>udev receives the kernel event, creates the device file in /dev with the right permissions, adds stable symlinks such as /dev/disk/by-id, and runs any matching rules.</em></li></ol>
+</article><nav class="paginas" aria-label="Aulas"><a class="ant" href="4.4-grub-e-acesso-de-emergencia.html"><small>← Anterior</small>4.4 · GRUB e acesso de emergência</a><a class="prox" href="5.2-modulos-e-parametros.html"><small>Próxima →</small>5.2 · Módulos e parâmetros</a></nav></main></div>
+<footer><div class="wrap">Gerado a partir do Markdown do curso · Imagens em <code translate="no">img/</code></div></footer>
+</body>
+</html>

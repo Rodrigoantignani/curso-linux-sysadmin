@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light dark">
+<title>2.8 · Diretórios e arquivos especiais · Curso Linux Sysadmin</title>
+<link rel="alternate" hreflang="pt-BR" href="2.8-diretorios-e-arquivos-especiais.html"><link rel="alternate" hreflang="it" href="2.8-diretorios-e-arquivos-especiais.it.html">
+<style>
+:root{color-scheme:light dark;--bg:#f6f1e7;--card:#fffdf8;--ink:#201c16;--muted:#5e564a;--accent:#9a3412;--accent-2:#1f5f4a;--tint:#efe6d4;--line:#ddd2bc;--code:#f1eadb;--shadow:0 1px 2px rgba(60,40,10,.08);--serif:Georgia,"Iowan Old Style","Palatino Linotype",Palatino,serif;--sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--mono:"Cascadia Code",Consolas,"DejaVu Sans Mono",monospace}
+@media (prefers-color-scheme:dark){:root{--bg:#16130f;--card:#201b15;--ink:#f1eadb;--muted:#b9ad98;--accent:#f0a070;--accent-2:#7fd0b0;--tint:#2a231a;--line:#3d3427;--code:#191510;--shadow:none}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:5.5rem}
+body{margin:0;background:var(--bg);color:var(--ink);font:1rem/1.6 var(--sans)}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--accent-2);outline-offset:2px;border-radius:4px}
+.pular{position:absolute;left:-999px;top:0;background:var(--card);padding:.5rem 1rem;z-index:20}
+.pular:focus{left:.5rem;top:.5rem}
+.wrap{width:100%;max-width:84rem;margin:0 auto;padding-inline:max(1rem,env(safe-area-inset-left))}
+.top{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10;border-top:6px solid var(--accent)}
+.top-in{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding-block:.6rem}
+.titles{min-width:0}
+.marca{margin:0;font:700 clamp(1.15rem,1rem + 1vw,1.6rem)/1.15 var(--serif);letter-spacing:-.01em}
+.marca a{text-decoration:none}
+.marca a:hover{color:var(--accent)}
+.meta{margin:.1rem 0 0;color:var(--muted);font-size:.85rem}
+.acoes{display:flex;align-items:center;gap:.9rem;flex:none}
+.acoes>a{font-size:.9rem;font-weight:600;color:var(--muted);text-decoration:none}
+.acoes>a:hover{color:var(--accent);text-decoration:underline}
+.idioma{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--tint)}
+.idioma>*{padding:.35rem .9rem;font-size:.8rem;font-weight:700;letter-spacing:.06em;text-decoration:none;color:var(--muted);min-width:2.75rem;text-align:center}
+.idioma a:hover{color:var(--accent);text-decoration:underline}
+.idioma span{background:var(--accent);color:#fff}
+@media (prefers-color-scheme:dark){.idioma span{color:#16130f}}
+code{font-family:var(--mono);font-size:.9em;background:var(--tint);padding:.1rem .35rem;border-radius:4px;overflow-wrap:anywhere}
+/* índice */
+.capa{max-width:70rem;padding-block:2rem 3rem}
+.stats{border-left:4px solid var(--accent-2);background:var(--card);border-radius:0 10px 10px 0;padding:1rem 1.25rem;margin:0 0 2.5rem;box-shadow:var(--shadow);color:var(--muted)}
+.stats strong{color:var(--ink)}
+.modulo{display:grid;grid-template-columns:15rem minmax(0,1fr);gap:1rem 2rem;padding:1.75rem 0;border-top:1px solid var(--line)}
+.modulo h2{margin:0;font:700 1.25rem/1.25 var(--serif);align-self:start;position:sticky;top:6rem}
+.mn{display:block;font:700 .8rem var(--mono);letter-spacing:.12em;color:var(--accent);margin-bottom:.25rem}
+.sep{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.modulo ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,17rem),1fr));gap:.75rem}
+.modulo li{margin:0}
+.modulo a{display:flex;gap:.45rem;align-items:baseline;height:100%;padding:.85rem 1rem;background:var(--card);border:1px solid var(--line);border-radius:10px;text-decoration:none;font-weight:600;line-height:1.35;box-shadow:var(--shadow);transition:border-color .15s,transform .15s}
+.modulo a:hover{border-color:var(--accent);color:var(--accent)}
+.num{font:700 .85rem var(--mono);color:var(--accent);white-space:nowrap}
+/* aula */
+.doc{display:grid;grid-template-columns:17rem minmax(0,1fr);gap:2.5rem;align-items:start;padding-block:2rem 3rem}
+.lateral{position:sticky;top:5.5rem;max-height:calc(100vh - 6.5rem);overflow:auto;font-size:.875rem;padding-right:.5rem}
+.lateral h2{margin:0 0 .25rem;font:700 .95rem var(--serif);color:var(--muted)}
+.lateral h3{margin:1rem 0 .25rem;font:700 .75rem var(--mono);letter-spacing:.06em;color:var(--accent)}
+.lateral ul{list-style:none;margin:0;padding:0}
+.lateral a{display:flex;gap:.45rem;padding:.25rem .5rem;border-radius:6px;text-decoration:none;color:var(--muted);line-height:1.3}
+.lateral a:hover{background:var(--tint);color:var(--ink)}
+.lateral a[aria-current]{background:var(--tint);color:var(--ink);font-weight:700;box-shadow:inset 3px 0 0 var(--accent)}
+.lateral .num{font-size:.75rem}
+.aula{min-width:0;max-width:56rem;overflow-wrap:break-word;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:clamp(1.25rem,1rem + 2vw,2.75rem);box-shadow:var(--shadow)}
+.aula h1{margin:0 0 1.5rem;font:700 clamp(1.75rem,1.4rem + 1.6vw,2.5rem)/1.15 var(--serif);letter-spacing:-.015em;color:var(--ink)}
+.aula h2{margin:2.5rem 0 .75rem;padding-top:1.25rem;border-top:1px solid var(--line);font:700 1.5rem/1.25 var(--serif)}
+.aula h3{margin:2rem 0 .5rem;font:700 1.15rem/1.3 var(--serif);color:var(--accent)}
+.aula h4,.aula h5,.aula h6{margin:1.5rem 0 .5rem;font-size:1rem}
+.aula p,.aula ul,.aula ol{margin:1rem 0}
+.aula ul,.aula ol{padding-left:1.5rem}
+.aula li{margin:.35rem 0}
+.aula li>ul,.aula li>ol{margin:.35rem 0}
+.aula a{color:var(--accent);text-underline-offset:2px}
+.aula hr{border:0;border-top:1px solid var(--line);margin:2rem 0}
+.tabela{overflow-x:auto;margin:1.25rem 0;border:1px solid var(--line);border-radius:10px}
+.aula table{width:100%;border-collapse:collapse;font-size:.9rem}
+.aula th,.aula td{padding:.55rem .75rem;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+.aula tr:last-child td{border-bottom:0}
+.aula th{background:var(--tint);font-weight:700}
+.aula pre{background:var(--code);border:1px solid var(--line);border-radius:10px;padding:.9rem 1rem;overflow-x:auto;font:.85rem/1.5 var(--mono);margin:1rem 0;tab-size:4}
+.aula pre code{background:none;padding:0;font-size:inherit;overflow-wrap:normal}
+.aula blockquote{margin:1.25rem 0;padding:.75rem 1.25rem;border-left:4px solid var(--accent-2);background:var(--tint);border-radius:0 10px 10px 0}
+.aula blockquote>:first-child{margin-top:0}
+.aula blockquote>:last-child{margin-bottom:0}
+.aula figure{margin:1.75rem 0;text-align:center}
+.aula figure img{display:block;margin:0 auto;max-width:100%;height:auto;border:1px solid var(--line);border-radius:10px;background:#fff}
+.aula figcaption{margin-top:.5rem;color:var(--muted);font-size:.9rem;font-style:italic}
+.paginas{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:2.5rem;padding-top:1.5rem;border-top:1px solid var(--line)}
+.paginas a{display:block;padding:.75rem 1rem;border:1px solid var(--line);border-radius:10px;text-decoration:none;color:var(--ink);font-weight:600;line-height:1.3}
+.paginas a:hover{border-color:var(--accent);color:var(--accent)}
+.paginas small{display:block;color:var(--muted);font-weight:400}
+.paginas .prox{grid-column:2;text-align:right}
+footer{border-top:1px solid var(--line);padding-block:1.5rem;color:var(--muted);font-size:.85rem;text-align:center}
+@media (hover:hover) and (prefers-reduced-motion:no-preference){.modulo a:hover{transform:translateY(-2px)}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+@media (max-width:980px){.doc{grid-template-columns:minmax(0,1fr);padding-top:1rem}.lateral{position:static;max-height:none;order:2}.aula{max-width:none}}
+@media (max-width:860px){.modulo{grid-template-columns:minmax(0,1fr)}.modulo h2{position:static}.mn{display:inline;margin-right:.5rem}}
+@media (max-width:420px){.meta{display:none}.top-in{gap:.5rem}.acoes{gap:.6rem}.capa{padding-top:1.25rem}.paginas{grid-template-columns:minmax(0,1fr)}.paginas .prox{grid-column:1}}
+@media print{.top,.lateral,.paginas{display:none}.aula{border:0;box-shadow:none;padding:0;max-width:none}.doc{display:block}}
+</style>
+</head>
+<body>
+<a class="pular" href="#conteudo">Pular para o conteúdo</a>
+<header class="top"><div class="wrap top-in"><div class="titles"><p class="marca"><a href="index.html">Curso Linux Sysadmin</a></p><p class="meta">Rodrigo Antignani · Aula 2.8</p></div><div class="acoes"><a href="index.html">Índice</a><div class="idioma" role="group" aria-label="Idioma"><span aria-current="true">PT</span><a href="2.8-diretorios-e-arquivos-especiais.it.html" hreflang="it" lang="it">IT</a></div></div></div></header>
+<div class="wrap doc"><aside class="lateral" aria-label="Aulas"><h2>Aulas</h2><h3>M0 · Laboratório</h3><ul><li><a href="0.1-montar-o-laboratorio.html"><span class="num">0.1</span><span>Montar o laboratório</span></a></li><li><a href="0.2-acesso-e-protecao.html"><span class="num">0.2</span><span>Acesso e proteção</span></a></li></ul><h3>M1 · Linha de comando</h3><ul><li><a href="1.1-o-que-e-linux.html"><span class="num">1.1</span><span>O que é Linux</span></a></li><li><a href="1.2-o-shell-e-a-ajuda.html"><span class="num">1.2</span><span>O shell e a ajuda</span></a></li><li><a href="1.3-caminhos-e-navegacao.html"><span class="num">1.3</span><span>Caminhos e navegação</span></a></li><li><a href="1.4-criar-copiar-mover-e-apagar.html"><span class="num">1.4</span><span>Criar, copiar, mover e apagar</span></a></li><li><a href="1.5-ler-e-procurar-texto.html"><span class="num">1.5</span><span>Ler e procurar texto</span></a></li><li><a href="1.6-redirecionamentos-e-pipes.html"><span class="num">1.6</span><span>Redirecionamentos e pipes</span></a></li><li><a href="1.7-arquivar-e-compactar.html"><span class="num">1.7</span><span>Arquivar e compactar</span></a></li><li><a href="1.8-primeiro-script.html"><span class="num">1.8</span><span>Primeiro script</span></a></li><li><a href="1.9-decidir-e-repetir.html"><span class="num">1.9</span><span>Decidir e repetir</span></a></li><li><a href="1.10-software-livre-na-pratica.html"><span class="num">1.10</span><span>Software livre na prática</span></a></li></ul><h3>M2 · Sistema, usuários e permissões</h3><ul><li><a href="2.1-instalacao-e-provisionamento.html"><span class="num">2.1</span><span>Instalação e provisionamento</span></a></li><li><a href="2.2-hardware-e-dispositivos.html"><span class="num">2.2</span><span>Hardware e dispositivos</span></a></li><li><a href="2.3-processos-e-logs.html"><span class="num">2.3</span><span>Processos e logs</span></a></li><li><a href="2.4-rede-no-dia-a-dia.html"><span class="num">2.4</span><span>Rede no dia a dia</span></a></li><li><a href="2.5-acesso-remoto-e-privilegios.html"><span class="num">2.5</span><span>Acesso remoto e privilégios</span></a></li><li><a href="2.6-usuarios-e-grupos.html"><span class="num">2.6</span><span>Usuários e grupos</span></a></li><li><a href="2.7-permissoes-e-dono.html"><span class="num">2.7</span><span>Permissões e dono</span></a></li><li><a href="2.8-diretorios-e-arquivos-especiais.html" aria-current="page"><span class="num">2.8</span><span>Diretórios e arquivos especiais</span></a></li></ul><h3>M3 · Texto e editor</h3><ul><li><a href="3.1-fluxos-a-fundo.html"><span class="num">3.1</span><span>Fluxos a fundo</span></a></li><li><a href="3.2-filtros-de-texto.html"><span class="num">3.2</span><span>Filtros de texto</span></a></li><li><a href="3.3-regex-e-grep.html"><span class="num">3.3</span><span>Regex e grep</span></a></li><li><a href="3.4-sed-e-awk.html"><span class="num">3.4</span><span>sed e awk</span></a></li><li><a href="3.5-vi-e-vim-de-verdade.html"><span class="num">3.5</span><span>vi e vim de verdade</span></a></li></ul><h3>M4 · systemd e boot</h3><ul><li><a href="4.1-como-o-linux-liga.html"><span class="num">4.1</span><span>Como o Linux liga</span></a></li><li><a href="4.2-systemd-servicos-e-units.html"><span class="num">4.2</span><span>systemd: serviços e units</span></a></li><li><a href="4.3-targets-desligar-e-reiniciar.html"><span class="num">4.3</span><span>Targets: desligar e reiniciar</span></a></li><li><a href="4.4-grub-e-acesso-de-emergencia.html"><span class="num">4.4</span><span>GRUB e acesso de emergência</span></a></li></ul><h3>M5 · Kernel, módulos e VM</h3><ul><li><a href="5.1-hardware-pelo-kernel.html"><span class="num">5.1</span><span>Hardware pelo kernel</span></a></li><li><a href="5.2-modulos-e-parametros.html"><span class="num">5.2</span><span>Módulos e parâmetros</span></a></li><li><a href="5.3-linux-como-convidado.html"><span class="num">5.3</span><span>Linux como convidado</span></a></li></ul><h3>M6 · Pacotes e repositórios</h3><ul><li><a href="6.1-pacotes-no-debian.html"><span class="num">6.1</span><span>Pacotes no Debian</span></a></li><li><a href="6.2-pacotes-na-rocky.html"><span class="num">6.2</span><span>Pacotes na Rocky</span></a></li><li><a href="6.3-repositorios.html"><span class="num">6.3</span><span>Repositórios</span></a></li><li><a href="6.4-flatpak.html"><span class="num">6.4</span><span>Flatpak</span></a></li><li><a href="6.5-bibliotecas-compartilhadas.html"><span class="num">6.5</span><span>Bibliotecas compartilhadas</span></a></li></ul></aside><main id="conteudo" class="aula"><article><h1>Aula 2.8 · Diretórios e arquivos especiais</h1>
+<p>Oitava e última aula do Módulo 2. Na Aula 2.7, a pasta da equipe ficou quase pronta: a Ana e o Bruno entram, leem e escrevem, mas cada arquivo novo nasce com o grupo errado, e qualquer um dos dois pode apagar o trabalho do outro. Hoje você fecha isso com três bits que ficam escondidos no <code translate="no">ls -l</code>: o <strong>setgid</strong>, que faz a pasta dar o grupo aos arquivos novos, o <strong>sticky</strong>, que impede que um apague o arquivo do outro, e o <strong>setuid</strong>, que explica por que a Ana consegue trocar a própria senha num arquivo que só o root pode alterar. Depois você aprende os dois tipos de link, que estão por baixo de todo deploy com "rollback em um segundo", e passeia por <code translate="no">/proc</code>, <code translate="no">/sys</code> e <code translate="no">/dev</code>, as pastas que parecem arquivos e são o kernel falando. No fim, o desafio do módulo: a pasta <code translate="no">/srv/equipe</code> funcionando de verdade, nas duas VMs.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Ficha</th><th scope="col">Aula 2.8</th></tr></thead><tbody><tr><td>Módulo</td><td>M2 · Sistema, usuários e permissões, aula 8 de 8</td></tr><tr><td>Quando</td><td>Semana 5</td></tr><tr><td>Ao final você consegue</td><td>Explicar e usar o sticky bit, o setuid e o setgid, em arquivos e em pastas; ler <code translate="no">s</code>, <code translate="no">S</code>, <code translate="no">t</code> e <code translate="no">T</code> num <code translate="no">ls -l</code>; montar uma pasta de colaboração em que todo arquivo novo é do grupo e ninguém apaga o arquivo do outro; achar os programas com setuid de um servidor; criar links físicos e simbólicos e prever o que acontece quando o original some; trocar um link de deploy sem janela; ler informações do sistema em <code translate="no">/proc</code>, <code translate="no">/sys</code> e <code translate="no">/dev</code></td></tr><tr><td>Itens de prova</td><td>LE 015.4 (diretórios e arquivos especiais: <code translate="no">/tmp</code>, sticky bit, links simbólicos) · LPIC-1 104.5 (setuid, setgid e sticky bit) e 104.6 (criar e mudar links físicos e simbólicos) · RHCSA (criar links físicos e simbólicos; criar e configurar diretórios com set-GID para colaboração; diagnosticar e corrigir problemas de permissão)</td></tr><tr><td>Pré-requisitos</td><td>Aula 2.7 (trincas, octal, <code translate="no">chmod</code>, <code translate="no">chgrp</code>, <code translate="no">umask</code>, <code translate="no">namei -l</code>; a pasta <code translate="no">/srv/equipe</code> em <code translate="no">770 root:equipe</code> nas duas VMs e o <code translate="no">notas-bruno.txt</code> com o grupo errado na rocky-lab); Aula 2.6 (Ana, Bruno e o grupo <code translate="no">equipe</code>); Aula 2.5 (<code translate="no">sudo</code> e as regras do <code translate="no">sudoers</code>)</td></tr><tr><td>Tempo</td><td>Cerca de 2h30</td></tr><tr><td>Snapshots</td><td>m2a8-inicio e m2a8-fim nas duas VMs</td></tr></tbody></table></div>
+<h2 id="1-aquecimento">1 · Aquecimento</h2>
+<p>Três perguntas, de cabeça. Escreva as respostas; o Gabarito confere no fim.</p>
+<ol><li>O <code translate="no">/tmp</code> é <code translate="no">drwxrwxrwt root root</code>, e a Ana deixou lá o arquivo <code translate="no">ana.txt</code> em <code translate="no">-rw-rw-rw-</code>. Palpite: o Bruno consegue apagá-lo?</li>
+<li>O <code translate="no">ls -l /usr/bin/passwd</code> mostra <code translate="no">-rwsr-xr-x root root</code>, e o <code translate="no">/etc/shadow</code> só pode ser alterado pelo root. Mesmo assim, a Ana roda <code translate="no">passwd</code> e a senha dela muda no <code translate="no">/etc/shadow</code>. Palpite: como?</li>
+<li>Você tem um arquivo <code translate="no">relatorio.txt</code> e cria um link para ele. Depois apaga o <code translate="no">relatorio.txt</code>. Palpite: o conteúdo continua acessível pelo link?</li></ol>
+<h2 id="2-por-que-importa">2 · Por que importa</h2>
+<p>Os três bits e os links aparecem em chamados que parecem não ter nada a ver com permissão:</p>
+<div class="tabela"><table><thead><tr><th scope="col">O chamado</th><th scope="col">A resposta errada</th><th scope="col">O que ela causa</th></tr></thead><tbody><tr><td>"Toda vez que o Bruno cria um arquivo na pasta da equipe, a Ana não consegue editar"</td><td>Um cron que roda <code translate="no">chmod -R 777</code> a cada minuto</td><td>Um minuto de janela, a pasta aberta para a máquina inteira e o problema de volta no arquivo seguinte</td></tr><tr><td>"Alguém apagou a planilha do financeiro na pasta compartilhada"</td><td>Tirar o <code translate="no">w</code> de todo mundo na pasta</td><td>Ninguém consegue mais criar nada; a equipe passa a mandar arquivo por e-mail</td></tr><tr><td>"O script de backup precisa rodar como root, mas quem roda é o operador"</td><td><code translate="no">chmod u+s backup.sh</code></td><td>Não funciona (o Linux ignora o setuid em scripts), e quem tentar de novo com uma cópia do <code translate="no">bash</code> cria uma porta dos fundos</td></tr><tr><td>"O site voltou para a versão antiga sozinho" ou "o site saiu do ar durante o deploy"</td><td>Apagar e recriar o link <code translate="no">current</code> à mão</td><td>Um instante sem link, ou um link criado <strong>dentro</strong> da pasta errada</td></tr><tr><td>"O disco encheu, mas o <code translate="no">du</code> não acha o arquivo"</td><td>Reiniciar o servidor</td><td>O arquivo apagado ainda estava aberto por um processo; o <code translate="no">/proc</code> mostrava qual</td></tr></tbody></table></div>
+<p>Quem resolve de verdade sabe ler um <code translate="no">s</code> ou um <code translate="no">t</code> no lugar do <code translate="no">x</code>, sabe o que é um inode e sabe que <code translate="no">/proc</code> é o kernel respondendo perguntas. É isso que você treina hoje.</p>
+<h2 id="3-modelo-mental">3 · Modelo mental</h2>
+<blockquote><p>O modo de um arquivo tem <strong>quatro</strong> dígitos em octal, não três. O primeiro, que quase sempre é <code translate="no">0</code> e por isso some, guarda três bits especiais: setuid (<code translate="no">4</code>), setgid (<code translate="no">2</code>) e sticky (<code translate="no">1</code>). Eles não têm coluna própria no <code translate="no">ls -l</code>: cada um aparece <strong>no lugar do <code translate="no">x</code></strong> de uma trinca.</p></blockquote>
+<pre translate="no"><code class="lang-text">            especiais   dono   grupo  outros
+  octal:        3        7      7      0          chmod 3770
+  bits:       0 1 1     rwx    rwx    ---
+              │ │ └─ sticky (1) ──────────────┐
+              │ └─── setgid (2) ───────┐      │
+              └───── setuid (4) ─┐     │      │
+                                 ▼     ▼      ▼
+  ls -l:                 d  rwx   rws   --T      /srv/equipe
+                                    │     │
+            s minúsculo = bit + x ──┘     └── T maiúsculo = bit sem x
+            S maiúsculo = bit sem x          t minúsculo = bit + x
+
+  O que cada um faz:
+                 num arquivo executável          numa pasta
+  setuid (4)     roda com o UID do DONO          (ignorado no Linux)
+  setgid (2)     roda com o GID do GRUPO         arquivo novo herda o GRUPO da pasta
+  sticky (1)     (ignorado no Linux)             só o dono do arquivo apaga ou renomeia</code></pre>
+<p>O segundo modelo é para os links. Um nome de arquivo não <strong>é</strong> o arquivo: é uma entrada na pasta que aponta para um <strong>inode</strong>, e o inode aponta para os dados.</p>
+<pre translate="no"><code class="lang-text">  pasta /srv/lab28/links
+  ┌──────────────────────┬────────┐
+  │ nome                 │ inode  │
+  ├──────────────────────┼────────┤        ┌──────────────┐     ┌───────────────┐
+  │ config.conf          │ 131077 │──┬───▶ │ inode 131077 │───▶ │ dados:        │
+  │ config-fisico.conf   │ 131077 │──┘     │ dono, modo,  │     │ porta=8080    │
+  │ config-simbolico ────┼────────┼──┐     │ links: 2     │     └───────────────┘
+  └──────────────────────┴────────┘  │     └──────────────┘
+                                     │
+                                     └──▶ um inode próprio, cujo conteúdo é só o
+                                          TEXTO "config.conf": um caminho, procurado
+                                          de novo a cada uso</code></pre>
+<p>O link físico é um <strong>segundo nome</strong> para o mesmo inode: apagar um dos nomes não apaga os dados, porque o kernel só libera o inode quando o contador de links chega a zero e nenhum processo o mantém aberto. O link simbólico é um <strong>bilhete com um endereço</strong>: se o endereço deixa de existir, o bilhete continua lá, apontando para o nada.</p>
+<figure><a href="../img/2.8-bits-especiais.svg"><img src="../img/2.8-bits-especiais.svg" alt="Os três bits especiais do modo" loading="lazy" decoding="async"></a><figcaption>O modo tem quatro dígitos: o primeiro guarda setuid, setgid e sticky.</figcaption></figure>
+<h2 id="4-conceito-em-camadas">4 · Conceito em camadas</h2>
+<h3 id="essencial">Essencial</h3>
+<p><strong>O sticky bit, em pastas.</strong> Numa pasta com <code translate="no">w</code> para várias pessoas, qualquer uma pode apagar ou renomear qualquer arquivo, porque apagar é escrever na pasta (Aula 2.7). Com o sticky bit, só três contas apagam ou renomeiam um arquivo: o <strong>dono do arquivo</strong>, o <strong>dono da pasta</strong> e o root. É o que protege o <code translate="no">/tmp</code>, onde todo mundo escreve:</p>
+<pre translate="no"><code class="lang-bash">stat -c '%A %a %U:%G %n' /tmp /var/tmp</code></pre>
+<pre translate="no"><code class="lang-text">drwxrwxrwt 1777 root:root /tmp
+drwxrwxrwt 1777 root:root /var/tmp</code></pre>
+<p>O sticky não muda quem <strong>lê</strong> ou <strong>escreve</strong> no conteúdo do arquivo: isso continua com as trincas do arquivo. Ele só muda quem apaga e quem renomeia.</p>
+<p><strong>O setuid, em executáveis.</strong> Normalmente, um programa roda com o UID de quem o chamou. Com o setuid, ele roda com o UID do <strong>dono do arquivo</strong>. O <code translate="no">passwd</code> é do root e tem setuid: quando a Ana o roda, o processo tem o UID efetivo do root e consegue gravar no <code translate="no">/etc/shadow</code>. O próprio <code translate="no">passwd</code> garante que ela só troque a senha dela. É por isso que um programa com setuid de root é um ponto sensível: qualquer falha nele vira acesso de root.</p>
+<pre translate="no"><code class="lang-bash">ls -l /usr/bin/passwd /usr/bin/sudo /usr/bin/su</code></pre>
+<p>Os três mostram <code translate="no">-rwsr-xr-x</code> e o dono <code translate="no">root</code>. O <code translate="no">s</code> no lugar do <code translate="no">x</code> do dono é o setuid.</p>
+<p><strong>O setgid, em pastas.</strong> Na Aula 2.7, cada arquivo novo na <code translate="no">/srv/equipe</code> nascia com o grupo pessoal de quem criou. Com o setgid na pasta, todo arquivo novo nasce com o <strong>grupo da pasta</strong>, e toda subpasta nova nasce com o grupo e com o próprio setgid. É o bit que transforma uma pasta comum numa pasta de equipe.</p>
+<p><strong>O setgid, em executáveis.</strong> O programa roda com o GID do grupo do arquivo. No Debian, o <code translate="no">crontab</code> é <code translate="no">-rwxr-sr-x root crontab</code>: ele roda com o grupo <code translate="no">crontab</code> e, por isso, consegue gravar na pasta onde ficam as tabelas de cron de cada pessoa, que só esse grupo alcança.</p>
+<p><strong>Como ligar e desligar.</strong> No modo simbólico, <code translate="no">u+s</code> é setuid, <code translate="no">g+s</code> é setgid, <code translate="no">o+t</code> (ou <code translate="no">+t</code>) é sticky; com <code translate="no">-</code> no lugar do <code translate="no">+</code>, desliga. No octal, o quarto dígito vem na frente:</p>
+<div class="tabela"><table><thead><tr><th scope="col">Comando</th><th scope="col">Resultado numa pasta <code translate="no">rwxrwx---</code></th></tr></thead><tbody><tr><td><code translate="no">chmod g+s pasta</code></td><td><code translate="no">drwxrws---</code> (<code translate="no">2770</code>)</td></tr><tr><td><code translate="no">chmod +t pasta</code></td><td><code translate="no">drwxrwx--T</code> (<code translate="no">1770</code>)</td></tr><tr><td><code translate="no">chmod 3770 pasta</code></td><td><code translate="no">drwxrws--T</code>: setgid e sticky</td></tr><tr><td><code translate="no">chmod g-s,-t pasta</code></td><td><code translate="no">drwxrwx---</code> (<code translate="no">770</code>)</td></tr></tbody></table></div>
+<p><strong>Letra minúscula ou maiúscula.</strong> O <code translate="no">s</code> e o <code translate="no">t</code> minúsculos dizem "o bit especial está ligado <strong>e</strong> o <code translate="no">x</code> dessa trinca também". O <code translate="no">S</code> e o <code translate="no">T</code> maiúsculos dizem "o bit está ligado e o <code translate="no">x</code> não". Num executável, <code translate="no">S</code> quase sempre é erro: um setuid sem <code translate="no">x</code> para o dono não serve para nada. Numa pasta de equipe como a <code translate="no">drwxrws--T</code>, o <code translate="no">T</code> é normal e o sticky funciona: os outros não têm <code translate="no">x</code>, mas o sticky protege quem está dentro, que é o grupo.</p>
+<p><strong>Os dois links.</strong></p>
+<pre translate="no"><code class="lang-bash">ln config.conf config-fisico.conf          # link físico: outro nome para o mesmo inode
+ln -s config.conf config-simbolico         # link simbólico: um arquivo que guarda um caminho
+ls -li</code></pre>
+<p>O <code translate="no">ls -li</code> mostra o número do inode na primeira coluna e o contador de links depois do modo. O físico tem o <strong>mesmo</strong> inode do original e o contador sobe para <code translate="no">2</code>. O simbólico tem inode próprio, começa com <code translate="no">l</code> e mostra a seta: <code translate="no">config-simbolico -&gt; config.conf</code>.</p>
+<div class="tabela"><table><thead><tr><th scope="col"></th><th scope="col">Link físico</th><th scope="col">Link simbólico</th></tr></thead><tbody><tr><td>O que é</td><td>Outro nome para o mesmo inode</td><td>Um arquivo que guarda um caminho</td></tr><tr><td>Apagaram o original</td><td>Os dados continuam, pelo outro nome</td><td>O link fica quebrado: <code translate="no">No such file or directory</code></td></tr><tr><td>Para pastas</td><td>Não pode</td><td>Pode</td></tr><tr><td>Entre sistemas de arquivos (outro disco, outra partição)</td><td>Não pode</td><td>Pode</td></tr><tr><td>Permissões</td><td>As do inode, que são as mesmas do original</td><td>O link é sempre <code translate="no">lrwxrwxrwx</code>; o que vale é o modo do destino</td></tr><tr><td>Uso típico</td><td>Backups incrementais que não duplicam arquivos iguais</td><td><code translate="no">current -&gt; releases/v2</code>, <code translate="no">/etc/localtime</code>, <code translate="no">/bin -&gt; usr/bin</code></td></tr></tbody></table></div>
+<h3 id="intermediario">Intermediário</h3>
+<p><strong>O setgid não conserta o passado.</strong> Ligar o <code translate="no">g+s</code> numa pasta afeta só o que for criado <strong>depois</strong>. Arquivos e subpastas que já existiam continuam com o grupo e o modo que tinham. Ao converter uma pasta antiga em pasta de equipe, são quatro passos, sempre os mesmos:</p>
+<pre translate="no"><code class="lang-bash">sudo chgrp -R equipe /srv/equipe                                  # o grupo em tudo
+sudo chmod -R g+rwX /srv/equipe                                   # o grupo lê e escreve; pastas atravessáveis
+sudo find /srv/equipe -type d -exec chmod g+s {} +                # setgid em cada pasta, não só na de cima
+sudo chmod +t /srv/equipe                                         # sticky, se ninguém pode apagar o do outro</code></pre>
+<p><strong>O setgid dá o grupo, e o <code translate="no">umask</code> dá o <code translate="no">w</code>.</strong> O arquivo novo herda o <strong>grupo</strong> da pasta, mas o <strong>modo</strong> continua vindo do <code translate="no">umask</code> de quem criou. Com <code translate="no">umask 022</code>, o arquivo nasce <code translate="no">rw-r--r--</code>, do grupo <code translate="no">equipe</code>, e o resto do grupo só lê. A pasta de equipe só funciona por inteiro quando os membros têm <code translate="no">umask 002</code> (o comum para usuários com grupo pessoal, que você mediu na Aula 2.7) ou quando a pasta tem uma ACL padrão (Aula 8.5). Lembre também que o <code translate="no">sudo</code> junta o <code translate="no">umask</code> de quem chamou com <code translate="no">0022</code>: um arquivo criado com <code translate="no">sudo -u ana</code> nasce sem <code translate="no">w</code> para o grupo, a não ser que o comando defina o <code translate="no">umask</code>. É por isso que, no lab, os testes trazem <code translate="no">umask 002</code> explícito.</p>
+<p><strong>O <code translate="no">chmod</code> numérico e os bits especiais em pastas.</strong> No <code translate="no">chmod</code> do GNU, que é o das duas VMs, um modo numérico de três dígitos <strong>não desliga</strong> o setuid nem o setgid de uma <strong>pasta</strong>: <code translate="no">chmod 770</code> numa pasta <code translate="no">2770</code> deixa <code translate="no">2770</code>. O sticky, ao contrário, é desligado. Para desligar o setgid de uma pasta, use o simbólico (<code translate="no">chmod g-s</code>) ou um zero a mais na frente (<code translate="no">chmod 00770</code>). Em arquivos, o modo numérico vale exatamente como foi escrito. Na dúvida, confira com <code translate="no">stat</code> depois.</p>
+<p><strong>O setuid é ignorado em scripts.</strong> O kernel só respeita o setuid e o setgid em programas compilados. Num script (<code translate="no">#!/bin/bash</code>), o bit pode até estar ligado e aparecer <code translate="no">rws</code>, mas o interpretador roda com o UID de quem chamou. Para deixar uma pessoa rodar um script como root, o caminho é uma regra no <code translate="no">sudoers</code> para aquele script (Aula 2.5).</p>
+<p><strong>Caminho relativo ou absoluto no link simbólico.</strong> O link guarda o texto exato que você escreveu. Um link relativo (<code translate="no">ln -s releases/v2 current</code>) é resolvido a partir da pasta <strong>onde o link está</strong>, e continua funcionando se a árvore inteira mudar de lugar. Um link absoluto (<code translate="no">ln -s /srv/app/releases/v2 current</code>) funciona de qualquer lugar, mas quebra se <code translate="no">/srv/app</code> mudar de nome. O erro clássico é criar o link relativo pensando na pasta em que você está, e não na pasta do link:</p>
+<pre translate="no"><code class="lang-bash">cd /srv
+ln -s app/releases/v2 app/current      # o link procura /srv/app/app/releases/v2: quebrado
+ln -s releases/v2 app/current          # o link procura /srv/app/releases/v2: certo</code></pre>
+<p><strong>Trocar um link que aponta para pasta.</strong> Se <code translate="no">current</code> é um link para uma pasta, <code translate="no">ln -s releases/v1 current</code> não troca o link: como <code translate="no">current</code> "é" uma pasta, o <code translate="no">ln</code> cria um link novo <strong>dentro</strong> dela, em <code translate="no">releases/v2/v1</code>. Para trocar o link em si, use <code translate="no">ln -sfn</code>: o <code translate="no">-f</code> substitui, e o <code translate="no">-n</code> diz para tratar <code translate="no">current</code> como o link, sem entrar nele.</p>
+<p><strong><code translate="no">/proc</code>, <code translate="no">/sys</code> e <code translate="no">/dev</code>.</strong> As três pastas são sistemas de arquivos que não estão em disco:</p>
+<div class="tabela"><table><thead><tr><th scope="col">Pasta</th><th scope="col">Tipo (<code translate="no">findmnt</code>)</th><th scope="col">O que é</th><th scope="col">Exemplos</th></tr></thead><tbody><tr><td><code translate="no">/proc</code></td><td><code translate="no">proc</code></td><td>O kernel descrevendo processos e o sistema</td><td><code translate="no">/proc/cpuinfo</code>, <code translate="no">/proc/meminfo</code>, <code translate="no">/proc/&lt;PID&gt;/</code>, <code translate="no">/proc/sys/</code> (os parâmetros do <code translate="no">sysctl</code>)</td></tr><tr><td><code translate="no">/sys</code></td><td><code translate="no">sysfs</code></td><td>O kernel descrevendo hardware e drivers</td><td><code translate="no">/sys/class/net/&lt;placa&gt;/address</code>, <code translate="no">/sys/block/</code></td></tr><tr><td><code translate="no">/dev</code></td><td><code translate="no">devtmpfs</code></td><td>Arquivos de dispositivo: ler e escrever neles é falar com o hardware ou com o kernel</td><td><code translate="no">/dev/sda</code>, <code translate="no">/dev/null</code>, <code translate="no">/dev/zero</code>, <code translate="no">/dev/urandom</code></td></tr></tbody></table></div>
+<p>Um <code translate="no">ls -l /proc/meminfo</code> mostra tamanho <code translate="no">0</code>, e um <code translate="no">cat</code> mostra dezenas de linhas: o conteúdo é gerado na hora em que você lê. Em <code translate="no">/dev</code>, a primeira letra do modo diz o tipo: <code translate="no">b</code> é dispositivo de bloco (discos), <code translate="no">c</code> é de caractere (terminais, <code translate="no">/dev/null</code>). Onde um arquivo comum mostraria o tamanho, o <code translate="no">ls -l</code> mostra dois números, o <em>major</em> e o <em>minor</em>, que dizem ao kernel qual driver e qual dispositivo.</p>
+<p><strong><code translate="no">/tmp</code> e <code translate="no">/var/tmp</code>.</strong> Os dois têm sticky e <code translate="no">1777</code>. O <code translate="no">/var/tmp</code> existe para o que precisa sobreviver a um reboot; o <code translate="no">/tmp</code> pode ser um <code translate="no">tmpfs</code>, na memória, e é limpo no boot ou por idade. Quem limpa é o <code translate="no">systemd-tmpfiles</code>, com as regras de <code translate="no">/usr/lib/tmpfiles.d/tmp.conf</code>. Nunca guarde em <code translate="no">/tmp</code> o que você não aceita perder.</p>
+<h3 id="ponte-windows">Ponte Windows</h3>
+<div class="tabela"><table><thead><tr><th scope="col">No Windows</th><th scope="col">No Linux</th><th scope="col">Diferença que importa</th></tr></thead><tbody><tr><td>Permissão NTFS "Excluir" separada de "Gravar"</td><td>O sticky bit na pasta</td><td>No Windows você nega "Excluir" por pessoa; no Linux, o sticky vale para todos de uma vez: cada um só apaga o que é seu</td></tr><tr><td>Herança de permissões de pasta para arquivos novos</td><td>O setgid na pasta (só o grupo) e a ACL padrão (Aula 8.5)</td><td>O NTFS herda a ACL inteira; o setgid herda só o grupo, e o modo vem do <code translate="no">umask</code></td></tr><tr><td>"Executar como administrador" e o UAC</td><td><code translate="no">sudo</code>, e o setuid em poucos programas do sistema</td><td>O setuid é do arquivo, não da pessoa: vale para todo mundo que rodar aquele programa</td></tr><tr><td>Atalho <code translate="no">.lnk</code></td><td>Nada: o <code translate="no">.lnk</code> é um arquivo que só o Explorer entende</td><td>Um link simbólico funciona para qualquer programa, inclusive no terminal</td></tr><tr><td><code translate="no">mklink /D</code> e junções</td><td><code translate="no">ln -s</code></td><td>Mesma ideia; no Linux qualquer usuário cria, sem privilégio especial</td></tr><tr><td><code translate="no">mklink /H</code></td><td><code translate="no">ln</code> (link físico)</td><td>Mesma ideia: dois nomes, um arquivo</td></tr><tr><td>Gerenciador de Tarefas, WMI</td><td><code translate="no">/proc</code></td><td>No Linux, a informação é um arquivo que você lê com <code translate="no">cat</code> e <code translate="no">grep</code></td></tr><tr><td>Gerenciador de Dispositivos</td><td><code translate="no">/sys</code> e <code translate="no">/dev</code></td><td>O dispositivo é um arquivo; <code translate="no">lsblk</code> e <code translate="no">ip link</code> leem <code translate="no">/sys</code> por você</td></tr></tbody></table></div>
+<h3 id="avancado">Avançado</h3>
+<p><strong>As proteções do kernel em pastas com sticky.</strong> Três parâmetros do <code translate="no">sysctl</code> endurecem o <code translate="no">/tmp</code> contra ataques clássicos, em que alguém cria antes um link ou um arquivo com o nome que um programa do root vai usar:</p>
+<pre translate="no"><code class="lang-bash">sysctl fs.protected_symlinks fs.protected_hardlinks fs.protected_regular</code></pre>
+<p>Com <code translate="no">protected_symlinks = 1</code>, numa pasta com sticky e gravável por todos, um link simbólico só é seguido se for do mesmo dono de quem segue, ou do dono da pasta. Com <code translate="no">protected_hardlinks = 1</code>, ninguém cria um link físico para um arquivo de outra pessoa que não possa ler e escrever. Com <code translate="no">protected_regular = 1</code>, ninguém abre com criação (<code translate="no">&gt;</code> ou <code translate="no">&gt;&gt;</code>) um arquivo de outra pessoa numa pasta com sticky e gravável por todos, como o <code translate="no">/tmp</code>, mesmo que o arquivo seja <code translate="no">666</code>. Com <code translate="no">2</code>, a regra vale também para pastas com sticky graváveis só pelo grupo, como a pasta de equipe desta aula. Anote os valores das duas VMs no Passo 0.</p>
+<p><strong>Montar sem setuid.</strong> A opção <code translate="no">nosuid</code> no <code translate="no">mount</code> (e no <code translate="no">/etc/fstab</code>) faz o kernel ignorar o setuid e o setgid de tudo o que está naquele sistema de arquivos. É a configuração certa para pendrives, <code translate="no">/tmp</code> em partição própria e pastas de upload. A Aula 5.x volta ao <code translate="no">fstab</code>.</p>
+<p><strong>Capabilities, o setuid fatiado.</strong> Em vez de dar root inteiro a um programa, o kernel permite dar só uma parte, como "abrir portas abaixo de 1024" ou "enviar pacotes ICMP". O <code translate="no">getcap -r /usr/bin 2&gt;/dev/null</code> mostra quais programas usam isso. Uma auditoria de setuid de verdade olha as duas listas.</p>
+<p><strong>O disco cheio que o <code translate="no">du</code> não acha.</strong> Um arquivo apagado, mas ainda aberto por um processo, continua ocupando espaço: o inode só é liberado quando o último nome some <strong>e</strong> o último processo o fecha. O <code translate="no">/proc</code> mostra quem está segurando:</p>
+<pre translate="no"><code class="lang-bash">sudo find /proc/[0-9]*/fd -lname '*(deleted)' -printf '%p -&gt; %l\n' 2&gt;/dev/null</code></pre>
+<p>Reiniciar o serviço que segura o arquivo libera o espaço sem reiniciar o servidor.</p>
+<h3 id="o-que-cai-na-prova">O que cai na prova</h3>
+<ul><li><strong>LE e LPIC-1:</strong> ler e escrever o modo de quatro dígitos (<code translate="no">4755</code>, <code translate="no">2770</code>, <code translate="no">1777</code>, <code translate="no">3770</code>); ler <code translate="no">s</code>, <code translate="no">S</code>, <code translate="no">t</code> e <code translate="no">T</code>; saber em que lugar do <code translate="no">ls -l</code> aparece cada bit; diferença entre link físico e simbólico, com <code translate="no">ln</code>, <code translate="no">ln -s</code> e <code translate="no">ls -li</code>; o que acontece com cada um quando o original é apagado; achar arquivos com setuid com <code translate="no">find -perm</code>.</li>
+<li><strong>RHCSA:</strong> criar uma pasta de colaboração com dono, grupo, modo e setgid exatos, e muitas vezes com sticky, de forma que os arquivos novos sejam do grupo; criar links físicos e simbólicos com os nomes e destinos pedidos. A correção é por script: o <code translate="no">stat</code> da pasta e dos arquivos criados tem que bater exatamente.</li></ul>
+<h2 id="5-rocky-debian">5 · Rocky × Debian</h2>
+<div class="tabela"><table><thead><tr><th scope="col">O quê</th><th scope="col">rocky-lab</th><th scope="col">debian-lab</th><th scope="col">Como conferir</th></tr></thead><tbody><tr><td><code translate="no">/tmp</code></td><td>Costuma ser pasta no disco do sistema</td><td>Do Debian 13 em diante, <code translate="no">tmpfs</code> na memória; antes, pasta no disco</td><td><code translate="no">findmnt /tmp</code></td></tr><tr><td>Limpeza de <code translate="no">/tmp</code> e <code translate="no">/var/tmp</code></td><td>Por idade, pelo <code translate="no">systemd-tmpfiles</code></td><td>Depende da versão: no boot, por idade, ou os dois</td><td><code translate="no">cat /usr/lib/tmpfiles.d/tmp.conf</code></td></tr><tr><td><code translate="no">crontab</code></td><td><code translate="no">-rwsr-xr-x root root</code>: setuid de root</td><td><code translate="no">-rwxr-sr-x root crontab</code>: setgid do grupo <code translate="no">crontab</code></td><td><code translate="no">ls -l /usr/bin/crontab</code></td></tr><tr><td>Quantidade de programas com setuid ou setgid</td><td>Algumas dezenas</td><td>Algumas dezenas, nem sempre os mesmos</td><td><code translate="no">sudo find / -xdev -type f -perm /6000 | wc -l</code></td></tr><tr><td><code translate="no">/bin</code>, <code translate="no">/sbin</code>, <code translate="no">/lib</code></td><td>Links simbólicos para <code translate="no">usr/bin</code>, <code translate="no">usr/sbin</code>, <code translate="no">usr/lib</code></td><td>Os mesmos links (o "/usr unificado")</td><td><code translate="no">ls -ld /bin /sbin /lib</code></td></tr><tr><td><code translate="no">/etc/localtime</code></td><td>Link simbólico para <code translate="no">/usr/share/zoneinfo/...</code></td><td>Link simbólico para <code translate="no">/usr/share/zoneinfo/...</code></td><td><code translate="no">ls -l /etc/localtime</code></td></tr><tr><td>Ponto depois do modo no <code translate="no">ls -l</code></td><td>Aparece (contexto SELinux)</td><td>Não aparece</td><td><code translate="no">ls -l /usr/bin/passwd</code></td></tr><tr><td>Nome do disco</td><td><code translate="no">sda</code> ou <code translate="no">vda</code>, conforme o controlador da VM no Proxmox</td><td>O mesmo critério</td><td><code translate="no">lsblk</code></td></tr></tbody></table></div>
+<p>As regras dos três bits, dos links e de <code translate="no">/proc</code>, <code translate="no">/sys</code> e <code translate="no">/dev</code> são do kernel e do <code translate="no">coreutils</code>, e são as mesmas nas duas VMs. O que muda é qual programa do sistema usa cada bit, e como cada distribuição trata o <code translate="no">/tmp</code>.</p>
+<h2 id="6-lab-guiado">6 · Lab guiado</h2>
+<p>O formato é o mesmo da Aula 2.7: você é o <code translate="no">rodrigo</code>, com <code translate="no">sudo</code>, e testa tudo <strong>como a Ana e como o Bruno</strong> com <code translate="no">sudo -u</code>. Os experimentos ficam em <code translate="no">/srv/lab28</code>. O Passo 7 é o desafio do módulo, na <code translate="no">/srv/equipe</code> de verdade, nas duas VMs. Lembre que o <code translate="no">rodrigo</code> não está no grupo <code translate="no">equipe</code>: para olhar dentro da <code translate="no">/srv/equipe</code> você usa <code translate="no">sudo</code>.</p>
+<figure><a href="../img/2.8-quando-usar-bits-especiais.svg"><img src="../img/2.8-quando-usar-bits-especiais.svg" alt="2.8 Quando Usar Bits Especiais" loading="lazy" decoding="async"></a><figcaption>O link é só um nome que aponta para um inode; o inode aponta para os dados.</figcaption></figure>
+<h3 id="passo-0-snapshot-caminho-e-as-protecoes-do-kernel">Passo 0 · Snapshot, caminho e as proteções do kernel</h3>
+<p>No Proxmox, tire o snapshot <code translate="no">m2a8-inicio</code> das duas VMs. Na rocky-lab:</p>
+<pre translate="no"><code class="lang-bash">eval "$(ssh-agent -s)"; ssh-add
+ssh -o BatchMode=yes deb hostname
+sudo stat -c '%A %a %U:%G %n' /srv/equipe /srv/equipe/*</code></pre>
+<pre translate="no"><code class="lang-text">drwxrwx--- 770 root:equipe /srv/equipe
+stat: cannot statx '/srv/equipe/*': No such file or directory</code></pre>
+<p>A pasta aparece, e os arquivos não. O <code translate="no">sudo</code> está certo; o problema é <strong>quem expande o <code translate="no">*</code></strong>. Quem troca <code translate="no">/srv/equipe/*</code> pela lista de arquivos é o seu shell, rodando como <code translate="no">rodrigo</code>, <strong>antes</strong> de o <code translate="no">sudo</code> começar. O <code translate="no">rodrigo</code> não está no grupo <code translate="no">equipe</code> e não lê a pasta, então o shell não acha nada e passa o texto <code translate="no">/srv/equipe/*</code> como está. O comando de conferência do fim da Aula 2.7 tropeça nisso também. Os dois jeitos certos: deixar o root expandir, com <code translate="no">sudo sh -c '...'</code>, ou não usar <code translate="no">*</code>, com um <code translate="no">find</code> rodado pelo root. Este lab usa o <code translate="no">find</code>, que mostra o modo de quatro dígitos com o <code translate="no">%m</code>:</p>
+<pre translate="no"><code class="lang-bash">sudo find /srv/equipe -maxdepth 1 -printf '%M %m %u:%g %p\n'
+sysctl fs.protected_symlinks fs.protected_hardlinks fs.protected_regular
+ssh deb 'sysctl fs.protected_symlinks fs.protected_hardlinks fs.protected_regular'</code></pre>
+<p>A <code translate="no">/srv/equipe</code> tem que aparecer como <code translate="no">drwxrwx--- 770 root:equipe</code>, com a <code translate="no">planilha.csv</code> em <code translate="no">ana:equipe</code>. Na rocky-lab também aparece o <code translate="no">notas-bruno.txt</code>, e ele está em <code translate="no">bruno:bruno</code>: é o problema que sobrou da Aula 2.7. Anote os três valores do <code translate="no">sysctl</code> nas duas VMs. O comum é <code translate="no">1</code>, <code translate="no">1</code> e <code translate="no">1</code>. Se o <code translate="no">protected_regular</code> vier <code translate="no">2</code>, guarde isso: ele muda um teste do Passo 7.</p>
+<p>Crie a pasta dos experimentos:</p>
+<pre translate="no"><code class="lang-bash">sudo mkdir -p /srv/lab28
+sudo chmod 755 /srv/lab28</code></pre>
+<h3 id="passo-1-o-sticky-bit-no-tmp">Passo 1 · O sticky bit no <code translate="no">/tmp</code></h3>
+<p>A Ana deixa um arquivo no <code translate="no">/tmp</code>, aberto para todos:</p>
+<pre translate="no"><code class="lang-bash">sudo -u ana bash -c 'echo "rascunho da Ana" &gt; /tmp/ana-lab28.txt; chmod 666 /tmp/ana-lab28.txt'
+stat -c '%A %U:%G %n' /tmp /tmp/ana-lab28.txt</code></pre>
+<pre translate="no"><code class="lang-text">drwxrwxrwt root:root /tmp
+-rw-rw-rw- ana:ana /tmp/ana-lab28.txt</code></pre>
+<p>O arquivo é <code translate="no">666</code> e o <code translate="no">/tmp</code> dá <code translate="no">rwx</code> para todos. Pela regra da Aula 2.7, apagar é escrever na pasta, e todo mundo escreve no <code translate="no">/tmp</code>.</p>
+<p><strong>Decida 1 · O Bruno roda <code translate="no">rm -f /tmp/ana-lab28.txt</code>. O que acontece?</strong></p>
+<ul><li><strong>A)</strong> O arquivo some, porque o <code translate="no">/tmp</code> é <code translate="no">rwx</code> para todos</li>
+<li><strong>B)</strong> <code translate="no">Operation not permitted</code>, e o arquivo fica</li>
+<li><strong>C)</strong> O <code translate="no">rm</code> pede confirmação, porque o arquivo não é dele</li>
+<li><strong>D)</strong> O arquivo some, porque ele mesmo é <code translate="no">666</code></li></ul>
+<p>Escolha a letra antes de olhar a tabela.</p>
+<pre translate="no"><code class="lang-bash">sudo -u bruno rm -f /tmp/ana-lab28.txt
+ls -l /tmp/ana-lab28.txt</code></pre>
+<div class="tabela"><table><thead><tr><th scope="col">Se você marcou</th><th scope="col">Resultado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>A</td><td>❌ Errada</td><td>Seria verdade sem o <code translate="no">t</code> no fim do modo. O sticky bit muda a regra de apagar: além de <code translate="no">w</code> na pasta, é preciso ser o dono do arquivo, o dono da pasta ou o root.</td></tr><tr><td>B</td><td>✅ Certa</td><td><code translate="no">rm: cannot remove '/tmp/ana-lab28.txt': Operation not permitted</code>. O sticky protege o arquivo da Ana, mesmo aberto para todos. Note que a mensagem não é <code translate="no">Permission denied</code>: é o sticky falando, não as trincas.</td></tr><tr><td>C</td><td>❌ Errada</td><td>O <code translate="no">-f</code> desliga qualquer pergunta do <code translate="no">rm</code>. E a pergunta não decide nada: quem decide é o kernel, que recusa do mesmo jeito.</td></tr><tr><td>D</td><td>❌ Errada</td><td>O modo do arquivo nunca decide quem apaga: isso é da pasta. O <code translate="no">666</code> deixa o Bruno <strong>escrever no conteúdo</strong>, se as proteções do kernel deixarem, mas não apagar.</td></tr></tbody></table></div>
+<p><strong>Para fixar:</strong> <code translate="no">Operation not permitted</code> ao apagar numa pasta onde você tem <code translate="no">w</code> quase sempre é sticky bit. Confira o <code translate="no">t</code> no fim do modo da pasta.</p>
+<p>Agora o teste ao contrário: o dono da pasta e o root apagam qualquer coisa. Apague o arquivo da Ana como root, que é o dono do <code translate="no">/tmp</code>:</p>
+<pre translate="no"><code class="lang-bash">sudo rm -f /tmp/ana-lab28.txt</code></pre>
+<h3 id="passo-2-o-setuid-ao-vivo">Passo 2 · O setuid, ao vivo</h3>
+<p>Liste os programas com setuid de root nas pastas de programas do sistema, nas duas VMs:</p>
+<pre translate="no"><code class="lang-bash">find /usr/bin /usr/sbin -perm -4000 -user root -printf '%M %u %p\n' 2&gt;/dev/null
+ssh deb "find /usr/bin /usr/sbin -perm -4000 -user root -printf '%M %u %p\n' 2&gt;/dev/null"</code></pre>
+<p>O <code translate="no">-perm -4000</code> quer dizer "com o bit <code translate="no">4000</code> ligado, sejam quais forem os outros". Você vai reconhecer <code translate="no">passwd</code>, <code translate="no">sudo</code>, <code translate="no">su</code>, <code translate="no">mount</code>, <code translate="no">umount</code>, <code translate="no">chage</code>, <code translate="no">newgrp</code>, <code translate="no">gpasswd</code>. Todos precisam fazer, para uma pessoa comum, uma única coisa que só o root pode, e cada um se encarrega de limitar o que ela faz com isso. Compare as duas listas: elas não são iguais, e a diferença é assunto da seção Rocky × Debian.</p>
+<p>Agora veja o setuid mudar a identidade de um processo. Uma cópia do <code translate="no">id</code> com setuid de root, só para o experimento:</p>
+<pre translate="no"><code class="lang-bash">sudo cp /usr/bin/id /srv/lab28/id-suid
+sudo chmod 4755 /srv/lab28/id-suid
+ls -l /srv/lab28/id-suid
+sudo -u ana /usr/bin/id
+sudo -u ana /srv/lab28/id-suid</code></pre>
+<pre translate="no"><code class="lang-text">-rwsr-xr-x. 1 root root ... /srv/lab28/id-suid
+uid=2001(ana) gid=2001(ana) groups=2001(ana),2000(equipe)
+uid=2001(ana) gid=2001(ana) euid=0(root) groups=2001(ana),2000(equipe)</code></pre>
+<p>O <code translate="no">euid=0(root)</code> é o UID <strong>efetivo</strong>, o que o kernel usa para decidir permissões. A Ana continua sendo a Ana no <code translate="no">uid</code>, mas aquele processo tem os poderes do root. Com o <code translate="no">id</code>, que só mostra informação, isso é inofensivo. Com uma cópia do <code translate="no">bash</code>, seria um shell de root para quem rodasse. É exatamente isso que um invasor procura num servidor.</p>
+<p>Agora o mesmo bit num script:</p>
+<pre translate="no"><code class="lang-bash">printf '#!/bin/bash\nid\n' | sudo tee /srv/lab28/quem.sh &gt;/dev/null
+sudo chmod 4755 /srv/lab28/quem.sh
+ls -l /srv/lab28/quem.sh</code></pre>
+<p><strong>Decida 2 · A Ana roda <code translate="no">/srv/lab28/quem.sh</code>. O que a linha mostra?</strong></p>
+<ul><li><strong>A)</strong> <code translate="no">euid=0(root)</code>, igual ao <code translate="no">id-suid</code></li>
+<li><strong>B)</strong> <code translate="no">uid=2001(ana)</code>, sem <code translate="no">euid</code>: o setuid não teve efeito</li>
+<li><strong>C)</strong> <code translate="no">Permission denied</code>, porque o script é do root</li>
+<li><strong>D)</strong> <code translate="no">uid=0(root)</code>: o script inteiro roda como root</li></ul>
+<p>Escolha a letra antes de olhar a tabela.</p>
+<pre translate="no"><code class="lang-bash">sudo -u ana /srv/lab28/quem.sh</code></pre>
+<div class="tabela"><table><thead><tr><th scope="col">Se você marcou</th><th scope="col">Resultado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>A</td><td>❌ Errada</td><td>Seria uma falha grave de segurança, e foi por isso que o Linux deixou de respeitar o bit em scripts. O kernel roda o <code translate="no">/bin/bash</code>, que não tem setuid, e o <code translate="no">bash</code> lê o script.</td></tr><tr><td>B</td><td>✅ Certa</td><td>O <code translate="no">ls -l</code> mostra <code translate="no">rws</code>, e o bit não faz nada. Para alguém rodar um script como root, a ferramenta é uma regra no <code translate="no">sudoers</code> (Aula 2.5), que ainda registra quem rodou e quando.</td></tr><tr><td>C</td><td>❌ Errada</td><td>O script é <code translate="no">4755</code>: os outros têm <code translate="no">r-x</code>, e a Ana lê e executa. Ser do root não impede ninguém de rodar um programa.</td></tr><tr><td>D</td><td>❌ Errada</td><td>Nem o UID real nem o efetivo mudam. O setuid em script é ignorado por inteiro.</td></tr></tbody></table></div>
+<p><strong>Para fixar:</strong> o setuid só funciona em programas compilados. Quando pedirem "um script que o operador rode como root", a resposta é <code translate="no">sudoers</code>, nunca <code translate="no">chmod u+s</code>.</p>
+<p>Limpe o experimento. Um programa com setuid de root esquecido numa pasta é o tipo de coisa que uma auditoria acha, e com razão:</p>
+<pre translate="no"><code class="lang-bash">sudo rm /srv/lab28/id-suid /srv/lab28/quem.sh</code></pre>
+<h3 id="passo-3-o-setgid-numa-pasta">Passo 3 · O setgid numa pasta</h3>
+<p>Uma pasta de projeto do grupo, ainda sem nenhum bit especial:</p>
+<pre translate="no"><code class="lang-bash">sudo mkdir /srv/lab28/proj
+sudo chgrp equipe /srv/lab28/proj
+sudo chmod 770 /srv/lab28/proj
+sudo -u ana bash -c 'umask 002; touch /srv/lab28/proj/antes.txt'
+sudo stat -c '%A %U:%G %n' /srv/lab28/proj /srv/lab28/proj/antes.txt</code></pre>
+<p>O <code translate="no">antes.txt</code> nasce <code translate="no">ana:ana</code>: o grupo pessoal da Ana. É o problema do <code translate="no">notas-bruno.txt</code> se repetindo. Agora ligue o setgid e crie outro arquivo e uma subpasta:</p>
+<pre translate="no"><code class="lang-bash">sudo chmod g+s /srv/lab28/proj
+sudo -u ana bash -c 'umask 002; touch /srv/lab28/proj/depois.txt; mkdir /srv/lab28/proj/sub'
+sudo find /srv/lab28/proj -printf '%M %m %u:%g %p\n'</code></pre>
+<pre translate="no"><code class="lang-text">drwxrws--- 2770 root:equipe /srv/lab28/proj
+-rw-rw-r-- 664 ana:ana /srv/lab28/proj/antes.txt
+-rw-rw-r-- 664 ana:equipe /srv/lab28/proj/depois.txt
+drwxrwsr-x 2775 ana:equipe /srv/lab28/proj/sub</code></pre>
+<p>Três coisas para ler aí. A pasta mostra <code translate="no">rws</code> no grupo: setgid com <code translate="no">x</code>. O <code translate="no">depois.txt</code> nasceu do grupo <code translate="no">equipe</code>, sem ninguém rodar <code translate="no">chgrp</code>. E a <code translate="no">sub</code> nasceu com o grupo <strong>e</strong> com o próprio setgid (<code translate="no">2775</code>): a regra desce sozinha pela árvore.</p>
+<p><strong>Decida 3 · O Bruno precisa editar o <code translate="no">antes.txt</code>. O que acontece agora, com a pasta já em <code translate="no">2770</code>?</strong></p>
+<ul><li><strong>A)</strong> Funciona: o setgid corrigiu o grupo de todos os arquivos da pasta</li>
+<li><strong>B)</strong> Falha: o <code translate="no">antes.txt</code> continua <code translate="no">ana:ana</code>, e o Bruno cai em outros, <code translate="no">r--</code></li>
+<li><strong>C)</strong> Funciona: o Bruno está no grupo da pasta, e isso basta</li>
+<li><strong>D)</strong> Falha: com setgid, só o dono da pasta edita</li></ul>
+<p>Escolha a letra antes de olhar a tabela.</p>
+<pre translate="no"><code class="lang-bash">sudo -u bruno bash -c 'echo "linha do Bruno" &gt;&gt; /srv/lab28/proj/antes.txt'</code></pre>
+<div class="tabela"><table><thead><tr><th scope="col">Se você marcou</th><th scope="col">Resultado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>A</td><td>❌ Errada</td><td>O setgid só age na <strong>criação</strong> de arquivos. O que já existia fica como estava. É o erro mais comum ao converter uma pasta antiga.</td></tr><tr><td>B</td><td>✅ Certa</td><td><code translate="no">Permission denied</code>. O arquivo é <code translate="no">664 ana:ana</code>, e o Bruno não é a Ana nem está no grupo <code translate="no">ana</code>. O conserto é no arquivo: <code translate="no">sudo chgrp equipe antes.txt</code>.</td></tr><tr><td>C</td><td>❌ Errada</td><td>O grupo da <strong>pasta</strong> decide quem entra e cria; o grupo do <strong>arquivo</strong> decide quem escreve nele. São dois controles diferentes.</td></tr><tr><td>D</td><td>❌ Errada</td><td>O setgid não restringe nada: ele só escolhe o grupo dos arquivos novos.</td></tr></tbody></table></div>
+<p><strong>Para fixar:</strong> depois do <code translate="no">chmod g+s</code>, sempre um <code translate="no">chgrp -R</code> no que já existe. O setgid cuida do futuro; o passado é com você.</p>
+<p>Conserte e confirme:</p>
+<pre translate="no"><code class="lang-bash">sudo chgrp equipe /srv/lab28/proj/antes.txt
+sudo -u bruno bash -c 'echo "linha do Bruno" &gt;&gt; /srv/lab28/proj/antes.txt'
+sudo cat /srv/lab28/proj/antes.txt</code></pre>
+<p>Por último, veja o <code translate="no">umask</code> mandando no modo. O Bruno cria um arquivo com o <code translate="no">umask 022</code> que o <code translate="no">sudo</code> impõe:</p>
+<pre translate="no"><code class="lang-bash">sudo -u bruno touch /srv/lab28/proj/sem-umask.txt
+sudo stat -c '%A %U:%G %n' /srv/lab28/proj/sem-umask.txt</code></pre>
+<p>O grupo veio certo, <code translate="no">equipe</code>, e o modo é <code translate="no">rw-r--r--</code>: a Ana lê e não escreve. O setgid deu o grupo; o <code translate="no">w</code> do grupo é com o <code translate="no">umask</code> de quem cria.</p>
+<h3 id="passo-4-link-fisico-e-link-simbolico">Passo 4 · Link físico e link simbólico</h3>
+<p>Agora como você mesmo, numa pasta sua:</p>
+<pre translate="no"><code class="lang-bash">sudo install -d -o rodrigo -g rodrigo /srv/lab28/links
+cd /srv/lab28/links
+echo "porta=8080" &gt; config.conf
+ln config.conf config-fisico.conf
+ln -s config.conf config-simbolico
+ls -li</code></pre>
+<pre translate="no"><code class="lang-text">131077 -rw-r--r--. 2 rodrigo rodrigo 11 ... config-fisico.conf
+131079 lrwxrwxrwx. 1 rodrigo rodrigo 11 ... config-simbolico -&gt; config.conf
+131077 -rw-r--r--. 2 rodrigo rodrigo 11 ... config.conf</code></pre>
+<p>Os números do inode serão outros na sua VM; o que importa é a relação. <code translate="no">config.conf</code> e <code translate="no">config-fisico.conf</code> têm o <strong>mesmo</strong> inode e o contador <code translate="no">2</code>: são dois nomes para um arquivo só. O simbólico tem inode próprio, contador <code translate="no">1</code>, tamanho <code translate="no">11</code>, que é o número de letras de <code translate="no">config.conf</code>, e o modo <code translate="no">lrwxrwxrwx</code>.</p>
+<p>Mude o conteúdo por um nome e leia pelos outros:</p>
+<pre translate="no"><code class="lang-bash">echo "porta=9090" &gt; config-fisico.conf
+cat config.conf config-simbolico</code></pre>
+<p>As duas linhas mostram <code translate="no">porta=9090</code>. Agora apague o original.</p>
+<p><strong>Decida 4 · Depois de <code translate="no">rm config.conf</code>, o que mostram <code translate="no">cat config-fisico.conf</code> e <code translate="no">cat config-simbolico</code>?</strong></p>
+<ul><li><strong>A)</strong> Os dois mostram <code translate="no">porta=9090</code></li>
+<li><strong>B)</strong> O físico mostra <code translate="no">porta=9090</code>; o simbólico dá <code translate="no">No such file or directory</code></li>
+<li><strong>C)</strong> Os dois dão <code translate="no">No such file or directory</code></li>
+<li><strong>D)</strong> O físico dá erro; o simbólico mostra <code translate="no">porta=9090</code>, porque guardou uma cópia</li></ul>
+<p>Escolha a letra antes de olhar a tabela.</p>
+<pre translate="no"><code class="lang-bash">rm config.conf
+cat config-fisico.conf
+cat config-simbolico
+ls -li</code></pre>
+<div class="tabela"><table><thead><tr><th scope="col">Se você marcou</th><th scope="col">Resultado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>A</td><td>❌ Errada</td><td>O simbólico não aponta para o inode; ele guarda o texto <code translate="no">config.conf</code> e procura esse nome a cada uso. O nome sumiu.</td></tr><tr><td>B</td><td>✅ Certa</td><td>O <code translate="no">rm</code> apagou um <strong>nome</strong>. O inode tinha dois; o contador caiu para <code translate="no">1</code> e os dados ficaram. O simbólico virou um link quebrado: o <code translate="no">ls</code> costuma mostrá-lo em vermelho piscando.</td></tr><tr><td>C</td><td>❌ Errada</td><td>O físico não depende do nome original: os dois nomes eram iguais em tudo, e nenhum é "o original" para o kernel.</td></tr><tr><td>D</td><td>❌ Errada</td><td>É o contrário. O simbólico nunca guarda conteúdo, só um caminho.</td></tr></tbody></table></div>
+<p><strong>Para fixar:</strong> <code translate="no">rm</code> apaga um nome, não um arquivo. Os dados só somem quando o último nome some e nenhum processo os mantém abertos.</p>
+<p>Recrie o nome e veja o link quebrado voltar sozinho:</p>
+<pre translate="no"><code class="lang-bash">echo "porta=7070" &gt; config.conf
+cat config-simbolico</code></pre>
+<p>O simbólico mostra <code translate="no">porta=7070</code>, um arquivo <strong>novo</strong> com o mesmo nome. O físico continua mostrando <code translate="no">porta=9090</code>: ele é outro inode agora. Confira com <code translate="no">ls -li</code>.</p>
+<p>Por fim, os dois limites do link físico:</p>
+<pre translate="no"><code class="lang-bash">ln /srv/lab28/proj pasta-fisica
+ln /proc/version versao-fisica</code></pre>
+<p>O primeiro dá <code translate="no">hard link not allowed for directory</code>. O segundo dá <code translate="no">Invalid cross-device link</code>: o <code translate="no">/proc</code> é outro sistema de arquivos. Com <code translate="no">-s</code>, os dois funcionariam.</p>
+<h3 id="passo-5-o-deploy-com-link-simbolico">Passo 5 · O deploy com link simbólico</h3>
+<p>É o padrão de quase todo deploy sério: cada versão numa pasta, e um link <code translate="no">current</code> que diz qual está no ar. Voltar uma versão é trocar o link.</p>
+<pre translate="no"><code class="lang-bash">sudo install -d -o rodrigo -g rodrigo /srv/lab28/app
+mkdir -p /srv/lab28/app/releases/v1 /srv/lab28/app/releases/v2
+echo "versao 1" &gt; /srv/lab28/app/releases/v1/index.html
+echo "versao 2" &gt; /srv/lab28/app/releases/v2/index.html
+cd /srv/lab28/app
+ln -s releases/v1 current
+cat current/index.html</code></pre>
+<p>O site, que leria <code translate="no">current/index.html</code>, mostra <code translate="no">versao 1</code>. Hora de publicar a v2. O colega roda o que parece óbvio:</p>
+<pre translate="no"><code class="lang-bash">ln -s releases/v2 current
+cat current/index.html
+ls -l current/ releases/v1/</code></pre>
+<p>O site continua na versão 1, e apareceu um link <code translate="no">v2</code> <strong>dentro</strong> de <code translate="no">releases/v1</code>. Como <code translate="no">current</code> aponta para uma pasta, o <code translate="no">ln</code> tratou <code translate="no">current</code> como pasta e criou o link novo lá dentro.</p>
+<p><strong>Decida 5 · Qual comando troca o <code translate="no">current</code> para a v2 de uma vez só?</strong></p>
+<ul><li><strong>A)</strong> <code translate="no">rm current; ln -s releases/v2 current</code></li>
+<li><strong>B)</strong> <code translate="no">ln -sf releases/v2 current</code></li>
+<li><strong>C)</strong> <code translate="no">ln -sfn releases/v2 current</code></li>
+<li><strong>D)</strong> <code translate="no">cp -r releases/v2 current</code></li></ul>
+<p>Escolha a letra antes de olhar a tabela.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se você marcou</th><th scope="col">Resultado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>A</td><td>⚠️ Funciona, mas</td><td>O link fica certo, e entre os dois comandos existe um instante sem <code translate="no">current</code>: num site de verdade, os acessos daquele instante dão erro. Num deploy automático, se o segundo comando falhar, o site fica fora do ar.</td></tr><tr><td>B</td><td>❌ Errada</td><td>O <code translate="no">-f</code> substitui, mas sem o <code translate="no">-n</code> o <code translate="no">ln</code> continua entrando no <code translate="no">current</code> e cria (ou substitui) um <code translate="no">v2</code> dentro de <code translate="no">releases/v1</code>. O mesmo erro, agora sem mensagem.</td></tr><tr><td>C</td><td>✅ Certa</td><td>O <code translate="no">-n</code> faz o <code translate="no">ln</code> tratar <code translate="no">current</code> como o link, sem seguir, e o <code translate="no">-f</code> substitui. Uma linha, e o link já aponta para a v2.</td></tr><tr><td>D</td><td>❌ Errada</td><td>Com <code translate="no">current</code> sendo link para uma pasta, o <code translate="no">cp -r</code> copia a v2 para dentro da v1. E mesmo sem isso, cópia não é link: você perde o "voltar em um segundo".</td></tr></tbody></table></div>
+<p><strong>Para fixar:</strong> link que aponta para pasta se troca com <code translate="no">ln -sfn</code>. Sem o <code translate="no">-n</code>, o <code translate="no">ln</code> entra na pasta.</p>
+<p>Conserte e teste o rollback:</p>
+<pre translate="no"><code class="lang-bash">rm releases/v1/v2
+ln -sfn releases/v2 current
+cat current/index.html
+ln -sfn releases/v1 current
+cat current/index.html
+readlink current</code></pre>
+<p><code translate="no">versao 2</code>, depois <code translate="no">versao 1</code>, e o <code translate="no">readlink</code> mostra o texto guardado no link: <code translate="no">releases/v1</code>. Em produção, ferramentas de deploy fazem isso sem nenhum instante sem link: criam um link novo com outro nome e o renomeiam por cima do <code translate="no">current</code> com <code translate="no">mv -T</code>, que troca o nome numa operação só.</p>
+<h3 id="passo-6-proc-sys-e-dev">Passo 6 · <code translate="no">/proc</code>, <code translate="no">/sys</code> e <code translate="no">/dev</code></h3>
+<p>Nas duas VMs, sem <code translate="no">sudo</code>:</p>
+<pre translate="no"><code class="lang-bash">findmnt -n -o TARGET,FSTYPE /proc /sys /dev /tmp
+ls -l /proc/meminfo
+grep -E 'MemTotal|MemAvailable' /proc/meminfo
+grep -c ^processor /proc/cpuinfo
+cat /proc/loadavg
+cat /proc/sys/kernel/hostname</code></pre>
+<p>O <code translate="no">ls -l</code> mostra tamanho <code translate="no">0</code>, e o <code translate="no">grep</code> acha as linhas: o kernel gera o conteúdo quando você lê. O número de processadores é o que você deu à VM no Proxmox. O <code translate="no">/proc/sys/kernel/hostname</code> é o mesmo parâmetro que <code translate="no">sysctl kernel.hostname</code>: o <code translate="no">sysctl</code> é só um jeito de ler e escrever em <code translate="no">/proc/sys</code>.</p>
+<p>Cada processo tem uma pasta em <code translate="no">/proc</code> com o número dele. O <code translate="no">$$</code> é o número do seu shell:</p>
+<pre translate="no"><code class="lang-bash">echo $$
+ls /proc/$$
+readlink /proc/$$/cwd /proc/$$/exe
+ls -l /proc/$$/fd</code></pre>
+<p>O <code translate="no">cwd</code> é a pasta em que o shell está, o <code translate="no">exe</code> é o programa, e o <code translate="no">fd</code> mostra os arquivos abertos: <code translate="no">0</code>, <code translate="no">1</code> e <code translate="no">2</code> apontam para o seu terminal (<code translate="no">/dev/pts/...</code>). É assim que o <code translate="no">ps</code>, o <code translate="no">top</code> e o <code translate="no">lsof</code> funcionam: lendo <code translate="no">/proc</code>.</p>
+<p>Agora o hardware pelo <code translate="no">/sys</code>, e os dispositivos pelo <code translate="no">/dev</code>:</p>
+<pre translate="no"><code class="lang-bash">ls /sys/class/net/
+cat /sys/class/net/*/address
+ls -l /dev/null /dev/zero /dev/urandom
+lsblk
+ls -l /dev/sd* /dev/vd* 2&gt;/dev/null</code></pre>
+<p>O <code translate="no">/sys/class/net</code> lista as placas de rede, e o <code translate="no">address</code> de cada uma é o MAC, o mesmo que aparece no hardware da VM no Proxmox. No <code translate="no">/dev</code>, o <code translate="no">/dev/null</code> é <code translate="no">crw-rw-rw-</code>: um dispositivo de caractere, aberto para todos, e no lugar do tamanho aparecem dois números (<code translate="no">1, 3</code>). Os discos aparecem como <code translate="no">brw-rw---- root disk</code>: dispositivo de bloco, só para o root e o grupo <code translate="no">disk</code>. Quem estiver no grupo <code translate="no">disk</code> lê o disco inteiro, por baixo de qualquer permissão de arquivo. É um dos grupos que nunca se dá a uma pessoa comum.</p>
+<h3 id="passo-7-o-desafio-do-modulo-a-srv-equipe-de-verdade">Passo 7 · O desafio do módulo: a <code translate="no">/srv/equipe</code> de verdade</h3>
+<p>O pedido, desde a Aula 2.6: <strong>a Ana e o Bruno criam e editam arquivos na <code translate="no">/srv/equipe</code>, e nenhum dos dois apaga o arquivo do outro</strong>, nas duas VMs. Na rocky-lab, o estado agora:</p>
+<pre translate="no"><code class="lang-bash">sudo find /srv/equipe -maxdepth 1 -printf '%M %m %u:%g %p\n'
+sudo -u ana bash -c 'echo "editado pela Ana" &gt;&gt; /srv/equipe/notas-bruno.txt'
+sudo -u bruno rm -fv /srv/equipe/planilha.csv
+sudo ls /srv/equipe</code></pre>
+<p>Atenção ao terceiro comando: ele <strong>apaga</strong> a planilha, se puder. Você tem o snapshot <code translate="no">m2a8-inicio</code>, e a planilha tem duas linhas que você recria em segundos. A Ana não consegue editar o <code translate="no">notas-bruno.txt</code> (<code translate="no">Permission denied</code>), e o Bruno consegue apagar a planilha da Ana. São os dois defeitos do pedido. Recrie a planilha:</p>
+<pre translate="no"><code class="lang-bash">printf 'jan;100\nfev;200\n' | sudo -u ana tee /srv/equipe/planilha.csv &gt;/dev/null
+sudo chgrp equipe /srv/equipe/planilha.csv
+sudo chmod 664 /srv/equipe/planilha.csv</code></pre>
+<p><strong>Decida 6 · Qual sequência entrega o pedido inteiro?</strong></p>
+<ul><li><strong>A)</strong> <code translate="no">sudo chmod -R 777 /srv/equipe</code></li>
+<li><strong>B)</strong> <code translate="no">sudo chmod 3770 /srv/equipe</code></li>
+<li><strong>C)</strong> <code translate="no">sudo chgrp -R equipe /srv/equipe</code>, <code translate="no">sudo find /srv/equipe -type f -exec chmod g+w {} +</code> e <code translate="no">sudo chmod 3770 /srv/equipe</code></li>
+<li><strong>D)</strong> <code translate="no">sudo chmod 2770 /srv/equipe</code> e <code translate="no">sudo chgrp -R equipe /srv/equipe</code></li></ul>
+<p>Escolha a letra antes de olhar a tabela.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se você marcou</th><th scope="col">Resultado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>A</td><td>❌ Errada</td><td>A Ana edita o <code translate="no">notas-bruno.txt</code>, e qualquer conta da máquina passa a ler, alterar e apagar tudo, inclusive o arquivo do outro. Quebra as duas metades do pedido e cria um problema novo.</td></tr><tr><td>B</td><td>⚠️ Funciona, mas</td><td>Os arquivos novos nascem do grupo e ninguém apaga o do outro. Mas o <code translate="no">notas-bruno.txt</code>, que já existia, continua <code translate="no">bruno:bruno</code>: a Ana ainda não edita. É a lição do Passo 3.</td></tr><tr><td>C</td><td>✅ Certa</td><td>Os três problemas, um comando para cada: o grupo dos arquivos que já existem, o <code translate="no">w</code> do grupo neles, e a pasta com setgid (arquivos novos do grupo) e sticky (ninguém apaga o do outro).</td></tr><tr><td>D</td><td>❌ Errada</td><td>Acerta o grupo de tudo e dos arquivos novos, mas não dá <code translate="no">w</code> ao grupo onde ele falta: se o <code translate="no">notas-bruno.txt</code> nasceu <code translate="no">644</code>, a Ana continua sem editar. E, sem o sticky, o Bruno continua apagando a planilha da Ana.</td></tr></tbody></table></div>
+<p><strong>Para fixar:</strong> uma pasta de equipe é <code translate="no">chgrp</code> e <code translate="no">g+w</code> no que existe, e <code translate="no">2770</code> ou <code translate="no">3770</code> na pasta. O sticky entra quando o pedido diz "ninguém apaga o do outro".</p>
+<p>Aplique na rocky-lab e confira:</p>
+<pre translate="no"><code class="lang-bash">sudo chgrp -R equipe /srv/equipe
+sudo find /srv/equipe -type f -exec chmod g+w {} +
+sudo chmod 3770 /srv/equipe
+sudo find /srv/equipe -maxdepth 1 -printf '%M %m %u:%g %p\n'</code></pre>
+<pre translate="no"><code class="lang-text">drwxrws--T 3770 root:equipe /srv/equipe
+-rw-rw-r-- 664 bruno:equipe /srv/equipe/notas-bruno.txt
+-rw-rw-r-- 664 ana:equipe /srv/equipe/planilha.csv</code></pre>
+<p>Agora o teste que um auditor faria, os seis casos do pedido:</p>
+<pre translate="no"><code class="lang-bash">sudo -u ana   bash -c 'umask 002; echo "pauta" &gt; /srv/equipe/reuniao-ana.txt'
+sudo -u bruno bash -c 'echo "mar;300" &gt;&gt; /srv/equipe/planilha.csv'
+sudo -u ana   bash -c 'echo "visto pela Ana" &gt;&gt; /srv/equipe/notas-bruno.txt'
+sudo -u bruno rm -f /srv/equipe/reuniao-ana.txt
+sudo -u ana   rm -f /srv/equipe/notas-bruno.txt
+sudo -u ana   rm -f /srv/equipe/reuniao-ana.txt
+sudo find /srv/equipe -maxdepth 1 -type f -printf '%M %u:%g %p\n'
+sudo cat /srv/equipe/planilha.csv</code></pre>
+<p>O esperado, linha a linha: a Ana cria; o Bruno edita a planilha da Ana; a Ana edita as notas do Bruno; o Bruno <strong>não</strong> apaga o arquivo da Ana (<code translate="no">Operation not permitted</code>); a Ana <strong>não</strong> apaga o do Bruno; a Ana apaga o próprio arquivo. No fim, a planilha tem três linhas. Se o Passo 0 mostrou <code translate="no">protected_regular = 2</code>, as duas edições com <code translate="no">&gt;&gt;</code> no arquivo do outro falham, porque o kernel trata a pasta de equipe com sticky como o <code translate="no">/tmp</code>. Com o valor padrão, <code translate="no">1</code>, elas funcionam.</p>
+<p>Repita na debian-lab. Lá não existe o <code translate="no">notas-bruno.txt</code>, e os comandos são os mesmos: entre com <code translate="no">ssh deb</code> e rode o bloco de aplicação e o bloco de teste. No fim, compare as duas VMs:</p>
+<pre translate="no"><code class="lang-bash">sudo stat -c '%A %a %U:%G' /srv/equipe
+ssh -t deb "sudo stat -c '%A %a %U:%G' /srv/equipe"</code></pre>
+<p>As duas linhas iguais, <code translate="no">drwxrws--T 3770 root:equipe</code>, fecham o desafio do Módulo 2.</p>
+<h2 id="7-quebre-e-conserte">7 · Quebre e conserte</h2>
+<h3 id="quebra-a-a-padronizacao-que-apagou-um-bit">Quebra A · A "padronização" que apagou um bit</h3>
+<p>O cenário: um colega rodou um script de "padronização de permissões" que deixa toda pasta compartilhada em <code translate="no">770</code>. Na rocky-lab, a Ana deixa um arquivo e o script passa:</p>
+<pre translate="no"><code class="lang-bash">sudo -u ana bash -c 'umask 002; echo "pauta de segunda" &gt; /srv/equipe/pauta-ana.txt'
+sudo chmod 770 /srv/equipe</code></pre>
+<p><strong>Observe.</strong> No dia seguinte, a Ana abre chamado: a pauta sumiu. O teste do Bruno:</p>
+<pre translate="no"><code class="lang-bash">sudo -u bruno rm -fv /srv/equipe/pauta-ana.txt</code></pre>
+<p>O <code translate="no">rm</code> responde <code translate="no">removed '/srv/equipe/pauta-ana.txt'</code>. Ontem, o mesmo comando dava <code translate="no">Operation not permitted</code>.</p>
+<p><strong>Diagnostique.</strong> O que mudou na pasta?</p>
+<pre translate="no"><code class="lang-bash">sudo stat -c '%A %a %U:%G %n' /srv/equipe</code></pre>
+<pre translate="no"><code class="lang-text">drwxrws--- 2770 root:equipe /srv/equipe</code></pre>
+<p>O <code translate="no">T</code> do fim sumiu, e o modo é <code translate="no">2770</code>, não <code translate="no">770</code> como o script pediu. Duas coisas a ler aí. O sticky foi desligado: com ele foi embora a proteção contra apagar. E o setgid sobreviveu, porque o <code translate="no">chmod</code> do GNU não desliga o setgid de uma pasta com um modo numérico de três dígitos (seção Intermediário). O <code translate="no">ls -l</code> não ajudaria muito aqui: a diferença é um <code translate="no">T</code> virando <code translate="no">-</code> no último caractere.</p>
+<p><strong>Decida A · O conserto.</strong> O que você roda?</p>
+<ul><li><strong>A)</strong> <code translate="no">sudo chmod +t /srv/equipe</code></li>
+<li><strong>B)</strong> <code translate="no">sudo chmod -R 3770 /srv/equipe</code></li>
+<li><strong>C)</strong> <code translate="no">sudo chmod 2750 /srv/equipe</code>, para o grupo não poder apagar</li>
+<li><strong>D)</strong> <code translate="no">sudo chattr +i /srv/equipe/*</code>, para ninguém apagar nada</li></ul>
+<p>Escolha a letra antes de olhar a tabela.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se você marcou</th><th scope="col">Resultado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>A</td><td>✅ Certa</td><td>Liga só o bit que sumiu. A pasta volta a <code translate="no">3770</code>, igual à debian-lab. Depois, conserte o script, ou a quebra volta na próxima execução.</td></tr><tr><td>B</td><td>❌ Errada</td><td>Conserta a pasta e estraga os arquivos: todos viram <code translate="no">-rwxrws--T</code>, executáveis, com setgid e sticky sem sentido em arquivo. Um <code translate="no">-R</code> para consertar uma pasta só, como na Quebra B da Aula 2.7.</td></tr><tr><td>C</td><td>❌ Errada</td><td>Sem <code translate="no">w</code> na pasta, o grupo não apaga, e também não cria nem renomeia nada. A Ana e o Bruno param de trabalhar.</td></tr><tr><td>D</td><td>⚠️ Funciona, mas</td><td>Ninguém apaga os arquivos que existem agora, nem o root sem antes tirar o atributo. Mas também ninguém os <strong>edita</strong>, e os arquivos novos nascem sem a proteção. Resolve o chamado e cria outros dois.</td></tr></tbody></table></div>
+<p><strong>Para fixar:</strong> quando uma proteção some depois de um <code translate="no">chmod</code> numérico, compare o modo de <strong>quatro</strong> dígitos, com <code translate="no">stat -c %a</code>. Um <code translate="no">chmod</code> de três dígitos pode desligar o sticky sem que ninguém perceba.</p>
+<p><strong>Conserte.</strong></p>
+<pre translate="no"><code class="lang-bash">sudo chmod +t /srv/equipe
+sudo stat -c '%A %a %n' /srv/equipe
+sudo -u ana bash -c 'umask 002; echo "pauta de segunda" &gt; /srv/equipe/pauta-ana.txt'
+sudo -u bruno rm -f /srv/equipe/pauta-ana.txt
+sudo -u ana rm -f /srv/equipe/pauta-ana.txt</code></pre>
+<p>O modo volta a <code translate="no">drwxrws--T 3770</code>. O Bruno leva <code translate="no">Operation not permitted</code>, e a Ana apaga o próprio arquivo. Em script de padronização, escreva os quatro dígitos (<code translate="no">3770</code>, e não <code translate="no">770</code>) e termine com um <code translate="no">stat -c '%a %n'</code> das pastas, para o log mostrar o que ficou de verdade.</p>
+<h3 id="quebra-b-o-deploy-que-apontou-para-o-nada">Quebra B · O deploy que apontou para o nada</h3>
+<p>O cenário: a publicação da v2 foi feita por outra pessoa, de outra pasta. Na rocky-lab:</p>
+<pre translate="no"><code class="lang-bash">cd /srv/lab28
+ln -sfn app/releases/v2 app/current</code></pre>
+<p><strong>Observe.</strong> O site, que lê <code translate="no">/srv/lab28/app/current/index.html</code>, fica fora do ar:</p>
+<pre translate="no"><code class="lang-bash">cat /srv/lab28/app/current/index.html
+ls -l /srv/lab28/app/current</code></pre>
+<pre translate="no"><code class="lang-text">cat: /srv/lab28/app/current/index.html: No such file or directory
+lrwxrwxrwx. 1 rodrigo rodrigo 15 ... /srv/lab28/app/current -&gt; app/releases/v2</code></pre>
+<p>A pasta <code translate="no">app/releases/v2</code> existe, você a vê com <code translate="no">ls</code>. E o link diz que aponta para ela.</p>
+<p><strong>Diagnostique.</strong> O link guarda um texto; a pergunta é a partir de onde esse texto é lido:</p>
+<pre translate="no"><code class="lang-bash">readlink /srv/lab28/app/current
+readlink -f /srv/lab28/app/current
+namei /srv/lab28/app/current/index.html</code></pre>
+<p>O <code translate="no">readlink</code> mostra o texto, <code translate="no">app/releases/v2</code>. O <code translate="no">readlink -f</code> resolve o caminho e mostra <code translate="no">/srv/lab28/app/app/releases/v2</code>: um <code translate="no">app</code> a mais. O <code translate="no">namei</code> mostra a corrente e para no <code translate="no">app</code> que não existe. Um link relativo é lido a partir da pasta <strong>onde o link está</strong>, <code translate="no">/srv/lab28/app</code>, e não da pasta em que estava quem o criou.</p>
+<p><strong>Decida B · O conserto.</strong> O que você roda?</p>
+<ul><li><strong>A)</strong> <code translate="no">ln -sfn releases/v2 /srv/lab28/app/current</code></li>
+<li><strong>B)</strong> <code translate="no">ln -sfn /srv/lab28/app/releases/v2 /srv/lab28/app/current</code></li>
+<li><strong>C)</strong> <code translate="no">mkdir -p /srv/lab28/app/app/releases/v2</code> e copiar a v2 para lá</li>
+<li><strong>D)</strong> <code translate="no">rm /srv/lab28/app/current</code> e <code translate="no">cp -r /srv/lab28/app/releases/v2 /srv/lab28/app/current</code></li></ul>
+<p>Escolha a letra antes de olhar a tabela.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se você marcou</th><th scope="col">Resultado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>A</td><td>✅ Certa</td><td>O texto do link passa a ser relativo à pasta do link, que é o que ele precisava ser. Funciona de qualquer pasta em que você estiver, e continua funcionando se a árvore <code translate="no">app</code> mudar de lugar.</td></tr><tr><td>B</td><td>⚠️ Funciona, mas</td><td>Um link absoluto não depende da pasta de quem criou, e o site volta. Mas, se a aplicação mudar de <code translate="no">/srv/lab28/app</code> para outro lugar, ou for copiada para outro servidor com outro caminho, todos os links quebram juntos.</td></tr><tr><td>C</td><td>❌ Errada</td><td>Faz o link quebrado encontrar alguma coisa, e agora existem duas cópias da v2 em lugares diferentes. A próxima publicação vai atualizar uma e o site vai ler a outra.</td></tr><tr><td>D</td><td>❌ Errada</td><td>Funciona até o próximo deploy, e acabou o "trocar o link". O <code translate="no">current</code> virou uma pasta comum, e o rollback de um segundo virou uma cópia.</td></tr></tbody></table></div>
+<p><strong>Para fixar:</strong> num link simbólico relativo, o caminho é contado a partir da pasta do <strong>link</strong>. Depois de criar um, confira com <code translate="no">readlink -f</code>.</p>
+<p><strong>Conserte.</strong></p>
+<pre translate="no"><code class="lang-bash">ln -sfn releases/v2 /srv/lab28/app/current
+readlink -f /srv/lab28/app/current
+cat /srv/lab28/app/current/index.html</code></pre>
+<p>O <code translate="no">readlink -f</code> mostra <code translate="no">/srv/lab28/app/releases/v2</code>, e o site volta: <code translate="no">versao 2</code>.</p>
+<h3 id="a-licao">A lição</h3>
+<p>As duas quebras têm a mesma raiz: <strong>o que você olhou não era o que o kernel usa</strong>. Na Quebra A, o <code translate="no">770</code> que o script pediu não era o modo que ficou, e o bit que importava ficou escondido no quarto dígito. Na Quebra B, o texto do link fazia sentido para quem o digitou e não para o kernel, que o lê a partir de outra pasta. O hábito desta aula: <strong>depois de mexer em bits especiais ou em links, confira com a ferramenta que mostra o que o kernel vê</strong>: <code translate="no">stat -c %a</code> para os quatro dígitos, <code translate="no">readlink -f</code> e <code translate="no">namei</code> para os links.</p>
+<h2 id="8-armadilhas">8 · Armadilhas</h2>
+<div class="tabela"><table><thead><tr><th scope="col">Você digita ou vê</th><th scope="col">O que acontece</th><th scope="col">O certo</th></tr></thead><tbody><tr><td><code translate="no">chmod g+s</code> numa pasta e para por aí</td><td>Os arquivos que já existiam continuam com o grupo antigo</td><td><code translate="no">chgrp -R</code> e <code translate="no">chmod -R g+rwX</code> no que existe, <code translate="no">g+s</code> em cada pasta</td></tr><tr><td>Pasta com setgid e a Ana ainda não edita o arquivo do Bruno</td><td>O grupo veio certo, mas o <code translate="no">umask 022</code> tirou o <code translate="no">w</code> do grupo</td><td><code translate="no">umask 002</code> para quem trabalha na pasta, ou ACL padrão (Aula 8.5)</td></tr><tr><td><code translate="no">chmod 770</code> num script de padronização</td><td>Desliga o sticky, e o setgid continua: o resultado é <code translate="no">2770</code>, e ninguém nota</td><td>Os quatro dígitos (<code translate="no">3770</code>), e conferir com <code translate="no">stat -c %a</code></td></tr><tr><td><code translate="no">chmod -R 3770 pasta</code></td><td>Todos os arquivos viram executáveis, com setgid e sticky</td><td>Bits especiais só nas pastas: <code translate="no">find pasta -type d -exec chmod g+s {} +</code></td></tr><tr><td><code translate="no">chmod u+s script.sh</code></td><td>O <code translate="no">ls</code> mostra <code translate="no">rws</code>, e o script roda como quem chamou</td><td>Regra no <code translate="no">sudoers</code> para o script</td></tr><tr><td><code translate="no">chmod u+s</code> numa cópia do <code translate="no">bash</code> ou de um editor</td><td>Um shell ou editor de root para qualquer conta da máquina</td><td>Nunca. Se você achar um, é incidente de segurança</td></tr><tr><td><code translate="no">S</code> maiúsculo num executável (<code translate="no">-rwSr--r--</code>)</td><td>Setuid sem <code translate="no">x</code> para o dono: o bit não faz nada</td><td><code translate="no">chmod u+x</code>, ou tirar o setuid se ele não devia estar lá</td></tr><tr><td><code translate="no">rm</code> dá <code translate="no">Operation not permitted</code> com <code translate="no">w</code> na pasta</td><td>É o sticky bit, não as trincas</td><td>Pedir ao dono do arquivo, ao dono da pasta ou ao root</td></tr><tr><td><code translate="no">ln -s releases/v2 current</code> com <code translate="no">current</code> já apontando para uma pasta</td><td>Cria o link novo <strong>dentro</strong> da pasta antiga; o site não muda</td><td><code translate="no">ln -sfn releases/v2 current</code></td></tr><tr><td><code translate="no">ln -s app/v2 app/current</code>, pensando na pasta onde você está</td><td>O link procura <code translate="no">app/app/v2</code> e fica quebrado</td><td>Caminho relativo à pasta do link, conferido com <code translate="no">readlink -f</code></td></tr><tr><td>Apagar o original e esperar que o link simbólico guarde o conteúdo</td><td>O link fica quebrado</td><td>Link físico, se for no mesmo sistema de arquivos e não for pasta; ou cópia</td></tr><tr><td><code translate="no">ln</code> para uma pasta ou para outro disco</td><td><code translate="no">hard link not allowed for directory</code> ou <code translate="no">Invalid cross-device link</code></td><td><code translate="no">ln -s</code></td></tr><tr><td><code translate="no">chmod 777</code> num link simbólico, esperando abrir o link</td><td>O <code translate="no">chmod</code> segue o link e muda o <strong>destino</strong></td><td>Mexa no destino de propósito; o modo do link nunca importa</td></tr><tr><td>Guardar algo que precisa durar em <code translate="no">/tmp</code></td><td>Some no reboot ou na limpeza por idade</td><td><code translate="no">/var/tmp</code> para temporários longos; uma pasta própria para o resto</td></tr><tr><td>Disco cheio e o <code translate="no">du</code> não acha o arquivo</td><td>Arquivo apagado ainda aberto por um processo</td><td><code translate="no">find /proc/*/fd -lname '*(deleted)'</code> e reiniciar o serviço que o segura</td></tr></tbody></table></div>
+<h2 id="9-quiz">9 · Quiz</h2>
+<p>Dez perguntas, sem consultar. Escreva a letra ou a resposta de cada uma e só depois abra o Gabarito.</p>
+<p><strong>1.</strong> Escreva em octal, com quatro dígitos: <code translate="no">drwxrws--T</code>, <code translate="no">-rwsr-xr-x</code>, <code translate="no">drwxrwxrwt</code> e <code translate="no">-rwxr-sr-x</code>.</p>
+<p><strong>2.</strong> O <code translate="no">ls -l</code> mostra <code translate="no">-rwSr--r-- root root programa</code>. O que isso quer dizer?</p>
+<ul><li><strong>A)</strong> O setuid está ligado e funciona normalmente</li>
+<li><strong>B)</strong> O setuid está ligado, mas o dono não tem <code translate="no">x</code>: o bit não tem efeito</li>
+<li><strong>C)</strong> O arquivo é um socket</li>
+<li><strong>D)</strong> O sticky está ligado no dono</li></ul>
+<p><strong>3.</strong> Numa pasta com sticky bit e <code translate="no">w</code> para o grupo, quem pode apagar um arquivo do Bruno?</p>
+<p><strong>4.</strong> Qual comando lista todos os arquivos com setuid do sistema, sejam quais forem as outras permissões?</p>
+<ul><li><strong>A)</strong> <code translate="no">find / -perm -4000 -type f</code></li>
+<li><strong>B)</strong> <code translate="no">find / -perm 4000 -type f</code></li>
+<li><strong>C)</strong> <code translate="no">find / -type s</code></li>
+<li><strong>D)</strong> <code translate="no">ls -lR / | grep rws</code></li></ul>
+<p><strong>5.</strong> A pasta é <code translate="no">drwxrws--- root:equipe</code>. O Bruno, com <code translate="no">umask 022</code>, cria um arquivo nela. Com que modo, dono e grupo ele nasce?</p>
+<p><strong>6.</strong> Um arquivo tem contador de links <code translate="no">3</code>. Você apaga um dos nomes. O que acontece com os dados, e qual é o contador agora?</p>
+<p><strong>7.</strong> Você está em <code translate="no">/srv</code> e roda <code translate="no">ln -s app/v2 app/current</code>. Que caminho o link <code translate="no">/srv/app/current</code> vai procurar?</p>
+<p><strong>8.</strong> O que um link simbólico faz e um link físico não faz?</p>
+<ul><li><strong>A)</strong> Aponta para uma pasta, ou para um arquivo em outro sistema de arquivos</li>
+<li><strong>B)</strong> Mantém os dados quando o original é apagado</li>
+<li><strong>C)</strong> Tem as mesmas permissões e o mesmo inode do original</li>
+<li><strong>D)</strong> Ocupa o mesmo espaço em disco que o original</li></ul>
+<p><strong>9.</strong> Sem nenhum programa além de <code translate="no">cat</code> e <code translate="no">grep</code>, como você descobre quanta memória a máquina tem e quantos processadores ela vê?</p>
+<p><strong>10.</strong> <em>You need to configure <code translate="no">/shared</code> so that every new file created in it is automatically owned by the group <code translate="no">team</code>. The directory is already owned by group <code translate="no">team</code>. Which command achieves this?</em></p>
+<ul><li><strong>A)</strong> <em><code translate="no">chmod g+s /shared</code></em></li>
+<li><strong>B)</strong> <em><code translate="no">chmod u+s /shared</code></em></li>
+<li><strong>C)</strong> <em><code translate="no">chmod +t /shared</code></em></li>
+<li><strong>D)</strong> <em><code translate="no">chown -R :team /shared</code></em></li></ul>
+<h2 id="10-flashcards-e-cola">10 · Flashcards e cola</h2>
+<h3 id="para-saber-de-cor">Para saber de cor</h3>
+<ul><li>O modo tem quatro dígitos. O primeiro soma setuid (<code translate="no">4</code>), setgid (<code translate="no">2</code>) e sticky (<code translate="no">1</code>).</li>
+<li>Os bits especiais aparecem no lugar do <code translate="no">x</code>: setuid no dono, setgid no grupo, sticky nos outros. Minúscula: com <code translate="no">x</code>. Maiúscula: sem <code translate="no">x</code>.</li>
+<li>Sticky numa pasta: só o dono do arquivo, o dono da pasta e o root apagam ou renomeiam. É o <code translate="no">t</code> do <code translate="no">/tmp</code>.</li>
+<li>Setgid numa pasta: arquivo novo herda o grupo da pasta, e subpasta nova herda o grupo e o setgid. Não conserta o que já existia.</li>
+<li>O setgid dá o grupo; o <code translate="no">w</code> do grupo vem do <code translate="no">umask</code> de quem cria.</li>
+<li>Setuid num programa: roda com o UID do dono do arquivo. Em script, é ignorado: a ferramenta é o <code translate="no">sudoers</code>.</li>
+<li>Pasta de equipe: <code translate="no">chgrp</code> e <code translate="no">g+w</code> no que existe, <code translate="no">2770</code> na pasta, <code translate="no">3770</code> se ninguém pode apagar o do outro.</li>
+<li>Link físico: outro nome para o mesmo inode. Não vale para pastas nem entre sistemas de arquivos.</li>
+<li>Link simbólico: um arquivo que guarda um caminho, lido a partir da pasta onde o link está. Quebra se o destino some.</li>
+<li><code translate="no">rm</code> apaga um nome. Os dados somem com o último nome e o último processo que os mantém abertos.</li>
+<li>Link para pasta se troca com <code translate="no">ln -sfn</code>.</li>
+<li><code translate="no">/proc</code> é o kernel falando de processos e do sistema; <code translate="no">/sys</code>, de hardware e drivers; <code translate="no">/dev</code>, os dispositivos.</li></ul>
+<h3 id="para-consultar">Para consultar</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Pergunta</th><th scope="col">Comando</th></tr></thead><tbody><tr><td>Os quatro dígitos do modo</td><td><code translate="no">stat -c '%A %a %U:%G %n' caminho</code></td></tr><tr><td>Ligar e desligar o sticky</td><td><code translate="no">chmod +t pasta</code>; <code translate="no">chmod -t pasta</code></td></tr><tr><td>Ligar e desligar o setgid</td><td><code translate="no">chmod g+s pasta</code>; <code translate="no">chmod g-s pasta</code></td></tr><tr><td>Ligar e desligar o setuid</td><td><code translate="no">chmod u+s programa</code>; <code translate="no">chmod u-s programa</code></td></tr><tr><td>Pasta de equipe, de uma vez</td><td><code translate="no">sudo install -d -m 3770 -o root -g equipe /srv/pasta</code></td></tr><tr><td>Converter uma pasta antiga em pasta de equipe</td><td><code translate="no">sudo chgrp -R equipe P</code>; <code translate="no">sudo chmod -R g+rwX P</code>; <code translate="no">sudo find P -type d -exec chmod g+s {} +</code></td></tr><tr><td>Programas com setuid ou setgid</td><td><code translate="no">sudo find / -xdev -type f -perm /6000 -printf '%M %u:%g %p\n'</code></td></tr><tr><td>Só setuid</td><td><code translate="no">sudo find / -xdev -type f -perm -4000</code></td></tr><tr><td>Pastas graváveis por todos sem sticky</td><td><code translate="no">sudo find / -xdev -type d -perm -0002 ! -perm -1000</code></td></tr><tr><td>Programas com capabilities</td><td><code translate="no">getcap -r /usr/bin /usr/sbin 2&gt;/dev/null</code></td></tr><tr><td>Criar link físico e simbólico</td><td><code translate="no">ln alvo nome</code>; <code translate="no">ln -s alvo nome</code></td></tr><tr><td>Inode e contador de links</td><td><code translate="no">ls -li</code>; <code translate="no">stat -c '%i %h %n' arquivo</code></td></tr><tr><td>Todos os nomes de um inode</td><td><code translate="no">find /ponto-de-montagem -xdev -inum NÚMERO</code></td></tr><tr><td>O texto e o destino real de um link</td><td><code translate="no">readlink link</code>; <code translate="no">readlink -f link</code></td></tr><tr><td>Trocar um link que aponta para pasta</td><td><code translate="no">ln -sfn alvo-novo link</code></td></tr><tr><td>Links quebrados numa árvore</td><td><code translate="no">find pasta -xtype l</code></td></tr><tr><td>O que é cada pasta especial</td><td><code translate="no">findmnt -n -o TARGET,FSTYPE /proc /sys /dev /tmp</code></td></tr><tr><td>Memória, CPUs, carga</td><td><code translate="no">grep Mem /proc/meminfo</code>; <code translate="no">grep -c ^processor /proc/cpuinfo</code>; <code translate="no">cat /proc/loadavg</code></td></tr><tr><td>Arquivos abertos de um processo</td><td><code translate="no">ls -l /proc/PID/fd</code></td></tr><tr><td>Arquivos apagados ainda abertos</td><td><code translate="no">sudo find /proc/[0-9]*/fd -lname '*(deleted)' -printf '%p -&gt; %l\n' 2&gt;/dev/null</code></td></tr><tr><td>As proteções do kernel</td><td><code translate="no">sysctl fs.protected_symlinks fs.protected_hardlinks fs.protected_regular</code></td></tr></tbody></table></div>
+<h3 id="flashcards">Flashcards</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Frente</th><th scope="col">Verso</th></tr></thead><tbody><tr><td><code translate="no">drwxrwxrwt</code> em octal</td><td><code translate="no">1777</code></td></tr><tr><td><code translate="no">drwxrws--T</code> em octal</td><td><code translate="no">3770</code></td></tr><tr><td><code translate="no">-rwsr-xr-x</code> em octal</td><td><code translate="no">4755</code></td></tr><tr><td><code translate="no">-rwxr-sr-x</code> em octal</td><td><code translate="no">2755</code></td></tr><tr><td><code translate="no">s</code> minúsculo</td><td>Bit especial ligado, com <code translate="no">x</code></td></tr><tr><td><code translate="no">S</code> ou <code translate="no">T</code> maiúsculo</td><td>Bit especial ligado, sem <code translate="no">x</code></td></tr><tr><td>Sticky numa pasta</td><td>Só o dono do arquivo, o dono da pasta e o root apagam ou renomeiam</td></tr><tr><td>Setgid numa pasta</td><td>Arquivo novo nasce com o grupo da pasta; subpasta nova herda o setgid</td></tr><tr><td>Setuid num executável</td><td>Roda com o UID do dono do arquivo (<code translate="no">euid</code>)</td></tr><tr><td>Setuid num script</td><td>Ignorado</td></tr><tr><td><code translate="no">passwd</code> com <code translate="no">-rwsr-xr-x root</code></td><td>Grava no <code translate="no">/etc/shadow</code> em nome de quem chamou</td></tr><tr><td><code translate="no">Operation not permitted</code> ao apagar, com <code translate="no">w</code> na pasta</td><td>Sticky bit</td></tr><tr><td><code translate="no">chmod 770</code> numa pasta <code translate="no">3770</code> (GNU)</td><td>Fica <code translate="no">2770</code>: o setgid sobrevive, o sticky some</td></tr><tr><td><code translate="no">find -perm -4000</code></td><td>Arquivos com o setuid ligado, sejam quais forem os outros bits</td></tr><tr><td>Link físico</td><td>Outro nome para o mesmo inode; contador de links sobe</td></tr><tr><td>Link simbólico</td><td>Arquivo <code translate="no">l</code> que guarda um caminho</td></tr><tr><td>Apagaram o original</td><td>Físico: dados continuam. Simbólico: link quebrado</td></tr><tr><td>Link físico para pasta</td><td><code translate="no">hard link not allowed for directory</code></td></tr><tr><td>Link físico para outro disco</td><td><code translate="no">Invalid cross-device link</code></td></tr><tr><td><code translate="no">ln -s releases/v2 current</code>, com <code translate="no">current</code> apontando para pasta</td><td>Cria <code translate="no">v2</code> dentro da pasta antiga</td></tr><tr><td>Caminho relativo num link simbólico</td><td>Contado a partir da pasta do link</td></tr><tr><td><code translate="no">ls -l /proc/meminfo</code> mostra <code translate="no">0</code></td><td>O conteúdo é gerado na leitura</td></tr><tr><td><code translate="no">b</code> e <code translate="no">c</code> no início do modo</td><td>Dispositivo de bloco (disco) e de caractere (terminal, <code translate="no">/dev/null</code>)</td></tr><tr><td><code translate="no">/tmp</code> ou <code translate="no">/var/tmp</code> para o que precisa sobreviver ao reboot</td><td><code translate="no">/var/tmp</code></td></tr><tr><td>Grupo <code translate="no">disk</code></td><td>Lê os discos inteiros por baixo das permissões. Nunca para uma pessoa comum</td></tr></tbody></table></div>
+<h2 id="11-checklist-de-saida">11 · Checklist de saída</h2>
+<ul><li>[ ] Leio <code translate="no">s</code>, <code translate="no">S</code>, <code translate="no">t</code> e <code translate="no">T</code> num <code translate="no">ls -l</code> e digo qual bit é e se ele tem efeito.</li>
+<li>[ ] Converto modos de quatro dígitos entre letras e octal, nos dois sentidos.</li>
+<li>[ ] Explico, com o <code translate="no">/tmp</code>, por que o Bruno não apaga o arquivo da Ana, mesmo <code translate="no">666</code>.</li>
+<li>[ ] Mostro na VM o <code translate="no">euid=0</code> de um programa com setuid, e explico por que um script com o mesmo bit não muda nada.</li>
+<li>[ ] Acho os programas com setuid de um servidor e reconheço os que deveriam estar lá.</li>
+<li>[ ] Monto uma pasta de equipe em que os arquivos novos são do grupo e ninguém apaga o arquivo do outro, e converto uma pasta antiga sem <code translate="no">-R</code> nos bits especiais.</li>
+<li>[ ] Crio links físicos e simbólicos, prevejo o que acontece quando o original some, e conserto um link relativo quebrado.</li>
+<li>[ ] Troco o link de um deploy com <code translate="no">ln -sfn</code> e explico o que o <code translate="no">-n</code> evita.</li>
+<li>[ ] Leio memória, CPUs, carga e os arquivos abertos de um processo direto do <code translate="no">/proc</code>.</li></ul>
+<p><strong>Último exercício, sem olhar.</strong> Tudo na debian-lab, a partir da rocky-lab pelo <code translate="no">deb</code>, ou direto num terminal da debian-lab. Sem abrir esta aula:</p>
+<ol><li>Crie <code translate="no">/srv/lab28/entrega</code>, do root e do grupo <code translate="no">equipe</code>, onde o grupo cria e edita, ninguém mais entra, todo arquivo novo nasce do grupo <code translate="no">equipe</code> e ninguém apaga o arquivo do outro. Um comando só.</li>
+<li>Prove os quatro comportamentos: a Ana cria, o Bruno edita o arquivo da Ana, o Bruno <strong>não</strong> apaga o arquivo da Ana, e o arquivo nasceu do grupo <code translate="no">equipe</code>.</li>
+<li>Em <code translate="no">/srv/lab28/rel</code>, crie <code translate="no">releases/2026-11-01</code> e <code translate="no">releases/2026-11-03</code>, cada uma com um <code translate="no">index.html</code> diferente, e um link <code translate="no">atual</code> relativo para a primeira. Troque para a segunda e volte, sem nunca ficar sem link e sem criar link dentro de pasta. Prove com <code translate="no">readlink -f</code>.</li>
+<li>Crie um arquivo, dois links físicos e um simbólico para ele. Apague o nome original e diga, <strong>antes</strong> de rodar <code translate="no">ls -li</code>, o contador de links de cada nome e quais funcionam.</li>
+<li>Liste os programas com setuid de root da debian-lab e explique, em uma frase cada, por que três deles precisam do bit.</li></ol>
+<p>Só abra o Gabarito depois disso, ou depois de três tentativas.</p>
+<p><strong>Snapshots de fechamento.</strong> É o fim do Módulo 2, então o estado vale para os próximos módulos. Ficam nas duas VMs: a <code translate="no">/srv/equipe</code> em <code translate="no">drwxrws--T 3770 root:equipe</code>, com a <code translate="no">planilha.csv</code> (<code translate="no">ana:equipe</code>, <code translate="no">664</code>); na rocky-lab, também o <code translate="no">notas-bruno.txt</code> em <code translate="no">bruno:equipe</code>, <code translate="no">664</code>. A <code translate="no">/srv/lab28</code> pode ficar: ela não tem programa com setuid, porque você apagou o <code translate="no">id-suid</code> e o <code translate="no">quem.sh</code> no Passo 2. Confira, inclusive que não sobrou setuid nenhum fora do sistema:</p>
+<pre translate="no"><code class="lang-bash">sudo find /srv/equipe -maxdepth 1 -printf '%M %m %u:%g %p\n'
+ssh -t deb "sudo find /srv/equipe -maxdepth 1 -printf '%M %m %u:%g %p\n'"
+sudo find /srv -perm /6000 -type f</code></pre>
+<p>O último comando não pode mostrar nada. No nó Proxmox:</p>
+<pre translate="no"><code class="lang-bash">qm snapshot 201 m2a8-fim
+qm snapshot 202 m2a8-fim</code></pre>
+<h2 id="12-na-vida-real">12 · Na vida real</h2>
+<p><strong>Missão da semana, só leitura.</strong> Os mesmos três servidores reais da semana passada, ou outros três. Em cada um, sem mudar nada:</p>
+<ol><li><code translate="no">sudo find / -xdev -type f -perm /6000 -printf '%M %u:%g %p\n' 2&gt;/dev/null</code>: a lista de programas com setuid ou setgid. Compare com uma instalação limpa da mesma distribuição (as suas VMs servem). Tudo o que estiver fora de <code translate="no">/usr/bin</code>, <code translate="no">/usr/sbin</code>, <code translate="no">/usr/lib</code> e <code translate="no">/usr/libexec</code> é suspeito até prova em contrário. Uma cópia de <code translate="no">bash</code>, <code translate="no">python</code>, <code translate="no">find</code>, <code translate="no">vim</code> ou <code translate="no">less</code> com setuid é incidente.</li>
+<li>Para os que estiverem fora do padrão: <code translate="no">rpm -qf CAMINHO</code> (Rocky) ou <code translate="no">dpkg -S CAMINHO</code> (Debian). Programa que não pertence a pacote nenhum e tem setuid de root precisa de um dono e de uma explicação.</li>
+<li><code translate="no">sudo find / -xdev -type d -perm -0002 ! -perm -1000 2&gt;/dev/null</code>: pastas graváveis por todos sem sticky. Na Aula 2.7 você só contou; agora você sabe o conserto.</li>
+<li>As pastas compartilhadas da equipe: <code translate="no">stat -c '%A %a %U:%G %n'</code> em cada uma. Têm setgid? Têm sticky? Algum arquivo dentro com o grupo errado (<code translate="no">sudo find PASTA ! -group GRUPO | head</code>)? É o "arquivo que a outra pessoa não consegue editar" esperando para virar chamado.</li>
+<li><code translate="no">findmnt -n -o TARGET,FSTYPE,OPTIONS /tmp /var/tmp /dev/shm</code>: o <code translate="no">/tmp</code> é <code translate="no">tmpfs</code> ou disco? Tem <code translate="no">nosuid</code> e <code translate="no">nodev</code>? E <code translate="no">ls -ld /tmp /var/tmp</code>: os dois com <code translate="no">t</code>?</li>
+<li>Os links: <code translate="no">ls -l /etc/localtime</code>, e, nos servidores de aplicação, procure pastas <code translate="no">current</code> ou <code translate="no">releases</code> (<code translate="no">sudo find /srv /var/www /opt -maxdepth 3 -type l -printf '%p -&gt; %l\n' 2&gt;/dev/null</code>). Os links são relativos ou absolutos? Algum quebrado (<code translate="no">sudo find /srv /var/www /opt -xtype l 2&gt;/dev/null</code>)?</li>
+<li><code translate="no">sudo find /proc/[0-9]*/fd -lname '*(deleted)' 2&gt;/dev/null | wc -l</code>: quantos arquivos apagados ainda estão abertos? Algum grande, de log ou de backup, ocupando disco sem aparecer no <code translate="no">du</code>?</li></ol>
+<p><strong>Para o diário.</strong> Uma linha por servidor: <code translate="no">nome · programas setuid/setgid fora do padrão · sem pacote · pastas o+w sem sticky · pastas da equipe sem setgid ou com grupo errado · /tmp tmpfs ou disco, com ou sem nosuid · links quebrados · arquivos apagados abertos</code>. Ao lado de cada achado, o comando que você <strong>rodaria</strong> para corrigir, e quem precisaria saber antes. Não corrija nada nesta semana: a missão é ver.</p>
+<p><strong>Desafio da semana.</strong> Escreva o procedimento de "pasta compartilhada nova" da sua equipe, em até dez linhas: o grupo, quem entra nele e como, o comando que cria a pasta com dono, grupo e modo de quatro dígitos, o <code translate="no">umask</code> de quem vai usar, e o teste de quatro linhas que prova que funciona (cria, edita o do outro, não apaga o do outro, grupo certo). Na próxima vez que alguém pedir uma pasta compartilhada, use o procedimento em vez de improvisar.</p>
+<p><strong>Amanhã, sem olhar.</strong> Antes de abrir o terminal, responda de cabeça: quanto é <code translate="no">drwxrws--T</code> em octal? O que o sticky faz numa pasta, e o que o setgid faz? Por que o setuid num script não funciona, e o que usar no lugar? O que acontece com um link físico e com um simbólico quando o original é apagado? Por que <code translate="no">ln -sfn</code> e não <code translate="no">ln -sf</code>? Depois, numa das VMs, rode <code translate="no">stat -c '%A %a %U:%G %n' /tmp /srv/equipe /usr/bin/passwd /etc/localtime</code> e explique cada linha em voz alta.</p>
+<h2 id="13-com-o-deeptutor">13 · Com o DeepTutor</h2>
+<p>Use o DeepTutor da sua rede local depois do lab, não no lugar dele. Os comandos começam com <code translate="no">!</code>:</p>
+<ul><li><code translate="no">!quiz Aula 2.8</code>: dez perguntas novas sobre sticky, setuid, setgid, links e <code translate="no">/proc</code>.</li>
+<li><code translate="no">!explica setgid numa pasta</code>: o que muda num arquivo novo, o que não muda, e por que o <code translate="no">umask</code> ainda importa.</li>
+<li><code translate="no">!feynman sticky bit</code>: você explica por que o Bruno não apaga o arquivo da Ana no <code translate="no">/tmp</code>, e ele aponta onde ficou vago.</li>
+<li><code translate="no">!quebra pasta compartilhada</code>: ele descreve um chamado ("não consigo editar", "sumiu o meu arquivo") e te entrega as saídas de <code translate="no">stat</code>, <code translate="no">id</code> e <code translate="no">ls -l</code>, uma por vez, até você achar o bit ou o grupo errado.</li>
+<li><code translate="no">!simulado RHCSA links e set-GID</code>: tarefas no estilo da prova, com nomes, destinos, grupo e modo exatos, e o que o script de correção conferiria.</li>
+<li><code translate="no">!cartoes Aula 2.8</code>: os flashcards da seção 10, em ordem de revisão.</li>
+<li><code translate="no">!erro</code>: cole a mensagem de um <code translate="no">rm</code>, <code translate="no">ln</code>, <code translate="no">chmod</code> ou de um acesso que falhou, e ele diz a causa provável e o que olhar.</li>
+<li><code translate="no">!revisao Módulo 2</code>: o que rever das oito aulas do módulo, pelo que você errou até agora, antes de começar o Módulo 3.</li></ul>
+<h2 id="gabarito-comentado">Gabarito comentado</h2>
+<h3 id="aquecimento">Aquecimento</h3>
+<ol><li>Não. O <code translate="no">t</code> no fim de <code translate="no">drwxrwxrwt</code> é o sticky bit: numa pasta com ele, só o dono do arquivo, o dono da pasta e o root apagam ou renomeiam. O <code translate="no">666</code> do arquivo deixa o Bruno escrever no conteúdo, se as proteções do kernel deixarem, mas não apagar. É o Passo 1.</li>
+<li>Pelo <code translate="no">s</code> no lugar do <code translate="no">x</code> do dono: o setuid. O <code translate="no">passwd</code> é do root, então roda com o UID efetivo do root, seja quem for que o chamou, e consegue gravar no <code translate="no">/etc/shadow</code>. Quem garante que a Ana só troque a senha dela é o próprio <code translate="no">passwd</code>. É o Passo 2.</li>
+<li>Depende do tipo de link. Com um link físico (<code translate="no">ln</code>), sim: o link é outro nome para os mesmos dados, e apagar um nome não apaga os dados. Com um link simbólico (<code translate="no">ln -s</code>), não: o link guarda o caminho <code translate="no">relatorio.txt</code>, que deixou de existir, e fica quebrado. É o Passo 4.</li></ol>
+<h3 id="quiz">Quiz</h3>
+<ol><li><code translate="no">3770</code>, <code translate="no">4755</code>, <code translate="no">1777</code> e <code translate="no">2755</code>. O primeiro dígito é a soma dos bits especiais: setgid e sticky dão <code translate="no">2 + 1 = 3</code>; setuid é <code translate="no">4</code>; sticky sozinho é <code translate="no">1</code>; setgid sozinho é <code translate="no">2</code>.</li>
+<li><strong>B.</strong> O <code translate="no">S</code> maiúsculo quer dizer "setuid ligado, sem <code translate="no">x</code> para o dono". Ninguém executa o programa pela trinca do dono, e o bit não tem efeito. O A ignora a diferença entre minúscula e maiúscula; o C confunde com o <code translate="no">s</code> do <strong>primeiro</strong> caractere, que marca um socket (<code translate="no">srwx...</code>); o D põe o sticky na trinca errada: ele aparece nos outros.</li>
+<li>O Bruno, que é o dono do arquivo; o dono da pasta; e o root. O <code translate="no">w</code> do grupo na pasta deixa todos criarem arquivos, mas, com o sticky, apagar e renomear passam a exigir ser dono.</li>
+<li><strong>A.</strong> O <code translate="no">-perm -4000</code> exige que o bit <code translate="no">4000</code> esteja ligado e não liga para o resto. O B, sem o <code translate="no">-</code>, procura o modo <strong>exatamente</strong> <code translate="no">4000</code>, com setuid e nenhuma outra permissão, e quase não acha nada. O C procura sockets. O D acha <code translate="no">rws</code> em qualquer trinca, inclusive o setgid, e perde os <code translate="no">rwS</code>.</li>
+<li><code translate="no">-rw-r--r--</code>, dono <code translate="no">bruno</code>, grupo <code translate="no">equipe</code>. O setgid da pasta dá o grupo; o <code translate="no">umask 022</code> tira o <code translate="no">w</code> do grupo e dos outros. A Ana lê e não edita.</li>
+<li>Nada acontece com os dados: eles continuam acessíveis pelos outros dois nomes. O contador cai para <code translate="no">2</code>. Os dados só são liberados quando o contador chega a <code translate="no">0</code> e nenhum processo mantém o arquivo aberto.</li>
+<li><code translate="no">/srv/app/app/v2</code>. O link guarda o texto <code translate="no">app/v2</code>, e um caminho relativo é lido a partir da pasta onde o link está, <code translate="no">/srv/app</code>. O certo seria <code translate="no">ln -s v2 app/current</code>.</li>
+<li><strong>A.</strong> Só o simbólico aponta para pastas e atravessa sistemas de arquivos, porque guarda um caminho e não um inode. O B e o C descrevem o link físico: dados que sobrevivem, mesmo inode e mesmas permissões. O D não vale para nenhum dos dois: o físico não ocupa espaço a mais, porque é só um nome, e o simbólico ocupa só o texto do caminho.</li>
+<li><code translate="no">grep MemTotal /proc/meminfo</code> para a memória e <code translate="no">grep -c ^processor /proc/cpuinfo</code> para os processadores. Os dois arquivos são gerados pelo kernel na hora da leitura; o <code translate="no">free</code> e o <code translate="no">nproc</code> leem os mesmos lugares.</li>
+<li>Tabela abaixo.</li></ol>
+<div class="tabela"><table><thead><tr><th scope="col">Se você marcou</th><th scope="col">Resultado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>A</td><td>✅ Certa</td><td>O setgid numa pasta faz todo arquivo novo nascer com o grupo da pasta, que já é <code translate="no">team</code>. É exatamente a frase da prova: "files created in it are automatically owned by the group".</td></tr><tr><td>B</td><td>❌ Errada</td><td>No Linux, o setuid numa pasta é ignorado. Ele não muda nem o dono nem o grupo dos arquivos novos.</td></tr><tr><td>C</td><td>❌ Errada</td><td>O sticky decide quem apaga, não o grupo de quem cria. É o bit certo para outra frase da prova: "users can only delete their own files".</td></tr><tr><td>D</td><td>❌ Errada</td><td>Muda o grupo do que existe <strong>agora</strong>. O primeiro arquivo criado depois nasce com o grupo de quem criou, e o script de correção cria exatamente esse arquivo para conferir.</td></tr></tbody></table></div>
+<h3 id="ultimo-exercicio">Último exercício</h3>
+<p>Num terminal da debian-lab. Pela rocky-lab, entre antes com <code translate="no">ssh deb</code> e cole as linhas lá: elas já têm aspas simples, e embrulhar cada uma em <code translate="no">ssh deb '...'</code> quebraria as aspas.</p>
+<pre translate="no"><code class="lang-bash">sudo install -d -m 3770 -o root -g equipe /srv/lab28/entrega
+sudo -u ana bash -c 'umask 002; echo "proposta v1" &gt; /srv/lab28/entrega/proposta.txt'
+sudo -u bruno bash -c 'echo "revisado pelo Bruno" &gt;&gt; /srv/lab28/entrega/proposta.txt' &amp;&amp; echo "Bruno editou"
+sudo -u bruno rm -f /srv/lab28/entrega/proposta.txt
+sudo stat -c '%A %a %U:%G %n' /srv/lab28/entrega /srv/lab28/entrega/proposta.txt</code></pre>
+<p>O <code translate="no">rm</code> do Bruno tem que dar <code translate="no">Operation not permitted</code>, e o <code translate="no">stat</code> tem que mostrar <code translate="no">drwxrws--T 3770 root:equipe</code> na pasta e <code translate="no">-rw-rw-r-- ana:equipe</code> no arquivo. Se o arquivo vier <code translate="no">-rw-r--r--</code>, faltou o <code translate="no">umask 002</code>, e o <code translate="no">&gt;&gt;</code> do Bruno falhou com <code translate="no">Permission denied</code>. <code translate="no">mkdir</code>, <code translate="no">chgrp equipe</code> e <code translate="no">chmod 3770</code> dão o mesmo resultado em três comandos.</p>
+<p>Os links do deploy:</p>
+<pre translate="no"><code class="lang-bash">sudo install -d -o rodrigo -g rodrigo /srv/lab28/rel
+mkdir -p /srv/lab28/rel/releases/2026-11-01 /srv/lab28/rel/releases/2026-11-03
+echo "release 01" &gt; /srv/lab28/rel/releases/2026-11-01/index.html
+echo "release 03" &gt; /srv/lab28/rel/releases/2026-11-03/index.html
+cd /srv/lab28/rel
+ln -s releases/2026-11-01 atual
+ln -sfn releases/2026-11-03 atual
+readlink -f atual; cat atual/index.html
+ln -sfn releases/2026-11-01 atual
+readlink -f atual; cat atual/index.html
+find /srv/lab28/rel -type l</code></pre>
+<p>A primeira linha existe porque a <code translate="no">/srv/lab28</code> é do root: a <code translate="no">rel</code> fica sua, e o resto roda sem <code translate="no">sudo</code>. O <code translate="no">find</code> do fim tem que mostrar <strong>um</strong> link só, o <code translate="no">atual</code>: um segundo link dentro de alguma <code translate="no">releases/...</code> é o sinal de que faltou o <code translate="no">-n</code>.</p>
+<p>Os links do arquivo:</p>
+<pre translate="no"><code class="lang-bash">cd /srv/lab28/rel
+echo "dados" &gt; a.txt
+ln a.txt b.txt; ln a.txt c.txt; ln -s a.txt s.txt
+rm a.txt
+ls -li b.txt c.txt s.txt</code></pre>
+<p>Antes de rodar: <code translate="no">b.txt</code> e <code translate="no">c.txt</code> com contador <code translate="no">2</code>, o mesmo inode, e funcionando; <code translate="no">s.txt</code> com contador <code translate="no">1</code> e quebrado, porque procura <code translate="no">a.txt</code>.</p>
+<p>O setuid: <code translate="no">find /usr/bin /usr/sbin -perm -4000 -user root</code>. Escolha três destas explicações: o <code translate="no">passwd</code> grava no <code translate="no">/etc/shadow</code>, que só o root altera; o <code translate="no">sudo</code> precisa virar root para rodar o comando autorizado; o <code translate="no">su</code> precisa trocar de identidade, o que só o root pode; o <code translate="no">mount</code> e o <code translate="no">umount</code> precisam montar, o que só o root faz, e eles próprios conferem o <code translate="no">/etc/fstab</code> para deixar a pessoa montar só o que está liberado lá com <code translate="no">user</code>; o <code translate="no">chsh</code> e o <code translate="no">chfn</code> gravam no <code translate="no">/etc/passwd</code>.</p>
+</article><nav class="paginas" aria-label="Aulas"><a class="ant" href="2.7-permissoes-e-dono.html"><small>← Anterior</small>2.7 · Permissões e dono</a><a class="prox" href="3.1-fluxos-a-fundo.html"><small>Próxima →</small>3.1 · Fluxos a fundo</a></nav></main></div>
+<footer><div class="wrap">Gerado a partir do Markdown do curso · Imagens em <code translate="no">img/</code></div></footer>
+</body>
+</html>

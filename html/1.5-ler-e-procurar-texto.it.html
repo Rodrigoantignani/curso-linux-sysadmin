@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light dark">
+<title>1.5 · Leggere e cercare testo · Corso Linux Sysadmin</title>
+<link rel="alternate" hreflang="pt-BR" href="1.5-ler-e-procurar-texto.html"><link rel="alternate" hreflang="it" href="1.5-ler-e-procurar-texto.it.html">
+<style>
+:root{color-scheme:light dark;--bg:#f6f1e7;--card:#fffdf8;--ink:#201c16;--muted:#5e564a;--accent:#9a3412;--accent-2:#1f5f4a;--tint:#efe6d4;--line:#ddd2bc;--code:#f1eadb;--shadow:0 1px 2px rgba(60,40,10,.08);--serif:Georgia,"Iowan Old Style","Palatino Linotype",Palatino,serif;--sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--mono:"Cascadia Code",Consolas,"DejaVu Sans Mono",monospace}
+@media (prefers-color-scheme:dark){:root{--bg:#16130f;--card:#201b15;--ink:#f1eadb;--muted:#b9ad98;--accent:#f0a070;--accent-2:#7fd0b0;--tint:#2a231a;--line:#3d3427;--code:#191510;--shadow:none}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:5.5rem}
+body{margin:0;background:var(--bg);color:var(--ink);font:1rem/1.6 var(--sans)}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--accent-2);outline-offset:2px;border-radius:4px}
+.pular{position:absolute;left:-999px;top:0;background:var(--card);padding:.5rem 1rem;z-index:20}
+.pular:focus{left:.5rem;top:.5rem}
+.wrap{width:100%;max-width:84rem;margin:0 auto;padding-inline:max(1rem,env(safe-area-inset-left))}
+.top{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10;border-top:6px solid var(--accent)}
+.top-in{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding-block:.6rem}
+.titles{min-width:0}
+.marca{margin:0;font:700 clamp(1.15rem,1rem + 1vw,1.6rem)/1.15 var(--serif);letter-spacing:-.01em}
+.marca a{text-decoration:none}
+.marca a:hover{color:var(--accent)}
+.meta{margin:.1rem 0 0;color:var(--muted);font-size:.85rem}
+.acoes{display:flex;align-items:center;gap:.9rem;flex:none}
+.acoes>a{font-size:.9rem;font-weight:600;color:var(--muted);text-decoration:none}
+.acoes>a:hover{color:var(--accent);text-decoration:underline}
+.idioma{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--tint)}
+.idioma>*{padding:.35rem .9rem;font-size:.8rem;font-weight:700;letter-spacing:.06em;text-decoration:none;color:var(--muted);min-width:2.75rem;text-align:center}
+.idioma a:hover{color:var(--accent);text-decoration:underline}
+.idioma span{background:var(--accent);color:#fff}
+@media (prefers-color-scheme:dark){.idioma span{color:#16130f}}
+code{font-family:var(--mono);font-size:.9em;background:var(--tint);padding:.1rem .35rem;border-radius:4px;overflow-wrap:anywhere}
+/* índice */
+.capa{max-width:70rem;padding-block:2rem 3rem}
+.stats{border-left:4px solid var(--accent-2);background:var(--card);border-radius:0 10px 10px 0;padding:1rem 1.25rem;margin:0 0 2.5rem;box-shadow:var(--shadow);color:var(--muted)}
+.stats strong{color:var(--ink)}
+.modulo{display:grid;grid-template-columns:15rem minmax(0,1fr);gap:1rem 2rem;padding:1.75rem 0;border-top:1px solid var(--line)}
+.modulo h2{margin:0;font:700 1.25rem/1.25 var(--serif);align-self:start;position:sticky;top:6rem}
+.mn{display:block;font:700 .8rem var(--mono);letter-spacing:.12em;color:var(--accent);margin-bottom:.25rem}
+.sep{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.modulo ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,17rem),1fr));gap:.75rem}
+.modulo li{margin:0}
+.modulo a{display:flex;gap:.45rem;align-items:baseline;height:100%;padding:.85rem 1rem;background:var(--card);border:1px solid var(--line);border-radius:10px;text-decoration:none;font-weight:600;line-height:1.35;box-shadow:var(--shadow);transition:border-color .15s,transform .15s}
+.modulo a:hover{border-color:var(--accent);color:var(--accent)}
+.num{font:700 .85rem var(--mono);color:var(--accent);white-space:nowrap}
+/* aula */
+.doc{display:grid;grid-template-columns:17rem minmax(0,1fr);gap:2.5rem;align-items:start;padding-block:2rem 3rem}
+.lateral{position:sticky;top:5.5rem;max-height:calc(100vh - 6.5rem);overflow:auto;font-size:.875rem;padding-right:.5rem}
+.lateral h2{margin:0 0 .25rem;font:700 .95rem var(--serif);color:var(--muted)}
+.lateral h3{margin:1rem 0 .25rem;font:700 .75rem var(--mono);letter-spacing:.06em;color:var(--accent)}
+.lateral ul{list-style:none;margin:0;padding:0}
+.lateral a{display:flex;gap:.45rem;padding:.25rem .5rem;border-radius:6px;text-decoration:none;color:var(--muted);line-height:1.3}
+.lateral a:hover{background:var(--tint);color:var(--ink)}
+.lateral a[aria-current]{background:var(--tint);color:var(--ink);font-weight:700;box-shadow:inset 3px 0 0 var(--accent)}
+.lateral .num{font-size:.75rem}
+.aula{min-width:0;max-width:56rem;overflow-wrap:break-word;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:clamp(1.25rem,1rem + 2vw,2.75rem);box-shadow:var(--shadow)}
+.aula h1{margin:0 0 1.5rem;font:700 clamp(1.75rem,1.4rem + 1.6vw,2.5rem)/1.15 var(--serif);letter-spacing:-.015em;color:var(--ink)}
+.aula h2{margin:2.5rem 0 .75rem;padding-top:1.25rem;border-top:1px solid var(--line);font:700 1.5rem/1.25 var(--serif)}
+.aula h3{margin:2rem 0 .5rem;font:700 1.15rem/1.3 var(--serif);color:var(--accent)}
+.aula h4,.aula h5,.aula h6{margin:1.5rem 0 .5rem;font-size:1rem}
+.aula p,.aula ul,.aula ol{margin:1rem 0}
+.aula ul,.aula ol{padding-left:1.5rem}
+.aula li{margin:.35rem 0}
+.aula li>ul,.aula li>ol{margin:.35rem 0}
+.aula a{color:var(--accent);text-underline-offset:2px}
+.aula hr{border:0;border-top:1px solid var(--line);margin:2rem 0}
+.tabela{overflow-x:auto;margin:1.25rem 0;border:1px solid var(--line);border-radius:10px}
+.aula table{width:100%;border-collapse:collapse;font-size:.9rem}
+.aula th,.aula td{padding:.55rem .75rem;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+.aula tr:last-child td{border-bottom:0}
+.aula th{background:var(--tint);font-weight:700}
+.aula pre{background:var(--code);border:1px solid var(--line);border-radius:10px;padding:.9rem 1rem;overflow-x:auto;font:.85rem/1.5 var(--mono);margin:1rem 0;tab-size:4}
+.aula pre code{background:none;padding:0;font-size:inherit;overflow-wrap:normal}
+.aula blockquote{margin:1.25rem 0;padding:.75rem 1.25rem;border-left:4px solid var(--accent-2);background:var(--tint);border-radius:0 10px 10px 0}
+.aula blockquote>:first-child{margin-top:0}
+.aula blockquote>:last-child{margin-bottom:0}
+.aula figure{margin:1.75rem 0;text-align:center}
+.aula figure img{display:block;margin:0 auto;max-width:100%;height:auto;border:1px solid var(--line);border-radius:10px;background:#fff}
+.aula figcaption{margin-top:.5rem;color:var(--muted);font-size:.9rem;font-style:italic}
+.paginas{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:2.5rem;padding-top:1.5rem;border-top:1px solid var(--line)}
+.paginas a{display:block;padding:.75rem 1rem;border:1px solid var(--line);border-radius:10px;text-decoration:none;color:var(--ink);font-weight:600;line-height:1.3}
+.paginas a:hover{border-color:var(--accent);color:var(--accent)}
+.paginas small{display:block;color:var(--muted);font-weight:400}
+.paginas .prox{grid-column:2;text-align:right}
+footer{border-top:1px solid var(--line);padding-block:1.5rem;color:var(--muted);font-size:.85rem;text-align:center}
+@media (hover:hover) and (prefers-reduced-motion:no-preference){.modulo a:hover{transform:translateY(-2px)}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+@media (max-width:980px){.doc{grid-template-columns:minmax(0,1fr);padding-top:1rem}.lateral{position:static;max-height:none;order:2}.aula{max-width:none}}
+@media (max-width:860px){.modulo{grid-template-columns:minmax(0,1fr)}.modulo h2{position:static}.mn{display:inline;margin-right:.5rem}}
+@media (max-width:420px){.meta{display:none}.top-in{gap:.5rem}.acoes{gap:.6rem}.capa{padding-top:1.25rem}.paginas{grid-template-columns:minmax(0,1fr)}.paginas .prox{grid-column:1}}
+@media print{.top,.lateral,.paginas{display:none}.aula{border:0;box-shadow:none;padding:0;max-width:none}.doc{display:block}}
+</style>
+</head>
+<body>
+<a class="pular" href="#conteudo">Vai al contenuto</a>
+<header class="top"><div class="wrap top-in"><div class="titles"><p class="marca"><a href="index.it.html">Corso Linux Sysadmin</a></p><p class="meta">Rodrigo Antignani · Lezione 1.5</p></div><div class="acoes"><a href="index.it.html">Indice</a><div class="idioma" role="group" aria-label="Lingua"><a href="1.5-ler-e-procurar-texto.html" hreflang="pt-BR" lang="pt-BR">PT</a><span aria-current="true">IT</span></div></div></div></header>
+<div class="wrap doc"><aside class="lateral" aria-label="Lezioni"><h2>Lezioni</h2><h3>M0 · Laboratorio</h3><ul><li><a href="0.1-montar-o-laboratorio.it.html"><span class="num">0.1</span><span>Allestire il laboratorio</span></a></li><li><a href="0.2-acesso-e-protecao.it.html"><span class="num">0.2</span><span>Accesso e protezione</span></a></li></ul><h3>M1 · Riga di comando</h3><ul><li><a href="1.1-o-que-e-linux.it.html"><span class="num">1.1</span><span>Che cos'è Linux</span></a></li><li><a href="1.2-o-shell-e-a-ajuda.it.html"><span class="num">1.2</span><span>La shell e la guida</span></a></li><li><a href="1.3-caminhos-e-navegacao.it.html"><span class="num">1.3</span><span>Percorsi e navigazione</span></a></li><li><a href="1.4-criar-copiar-mover-e-apagar.it.html"><span class="num">1.4</span><span>Creare, copiare, spostare ed eliminare</span></a></li><li><a href="1.5-ler-e-procurar-texto.it.html" aria-current="page"><span class="num">1.5</span><span>Leggere e cercare testo</span></a></li><li><a href="1.6-redirecionamentos-e-pipes.it.html"><span class="num">1.6</span><span>Reindirizzamenti e pipe</span></a></li><li><a href="1.7-arquivar-e-compactar.it.html"><span class="num">1.7</span><span>Archiviare e comprimere</span></a></li><li><a href="1.8-primeiro-script.it.html"><span class="num">1.8</span><span>Primo script</span></a></li><li><a href="1.9-decidir-e-repetir.it.html"><span class="num">1.9</span><span>Decidere e ripetere</span></a></li><li><a href="1.10-software-livre-na-pratica.it.html"><span class="num">1.10</span><span>Il software libero in pratica</span></a></li></ul><h3>M2 · Sistema, utenti e permessi</h3><ul><li><a href="2.1-instalacao-e-provisionamento.it.html"><span class="num">2.1</span><span>Installazione e provisioning</span></a></li><li><a href="2.2-hardware-e-dispositivos.it.html"><span class="num">2.2</span><span>Hardware e dispositivi</span></a></li><li><a href="2.3-processos-e-logs.it.html"><span class="num">2.3</span><span>Processi e log</span></a></li><li><a href="2.4-rede-no-dia-a-dia.it.html"><span class="num">2.4</span><span>La rete di tutti i giorni</span></a></li><li><a href="2.5-acesso-remoto-e-privilegios.it.html"><span class="num">2.5</span><span>Accesso remoto e privilegi</span></a></li><li><a href="2.6-usuarios-e-grupos.it.html"><span class="num">2.6</span><span>Utenti e gruppi</span></a></li><li><a href="2.7-permissoes-e-dono.it.html"><span class="num">2.7</span><span>Permessi e proprietario</span></a></li><li><a href="2.8-diretorios-e-arquivos-especiais.it.html"><span class="num">2.8</span><span>Directory e file speciali</span></a></li></ul><h3>M3 · Testo ed editor</h3><ul><li><a href="3.1-fluxos-a-fundo.it.html"><span class="num">3.1</span><span>I flussi in profondità</span></a></li><li><a href="3.2-filtros-de-texto.it.html"><span class="num">3.2</span><span>Filtri di testo</span></a></li><li><a href="3.3-regex-e-grep.it.html"><span class="num">3.3</span><span>Regex e grep</span></a></li><li><a href="3.4-sed-e-awk.it.html"><span class="num">3.4</span><span>sed e awk</span></a></li><li><a href="3.5-vi-e-vim-de-verdade.it.html"><span class="num">3.5</span><span>vi e vim sul serio</span></a></li></ul><h3>M4 · systemd e boot</h3><ul><li><a href="4.1-como-o-linux-liga.it.html"><span class="num">4.1</span><span>Come si avvia Linux</span></a></li><li><a href="4.2-systemd-servicos-e-units.it.html"><span class="num">4.2</span><span>systemd: servizi e unit</span></a></li><li><a href="4.3-targets-desligar-e-reiniciar.it.html"><span class="num">4.3</span><span>Target: spegnere e riavviare</span></a></li><li><a href="4.4-grub-e-acesso-de-emergencia.it.html"><span class="num">4.4</span><span>GRUB e accesso di emergenza</span></a></li></ul><h3>M5 · Kernel, moduli e VM</h3><ul><li><a href="5.1-hardware-pelo-kernel.it.html"><span class="num">5.1</span><span>L'hardware visto dal kernel</span></a></li><li><a href="5.2-modulos-e-parametros.it.html"><span class="num">5.2</span><span>Moduli e parametri</span></a></li><li><a href="5.3-linux-como-convidado.it.html"><span class="num">5.3</span><span>Linux come guest</span></a></li></ul><h3>M6 · Pacchetti e repository</h3><ul><li><a href="6.1-pacotes-no-debian.it.html"><span class="num">6.1</span><span>Pacchetti su Debian</span></a></li><li><a href="6.2-pacotes-na-rocky.it.html"><span class="num">6.2</span><span>Pacchetti su Rocky</span></a></li><li><a href="6.3-repositorios.it.html"><span class="num">6.3</span><span>Repository</span></a></li><li><a href="6.4-flatpak.it.html"><span class="num">6.4</span><span>Flatpak</span></a></li><li><a href="6.5-bibliotecas-compartilhadas.it.html"><span class="num">6.5</span><span>Librerie condivise</span></a></li></ul></aside><main id="conteudo" class="aula"><article><h1>Lezione 1.5 · Lettura e ricerca di testo</h1>
+<p>Impara a leggere qualsiasi file di testo sul server senza mandare in crash il terminale e senza il rischio di alterarlo, e come trovare la riga che conta in pochi secondi. Potrebbe trattarsi di un log da 3 GB, di una configurazione da 900 righe o di un'intera cartella di file: il metodo è lo stesso. Misurare prima dell'apertura, andare dritto al punto e lasciare vagliare il <code translate="no">grep</code></p>
+<div class="tabela"><table><thead><tr><th scope="col">File</th><th scope="col">lezione 1.5</th></tr></thead><tbody><tr><td>Modulo</td><td>M1 · Riga di comando, lezione 5 di 10</td></tr><tr><td>Quando</td><td>Settimana 2</td></tr><tr><td>Alla fine puoi</td><td>Leggere un file di qualsiasi dimensione senza mandare in crash il terminale; vai direttamente alla fine di un log e guardalo dal vivo, anche dopo la rotazione; contare le righe e le occorrenze; trovare una riga in un file o un'intera cartella; mostrare solo le righe attive di una configurazione; scopri perché <code translate="no">grep</code> non trova una riga che vedi sullo schermo</td></tr><tr><td>Articoli di prova</td><td>LE 013.2 · LPIC-1 103.2 e 103.7 (inizio) · RHCSA: utilizzare <code translate="no">grep</code> e le espressioni regolari per analizzare il testo</td></tr><tr><td>Prerequisiti</td><td>lezione 1.4, con <code translate="no">~/lab13</code> ancora nelle VM</td></tr><tr><td>Meteo</td><td>Intorno alle 2:30</td></tr><tr><td>Istantanee</td><td>m1a5-start e m1a5-end su entrambe le VM</td></tr></tbody></table></div>
+<h2 id="1-riscaldamento">1 · Riscaldamento</h2>
+<p>Tre domande, a mente fredda, prima di leggere qualsiasi cosa. Scrivi le risposte; la chiave di risposta viene visualizzata alla fine.</p>
+<ol><li>Hai cancellato un registro da 5 GB con <code translate="no">rm</code> e <code translate="no">df</code> non è stato scaricato. Quale comando mostra chi detiene ancora il file?</li>
+<li>Esegui <code translate="no">mv app.log app.log.1</code> sullo stesso filesystem. Cosa succede all'inode?</li>
+<li>In <code translate="no">~/lab13/logs</code>, cosa consegna la shell a <code translate="no">grep</code> quando si digita <code translate="no">grep erro *.log</code>? Entra <code translate="no">.escondido.log</code>?</li></ol>
+<h2 id="2-perche-e-importante">2 · Perché è importante</h2>
+<p>Lunedì, 9:00. Il cliente chiama: il sistema è andato in crash nelle prime ore del mattino. Si accede tramite SSH e si digita <code translate="no">cat /var/log/app/app.log</code>. Il file è di 3 GB. Il terminale scorre per minuti, <code translate="no">Ctrl+C</code> impiega un po' a rispondere e quello che è successo alle 3 del mattino passa in un attimo. Provi ad aprirlo nell'editor e il server, che aveva già esaurito la memoria, inizia a soffocare.</p>
+<p>L'amministratore esperto fa qualcos'altro. Prima misura: <code translate="no">ls -lh</code> mostra 3 GB, poi nessun <code translate="no">cat</code>. Vai dritto alla fine con <code translate="no">tail -n 100</code>, perché il problema è recente. Setacciare con <code translate="no">grep -n -i 'error'</code> e tempo di sgocciolamento. Aprire cinque righe attorno al ritrovamento con <code translate="no">grep -C 5</code>. Chiedi al cliente di testarlo e seguirlo in diretta con <code translate="no">tail -F</code>. In due minuti ha la riga esatta da incollare nel ticket e non ha cambiato un byte di nulla.</p>
+<p>Il secondo caso: si cambia <code translate="no">PermitRootLogin no</code> in <code translate="no">sshd_config</code>, si riavvia il servizio e root continua ad entrare. Un <code translate="no">sudo grep -rn PermitRootLogin /etc/ssh/</code> mostra, in tre secondi, un file all'interno di <code translate="no">sshd_config.d/</code> che è stato letto prima e che vale di più. Senza <code translate="no">grep</code> ci vuole un pomeriggio.</p>
+<p>Il terzo è il più fastidioso: <code translate="no">grep</code> dice che la riga non esiste, ma è lì, sullo schermo. Il file proveniva da Windows. Questa lezione mostra perché ciò accade e come vedere l'invisibile.</p>
+<h2 id="3-modello-mentale">3 · Modello mentale</h2>
+<blockquote><p>Un file di testo è un rotolo di carta con delle linee. Ogni comando di questa lezione rappresenta un modo diverso di guardare la pergamena e nessuno di essi scrive su di essa.</p></blockquote>
+<ul><li><code translate="no">cat</code> srotola l'intera pergamena in una volta davanti a te. Ottimo per 20 righe; un disastro da 2 milioni.</li>
+<li><code translate="no">less</code> è una lente d'ingrandimento: va avanti e indietro, salta alla fine, cerca una parola. Legge solo la parte che c'è sullo schermo, quindi apre subito 3 GB.</li>
+<li><code translate="no">head</code> mostra l'inizio dello scorrimento; <code translate="no">tail</code> mostra la fine. Con <code translate="no">-f</code>, <code translate="no">tail</code> osserva la fine mentre il rotolo cresce.</li>
+<li><code translate="no">wc</code> misura il rotolo: righe, parole e byte.</li>
+<li><code translate="no">grep</code> è un setaccio: passa tutto il rotolo e lascia uscire solo le righe che contengono ciò che hai chiesto.</li></ul>
+<pre translate="no"><code class="lang-text">                 app1.log (20 linhas)
+   ┌───────────────────────────────────────────┐
+   │  1  08:00:01 INFO  web: servidor iniciado │ ◄── head -n 3
+   │  2  08:00:02 INFO  db: conexão aberta     │
+   │  3  08:03:15 WARN  web: resposta lenta    │
+   │  …                                        │
+   │  5  08:06:02 ERROR auth: senha incorreta  │ ◄── grep ERROR deixa passar
+   │  …                                        │
+   │ 18  08:45:00 INFO  cron: limpeza de /tmp  │ ◄── tail -n 3
+   │ 19  08:50:27 INFO  auth: login ok         │
+   │ 20  09:00:00 INFO  web: health check ok   │
+   └───────────────────────────────────────────┘
+      less: a lupa que anda pelo rolo inteiro
+      wc -l: 20</code></pre>
+<p><strong>La prima idea: tutto è una riga.</strong> Per questi strumenti, una riga termina con un carattere invisibile, la fine della riga, che viene scritta <code translate="no">\n</code>. Chi non vede questo personaggio cade nelle due trappole di questa lezione. Un file salvato in Windows termina ogni riga con <code translate="no">\r\n</code> e quell'invisibile <code translate="no">\r</code> fa perdere <code translate="no">grep</code>. E un'ultima riga senza <code translate="no">\n</code> non conta come <code translate="no">wc -l</code>.</p>
+<p><strong>La seconda idea viene dalla lezione 1.4: <code translate="no">tail -f</code> segue l'appartamento, non il nome.</strong> Apre il file e guarda l'inode. Quando si ruota il registro con un <code translate="no">mv</code>, il nome comincia a puntare ad un nuovo file, ma <code translate="no">tail -f</code> rimane in quello vecchio, ormai fermo.</p>
+<pre translate="no"><code class="lang-text">antes:   app.log ────► inode 5001  ◄── tail -f olhando aqui
+
+         mv app.log app.log.1      (a rotação)
+
+depois:  app.log.1 ──► inode 5001  ◄── tail -f continua aqui, e nada mais chega
+         app.log ────► inode 5002  ◄── o programa escreve aqui</code></pre>
+<p>La correzione è una lettera: <code translate="no">tail -F</code> segue il nome e riapre il file quando viene modificato. Break B te lo fa vedere accadere.</p>
+<p><strong>Windows Bridge.</strong> In Windows, apri il Visualizzatore eventi e filtra con il mouse. In Linux, il log è un file di testo, o journal, che ha una propria lezione e questi sei comandi ne sono il filtro. La differenza che più inganna chi proviene da PowerShell: <code translate="no">Select-String</code> ignora le lettere maiuscole per impostazione predefinita, mentre <code translate="no">grep</code> no. Per <code translate="no">grep</code>, <code translate="no">ERROR</code> e <code translate="no">error</code> sono testi diversi finché non si richiede <code translate="no">-i</code>.</p>
+<h2 id="4-concetto-a-strati">4 · Concetto a strati</h2>
+<h3 id="essenziale">Essenziale</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Comando</th><th scope="col">Cosa fa</th><th scope="col">Quando utilizzare</th></tr></thead><tbody><tr><td><code translate="no">cat arquivo</code></td><td>Mostra intero file</td><td>File che sta in una schermata</td></tr><tr><td><code translate="no">cat -n arquivo</code></td><td>Viene visualizzato con il numero di ciascuna riga</td><td>Per dire "riga 37" a qualcuno</td></tr><tr><td><code translate="no">cat -A arquivo</code></td><td>Mostra quelli invisibili: <code translate="no">$</code> alla fine della riga, <code translate="no">^I</code> nella scheda, <code translate="no">^M</code> in <code translate="no">\r</code> su Windows</td><td>Quando il testo sembra corretto e non funziona</td></tr><tr><td><code translate="no">less arquivo</code></td><td>Apri nella lente d'ingrandimento</td><td>Qualunque cosa più grande di uno schermo</td></tr><tr><td><code translate="no">head -n 20 arquivo</code></td><td>Le prime 20 righe</td><td>Intestazione, inizio di un CSV</td></tr><tr><td><code translate="no">tail -n 20 arquivo</code></td><td>Le ultime 20 righe</td><td>Cosa è successo l'ultimo in un registro</td></tr><tr><td><code translate="no">tail -f arquivo</code></td><td>Mostra la fine e aspettati nuove righe</td><td>Segui in diretta</td></tr><tr><td><code translate="no">tail -F arquivo</code></td><td>Idem, ma riapre il file se viene modificato</td><td>Monitorare un registro che passa attraverso logrotate</td></tr><tr><td><code translate="no">wc -l arquivo</code></td><td>Contare le righe</td><td>"Quanti tentativi di accesso?"</td></tr><tr><td><code translate="no">grep 'texto' arquivo</code></td><td>Mostra le righe che contengono il testo</td><td>Trova la riga che conta</td></tr></tbody></table></div>
+<p>Senza <code translate="no">-n</code>, <code translate="no">head</code> e <code translate="no">tail</code> mostrano 10 righe. Questo è il test.</p>
+<p><strong>Le opzioni <code translate="no">grep</code> che utilizzi ogni settimana:</strong></p>
+<div class="tabela"><table><thead><tr><th scope="col">Opzione</th><th scope="col">Effetto</th><th scope="col">Esempio</th></tr></thead><tbody><tr><td><code translate="no">-i</code></td><td>Ignora maiuscole e minuscole</td><td><code translate="no">grep -i 'error' app1.log</code></td></tr><tr><td><code translate="no">-n</code></td><td>Mostra il numero di riga</td><td><code translate="no">grep -n 'ERROR' app1.log</code></td></tr><tr><td><code translate="no">-c</code></td><td>Conta le righe che corrispondono, invece di mostrarle</td><td><code translate="no">grep -c 'WARN' app1.log</code></td></tr><tr><td><code translate="no">-v</code></td><td>Inverte: mostra le righe che <strong>non</strong> corrispondono</td><td><code translate="no">grep -v 'INFO' app1.log</code></td></tr><tr><td><code translate="no">-w</code></td><td>Solo la parola intera: <code translate="no">error</code> non funziona <code translate="no">errors</code></td><td><code translate="no">grep -iw 'error' app1.log</code></td></tr><tr><td><code translate="no">-e</code></td><td>Più di un modello nello stesso comando</td><td><code translate="no">grep -e 'ERROR' -e 'WARN' app1.log</code></td></tr><tr><td><code translate="no">-E</code></td><td>Forma estesa, con barra verticale come "o"</td><td>Al passaggio 7</td></tr><tr><td><code translate="no">-F</code></td><td>Testo letterale: il punto vale solo un punto</td><td><code translate="no">grep -F '10.0.5.1' app1.log</code></td></tr><tr><td><code translate="no">-r</code></td><td>Cerca tutti i file in una cartella</td><td><code translate="no">sudo grep -r 'Port' /etc/ssh/</code></td></tr><tr><td><code translate="no">-l</code></td><td>Mostra solo il nome dei file che contengono il testo</td><td><code translate="no">grep -rl 'senha' ~/lab13</code></td></tr><tr><td><code translate="no">-C 3</code></td><td>Mostra 3 righe prima e 3 dopo ogni risultato</td><td><code translate="no">grep -C 3 'timeout' app1.log</code></td></tr><tr><td><code translate="no">-q</code></td><td>Non mostra nulla; dice semplicemente, attraverso il codice di uscita, se ha trovato</td><td><code translate="no">grep -q 'ERROR' app1.log; echo $?</code></td></tr></tbody></table></div>
+<p><strong>Le chiavi di <code translate="no">less</code>:</strong></p>
+<div class="tabela"><table><thead><tr><th scope="col">Chiave</th><th scope="col">Che cosa significa</th></tr></thead><tbody><tr><td><code translate="no">Espaço</code> / <code translate="no">b</code></td><td>Scorrere verso il basso/su una schermata</td></tr><tr><td><code translate="no">g</code> / <code translate="no">G</code></td><td>Vai alla prima/ultima riga</td></tr><tr><td><code translate="no">/texto</code></td><td>Cerca in basso</td></tr><tr><td><code translate="no">?texto</code></td><td>Cerca verso l'alto</td></tr><tr><td><code translate="no">n</code> / <code translate="no">N</code></td><td>Trova successivo/precedente</td></tr><tr><td><code translate="no">&amp;texto</code></td><td>Mostra solo le righe con il testo; <code translate="no">&amp;</code> e Invio annulla</td></tr><tr><td><code translate="no">F</code></td><td>Modalità live, come <code translate="no">tail -f</code>; <code translate="no">Ctrl+C</code> esce da lui</td></tr><tr><td><code translate="no">-N</code></td><td>Attiva e disattiva il numero di linea</td></tr><tr><td><code translate="no">-S</code></td><td>Attiva e disattiva il ritorno a capo delle righe lunghe</td></tr><tr><td><code translate="no">q</code></td><td>Uscire</td></tr><tr><td><code translate="no">h</code></td><td>Guida con tutte le chiavi</td></tr></tbody></table></div>
+<h3 id="windows-bridge">Windows Bridge</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Linux</th><th scope="col">cmd</th><th scope="col">PowerShell</th></tr></thead><tbody><tr><td><code translate="no">cat arquivo</code></td><td><code translate="no">type arquivo</code></td><td><code translate="no">Get-Content arquivo</code></td></tr><tr><td><code translate="no">less arquivo</code></td><td><code translate="no">more arquivo</code></td><td><code translate="no">Get-Content arquivo</code> più <code translate="no">Out-Host -Paging</code></td></tr><tr><td><code translate="no">head -n 5 arquivo</code></td><td>Non c'è</td><td><code translate="no">Get-Content arquivo -TotalCount 5</code></td></tr><tr><td><code translate="no">tail -n 5 arquivo</code></td><td>Non c'è</td><td><code translate="no">Get-Content arquivo -Tail 5</code></td></tr><tr><td><code translate="no">tail -f arquivo</code></td><td>Non c'è</td><td><code translate="no">Get-Content arquivo -Tail 10 -Wait</code></td></tr><tr><td><code translate="no">wc -l arquivo</code></td><td><code translate="no">find /c /v "" arquivo</code></td><td><code translate="no">(Get-Content arquivo).Count</code></td></tr><tr><td><code translate="no">grep 'texto' arquivo</code></td><td><code translate="no">findstr "texto" arquivo</code></td><td><code translate="no">Select-String 'texto' arquivo</code></td></tr><tr><td><code translate="no">grep -i</code></td><td><code translate="no">findstr /i</code></td><td>È già lo standard per <code translate="no">Select-String</code></td></tr><tr><td><code translate="no">grep -v</code></td><td><code translate="no">findstr /v</code></td><td><code translate="no">Select-String -NotMatch</code></td></tr><tr><td><code translate="no">grep -r</code></td><td><code translate="no">findstr /s</code></td><td><code translate="no">Get-ChildItem -Recurse</code> continua <code translate="no">Select-String</code></td></tr></tbody></table></div>
+<h3 id="approfondimento">Approfondimento</h3>
+<p><strong>Perché <code translate="no">less</code> apre subito 3 GB e l'editor no.</strong> <code translate="no">less</code> legge solo la parte che mostrerà. L'editor carica l'intero file in memoria. Su un server compatto, l'apertura di un log di grandi dimensioni in <code translate="no">vi</code> peggiora il problema. E aprire un file di produzione in un editor solo per leggerlo richiede di salvare accidentalmente una modifica. Da leggere, <code translate="no">less</code>. L'editor serve per la modifica.</p>
+<p><strong>Scorciatoie per aprire <code translate="no">less</code>.</strong> <code translate="no">less +G arquivo</code> si apre già alla fine. <code translate="no">less +F arquivo</code> ora si apre in modalità live: <code translate="no">Ctrl+C</code> smette di seguire e consente di cercare dietro, e <code translate="no">F</code> segue di nuovo. È <code translate="no">tail -f</code> con lente d'ingrandimento.</p>
+<p><strong>Log vecchi e compressi.</strong> Logrotate memorizza i vecchi log con un altro nome e, talvolta, compressi in <code translate="no">.gz</code>. Per loro ci sono <code translate="no">zcat</code>, <code translate="no">zless</code> e <code translate="no">zgrep</code>, che funzionano come <code translate="no">cat</code>, <code translate="no">less</code> e <code translate="no">grep</code>, ma aprono <code translate="no">.gz</code> senza che voi decomprimiate nulla. In Rocky e Debian, lo stesso <code translate="no">less</code> apre anche <code translate="no">.gz</code>.</p>
+<p><strong><code translate="no">tail -f</code> contro <code translate="no">tail -F</code>.</strong> <code translate="no">-f</code> segue il file che ha aperto, cioè l'inode. <code translate="no">-F</code> segue il nome: se il file viene modificato avvisa e riapre. Logrotate ha due modi per ruotare. Nel <code translate="no">create</code>, lo standard, fa un <code translate="no">mv</code> e crea un nuovo file: <code translate="no">-f</code> resta bloccato con quello vecchio. In <code translate="no">copytruncate</code> copia e svuota l'originale: <code translate="no">-f</code> continua a funzionare, e avverte <code translate="no">file truncated</code>.</p>
+<p><strong>Espressione regolare, solo l'inizio.</strong> Il testo che dai a <code translate="no">grep</code> non è testo puro: è un'espressione regolare. Quattro simboli cambiano già il risultato:</p>
+<div class="tabela"><table><thead><tr><th scope="col">Simbolo</th><th scope="col">Significa</th><th scope="col">Esempio</th></tr></thead><tbody><tr><td><code translate="no">.</code></td><td>Qualsiasi carattere</td><td><code translate="no">10.0.5.1</code> accetta anche <code translate="no">10203541</code></td></tr><tr><td><code translate="no">^</code></td><td>Inizio riga</td><td><code translate="no">^#</code> prende le righe che iniziano con <code translate="no">#</code></td></tr><tr><td><code translate="no">$</code></td><td>Fine della riga</td><td><code translate="no">ok$</code> prende le righe che terminano con <code translate="no">ok</code></td></tr><tr><td><code translate="no">[0-9]</code></td><td>Qualsiasi cifra</td><td><code translate="no">erro [0-9]</code> accetta <code translate="no">erro 5</code> e <code translate="no">erro 9</code></td></tr></tbody></table></div>
+<p>In <code translate="no">grep</code>, <code translate="no">*</code> significa "zero o più caratteri precedenti", non "niente" come nella shell. Il resto delle espressioni regolari avrà una propria lezione, più avanti nel corso.</p>
+<p><strong>Sempre virgolette singole nel modello.</strong> Senza virgolette, la shell cambia il modello prima che <code translate="no">grep</code> lo veda: lo spazio separa gli argomenti e <code translate="no">*</code> e <code translate="no">[0-9]</code> possono diventare nomi di file. Tra virgolette singole, <code translate="no">grep</code> riceve esattamente quello che hai digitato.</p>
+<p><strong>Il codice di uscita.</strong> <code translate="no">grep</code> termina con 0 quando lo trova, 1 quando non lo trova e 2 quando dà un errore, come in un file inesistente. Gli script lo usano con <code translate="no">grep -q</code>. Il codice con <code translate="no">echo $?</code> si vede subito dopo il comando.</p>
+<p><strong><code translate="no">-c</code> conta le righe, non le occorrenze.</strong> Una riga con tre <code translate="no">ERROR</code> conta 1. Per contare le occorrenze c'è <code translate="no">grep -o</code>, che mostra ogni risultato su una riga, insieme a <code translate="no">wc -l</code>. La barra che collega i due è oggetto della lezione 1.6.</p>
+<p><strong>La riga non è un evento.</strong> Un errore Java può occupare 40 righe di stack trace. Righe di conteggio <code translate="no">wc -l</code> e <code translate="no">grep -c</code>. Prima di dire al cliente "ci sono stati 40 errori", verificare con <code translate="no">-C</code> se non si tratta di un solo errore.</p>
+<h3 id="cosa-rientra-nel-test">Cosa rientra nel test</h3>
+<ul><li><strong>LE:</strong> cosa sono <code translate="no">cat</code>, <code translate="no">less</code>, <code translate="no">head</code>, <code translate="no">tail</code>, <code translate="no">wc</code> e <code translate="no">grep</code> e lo schema a 10 righe di <code translate="no">head</code> e <code translate="no">tail</code>. Domande brevi, in inglese, come "quale comando mostra le ultime righe di un file".</li>
+<li><strong>LPIC-1 103.2:</strong> le opzioni di <code translate="no">head</code> e <code translate="no">tail</code> (<code translate="no">-n</code>, <code translate="no">-f</code>), <code translate="no">wc</code> (<code translate="no">-l</code>, <code translate="no">-w</code>, <code translate="no">-c</code>) e <code translate="no">cat -n</code>. Anche i fratelli per tablet: <code translate="no">zcat</code>, <code translate="no">bzcat</code> e <code translate="no">xzcat</code>. <code translate="no">nl</code> appare in alternativa al <code translate="no">cat -n</code>; per impostazione predefinita non numera le righe vuote.</li>
+<li><strong>LPIC-1 103.7:</strong> <code translate="no">grep</code> con <code translate="no">-i</code>, <code translate="no">-v</code>, <code translate="no">-c</code>, <code translate="no">-n</code>, <code translate="no">-l</code>, <code translate="no">-r</code>, <code translate="no">-E</code> e <code translate="no">-F</code>; <code translate="no">egrep</code> e <code translate="no">fgrep</code> come vecchi nomi di <code translate="no">grep -E</code> e <code translate="no">grep -F</code>; e le nozioni di base sulle espressioni regolari.</li>
+<li><strong>RHCSA:</strong> il compito si presenta come un problema: trovare tutte le righe in un file che contengono qualcosa e salvare il risultato in un file. La parte di salvataggio è la Lezione 1.6. L'esame si corregge tramite script: una riga in più o in meno e il compito vale zero. Controlla il conteggio con <code translate="no">grep -c</code> prima di inviare.</li></ul>
+<h2 id="5-rocky-debian">5 · Rocky × Debian</h2>
+<div class="tabela"><table><thead><tr><th scope="col">Punto</th><th scope="col">laboratorio-roccioso (Rocky 9)</th><th scope="col">debian-lab (Debian 13)</th></tr></thead><tbody><tr><td>Registro generale del sistema</td><td><code translate="no">/var/log/messages</code>, scritto da rsyslog</td><td>Non esiste di default: da Debian 12, rsyslog non è installato, e i log sono solo nel journal, letto con <code translate="no">journalctl</code></td></tr><tr><td>Login e registro <code translate="no">sudo</code></td><td><code translate="no">/var/log/secure</code></td><td>Anche solo nella rivista</td></tr><tr><td>Chi sa leggere</td><td>Entrambi i file sono solo root: utilizzare <code translate="no">sudo</code></td><td>Il giornale completo richiede il gruppo <code translate="no">adm</code> o <code translate="no">systemd-journal</code>, oppure <code translate="no">sudo</code></td></tr><tr><td>Registri dei pacchetti</td><td><code translate="no">/var/log/dnf.log</code></td><td><code translate="no">/var/log/dpkg.log</code> e <code translate="no">/var/log/apt/history.log</code></td></tr><tr><td>Nome dei vecchi registri</td><td><code translate="no">messages-20261101</code>: con data e senza compressione</td><td><code translate="no">dpkg.log.1</code>, <code translate="no">dpkg.log.2.gz</code>: numerati e compressi dalla seconda</td></tr><tr><td><code translate="no">sshd_config</code></td><td>Permesso 600: legge solo root, quindi <code translate="no">sudo grep</code></td><td>Autorizzazione 644: chiunque abbia letto</td></tr><tr><td>Versione <code translate="no">grep</code></td><td>3.6: <code translate="no">egrep</code> funziona silenziosamente</td><td>3.11: <code translate="no">egrep</code> funziona, ma avverte che è obsoleto</td></tr><tr><td>Colore in <code translate="no">grep</code></td><td>Alias ​​​​<code translate="no">grep --color=auto</code> in <code translate="no">/etc/profile.d/</code></td><td>Alias ​​​​nell'utente <code translate="no">~/.bashrc</code></td></tr></tbody></table></div>
+<p>Ecco perché il laboratorio utilizza file creati da te, gli stessi su entrambe le VM. I registri reali di ogni distribuzione appaiono nei Bonus e nella missione nella vita reale.</p>
+<h2 id="6-laboratorio-guidato">6 · Laboratorio guidato</h2>
+<p>Tutto accade in <code translate="no">~/lab13/logs</code>, nelle due VM. I file creati dalla lezione 1.3 sono vuoti; oggi guadagnano contenuto. Eseguire ogni passaggio in rocky-lab e ripetere in debian-lab.</p>
+<figure><a href="../img/1.5-fluxo-ler-texto.svg"><img src="../img/1.5-fluxo-ler-texto.svg" alt="1.5 Flow Read Text" loading="lazy" decoding="async"></a><figcaption>Misura le dimensioni, scegli la lente d'ingrandimento giusta e non usare mai cat on a gigante log.</figcaption></figure>
+<figure><a href="../img/1.5-fluxo-grep.svg"><img src="../img/1.5-fluxo-grep.svg" alt="1.5 Flow Grep" loading="lazy" decoding="async"></a><figcaption>Grep non taglia la sezione: mostra la riga completa. Testare sempre con una riga che deve corrispondere e un'altra che non deve corrispondere.</figcaption></figure>
+<h3 id="passaggio-1-preparare-il-laboratorio">Passaggio 1 · Preparare il laboratorio</h3>
+<p>Nel nodo Proxmox, dallo stato m1a4-end:</p>
+<pre translate="no"><code class="lang-bash">qm snapshot 201 m1a5-inicio
+qm snapshot 202 m1a5-inicio</code></pre>
+<p>In ogni VM, iniziare guardando ciò che già esiste:</p>
+<pre translate="no"><code class="lang-bash">cd ~/lab13/logs
+ls -la
+wc -l *.log</code></pre>
+<p>Qualcosa del tipo:</p>
+<pre translate="no"><code class="lang-text">  0 app10.log
+  0 app1.log
+  0 app2.log
+  0 erro.log
+  0 total</code></pre>
+<p>Tutto zero: <code translate="no">touch</code> crea un file vuoto. E <code translate="no">.escondido.log</code> non appare, perché <code translate="no">*</code> non accetta nomi che iniziano con un punto. Se sono rimasti nomi strani dalla Lezione 1.3, rimuovili ora con <code translate="no">rm -fv -- -l 'relatorio final.txt'</code>.</p>
+<p>Ora <code translate="no">app1.log</code> guadagna 20 righe di un registro realistico e <code translate="no">grande.log</code> guadagna 200mila:</p>
+<pre translate="no"><code class="lang-bash">cat &gt; app1.log &lt;&lt;'EOF'
+2026-11-02 08:00:01 INFO  web: servidor iniciado na porta 8080
+2026-11-02 08:00:02 INFO  db: conexão aberta com pg01
+2026-11-02 08:03:15 WARN  web: resposta lenta em /relatorios (2,8 s)
+2026-11-02 08:05:40 INFO  auth: login ok usuario=ana ip=10.0.5.21
+2026-11-02 08:06:02 ERROR auth: senha incorreta usuario=root ip=203.0.113.50
+2026-11-02 08:06:05 ERROR auth: senha incorreta usuario=root ip=203.0.113.50
+2026-11-02 08:06:09 ERROR auth: senha incorreta usuario=admin ip=203.0.113.50
+2026-11-02 08:10:00 INFO  cron: backup diário iniciado
+2026-11-02 08:12:31 error db: timeout ao consultar pedidos (30 s)
+2026-11-02 08:12:32 WARN  web: erro 502 devolvido ao cliente
+2026-11-02 08:15:00 INFO  cron: backup diário concluído
+2026-11-02 08:20:44 INFO  auth: login ok usuario=bruno ip=10.0.5.30
+2026-11-02 08:21:10 ERROR disk: /var com 95% de uso
+2026-11-02 08:25:00 INFO  web: deploy v2.4.1 aplicado
+2026-11-02 08:30:12 WARN  db: réplica pg02 atrasada 40 s
+2026-11-02 08:31:00 INFO  auth: logout usuario=ana
+2026-11-02 08:40:03 WARN  web: 3 errors no último minuto
+2026-11-02 08:45:00 INFO  cron: limpeza de /tmp concluída
+2026-11-02 08:50:27 INFO  auth: login ok usuario=rodrigo ip=10.0.5.10
+2026-11-02 09:00:00 INFO  web: health check ok
+EOF
+printf 'linha %s\n' $(seq 1 200000) &gt; grande.log
+ls -lh app1.log grande.log</code></pre>
+<p><code translate="no">cat &gt; arquivo &lt;&lt;'EOF'</code> registra tutto ciò che arriva fino alla riga <code translate="no">EOF</code>. Per ora, usalo come ricetta; La lezione 1.6 spiega ogni pezzo. <code translate="no">printf</code> ripete il modello <code translate="no">linha N</code> per ogni numero che <code translate="no">seq</code> genera. <code translate="no">grande.log</code> dovrebbe essere qualcosa come 2.4M.</p>
+<p><code translate="no">app1.log</code> è stato creato apposta: ha un <code translate="no">ERROR</code> in maiuscolo, un <code translate="no">error</code> in minuscolo, un <code translate="no">errors</code> all'interno di un avviso e due IP simili. Ognuno di questi dettagli diventa una trappola nei passi successivi.</p>
+<h3 id="passo-2-cat-vedere-tutto-e-vedere-l-invisibile">Passo 2 · <code translate="no">cat</code>: vedere tutto e vedere l'invisibile</h3>
+<pre translate="no"><code class="lang-bash">cat app1.log
+cat -n app1.log
+cat -A app1.log</code></pre>
+<p><code translate="no">-n</code> numera le righe: 20. <code translate="no">-A</code> mette un <code translate="no">$</code> alla fine di ogni riga. È il <code translate="no">\n</code> che non hai visto. Salva questa immagine: nella Pausa A, un file proveniente da Windows mostra <code translate="no">^M$</code> al posto di <code translate="no">$</code>.</p>
+<p>Ora commetti l'errore una volta, di proposito:</p>
+<pre translate="no"><code class="lang-bash">cat grande.log</code></pre>
+<p>Ci sono 200mila righe che passano sullo schermo. Premere <code translate="no">Ctrl+C</code>. Ora immagina 3 GB su un SSH lento, nelle prime ore del mattino.</p>
+<p><strong>Decidi 1 · Il registro da 2 GB.</strong> Scenario: il client dice che l'applicazione ha dato un errore proprio ora. <code translate="no">/var/log/app/app.log</code> è 2GB. Qual è il primo comando in cui viene visualizzato l'errore?</p>
+<ul><li><strong>A)</strong> <code translate="no">cat /var/log/app/app.log</code></li>
+<li><strong>B)</strong> <code translate="no">vi /var/log/app/app.log</code></li>
+<li><strong>C)</strong> <code translate="no">tail -n 100 /var/log/app/app.log</code></li>
+<li><strong>D)</strong> <code translate="no">head -n 100 /var/log/app/app.log</code></li></ul>
+<p>Scegliere la lettera prima di guardare la tabella.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se hai selezionato</th><th scope="col">Risultato</th><th scope="col">Perché</th></tr></thead><tbody><tr><td>A</td><td>❌ Sbagliato</td><td>Ci sono minuti di scorrimento del testo e l'errore di poco fa vola alla fine.</td></tr><tr><td>B</td><td>❌ Sbagliato</td><td>L'editor carica i 2 GB nella memoria di un server che ha già un problema e una chiave sbagliata salva una modifica.</td></tr><tr><td>C</td><td>✅ Giusto</td><td>Ciò che è recente è finito. Vengono visualizzate immediatamente cento righe e tu decidi il passaggio successivo.</td></tr><tr><td>D</td><td>❌ Sbagliato</td><td>L'inizio del file risale a giorni o settimane fa.</td></tr></tbody></table></div>
+<p><strong>Per risolvere:</strong> il problema recente si trova alla fine del file. Misurare con <code translate="no">ls -lh</code> e poi usare <code translate="no">tail</code> o <code translate="no">less +G</code>.</p>
+<h3 id="passo-3-less-la-lente-d-ingrandimento">Passo 3 · <code translate="no">less</code>: la lente d'ingrandimento</h3>
+<pre translate="no"><code class="lang-bash">less grande.log</code></pre>
+<p>All'interno di <code translate="no">less</code>, farlo in questo ordine:</p>
+<ol><li><code translate="no">G</code>: va all'ultima riga, <code translate="no">linha 200000</code>. È stato istantaneo.</li>
+<li><code translate="no">g</code>: ritorno alla prima marcia.</li>
+<li><code translate="no">/linha 123456</code> e Invio: salta alla riga cercata ed evidenziala.</li>
+<li><code translate="no">n</code>: ricerca del successivo. <code translate="no">less</code> risponde <code translate="no">Pattern not found</code>, perché ce n'è uno solo.</li>
+<li><code translate="no">-N</code> e Invio: collegano i numeri di riga. Ripetere per disattivare.</li>
+<li><code translate="no">q</code>: esci.</li></ol>
+<p>Ora il filtro, che pochi conoscono:</p>
+<pre translate="no"><code class="lang-bash">less app1.log</code></pre>
+<p>Digita <code translate="no">&amp;ERROR</code> e Invio. Rimangono solo le 4 righe con <code translate="no">ERROR</code>. Digita <code translate="no">&amp;</code> e Invio per rivedere tutto e <code translate="no">q</code> per uscire. Infine, <code translate="no">less +G app1.log</code> si apre alla fine.</p>
+<p><strong>Decidi 2 · Basta controllare una configurazione.</strong> Scenario: su un server client, vuoi solo controllare il valore di <code translate="no">PermitRootLogin</code> in <code translate="no">/etc/ssh/sshd_config</code>. Come si apre il file?</p>
+<ul><li><strong>A)</strong> <code translate="no">sudo vi /etc/ssh/sshd_config</code> e esci con <code translate="no">:q</code></li>
+<li><strong>B)</strong> <code translate="no">sudo less /etc/ssh/sshd_config</code> e cerca con <code translate="no">/PermitRootLogin</code></li>
+<li><strong>C)</strong> <code translate="no">sudo nano /etc/ssh/sshd_config</code></li>
+<li><strong>D)</strong> <code translate="no">sudo cat /etc/ssh/sshd_config</code> e cerca con gli occhi</li></ul>
+<p>Scegli la lettera prima di guardare la tabella.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se hai selezionato</th><th scope="col">Risultato</th><th scope="col">Perché</th></tr></thead><tbody><tr><td>A</td><td>❌ Sbagliato</td><td>Funziona, ma è un editor aperto come root nel file che controlla l'accesso al server. Un <code translate="no">:wq</code> per abitudine o un <code translate="no">dd</code> involontariamente modifica la produzione.</td></tr><tr><td>B</td><td>✅ Giusto</td><td><code translate="no">less</code> non sa come registrare. Si cerca con <code translate="no">/</code> e si esce con <code translate="no">q</code>, senza alcun rischio.</td></tr><tr><td>C</td><td>❌ Sbagliato</td><td>Lo stesso rischio di A: una parata <code translate="no">Ctrl+O</code>.</td></tr><tr><td>D</td><td>❌ Incompleto</td><td>Non rovina nulla, ma il file ha più di cento righe e la ricerca con gli occhi è lenta e fallisce.</td></tr></tbody></table></div>
+<p><strong>Per risolvere:</strong> per leggere, utilizzare uno strumento che non sappia scrivere. E quando sai già cosa stai cercando, <code translate="no">sudo grep -n 'PermitRootLogin' /etc/ssh/sshd_config</code> è ancora più veloce. Il passo 8 ritorna a questo file.</p>
+<h3 id="passo-4-head-e-tail-le-estremita-del-rotolo">Passo 4 · <code translate="no">head</code> e <code translate="no">tail</code>: le estremità del rotolo</h3>
+<pre translate="no"><code class="lang-bash">head app1.log
+head -n 3 app1.log
+tail -n 3 app1.log
+tail -n +18 app1.log
+head -n 7 app1.log | tail -n 3</code></pre>
+<p>La prima mostra 10 righe, il modello. <code translate="no">tail -n +18</code> significa "dalla riga 18 alla fine": qui gli ultimi tre uguali. L'ultimo comando mostra solo le righe da 5 a 7, le tre password errate. Il bus <code translate="no">|</code> porta l'uscita di <code translate="no">head</code> a <code translate="no">tail</code>; è il centro della lezione 1.6.</p>
+<p><strong>Live.</strong> Apri una seconda sessione SSH sulla stessa VM. Nella sessione 1:</p>
+<pre translate="no"><code class="lang-bash">touch ~/lab13/logs/ao-vivo.log
+tail -f ~/lab13/logs/ao-vivo.log</code></pre>
+<p>Nella sessione 2, esegui due o tre volte:</p>
+<pre translate="no"><code class="lang-bash">echo "$(date '+%F %T') INFO  web: teste ao vivo" &gt;&gt; ~/lab13/logs/ao-vivo.log</code></pre>
+<p>Ogni riga appare nella sessione 1 contemporaneamente. <code translate="no">&gt;&gt;</code> lo aggiunge alla fine del file, senza cancellare ciò che esiste; È anche oggetto di 1.6. Premi <code translate="no">Ctrl+C</code> nella sessione 1 per interrompere.</p>
+<p><strong>Decidi 3 · Tieni d'occhio la distribuzione.</strong> Scenario: lo sviluppatore pubblicherà la nuova versione in cinque minuti. L'applicazione si riavvia e ricrea il file di registro al momento del caricamento. Ti chiede di tenere d'occhio il registro durante il test. Cosa esegui?</p>
+<ul><li><strong>A)</strong> <code translate="no">tail -n 50 app.log</code>, ripetuto ogni minuto</li>
+<li><strong>B)</strong> <code translate="no">tail -F app.log</code></li>
+<li><strong>C)</strong> <code translate="no">tail -f app.log</code></li>
+<li><strong>D)</strong> <code translate="no">less app.log</code></li></ul>
+<p>Scegli la lettera prima di guardare la tabella.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se hai selezionato</th><th scope="col">Risultato</th><th scope="col">Perché</th></tr></thead><tbody><tr><td>A</td><td>❌ Sbagliato</td><td>Perdi ciò che passa tra un round e l'altro e spendi lo schieramento digitando.</td></tr><tr><td>B</td><td>✅ Giusto</td><td>Mostra immediatamente ogni nuova riga e, quando l'applicazione ricrea il file, riapre da sola quella nuova.</td></tr><tr><td>C</td><td>❌ Incompleto</td><td>Funziona finché l'applicazione non ricrea il registro. Successivamente continua a guardare il vecchio file e lo schermo rimane fermo al momento del test.</td></tr><tr><td>D</td><td>❌ Sbagliato</td><td><code translate="no">less</code> mostra il file così com'era all'apertura. Ne consegue solo se si preme <code translate="no">F</code>.</td></tr></tbody></table></div>
+<p><strong>Per appuntare:</strong> live, utilizzare <code translate="no">tail -F</code>, con la F maiuscola, come impostazione predefinita. Fa tutto quello che fa <code translate="no">-f</code> e non si ferma quando il file viene modificato.</p>
+<h3 id="passo-5-wc-misura-prima-dell-apertura">Passo 5 · <code translate="no">wc</code>: misura prima dell'apertura</h3>
+<pre translate="no"><code class="lang-bash">wc app1.log
+wc -l app1.log grande.log
+wc -l &lt; app1.log</code></pre>
+<p>Il primo mostra tre numeri: righe, parole e byte, in questo ordine. Il secondo mostra <code translate="no">20</code>, <code translate="no">200000</code> e il totale. Il terzo mostra solo il numero, senza il nome del file, che è il formato richiesto dallo script. Anche <code translate="no">&lt;</code> è della 1.6.</p>
+<p>Ora l'ultima riga trap:</p>
+<pre translate="no"><code class="lang-bash">printf 'primeira\nsegunda' &gt; sem-fim.txt
+wc -l sem-fim.txt
+cat -A sem-fim.txt</code></pre>
+<p><code translate="no">wc -l</code> risponde 1, per un file con due righe. <code translate="no">cat -A</code> spiega perché: <code translate="no">primeira$</code> ha una fine riga, mentre <code translate="no">segunda</code> no; anche il tuo messaggio appare incollato sopra. <code translate="no">wc -l</code> conta <code translate="no">\n</code>, non le righe che vedi. Nella realtà, questo appare nel CSV esportato da un altro sistema, in un conteggio che dà sempre uno in meno, e nel <code translate="no">crontab</code>, che rifiuta o ignora l'ultima riga senza fine riga, a seconda della versione.</p>
+<p><strong>Decidi 4 · Quanti errori ci sono stati?</strong> Scenario: il manager chiede quanti errori ha avuto oggi l'applicazione Java. <code translate="no">grep -c 'Exception' app-java.log</code> risponde 120. Che ne dici?</p>
+<ul><li><strong>A)</strong> "Ci sono stati 120 errori."</li>
+<li><strong>B)</strong> "Ancora non lo so. Ne guarderò alcuni con <code translate="no">grep -C 5</code>, perché un errore Java occupa più righe."</li>
+<li><strong>C)</strong> "Circa 120, più o meno."</li>
+<li><strong>D)</strong> Ruota <code translate="no">wc -l app-java.log</code> e informa il totale.</li></ul>
+<p>Scegli la lettera prima di guardare la tabella.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se hai selezionato</th><th scope="col">Risultato</th><th scope="col">Perché</th></tr></thead><tbody><tr><td>A</td><td>❌ Sbagliato</td><td><code translate="no">-c</code> conta le righe. Un singolo errore Java si ripete <code translate="no">Exception</code> su più righe, come quelle che iniziano con <code translate="no">Caused by</code>. Potrebbero esserci 30 errori o 4.</td></tr><tr><td>B</td><td>✅ Giusto</td><td>Tre esempi con contesto mostrano quante righe occupa ciascun errore. Quindi il numero diventa informazione.</td></tr><tr><td>C</td><td>❌ Sbagliato</td><td>Lo stesso errore di A, ma con il dubbio nella voce.</td></tr><tr><td>D</td><td>❌ Sbagliato</td><td>Conta tutto, comprese le righe INFO.</td></tr></tbody></table></div>
+<p><strong>Per risolvere:</strong> <code translate="no">grep -c</code> e <code translate="no">wc -l</code> contano le righe e una riga non è un evento. Prima che un numero venga inserito in un rapporto, guarda tre esempi con <code translate="no">-C</code>.</p>
+<h3 id="passo-6-grep-il-setaccio">Passo 6 · <code translate="no">grep</code>: il setaccio</h3>
+<pre translate="no"><code class="lang-bash">grep 'ERROR' app1.log
+grep -c 'ERROR' app1.log
+grep -i 'error' app1.log
+grep -iw 'error' app1.log
+grep -n 'senha incorreta' app1.log
+grep -v 'INFO' app1.log
+grep -c 'INFO' app1.log</code></pre>
+<p>Cosa dovresti vedere:</p>
+<div class="tabela"><table><thead><tr><th scope="col">Comando</th><th scope="col">Risultato</th><th scope="col">Cosa insegna</th></tr></thead><tbody><tr><td><code translate="no">grep 'ERROR'</code></td><td>4 righe</td><td>Solo lettere maiuscole: <code translate="no">error</code> di <code translate="no">db</code> viene tralasciato</td></tr><tr><td><code translate="no">grep -c 'ERROR'</code></td><td><code translate="no">4</code></td><td>Il numero, senza le righe</td></tr><tr><td><code translate="no">grep -i 'error'</code></td><td>6 righe</td><td>Inserire <code translate="no">error</code> di <code translate="no">db</code> e l'avviso con <code translate="no">3 errors</code></td></tr><tr><td><code translate="no">grep -iw 'error'</code></td><td>5 righe</td><td>Viene fuori <code translate="no">errors</code>: non è tutta la parola</td></tr><tr><td><code translate="no">grep -n 'senha incorreta'</code></td><td>Linee 5, 6 e 7</td><td>Il numero davanti a ciascuna riga</td></tr><tr><td><code translate="no">grep -v 'INFO'</code></td><td>9 righe</td><td>Tutto ciò che non è INFO</td></tr><tr><td><code translate="no">grep -c 'INFO'</code></td><td><code translate="no">11</code></td><td>E 11 più 9 dà 20, l'intero file</td></tr></tbody></table></div>
+<p>Sullo schermo la sezione trovata appare a colori. È l'alias <code translate="no">--color=auto</code> dalla tabella Rocky × Debian.</p>
+<p><strong>Decidi 5 · Il numero per il manager.</strong> Scenario: <code translate="no">app1.log</code> è il log di oggi e il manager vuole il numero di errori. Il team scrive quasi sempre <code translate="no">ERROR</code>, ma il modulo <code translate="no">db</code> scrive <code translate="no">error</code> in minuscolo. Quale comando fornisce il numero giusto?</p>
+<ul><li><strong>A)</strong> <code translate="no">grep -c 'ERROR' app1.log</code>, che risponde 4</li>
+<li><strong>B)</strong> <code translate="no">grep -ci 'error' app1.log</code>, che risponde 6</li>
+<li><strong>C)</strong> <code translate="no">grep -ciw 'error' app1.log</code>, che risponde 5</li>
+<li><strong>D)</strong> <code translate="no">grep -c 'error' app1.log</code>, che risponde 1</li></ul>
+<p>Scegliere la lettera prima di guardare la tabella.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se hai selezionato</th><th scope="col">Risultato</th><th scope="col">Perché</th></tr></thead><tbody><tr><td>A</td><td>❌ Sbagliato</td><td>Tralasciare il timeout bancario, che è un errore scritto in minuscolo.</td></tr><tr><td>B</td><td>❌ Sbagliato</td><td>Conta anche la riga <code translate="no">WARN web: 3 errors</code>, che è un avviso, non un errore.</td></tr><tr><td>C</td><td>✅ Giusto</td><td><code translate="no">-i</code> corrisponde alle lettere maiuscole e minuscole e <code translate="no">-w</code> toglie <code translate="no">errors</code>. Ci sono 5 errori.</td></tr><tr><td>D</td><td>❌ Sbagliato</td><td>Trova solo la riga in minuscolo.</td></tr></tbody></table></div>
+<p><strong>Per risolvere:</strong> leggere le righe prima di fidarsi di un numero. <code translate="no">-i</code> amplia la ricerca; <code translate="no">-w</code> taglia ciò che contiene solo la parola all'interno di un'altra.</p>
+<h3 id="passo-7-virgolette-piu-di-uno-schema-e-il-punto">Passo 7 · Virgolette, più di uno schema e il punto</h3>
+<pre translate="no"><code class="lang-bash">grep senha incorreta app1.log
+grep 'senha incorreta' app1.log
+grep -E 'ERROR|WARN' app1.log
+grep -c -e 'ERROR' -e 'WARN' app1.log
+grep 'ip=10.0.5.1' app1.log
+grep -Fw 'ip=10.0.5.1' app1.log; echo $?
+grep '^2026-11-02 08:0' app1.log
+grep 'ok$' app1.log</code></pre>
+<p>Il primo mostra cosa fa lo spazio senza virgolette. Qualcosa del tipo:</p>
+<pre translate="no"><code class="lang-text">grep: incorreta: No such file or directory
+app1.log:2026-11-02 08:06:02 ERROR auth: senha incorreta usuario=root ip=203.0.113.50
+...</code></pre>
+<p><code translate="no">grep</code> ha cercato <code translate="no">senha</code> in due file: uno chiamato <code translate="no">incorreta</code>, che non esiste, e <code translate="no">app1.log</code>. Ecco perché le righe vengono precedute dal nome del file. Tra virgolette, il risultato è corretto: le tre righe.</p>
+<p>I due comandi seguenti forniscono lo stesso insieme di 8 righe di avviso e di errore. <code translate="no">-E</code> collega la forma estesa, dove <code translate="no">|</code> significa "o"; il ripetuto <code translate="no">-e</code> fa lo stesso senza alcuna espressione.</p>
+<p>Ora veniamo al punto. <code translate="no">grep 'ip=10.0.5.1'</code> mostra una riga, ma è quella in <code translate="no">ip=10.0.5.10</code>. Il testo cercato si trova all'interno dell'IP più grande. Con <code translate="no">-Fw</code> non appare nulla e <code translate="no">echo $?</code> mostra <code translate="no">1</code>: non trovato. <code translate="no">-F</code> fa sì che il punto valga solo un punto, e <code translate="no">-w</code> richiede che la ricerca finisca lì.</p>
+<p>Infine, le ancore. <code translate="no">^2026-11-02 08:0</code> risponde a tutte e 7 le linee prima delle 8:10. <code translate="no">ok$</code> prende solo <code translate="no">health check ok</code>: le righe di <code translate="no">login ok</code> ne hanno di più dopo <code translate="no">ok</code>.</p>
+<p><strong>Decidi 6 · Tutto tranne INFO.</strong> Scenario: per la riunione, vuoi tutte le righe di avviso ed errore di <code translate="no">app1.log</code>. Quale comando?</p>
+<ul><li><strong>A)</strong> <code translate="no">grep WARN ERROR app1.log</code></li>
+<li><strong>B)</strong> <code translate="no">grep -v 'INFO' app1.log</code></li>
+<li><strong>C)</strong> <code translate="no">grep -E 'WARN|ERROR' app1.log</code></li>
+<li><strong>D)</strong> <code translate="no">grep 'WARN|ERROR' app1.log</code></li></ul>
+<p>Scegliere la lettera prima di guardare la tabella.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se hai selezionato</th><th scope="col">Risultato</th><th scope="col">Perché</th></tr></thead><tbody><tr><td>A</td><td>❌ Sbagliato</td><td><code translate="no">ERROR</code> diventa un nome di file: appare <code translate="no">No such file or directory</code> e compaiono solo gli avvisi.</td></tr><tr><td>B</td><td>✅ Giusto</td><td>Le righe sono 9: 4 diffide, 4 <code translate="no">ERROR</code> e <code translate="no">error</code> nelle lettere bancarie. Dire ciò che non vuoi ti toglie anche ciò che non avevi previsto.</td></tr><tr><td>C</td><td>❌ Incompleto</td><td>Ci sono 8 righe e manca il timeout della banca, in minuscolo. Con <code translate="no">-iE</code> sarebbe corretto.</td></tr><tr><td>D</td><td>❌ Sbagliato</td><td>Senza <code translate="no">-E</code> la barra verticale è un carattere regolare. <code translate="no">grep</code> cerca il testo <code translate="no">WARN</code> seguito da una barra e <code translate="no">ERROR</code> e non trova nulla.</td></tr></tbody></table></div>
+<p><strong>Per risolvere:</strong> a volte il modo più sicuro è eliminare ciò che non desideri. <code translate="no">-v</code> non dipende dall'indovinare tutte le parole.</p>
+<p><strong>Decidi 7 · L'IP che non esiste.</strong> Scenario: il team di sicurezza chiede se l'IP 10.0.5.1 ha avuto accesso al sistema oggi. Esegui <code translate="no">grep 'ip=10.0.5.1' app1.log</code> e appare una riga. Cosa rispondi?</p>
+<ul><li><strong>A)</strong> "Sì, hai effettuato l'accesso: è nel registro."</li>
+<li><strong>B)</strong> "No. La riga è del 10.0.5.10 e con <code translate="no">grep -Fw 'ip=10.0.5.1'</code> non appare nulla."</li>
+<li><strong>C)</strong> "Non capisco: <code translate="no">grep</code> non è considerato attendibile da IP."</li>
+<li><strong>D)</strong> "Sì, uno tempo."</li></ul>
+<p>Scegli la lettera prima di guardare la tabella.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se hai selezionato</th><th scope="col">Risultato</th><th scope="col">Perché</th></tr></thead><tbody><tr><td>A</td><td>❌ Sbagliato</td><td><code translate="no">10.0.5.1</code> è all'interno di <code translate="no">10.0.5.10</code>. Hai appena accusato la macchina sbagliata.</td></tr><tr><td>B</td><td>✅ Giusto</td><td>Hai letto la riga, hai visto l'IP reale e hai confermato con la ricerca esatta.</td></tr><tr><td>C</td><td>❌ Sbagliato</td><td><code translate="no">grep</code> è affidabile. Lo schema è che era sciolto.</td></tr><tr><td>D</td><td>❌ Sbagliato</td><td>È lo stesso errore di A.</td></tr></tbody></table></div>
+<p><strong>Per correggere:</strong> per IP, utente e numero, utilizzare <code translate="no">-w</code>; per il testo punteggiato, utilizzare <code translate="no">-F</code>. Insieme: <code translate="no">grep -Fw</code>.</p>
+<figure><a href="../img/1.5-peneira-grep.jpg"><img src="../img/1.5-peneira-grep.jpg" alt="Il setaccio grep: -i, -w, -F, -E, -v e le ancore" loading="lazy" decoding="async"></a><figcaption>-i allarga, -w taglia, -F conta i punti, -v cancella; e sempre virgolette singole.</figcaption></figure>
+<h3 id="passo-8-cerca-nelle-cartelle-e-nelle-impostazioni">Passo 8 · Cerca nelle cartelle e nelle impostazioni</h3>
+<pre translate="no"><code class="lang-bash">grep -rn 'senha' ~/lab13
+grep -rl 'senha' ~/lab13
+grep -C 2 'timeout' app1.log</code></pre>
+<p><code translate="no">-r</code> esamina tutti i file nella cartella e nelle sottocartelle e <code translate="no">-n</code> pronuncia la riga; insieme hai l'indirizzo completo come <code translate="no">/home/rodrigo/lab13/logs/app1.log:5:</code>. <code translate="no">-l</code> mostra solo il nome del file. È quello che vuoi quando la domanda è "in quale file si trova?".</p>
+<p><code translate="no">-C 2</code> mostra le righe da 7 a 11 e racconta una storia: alle 08:12:31 la banca è andata in timeout e un secondo dopo il sito ha restituito al cliente l'errore 502. Da solo, ogni riga è un sintomo. Con il contesto, avete la causa.</p>
+<p>Ora una vera configurazione, basta leggere:</p>
+<pre translate="no"><code class="lang-bash">sudo grep -rn 'PermitRootLogin' /etc/ssh/
+sudo grep -Ev '^[[:space:]]*(#|$)' /etc/ssh/sshd_config</code></pre>
+<p>La prima mostra tutte le righe con <code translate="no">PermitRootLogin</code>, nel file principale e nella cartella <code translate="no">sshd_config.d/</code>. Qualcosa come <code translate="no">/etc/ssh/sshd_config:40:#PermitRootLogin prohibit-password</code>. In Rocky, un file può apparire anche all'interno di <code translate="no">sshd_config.d/</code>, se l'installazione consente il login come root.</p>
+<p>La seconda è la ricetta più utile di questa lezione: mostra solo le righe attive. Leggere lo schema: <code translate="no">^</code> è l'inizio, <code translate="no">[[:space:]]*</code> sono spazi o tabulazioni, zero o più, e <code translate="no">(#|$)</code> è un <code translate="no">#</code> o la fine della riga. <code translate="no">-v</code> toglie tutto questo. Ci sono solo le righe che contano. Un file di più di cento righe diventa da sei a dieci. E il primo di essi è solitamente <code translate="no">Include /etc/ssh/sshd_config.d/*.conf</code>, che spiega il caso di Perché è importante: ciò che c'è nella cartella viene letto prima degli altri, e in <code translate="no">sshd</code> conta il primo valore letto.</p>
+<p><strong>Decidi 8 · Solo ciò che conta.</strong> Scenario: hai rilevato un server e vuoi incollare nel ticket solo le righe attive di <code translate="no">/etc/ssh/sshd_config</code>, senza commenti e senza righe vuote. Quale comando?</p>
+<ul><li><strong>A)</strong> <code translate="no">grep -v '#' /etc/ssh/sshd_config</code></li>
+<li><strong>B)</strong> <code translate="no">sudo grep -Ev '^[[:space:]]*(#|$)' /etc/ssh/sshd_config</code></li>
+<li><strong>C)</strong> <code translate="no">sudo grep '^[A-Z]' /etc/ssh/sshd_config</code></li>
+<li><strong>D)</strong> <code translate="no">sudo cat /etc/ssh/sshd_config</code>, cancellando a mano i commenti nella chiamata</li></ul>
+<p>Scegliere la lettera prima di guardare la tabella.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se hai selezionato</th><th scope="col">Risultato</th><th scope="col">Perché</th></tr></thead><tbody><tr><td>A</td><td>❌ Sbagliato</td><td>Lasciare le righe vuote e rimuovere eventuali righe con <code translate="no">#</code> al centro. In Rocky, senza <code translate="no">sudo</code>, non si apre nemmeno: <code translate="no">Permission denied</code>.</td></tr><tr><td>B</td><td>✅ Giusto</td><td>Rimuovi i commenti, compresi quelli rientrati, e le righe vuote. Ciò lascia esattamente ciò che usa <code translate="no">sshd</code>.</td></tr><tr><td>C</td><td>❌ Incompleto</td><td>Perde le righe rientrate all'interno di un blocco <code translate="no">Match</code>, che tendono ad essere le più pericolose nel file.</td></tr><tr><td>D</td><td>❌ Sbagliato</td><td>È lento e nella fretta elimini una riga attiva o lasci un commento.</td></tr></tbody></table></div>
+<p><strong>Per risolvere:</strong> un commento è una riga che <strong>inizia</strong> con <code translate="no">#</code>, magari dopo gli spazi. Salva la ricetta per l'elemento B: funziona per quasi tutti i file di configurazione Linux.</p>
+<h3 id="protocollo-leggi-un-registro-senza-paura">Protocollo · Leggi un registro senza paura</h3>
+<ol><li><strong>Misura.</strong> <code translate="no">ls -lh arquivo</code> e, se necessario, <code translate="no">wc -l arquivo</code>.</li>
+<li><strong>Vai al suggerimento destro.</strong> Problema recente: <code translate="no">tail -n 100</code> o <code translate="no">less +G</code>. Inizio del file: <code translate="no">head</code>.</li>
+<li><strong>Vaiare con virgolette singole.</strong> <code translate="no">grep -n -i 'texto' arquivo</code>; per IP e numeri, <code translate="no">-Fw</code>.</li>
+<li><strong>Apri il contesto.</strong> <code translate="no">grep -C 5</code>, perché la riga non è un evento.</li>
+<li><strong>Guarda dal vivo se necessario.</strong> <code translate="no">tail -F arquivo</code>.</li></ol>
+<p>Mai: <code translate="no">cat</code> in un file che non hai misurato, né un editor per leggere il file di produzione.</p>
+<h2 id="7-interruzione-e-correzione">7 · Interruzione e correzione</h2>
+<p>Due interruzioni che ogni amministratore incontra prima o poi. Nessuna modifica al sistema: tutto avviene nei tuoi file, all'interno di <code translate="no">~/lab13/logs</code>. In ognuno, seguire l'ordine: break, prevedere prima di guardare, trovare la causa con gli strumenti della lezione, decidere, correggere e controllare.</p>
+<h3 id="break-a-il-file-che-proviene-da-windows">Break A · Il file che proviene da Windows</h3>
+<p><strong>Break.</strong> Questo <code translate="no">printf</code> crea un file di configurazione come fa Blocco note di Windows:</p>
+<pre translate="no"><code class="lang-bash">cd ~/lab13/logs
+printf 'PORTA=8080\r\nMODO=producao\r\n' &gt; config-windows.env
+cat config-windows.env</code></pre>
+<p><code translate="no">cat</code> mostra due righe normali:</p>
+<pre translate="no"><code class="lang-text">PORTA=8080
+MODO=producao</code></pre>
+<p><strong>Predict.</strong> Ora chiederai <code translate="no">grep</code> quante righe finiscono con <code translate="no">producao</code>. Scrivere il numero prima di correre.</p>
+<pre translate="no"><code class="lang-bash">grep -c 'producao$' config-windows.env
+grep -c 'producao' config-windows.env</code></pre>
+<p>Il primo risponde <code translate="no">0</code>. Il secondo risponde <code translate="no">1</code>. La parola c'è, ma non è alla fine della riga.</p>
+<p><strong>Scoprilo.</strong></p>
+<pre translate="no"><code class="lang-bash">cat -A config-windows.env
+od -c config-windows.env
+file config-windows.env</code></pre>
+<p>Qualcosa come:</p>
+<pre translate="no"><code class="lang-text">PORTA=8080^M$
+MODO=producao^M$
+0000000   P   O   R   T   A   =   8   0   8   0  \r  \n   M   O   D   O
+0000020   =   p   r   o   d   u   c   a   o  \r  \n
+0000033
+config-windows.env: ASCII text, with CRLF line terminators</code></pre>
+<p>Tre strumenti, stessa risposta. Prima di ogni <code translate="no">\n</code> c'è un <code translate="no">\r</code>, che <code translate="no">cat -A</code> viene visualizzato come <code translate="no">^M</code> e <code translate="no">od -c</code> viene visualizzato per nome. Windows termina ogni riga con due caratteri, <code translate="no">\r\n</code>; Linux, solo con <code translate="no">\n</code>. Per <code translate="no">grep</code>, <code translate="no">$</code> è il punto subito prima del <code translate="no">\n</code>. C'è <code translate="no">\r</code>, non <code translate="no">o</code> di <code translate="no">producao</code>.</p>
+<p>E perché <code translate="no">cat</code> non ha mostrato nulla di strano? Il terminale intende <code translate="no">\r</code> come "ritorno all'inizio della riga", come il trasporto di una macchina da scrivere. Poiché dopo non viene nulla, la schermata rimane la stessa.</p>
+<p>Se <code translate="no">file</code> risponde <code translate="no">command not found</code>, installarlo solo sulla VM del laboratorio: <code translate="no">sudo dnf install -y file</code> su Rocky o <code translate="no">sudo apt install -y file</code> su Debian. <code translate="no">cat -A</code> e <code translate="no">od</code> esistono su qualsiasi Linux.</p>
+<p><strong>Decidi 9 · Il <code translate="no">.env</code> dello sviluppatore.</strong> Scenario: lo sviluppatore ha modificato il <code translate="no">.env</code> dell'applicazione sul suo portatile Windows e lo ha inviato via email. Hai copiato il file sul server e l'applicazione non si carica: <code translate="no">modo inválido: producao</code>. Ma dice <code translate="no">producao</code>. Cosa fare prima?</p>
+<ul><li><strong>A)</strong> Apri il file in <code translate="no">vi</code>, elimina la riga e digita di nuovo</li>
+<li><strong>B)</strong> Esegui <code translate="no">cat -A</code> nel file e, vedendo <code translate="no">^M</code>, converti le interruzioni di riga</li>
+<li><strong>C)</strong> Riavvia nuovamente l'applicazione</li>
+<li><strong>D)</strong> Chiedi allo sviluppatore di inviare il file nuovo</li></ul>
+<p>Scegli la lettera prima di guardare il tabella.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se hai selezionato</th><th scope="col">Risultato</th><th scope="col">Perché</th></tr></thead><tbody><tr><td>A</td><td>❌ Incompleto</td><td>Puoi risolvere questa riga, ma non scopri la causa, il <code translate="no">\r</code> continua nelle altre e, la prossima volta, perdi lo stesso tempo.</td></tr><tr><td>B</td><td>✅ Giusto</td><td><code translate="no">^M</code> spiega il messaggio: la domanda leggeva <code translate="no">producao</code> seguito da un <code translate="no">\r</code>. Un comando risolve l'intero file.</td></tr><tr><td>C</td><td>❌ Sbagliato</td><td>Il file rimane lo stesso, così come l'errore.</td></tr><tr><td>D</td><td>❌ Sbagliato</td><td>Lo invia allo stesso modo e il file arriva lo stesso.</td></tr></tbody></table></div>
+<p><strong>Per risolvere:</strong> quando il testo sembra corretto e Linux non è d'accordo, eseguire <code translate="no">cat -A</code> prima di ogni altra cosa.</p>
+<p><strong>Correggere.</strong></p>
+<pre translate="no"><code class="lang-bash">cp config-windows.env config-windows.env.bak
+sed -i 's/\r$//' config-windows.env</code></pre>
+<p>Utilizzare come ricetta; <code translate="no">sed</code> ha una propria lezione. <code translate="no">s/\r$//</code> modifica <code translate="no">\r</code> alla fine di ogni riga in nulla e <code translate="no">-i</code> scrive la modifica nel file stesso. Ecco perché la copia viene prima: <code translate="no">-i</code> non chiede conferma. C'è anche <code translate="no">dos2unix</code> che fa la stessa cosa, ma non è sempre installato. <code translate="no">sed</code> è ovunque in Linux.</p>
+<p><strong>Check.</strong></p>
+<pre translate="no"><code class="lang-bash">cat -A config-windows.env
+grep -c 'producao$' config-windows.env
+file config-windows.env</code></pre>
+<p>Ora le righe finiscono solo in <code translate="no">$</code>, <code translate="no">grep</code> risponde a <code translate="no">1</code> e <code translate="no">file</code> dice solo <code translate="no">ASCII text</code>.</p>
+<p><strong>La stessa interruzione in uno script.</strong> Questo è dove appare maggiormente nella vita reale:</p>
+<pre translate="no"><code class="lang-bash">printf '#!/bin/bash\r\necho "script rodou"\r\n' &gt; script-windows.sh
+chmod +x script-windows.sh
+./script-windows.sh</code></pre>
+<p>O <code translate="no">chmod +x</code> lascia che il file venga eseguito; anche i permessi hanno una propria lezione. Qualcosa come:</p>
+<pre translate="no"><code class="lang-text">-bash: ./script-windows.sh: /bin/bash^M: bad interpreter: No such file or directory</code></pre>
+<p><code translate="no">^M</code> è nel messaggio stesso: il sistema ha cercato un programma chiamato <code translate="no">/bin/bash</code> seguito da <code translate="no">\r</code> e non esiste. Correggere con lo stesso <code translate="no">sed -i 's/\r$//' script-windows.sh</code> e riavviarlo: appare <code translate="no">script rodou</code>. Mantenere la coppia <code translate="no">bad interpreter</code> e <code translate="no">^M</code>. Quando lo vedi, conosci già la causa.</p>
+<h3 id="interruzione-b-il-tail-f-che-si-e-interrotto">Interruzione B · Il <code translate="no">tail -f</code> che si è interrotto</h3>
+<p>Saranno necessarie due sessioni SSH sulla stessa VM, come nel passaggio 4.</p>
+<p><strong>Prepare.</strong> Nella sessione B:</p>
+<pre translate="no"><code class="lang-bash">mkdir -p ~/lab13/logs/rot
+cd ~/lab13/logs/rot
+echo "$(date '+%T') linha 1" &gt; app.log</code></pre>
+<p>Nella sessione A:</p>
+<pre translate="no"><code class="lang-bash">tail -f ~/lab13/logs/rot/app.log</code></pre>
+<p><strong>Interruzione.</strong> Nella sessione B, esegui una riga alla volta e osserva la sessione A dopo ciascuna a:</p>
+<pre translate="no"><code class="lang-bash">echo "$(date '+%T') antes da rotação" &gt;&gt; app.log
+mv app.log app.log.1
+echo "$(date '+%T') depois da rotação" &gt;&gt; app.log</code></pre>
+<p><code translate="no">mv</code> fa quello che fa <code translate="no">logrotate</code> ogni notte su un server: cambia il nome del log corrente e l'applicazione inizia a scrivere in un nuovo file, con il vecchio nome.</p>
+<p><strong>Predict.</strong> Prima di guardare la sessione A: appare la riga "prima"? E il "dopo"?</p>
+<p>Appare il "prima". “Dopo”, no: lo schermo resta fermo. Ora, nella sessione B:</p>
+<pre translate="no"><code class="lang-bash">echo "$(date '+%T') escrita no arquivo antigo" &gt;&gt; app.log.1</code></pre>
+<p>Questo appare nella sessione A. <code translate="no">tail -f</code> continua ad accompagnare il file che ora si chiama <code translate="no">app.log.1</code>.</p>
+<p><strong>Discover.</strong> Nella sessione B:</p>
+<pre translate="no"><code class="lang-bash">ls -li
+ls -l /proc/$(pgrep -n tail)/fd</code></pre>
+<p>Qualcosa come:</p>
+<pre translate="no"><code class="lang-text">16777300 -rw-r--r--. 1 rodrigo rodrigo 28 Nov  2 10:21 app.log
+16777299 -rw-r--r--. 1 rodrigo rodrigo 94 Nov  2 10:22 app.log.1
+...
+lr-x------. 1 rodrigo rodrigo 64 Nov  2 10:22 3 -&gt; /home/rodrigo/lab13/logs/rot/app.log.1
+lr-x------. 1 rodrigo rodrigo 64 Nov  2 10:22 4 -&gt; anon_inode:inotify</code></pre>
+<p>Leggi come nella lezione 1.4: <code translate="no">mv</code> non cambia l'inode. <code translate="no">app.log.1</code> ha il numero che aveva <code translate="no">app.log</code> quando <code translate="no">tail</code> lo ha aperto. <code translate="no">pgrep -n tail</code> trova il processo più recente <code translate="no">tail</code> e la cartella <code translate="no">fd</code> di quel processo, all'interno di <code translate="no">/proc</code>, elenca i file che mantiene aperti. Il descrittore 3 rimanda al <code translate="no">app.log.1</code>. <code translate="no">tail -f</code> segue il file aperto, non il nome. È il disegno del Modello Mentale, ora sul tuo schermo.</p>
+<p><strong>Decidi 10 · Il monitor è fermo.</strong> Scenario: <code translate="no">logrotate</code> viene eseguito ogni notte a mezzanotte. Il team lascia un <code translate="no">tail -f</code> del registro dell'applicazione aperto su uno schermo nella stanza. Ogni mattina lo schermo è immobile da mezzanotte. Cosa cambi?</p>
+<ul><li><strong>A)</strong> Scambia <code translate="no">tail -f</code> con <code translate="no">tail -F</code></li>
+<li><strong>B)</strong> Crea una pianificazione che riavvia <code translate="no">tail</code> ogni volta</li>
+<li><strong>C)</strong> Scambia con <code translate="no">less +F</code></li>
+<li><strong>D)</strong> Riavvia l'applicazione dopo ogni rotazione</li></ul>
+<p>Scegli la lettera prima di guardare la tabella.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se hai selezionato</th><th scope="col">Risultato</th><th scope="col">Perché</th></tr></thead><tbody><tr><td>A</td><td>✅ Giusto</td><td><code translate="no">-F</code> segue il nome: quando si modifica il file riapre autonomamente quello nuovo.</td></tr><tr><td>B</td><td>❌ Sbagliato</td><td>È una toppa. Lo schermo rimane fermo fino a un'ora e hai guadagnato un'altra cosa da mantenere.</td></tr><tr><td>C</td><td>❌ Sbagliato</td><td>Nella modalità <code translate="no">F</code>, anche <code translate="no">less</code> tiene traccia del file aperto e si ferma allo stesso modo.</td></tr><tr><td>D</td><td>❌ Sbagliato</td><td>Il problema è di chi legge, non di chi scrive. L'applicazione ora scrive nel nuovo file.</td></tr></tbody></table></div>
+<p><strong>Da risolvere:</strong> <code translate="no">tail -f</code> segue il file aperto; <code translate="no">tail -F</code> segue il nome. Il registro eseguito richiede <code translate="no">-F</code>.</p>
+<p><strong>Fix.</strong> Nella sessione A, premere <code translate="no">Ctrl+C</code> ed eseguire:</p>
+<pre translate="no"><code class="lang-bash">tail -F ~/lab13/logs/rot/app.log</code></pre>
+<p>Nella sessione B, eseguire un'altra rotazione:</p>
+<pre translate="no"><code class="lang-bash">mv app.log app.log.2
+echo "$(date '+%T') depois da segunda rotação" &gt;&gt; app.log</code></pre>
+<p>Nella sessione A, qualcosa come:</p>
+<pre translate="no"><code class="lang-text">tail: '/home/rodrigo/lab13/logs/rot/app.log' has become inaccessible: No such file or directory
+tail: '/home/rodrigo/lab13/logs/rot/app.log' has appeared;  following new file
+10:25:40 depois da segunda rotação</code></pre>
+<p>Il messaggio esatto varia in base alla versione e alla velocità della modifica; a volte è <code translate="no">has been replaced;  following new file</code>. Ciò che conta è l'ultima riga: è apparsa.</p>
+<p><strong>Check.</strong> Nella sessione B:</p>
+<pre translate="no"><code class="lang-bash">echo "$(date '+%T') teste final" &gt;&gt; app.log</code></pre>
+<p>La riga appare nella sessione A. Premi <code translate="no">Ctrl+C</code> per uscire.</p>
+<p>Una nota per dopo: alcuni <code translate="no">logrotate</code> usano <code translate="no">copytruncate</code>, che copia il contenuto nel vecchio file e svuota quello corrente senza modificare l'inode. In questo caso sopravvive anche <code translate="no">-f</code>, che mostra qualcosa come <code translate="no">file truncated</code>. Dato che non sempre sai qual è il caso, <code translate="no">-F</code> è l'impostazione predefinita sicura.</p>
+<h3 id="e-l-istantanea">E l'istantanea?</h3>
+<p>Nessun guasto ha interessato il sistema, solo i tuoi file all'interno di <code translate="no">~/lab13</code>. Non è necessario restituire nulla. Se vuoi rifare la lezione da zero, <code translate="no">qm rollback 201 m1a5-inicio</code> sul nodo Proxmox, e lo stesso con <code translate="no">202</code> per Debian, torna all'inizio del passo 1.</p>
+<h3 id="bonus-debian-dove-sono-finiti-i-log">Bonus Debian · Dove sono finiti i log?</h3>
+<p>Chi viene da vecchi tutorial cerca <code translate="no">/var/log/syslog</code> e <code translate="no">/var/log/auth.log</code>. In Debian 13 non esistono: <code translate="no">rsyslog</code> non è installato e i log di sistema sono solo nel journal systemd.</p>
+<pre translate="no"><code class="lang-bash">ls /var/log
+ls /var/log/syslog
+sudo journalctl -n 20
+sudo journalctl -f</code></pre>
+<p>Il secondo risponde <code translate="no">No such file or directory</code>. <code translate="no">journalctl -n 20</code> è <code translate="no">tail -n 20</code> della rivista e <code translate="no">journalctl -f</code> è <code translate="no">tail -f</code>; uscire con <code translate="no">Ctrl+C</code>. Senza <code translate="no">sudo</code>, <code translate="no">journalctl</code> può mostrare solo i vostri messaggi, con un suggerimento: chiunque nei gruppi <code translate="no">adm</code> o <code translate="no">systemd-journal</code> vede tutto. Il diario ha una propria lezione. Per ora è sufficiente sapere che fornisce testo e il testo del filtro <code translate="no">grep</code>:</p>
+<pre translate="no"><code class="lang-bash">sudo journalctl -b | grep -ic 'error'</code></pre>
+<p>I log del pacchetto rimangono nel file:</p>
+<pre translate="no"><code class="lang-bash">tail -n 5 /var/log/dpkg.log
+grep ' install ' /var/log/dpkg.log | tail -n 5
+tail -n 20 /var/log/apt/history.log
+ls /var/log/dpkg.log*</code></pre>
+<p>Il secondo mostra gli ultimi cinque pacchetti installati. <code translate="no">history.log</code> mostra ogni <code translate="no">apt install</code> con la data e la riga di comando completa: è il primo posto dove rispondere "chi l'ha installato e quando?". Se qualcuno risponde <code translate="no">Permission denied</code>, ripetere con <code translate="no">sudo</code>. Se <code translate="no">ls</code> mostra un <code translate="no">dpkg.log.2.gz</code>, questo è compresso, e <code translate="no">zgrep</code> lo legge senza decomprimerlo:</p>
+<pre translate="no"><code class="lang-bash">zgrep -c ' install ' /var/log/dpkg.log.2.gz</code></pre>
+<h3 id="rocky-bonus-i-classici-logs">Rocky Bonus · I classici logs</h3>
+<p>Rocky conserva <code translate="no">rsyslog</code> e i soliti file, leggibili solo da root:</p>
+<pre translate="no"><code class="lang-bash">ls /var/log/messages* /var/log/secure*
+sudo tail -n 5 /var/log/secure
+sudo grep -c 'COMMAND=' /var/log/secure
+sudo grep -c 'denied' /var/log/audit/audit.log</code></pre>
+<p><code translate="no">ls</code> mostra il file corrente e quelli già eseguiti, con la data nel nome, qualcosa come <code translate="no">messages-20261101</code>. <code translate="no">tail</code> di <code translate="no">secure</code> porta una sorpresa: l'ultima riga sei tu. Qualcosa del tipo:</p>
+<pre translate="no"><code class="lang-text">Nov  2 10:30:12 rocky-lab sudo[2412]: rodrigo : TTY=pts/0 ; PWD=/home/rodrigo/lab13/logs ; USER=root ; COMMAND=/usr/bin/tail -n 5 /var/log/secure</code></pre>
+<p>Viene registrato ogni <code translate="no">sudo</code>: chi, da quale terminale, in quale cartella e con quale comando. <code translate="no">grep -c 'COMMAND='</code> conta quanti <code translate="no">sudo</code> hanno ruotato dall'ultima rotazione. Ecco come rispondi "chi ha toccato il server ieri sera?".</p>
+<p>L'ultimo conta i rifiuti di SELinux nel registro di controllo. In un nuovo laboratorio, il valore normale è pari a zero o vicino ad esso. Su un server dove "l'applicazione non può leggere il file, ma i permessi sono corretti", questo numero è solitamente la risposta. La lezione su SELinux inizia qui.</p>
+<h3 id="la-lezione">La lezione</h3>
+<p>Ciò che vedi sullo schermo potrebbe non essere ciò che esiste. Il testo può contenere caratteri invisibili e <code translate="no">cat -A</code> li mostra tutti. Il nome può già rimandare ad un altro file e solo <code translate="no">tail -F</code> segue il nome. Dietro le due interruzioni c'è la stessa abitudine del Protocollo: prima di concludere, guardare cosa è realmente il file.</p>
+<h2 id="8-insidie">8 · Insidie</h2>
+<div class="tabela"><table><thead><tr><th scope="col">Trappola</th><th scope="col">Cosa succede</th><th scope="col">Come evitare</th></tr></thead><tbody><tr><td><code translate="no">cat</code> in un enorme registro</td><td>Minuti di scorrimento del testo e il terminale non risponde</td><td><code translate="no">ls -lh</code> prima; poi <code translate="no">tail</code> o <code translate="no">less +G</code></td></tr><tr><td>Editor per leggere la configurazione di produzione</td><td>Un <code translate="no">:wq</code> per abitudine cambia il server</td><td><code translate="no">less</code>, o <code translate="no">grep -n</code> se sai cosa stai cercando</td></tr><tr><td><code translate="no">head</code> per vedere un errore recente</td><td>Mostra il passato del file</td><td>Il numero recente è alla fine: <code translate="no">tail</code></td></tr><tr><td>Testo con spazi senza virgolette</td><td>La seconda parola diventa il nome del file: <code translate="no">No such file or directory</code></td><td>Le virgolette singole sempre</td></tr><tr><td>Dimenticando che <code translate="no">grep</code> fa distinzione tra maiuscole e minuscole</td><td><code translate="no">ERROR</code> non la penso così <code translate="no">error</code></td><td><code translate="no">-i</code>, e leggere le righe prima di contare</td></tr><tr><td><code translate="no">-i</code> senza <code translate="no">-w</code></td><td><code translate="no">errors</code> e <code translate="no">terror</code> inserire l'account</td><td><code translate="no">-iw</code> per parola intera</td></tr><tr><td>Punto in IP</td><td><code translate="no">10.0.5.1</code> pensa <code translate="no">10.0.5.10</code></td><td><code translate="no">grep -Fw</code></td></tr><tr><td><code translate="no">grep -c</code> come numero di eventi</td><td>Un errore su più righe conta più volte</td><td>Tre esempi con <code translate="no">-C</code> prima del numero</td></tr><tr><td><code translate="no">*</code> della regex si legge come la shell</td><td><code translate="no">grep 'app*.log'</code> non significa "app, qualunque cosa, .log"</td><td>Nella regex, "qualsiasi cosa" è <code translate="no">.*</code></td></tr><tr><td><code translate="no">grep</code> in una cartella senza <code translate="no">-r</code></td><td><code translate="no">Is a directory</code></td><td><code translate="no">grep -rn</code></td></tr><tr><td><code translate="no">grep -v '#'</code> per cancellare la configurazione</td><td>Aggiungete la riga con <code translate="no">#</code> al centro, quelle vuote restano</td><td>La ricetta per il passaggio 8</td></tr><tr><td><code translate="no">tail -f</code> in un registro che esegue</td><td>Lo schermo si ferma dopo la rotazione</td><td><code translate="no">tail -F</code></td></tr><tr><td>File proveniente da Windows</td><td><code translate="no">$</code> non corrisponde e lo script fornisce <code translate="no">bad interpreter</code></td><td><code translate="no">cat -A</code>, poi <code translate="no">sed -i 's/\r$//'</code> con copia prima</td></tr><tr><td>Ultima riga senza fine riga</td><td><code translate="no">wc -l</code> ne dà uno in meno</td><td><code translate="no">cat -A</code> mostra se esiste l'ultimo <code translate="no">$</code></td></tr></tbody></table></div>
+<h2 id="9-quiz">9 · Quiz</h2>
+<p>Dieci domande, senza consultazione. Scrivere la lettera o rispondere a ciascuna e solo dopo aprire il tasto di risposta.</p>
+<p><strong>1.</strong> Senza opzioni, quante righe compaiono <code translate="no">head</code> e <code translate="no">tail</code>?</p>
+<ul><li><strong>A)</strong> 5</li>
+<li><strong>B)</strong> 10</li>
+<li><strong>C)</strong> 20</li>
+<li><strong>D)</strong> Il numero intero sullo schermo</li></ul>
+<p><strong>2.</strong> In <code translate="no">app1.log</code>, perché <code translate="no">grep -c 'ERROR'</code> risponde 4 e <code translate="no">grep -ic 'error'</code> risponde 6?</p>
+<ul><li><strong>A)</strong> Con <code translate="no">-i</code>, <code translate="no">grep</code> conta le occorrenze, non le righe</li>
+<li><strong>B)</strong> Con <code translate="no">-i</code>, <code translate="no">error</code> nel caso bancario e l'Avvertimento <code translate="no">errors</code></li>
+<li><strong>C)</strong> Senza <code translate="no">-i</code>, <code translate="no">-c</code> ignora le righe ripetute</li>
+<li><strong>D)</strong> Con <code translate="no">-i</code>, <code translate="no">grep</code> legge anche i file nascosti</li></ul>
+<p><strong>3.</strong> Una riga contiene la parola <code translate="no">ERROR</code> tre volte. Quanto ammonta a <code translate="no">grep -c 'ERROR'</code>?</p>
+<ul><li><strong>A)</strong> 3</li>
+<li><strong>B)</strong> 1</li>
+<li><strong>C)</strong> 0</li>
+<li><strong>D)</strong> Dipende da <code translate="no">-w</code></li></ul>
+<p><strong>4.</strong> Il registro viene eseguito ogni notte ed è necessario seguirlo per giorni, su uno schermo. Quale comando?</p>
+<ul><li><strong>A)</strong> <code translate="no">tail -f app.log</code></li>
+<li><strong>B)</strong> <code translate="no">tail -F app.log</code></li>
+<li><strong>C)</strong> <code translate="no">less app.log</code></li>
+<li><strong>D)</strong> <code translate="no">head -n 100 app.log</code></li></ul>
+<p><strong>5.</strong> Completo: per vedere i caratteri invisibili in un file, come <code translate="no">\r</code> in Windows, eseguire <code translate="no">cat ___ arquivo</code>.</p>
+<p><strong>6.</strong> Cosa mostra <code translate="no">grep -v '^#' sshd_config</code>?</p>
+<ul><li><strong>A)</strong> Solo righe commentate</li>
+<li><strong>B)</strong> Righe che non iniziano con <code translate="no">#</code>, comprese le righe vuote</li>
+<li><strong>C)</strong> Solo righe che non hanno <code translate="no">#</code></li>
+<li><strong>D)</strong> Righe esattamente attive</li></ul>
+<p><strong>7.</strong> All'interno di <code translate="no">less</code>, come andare alla fine del file e cercare <code translate="no">timeout</code> dal basso verso l'alto?</p>
+<ul><li><strong>A)</strong> <code translate="no">G</code> e poi <code translate="no">?timeout</code></li>
+<li><strong>B)</strong> <code translate="no">g</code> e poi <code translate="no">/timeout</code></li>
+<li><strong>C)</strong> <code translate="no">F</code> e poi <code translate="no">n</code></li>
+<li><strong>D)</strong> <code translate="no">q</code> e poi <code translate="no">grep timeout</code></li></ul>
+<p><strong>8.</strong> Quale comando mostra la riga con <code translate="no">timeout</code> e altre due righe prima e due dopo?</p>
+<ul><li><strong>A)</strong> <code translate="no">grep -n 2 'timeout' app1.log</code></li>
+<li><strong>B)</strong> <code translate="no">grep -C 2 'timeout' app1.log</code></li>
+<li><strong>C)</strong> <code translate="no">grep -A 2 'timeout' app1.log</code></li>
+<li><strong>D)</strong> <code translate="no">tail -n 2 'timeout' app1.log</code></li></ul>
+<p><strong>9.</strong> Nello stile di Linux Essentials, in inglese: <em>Quale comando visualizza le ultime 5 righe del file <code translate="no">notes.txt</code>?</em></p>
+<ul><li><strong>A)</strong> <code translate="no">head -n 5 notes.txt</code></li>
+<li><strong>B)</strong> <code translate="no">tail -n 5 notes.txt</code></li>
+<li><strong>C)</strong> <code translate="no">tail -n +5 notes.txt</code></li>
+<li><strong>D)</strong> <code translate="no">wc -l 5 notes.txt</code></li></ul>
+<p><strong>10.</strong> Su Debian 13, <code translate="no">egrep 'ERROR|WARN' app1.log</code> funziona, ma mostra un avviso che indica che il comando è deprecato. Come scrivi la stessa cosa oggi?</p>
+<ul><li><strong>A)</strong> <code translate="no">grep -F 'ERROR|WARN' app1.log</code></li>
+<li><strong>B)</strong> <code translate="no">grep -E 'ERROR|WARN' app1.log</code></li>
+<li><strong>C)</strong> <code translate="no">grep -w 'ERROR|WARN' app1.log</code></li>
+<li><strong>D)</strong> <code translate="no">grep -r 'ERROR|WARN' app1.log</code></li></ul>
+<h2 id="10-flashcard-e-colla">10 · Flashcard e colla</h2>
+<h3 id="da-sapere-a-memoria">Da sapere a memoria</h3>
+<p>Questa parte è da tenere in testa. Questi sono i comandi che usi ogni settimana.</p>
+<ul><li><code translate="no">ls -lh arquivo</code> prima di aprire qualsiasi log</li>
+<li><code translate="no">tail -n 50 arquivo</code> o <code translate="no">less +G arquivo</code>: il problema recente persiste alla fine</li>
+<li><code translate="no">tail -F arquivo</code>: vive e sopravvive alla rotazione</li>
+<li><code translate="no">grep -n -i 'texto' arquivo</code>: sempre tra virgolette singole</li>
+<li><code translate="no">grep -c</code> conta le righe; <code translate="no">-v</code> inverte; <code translate="no">-w</code> richiede la parola intera; <code translate="no">-r</code> entra nelle cartelle; <code translate="no">-l</code> mostra solo il nome del file</li>
+<li><code translate="no">grep -C 3</code>: il contesto attorno al reperto</li>
+<li><code translate="no">cat -A arquivo</code>: l'invisibile; <code translate="no">^M</code> significa Windows</li>
+<li><code translate="no">wc -l arquivo</code>: quante righe</li>
+<li>In <code translate="no">less</code>: <code translate="no">/</code> cerca, <code translate="no">n</code> ripete, <code translate="no">G</code> va alla fine, <code translate="no">g</code> all'inizio, <code translate="no">q</code> lascia</li></ul>
+<h3 id="da-consultare">Da consultare</h3>
+<p>Questa parte non è necessario memorizzare. Tienilo dov'è.</p>
+<ul><li><code translate="no">grep -Ev '^[[:space:]]*(#|$)' arquivo</code>: solo le righe attive di una configurazione</li>
+<li><code translate="no">grep -Fw 'ip=10.0.5.1' arquivo</code>: testo esatto, con il punto che vale il punto, e la parola intera</li>
+<li><code translate="no">grep -E 'ERROR|WARN'</code> o <code translate="no">grep -e 'ERROR' -e 'WARN'</code>: più di uno schema</li>
+<li><code translate="no">grep -A 3</code> e <code translate="no">grep -B 3</code>: solo dopo o solo prima del reperto</li>
+<li><code translate="no">tail -n +18 arquivo</code>: dalla riga 18 alla fine; <code translate="no">head -n -3 arquivo</code>: tutto tranne gli ultimi tre</li>
+<li><code translate="no">less</code>: filtri <code translate="no">&amp;texto</code>; <code translate="no">F</code> accompagna; <code translate="no">-N</code> numeri; <code translate="no">-S</code> non interrompe la riga lunga</li>
+<li><code translate="no">zcat</code>, <code translate="no">zless</code> e <code translate="no">zgrep</code>: uguali, nei file <code translate="no">.gz</code></li>
+<li><code translate="no">file arquivo</code>: dice se c'è <code translate="no">CRLF line terminators</code></li>
+<li><code translate="no">cp arquivo arquivo.bak</code> e <code translate="no">sed -i 's/\r$//' arquivo</code>: converte da Windows a Linux</li>
+<li><code translate="no">ls -l /proc/$(pgrep -n tail)/fd</code>: i file aperti dal più recente <code translate="no">tail</code></li>
+<li>Rocky: <code translate="no">/var/log/messages</code>, <code translate="no">/var/log/secure</code>, <code translate="no">/var/log/audit/audit.log</code>. Debian: <code translate="no">journalctl</code>, <code translate="no">/var/log/dpkg.log</code>, <code translate="no">/var/log/apt/history.log</code></li></ul>
+<h3 id="flashcards">Flashcards</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Davanti</th><th scope="col">Verso</th></tr></thead><tbody><tr><td>Quante righe <code translate="no">head</code> e <code translate="no">tail</code> non mostrano alcuna opzione?</td><td>10</td></tr><tr><td>Differenza tra <code translate="no">tail -f</code> e <code translate="no">tail -F</code></td><td><code translate="no">-f</code> segue il file aperto, l'inode; <code translate="no">-F</code> segue il nome e riapre il nuovo file dopo la rotazione</td></tr><tr><td>Cosa indica un <code translate="no">^M</code> in <code translate="no">cat -A</code>?</td><td>Fine riga di Windows, <code translate="no">\r\n</code></td></tr><tr><td>Cosa conta <code translate="no">grep -c</code>?</td><td>Righe corrispondenti, non occorrenze</td></tr><tr><td>Come trovare IP 10.0.5.1 senza ottenere 10.0.5.10?</td><td><code translate="no">grep -Fw 'ip=10.0.5.1'</code></td></tr><tr><td>Tre righe prima e dopo find</td><td><code translate="no">grep -C 3</code></td></tr><tr><td>Cerca tutti i file in una cartella, con il numero di riga</td><td><code translate="no">grep -rn</code></td></tr><tr><td>Solo il nome dei file che contengono il testo</td><td><code translate="no">grep -rl</code></td></tr><tr><td>In <code translate="no">less</code> ricerca avanti e indietro</td><td><code translate="no">/texto</code> e <code translate="no">?texto</code>; <code translate="no">n</code> ripete</td></tr><tr><td>Perché <code translate="no">wc -l</code> potrebbe fornire una riga in meno?</td><td>L'ultima riga non termina con <code translate="no">\n</code></td></tr><tr><td>Dove sono i log di sistema in Debian 13?</td><td>Nella rivista: <code translate="no">journalctl</code></td></tr><tr><td>Dove Rocky registra ogni <code translate="no">sudo</code>?</td><td>Nel <code translate="no">/var/log/secure</code></td></tr><tr><td>Cos’è oggi il <code translate="no">egrep</code>?</td><td>Un vecchio nome per <code translate="no">grep -E</code></td></tr><tr><td>Cosa significa <code translate="no">bad interpreter</code> con <code translate="no">^M</code>?</td><td>Lo script è stato salvato in Windows</td></tr></tbody></table></div>
+<h2 id="11-checklist-di-output">11 · Checklist di output</h2>
+<p>Controlla solo cosa puoi fare senza guardare la lezione:</p>
+<ul><li>[ ] Apri un registro grande senza <code translate="no">cat</code>, vai alla fine e cerca una parola in <code translate="no">less</code></li>
+<li>[ ] Mostra le ultime N righe di un file e dalla riga N in poi</li>
+<li>[ ] Segui Vivo un registro che viene eseguito, senza arresto dello schermo</li>
+<li>[ ] Contare le righe con <code translate="no">wc -l</code> e spiegare perché quella riga non è un evento</li>
+<li>[ ] Utilizza <code translate="no">grep</code> con <code translate="no">-i</code>, <code translate="no">-w</code>, <code translate="no">-v</code>, <code translate="no">-c</code>, <code translate="no">-n</code>, <code translate="no">-r</code>, <code translate="no">-l</code> e <code translate="no">-C</code></li>
+<li>[ ] Scrivi motivi tra virgolette, <code translate="no">-E</code>, <code translate="no">-F</code>, <code translate="no">^</code> e <code translate="no">$</code></li>
+<li>[ ] Mostra solo le righe attive di un file di configurazione</li>
+<li>[ ] Riconosci un file in arrivo da Windows e convertirlo</li>
+<li>[ ] Indica dove si trovano i log di sistema in Rocky e Debian</li></ul>
+<p><strong>Ultimo esercizio, senza guardare.</strong> Chiudi questa lezione. In <code translate="no">~/lab13/logs</code> rispondere a ciascuna domanda con un comando:</p>
+<ol><li>Quante righe di <code translate="no">app1.log</code> provengono dal modulo <code translate="no">auth</code>?</li>
+<li>Da quale IP provengono le password errate?</li>
+<li>Qual è stato l'ultimo avvertimento, <code translate="no">WARN</code>, del giorno?</li>
+<li>Quante righe non sono <code translate="no">INFO</code>?</li>
+<li><code translate="no">config-windows.env.bak</code> ha ancora la fine della riga Windows?</li></ol>
+<p>Le risposte sono alla fine della chiave di risposta.</p>
+<p><strong>Chiusura istantanee.</strong> Nel nodo Proxmox:</p>
+<pre translate="no"><code class="lang-bash">qm snapshot 201 m1a5-fim
+qm snapshot 202 m1a5-fim</code></pre>
+<p>Non cancellare nulla da <code translate="no">~/lab13</code>: la lezione 1.6 usa <code translate="no">app1.log</code> per assemblare i tubi.</p>
+<h2 id="12-nella-vita-reale">12 · Nella vita reale</h2>
+<p><strong>Missione della settimana, sola lettura.</strong> Scegli un server che effettivamente gestisci. Se appartiene a un cliente, fai solo ciò che il contratto consente; In caso di dubbi, utilizzare rocky-lab e debian-lab. Nessun comando in questa missione cambia nulla: non aprire l'editor e non riavviare il servizio.</p>
+<p>Su un server Rocky, RHEL o Alma:</p>
+<pre translate="no"><code class="lang-bash">ls -lh /var/log
+sudo tail -n 50 /var/log/messages
+sudo grep -c 'Failed password' /var/log/secure
+sudo grep 'Failed password' /var/log/secure | tail -n 5</code></pre>
+<p>Su un server Debian senza <code translate="no">rsyslog</code>:</p>
+<pre translate="no"><code class="lang-bash">ls -lh /var/log
+sudo journalctl -n 50
+sudo journalctl -u ssh --since today | grep -c 'Failed password'</code></pre>
+<p>Se il server ha <code translate="no">/var/log/auth.log</code>, come Ubuntu e Debian precedenti, usalo al posto di <code translate="no">secure</code>.</p>
+<p>Su ognuno di essi:</p>
+<pre translate="no"><code class="lang-bash">sudo grep -rn 'PermitRootLogin' /etc/ssh/
+sudo grep -Ev '^[[:space:]]*(#|$)' /etc/ssh/sshd_config</code></pre>
+<p>Infine, il test dal vivo. In una sessione, esegui <code translate="no">sudo tail -F /var/log/secure</code> su Rocky o <code translate="no">sudo journalctl -f -u ssh</code> su Debian. Da un altro terminale, accedi al server tramite SSH e vedrai apparire il tuo login. Parti con <code translate="no">Ctrl+C</code>.</p>
+<p><strong>Per il diario.</strong> Rispondi in poche righe:</p>
+<ol><li>Quanti tentativi di password errati ha registrato il server? Provengono da pochi IP o da molti? Il conteggio di IP diversi con un comando è solo oggetto della lezione 1.6; per ora, guarda.</li>
+<li>Dove è definito <code translate="no">PermitRootLogin</code>: nel file principale o in un <code translate="no">.conf</code> della cartella <code translate="no">sshd_config.d/</code>? Che valore vale?</li>
+<li>Quante linee attive ha <code translate="no">sshd_config</code>? Qualcosa ti ha sorpreso?</li>
+<li>Qual è il file più grande in <code translate="no">/var/log</code>? Funziona? Cercare le versioni con data, con <code translate="no">.1</code> o con <code translate="no">.gz</code>.</li>
+<li>Il tuo login è apparso live? Quanto tempo dopo il login?</li></ol>
+<p><strong>Sfida della settimana.</strong> Ogni giorno, quando apri il terminale per la prima volta, applica il Protocollo a un log che non hai mai letto: misura, vai all'estremità destra, vaglia, apri il contesto. Nel diario, una riga al giorno: quale registro e cosa hai trovato. In cinque giorni, avrai letto cinque registri diversi e saprai cosa c'è in ognuno di essi.</p>
+<p><strong>Domani, senza guardare.</strong> Apri un terminale domani e, senza guardare nulla:</p>
+<ol><li>Mostra le ultime 20 righe di un registro di sistema.</li>
+<li>Contare quante righe contengono <code translate="no">error</code> come parola intera, senza maiuscole.</li>
+<li>Mostra solo le righe attive da <code translate="no">sshd_config</code>.</li>
+<li>Segui in diretta un log che sopravvive alla rotazione.</li>
+<li>Spiega ad alta voce perché <code translate="no">tail -f</code> si ferma dopo <code translate="no">logrotate</code>.</li></ol>
+<p>Se rimani bloccato su uno, torna allo step relativo a quell'elemento.</p>
+<h2 id="13-con-deeptutor">13 · Con DeepTutor</h2>
+<p>Utilizza DeepTutor sulla tua rete locale dopo il laboratorio, non al suo posto:</p>
+<ul><li><code translate="no">!quiz Aula 1.5</code>: fai dieci nuove domande con scenari di registro, nel formato Decide.</li>
+<li><code translate="no">!explica tail -f e logrotate</code>: chiedi spiegazioni con l'inode, e verifica con quanto visto in <code translate="no">/proc</code>.</li>
+<li><code translate="no">!feynman</code>: spiega <code translate="no">-w</code> e <code translate="no">-F</code> come se fosse ad uno stagista. DeepTutor segnala dove è stato lasciato vacante.</li>
+<li><code translate="no">!quebra</code>: chiedi un nuovo log con una trappola nascosta, come IP simili o maiuscole miste, e lo trovi solo con <code translate="no">grep</code>.</li>
+<li><code translate="no">!cartoes</code>: genera flashcard dalla sezione 10 e rivedi in tre giorni.</li>
+<li><code translate="no">!erro</code>: incolla un messaggio reale, come <code translate="no">bad interpreter</code> o <code translate="no">Is a directory</code>, e chiedine la causa prima del soluzione.</li>
+<li><code translate="no">!revisao</code>: programmare il ripasso della lezione 1.5 tra tre giorni e tra una settimana.</li></ul>
+<h2 id="foglio-di-risposte-commentato">Foglio di risposte commentato</h2>
+<h3 id="riscaldamento">Riscaldamento</h3>
+<ol><li><strong><code translate="no">sudo lsof +L1</code>.</strong> Elenca i file eliminati che alcuni processi hanno ancora aperti. <code translate="no">rm</code> rimuove il nome, ma lo spazio ritorna solo quando il processo chiude il file o quando il servizio viene riavviato. È lo stesso meccanismo di Break B: il processo conserva l'inode, non il nome.</li>
+<li><strong>L'inode rimane lo stesso.</strong> Nello stesso file system, <code translate="no">mv</code> cambia solo il nome della cartella; il contenuto e l'inode non si muovono. Ecco perché <code translate="no">tail -f</code> segue <code translate="no">app.log.1</code>.</li>
+<li><strong>La shell fornisce l'elenco dei <code translate="no">.log</code></strong> visibili, qualcosa come <code translate="no">app1.log</code>, <code translate="no">app10.log</code>, <code translate="no">app2.log</code> e <code translate="no">erro.log</code>, nell'ordine della lingua del sistema. <code translate="no">grep</code> non vede mai <code translate="no">*</code>. <code translate="no">.escondido.log</code> non va bene, perché <code translate="no">*</code> non accetta nomi che iniziano con un punto. E, prima del Passo 1, i file erano vuoti: <code translate="no">grep</code> non mostrava nulla e terminava con il codice 1.</li></ol>
+<h3 id="quiz">Quiz</h3>
+<ol><li><strong>B.</strong> Ci sono 10 righe. Per modificare utilizzare <code translate="no">-n</code>.</li>
+<li><strong>B.</strong> <code translate="no">-i</code> non cambia ciò che viene conteggiato, solo ciò che corrisponde. Entrare nella riga <code translate="no">error db: timeout</code> e nella riga <code translate="no">WARN web: 3 errors</code>. Con <code translate="no">-iw</code> esce <code translate="no">errors</code> e il risultato è 5.</li>
+<li><strong>B.</strong> <code translate="no">-c</code> conta le righe. Per contare le occorrenze, utilizzare <code translate="no">grep -o 'ERROR' arquivo</code> e contare le righe di output con <code translate="no">wc -l</code>. La lezione 1.6 spiega come combinare i due.</li>
+<li><strong>B.</strong> <code translate="no">tail -F</code> segue il nome e riapre il nuovo file dopo la rotazione. <code translate="no">-f</code> si ferma la prima notte. <code translate="no">less</code> mostra solo ciò che esisteva al momento dell'apertura e <code translate="no">head</code> mostra l'inizio.</li>
+<li><strong><code translate="no">-A</code>.</strong> Mostra <code translate="no">^M</code> per <code translate="no">\r</code>, <code translate="no">^I</code> per tabulazioni e <code translate="no">$</code> alla fine di ogni riga. <code translate="no">cat -v</code> e <code translate="no">cat -e</code> mostrano anche <code translate="no">^M</code>; <code translate="no">-A</code> mostra tutto in una volta.</li>
+<li><strong>B.</strong> <code translate="no">^#</code> rimuove solo le righe che iniziano con <code translate="no">#</code>. Le righe sono vuote e i commenti sono rientrati con uno spazio. Ecco perché la risposta D è sbagliata: per le linee attive, utilizzare la ricetta del passaggio 8.</li>
+<li><strong>A.</strong> <code translate="no">G</code> va alla fine e <code translate="no">?</code> cerca in alto. <code translate="no">n</code> si ripete nella stessa direzione.</li>
+<li><strong>B.</strong> <code translate="no">-C 2</code> ne mostra due prima e due dopo. <code translate="no">-A 2</code> mostra successivamente solo i due. <code translate="no">-n 2</code> non esiste in questo modo: <code translate="no">-n</code> collega i numeri di riga e <code translate="no">2</code> diventa lo schema cercato.</li>
+<li><strong>B.</strong> Vedere ciascuna alternativa:</li></ol>
+<div class="tabela"><table><thead><tr><th scope="col">Se hai selezionato</th><th scope="col">Risultato</th><th scope="col">Perché</th></tr></thead><tbody><tr><td>A</td><td>❌ Sbagliato</td><td><code translate="no">head</code> mostra le prime cinque righe, non l'ultima.</td></tr><tr><td>B</td><td>✅ Giusto</td><td><code translate="no">tail -n 5</code> mostra gli ultimi cinque. Anche il vecchio modulo <code translate="no">tail -5</code> funziona e può comparire nel test.</td></tr><tr><td>C</td><td>❌ Sbagliato</td><td>Con <code translate="no">+</code> viene visualizzato <code translate="no">tail</code> dalla quinta riga fino alla fine del file.</td></tr><tr><td>D</td><td>❌ Sbagliato</td><td><code translate="no">wc -l</code> conta le righe e tratta <code translate="no">5</code> come un nome di file.</td></tr></tbody></table></div>
+<ol start="10"><li><strong>B.</strong> <code translate="no">egrep</code> è <code translate="no">grep -E</code> e <code translate="no">fgrep</code> è <code translate="no">grep -F</code>. Il test LPIC-1 menziona ancora i vecchi nomi, quindi conoscili entrambi. L'alternativa A tratta la barra verticale come testo e <code translate="no">-w</code> e <code translate="no">-r</code> non collegano la forma estesa.</li></ol>
+<h3 id="ultimo-esercizio">Ultimo esercizio</h3>
+<ol><li><code translate="no">grep -c 'auth:' app1.log</code> risponde 7.</li>
+<li><code translate="no">grep 'senha incorreta' app1.log</code> mostra tre righe, tutte provenienti da IP <code translate="no">203.0.113.50</code>.</li>
+<li><code translate="no">grep 'WARN' app1.log | tail -n 1</code> mostra l'avviso 08:40:03, <code translate="no">3 errors no último minuto</code>.</li>
+<li><code translate="no">grep -vc 'INFO' app1.log</code> risponde 9.</li>
+<li>SÌ. <code translate="no">cat -A config-windows.env.bak</code> mostra ancora <code translate="no">^M$</code> perché la copia è stata eseguita prima di <code translate="no">sed</code>. <code translate="no">file</code> conferma con <code translate="no">with CRLF line terminators</code>.</li></ol>
+</article><nav class="paginas" aria-label="Lezioni"><a class="ant" href="1.4-criar-copiar-mover-e-apagar.it.html"><small>← Precedente</small>1.4 · Creare, copiare, spostare ed eliminare</a><a class="prox" href="1.6-redirecionamentos-e-pipes.it.html"><small>Successiva →</small>1.6 · Reindirizzamenti e pipe</a></nav></main></div>
+<footer><div class="wrap">Generato dal Markdown del corso · Immagini in <code translate="no">img/</code></div></footer>
+</body>
+</html>

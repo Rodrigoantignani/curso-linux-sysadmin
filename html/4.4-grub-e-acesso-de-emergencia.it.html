@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light dark">
+<title>4.4 · GRUB e accesso di emergenza · Corso Linux Sysadmin</title>
+<link rel="alternate" hreflang="pt-BR" href="4.4-grub-e-acesso-de-emergencia.html"><link rel="alternate" hreflang="it" href="4.4-grub-e-acesso-de-emergencia.it.html">
+<style>
+:root{color-scheme:light dark;--bg:#f6f1e7;--card:#fffdf8;--ink:#201c16;--muted:#5e564a;--accent:#9a3412;--accent-2:#1f5f4a;--tint:#efe6d4;--line:#ddd2bc;--code:#f1eadb;--shadow:0 1px 2px rgba(60,40,10,.08);--serif:Georgia,"Iowan Old Style","Palatino Linotype",Palatino,serif;--sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--mono:"Cascadia Code",Consolas,"DejaVu Sans Mono",monospace}
+@media (prefers-color-scheme:dark){:root{--bg:#16130f;--card:#201b15;--ink:#f1eadb;--muted:#b9ad98;--accent:#f0a070;--accent-2:#7fd0b0;--tint:#2a231a;--line:#3d3427;--code:#191510;--shadow:none}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:5.5rem}
+body{margin:0;background:var(--bg);color:var(--ink);font:1rem/1.6 var(--sans)}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--accent-2);outline-offset:2px;border-radius:4px}
+.pular{position:absolute;left:-999px;top:0;background:var(--card);padding:.5rem 1rem;z-index:20}
+.pular:focus{left:.5rem;top:.5rem}
+.wrap{width:100%;max-width:84rem;margin:0 auto;padding-inline:max(1rem,env(safe-area-inset-left))}
+.top{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10;border-top:6px solid var(--accent)}
+.top-in{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding-block:.6rem}
+.titles{min-width:0}
+.marca{margin:0;font:700 clamp(1.15rem,1rem + 1vw,1.6rem)/1.15 var(--serif);letter-spacing:-.01em}
+.marca a{text-decoration:none}
+.marca a:hover{color:var(--accent)}
+.meta{margin:.1rem 0 0;color:var(--muted);font-size:.85rem}
+.acoes{display:flex;align-items:center;gap:.9rem;flex:none}
+.acoes>a{font-size:.9rem;font-weight:600;color:var(--muted);text-decoration:none}
+.acoes>a:hover{color:var(--accent);text-decoration:underline}
+.idioma{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--tint)}
+.idioma>*{padding:.35rem .9rem;font-size:.8rem;font-weight:700;letter-spacing:.06em;text-decoration:none;color:var(--muted);min-width:2.75rem;text-align:center}
+.idioma a:hover{color:var(--accent);text-decoration:underline}
+.idioma span{background:var(--accent);color:#fff}
+@media (prefers-color-scheme:dark){.idioma span{color:#16130f}}
+code{font-family:var(--mono);font-size:.9em;background:var(--tint);padding:.1rem .35rem;border-radius:4px;overflow-wrap:anywhere}
+/* índice */
+.capa{max-width:70rem;padding-block:2rem 3rem}
+.stats{border-left:4px solid var(--accent-2);background:var(--card);border-radius:0 10px 10px 0;padding:1rem 1.25rem;margin:0 0 2.5rem;box-shadow:var(--shadow);color:var(--muted)}
+.stats strong{color:var(--ink)}
+.modulo{display:grid;grid-template-columns:15rem minmax(0,1fr);gap:1rem 2rem;padding:1.75rem 0;border-top:1px solid var(--line)}
+.modulo h2{margin:0;font:700 1.25rem/1.25 var(--serif);align-self:start;position:sticky;top:6rem}
+.mn{display:block;font:700 .8rem var(--mono);letter-spacing:.12em;color:var(--accent);margin-bottom:.25rem}
+.sep{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.modulo ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,17rem),1fr));gap:.75rem}
+.modulo li{margin:0}
+.modulo a{display:flex;gap:.45rem;align-items:baseline;height:100%;padding:.85rem 1rem;background:var(--card);border:1px solid var(--line);border-radius:10px;text-decoration:none;font-weight:600;line-height:1.35;box-shadow:var(--shadow);transition:border-color .15s,transform .15s}
+.modulo a:hover{border-color:var(--accent);color:var(--accent)}
+.num{font:700 .85rem var(--mono);color:var(--accent);white-space:nowrap}
+/* aula */
+.doc{display:grid;grid-template-columns:17rem minmax(0,1fr);gap:2.5rem;align-items:start;padding-block:2rem 3rem}
+.lateral{position:sticky;top:5.5rem;max-height:calc(100vh - 6.5rem);overflow:auto;font-size:.875rem;padding-right:.5rem}
+.lateral h2{margin:0 0 .25rem;font:700 .95rem var(--serif);color:var(--muted)}
+.lateral h3{margin:1rem 0 .25rem;font:700 .75rem var(--mono);letter-spacing:.06em;color:var(--accent)}
+.lateral ul{list-style:none;margin:0;padding:0}
+.lateral a{display:flex;gap:.45rem;padding:.25rem .5rem;border-radius:6px;text-decoration:none;color:var(--muted);line-height:1.3}
+.lateral a:hover{background:var(--tint);color:var(--ink)}
+.lateral a[aria-current]{background:var(--tint);color:var(--ink);font-weight:700;box-shadow:inset 3px 0 0 var(--accent)}
+.lateral .num{font-size:.75rem}
+.aula{min-width:0;max-width:56rem;overflow-wrap:break-word;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:clamp(1.25rem,1rem + 2vw,2.75rem);box-shadow:var(--shadow)}
+.aula h1{margin:0 0 1.5rem;font:700 clamp(1.75rem,1.4rem + 1.6vw,2.5rem)/1.15 var(--serif);letter-spacing:-.015em;color:var(--ink)}
+.aula h2{margin:2.5rem 0 .75rem;padding-top:1.25rem;border-top:1px solid var(--line);font:700 1.5rem/1.25 var(--serif)}
+.aula h3{margin:2rem 0 .5rem;font:700 1.15rem/1.3 var(--serif);color:var(--accent)}
+.aula h4,.aula h5,.aula h6{margin:1.5rem 0 .5rem;font-size:1rem}
+.aula p,.aula ul,.aula ol{margin:1rem 0}
+.aula ul,.aula ol{padding-left:1.5rem}
+.aula li{margin:.35rem 0}
+.aula li>ul,.aula li>ol{margin:.35rem 0}
+.aula a{color:var(--accent);text-underline-offset:2px}
+.aula hr{border:0;border-top:1px solid var(--line);margin:2rem 0}
+.tabela{overflow-x:auto;margin:1.25rem 0;border:1px solid var(--line);border-radius:10px}
+.aula table{width:100%;border-collapse:collapse;font-size:.9rem}
+.aula th,.aula td{padding:.55rem .75rem;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+.aula tr:last-child td{border-bottom:0}
+.aula th{background:var(--tint);font-weight:700}
+.aula pre{background:var(--code);border:1px solid var(--line);border-radius:10px;padding:.9rem 1rem;overflow-x:auto;font:.85rem/1.5 var(--mono);margin:1rem 0;tab-size:4}
+.aula pre code{background:none;padding:0;font-size:inherit;overflow-wrap:normal}
+.aula blockquote{margin:1.25rem 0;padding:.75rem 1.25rem;border-left:4px solid var(--accent-2);background:var(--tint);border-radius:0 10px 10px 0}
+.aula blockquote>:first-child{margin-top:0}
+.aula blockquote>:last-child{margin-bottom:0}
+.aula figure{margin:1.75rem 0;text-align:center}
+.aula figure img{display:block;margin:0 auto;max-width:100%;height:auto;border:1px solid var(--line);border-radius:10px;background:#fff}
+.aula figcaption{margin-top:.5rem;color:var(--muted);font-size:.9rem;font-style:italic}
+.paginas{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:2.5rem;padding-top:1.5rem;border-top:1px solid var(--line)}
+.paginas a{display:block;padding:.75rem 1rem;border:1px solid var(--line);border-radius:10px;text-decoration:none;color:var(--ink);font-weight:600;line-height:1.3}
+.paginas a:hover{border-color:var(--accent);color:var(--accent)}
+.paginas small{display:block;color:var(--muted);font-weight:400}
+.paginas .prox{grid-column:2;text-align:right}
+footer{border-top:1px solid var(--line);padding-block:1.5rem;color:var(--muted);font-size:.85rem;text-align:center}
+@media (hover:hover) and (prefers-reduced-motion:no-preference){.modulo a:hover{transform:translateY(-2px)}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+@media (max-width:980px){.doc{grid-template-columns:minmax(0,1fr);padding-top:1rem}.lateral{position:static;max-height:none;order:2}.aula{max-width:none}}
+@media (max-width:860px){.modulo{grid-template-columns:minmax(0,1fr)}.modulo h2{position:static}.mn{display:inline;margin-right:.5rem}}
+@media (max-width:420px){.meta{display:none}.top-in{gap:.5rem}.acoes{gap:.6rem}.capa{padding-top:1.25rem}.paginas{grid-template-columns:minmax(0,1fr)}.paginas .prox{grid-column:1}}
+@media print{.top,.lateral,.paginas{display:none}.aula{border:0;box-shadow:none;padding:0;max-width:none}.doc{display:block}}
+</style>
+</head>
+<body>
+<a class="pular" href="#conteudo">Vai al contenuto</a>
+<header class="top"><div class="wrap top-in"><div class="titles"><p class="marca"><a href="index.it.html">Corso Linux Sysadmin</a></p><p class="meta">Rodrigo Antignani · Lezione 4.4</p></div><div class="acoes"><a href="index.it.html">Indice</a><div class="idioma" role="group" aria-label="Lingua"><a href="4.4-grub-e-acesso-de-emergencia.html" hreflang="pt-BR" lang="pt-BR">PT</a><span aria-current="true">IT</span></div></div></div></header>
+<div class="wrap doc"><aside class="lateral" aria-label="Lezioni"><h2>Lezioni</h2><h3>M0 · Laboratorio</h3><ul><li><a href="0.1-montar-o-laboratorio.it.html"><span class="num">0.1</span><span>Allestire il laboratorio</span></a></li><li><a href="0.2-acesso-e-protecao.it.html"><span class="num">0.2</span><span>Accesso e protezione</span></a></li></ul><h3>M1 · Riga di comando</h3><ul><li><a href="1.1-o-que-e-linux.it.html"><span class="num">1.1</span><span>Che cos'è Linux</span></a></li><li><a href="1.2-o-shell-e-a-ajuda.it.html"><span class="num">1.2</span><span>La shell e la guida</span></a></li><li><a href="1.3-caminhos-e-navegacao.it.html"><span class="num">1.3</span><span>Percorsi e navigazione</span></a></li><li><a href="1.4-criar-copiar-mover-e-apagar.it.html"><span class="num">1.4</span><span>Creare, copiare, spostare ed eliminare</span></a></li><li><a href="1.5-ler-e-procurar-texto.it.html"><span class="num">1.5</span><span>Leggere e cercare testo</span></a></li><li><a href="1.6-redirecionamentos-e-pipes.it.html"><span class="num">1.6</span><span>Reindirizzamenti e pipe</span></a></li><li><a href="1.7-arquivar-e-compactar.it.html"><span class="num">1.7</span><span>Archiviare e comprimere</span></a></li><li><a href="1.8-primeiro-script.it.html"><span class="num">1.8</span><span>Primo script</span></a></li><li><a href="1.9-decidir-e-repetir.it.html"><span class="num">1.9</span><span>Decidere e ripetere</span></a></li><li><a href="1.10-software-livre-na-pratica.it.html"><span class="num">1.10</span><span>Il software libero in pratica</span></a></li></ul><h3>M2 · Sistema, utenti e permessi</h3><ul><li><a href="2.1-instalacao-e-provisionamento.it.html"><span class="num">2.1</span><span>Installazione e provisioning</span></a></li><li><a href="2.2-hardware-e-dispositivos.it.html"><span class="num">2.2</span><span>Hardware e dispositivi</span></a></li><li><a href="2.3-processos-e-logs.it.html"><span class="num">2.3</span><span>Processi e log</span></a></li><li><a href="2.4-rede-no-dia-a-dia.it.html"><span class="num">2.4</span><span>La rete di tutti i giorni</span></a></li><li><a href="2.5-acesso-remoto-e-privilegios.it.html"><span class="num">2.5</span><span>Accesso remoto e privilegi</span></a></li><li><a href="2.6-usuarios-e-grupos.it.html"><span class="num">2.6</span><span>Utenti e gruppi</span></a></li><li><a href="2.7-permissoes-e-dono.it.html"><span class="num">2.7</span><span>Permessi e proprietario</span></a></li><li><a href="2.8-diretorios-e-arquivos-especiais.it.html"><span class="num">2.8</span><span>Directory e file speciali</span></a></li></ul><h3>M3 · Testo ed editor</h3><ul><li><a href="3.1-fluxos-a-fundo.it.html"><span class="num">3.1</span><span>I flussi in profondità</span></a></li><li><a href="3.2-filtros-de-texto.it.html"><span class="num">3.2</span><span>Filtri di testo</span></a></li><li><a href="3.3-regex-e-grep.it.html"><span class="num">3.3</span><span>Regex e grep</span></a></li><li><a href="3.4-sed-e-awk.it.html"><span class="num">3.4</span><span>sed e awk</span></a></li><li><a href="3.5-vi-e-vim-de-verdade.it.html"><span class="num">3.5</span><span>vi e vim sul serio</span></a></li></ul><h3>M4 · systemd e boot</h3><ul><li><a href="4.1-como-o-linux-liga.it.html"><span class="num">4.1</span><span>Come si avvia Linux</span></a></li><li><a href="4.2-systemd-servicos-e-units.it.html"><span class="num">4.2</span><span>systemd: servizi e unit</span></a></li><li><a href="4.3-targets-desligar-e-reiniciar.it.html"><span class="num">4.3</span><span>Target: spegnere e riavviare</span></a></li><li><a href="4.4-grub-e-acesso-de-emergencia.it.html" aria-current="page"><span class="num">4.4</span><span>GRUB e accesso di emergenza</span></a></li></ul><h3>M5 · Kernel, moduli e VM</h3><ul><li><a href="5.1-hardware-pelo-kernel.it.html"><span class="num">5.1</span><span>L'hardware visto dal kernel</span></a></li><li><a href="5.2-modulos-e-parametros.it.html"><span class="num">5.2</span><span>Moduli e parametri</span></a></li><li><a href="5.3-linux-como-convidado.it.html"><span class="num">5.3</span><span>Linux come guest</span></a></li></ul><h3>M6 · Pacchetti e repository</h3><ul><li><a href="6.1-pacotes-no-debian.it.html"><span class="num">6.1</span><span>Pacchetti su Debian</span></a></li><li><a href="6.2-pacotes-na-rocky.it.html"><span class="num">6.2</span><span>Pacchetti su Rocky</span></a></li><li><a href="6.3-repositorios.it.html"><span class="num">6.3</span><span>Repository</span></a></li><li><a href="6.4-flatpak.it.html"><span class="num">6.4</span><span>Flatpak</span></a></li><li><a href="6.5-bibliotecas-compartilhadas.it.html"><span class="num">6.5</span><span>Librerie condivise</span></a></li></ul></aside><main id="conteudo" class="aula"><article><h1>Lezione 4.4 · GRUB e accesso di emergenza</h1>
+<p>Questa è l'ultima lezione del modulo 4. Sai già che GRUB è il secondo corridore nel relè (4.1) e che puoi avviare la macchina su un target diverso (4.3). Oggi si scherza davvero con GRUB: si cambiano i parametri del kernel solo per un avvio o per sempre, e si recupera la password di root di una macchina a cui nessuno può accedere.</p>
+<blockquote><p><strong>Chiave di questa lezione:</strong> nel menu di GRUB, <code translate="no">e</code> modifica la voce e <code translate="no">Ctrl+X</code> inizia con la modifica, che si applica solo a quell'avvio. Cambiare in meglio: in Rocky, <code translate="no">grubby</code>; in Debian, <code translate="no">/etc/default/grub</code> seguito da <code translate="no">update-grub</code>. Per recuperare la password di root: in Rocky, <code translate="no">rd.break</code>, poi rimontare, chroot, passwd e <strong><code translate="no">touch /.autorelabel</code></strong>; su Debian, <code translate="no">init=/bin/bash</code>, quindi rimontare e passarewd. E la lezione sulla sicurezza: chiunque abbia la console ha il root, a meno che tu non protegga GRUB o crittografi il disco.</p></blockquote>
+<div class="tabela"><table><thead><tr><th scope="col">File</th><th scope="col"></th></tr></thead><tbody><tr><td>Modulo</td><td>M4 · Boot e systemd, lezione 4 di 4, che chiude il modulo</td></tr><tr><td>Quando</td><td>Settimana 9</td></tr><tr><td>Tempo</td><td>circa 1h30, più la sfida del modulo</td></tr><tr><td>Prerequisito</td><td>lezioni da 4.1 a 4.3</td></tr><tr><td>Prova</td><td>RHCSA (interruzione dell'avvio per riottenere l'accesso, modifica del bootloader) · LPIC-1 101.2 e 102.2</td></tr><tr><td>Laboratorio</td><td>rock-lab (201) e debian-lab (202), con la <strong>console Proxmox aperta</strong></td></tr><tr><td>Prima di iniziare</td><td><strong>backup su PBS</strong> delle due VM, oltre allo snapshot</td></tr><tr><td>Istantanee</td><td><code translate="no">m4a4-inicio</code> e <code translate="no">m4a4-fim</code></td></tr></tbody></table></div>
+<h2 id="1-riscaldamento">1 Riscaldamento</h2>
+<p>Rispondi dalla tua testa, senza consultare. Le risposte si trovano nella chiave di risposta, alla fine della lezione.</p>
+<ol><li>Quale programma carica il kernel e initramfs in memoria?</li>
+<li>Un parametro immesso nella schermata GRUB è valido per quanti avviamenti?</li>
+<li>Qualcuno con accesso alla console di un server Linux non protetto può diventare root senza conoscere la password?</li></ol>
+<h2 id="2-perche-e-importante">2 Perché è importante</h2>
+<div class="tabela"><table><thead><tr><th scope="col">Situazione attuale</th><th scope="col">Cosa risolve</th></tr></thead><tbody><tr><td>Hai preso il controllo di un server e nessuno conosce la password di root</td><td>Recupero tramite GRUB</td></tr><tr><td>Un nuovo kernel non viene caricato dopo l'aggiornamento</td><td>Scegliere il kernel precedente dal menu, quindi impostarlo come predefinito</td></tr><tr><td>Il venditore chiede di disattivare un'opzione del kernel su tutti gli avviamenti</td><td><code translate="no">grubby --args</code> o <code translate="no">/etc/default/grub</code></td></tr><tr><td>L'audit chiede se qualcuno con accesso alla stanza diventa root</td><td>Password GRUB e disco crittografato</td></tr></tbody></table></div>
+<h2 id="3-modello-mentale">3 Modello mentale</h2>
+<p>GRUB è un menu. Ogni voce di menu è una ricetta: quale kernel, quale initramfs e quali parametri passare al kernel (la riga che inizia con <code translate="no">linux</code>). Il kernel legge questi parametri e li passa a systemd. Ecco come funzionava <code translate="no">systemd.unit=rescue.target</code> di 4.3.</p>
+<p>Puoi modificare la ricetta in due modi:</p>
+<div class="tabela"><table><thead><tr><th scope="col">Modo</th><th scope="col">Dove</th><th scope="col">Dura</th></tr></thead><tbody><tr><td>In orario</td><td>Nel menu premere il tasto <code translate="no">e</code>, poi <code translate="no">Ctrl+X</code></td><td>Proprio questo avvio</td></tr><tr><td>Per sempre</td><td>File su disco, quindi rigenerare la configurazione</td><td>Tutti gli stivali</td></tr></tbody></table></div>
+<p>E perché è possibile recuperare la password di root? Perché, se dici al kernel di fermarsi <strong>prima</strong> del normale avvio del sistema, nessuno ti chiederà comunque la password: ti ritroverai in una shell che è già root. In Rocky, <code translate="no">rd.break</code> si ferma alla fine dell'initramfs, prima di cedere il controllo al disco vero e proprio. In Debian, <code translate="no">init=/bin/bash</code> sostituisce systemd con bash come primo processo.</p>
+<figure><a href="../img/4.4-cardapio-do-grub.svg"><img src="../img/4.4-cardapio-do-grub.svg" alt="Il menu di GRUB e le due ricette di salvataggio" loading="lazy" decoding="async"></a><figcaption>Il parametro destro si ferma al punto giusto: rd.break alla fine di initramfs, init=/bin/bash al posto di systemd.</figcaption></figure>
+<h2 id="4-gli-elementi-essenziali">4 Gli elementi essenziali</h2>
+<h3 id="grub-menu">GRUB menu</h3>
+<p>Subito dopo BIOS/UEFI, il menu viene visualizzato per alcuni secondi. Se non appare, premere <code translate="no">Esc</code> o tenere premuto <code translate="no">Shift</code> all'inizio dell'avvio. Nel menu:</p>
+<div class="tabela"><table><thead><tr><th scope="col">Chiave</th><th scope="col">Fare</th></tr></thead><tbody><tr><td>Frecce</td><td>Scegliere l'input (un altro kernel, ad esempio)</td></tr><tr><td><code translate="no">e</code></td><td>Modifica la voce selezionata</td></tr><tr><td><code translate="no">Ctrl+X</code> (o <code translate="no">F10</code>)</td><td>Si inizia con l'edizione</td></tr><tr><td><code translate="no">Esc</code></td><td>Annulla la modifica e torna al menu</td></tr><tr><td><code translate="no">c</code></td><td>Aprire la riga di comando di GRUB</td></tr></tbody></table></div>
+<p>Durante la modifica, cerca la riga che inizia con <code translate="no">linux</code> e aggiungi il parametro <strong>alla fine</strong>. Di solito è lungo e si divide in più righe sullo schermo, ma è solo una riga. Usa <code translate="no">End</code> o <code translate="no">Ctrl+E</code> per andare alla fine.</p>
+<p><strong>Tastiera:</strong> GRUB e le shell di emergenza utilizzano spesso il layout americano. Se il carattere è sbagliato su una tastiera italiana, <code translate="no">=</code> si trova sul tasto <code translate="no">ì</code> (il secondo a destra di <code translate="no">0</code>), <code translate="no">-</code> sul tasto <code translate="no">'</code> e <code translate="no">/</code> sul tasto <code translate="no">-</code>. Per lo stesso motivo, usa una password temporanea composta solo da lettere e numeri e cambiala in seguito, con il sistema normale.</p>
+<h3 id="cambiandola-una-volta-in-rocky-grubby">Cambiandola una volta in Rocky: grubby</h3>
+<p>Rocky memorizza una voce per kernel in <code translate="no">/boot/loader/entries/</code> (il formato BLS) e <code translate="no">grubby</code> è lo strumento per cambiarle:</p>
+<pre translate="no"><code class="lang-bash">sudo grubby --default-kernel
+sudo grubby --info=DEFAULT
+sudo grubby --info=ALL | grep -E '^(kernel|args)'
+sudo grubby --update-kernel=ALL --args="nome=valor"
+sudo grubby --update-kernel=ALL --remove-args="rhgb quiet"
+sudo grubby --set-default /boot/vmlinuz-VERSÃO</code></pre>
+<p>Puoi anche modificare <code translate="no">/etc/default/grub</code> ed eseguire <code translate="no">grub2-mkconfig -o /boot/grub2/grub.cfg</code>, ma nelle versioni attuali di Rocky 9 questo non aggiorna i parametri di kernel già installati (per questo esiste l'opzione <code translate="no">--update-bls-cmdline</code>). Pertanto, in Rocky, usa <code translate="no">grubby</code>.</p>
+<h3 id="cambia-definitivamente-in-debian-etc-default-grub">Cambia definitivamente in Debian: /etc/default/grub</h3>
+<pre translate="no"><code class="lang-bash">sudo nano /etc/default/grub      # GRUB_TIMEOUT, GRUB_CMDLINE_LINUX_DEFAULT, GRUB_CMDLINE_LINUX
+sudo update-grub                 # governa /boot/grub/grub.cfg</code></pre>
+<p><code translate="no">update-grub</code> è solo una scorciatoia per <code translate="no">grub-mkconfig -o /boot/grub/grub.cfg</code>. <strong>Non modificare mai <code translate="no">grub.cfg</code> a mano</strong>: viene generato e il successivo aggiornamento del kernel sovrascrive la modifica. La differenza tra le due variabili: <code translate="no">GRUB_CMDLINE_LINUX</code> vale per tutti gli inserimenti, compreso quello di ripristino, mentre <code translate="no">GRUB_CMDLINE_LINUX_DEFAULT</code> vale solo per gli inserimenti normali.</p>
+<h3 id="recupera-la-password-di-root-su-rocky">Recupera la password di root su Rocky</h3>
+<ol><li>Nel menu premere <code translate="no">e</code> e aggiungere <code translate="no">rd.break</code> alla fine della riga <code translate="no">linux</code>. Poi <code translate="no">Ctrl+X</code>.</li>
+<li>Cadi in un guscio <code translate="no">switch_root:/#</code>. Il disco reale è montato in <code translate="no">/sysroot</code>, <strong>sola lettura</strong>.</li>
+<li>Esegui:</li></ol>
+<pre translate="no"><code class="lang-bash">mount -o remount,rw /sysroot
+chroot /sysroot
+passwd root
+touch /.autorelabel
+exit
+exit</code></pre>
+<p>Il primo <code translate="no">exit</code> esce dal chroot e il secondo continua l'avvio. Poiché il file <code translate="no">/.autorelabel</code> esiste, la macchina ricollega l'intero disco a SELinux (impiega alcuni minuti) e si riavvia una volta.</p>
+<p><code translate="no">touch /.autorelabel</code> esiste perché <code translate="no">passwd</code> riscrive <code translate="no">/etc/shadow</code>. Poiché veniva eseguito al di fuori del normale sistema, senza SELinux caricato, il nuovo file nasce senza la giusta etichetta. Con SELinux in modalità <em>enforcing</em>, nessun login con una password può leggere <code translate="no">shadow</code>: né quella di root né quella dell'utente. La rietichettatura risolve questo problema. SELinux ha il proprio modulo, più sotto; per ora, memorizza la riga.</p>
+<h3 id="recupera-la-password-di-root-su-debian">Recupera la password di root su Debian</h3>
+<ol><li>Nel menu premere <code translate="no">e</code> e aggiungere <code translate="no">init=/bin/bash</code> alla fine della riga <code translate="no">linux</code>. Poi <code translate="no">Ctrl+X</code>.</li>
+<li>Atterri in un <code translate="no">root@(none):/#</code>. La radice è montata <strong>sola lettura</strong>.</li>
+<li>Esegui:</li></ol>
+<pre translate="no"><code class="lang-bash">mount -o remount,rw /
+passwd root
+sync
+mount -o remount,ro /
+exec /sbin/init</code></pre>
+<p>O <code translate="no">exec /sbin/init</code> scambia bash con systemd e continua l'avvio normale. Qui <code translate="no">systemctl reboot</code> non funziona, perché systemd non è in esecuzione. Debian non usa SELinux per impostazione predefinita, quindi non ha bisogno di essere nuovamente codificato.</p>
+<h3 id="proteggiti-da-questo">Proteggiti da questo</h3>
+<p>Hai appena visto che la console dà root. Esistono tre difese:</p>
+<ul><li><strong>Password GRUB:</strong> <code translate="no">grub2-setpassword</code> su Rocky. In Debian, <code translate="no">grub-mkpasswd-pbkdf2</code> più una voce in <code translate="no">/etc/grub.d/40_custom</code>. Pertanto, modificando una voce viene avviata la richiesta di password.</li>
+<li><strong>Disco crittografato (LUKS):</strong> senza passphrase, nessuno monta il disco, né tramite GRUB né rimuovendo il disco dalla macchina.</li>
+<li><strong>Proteggi la console:</strong> password complessa in iLO/IPMI e Proxmox e la stanza è chiusa.</li></ul>
+<p>Nel laboratorio, non inserire una password in GRUB: ne avrai bisogno per aprirla sfida.</p>
+<h3 id="rocky-debian">Rocky × Debian</h3>
+<div class="tabela"><table><thead><tr><th scope="col"></th><th scope="col">Roccioso 9</th><th scope="col">Debian 12</th></tr></thead><tbody><tr><td>Configurazione modificata</td><td><code translate="no">/etc/default/grub</code> e le voci in <code translate="no">/boot/loader/entries/</code></td><td><code translate="no">/etc/default/grub</code></td></tr><tr><td>File generato</td><td><code translate="no">/boot/grub2/grub.cfg</code></td><td><code translate="no">/boot/grub/grub.cfg</code></td></tr><tr><td>Strumento quotidiano</td><td><code translate="no">grubby</code></td><td><code translate="no">update-grub</code></td></tr><tr><td>Recupera radice</td><td><code translate="no">rd.break</code> + rimonta <code translate="no">/sysroot</code> + chroot + <code translate="no">passwd</code> + <code translate="no">touch /.autorelabel</code></td><td><code translate="no">init=/bin/bash</code> + rimontare <code translate="no">/</code> + <code translate="no">passwd</code> + <code translate="no">exec /sbin/init</code></td></tr><tr><td>Password in GRUB</td><td><code translate="no">grub2-setpassword</code></td><td><code translate="no">grub-mkpasswd-pbkdf2</code> + <code translate="no">40_custom</code></td></tr></tbody></table></div>
+<h3 id="cosa-contiene-il-test">Cosa contiene il test</h3>
+<p>In RHCSA, recuperare la password di root è solitamente la prima cosa da fare: in molte edizioni si riceve una macchina senza password. Dimenticare <code translate="no">touch /.autorelabel</code> vanifica l'intero test, perché in seguito non funziona più il login con password. Vengono eliminati anche <code translate="no">grubby</code>, i parametri del kernel e il kernel predefinito. In LPIC-1 101.2 e 102.2: i tasti menu, <code translate="no">/etc/default/grub</code>, <code translate="no">grub-mkconfig</code> e <code translate="no">update-grub</code>, i parametri del kernel all'avvio e, in teoria, <code translate="no">grub-install</code> (che installa GRUB su disco) e le differenze per GRUB Legacy (<code translate="no">menu.lst</code>).</p>
+<h2 id="5-laboratorio-guidato">5 Laboratorio guidato</h2>
+<h3 id="passo-0-backup-snapshot-e-console">Passo 0 · Backup, snapshot e console</h3>
+<p>Oggi tu cambiare ciò che fa accendere la macchina. Pertanto, oltre allo snapshot, effettuare un backup su PBS. Nella shell del nodo Proxmox:</p>
+<pre translate="no"><code class="lang-bash">pvesm status                                         # trovare il nome dell'archivio PBS
+vzdump 201 --storage NOME_DO_PBS --mode snapshot
+vzdump 202 --storage NOME_DO_PBS --mode snapshot
+qm snapshot 201 m4a4-inicio
+qm snapshot 202 m4a4-inicio</code></pre>
+<p>Se preferisci, esegui il backup tramite l'interfaccia: VM, poi Backup, poi <em>Backup now</em>, scegliendo lo storage PBS. Quindi, apri la <strong>console</strong> (noVNC) di entrambe le VM e lasciala aperta. In ogni VM:</p>
+<pre translate="no"><code class="lang-bash">mkdir -p ~/lab44 &amp;&amp; cd ~/lab44</code></pre>
+<h3 id="passo-1-conoscere-il-grub-di-ognuno">Passo 1 · Conoscere il GRUB di ognuno</h3>
+<p>In Rocky-Lab:</p>
+<pre translate="no"><code class="lang-bash">cat /proc/cmdline
+sudo grubby --default-kernel
+sudo grubby --info=DEFAULT
+ls /boot/loader/entries/
+grep -v '^#' /etc/default/grub</code></pre>
+<p>In Debian-Lab:</p>
+<pre translate="no"><code class="lang-bash">cat /proc/cmdline
+grep -v '^#' /etc/default/grub | grep .
+ls -l /boot/grub/grub.cfg</code></pre>
+<p>Nota in <code translate="no">~/lab44/notas.txt</code>: quanti kernel ha ciascuno, qual è l'impostazione predefinita e il timeout del menu.</p>
+<h3 id="passo-2-modificare-solo-per-un-avvio">Passo 2 · Modificare solo per un avvio</h3>
+<p>Riavviare Rocky-Lab e guardare la console. Nel menu, premere <code translate="no">e</code>, andare alla fine della riga <code translate="no">linux</code>, aggiungere <code translate="no">systemd.unit=rescue.target</code> e premere <code translate="no">Ctrl+X</code>.</p>
+<p>La macchina va in salvataggio, come in 4.3, ma questa volta senza che voi abbiate cambiato nulla sul disco. Immettere la password root e verificare:</p>
+<pre translate="no"><code class="lang-bash">cat /proc/cmdline
+systemctl get-default</code></pre>
+<p>Il valore predefinito rimane <code translate="no">multi-user.target</code>: il parametro di avvio è scaduto. Riavviare con <code translate="no">systemctl reboot</code>, senza toccare nulla nel menu. La macchina ritorna alla normalità e <code translate="no">cat /proc/cmdline</code> non mostra più il parametro: la modifica valeva un singolo avvio.</p>
+<h3 id="passo-3-cambia-definitivamente">Passo 3 · Cambia definitivamente</h3>
+<p><strong>Rocky:</strong> rimuovi <code translate="no">rhgb quiet</code> per vedere i messaggi di avvio. Questo è quello che vuoi su un server che non si avvia.</p>
+<pre translate="no"><code class="lang-bash">sudo grubby --update-kernel=ALL --remove-args="rhgb quiet"
+sudo grubby --info=ALL | grep -E '^(kernel|args)'
+sudo systemctl reboot</code></pre>
+<p>Nella console, ora vedi passare i messaggi del kernel e di systemd.</p>
+<p><strong>Debian:</strong> aumenta il tempo del menu. In <code translate="no">/etc/default/grub</code> modificare <code translate="no">GRUB_TIMEOUT=5</code> in <code translate="no">GRUB_TIMEOUT=10</code> e salvare. <strong>Non eseguire ancora <code translate="no">update-grub</code>.</strong></p>
+<h3 id="decidi-1">Decidi 1</h3>
+<p>Hai salvato <code translate="no">/etc/default/grub</code> con <code translate="no">GRUB_TIMEOUT=10</code> e riavvierai debian-lab senza eseguire <code translate="no">update-grub</code>. Quanto tempo attende il menu?</p>
+<ul><li>A) 10 secondi, perché il file è stato salvato.</li>
+<li>B) 5 secondi, perché non è cambiato nulla in ciò che legge GRUB.</li>
+<li>C) Il menu non viene nemmeno visualizzato, perché la configurazione è diventata incoerente.</li></ul>
+<p>Controllare prima un'opzione. Quindi riavviare e impostare l'ora nella console.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se hai selezionato</th><th scope="col">Risultato</th><th scope="col">Perché</th></tr></thead><tbody><tr><td>A</td><td>Sbagliato</td><td>GRUB non legge <code translate="no">/etc/default/grub</code>. Si legge <code translate="no">/boot/grub/grub.cfg</code>, che è ancora il vecchio</td></tr><tr><td>B</td><td>Capito bene</td><td><code translate="no">/etc/default/grub</code> è proprio la ricetta per generare <code translate="no">grub.cfg</code>, e chi la genera è <code translate="no">update-grub</code></td></tr><tr><td>C</td><td>Sbagliato</td><td>Non c'è alcuna incoerenza: il vecchio <code translate="no">grub.cfg</code> rimane valido</td></tr></tbody></table></div>
+<p>Ora applica e controlla:</p>
+<pre translate="no"><code class="lang-bash">sudo update-grub
+grep -m1 'timeout=' /boot/grub/grub.cfg
+sudo systemctl reboot</code></pre>
+<p><strong>Per correggere:</strong> in Debian, modificato <code translate="no">/etc/default/grub</code>, esegui <code translate="no">update-grub</code>. Su Rocky, preferisci <code translate="no">grubby</code>, che scrive direttamente sugli input.</p>
+<h3 id="passo-4-recupera-la-password-di-root-su-rocky">Passo 4 · Recupera la password di root su Rocky</h3>
+<p>Fai finta che nessuno conosca la password di root di Rocky-lab. Dalla console, riavvia. Nel menu premere <code translate="no">e</code> e aggiungere <code translate="no">rd.break</code> alla fine della riga <code translate="no">linux</code>. Poi <code translate="no">Ctrl+X</code>. Arrivi su <code translate="no">switch_root:/#</code>.</p>
+<h3 id="decidi-2">Decidi 2</h3>
+<p>Prima di ogni altra cosa, esegui <code translate="no">chroot /sysroot</code> e poi <code translate="no">passwd root</code>. Cosa succede?</p>
+<ul><li>A) La password cambia normalmente.</li>
+<li>B) <code translate="no">passwd</code> fallisce con un errore come <em>Errore di manipolazione del token di autenticazione</em>.</li>
+<li>C) La macchina si blocca con un <em>kernel panico</em>.</li></ul>
+<p>Controllare prima un'opzione. Quindi eseguilo e guarda cosa succede.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se hai selezionato</th><th scope="col">Risultato</th><th scope="col">Perché</th></tr></thead><tbody><tr><td>A</td><td>Sbagliato</td><td><code translate="no">/sysroot</code> è montato in sola lettura e <code translate="no">passwd</code> deve scrivere in <code translate="no">/etc/shadow</code></td></tr><tr><td>B</td><td>Capito bene</td><td>Senza il rimontaggio per la lettura e la scrittura, la scrittura sul disco non funziona</td></tr><tr><td>C</td><td>Sbagliato</td><td>Un errore di registrazione è solo un errore: il kernel è ancora in piedi</td></tr></tbody></table></div>
+<p>Esci dal chroot con <code translate="no">exit</code> ed esegui la sequenza corretta:</p>
+<pre translate="no"><code class="lang-bash">mount -o remount,rw /sysroot
+chroot /sysroot
+passwd root
+touch /.autorelabel
+exit
+exit</code></pre>
+<p>Attendi la nuova codifica e il riavvio automatico. Successivamente, nella console, accedi come root con la nuova password e controlla:</p>
+<pre translate="no"><code class="lang-bash">getenforce                 # Applicazione
+ls -Z /etc/shadow          # shadow_t dovrebbe apparire</code></pre>
+<p>Infine cambiare la password temporanea con <code translate="no">passwd root</code> in una permanente. Ora la tastiera è nel layout corretto.</p>
+<p><strong>Da risolvere:</strong> l'ordine è rimonta, chroot, passwd, autorelabel, exit ed exit. Se si salta il rimontaggio, <code translate="no">passwd</code> fallisce. Se si salta l'autorelabel, l'intero test va con sé.</p>
+<h2 id="6-break-and-fix">6 Break and fix</h2>
+<p>In Rocky-Lab, da SSH:</p>
+<figure><a href="../img/4.4-rd-break-init-bash.svg"><img src="../img/4.4-rd-break-init-bash.svg" alt="4.4 Rd Break Init Bash" loading="lazy" decoding="async"></a><figcaption>Non c'è ancora nessuno che chiede una password: la shell è già root. Chiunque abbia la console ha il root.</figcaption></figure>
+<pre translate="no"><code class="lang-bash">sudo grubby --update-kernel=ALL --args="systemd.unit=emergency.target"
+sudo systemctl reboot</code></pre>
+<p>La macchina va in emergenza ad ogni avvio. Investiga attraverso la <strong>console</strong>: <code translate="no">systemctl get-default</code> cosa mostra? Dov'è la causa? <code translate="no">/boot</code> è montato? Il root accetta la scrittura?</p>
+<p>Sono disponibili due percorsi di riparazione. Scegline uno e poi prova l'altro:</p>
+<ul><li><strong>Con GRUB:</strong> nel menu, <code translate="no">e</code>, elimina <code translate="no">systemd.unit=emergency.target</code> dalle righe <code translate="no">linux</code> e <code translate="no">Ctrl+X</code>. La macchina si alza normalmente, solo questa volta. Quindi, tramite SSH, eseguire <code translate="no">sudo grubby --update-kernel=ALL --remove-args="systemd.unit=emergency.target"</code>.</li>
+<li><strong>Dall'emergenza:</strong> il root è di sola lettura e <code translate="no">/boot</code> non è montato, quindi <code translate="no">grubby</code> non ha nessun posto dove scrivere. Esegui:</li></ul>
+<pre translate="no"><code class="lang-bash">mount -o remount,rw /
+mount /boot
+grubby --update-kernel=ALL --remove-args="systemd.unit=emergency.target"
+systemctl reboot</code></pre>
+<p>La lezione: quando <code translate="no">get-default</code> dice una cosa e la macchina ne fa un'altra, guarda <code translate="no">/proc/cmdline</code>. Un parametro di avvio sovrascrive la destinazione predefinita.</p>
+<h2 id="7-insidie">7 Insidie</h2>
+<ul><li><strong>Dimenticare <code translate="no">touch /.autorelabel</code> in Rocky.</strong> Dopo il riavvio, non funziona l'accesso tramite password. Correzione: <code translate="no">rd.break</code> di nuovo, e questa volta con autorelabel.</li>
+<li><strong>Dimentica il rimontaggio.</strong> Sia <code translate="no">/sysroot</code> su Rocky che <code translate="no">/</code> su Debian iniziano in sola lettura.</li>
+<li><strong>Modifica <code translate="no">grub.cfg</code> a mano.</strong> Il successivo aggiornamento del kernel cancella la modifica.</li>
+<li><strong>Modifica <code translate="no">/etc/default/grub</code> e non eseguire <code translate="no">update-grub</code>.</strong> Non cambia nulla.</li>
+<li><strong>In Rocky, modifica solo <code translate="no">/etc/default/grub</code>.</strong> I kernel già installati non ricevono la modifica. Usa <code translate="no">grubby</code>.</li>
+<li><strong>Tastiera americana in GRUB e shell di emergenza.</strong> La password che hai inserito potrebbe non essere quella che pensi. Utilizzare una semplice password temporanea e modificarla in seguito.</li>
+<li><strong><code translate="no">systemctl reboot</code> in <code translate="no">init=/bin/bash</code>.</strong> Non funziona perché systemd non è in esecuzione. Usa <code translate="no">exec /sbin/init</code>.</li>
+<li><strong>Invia SMS con GRUB e non riavviare per testare.</strong> Prova mentre hai la console e il tempo, non il giorno dell'arresto anomalo.</li></ul>
+<h2 id="8-quiz">8 Quiz</h2>
+<ol><li>In Debian, dove si modifica l'ora del menu di GRUB e quale comando applica la modifica?</li>
+<li>In Rocky, come si aggiunge un parametro del kernel a tutti i kernel installati?</li>
+<li>Perché Rocky ha bisogno di <code translate="no">touch /.autorelabel</code> e Debian no?</li>
+<li>Dopo <code translate="no">rd.break</code>, perché è necessario rimontare <code translate="no">/sysroot</code>?</li>
+<li>Nel menu di GRUB, quale tasto modifica la voce e quale inizia con modifica?</li>
+<li><em>Nominare due misure che impediscono a qualcuno con accesso alla console di reimpostare la password di root tramite GRUB.</em></li></ol>
+<h2 id="9-cola">9 Cola</h2>
+<h3 id="da-sapere-a-memoria">Da sapere a memoria</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Comando o tasto</th><th scope="col">Fare</th></tr></thead><tbody><tr><td><code translate="no">e</code> / <code translate="no">Ctrl+X</code></td><td>Modifica la voce / inizia con la modifica</td></tr><tr><td><code translate="no">cat /proc/cmdline</code></td><td>Mostra con quali parametri è stato creato il kernel</td></tr><tr><td><code translate="no">grubby --info=DEFAULT</code></td><td>Mostra il kernel e i parametri predefiniti (Rocky)</td></tr><tr><td><code translate="no">grubby --update-kernel=ALL --args=</code> / <code translate="no">--remove-args=</code></td><td>Aggiungere o rimuovere parametri (Rocky)</td></tr><tr><td><code translate="no">/etc/default/grub</code> + <code translate="no">update-grub</code></td><td>Cambiarlo per sempre (Debian)</td></tr><tr><td><code translate="no">rd.break</code> → rimonta <code translate="no">/sysroot</code> → chroot → passwd → <code translate="no">touch /.autorelabel</code></td><td>Recupera root (Rocky)</td></tr><tr><td><code translate="no">init=/bin/bash</code> → rimonta <code translate="no">/</code> → passwd → <code translate="no">exec /sbin/init</code></td><td>Recupera root (Debian)</td></tr></tbody></table></div>
+<h3 id="consultare">Consultare</h3>
+<p><code translate="no">grubby --set-default</code>, <code translate="no">grub2-mkconfig -o /boot/grub2/grub.cfg</code>, <code translate="no">--update-bls-cmdline</code>, <code translate="no">GRUB_CMDLINE_LINUX</code> e <code translate="no">GRUB_CMDLINE_LINUX_DEFAULT</code>, <code translate="no">/boot/loader/entries/</code>, <code translate="no">grub2-setpassword</code>, <code translate="no">grub-mkpasswd-pbkdf2</code>, <code translate="no">/etc/grub.d/40_custom</code>, <code translate="no">grub-install</code>, <code translate="no">ls -Z</code>, <code translate="no">getenforce</code>.</p>
+<h3 id="flashcards">Flashcards</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Domanda</th><th scope="col">Rispondi</th></tr></thead><tbody><tr><td>GRUB legge <code translate="no">/etc/default/grub</code>?</td><td>No: legge il <code translate="no">grub.cfg</code> generato da esso</td></tr><tr><td>Dov'è il vero record dopo <code translate="no">rd.break</code>?</td><td>In <code translate="no">/sysroot</code>, sola lettura</td></tr><tr><td>Cosa risolve il <code translate="no">.autorelabel</code>?</td><td>Il tag SELinux di <code translate="no">/etc/shadow</code> e il resto del disco</td></tr><tr><td>Chi vince: il bersaglio standard o lo stivale <code translate="no">systemd.unit=</code>?</td><td>Il parametro di avvio</td></tr><tr><td>Qual è la difesa contro la reimpostazione della password tramite la console?</td><td>Password in GRUB e disco crittografato</td></tr></tbody></table></div>
+<h2 id="10-checklist-e-chiusura">10 Checklist e chiusura</h2>
+<ul><li>[ ] Ho modificato una voce nel menu solo per un boot</li>
+<li>[ ] Ho cambiato parametri una volta per tutte con <code translate="no">grubby</code> in Rocky</li>
+<li>[ ] Ho cambiato il timeout in Debian e ho capito perché <code translate="no">update-grub</code> è obbligatorio</li>
+<li>[ ] Ho recuperato la password dalla root di Rocky, e SELinux continua a <em>applicare</em></li>
+<li>[ ] Ho riparato una macchina bloccata in emergenza in entrambi i sensi</li>
+<li>[ ] Conosco le tre difese contro la reimpostazione della password tramite la console</li></ul>
+<p><strong>Ultimo esercizio, senza guardare la lezione:</strong> in debian-lab, ritorna <code translate="no">GRUB_TIMEOUT</code> a 5, applica e conferma in <code translate="no">grub.cfg</code>. Su Rocky-Lab, decidi se rivuoi indietro <code translate="no">rhgb quiet</code>. Molti amministratori preferiscono un server che ne sia sprovvisto. Se lo vuoi indietro, usa <code translate="no">grubby</code>.</p>
+<p><strong>Riavvia e conferenza:</strong> riavvia entrambe le VM e controlla:</p>
+<pre translate="no"><code class="lang-bash">cat /proc/cmdline
+systemctl is-system-running      # corsa
+ls ~/lab44</code></pre>
+<p><strong>Istantanea della fine</strong>, sul nodo Proxmox:</p>
+<pre translate="no"><code class="lang-bash">qm snapshot 201 m4a4-fim
+qm snapshot 202 m4a4-fim</code></pre>
+<h2 id="11-nella-vita-reale">11 Nella vita reale</h2>
+<p><strong>Missione, sola lettura.</strong> Su un server reale che amministri, esegui semplicemente questi comandi, che non cambiano nulla.</p>
+<p>In Rocky o su RHEL:</p>
+<pre translate="no"><code class="lang-bash">cat /proc/cmdline
+sudo grubby --info=DEFAULT
+sudo test -f /boot/grub2/user.cfg &amp;&amp; echo "GRUB com senha" || echo "GRUB sem senha"
+lsblk -f | grep -i crypto</code></pre>
+<p>Su Debian:</p>
+<pre translate="no"><code class="lang-bash">cat /proc/cmdline
+grep -v '^#' /etc/default/grub | grep .
+sudo grep -c password_pbkdf2 /boot/grub/grub.cfg
+lsblk -f | grep -i crypto</code></pre>
+<p>Risposta: GRUB ha una password? Il disco è crittografato? Chi ha accesso alla console di questo server (iLO, Proxmox, la stanza)? Se la risposta è "chiunque abbia la password Proxmox diventa root qui", prendi nota di questo rischio e parla con la persona responsabile. Non cambiare nulla da solo.</p>
+<p><strong>Diario:</strong> scrivi tre righe su ciò che hai imparato oggi e una domanda che ti è rimasta.</p>
+<p><strong>Domani, senza guardare:</strong></p>
+<ol><li>Scrivi la sequenza completa di recupero di Rocky root.</li>
+<li>Indica quale file GRUB legge effettivamente, in Rocky e Debian.</li>
+<li>Spiega in una frase perché <code translate="no">rd.break</code> fornisce una shell di root senza chiedere una password.</li></ol>
+<h2 id="12-scava-piu-a-fondo-a-tuo-piacimento">12 Scava più a fondo a tuo piacimento</h2>
+<ul><li>La riga di comando di GRUB (<code translate="no">c</code>): <code translate="no">ls</code>, <code translate="no">set root=</code>, <code translate="no">linux</code>, <code translate="no">initrd</code> e <code translate="no">boot</code>, per avviare manualmente una macchina con il menu interrotto.</li>
+<li>Reinstalla GRUB da un'ISO, con <code translate="no">grub-install</code> e <code translate="no">grub2-mkconfig</code> all'interno di un chroot.</li>
+<li>UEFI e Secure Boot: <code translate="no">shim</code>, <code translate="no">mokutil --sb-state</code> e <code translate="no">efibootmgr</code> dalla 4.1.</li>
+<li>Ritorno automatico al kernel precedente: <code translate="no">GRUB_DEFAULT=saved</code>, <code translate="no">grub2-set-default</code> e <code translate="no">grub2-editenv list</code>.</li>
+<li>Proteggi GRUB con una password in una VM di prova, per avere un'idea del menu.</li></ul>
+<p>In DeepTutor: <code translate="no">!explica rd.break e init=/bin/bash</code>, <code translate="no">!feynman por que o autorelabel existe</code>, <code translate="no">!quiz GRUB e recuperação de root</code>.</p>
+<h2 id="la-sfida-del-modulo-4">La sfida del modulo 4</h2>
+<p>Il modulo 4 si chiude con l'attività che rientra maggiormente in RHCSA e che salva la maggior parte dei server nella vita reale: <strong>recuperare la password root delle due VM, senza guardare la lezione.</strong></p>
+<p><strong>Prima di:</strong> sul nodo Proxmox, eseguire <code translate="no">qm snapshot 201 m4-desafio</code> e <code translate="no">qm snapshot 202 m4-desafio</code>.</p>
+<p><strong>Regole:</strong></p>
+<ul><li>Utilizzare solo la console Proxmox, no SSH.</li>
+<li>Non consultare la lezione, Cola o DeepTutor. Se si blocca, sono disponibili suggerimenti nella chiave di risposta.</li>
+<li>Tempo previsto: 15 minuti per VM, senza contare la rietichettatura.</li></ul>
+<p><strong>È pronto quando:</strong></p>
+<div class="tabela"><table><thead><tr><th scope="col">V.M.</th><th scope="col">Criterio</th></tr></thead><tbody><tr><td>laboratorio-roccioso</td><td>Root accede alla console con la nuova password</td></tr><tr><td>laboratorio-roccioso</td><td><code translate="no">getenforce</code> mostra <code translate="no">Enforcing</code> e <code translate="no">ls -Z /etc/shadow</code> mostra <code translate="no">shadow_t</code></td></tr><tr><td>laboratorio-roccioso</td><td>L'utente abituale inserisce anche la password</td></tr><tr><td>debian-lab</td><td>Root accede alla console con la nuova password</td></tr><tr><td>debian-lab</td><td><code translate="no">systemctl is-system-running</code> mostra <code translate="no">running</code></td></tr></tbody></table></div>
+<p><strong>Bonus:</strong> scrivi in ​​cinque righe, nel tuo diario, perché funziona e come impedire a un estraneo di fare lo stesso.</p>
+<p><strong>Se va storto:</strong> <code translate="no">qm rollback 201 m4-desafio</code> (o 202) riporta la VM allo stato in cui era prima e riprovi. Commettere errori qui è economico: commettere errori nel test, o sul server di un cliente, non lo è.</p>
+<p>Con questo, <strong>il modulo 4 è completato</strong>: sai come Linux si accende, invia servizi, cambia modalità ed entra in una macchina bloccata.</p>
+<h2 id="risposta-commentata">Risposta commentata</h2>
+<h3 id="riscaldamento">Riscaldamento</h3>
+<ol><li>GRUB, il secondo corridore della staffetta 4.1.</li>
+<li>Solo uno stivale. Al successivo avvio, ciò che è presente sul disco sarà nuovamente valido.</li>
+<li>SÌ. Tramite GRUB, con <code translate="no">rd.break</code> o <code translate="no">init=/bin/bash</code>. Non puoi farlo se GRUB ha una password o il disco è crittografato.</li></ol>
+<h3 id="quiz">Quiz</h3>
+<ol><li>Nella variabile <code translate="no">GRUB_TIMEOUT</code> di <code translate="no">/etc/default/grub</code> e si applica con <code translate="no">sudo update-grub</code>.</li>
+<li><code translate="no">sudo grubby --update-kernel=ALL --args="nome=valor"</code>.</li>
+<li>Rocky usa SELinux in modalità <em>enforcing</em>. <code translate="no">passwd</code> è stato eseguito senza la policy caricata, quindi il nuovo <code translate="no">/etc/shadow</code> è stato lasciato senza l'etichetta corretta e SELinux ne blocca la lettura al momento del login. Debian non utilizza SELinux per impostazione predefinita e il suo AppArmor non si basa sui tag dei file.</li>
+<li>Perché initramfs monta effettivamente il disco in <code translate="no">/sysroot</code> di sola lettura e <code translate="no">passwd</code> deve scrivere su <code translate="no">/etc/shadow</code>.</li>
+<li><code translate="no">e</code> modifica e <code translate="no">Ctrl+X</code> (o <code translate="no">F10</code>) inizia con la modifica.</li>
+<li><em>Una password GRUB, quindi le voci di avvio non possono essere modificate e crittografia dell'intero disco con LUKS, quindi il disco non può essere letto senza la passphrase. La protezione fisica della console (iLO/IPMI, accesso all'hypervisor, sala server) è il terzo livello.</em></li></ol>
+<h3 id="suggerimenti-per-la-sfida">Suggerimenti per la sfida</h3>
+<p>Leggi solo se rimane bloccato.</p>
+<ul><li><strong>Il <code translate="no">passwd</code> non è riuscito:</strong> hai dimenticato il rimontaggio per la lettura e la scrittura.</li>
+<li><strong>In Rocky, nessuno entra dopo il riavvio:</strong> <code translate="no">touch /.autorelabel</code> mancava. Ripetere l'intero processo.</li>
+<li><strong>Su Debian, <code translate="no">systemctl reboot</code> non funziona:</strong> systemd non è in esecuzione. Usa <code translate="no">exec /sbin/init</code>.</li>
+<li><strong>La nuova password dopo non funziona:</strong> era la tastiera americana. Ripetere con una password composta da lettere e numeri.</li></ul>
+</article><nav class="paginas" aria-label="Lezioni"><a class="ant" href="4.3-targets-desligar-e-reiniciar.it.html"><small>← Precedente</small>4.3 · Target: spegnere e riavviare</a><a class="prox" href="5.1-hardware-pelo-kernel.it.html"><small>Successiva →</small>5.1 · L'hardware visto dal kernel</a></nav></main></div>
+<footer><div class="wrap">Generato dal Markdown del corso · Immagini in <code translate="no">img/</code></div></footer>
+</body>
+</html>
