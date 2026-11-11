@@ -69,9 +69,35 @@ def num_celulas(l):
     return len(re.findall(r"(?<!\\)\|", l))
 
 
+def sem_imagens_pendentes(pt, it):
+    """Tira do PT as imagens que o IT ainda não tem (imagem, legenda e brancos).
+
+    A versão italiana da imagem pode chegar depois; até lá a aula IT fica sem ela.
+    """
+    texto_it = "\n".join(it)
+    base = lambda alvo: re.sub(r"(\.it)?\.(jpg|png|svg)$", "", alvo.rsplit("/", 1)[-1])
+    out, i = [], 0
+    while i < len(pt):
+        m = re.match(r"^!\[[^\]]*\]\(([^)\s]+)\)\s*$", pt[i])
+        if m and base(m.group(1)) not in texto_it:
+            j = i + 1
+            if j < len(pt) and not pt[j].strip():
+                j += 1
+            if j < len(pt) and re.match(r"^\*[^*].*\*\s*$", pt[j]):
+                j += 1
+            if j < len(pt) and not pt[j].strip():
+                j += 1
+            i = j
+            continue
+        out.append(pt[i])
+        i += 1
+    return out
+
+
 def conferir(pt_path, it_path):
     erros, avisos = [], []
     pt, it = linhas(pt_path), linhas(it_path)
+    pt = sem_imagens_pendentes(pt, it)
     if len(pt) != len(it):
         erros.append(f"número de linhas: PT {len(pt)}, IT {len(it)}. Mantenha uma linha traduzida para cada linha original.")
         for i, (a, b) in enumerate(zip(pt, it), 1):

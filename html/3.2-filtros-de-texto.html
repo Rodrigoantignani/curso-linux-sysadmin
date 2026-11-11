@@ -161,6 +161,7 @@ tr ':' '\n' &lt;&lt;&lt; "$PATH"        # um diretório do PATH por linha</code>
 <pre translate="no"><code class="lang-bash">ps aux | cut -d' ' -f2            # quase tudo vazio
 ps aux | tr -s ' ' | cut -d' ' -f2   # o PID de cada processo</code></pre>
 <p>O log do <code translate="no">rsyslog</code> tem uma armadilha de calendário: o dia vem alinhado com espaço, <code translate="no">Nov  3</code> nos dias 1 a 9 e <code translate="no">Nov 10</code> a partir do dia 10. Um <code translate="no">cut -d' ' -f5</code> que funciona no dia 12 pega o campo errado no dia 3. O <code translate="no">tr -s ' '</code> resolve nos dois casos.</p>
+<figure><a href="../img/3.2-cut-e-espacos-repetidos.jpg"><img src="../img/3.2-cut-e-espacos-repetidos.jpg" alt="O cut e os espaços repetidos" loading="lazy" decoding="async"></a><figcaption>Cada espaço é um separador para o cut; o tr -s junta os espaços antes.</figcaption></figure>
 <p><strong>O <code translate="no">sort</code> por coluna.</strong> O <code translate="no">-k</code> sem fim (<code translate="no">-k3</code>) ordena <strong>do campo 3 até o fim da linha</strong>; o <code translate="no">-k3,3</code> ordena só pelo campo 3. O tipo vai junto da chave:</p>
 <pre translate="no"><code class="lang-bash">sort -t: -k3,3n /etc/passwd            # por UID, como número
 sort -k1,1nr -k2,2n relatorio.txt      # pelo campo 1, maior primeiro; empate, pelo campo 2</code></pre>
@@ -306,6 +307,7 @@ ana;2001;suporte</code></pre>
 <pre translate="no"><code class="lang-bash">sort -t: -k3,3n /etc/passwd | tail -n 3 | cut -d: -f1,3
 ssh deb 'sort -t: -k3,3n /etc/passwd | tail -n 3 | cut -d: -f1,3'</code></pre>
 <p>Nas duas, o último costuma ser o <code translate="no">nobody</code>, com UID 65534. Logo antes vêm os usuários do lab, como a <code translate="no">ana</code>, com 2001. Se aparecer outro nome no meio, é uma conta criada por algum pacote: descubra qual com <code translate="no">getent passwd nome</code>.</p>
+<figure><a href="../img/3.2-numero-como-texto.jpg"><img src="../img/3.2-numero-como-texto.jpg" alt="Número ordenado como texto" loading="lazy" decoding="async"></a><figcaption>Sem -n o sort compara caractere a caractere; a chave completa é -k2,2n.</figcaption></figure>
 <h3 id="passo-4-o-log-de-verdade-com-espacos-demais">Passo 4 · O log de verdade, com espaços demais</h3>
 <p>Uma amostra no formato do <code translate="no">rsyslog</code> da Rocky, com uma linha do dia 3 e outra do dia 12:</p>
 <pre translate="no"><code class="lang-bash">cat &gt; secure.amostra &lt;&lt;'EOF'
@@ -405,6 +407,7 @@ cut -d' ' -f7 acesso.log | sort -u | nl</code></pre>
 <pre translate="no"><code class="lang-bash">cut -d' ' -f1 acesso.log &gt; ips.txt
 cut -d' ' -f9 acesso.log &gt; status.txt
 paste -d' ' ips.txt status.txt | head -n 3</code></pre>
+<figure><a href="../img/3.2-dividir-juntar-provar.jpg"><img src="../img/3.2-dividir-juntar-provar.jpg" alt="Dividir, juntar e provar" loading="lazy" decoding="async"></a><figcaption>O split corta, o cat cola e o hash prova que nenhum byte mudou.</figcaption></figure>
 <h3 id="passo-7-desafio-o-log-vira-relatorio">Passo 7 · Desafio: o log vira relatório</h3>
 <p>O chamado: "manda todo dia um resumo do log de acesso". Escreva <code translate="no">~/lab32/relatorio.sh</code> na rocky-lab:</p>
 <pre translate="no"><code class="lang-bash">cat &gt; relatorio.sh &lt;&lt;'EOF'
@@ -508,6 +511,7 @@ rm ~/lab32/teste.txt</code></pre>
 10.1.0.31
 192.168.1.10</code></pre>
 <p>Três IPs, sem repetição. Na vida real não há <code translate="no">cat &gt; ... &lt;&lt;'EOF'</code> para recriar a lista: ou havia backup, ou snapshot, ou alguém lembra os IPs. Por isso o <code translate="no">sha256sum</code> antes de mexer: ele não traz o arquivo de volta, mas prova, depois, se o que você restaurou é igual ao que havia.</p>
+<figure><a href="../img/3.2-sort-no-proprio-arquivo.jpg"><img src="../img/3.2-sort-no-proprio-arquivo.jpg" alt="sort -u no próprio arquivo" loading="lazy" decoding="async"></a><figcaption>O &gt; zera o arquivo antes de o sort ler; o -o grava só no fim.</figcaption></figure>
 <h3 id="quebra-b-a-lista-de-bloqueio-que-nao-bloqueia-nada">Quebra B · A lista de bloqueio que não bloqueia nada</h3>
 <p>O cenário: a equipe de segurança mandou, de um computador com Windows, a lista de IPs que atacaram outros clientes. A pergunta é: algum deles apareceu no nosso log? O <code translate="no">printf</code> imita o arquivo que chegou:</p>
 <pre translate="no"><code class="lang-bash">printf '203.0.113.9\r\n198.51.100.4\r\n' &gt; ~/lab32/bloqueio.txt
