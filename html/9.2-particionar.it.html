@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light dark">
+<title>9.2 · Partizionare · Corso Linux Sysadmin</title>
+<link rel="alternate" hreflang="pt-BR" href="9.2-particionar.html"><link rel="alternate" hreflang="it" href="9.2-particionar.it.html">
+<style>
+:root{color-scheme:light dark;--bg:#f6f1e7;--card:#fffdf8;--ink:#201c16;--muted:#5e564a;--accent:#9a3412;--accent-2:#1f5f4a;--tint:#efe6d4;--line:#ddd2bc;--code:#f1eadb;--shadow:0 1px 2px rgba(60,40,10,.08);--serif:Georgia,"Iowan Old Style","Palatino Linotype",Palatino,serif;--sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--mono:"Cascadia Code",Consolas,"DejaVu Sans Mono",monospace}
+@media (prefers-color-scheme:dark){:root{--bg:#16130f;--card:#201b15;--ink:#f1eadb;--muted:#b9ad98;--accent:#f0a070;--accent-2:#7fd0b0;--tint:#2a231a;--line:#3d3427;--code:#191510;--shadow:none}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:5.5rem}
+body{margin:0;background:var(--bg);color:var(--ink);font:1rem/1.6 var(--sans)}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--accent-2);outline-offset:2px;border-radius:4px}
+.pular{position:absolute;left:-999px;top:0;background:var(--card);padding:.5rem 1rem;z-index:20}
+.pular:focus{left:.5rem;top:.5rem}
+.wrap{width:100%;max-width:84rem;margin:0 auto;padding-inline:max(1rem,env(safe-area-inset-left))}
+.top{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10;border-top:6px solid var(--accent)}
+.top-in{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding-block:.6rem}
+.titles{min-width:0}
+.marca{margin:0;font:700 clamp(1.15rem,1rem + 1vw,1.6rem)/1.15 var(--serif);letter-spacing:-.01em}
+.marca a{text-decoration:none}
+.marca a:hover{color:var(--accent)}
+.meta{margin:.1rem 0 0;color:var(--muted);font-size:.85rem}
+.acoes{display:flex;align-items:center;gap:.9rem;flex:none}
+.acoes>a{font-size:.9rem;font-weight:600;color:var(--muted);text-decoration:none}
+.acoes>a:hover{color:var(--accent);text-decoration:underline}
+.idioma{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--tint)}
+.idioma>*{padding:.35rem .9rem;font-size:.8rem;font-weight:700;letter-spacing:.06em;text-decoration:none;color:var(--muted);min-width:2.75rem;text-align:center}
+.idioma a:hover{color:var(--accent);text-decoration:underline}
+.idioma span{background:var(--accent);color:#fff}
+@media (prefers-color-scheme:dark){.idioma span{color:#16130f}}
+code{font-family:var(--mono);font-size:.9em;background:var(--tint);padding:.1rem .35rem;border-radius:4px;overflow-wrap:anywhere}
+/* índice */
+.capa{max-width:70rem;padding-block:2rem 3rem}
+.stats{border-left:4px solid var(--accent-2);background:var(--card);border-radius:0 10px 10px 0;padding:1rem 1.25rem;margin:0 0 2.5rem;box-shadow:var(--shadow);color:var(--muted)}
+.stats strong{color:var(--ink)}
+.modulo{display:grid;grid-template-columns:15rem minmax(0,1fr);gap:1rem 2rem;padding:1.75rem 0;border-top:1px solid var(--line)}
+.modulo h2{margin:0;font:700 1.25rem/1.25 var(--serif);align-self:start;position:sticky;top:6rem}
+.mn{display:block;font:700 .8rem var(--mono);letter-spacing:.12em;color:var(--accent);margin-bottom:.25rem}
+.sep{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.modulo ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,17rem),1fr));gap:.75rem}
+.modulo li{margin:0}
+.modulo a{display:flex;gap:.45rem;align-items:baseline;height:100%;padding:.85rem 1rem;background:var(--card);border:1px solid var(--line);border-radius:10px;text-decoration:none;font-weight:600;line-height:1.35;box-shadow:var(--shadow);transition:border-color .15s,transform .15s}
+.modulo a:hover{border-color:var(--accent);color:var(--accent)}
+.num{font:700 .85rem var(--mono);color:var(--accent);white-space:nowrap}
+/* aula */
+.doc{display:grid;grid-template-columns:17rem minmax(0,1fr);gap:2.5rem;align-items:start;padding-block:2rem 3rem}
+.lateral{position:sticky;top:5.5rem;max-height:calc(100vh - 6.5rem);overflow:auto;font-size:.875rem;padding-right:.5rem}
+.lateral h2{margin:0 0 .25rem;font:700 .95rem var(--serif);color:var(--muted)}
+.lateral h3{margin:1rem 0 .25rem;font:700 .75rem var(--mono);letter-spacing:.06em;color:var(--accent)}
+.lateral ul{list-style:none;margin:0;padding:0}
+.lateral a{display:flex;gap:.45rem;padding:.25rem .5rem;border-radius:6px;text-decoration:none;color:var(--muted);line-height:1.3}
+.lateral a:hover{background:var(--tint);color:var(--ink)}
+.lateral a[aria-current]{background:var(--tint);color:var(--ink);font-weight:700;box-shadow:inset 3px 0 0 var(--accent)}
+.lateral .num{font-size:.75rem}
+.aula{min-width:0;max-width:56rem;overflow-wrap:break-word;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:clamp(1.25rem,1rem + 2vw,2.75rem);box-shadow:var(--shadow)}
+.aula h1{margin:0 0 1.5rem;font:700 clamp(1.75rem,1.4rem + 1.6vw,2.5rem)/1.15 var(--serif);letter-spacing:-.015em;color:var(--ink)}
+.aula h2{margin:2.5rem 0 .75rem;padding-top:1.25rem;border-top:1px solid var(--line);font:700 1.5rem/1.25 var(--serif)}
+.aula h3{margin:2rem 0 .5rem;font:700 1.15rem/1.3 var(--serif);color:var(--accent)}
+.aula h4,.aula h5,.aula h6{margin:1.5rem 0 .5rem;font-size:1rem}
+.aula p,.aula ul,.aula ol{margin:1rem 0}
+.aula ul,.aula ol{padding-left:1.5rem}
+.aula li{margin:.35rem 0}
+.aula li>ul,.aula li>ol{margin:.35rem 0}
+.aula a{color:var(--accent);text-underline-offset:2px}
+.aula hr{border:0;border-top:1px solid var(--line);margin:2rem 0}
+.tabela{overflow-x:auto;margin:1.25rem 0;border:1px solid var(--line);border-radius:10px}
+.aula table{width:100%;border-collapse:collapse;font-size:.9rem}
+.aula th,.aula td{padding:.55rem .75rem;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+.aula tr:last-child td{border-bottom:0}
+.aula th{background:var(--tint);font-weight:700}
+.aula pre{background:var(--code);border:1px solid var(--line);border-radius:10px;padding:.9rem 1rem;overflow-x:auto;font:.85rem/1.5 var(--mono);margin:1rem 0;tab-size:4}
+.aula pre code{background:none;padding:0;font-size:inherit;overflow-wrap:normal}
+.aula blockquote{margin:1.25rem 0;padding:.75rem 1.25rem;border-left:4px solid var(--accent-2);background:var(--tint);border-radius:0 10px 10px 0}
+.aula blockquote>:first-child{margin-top:0}
+.aula blockquote>:last-child{margin-bottom:0}
+.aula figure{margin:1.75rem 0;text-align:center}
+.aula figure img{display:block;margin:0 auto;max-width:100%;height:auto;border:1px solid var(--line);border-radius:10px;background:#fff}
+.aula figcaption{margin-top:.5rem;color:var(--muted);font-size:.9rem;font-style:italic}
+.paginas{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:2.5rem;padding-top:1.5rem;border-top:1px solid var(--line)}
+.paginas a{display:block;padding:.75rem 1rem;border:1px solid var(--line);border-radius:10px;text-decoration:none;color:var(--ink);font-weight:600;line-height:1.3}
+.paginas a:hover{border-color:var(--accent);color:var(--accent)}
+.paginas small{display:block;color:var(--muted);font-weight:400}
+.paginas .prox{grid-column:2;text-align:right}
+footer{border-top:1px solid var(--line);padding-block:1.5rem;color:var(--muted);font-size:.85rem;text-align:center}
+@media (hover:hover) and (prefers-reduced-motion:no-preference){.modulo a:hover{transform:translateY(-2px)}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+@media (max-width:980px){.doc{grid-template-columns:minmax(0,1fr);padding-top:1rem}.lateral{position:static;max-height:none;order:2}.aula{max-width:none}}
+@media (max-width:860px){.modulo{grid-template-columns:minmax(0,1fr)}.modulo h2{position:static}.mn{display:inline;margin-right:.5rem}}
+@media (max-width:420px){.meta{display:none}.top-in{gap:.5rem}.acoes{gap:.6rem}.capa{padding-top:1.25rem}.paginas{grid-template-columns:minmax(0,1fr)}.paginas .prox{grid-column:1}}
+@media print{.top,.lateral,.paginas{display:none}.aula{border:0;box-shadow:none;padding:0;max-width:none}.doc{display:block}}
+</style>
+</head>
+<body>
+<a class="pular" href="#conteudo">Vai al contenuto</a>
+<header class="top"><div class="wrap top-in"><div class="titles"><p class="marca"><a href="index.it.html">Corso Linux Sysadmin</a></p><p class="meta">Rodrigo Antignani · Lezione 9.2</p></div><div class="acoes"><a href="index.it.html">Indice</a><div class="idioma" role="group" aria-label="Lingua"><a href="9.2-particionar.html" hreflang="pt-BR" lang="pt-BR">PT</a><span aria-current="true">IT</span></div></div></div></header>
+<div class="wrap doc"><aside class="lateral" aria-label="Lezioni"><h2>Lezioni</h2><h3>M0 · Laboratorio</h3><ul><li><a href="0.1-montar-o-laboratorio.it.html"><span class="num">0.1</span><span>Allestire il laboratorio</span></a></li><li><a href="0.2-acesso-e-protecao.it.html"><span class="num">0.2</span><span>Accesso e protezione</span></a></li></ul><h3>M1 · Riga di comando</h3><ul><li><a href="1.1-o-que-e-linux.it.html"><span class="num">1.1</span><span>Che cos'è Linux</span></a></li><li><a href="1.2-o-shell-e-a-ajuda.it.html"><span class="num">1.2</span><span>La shell e la guida</span></a></li><li><a href="1.3-caminhos-e-navegacao.it.html"><span class="num">1.3</span><span>Percorsi e navigazione</span></a></li><li><a href="1.4-criar-copiar-mover-e-apagar.it.html"><span class="num">1.4</span><span>Creare, copiare, spostare ed eliminare</span></a></li><li><a href="1.5-ler-e-procurar-texto.it.html"><span class="num">1.5</span><span>Leggere e cercare testo</span></a></li><li><a href="1.6-redirecionamentos-e-pipes.it.html"><span class="num">1.6</span><span>Reindirizzamenti e pipe</span></a></li><li><a href="1.7-arquivar-e-compactar.it.html"><span class="num">1.7</span><span>Archiviare e comprimere</span></a></li><li><a href="1.8-primeiro-script.it.html"><span class="num">1.8</span><span>Primo script</span></a></li><li><a href="1.9-decidir-e-repetir.it.html"><span class="num">1.9</span><span>Decidere e ripetere</span></a></li><li><a href="1.10-software-livre-na-pratica.it.html"><span class="num">1.10</span><span>Il software libero in pratica</span></a></li></ul><h3>M2 · Sistema, utenti e permessi</h3><ul><li><a href="2.1-instalacao-e-provisionamento.it.html"><span class="num">2.1</span><span>Installazione e provisioning</span></a></li><li><a href="2.2-hardware-e-dispositivos.it.html"><span class="num">2.2</span><span>Hardware e dispositivi</span></a></li><li><a href="2.3-processos-e-logs.it.html"><span class="num">2.3</span><span>Processi e log</span></a></li><li><a href="2.4-rede-no-dia-a-dia.it.html"><span class="num">2.4</span><span>La rete di tutti i giorni</span></a></li><li><a href="2.5-acesso-remoto-e-privilegios.it.html"><span class="num">2.5</span><span>Accesso remoto e privilegi</span></a></li><li><a href="2.6-usuarios-e-grupos.it.html"><span class="num">2.6</span><span>Utenti e gruppi</span></a></li><li><a href="2.7-permissoes-e-dono.it.html"><span class="num">2.7</span><span>Permessi e proprietario</span></a></li><li><a href="2.8-diretorios-e-arquivos-especiais.it.html"><span class="num">2.8</span><span>Directory e file speciali</span></a></li></ul><h3>M3 · Testo ed editor</h3><ul><li><a href="3.1-fluxos-a-fundo.it.html"><span class="num">3.1</span><span>I flussi in profondità</span></a></li><li><a href="3.2-filtros-de-texto.it.html"><span class="num">3.2</span><span>Filtri di testo</span></a></li><li><a href="3.3-regex-e-grep.it.html"><span class="num">3.3</span><span>Regex e grep</span></a></li><li><a href="3.4-sed-e-awk.it.html"><span class="num">3.4</span><span>sed e awk</span></a></li><li><a href="3.5-vi-e-vim-de-verdade.it.html"><span class="num">3.5</span><span>vi e vim sul serio</span></a></li></ul><h3>M4 · systemd e boot</h3><ul><li><a href="4.1-como-o-linux-liga.it.html"><span class="num">4.1</span><span>Come si avvia Linux</span></a></li><li><a href="4.2-systemd-servicos-e-units.it.html"><span class="num">4.2</span><span>systemd: servizi e unit</span></a></li><li><a href="4.3-targets-desligar-e-reiniciar.it.html"><span class="num">4.3</span><span>Target: spegnere e riavviare</span></a></li><li><a href="4.4-grub-e-acesso-de-emergencia.it.html"><span class="num">4.4</span><span>GRUB e accesso di emergenza</span></a></li></ul><h3>M5 · Kernel, moduli e VM</h3><ul><li><a href="5.1-hardware-pelo-kernel.it.html"><span class="num">5.1</span><span>L'hardware visto dal kernel</span></a></li><li><a href="5.2-modulos-e-parametros.it.html"><span class="num">5.2</span><span>Moduli e parametri</span></a></li><li><a href="5.3-linux-como-convidado.it.html"><span class="num">5.3</span><span>Linux come guest</span></a></li></ul><h3>M6 · Pacchetti e repository</h3><ul><li><a href="6.1-pacotes-no-debian.it.html"><span class="num">6.1</span><span>Pacchetti su Debian</span></a></li><li><a href="6.2-pacotes-na-rocky.it.html"><span class="num">6.2</span><span>Pacchetti su Rocky</span></a></li><li><a href="6.3-repositorios.it.html"><span class="num">6.3</span><span>Repository</span></a></li><li><a href="6.4-flatpak.it.html"><span class="num">6.4</span><span>Flatpak</span></a></li><li><a href="6.5-bibliotecas-compartilhadas.it.html"><span class="num">6.5</span><span>Librerie condivise</span></a></li></ul><h3>M7 · Processi e prestazioni</h3><ul><li><a href="7.1-processos-e-sinais.it.html"><span class="num">7.1</span><span>Processi e segnali</span></a></li><li><a href="7.2-jobs-e-sessoes.it.html"><span class="num">7.2</span><span>Job e sessioni</span></a></li><li><a href="7.3-prioridade-e-perfis.it.html"><span class="num">7.3</span><span>Priorità e profili</span></a></li></ul><h3>M8 · File a fondo</h3><ul><li><a href="8.1-fhs-e-onde-cada-coisa-mora.it.html"><span class="num">8.1</span><span>FHS e dove sta ogni cosa</span></a></li><li><a href="8.2-find-a-fundo.it.html"><span class="num">8.2</span><span>find a fondo</span></a></li><li><a href="8.3-arquivamento-avancado.it.html"><span class="num">8.3</span><span>Archiviazione avanzata</span></a></li><li><a href="8.4-links.it.html"><span class="num">8.4</span><span>Link</span></a></li><li><a href="8.5-permissoes-avancadas.it.html"><span class="num">8.5</span><span>Permessi avanzati</span></a></li></ul><h3>M9 · Storage</h3><ul><li><a href="9.1-discos-e-layout.it.html"><span class="num">9.1</span><span>Dischi e layout</span></a></li><li><a href="9.2-particionar.it.html" aria-current="page"><span class="num">9.2</span><span>Partizionare</span></a></li><li><a href="9.3-sistemas-de-arquivos.it.html"><span class="num">9.3</span><span>File system</span></a></li><li><a href="9.4-montar-e-persistir.it.html"><span class="num">9.4</span><span>Montare e rendere persistente</span></a></li><li><a href="9.5-integridade-e-espaco.it.html"><span class="num">9.5</span><span>Integrità e spazio</span></a></li><li><a href="9.6-lvm.it.html"><span class="num">9.6</span><span>LVM</span></a></li><li><a href="9.7-crescer-sem-destruir.it.html"><span class="num">9.7</span><span>Crescere senza distruggere</span></a></li></ul></aside><main id="conteudo" class="aula"><article><h1>Lezione 9.2 · Partizionare</h1>
+<p>In Windows, la procedura guidata "Nuovo volume semplice" fa tutto in una volta: crea la partizione, la formatta e le assegna una lettera. In Linux ogni fase è separata, e la prima è la tabella delle partizioni. In questa lezione scrivi una vera tabella GPT sul disco nuovo, con tre partizioni, e provi MBR su un file immagine, senza rischi.</p>
+<blockquote><p><strong>Il cuore di questa lezione:</strong> confermare il disco giusto prima di scrivere; creare la tabella GPT e le partizioni con <code translate="no">fdisk</code>; ispezionare con <code translate="no">gdisk</code> e verificare con <code translate="no">v</code>; fare lo stesso senza interazione con <code translate="no">parted -s</code>; e chiedere al kernel di rileggere la tabella con <code translate="no">partprobe</code> e <code translate="no">udevadm settle</code>. Il resto è approfondimento.</p></blockquote>
+<div class="tabela"><table><thead><tr><th scope="col">Scheda</th><th scope="col"></th></tr></thead><tbody><tr><td><strong>Modulo</strong></td><td>M9 · Storage, lezione 2 di 7</td></tr><tr><td><strong>Quando</strong></td><td>Settimana 13</td></tr><tr><td><strong>Alla fine</strong></td><td>Il disco <code translate="no">scsi1</code> ha le partizioni 1, 2 e 3, senza file system, e sai trovare il disco giusto prima di scrivere</td></tr><tr><td><strong>Prerequisiti</strong></td><td>Lezione 9.1 (lo <code translate="no">scsi1</code> della 2.2, ampliato a 4 GiB) e lezione 0.2</td></tr><tr><td><strong>Durata</strong></td><td>circa 2h30</td></tr><tr><td><strong>Snapshot</strong></td><td><code translate="no">m9a2-inicio</code> e <code translate="no">m9a2-fim</code> su rocky-lab e debian-lab</td></tr></tbody></table></div>
+<h2 id="1-riscaldamento">1 · Riscaldamento</h2>
+<p>Rispondi prima di leggere.</p>
+<ol><li>Creare una partizione scrive dati tuoi o solo una mappa?</li>
+<li>Perché <code translate="no">/dev/sdb</code> oggi può essere <code translate="no">/dev/sda</code> domani?</li>
+<li>Qual è il limite dell'MBR in partizioni primarie e in dimensione del disco?</li></ol>
+<h2 id="2-perche-conta">2 · Perché conta</h2>
+<div class="tabela"><table><thead><tr><th scope="col">La richiesta</th><th scope="col">La risposta sbagliata</th><th scope="col">Cosa provoca</th></tr></thead><tbody><tr><td>"Ho aggiunto un disco, preparalo per il database"</td><td>Lanciare <code translate="no">fdisk /dev/sdb</code> a memoria</td><td><code translate="no">sdb</code> era il vecchio disco dati, e la sua tabella è stata riscritta</td></tr><tr><td>"Ho creato la partizione ma non compare"</td><td>Riavviare la VM</td><td>È mancato il <code translate="no">w</code>, oppure il kernel non ha riletto la tabella</td></tr><tr><td>"Il disco da 4 TB ne mostra solo 2"</td><td>Dare la colpa all'hardware</td><td>È stato partizionato come MBR</td></tr><tr><td>"Mi servirà spazio più avanti"</td><td>Usare adesso tutto il disco</td><td>Senza spazio libero, il prossimo ritocco diventa rifare tutto</td></tr></tbody></table></div>
+<h2 id="3-modello-mentale">3 · Modello mentale</h2>
+<blockquote><p>Un disco è un <strong>terreno</strong> e la tabella delle partizioni è la <strong>planimetria della lottizzazione</strong>, registrata all'inizio del terreno. La planimetria dice dove inizia e dove finisce ogni lotto. Nessun lotto ha ancora una casa: la casa è il file system, della prossima lezione. Disegnare la planimetria è veloce, e ridisegnarla con le case già costruite significa demolire. Per questo si controlla il terreno prima. Nella GPT la planimetria ha una <strong>copia di riserva</strong> in fondo al terreno.</p></blockquote>
+<pre translate="no"><code>Disco scsi1, 4 GiB (8388608 setores de 512 bytes)
+
+| PMBR | GPT | 1 · 1 GiB | 2 · 1 GiB | 3 · 512 MiB |  livre ~1,5 GiB  | GPT de reserva |
+| setor 0 | 1-33 | 2048..    | ..        | ..5244927   | 5244928..8388574 | últimos 33 setores |
+
+Hoje (9.2): partições 1, 2 e 3. O espaço livre fica para a 9.7.</code></pre>
+<h3 id="ponte-windows">Ponte Windows</h3>
+<div class="tabela"><table><thead><tr><th scope="col">In Windows</th><th scope="col">In Linux</th><th scope="col">Dove il paragone inganna</th></tr></thead><tbody><tr><td>Gestione disco, "Inizializza disco"</td><td><code translate="no">fdisk</code> con <code translate="no">g</code> (GPT) o <code translate="no">o</code> (MBR)</td><td>Qui è un passo isolato, e non viene formattato nulla</td></tr><tr><td>"Nuovo volume semplice"</td><td><code translate="no">n</code> in <code translate="no">fdisk</code>, e poi <code translate="no">mkfs</code> (9.3)</td><td>Windows unisce partizione, formattazione e lettera. Linux le separa tutte e tre</td></tr><tr><td><code translate="no">diskpart</code>: <code translate="no">select disk</code>, <code translate="no">create partition primary size=1024</code></td><td><code translate="no">parted -s</code> o <code translate="no">sfdisk</code>, in uno script</td><td>Anche <code translate="no">diskpart</code> accetta script</td></tr><tr><td>Lettera di unità (<code translate="no">D:</code>)</td><td>Punto di montaggio, come <code translate="no">/srv/dados</code> (9.4)</td><td>Niente si monta da solo</td></tr></tbody></table></div>
+<h2 id="4-l-essenziale">4 · L'essenziale</h2>
+<h3 id="gb-gib">GB × GiB</h3>
+<p>I produttori parlano in GB (10^9 byte). <code translate="no">fdisk</code> legge <code translate="no">+1G</code> come 1 GiB: 1024 MiB, ovvero 2.097.152 settori da 512 byte. <code translate="no">parted</code> conta in binario solo quando scrivi <code translate="no">GiB</code> o <code translate="no">MiB</code>; <code translate="no">1GB</code> per lui è decimale. I "4 GB" di Proxmox sono 4 GiB. Da qui in avanti, GiB e MiB.</p>
+<h3 id="prima-di-scrivere-conferma-il-bersaglio">Prima di scrivere: conferma il bersaglio</h3>
+<p>Questa è l'abitudine più importante della lezione. Distruggere un disco costa un solo comando, e il nome <code translate="no">sdX</code> non è garantito. Il nome stabile è il <code translate="no">by-id</code>, dove <code translate="no">scsi1</code> è il numero del disco in Proxmox:</p>
+<pre translate="no"><code class="lang-bash">ls -l /dev/disk/by-id/ | grep scsi1
+DISK=$(readlink -f /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_drive-scsi1)
+echo "$DISK"
+lsblk "$DISK"</code></pre>
+<p><code translate="no">readlink -f</code> risolve il link e restituisce il nome attuale, per esempio <code translate="no">/dev/sdb</code>. La variabile <code translate="no">DISK</code> vale solo in questa sessione. Controlla con <code translate="no">lsblk</code>: 4G, senza partizioni, senza punto di montaggio. Il disco di sistema, da 20G, non è mai il bersaglio.</p>
+<h3 id="fdisk-creare-la-tabella-e-le-partizioni">fdisk: creare la tabella e le partizioni</h3>
+<p><code translate="no">fdisk</code> è interattivo: sul disco non vale nulla finché non premi <code translate="no">w</code>. I tasti che usi:</p>
+<div class="tabela"><table><thead><tr><th scope="col">Tasto</th><th scope="col">Fa</th></tr></thead><tbody><tr><td><code translate="no">p</code></td><td>Mostra la tabella in memoria</td></tr><tr><td><code translate="no">g</code></td><td>Crea una nuova tabella GPT (<code translate="no">o</code> crea MBR)</td></tr><tr><td><code translate="no">n</code></td><td>Nuova partizione. Chiede numero, primo settore, ultimo settore</td></tr><tr><td><code translate="no">t</code></td><td>Cambia il tipo della partizione (<code translate="no">L</code> elenca i tipi)</td></tr><tr><td><code translate="no">d</code></td><td>Elimina una partizione dalla tabella in memoria</td></tr><tr><td><code translate="no">w</code></td><td>Scrive ed esce</td></tr><tr><td><code translate="no">q</code></td><td>Esce senza scrivere nulla</td></tr></tbody></table></div>
+<p>Con <code translate="no">n</code>, accetta il numero e il primo settore predefinito (Invio). All'ultimo settore, scrivi la dimensione: <code translate="no">+1G</code>, <code translate="no">+512M</code>. Il primo settore predefinito è 2048, cioè 1 MiB, ed è allineato per qualsiasi tipo di disco.</p>
+<h3 id="gdisk-ispezionare-e-verificare">gdisk: ispezionare e verificare</h3>
+<p><code translate="no">gdisk</code> lavora solo con GPT e mostra più dettagli. Per ispezionare, lancia <code translate="no">sudo gdisk -l "$DISK"</code>. Al suo interno: <code translate="no">p</code> elenca, <code translate="no">i</code> mostra una partizione con GUID e tipo, <code translate="no">v</code> verifica l'integrità (intestazioni, CRC, sovrapposizioni), <code translate="no">q</code> esce senza scrivere. I codici di tipo hanno quattro caratteri:</p>
+<div class="tabela"><table><thead><tr><th scope="col">Codice</th><th scope="col">Uso</th></tr></thead><tbody><tr><td><code translate="no">8300</code></td><td>Linux filesystem (dati, quello che usiamo qui)</td></tr><tr><td><code translate="no">8200</code></td><td>Linux swap</td></tr><tr><td><code translate="no">8E00</code></td><td>Linux LVM (diventa PV nelle 9.6 e 9.7)</td></tr><tr><td><code translate="no">EF00</code></td><td>Partizione EFI (la <code translate="no">/boot/efi</code> del sistema)</td></tr></tbody></table></div>
+<p>Il tipo è solo un'etichetta. Non crea nulla dentro la partizione.</p>
+<h3 id="parted-s-la-versione-per-gli-script">parted -s: la versione per gli script</h3>
+<p><code translate="no">parted</code> accetta comandi sulla riga di comando, e <code translate="no">-s</code> (script) non fa domande. Serve per l'automazione:</p>
+<pre translate="no"><code class="lang-bash">sudo parted -s "$DISK" unit MiB print free
+sudo parted -s "$DISK" align-check optimal 1</code></pre>
+<p>Il primo mostra la tabella e lo spazio libero, in MiB. Il secondo dice se la partizione 1 è allineata. Per creare: <code translate="no">mklabel gpt mkpart NOME INÍCIO FIM</code> (nella GPT, il primo argomento di <code translate="no">mkpart</code> è il nome). Attenzione: con <code translate="no">-s</code>, <code translate="no">mklabel</code> cancella la tabella esistente senza chiedere.</p>
+<p><code translate="no">sfdisk -d</code> stampa la tabella come testo che <code translate="no">sfdisk</code> accetta di nuovo in ingresso: sola lettura, ottimo come copia prima di toccare qualcosa.</p>
+<h3 id="il-kernel-deve-rileggere-la-tabella">Il kernel deve rileggere la tabella</h3>
+<p>Quando il disco non è in uso, <code translate="no">fdisk</code> e <code translate="no">parted</code> avvisano il kernel da soli. Se la partizione non compare:</p>
+<pre translate="no"><code class="lang-bash">sudo partprobe "$DISK"
+sudo udevadm settle
+lsblk "$DISK"</code></pre>
+<p><code translate="no">partprobe</code> chiede al kernel di rileggere la tabella. <code translate="no">udevadm settle</code> aspetta che <code translate="no">udev</code> finisca di creare i nomi in <code translate="no">/dev</code>. Con una partizione montata, la rilettura fallisce: è il caso del disco di sistema.</p>
+<h3 id="mbr-allenamento-senza-rischi">MBR: allenamento senza rischi</h3>
+<p>L'MBR ha dei limiti: al massimo 4 partizioni primarie (più una estesa con le logiche) e 2 TiB. La GPT ne gestisce 128 per impostazione predefinita, senza limite pratico di dimensione, e ha copia di riserva e CRC. Oggi usa GPT. Per esercitarti con MBR senza toccare il disco nuovo, usa un file come disco:</p>
+<pre translate="no"><code class="lang-bash">truncate -s 1G ~/mbr.img
+LOOP=$(sudo losetup --find --show -P ~/mbr.img)
+echo "$LOOP"</code></pre>
+<p><code translate="no">truncate -s 1G</code> crea un file sparso da 1 GiB. <code translate="no">losetup --find --show</code> sceglie un <code translate="no">/dev/loopN</code> libero, ci collega il file e stampa il nome. <code translate="no">-P</code> crea le partizioni (<code translate="no">loopNp1</code>). Alla fine, <code translate="no">sudo losetup -d "$LOOP"</code> lo scollega.</p>
+<h3 id="rocky-debian">Rocky × Debian</h3>
+<div class="tabela"><table><thead><tr><th scope="col"></th><th scope="col">Rocky 9</th><th scope="col">Debian 13</th></tr></thead><tbody><tr><td><code translate="no">fdisk</code>, <code translate="no">lsblk</code>, <code translate="no">losetup</code></td><td>Già presenti (util-linux 2.37)</td><td>Già presenti (util-linux 2.41)</td></tr><tr><td><code translate="no">gdisk</code>, <code translate="no">sgdisk</code></td><td><code translate="no">sudo dnf install -y gdisk</code></td><td><code translate="no">sudo apt install -y gdisk</code></td></tr><tr><td><code translate="no">parted</code></td><td><code translate="no">sudo dnf install -y parted</code></td><td><code translate="no">sudo apt install -y parted</code></td></tr><tr><td>Verificare il pacchetto</td><td><code translate="no">rpm -q gdisk parted</code></td><td><code translate="no">dpkg -s gdisk parted</code></td></tr></tbody></table></div>
+<p>I comandi sono gli stessi. Cambia solo l'installazione.</p>
+<h2 id="5-lab-guidato">5 · Lab guidato</h2>
+<p><strong>Passo 0 · Snapshot, backup e pacchetti.</strong> Il backup su PBS della 9.1 esiste, e lo snapshot non è un backup: vive sullo stesso Ceph dei dischi. Controlla in Proxmox: <code translate="no">pvesm list PBS-LAB --vmid 201</code>. Poi: <code translate="no">qm snapshot 201 m9a2-inicio</code> e <code translate="no">qm snapshot 202 m9a2-inicio</code>. Lo snapshot include tutti i dischi e la configurazione. Il disco <code translate="no">scsi1</code> è quello della lezione 2.2, ampliato nella 9.1. Su rocky-lab è anche <code translate="no">/dev/lab-dados</code> (regola udev della 2.2), ma il <code translate="no">by-id</code> vale su entrambe le VM.</p>
+<p>Su rocky-lab:</p>
+<pre translate="no"><code class="lang-bash">sudo dnf install -y gdisk parted
+rpm -q gdisk parted
+DISK=$(readlink -f /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_drive-scsi1)
+lsblk "$DISK"
+sudo wipefs "$DISK"
+sudo blkid "$DISK"</code></pre>
+<p><code translate="no">wipefs</code> senza <code translate="no">-a</code> elenca soltanto le firme, e qui non ne elenca nessuna. <code translate="no">blkid</code> non stampa nulla e termina con errore: il disco è vuoto.</p>
+<p><strong>Passo 1 · Creare la tabella e le tre partizioni con fdisk.</strong> Su rocky-lab, con <code translate="no">DISK</code> ancora definita e il bersaglio controllato (4G):</p>
+<pre translate="no"><code class="lang-bash">sudo fdisk "$DISK"</code></pre>
+<p>Digita, in sequenza, un tasto per riga: <code translate="no">g</code>, <code translate="no">n</code>, Invio, Invio, <code translate="no">+1G</code>, <code translate="no">n</code>, Invio, Invio, <code translate="no">+1G</code>, <code translate="no">n</code>, Invio, Invio, <code translate="no">+512M</code>, <code translate="no">p</code>, <code translate="no">w</code>. Ogni <code translate="no">n</code> chiede numero, primo settore e ultimo settore. Due Invio accettano i valori predefiniti e, nell'ultimo, scrivi la dimensione. Output di <code translate="no">p</code>:</p>
+<pre translate="no"><code>Device       Start     End Sectors  Size Type
+/dev/sdb1     2048 2099199 2097152    1G Linux filesystem
+/dev/sdb2  2099200 4196351 2097152    1G Linux filesystem
+/dev/sdb3  4196352 5244927 1048576  512M Linux filesystem</code></pre>
+<p><code translate="no">w</code> termina con <code translate="no">The partition table has been altered.</code> e <code translate="no">Syncing disks.</code>. Il tuo disco potrebbe non essere <code translate="no">sdb</code>.</p>
+<p><strong>Passo 2 · Controllare nel kernel.</strong></p>
+<pre translate="no"><code class="lang-bash">sudo partprobe "$DISK"
+sudo udevadm settle
+lsblk "$DISK"</code></pre>
+<p>Output atteso: <code translate="no">sdb1</code> (1G), <code translate="no">sdb2</code> (1G) e <code translate="no">sdb3</code> (512M), senza punto di montaggio. In <code translate="no">by-id</code> ora ci sono <code translate="no">-part1</code>, <code translate="no">-part2</code> e <code translate="no">-part3</code>.</p>
+<p><strong>Passo 3 · Ispezionare con gdisk.</strong></p>
+<pre translate="no"><code class="lang-bash">sudo gdisk -l "$DISK"
+sudo gdisk "$DISK"</code></pre>
+<p><code translate="no">-l</code> si limita a elencare. Nel secondo comando, digita <code translate="no">v</code> e poi <code translate="no">q</code>. Output atteso di <code translate="no">-l</code>:</p>
+<pre translate="no"><code>Disk /dev/sdb: 8388608 sectors, 4.0 GiB
+Total free space is 3143647 sectors (1.5 GiB)
+
+Number  Start (sector)    End (sector)  Size       Code  Name
+   1            2048         2099199   1024.0 MiB  8300  Linux filesystem
+   2         2099200         4196351   1024.0 MiB  8300  Linux filesystem
+   3         4196352         5244927   512.0 MiB   8300  Linux filesystem</code></pre>
+<p>Gli 1,5 GiB liberi restano per la 9.7. <code translate="no">v</code> termina con <code translate="no">No problems found.</code></p>
+<p><strong>Passo 4 · Spazio libero e allineamento con parted.</strong></p>
+<pre translate="no"><code class="lang-bash">sudo parted -s "$DISK" unit MiB print free
+sudo parted -s "$DISK" align-check optimal 3
+sudo sfdisk -d "$DISK"</code></pre>
+<p><code translate="no">print free</code> mostra <code translate="no">Free Space</code> di circa 1535 MiB in fondo. <code translate="no">align-check</code> risponde <code translate="no">3 aligned</code>. Conserva l'output di <code translate="no">sfdisk -d</code> nel tuo quaderno.</p>
+<p><strong>Passo 5 · MBR sul file immagine.</strong> Sempre su rocky-lab:</p>
+<pre translate="no"><code class="lang-bash">truncate -s 1G ~/mbr.img
+LOOP=$(sudo losetup --find --show -P ~/mbr.img)
+echo "$LOOP"
+sudo fdisk "$LOOP"</code></pre>
+<p>Digita: <code translate="no">o</code>, <code translate="no">n</code>, Invio (primaria), Invio, Invio, <code translate="no">+300M</code>, <code translate="no">n</code>, Invio, Invio, Invio, <code translate="no">+300M</code>, <code translate="no">p</code>, <code translate="no">w</code>. Nell'MBR, <code translate="no">n</code> chiede il tipo (<code translate="no">p</code> primaria, <code translate="no">e</code> estesa). <code translate="no">p</code> mostra <code translate="no">dos</code> e due partizioni da 300M. Poi:</p>
+<pre translate="no"><code class="lang-bash">lsblk "$LOOP"
+sudo partprobe "$LOOP"
+sudo udevadm settle
+sudo losetup -d "$LOOP"
+rm ~/mbr.img
+losetup -a</code></pre>
+<p><code translate="no">lsblk</code> mostra <code translate="no">loop0p1</code> e <code translate="no">loop0p2</code>. <code translate="no">losetup -d</code> scollega il loop e <code translate="no">rm</code> cancella il file. <code translate="no">losetup -a</code> non deve più elencarlo.</p>
+<p><strong>Passo 6 · debian-lab, con parted -s.</strong> Su debian-lab:</p>
+<pre translate="no"><code class="lang-bash">sudo apt install -y gdisk parted
+dpkg -s gdisk parted | grep Status
+DISK=$(readlink -f /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_drive-scsi1)
+lsblk "$DISK"
+sudo wipefs "$DISK"</code></pre>
+<p>Se tutto torna (4G, nessuna partizione, <code translate="no">wipefs</code> vuoto), scrivi con lo strumento da script:</p>
+<pre translate="no"><code class="lang-bash">sudo parted -s "$DISK" mklabel gpt mkpart dados 1MiB 1025MiB mkpart arquivo 1025MiB 2049MiB mkpart troca 2049MiB 2561MiB
+sudo udevadm settle
+sudo gdisk -l "$DISK"</code></pre>
+<p>Il risultato ha gli stessi settori di <code translate="no">fdisk</code> su Rocky. I nomi <code translate="no">dados</code>, <code translate="no">arquivo</code> e <code translate="no">troca</code> compaiono nella colonna <code translate="no">Name</code>.</p>
+<h3 id="decidi-1">Decidi 1</h3>
+<p>Ieri il disco nuovo era <code translate="no">/dev/sdb</code>. Oggi <code translate="no">lsblk</code> mostra <code translate="no">sdb</code> da 20G e <code translate="no">sdc</code> da 4G. Qual è il bersaglio sicuro?</p>
+<p>A) <code translate="no">/dev/sdb</code>, perché ieri era lui. B) Risolvere il <code translate="no">by-id</code> di <code translate="no">scsi1</code> con <code translate="no">readlink -f</code>, e controllare la dimensione con <code translate="no">lsblk</code>. C) Il primo disco senza partizioni che compare.</p>
+<p>Scegli un'opzione prima di continuare.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se hai scelto</th><th scope="col">Risultato</th><th scope="col">Perché</th></tr></thead><tbody><tr><td>A</td><td>Puoi cancellare il sistema</td><td>Ora <code translate="no">sdb</code> è il disco da 20G</td></tr><tr><td>B</td><td>Giusto</td><td>Il <code translate="no">by-id</code> segue il numero in Proxmox, e la dimensione conferma</td></tr><tr><td>C</td><td>Rischioso</td><td>"Senza partizioni" non prova nulla: anche un disco dati grezzo sembra vuoto</td></tr></tbody></table></div>
+<p><strong>Da ricordare:</strong> il nome è quello che il kernel ha dato oggi. Il <code translate="no">by-id</code> è quello che Proxmox ha dato per sempre.</p>
+<h3 id="decidi-2">Decidi 2</h3>
+<p>Un disco da 6 TB avrà 6 partizioni. Quale tabella?</p>
+<p>A) MBR, perché è la più compatibile. B) GPT. C) MBR con una partizione estesa.</p>
+<p>Scegli un'opzione prima di continuare.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se hai scelto</th><th scope="col">Risultato</th><th scope="col">Perché</th></tr></thead><tbody><tr><td>A</td><td>Non funziona</td><td>L'MBR vede al massimo 2 TiB</td></tr><tr><td>B</td><td>Giusto</td><td>La GPT accetta sia la dimensione sia le partizioni</td></tr><tr><td>C</td><td>Fallisce sulla dimensione</td><td>La estesa non elimina il limite dei 2 TiB</td></tr></tbody></table></div>
+<p><strong>Da ricordare:</strong> GPT è lo standard. MBR solo per apparecchiature vecchie.</p>
+<h2 id="6-rompi-e-ripara">6 · Rompi e ripara</h2>
+<h3 id="guasto-1-la-partizione-scomparsa">Guasto 1 · La partizione scomparsa</h3>
+<p>Su rocky-lab:</p>
+<pre translate="no"><code class="lang-bash">sudo fdisk "$DISK"</code></pre>
+<p>Digita <code translate="no">n</code>, Invio, Invio, <code translate="no">+256M</code>, <code translate="no">p</code> e poi <code translate="no">q</code>. Controlla:</p>
+<pre translate="no"><code class="lang-bash">lsblk "$DISK"</code></pre>
+<p><strong>Sintomo:</strong> hai "creato" la partizione 4 e <code translate="no">lsblk</code> ne mostra solo tre.</p>
+<p><strong>Indagine e causa:</strong> <code translate="no">fdisk</code> avvisa che le modifiche restano solo in memoria fino al <code translate="no">w</code>. Il <code translate="no">q</code> è uscito senza scrivere.</p>
+<p><strong>Riparazione:</strong> <code translate="no">w</code> prima di uscire, se l'intenzione era scrivere. Qui, per fortuna, è mancato: la tabella ha ancora le tre partizioni.</p>
+<h3 id="guasto-2-il-loop-senza-partizioni">Guasto 2 · Il loop senza partizioni</h3>
+<p>Su rocky-lab:</p>
+<pre translate="no"><code class="lang-bash">truncate -s 1G ~/quebra.img
+LOOP=$(sudo losetup --find --show ~/quebra.img)
+printf 'g\nn\n1\n\n+200M\nw\n' | sudo fdisk "$LOOP"
+lsblk "$LOOP"</code></pre>
+<p><strong>Sintomo:</strong> <code translate="no">fdisk</code> ha scritto, ma <code translate="no">lsblk</code> non mostra <code translate="no">loopNp1</code>.</p>
+<p><strong>Indagine:</strong> <code translate="no">losetup -l "$LOOP"</code> mostra <code translate="no">PARTSCAN</code> uguale a <code translate="no">0</code>. È mancato il <code translate="no">-P</code> quando hai collegato il file.</p>
+<p><strong>Causa:</strong> senza <code translate="no">-P</code>, il kernel non cerca partizioni dentro il loop.</p>
+<p><strong>Riparazione:</strong> scollega e ricollega con <code translate="no">-P</code>. I dati sono nel file, e non si perdono:</p>
+<pre translate="no"><code class="lang-bash">sudo losetup -d "$LOOP"
+LOOP=$(sudo losetup --find --show -P ~/quebra.img)
+lsblk "$LOOP"</code></pre>
+<p>Ora compare <code translate="no">loopNp1</code>, da 200M.</p>
+<h3 id="guasto-3-la-copia-di-riserva-fuori-posto">Guasto 3 · La copia di riserva fuori posto</h3>
+<p>Aumenta il "disco" da 1 GiB a 1,5 GiB, come fa <code translate="no">qm resize</code>:</p>
+<pre translate="no"><code class="lang-bash">truncate -s 1536M ~/quebra.img
+sudo losetup -c "$LOOP"
+sudo fdisk -l "$LOOP"</code></pre>
+<p><strong>Sintomo:</strong> <code translate="no">fdisk</code> avvisa <code translate="no">GPT PMBR size mismatch</code> e <code translate="no">The backup GPT table is not on the end of the device</code>.</p>
+<p><strong>Indagine e causa:</strong> il disco è cresciuto (<code translate="no">losetup -c</code> ha avvisato il kernel), ma la copia di riserva della GPT è ancora alla fine della vecchia dimensione. Deve stare negli ultimi settori.</p>
+<p><strong>Riparazione:</strong> <code translate="no">sudo sgdisk -e "$LOOP"</code> sposta la copia in fondo. La risposta è <code translate="no">The operation has completed successfully.</code> Lancia di nuovo <code translate="no">sudo fdisk -l "$LOOP"</code>, senza avvisi. Nella 9.7, <code translate="no">growpart</code> lo fa per te, dopo il <code translate="no">qm resize</code>.</p>
+<h3 id="pulizia">Pulizia</h3>
+<pre translate="no"><code class="lang-bash">sudo losetup -d "$LOOP"
+rm ~/quebra.img
+losetup -a</code></pre>
+<p>Il disco <code translate="no">scsi1</code> resta con le tre partizioni, per la 9.3.</p>
+<h2 id="7-trappole">7 · Trappole</h2>
+<div class="tabela"><table><thead><tr><th scope="col">Trappola</th><th scope="col">Cosa succede</th><th scope="col">Come evitarla</th></tr></thead><tbody><tr><td>Scrivere su <code translate="no">/dev/sdb</code> senza controllare</td><td>Cancelli il disco sbagliato</td><td><code translate="no">readlink -f</code> sul <code translate="no">by-id</code> e <code translate="no">lsblk</code></td></tr><tr><td>Credere che partizionare formatti</td><td>Esiste solo la tabella</td><td>Prosegui con <code translate="no">mkfs</code> (9.3)</td></tr><tr><td>Dimenticare il <code translate="no">w</code></td><td>Non viene scritto nulla</td><td>Controlla dopo con <code translate="no">lsblk</code></td></tr><tr><td><code translate="no">mklabel</code> con <code translate="no">parted -s</code> su un disco con dati</td><td>Cancella la tabella senza chiedere</td><td>Guarda prima con <code translate="no">print</code> e conserva <code translate="no">sfdisk -d</code></td></tr><tr><td>Dimenticare il <code translate="no">-P</code> in <code translate="no">losetup</code></td><td>Il loop non mostra le partizioni</td><td><code translate="no">losetup -d</code> e ricollega con <code translate="no">-P</code></td></tr></tbody></table></div>
+<h2 id="8-quiz">8 · Quiz</h2>
+<p>Rispondi senza guardare. Le soluzioni sono alla fine della lezione.</p>
+<ol><li>Quale comando risolve il <code translate="no">by-id</code> di un disco nel nome attuale?</li>
+<li>Qual è la differenza tra <code translate="no">q</code> e <code translate="no">w</code> in <code translate="no">fdisk</code>?</li>
+<li>Cosa indica il codice <code translate="no">8E00</code> di <code translate="no">gdisk</code>?</li>
+<li>Perché <code translate="no">-P</code> è importante in <code translate="no">losetup</code>?</li>
+<li>Quando <code translate="no">parted -s</code> è meglio di <code translate="no">fdisk</code>?</li>
+<li>Dove si trova la copia di riserva della GPT?</li></ol>
+<h2 id="9-promemoria">9 · Promemoria</h2>
+<p><strong>Da sapere a memoria:</strong></p>
+<div class="tabela"><table><thead><tr><th scope="col">Voglio...</th><th scope="col">Comando</th></tr></thead><tbody><tr><td>Trovare il disco giusto</td><td><code translate="no">readlink -f /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_drive-scsiN</code></td></tr><tr><td>Vedere dischi e partizioni</td><td><code translate="no">lsblk</code></td></tr><tr><td>Creare GPT e partizioni</td><td><code translate="no">sudo fdisk DISCO</code> (<code translate="no">g</code>, <code translate="no">n</code>, <code translate="no">w</code>)</td></tr><tr><td>Verificare la GPT</td><td><code translate="no">sudo gdisk DISCO</code>, tasto <code translate="no">v</code></td></tr><tr><td>Rileggere la tabella</td><td><code translate="no">sudo partprobe DISCO</code> e <code translate="no">sudo udevadm settle</code></td></tr><tr><td>Disco di allenamento</td><td><code translate="no">truncate -s 1G ARQ</code> e <code translate="no">losetup --find --show -P ARQ</code></td></tr></tbody></table></div>
+<p><strong>Da consultare:</strong></p>
+<div class="tabela"><table><thead><tr><th scope="col">Voglio...</th><th scope="col">Comando</th></tr></thead><tbody><tr><td>Elencare la tabella</td><td><code translate="no">sudo fdisk -l DISCO</code></td></tr><tr><td>Copiare la tabella</td><td><code translate="no">sudo sfdisk -d DISCO</code></td></tr><tr><td>Spostare la GPT di riserva</td><td><code translate="no">sudo sgdisk -e DISCO</code></td></tr></tbody></table></div>
+<p><strong>Flashcard:</strong></p>
+<ul><li>Tabella delle partizioni → <em>la planimetria, non la casa.</em></li>
+<li><code translate="no">by-id</code> → <em>nome fisso.</em></li>
+<li><code translate="no">8300</code>, <code translate="no">8200</code>, <code translate="no">8E00</code>, <code translate="no">EF00</code> → <em>dati, swap, LVM, EFI.</em></li>
+<li>MBR → <em>4 primarie e 2 TiB.</em></li>
+<li>GPT → <em>128 partizioni e copia di riserva.</em></li></ul>
+<h2 id="10-checklist-e-chiusura">10 · Checklist e chiusura</h2>
+<ul><li>[ ] Confermo il disco dal <code translate="no">by-id</code> prima di scrivere</li>
+<li>[ ] Creo GPT e partizioni con <code translate="no">fdisk</code> e verifico con <code translate="no">gdisk</code></li>
+<li>[ ] Faccio lo stesso con <code translate="no">parted -s</code></li>
+<li>[ ] Rileggo la tabella con <code translate="no">partprobe</code> e <code translate="no">udevadm settle</code></li>
+<li>[ ] Ho provato MBR sul loop e l'ho rimosso con <code translate="no">losetup -d</code></li>
+<li>[ ] So perché restano 1,5 GiB liberi su <code translate="no">scsi1</code></li></ul>
+<p><strong>Ultimo esercizio, senza guardare la lezione:</strong> su un file immagine da 1 GiB su debian-lab, crea una GPT con due partizioni da 256 MiB usando solo <code translate="no">parted -s</code>, conferma con <code translate="no">gdisk -l</code>, scollega il loop e rimuovi il file.</p>
+<p><strong>Snapshot di fine</strong> (in Proxmox):</p>
+<pre translate="no"><code class="lang-bash">qm snapshot 201 m9a2-fim
+qm snapshot 202 m9a2-fim</code></pre>
+<h2 id="11-nella-vita-reale">11 · Nella vita reale</h2>
+<p><strong>Missione, sola lettura.</strong> Su un server Linux che amministri (o con autorizzazione), lancia <strong>solo</strong>:</p>
+<pre translate="no"><code class="lang-bash">lsblk -o NAME,SIZE,TYPE,FSTYPE,MOUNTPOINTS
+sudo fdisk -l | head -n 40
+sudo parted -l
+ls -l /dev/disk/by-id/ | head -n 20</code></pre>
+<p>Domande a cui rispondere: ogni disco usa GPT o MBR? C'è spazio non allocato? Qualche disco ha una partizione senza file system?</p>
+<p><strong>Diario:</strong> annota il layout di ogni disco e lo spazio inutilizzato. Non modificare nulla.</p>
+<h2 id="12-approfondire-quando-vuoi">12 · Approfondire quando vuoi</h2>
+<ul><li><strong><code translate="no">man fdisk</code>, <code translate="no">man gdisk</code>, <code translate="no">man sgdisk</code>, <code translate="no">man parted</code>, <code translate="no">man sfdisk</code>:</strong> opzioni che sono rimaste fuori.</li>
+<li><strong>Red Hat Documentation:</strong> "Managing storage devices" (RHEL 9), capitoli sulle partizioni del disco.</li>
+<li><strong>Debian Wiki:</strong> pagine sul partizionamento.</li>
+<li><strong>kernel.org:</strong> documentazione del dispositivo <code translate="no">loop</code>.</li>
+<li><strong>util-linux:</strong> codice di <code translate="no">fdisk</code>, <code translate="no">lsblk</code> e <code translate="no">losetup</code>.</li></ul>
+<h2 id="soluzioni-commentate">Soluzioni commentate</h2>
+<h3 id="riscaldamento">Riscaldamento</h3>
+<ol><li>Solo una mappa: dove inizia e dove finisce ogni partizione, e il tipo. I dati dell'utente arrivano dopo, con il file system.</li>
+<li>Perché l'ordine dei nomi <code translate="no">sdX</code> dipende dall'ordine in cui il kernel rileva i dischi, e non è garantito. Il <code translate="no">by-id</code> è stabile.</li>
+<li>Quattro partizioni primarie (o tre più una estesa con le logiche) e 2 TiB.</li></ol>
+<h3 id="quiz">Quiz</h3>
+<ol><li><code translate="no">readlink -f /dev/disk/by-id/...</code>.</li>
+<li><code translate="no">w</code> scrive la tabella sul disco ed esce. <code translate="no">q</code> esce senza scrivere nulla.</li>
+<li>Linux LVM: la partizione sarà un volume fisico (PV) di LVM.</li>
+<li>Senza <code translate="no">-P</code>, il kernel non crea i dispositivi <code translate="no">loopNpN</code>, e <code translate="no">lsblk</code> non mostra le partizioni.</li>
+<li>Negli script e nell'automazione, perché non fa domande.</li>
+<li>In fondo al disco, negli ultimi settori. Se il disco cresce, la copia va spostata (<code translate="no">sgdisk -e</code>).</li></ol>
+</article><nav class="paginas" aria-label="Lezioni"><a class="ant" href="9.1-discos-e-layout.it.html"><small>← Precedente</small>9.1 · Dischi e layout</a><a class="prox" href="9.3-sistemas-de-arquivos.it.html"><small>Successiva →</small>9.3 · File system</a></nav></main></div>
+<footer><div class="wrap">Generato dal Markdown del corso · Immagini in <code translate="no">img/</code></div></footer>
+</body>
+</html>

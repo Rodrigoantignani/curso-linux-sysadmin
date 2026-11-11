@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light dark">
+<title>7.3 · Prioridade e perfis · Curso Linux Sysadmin</title>
+<link rel="alternate" hreflang="pt-BR" href="7.3-prioridade-e-perfis.html"><link rel="alternate" hreflang="it" href="7.3-prioridade-e-perfis.it.html">
+<style>
+:root{color-scheme:light dark;--bg:#f6f1e7;--card:#fffdf8;--ink:#201c16;--muted:#5e564a;--accent:#9a3412;--accent-2:#1f5f4a;--tint:#efe6d4;--line:#ddd2bc;--code:#f1eadb;--shadow:0 1px 2px rgba(60,40,10,.08);--serif:Georgia,"Iowan Old Style","Palatino Linotype",Palatino,serif;--sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--mono:"Cascadia Code",Consolas,"DejaVu Sans Mono",monospace}
+@media (prefers-color-scheme:dark){:root{--bg:#16130f;--card:#201b15;--ink:#f1eadb;--muted:#b9ad98;--accent:#f0a070;--accent-2:#7fd0b0;--tint:#2a231a;--line:#3d3427;--code:#191510;--shadow:none}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:5.5rem}
+body{margin:0;background:var(--bg);color:var(--ink);font:1rem/1.6 var(--sans)}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--accent-2);outline-offset:2px;border-radius:4px}
+.pular{position:absolute;left:-999px;top:0;background:var(--card);padding:.5rem 1rem;z-index:20}
+.pular:focus{left:.5rem;top:.5rem}
+.wrap{width:100%;max-width:84rem;margin:0 auto;padding-inline:max(1rem,env(safe-area-inset-left))}
+.top{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10;border-top:6px solid var(--accent)}
+.top-in{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding-block:.6rem}
+.titles{min-width:0}
+.marca{margin:0;font:700 clamp(1.15rem,1rem + 1vw,1.6rem)/1.15 var(--serif);letter-spacing:-.01em}
+.marca a{text-decoration:none}
+.marca a:hover{color:var(--accent)}
+.meta{margin:.1rem 0 0;color:var(--muted);font-size:.85rem}
+.acoes{display:flex;align-items:center;gap:.9rem;flex:none}
+.acoes>a{font-size:.9rem;font-weight:600;color:var(--muted);text-decoration:none}
+.acoes>a:hover{color:var(--accent);text-decoration:underline}
+.idioma{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--tint)}
+.idioma>*{padding:.35rem .9rem;font-size:.8rem;font-weight:700;letter-spacing:.06em;text-decoration:none;color:var(--muted);min-width:2.75rem;text-align:center}
+.idioma a:hover{color:var(--accent);text-decoration:underline}
+.idioma span{background:var(--accent);color:#fff}
+@media (prefers-color-scheme:dark){.idioma span{color:#16130f}}
+code{font-family:var(--mono);font-size:.9em;background:var(--tint);padding:.1rem .35rem;border-radius:4px;overflow-wrap:anywhere}
+/* índice */
+.capa{max-width:70rem;padding-block:2rem 3rem}
+.stats{border-left:4px solid var(--accent-2);background:var(--card);border-radius:0 10px 10px 0;padding:1rem 1.25rem;margin:0 0 2.5rem;box-shadow:var(--shadow);color:var(--muted)}
+.stats strong{color:var(--ink)}
+.modulo{display:grid;grid-template-columns:15rem minmax(0,1fr);gap:1rem 2rem;padding:1.75rem 0;border-top:1px solid var(--line)}
+.modulo h2{margin:0;font:700 1.25rem/1.25 var(--serif);align-self:start;position:sticky;top:6rem}
+.mn{display:block;font:700 .8rem var(--mono);letter-spacing:.12em;color:var(--accent);margin-bottom:.25rem}
+.sep{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.modulo ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,17rem),1fr));gap:.75rem}
+.modulo li{margin:0}
+.modulo a{display:flex;gap:.45rem;align-items:baseline;height:100%;padding:.85rem 1rem;background:var(--card);border:1px solid var(--line);border-radius:10px;text-decoration:none;font-weight:600;line-height:1.35;box-shadow:var(--shadow);transition:border-color .15s,transform .15s}
+.modulo a:hover{border-color:var(--accent);color:var(--accent)}
+.num{font:700 .85rem var(--mono);color:var(--accent);white-space:nowrap}
+/* aula */
+.doc{display:grid;grid-template-columns:17rem minmax(0,1fr);gap:2.5rem;align-items:start;padding-block:2rem 3rem}
+.lateral{position:sticky;top:5.5rem;max-height:calc(100vh - 6.5rem);overflow:auto;font-size:.875rem;padding-right:.5rem}
+.lateral h2{margin:0 0 .25rem;font:700 .95rem var(--serif);color:var(--muted)}
+.lateral h3{margin:1rem 0 .25rem;font:700 .75rem var(--mono);letter-spacing:.06em;color:var(--accent)}
+.lateral ul{list-style:none;margin:0;padding:0}
+.lateral a{display:flex;gap:.45rem;padding:.25rem .5rem;border-radius:6px;text-decoration:none;color:var(--muted);line-height:1.3}
+.lateral a:hover{background:var(--tint);color:var(--ink)}
+.lateral a[aria-current]{background:var(--tint);color:var(--ink);font-weight:700;box-shadow:inset 3px 0 0 var(--accent)}
+.lateral .num{font-size:.75rem}
+.aula{min-width:0;max-width:56rem;overflow-wrap:break-word;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:clamp(1.25rem,1rem + 2vw,2.75rem);box-shadow:var(--shadow)}
+.aula h1{margin:0 0 1.5rem;font:700 clamp(1.75rem,1.4rem + 1.6vw,2.5rem)/1.15 var(--serif);letter-spacing:-.015em;color:var(--ink)}
+.aula h2{margin:2.5rem 0 .75rem;padding-top:1.25rem;border-top:1px solid var(--line);font:700 1.5rem/1.25 var(--serif)}
+.aula h3{margin:2rem 0 .5rem;font:700 1.15rem/1.3 var(--serif);color:var(--accent)}
+.aula h4,.aula h5,.aula h6{margin:1.5rem 0 .5rem;font-size:1rem}
+.aula p,.aula ul,.aula ol{margin:1rem 0}
+.aula ul,.aula ol{padding-left:1.5rem}
+.aula li{margin:.35rem 0}
+.aula li>ul,.aula li>ol{margin:.35rem 0}
+.aula a{color:var(--accent);text-underline-offset:2px}
+.aula hr{border:0;border-top:1px solid var(--line);margin:2rem 0}
+.tabela{overflow-x:auto;margin:1.25rem 0;border:1px solid var(--line);border-radius:10px}
+.aula table{width:100%;border-collapse:collapse;font-size:.9rem}
+.aula th,.aula td{padding:.55rem .75rem;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+.aula tr:last-child td{border-bottom:0}
+.aula th{background:var(--tint);font-weight:700}
+.aula pre{background:var(--code);border:1px solid var(--line);border-radius:10px;padding:.9rem 1rem;overflow-x:auto;font:.85rem/1.5 var(--mono);margin:1rem 0;tab-size:4}
+.aula pre code{background:none;padding:0;font-size:inherit;overflow-wrap:normal}
+.aula blockquote{margin:1.25rem 0;padding:.75rem 1.25rem;border-left:4px solid var(--accent-2);background:var(--tint);border-radius:0 10px 10px 0}
+.aula blockquote>:first-child{margin-top:0}
+.aula blockquote>:last-child{margin-bottom:0}
+.aula figure{margin:1.75rem 0;text-align:center}
+.aula figure img{display:block;margin:0 auto;max-width:100%;height:auto;border:1px solid var(--line);border-radius:10px;background:#fff}
+.aula figcaption{margin-top:.5rem;color:var(--muted);font-size:.9rem;font-style:italic}
+.paginas{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:2.5rem;padding-top:1.5rem;border-top:1px solid var(--line)}
+.paginas a{display:block;padding:.75rem 1rem;border:1px solid var(--line);border-radius:10px;text-decoration:none;color:var(--ink);font-weight:600;line-height:1.3}
+.paginas a:hover{border-color:var(--accent);color:var(--accent)}
+.paginas small{display:block;color:var(--muted);font-weight:400}
+.paginas .prox{grid-column:2;text-align:right}
+footer{border-top:1px solid var(--line);padding-block:1.5rem;color:var(--muted);font-size:.85rem;text-align:center}
+@media (hover:hover) and (prefers-reduced-motion:no-preference){.modulo a:hover{transform:translateY(-2px)}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+@media (max-width:980px){.doc{grid-template-columns:minmax(0,1fr);padding-top:1rem}.lateral{position:static;max-height:none;order:2}.aula{max-width:none}}
+@media (max-width:860px){.modulo{grid-template-columns:minmax(0,1fr)}.modulo h2{position:static}.mn{display:inline;margin-right:.5rem}}
+@media (max-width:420px){.meta{display:none}.top-in{gap:.5rem}.acoes{gap:.6rem}.capa{padding-top:1.25rem}.paginas{grid-template-columns:minmax(0,1fr)}.paginas .prox{grid-column:1}}
+@media print{.top,.lateral,.paginas{display:none}.aula{border:0;box-shadow:none;padding:0;max-width:none}.doc{display:block}}
+</style>
+</head>
+<body>
+<a class="pular" href="#conteudo">Pular para o conteúdo</a>
+<header class="top"><div class="wrap top-in"><div class="titles"><p class="marca"><a href="index.html">Curso Linux Sysadmin</a></p><p class="meta">Rodrigo Antignani · Aula 7.3</p></div><div class="acoes"><a href="index.html">Índice</a><div class="idioma" role="group" aria-label="Idioma"><span aria-current="true">PT</span><a href="7.3-prioridade-e-perfis.it.html" hreflang="it" lang="it">IT</a></div></div></div></header>
+<div class="wrap doc"><aside class="lateral" aria-label="Aulas"><h2>Aulas</h2><h3>M0 · Laboratório</h3><ul><li><a href="0.1-montar-o-laboratorio.html"><span class="num">0.1</span><span>Montar o laboratório</span></a></li><li><a href="0.2-acesso-e-protecao.html"><span class="num">0.2</span><span>Acesso e proteção</span></a></li></ul><h3>M1 · Linha de comando</h3><ul><li><a href="1.1-o-que-e-linux.html"><span class="num">1.1</span><span>O que é Linux</span></a></li><li><a href="1.2-o-shell-e-a-ajuda.html"><span class="num">1.2</span><span>O shell e a ajuda</span></a></li><li><a href="1.3-caminhos-e-navegacao.html"><span class="num">1.3</span><span>Caminhos e navegação</span></a></li><li><a href="1.4-criar-copiar-mover-e-apagar.html"><span class="num">1.4</span><span>Criar, copiar, mover e apagar</span></a></li><li><a href="1.5-ler-e-procurar-texto.html"><span class="num">1.5</span><span>Ler e procurar texto</span></a></li><li><a href="1.6-redirecionamentos-e-pipes.html"><span class="num">1.6</span><span>Redirecionamentos e pipes</span></a></li><li><a href="1.7-arquivar-e-compactar.html"><span class="num">1.7</span><span>Arquivar e compactar</span></a></li><li><a href="1.8-primeiro-script.html"><span class="num">1.8</span><span>Primeiro script</span></a></li><li><a href="1.9-decidir-e-repetir.html"><span class="num">1.9</span><span>Decidir e repetir</span></a></li><li><a href="1.10-software-livre-na-pratica.html"><span class="num">1.10</span><span>Software livre na prática</span></a></li></ul><h3>M2 · Sistema, usuários e permissões</h3><ul><li><a href="2.1-instalacao-e-provisionamento.html"><span class="num">2.1</span><span>Instalação e provisionamento</span></a></li><li><a href="2.2-hardware-e-dispositivos.html"><span class="num">2.2</span><span>Hardware e dispositivos</span></a></li><li><a href="2.3-processos-e-logs.html"><span class="num">2.3</span><span>Processos e logs</span></a></li><li><a href="2.4-rede-no-dia-a-dia.html"><span class="num">2.4</span><span>Rede no dia a dia</span></a></li><li><a href="2.5-acesso-remoto-e-privilegios.html"><span class="num">2.5</span><span>Acesso remoto e privilégios</span></a></li><li><a href="2.6-usuarios-e-grupos.html"><span class="num">2.6</span><span>Usuários e grupos</span></a></li><li><a href="2.7-permissoes-e-dono.html"><span class="num">2.7</span><span>Permissões e dono</span></a></li><li><a href="2.8-diretorios-e-arquivos-especiais.html"><span class="num">2.8</span><span>Diretórios e arquivos especiais</span></a></li></ul><h3>M3 · Texto e editor</h3><ul><li><a href="3.1-fluxos-a-fundo.html"><span class="num">3.1</span><span>Fluxos a fundo</span></a></li><li><a href="3.2-filtros-de-texto.html"><span class="num">3.2</span><span>Filtros de texto</span></a></li><li><a href="3.3-regex-e-grep.html"><span class="num">3.3</span><span>Regex e grep</span></a></li><li><a href="3.4-sed-e-awk.html"><span class="num">3.4</span><span>sed e awk</span></a></li><li><a href="3.5-vi-e-vim-de-verdade.html"><span class="num">3.5</span><span>vi e vim de verdade</span></a></li></ul><h3>M4 · systemd e boot</h3><ul><li><a href="4.1-como-o-linux-liga.html"><span class="num">4.1</span><span>Como o Linux liga</span></a></li><li><a href="4.2-systemd-servicos-e-units.html"><span class="num">4.2</span><span>systemd: serviços e units</span></a></li><li><a href="4.3-targets-desligar-e-reiniciar.html"><span class="num">4.3</span><span>Targets: desligar e reiniciar</span></a></li><li><a href="4.4-grub-e-acesso-de-emergencia.html"><span class="num">4.4</span><span>GRUB e acesso de emergência</span></a></li></ul><h3>M5 · Kernel, módulos e VM</h3><ul><li><a href="5.1-hardware-pelo-kernel.html"><span class="num">5.1</span><span>Hardware pelo kernel</span></a></li><li><a href="5.2-modulos-e-parametros.html"><span class="num">5.2</span><span>Módulos e parâmetros</span></a></li><li><a href="5.3-linux-como-convidado.html"><span class="num">5.3</span><span>Linux como convidado</span></a></li></ul><h3>M6 · Pacotes e repositórios</h3><ul><li><a href="6.1-pacotes-no-debian.html"><span class="num">6.1</span><span>Pacotes no Debian</span></a></li><li><a href="6.2-pacotes-na-rocky.html"><span class="num">6.2</span><span>Pacotes na Rocky</span></a></li><li><a href="6.3-repositorios.html"><span class="num">6.3</span><span>Repositórios</span></a></li><li><a href="6.4-flatpak.html"><span class="num">6.4</span><span>Flatpak</span></a></li><li><a href="6.5-bibliotecas-compartilhadas.html"><span class="num">6.5</span><span>Bibliotecas compartilhadas</span></a></li></ul><h3>M7 · Processos e desempenho</h3><ul><li><a href="7.1-processos-e-sinais.html"><span class="num">7.1</span><span>Processos e sinais</span></a></li><li><a href="7.2-jobs-e-sessoes.html"><span class="num">7.2</span><span>Jobs e sessões</span></a></li><li><a href="7.3-prioridade-e-perfis.html" aria-current="page"><span class="num">7.3</span><span>Prioridade e perfis</span></a></li></ul><h3>M8 · Arquivos a fundo</h3><ul><li><a href="8.1-fhs-e-onde-cada-coisa-mora.html"><span class="num">8.1</span><span>FHS e onde cada coisa mora</span></a></li><li><a href="8.2-find-a-fundo.html"><span class="num">8.2</span><span>find a fundo</span></a></li><li><a href="8.3-arquivamento-avancado.html"><span class="num">8.3</span><span>Arquivamento avançado</span></a></li><li><a href="8.4-links.html"><span class="num">8.4</span><span>Links</span></a></li><li><a href="8.5-permissoes-avancadas.html"><span class="num">8.5</span><span>Permissões avançadas</span></a></li></ul><h3>M9 · Armazenamento</h3><ul><li><a href="9.1-discos-e-layout.html"><span class="num">9.1</span><span>Discos e layout</span></a></li><li><a href="9.2-particionar.html"><span class="num">9.2</span><span>Particionar</span></a></li><li><a href="9.3-sistemas-de-arquivos.html"><span class="num">9.3</span><span>Sistemas de arquivos</span></a></li><li><a href="9.4-montar-e-persistir.html"><span class="num">9.4</span><span>Montar e persistir</span></a></li><li><a href="9.5-integridade-e-espaco.html"><span class="num">9.5</span><span>Integridade e espaço</span></a></li><li><a href="9.6-lvm.html"><span class="num">9.6</span><span>LVM</span></a></li><li><a href="9.7-crescer-sem-destruir.html"><span class="num">9.7</span><span>Crescer sem destruir</span></a></li></ul></aside><main id="conteudo" class="aula"><article><h1>Aula 7.3 · Prioridade e perfis</h1>
+<p>Encontrar o processo guloso é metade do trabalho. A outra metade é decidir o que fazer com ele quando não dá para simplesmente encerrar, porque aquele relatório precisa terminar e os usuários precisam continuar trabalhando. Nesta aula você aprende a rebaixar, limitar e ajustar o sistema inteiro. No fim vem o Desafio do M7.</p>
+<blockquote><p><strong>Núcleo desta aula:</strong> ler carga, <code translate="no">vmstat</code> e <code translate="no">free</code> para saber qual recurso falta; usar <code translate="no">nice</code> e <code translate="no">renice</code> sabendo o que eles não fazem; conter um processo com <code translate="no">CPUQuota</code> e <code translate="no">MemoryMax</code>; achar o rastro do OOM killer; e aplicar e verificar perfis com <code translate="no">tuned-adm</code>. O resto é aprofundamento.</p></blockquote>
+<div class="tabela"><table><thead><tr><th scope="col">Ficha</th><th scope="col"></th></tr></thead><tbody><tr><td><strong>Módulo</strong></td><td>M7 · Processos e desempenho, aula 3 de 3, com o Desafio do módulo</td></tr><tr><td><strong>Quando</strong></td><td>Semana 11. O Desafio pode ficar para o fim da semana ou para a 12</td></tr><tr><td><strong>Ao final</strong></td><td>Você acha e contém o processo que devora CPU ou memória, sem reiniciar nada</td></tr><tr><td><strong>Pré-requisitos</strong></td><td>Aulas 4.2, 7.1 e 7.2</td></tr><tr><td><strong>Tempo</strong></td><td>cerca de 2h, mais 1h para o Desafio</td></tr><tr><td><strong>Snapshots</strong></td><td><code translate="no">m7a3-inicio</code> e <code translate="no">m7a3-fim</code> na rocky-lab. Na debian-lab, só leitura e <code translate="no">nice</code></td></tr></tbody></table></div>
+<h2 id="1-aquecimento">1 · Aquecimento</h2>
+<p>Responda antes de ler.</p>
+<ol><li>Um processo com nice 19 tem prioridade maior ou menor que um com nice 0?</li>
+<li>Um servidor ocioso tem um único processo com nice 19. Ele usa pouca CPU por causa do nice?</li>
+<li>Na saída do <code translate="no">free -h</code>, qual coluna diz quanta memória os programas ainda podem usar?</li></ol>
+<h2 id="2-por-que-importa">2 · Por que importa</h2>
+<div class="tabela"><table><thead><tr><th scope="col">O chamado</th><th scope="col">A resposta errada</th><th scope="col">O que ela causa</th></tr></thead><tbody><tr><td>"O relatório deixa todo mundo lento"</td><td>Encerrar o relatório</td><td>O trabalho se perde. Bastava rebaixar ou limitar</td></tr><tr><td>"Usei <code translate="no">renice</code> e no dia seguinte voltou"</td><td>Colocar <code translate="no">renice</code> no cron</td><td>O nice era do processo antigo. O certo é <code translate="no">Nice=</code> no unit</td></tr><tr><td>"O banco caiu sozinho de madrugada"</td><td>Reiniciar e esquecer</td><td>Foi o OOM killer, e vai acontecer de novo</td></tr><tr><td>"A VM está lenta e o <code translate="no">top</code> mostra CPU livre"</td><td>Aumentar os vCPUs</td><td>A coluna <code translate="no">st</code> ou <code translate="no">wa</code> estava contando outra história</td></tr><tr><td>"Mudei o <code translate="no">swappiness</code> e voltou sozinho"</td><td>Mudar de novo</td><td>Um perfil do <code translate="no">tuned</code> ou um arquivo em <code translate="no">/etc/sysctl.d</code> define o valor</td></tr></tbody></table></div>
+<h2 id="3-modelo-mental">3 · Modelo mental</h2>
+<blockquote><p>A CPU é um <strong>caixa de banco com fila</strong>. O <code translate="no">nice</code> é a <strong>gentileza</strong> do cliente: quanto maior o número, mais vezes ele deixa o outro passar. Se a fila está vazia, ser gentil não muda nada. O <code translate="no">CPUQuota</code> é outra coisa: é a <strong>regra da agência</strong>, que limita o atendimento mesmo com o caixa livre. O <code translate="no">MemoryMax</code> é o <strong>tamanho da mesa</strong>: quem passa do limite é retirado. E o <code translate="no">tuned</code> é o <strong>modo de funcionamento</strong> da agência, um conjunto de regras que você liga de uma vez.</p></blockquote>
+<pre translate="no"><code>Quem falta?
+  uptime   carga maior que nproc?     ── sim ── vmstat 2 5
+  vmstat   us alto  → CPU, programas         → top, tecla P
+           sy alto  → CPU, kernel            → muita chamada de sistema
+           wa alto  → esperando disco        → estado D, próximos módulos
+           st alto  → o hipervisor não dá CPU → olhar o Proxmox
+           si/so    → trocando com swap      → top, tecla M
+  free     available baixo?                  → quem cresce? RSS
+
+Contenção:
+  nice / renice       só importa quando há disputa
+  CPUQuota, CPUWeight limita pelo cgroup, por serviço
+  MemoryMax           passou do limite → OOM dentro do cgroup
+  tuned               perfil de ajustes do sistema inteiro</code></pre>
+<figure><a href="../img/7.3-conter-processo.jpg"><img src="../img/7.3-conter-processo.jpg" alt="Rebaixar ou limitar" loading="lazy" decoding="async"></a><figcaption>O nice divide a fila. O cgroup coloca um teto.</figcaption></figure>
+<h3 id="ponte-windows">Ponte Windows</h3>
+<div class="tabela"><table><thead><tr><th scope="col">No Windows</th><th scope="col">No Linux</th><th scope="col">Onde a comparação engana</th></tr></thead><tbody><tr><td>Definir prioridade no Gerenciador de Tarefas</td><td><code translate="no">renice</code></td><td>A escala é invertida: número <strong>maior</strong> significa prioridade <strong>menor</strong></td></tr><tr><td><code translate="no">start /low programa</code></td><td><code translate="no">nice -n 19 programa</code></td><td>Sem disputa pela CPU, o efeito é nenhum</td></tr><tr><td>Limite de CPU e memória num objeto Job, ou WSRM</td><td><code translate="no">CPUQuota=</code>, <code translate="no">MemoryMax=</code></td><td>No Linux é parte do systemd, por unit</td></tr><tr><td>Plano de energia</td><td>Perfil do <code translate="no">tuned</code></td><td>O perfil mexe também em memória, disco e rede</td></tr><tr><td>Memória em Espera (Standby)</td><td><code translate="no">buff/cache</code></td><td>Não é memória perdida: o kernel devolve quando precisa</td></tr></tbody></table></div>
+<h2 id="4-o-essencial">4 · O essencial</h2>
+<h3 id="ler-o-recurso-que-falta">Ler o recurso que falta</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Coluna</th><th scope="col">Onde</th><th scope="col">Significa</th></tr></thead><tbody><tr><td><code translate="no">us</code> e <code translate="no">sy</code></td><td><code translate="no">vmstat</code>, <code translate="no">top</code></td><td>CPU em programas e no kernel</td></tr><tr><td><code translate="no">wa</code></td><td><code translate="no">vmstat</code>, <code translate="no">top</code></td><td>CPU ociosa esperando E/S</td></tr><tr><td><code translate="no">st</code></td><td><code translate="no">vmstat</code>, <code translate="no">top</code></td><td>Tempo roubado: a VM queria CPU e o hipervisor não deu</td></tr><tr><td><code translate="no">si</code> e <code translate="no">so</code></td><td><code translate="no">vmstat</code></td><td>Páginas lidas e gravadas no swap</td></tr><tr><td><code translate="no">available</code></td><td><code translate="no">free</code></td><td>O que os programas ainda podem usar</td></tr><tr><td><code translate="no">VSZ</code></td><td><code translate="no">ps</code></td><td>Memória reservada, muito maior que a real</td></tr><tr><td><code translate="no">RSS</code></td><td><code translate="no">ps</code></td><td>Memória física ocupada agora</td></tr></tbody></table></div>
+<h3 id="prioridade">Prioridade</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Quero...</th><th scope="col">Comando</th></tr></thead><tbody><tr><td>Iniciar com menos prioridade</td><td><code translate="no">nice -n 10 comando</code></td></tr><tr><td>Mudar um processo rodando</td><td><code translate="no">renice -n 15 -p PID</code></td></tr><tr><td>Mudar todos de um usuário</td><td><code translate="no">sudo renice -n 5 -u nome</code></td></tr><tr><td>Ver o nice</td><td><code translate="no">ps -o pid,ni,comm -p PID</code></td></tr><tr><td>Mudar no <code translate="no">top</code></td><td>Tecla <code translate="no">r</code></td></tr><tr><td>Prioridade permanente num serviço</td><td><code translate="no">Nice=10</code> no unit</td></tr></tbody></table></div>
+<p>A escala vai de <strong>-20</strong> (mais prioridade) a <strong>19</strong> (menos), e o padrão é 0. Um usuário comum só pode <strong>aumentar</strong> o número. Baixar, mesmo que seja o próprio processo, exige root.</p>
+<p><strong>O limite do nice:</strong> ele só compara processos que disputam a mesma CPU. Em kernels com autogroup ativo, ele vale dentro da mesma sessão, e entre cgroups a divisão é feita primeiro por cgroup. Confira com <code translate="no">cat /proc/sys/kernel/sched_autogroup_enabled</code>; o arquivo pode não existir.</p>
+<h3 id="conter-com-cgroup">Conter com cgroup</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Quero...</th><th scope="col">Comando</th></tr></thead><tbody><tr><td>Rodar uma tarefa limitada</td><td><code translate="no">sudo systemd-run --unit=NOME -p CPUQuota=20% comando</code></td></tr><tr><td>Mudar agora, sem gravar</td><td><code translate="no">sudo systemctl set-property --runtime UNIT CPUQuota=50%</code></td></tr><tr><td>Mudar de forma permanente</td><td><code translate="no">sudo systemctl edit UNIT</code>, com <code translate="no">[Service]</code> e <code translate="no">CPUQuota=50%</code></td></tr><tr><td>Limitar a memória</td><td><code translate="no">MemoryMax=1G</code></td></tr><tr><td>Ver o consumo por unit</td><td><code translate="no">systemd-cgtop</code></td></tr></tbody></table></div>
+<p>100% equivale a um núcleo inteiro: num servidor de 4 núcleos, o teto possível é 400%.</p>
+<h3 id="o-oom-killer">O OOM killer</h3>
+<p>Quando falta memória e não há mais de onde tirar, o kernel escolhe um processo e o elimina. A vítima pode não ser a culpada: é quem tem a maior pontuação, e isso costuma ser quem ocupa mais memória naquele momento.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Quero...</th><th scope="col">Comando</th></tr></thead><tbody><tr><td>Achar o rastro</td><td><code translate="no">sudo journalctl -k | grep -iE 'out of memory|killed process'</code></td></tr><tr><td>Ver a pontuação</td><td><code translate="no">cat /proc/PID/oom_score</code></td></tr><tr><td>Proteger um serviço</td><td><code translate="no">OOMScoreAdjust=-500</code> no unit</td></tr></tbody></table></div>
+<figure><a href="../img/7.3-oom-killer.jpg"><img src="../img/7.3-oom-killer.jpg" alt="Quando a memória acaba" loading="lazy" decoding="async"></a><figcaption>O kernel mata quem tem a maior pontuação, que nem sempre é o culpado.</figcaption></figure>
+<h3 id="tuned">tuned</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Quero...</th><th scope="col">Comando</th></tr></thead><tbody><tr><td>Listar os perfis</td><td><code translate="no">tuned-adm list</code></td></tr><tr><td>Ver o perfil ativo</td><td><code translate="no">tuned-adm active</code></td></tr><tr><td>Ver a recomendação</td><td><code translate="no">tuned-adm recommend</code></td></tr><tr><td>Aplicar</td><td><code translate="no">sudo tuned-adm profile NOME</code></td></tr><tr><td>Conferir se continua aplicado</td><td><code translate="no">sudo tuned-adm verify</code></td></tr><tr><td>Desligar os ajustes</td><td><code translate="no">sudo tuned-adm off</code></td></tr></tbody></table></div>
+<p>Perfis comuns: <code translate="no">balanced</code>, <code translate="no">throughput-performance</code>, <code translate="no">latency-performance</code>, <code translate="no">virtual-guest</code>, <code translate="no">virtual-host</code> e <code translate="no">powersave</code>. Dentro de uma VM, a recomendação costuma ser <code translate="no">virtual-guest</code>. Os seus perfis ficam em <code translate="no">/etc/tuned/NOME/tuned.conf</code>.</p>
+<h3 id="rocky-debian">Rocky × Debian</h3>
+<div class="tabela"><table><thead><tr><th scope="col"></th><th scope="col">Rocky</th><th scope="col">Debian</th></tr></thead><tbody><tr><td><code translate="no">nice</code>, <code translate="no">renice</code>, <code translate="no">vmstat</code>, <code translate="no">free</code></td><td>Iguais</td><td>Iguais</td></tr><tr><td><code translate="no">tuned</code></td><td>Pode faltar na instalação mínima. Se faltar, <code translate="no">dnf install tuned</code></td><td>Disponível no repositório, mas não vem por padrão</td></tr><tr><td><code translate="no">CPUQuota</code>, <code translate="no">MemoryMax</code></td><td>systemd</td><td>systemd</td></tr></tbody></table></div>
+<h2 id="5-lab-guiado">5 · Lab guiado</h2>
+<p><strong>Passo 0 · Snapshot e pasta.</strong> No Proxmox: <code translate="no">qm snapshot 201 m7a3-inicio</code>. Na rocky-lab:</p>
+<pre translate="no"><code class="lang-bash">mkdir -p ~/lab73 &amp;&amp; cd ~/lab73
+rpm -q tuned || sudo dnf install -y tuned</code></pre>
+<p><strong>Passo 1 · Perguntar qual recurso falta.</strong></p>
+<pre translate="no"><code class="lang-bash">uptime
+nproc
+vmstat 2 3
+free -h
+top -b -n1 | head -n 5</code></pre>
+<p>A primeira linha do <code translate="no">vmstat</code> é uma média desde o boot. Leia as seguintes. Com a VM parada, <code translate="no">id</code> fica perto de 100.</p>
+<p><strong>Passo 2 · Provocar disputa.</strong> Os dois processos ficam presos ao mesmo núcleo, para disputarem de verdade.</p>
+<pre translate="no"><code class="lang-bash">taskset -c 0 yes &gt; /dev/null &amp;
+A=$!
+taskset -c 0 nice -n 19 yes &gt; /dev/null &amp;
+B=$!
+sleep 5
+top -b -n2 -d3 -p $A,$B | awk 'NF' | tail -n 2</code></pre>
+<p>A divisão fica perto de 98% para o de nice 0 e 2% para o de nice 19. Agora iguale:</p>
+<pre translate="no"><code class="lang-bash">renice -n 19 -p $A
+sleep 2
+top -b -n2 -d3 -p $A,$B | awk 'NF' | tail -n 2
+renice -n 0 -p $A
+sudo renice -n 0 -p $A
+kill $A $B</code></pre>
+<p>Com os dois em 19, fica meio a meio. O <code translate="no">renice -n 0</code> sem <code translate="no">sudo</code> falha com <code translate="no">Permission denied</code>: o usuário comum só pode aumentar o número.</p>
+<p><strong>Passo 3 · Memória de verdade.</strong></p>
+<pre translate="no"><code class="lang-bash">python3 -c 'x = b"x" * (300 * 1024 * 1024); import time; time.sleep(600)' &amp;
+M=$!
+sleep 6
+ps -o pid,vsz,rss,pmem,comm -p $M
+free -h
+ps -eo pid,rss,pmem,comm --sort=-rss | head -n 5
+kill $M
+sleep 1
+free -h</code></pre>
+<p>O <code translate="no">RSS</code> fica um pouco acima de 300 MB, e o processo aparece em primeiro lugar na lista. Depois do <code translate="no">kill</code>, a coluna <code translate="no">available</code> se recupera.</p>
+<p><strong>Passo 4 · Teto de CPU.</strong></p>
+<pre translate="no"><code class="lang-bash">sudo systemd-run --unit=lab-gira -p CPUQuota=20% sh -c 'while :; do :; done'
+sleep 5
+P=$(systemctl show -p MainPID --value lab-gira)
+top -b -n2 -d3 -p $P | awk 'NF' | tail -n 1
+sudo systemctl set-property --runtime lab-gira CPUQuota=50%
+sleep 5
+top -b -n2 -d3 -p $P | awk 'NF' | tail -n 1
+sudo systemctl stop lab-gira</code></pre>
+<p>A CPU fica perto de 20% e, depois, de 50%, mesmo com a VM ociosa. É isso que o <code translate="no">nice</code> não faz. O PID não mudou: você limitou o processo sem interrompê-lo.</p>
+<p><strong>Passo 5 · Teto de memória.</strong></p>
+<pre translate="no"><code class="lang-bash">sudo systemd-run --wait -p MemoryMax=200M -p MemorySwapMax=0 python3 -c 'x = b"x" * (300 * 1024 * 1024)'
+sudo journalctl -k -n 30 --no-pager | grep -iE 'out of memory|killed process'
+free -h</code></pre>
+<p>O <code translate="no">systemd-run --wait</code> informa <code translate="no">oom-kill</code> no resultado. No journal aparece <code translate="no">Memory cgroup out of memory</code>. O resto do sistema nem percebeu: o teto limitou o estrago àquela tarefa.</p>
+<figure><a href="../img/7.3-perfil-tuned.jpg"><img src="../img/7.3-perfil-tuned.jpg" alt="O perfil do tuned" loading="lazy" decoding="async"></a><figcaption>O seu perfil herda o virtual-guest e muda só o swappiness.</figcaption></figure>
+<p><strong>Passo 6 · Perfil do <code translate="no">tuned</code>.</strong></p>
+<pre translate="no"><code class="lang-bash">sudo systemctl enable --now tuned
+tuned-adm list | head -n 20
+tuned-adm active
+tuned-adm recommend
+sudo tuned-adm profile virtual-guest
+tuned-adm active
+sudo tuned-adm verify
+sysctl vm.swappiness vm.dirty_ratio</code></pre>
+<p>O <code translate="no">verify</code> confere se o sistema está como o perfil manda. Numa VM, ele pode responder <code translate="no">Verification failed</code> com tudo certo: o perfil pede o <code translate="no">boost</code> da CPU, e a VM não expõe esse ajuste. Não pare na frase; o motivo de cada falha está no log:</p>
+<pre translate="no"><code class="lang-bash">sudo grep 'verify: failed' /var/log/tuned/tuned.log | tail -n 5</code></pre>
+<p>Na rocky-lab, as linhas citam <code translate="no">'boost' = 'None', expected '1'</code>. É limitação da VM, não erro seu.</p>
+<p><strong>Passo 7 · Um perfil seu.</strong></p>
+<pre translate="no"><code class="lang-bash">sudo mkdir -p /etc/tuned/lab-curso
+sudo tee /etc/tuned/lab-curso/tuned.conf &gt; /dev/null &lt;&lt;'EOF'
+[main]
+summary=Perfil do curso: virtual-guest com menos swap
+include=virtual-guest
+
+[sysctl]
+vm.swappiness=10
+EOF
+sudo tuned-adm profile lab-curso
+tuned-adm active
+sysctl vm.swappiness</code></pre>
+<p>Com o <code translate="no">include</code>, você herda o perfil inteiro e muda só o que precisa. O <code translate="no">swappiness</code> deve aparecer como 10.</p>
+<p><strong>Passo 8 · debian-lab.</strong> Repita o Passo 1 e o Passo 2. Em seguida, confira se o <code translate="no">tuned</code> está disponível com <code translate="no">apt-cache policy tuned</code>, sem instalar.</p>
+<p><strong>Não limpe ainda.</strong> A Quebra 1 usa o perfil <code translate="no">lab-curso</code>.</p>
+<h3 id="decida-1">Decida 1</h3>
+<p>Um relatório pesado precisa terminar hoje, e os usuários reclamam da lentidão. Ele roda como serviço, em um servidor com 8 núcleos. O que você faz?</p>
+<p>A) Encerra e pede para rodar à noite. B) <code translate="no">renice -n 19</code> no processo, e confere o efeito. Se o problema continuar, aplica <code translate="no">CPUQuota</code> com <code translate="no">set-property --runtime</code>. C) Aumenta o <code translate="no">swappiness</code>.</p>
+<p>Marque uma opção antes.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se você marcou</th><th scope="col">Resultado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>A</td><td>O trabalho se perde</td><td>Era possível ter os dois: o relatório e o sistema respondendo</td></tr><tr><td>B</td><td>Certo</td><td>Primeiro o ajuste mais leve, depois o teto. Nada foi reiniciado, e a mudança não fica gravada</td></tr><tr><td>C</td><td>Sem relação</td><td>Memória não é o que falta</td></tr></tbody></table></div>
+<p><strong>Para fixar:</strong> mexa sempre primeiro no que dá para desfazer sem interromper.</p>
+<h3 id="decida-2">Decida 2</h3>
+<p>O banco de dados foi morto pelo OOM killer. Um serviço de relatório tem um vazamento de memória conhecido. O que resolve?</p>
+<p>A) Colocar <code translate="no">OOMScoreAdjust=-1000</code> no banco e seguir em frente. B) Definir <code translate="no">MemoryMax=</code> no serviço de relatório, e abrir chamado para corrigir o vazamento. C) Desligar o swap.</p>
+<p>Marque uma opção antes.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se você marcou</th><th scope="col">Resultado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>A</td><td>Só desloca o problema</td><td>O kernel vai matar outro serviço, e o vazamento continua</td></tr><tr><td>B</td><td>Certo</td><td>O teto faz o responsável pagar a conta, e a causa fica registrada</td></tr><tr><td>C</td><td>Piora</td><td>Tira a folga e faz o OOM chegar mais rápido</td></tr></tbody></table></div>
+<p><strong>Para fixar:</strong> o culpado e a vítima costumam ser processos diferentes. Procure quem cresceu.</p>
+<h2 id="6-quebre-e-conserte">6 · Quebre e conserte</h2>
+<figure><a href="../img/7.3-onde-o-ajuste-dura.jpg"><img src="../img/7.3-onde-o-ajuste-dura.jpg" alt="Onde o ajuste dura" loading="lazy" decoding="async"></a><figcaption>O ajuste feito no processo morre com ele; o declarado no unit ou no perfil volta sempre.</figcaption></figure>
+<h3 id="quebra-1-o-ajuste-que-saiu-do-perfil">Quebra 1 · O ajuste que saiu do perfil</h3>
+<pre translate="no"><code class="lang-bash">sudo sysctl -w vm.swappiness=60
+sudo tuned-adm verify
+sudo grep swappiness /var/log/tuned/tuned.log | tail -n 1</code></pre>
+<p><strong>Sintoma:</strong> o <code translate="no">verify</code> falha e informa que o sistema difere do perfil, e agora o log traz uma falha nova, além da do <code translate="no">boost</code>.</p>
+<p><strong>Diagnóstico:</strong> <code translate="no">sysctl vm.swappiness</code> mostra 60, e o perfil diz 10. O log confirma: <code translate="no">verify: failed: 'vm.swappiness' = '60', expected '10'</code>.</p>
+<p><strong>Conserto:</strong> <code translate="no">sudo tuned-adm profile lab-curso</code> e <code translate="no">sudo tuned-adm verify</code>. Na VM, a frase final continua sendo de falha por causa do <code translate="no">boost</code>; o que muda é o log, que passa a dizer <code translate="no">verify: passed: 'vm.swappiness' = '10'</code>. Se a mudança fosse para valer, ela deveria entrar no perfil.</p>
+<p><strong>Na vida real:</strong> um arquivo em <code translate="no">/etc/sysctl.d</code> pode vencer o valor do perfil, porque o <code translate="no">tuned</code> reaplica o sysctl do sistema por padrão. Quando um valor não obedece, procure com <code translate="no">grep -r swappiness /etc/sysctl.d /usr/lib/sysctl.d /etc/sysctl.conf</code>.</p>
+<h3 id="quebra-2-o-renice-que-nao-durou">Quebra 2 · O renice que não durou</h3>
+<pre translate="no"><code class="lang-bash">sudo systemd-run --unit=lab-nice -p Restart=always -p RestartSec=1 sleep 7000
+sleep 1
+P=$(pgrep -f 'sleep 7000')
+sudo renice -n 15 -p $P
+ps -o pid,ni,comm -p $P
+sudo kill $P
+sleep 3
+ps -o pid,ni,comm -p "$(pgrep -f 'sleep 7000')"</code></pre>
+<p><strong>Sintoma:</strong> o nice voltou a 0, com outro PID.</p>
+<p><strong>Diagnóstico:</strong> o <code translate="no">renice</code> vale para aquele processo. Quando o serviço reinicia, nasce outro processo.</p>
+<p><strong>Conserto:</strong> declare no serviço.</p>
+<pre translate="no"><code class="lang-bash">sudo systemctl stop lab-nice
+sudo systemd-run --unit=lab-nice -p Nice=15 -p Restart=always -p RestartSec=1 sleep 7000
+sleep 1
+sudo kill "$(pgrep -f 'sleep 7000')"
+sleep 3
+ps -o pid,ni,comm -p "$(pgrep -f 'sleep 7000')"
+sudo systemctl stop lab-nice</code></pre>
+<p>Agora o processo novo já nasce com 15. Num serviço instalado, use <code translate="no">systemctl edit</code> e <code translate="no">Nice=15</code>.</p>
+<h3 id="quebra-3-o-banco-morreu-de-madrugada-narrativa">Quebra 3 · O banco morreu de madrugada (narrativa)</h3>
+<p>De manhã, o banco de dados está parado. No <code translate="no">systemctl status</code>, aparece <code translate="no">Failed with result 'oom-kill'</code> ou <code translate="no">signal=KILL</code>.</p>
+<p><strong>Diagnóstico:</strong> <code translate="no">sudo journalctl -k --since yesterday | grep -iE 'out of memory|killed process'</code>. A linha mostra a vítima, e o dump logo acima lista quanto cada processo ocupava.</p>
+<p><strong>Conserto:</strong> suba o serviço, descubra quem cresceu naquela hora, limite esse serviço e confira se a memória da VM é suficiente para a soma de tudo.</p>
+<p><strong>Para fixar:</strong> depois de todo KILL inesperado, olhe o journal do kernel.</p>
+<h3 id="limpeza">Limpeza</h3>
+<pre translate="no"><code class="lang-bash">sudo tuned-adm profile virtual-guest
+sudo rm /etc/tuned/lab-curso/tuned.conf
+sudo rmdir /etc/tuned/lab-curso
+sudo systemctl stop lab-gira lab-nice 2&gt;/dev/null
+pgrep -a -x yes
+pgrep -af 'sleep 7000'
+tuned-adm active</code></pre>
+<p>Os dois <code translate="no">pgrep</code> não devem mostrar nada, e o perfil ativo deve ser <code translate="no">virtual-guest</code>.</p>
+<h2 id="7-armadilhas">7 · Armadilhas</h2>
+<div class="tabela"><table><thead><tr><th scope="col">Armadilha</th><th scope="col">O que acontece</th><th scope="col">Como evitar</th></tr></thead><tbody><tr><td>Achar que nice maior é mais prioridade</td><td>Faz o contrário</td><td>Pense em gentileza: mais gentil, menos CPU</td></tr><tr><td>Esperar que o nice limite a CPU</td><td>Sem disputa, o processo usa tudo</td><td>Use <code translate="no">CPUQuota</code></td></tr><tr><td><code translate="no">renice</code> em serviço</td><td>Some no próximo restart</td><td><code translate="no">Nice=</code> no unit</td></tr><tr><td>Olhar <code translate="no">free</code> em vez de <code translate="no">available</code></td><td>Parece que falta memória</td><td>Leia <code translate="no">available</code></td></tr><tr><td>Comparar pelo <code translate="no">VSZ</code></td><td>Sugere um consumo que não existe</td><td>Use <code translate="no">RSS</code></td></tr><tr><td><code translate="no">MemoryMax</code> menor que o uso atual</td><td>O serviço pode ser morto na hora</td><td>Meça antes e defina com folga</td></tr><tr><td>Usar <code translate="no">--runtime</code> e achar que ficou</td><td>Some no reboot</td><td>Use <code translate="no">systemctl edit</code> para gravar</td></tr><tr><td>Ajustar sysctl à mão com <code translate="no">tuned</code> ativo</td><td>Fica fora do perfil, e o <code translate="no">verify</code> falha</td><td>Coloque no perfil</td></tr><tr><td>Ignorar <code translate="no">st</code> numa VM</td><td>Você procura o problema no lugar errado</td><td>Olhe o host no Proxmox</td></tr><tr><td><code translate="no">ionice</code> sem conferir o escalonador</td><td>Pode não ter efeito</td><td>Veja <code translate="no">/sys/block/DISCO/queue/scheduler</code></td></tr></tbody></table></div>
+<h2 id="8-quiz">8 · Quiz</h2>
+<p>Responda sem olhar. O gabarito está no fim da aula.</p>
+<ol><li>Qual é a faixa do nice, e qual é o padrão?</li>
+<li>Por que <code translate="no">nice -n 19</code> não impede um processo de ocupar 100% de um servidor ocioso?</li>
+<li>Qual a diferença entre <code translate="no">set-property --runtime</code> e <code translate="no">systemctl edit</code>?</li>
+<li><code translate="no">wa</code> alto e <code translate="no">st</code> alto apontam para quais problemas?</li>
+<li>Como provar que um processo foi morto pelo OOM killer?</li>
+<li>Como herdar um perfil do <code translate="no">tuned</code> e mudar apenas um valor?</li></ol>
+<h2 id="9-cola">9 · Cola</h2>
+<p><strong>Para saber de cor:</strong></p>
+<div class="tabela"><table><thead><tr><th scope="col">Quero...</th><th scope="col">Comando</th></tr></thead><tbody><tr><td>Iniciar gentil</td><td><code translate="no">nice -n 10 comando</code></td></tr><tr><td>Rebaixar</td><td><code translate="no">renice -n 15 -p PID</code></td></tr><tr><td>Teto temporário</td><td><code translate="no">sudo systemctl set-property --runtime UNIT CPUQuota=50%</code></td></tr><tr><td>Rastro do OOM</td><td><code translate="no">sudo journalctl -k | grep -iE 'out of memory|killed process'</code></td></tr><tr><td>Perfil ativo</td><td><code translate="no">tuned-adm active</code></td></tr><tr><td>Aplicar perfil</td><td><code translate="no">sudo tuned-adm profile NOME</code></td></tr><tr><td>Conferir perfil</td><td><code translate="no">sudo tuned-adm verify</code></td></tr></tbody></table></div>
+<p><strong>Para consultar:</strong></p>
+<div class="tabela"><table><thead><tr><th scope="col">Quero...</th><th scope="col">Comando</th></tr></thead><tbody><tr><td>Ver recursos</td><td><code translate="no">vmstat 2 5</code>, <code translate="no">free -h</code>, <code translate="no">uptime</code></td></tr><tr><td>Ordenar por memória real</td><td><code translate="no">ps -eo pid,rss,pmem,comm --sort=-rss | head</code></td></tr><tr><td>Consumo por serviço</td><td><code translate="no">systemd-cgtop</code></td></tr><tr><td>Tarefa limitada</td><td><code translate="no">sudo systemd-run --unit=N -p CPUQuota=20% -p MemoryMax=1G comando</code></td></tr><tr><td>Prender a um núcleo</td><td><code translate="no">taskset -c 0 comando</code></td></tr><tr><td>Baixa prioridade de disco</td><td><code translate="no">ionice -c 3 comando</code></td></tr><tr><td>Recomendação</td><td><code translate="no">tuned-adm recommend</code></td></tr><tr><td>Log do tuned</td><td><code translate="no">/var/log/tuned/tuned.log</code></td></tr></tbody></table></div>
+<p><strong>Flashcards:</strong></p>
+<ul><li>Nice 19 → <em>o mais gentil; só importa quando há disputa.</em></li>
+<li><code translate="no">CPUQuota</code> → <em>teto, mesmo com a CPU livre.</em></li>
+<li><code translate="no">available</code> → <em>o que os programas ainda podem usar.</em></li>
+<li><code translate="no">st</code> → <em>a VM queria CPU e o hipervisor não deu.</em></li>
+<li>Vítima do OOM → <em>nem sempre é a culpada.</em></li>
+<li>Restart do serviço → <em>o <code translate="no">renice</code> não sobrevive; use <code translate="no">Nice=</code>.</em></li></ul>
+<h2 id="10-checklist-e-fechamento">10 · Checklist e fechamento</h2>
+<ul><li>[ ] Digo qual recurso falta olhando <code translate="no">vmstat</code> e <code translate="no">free</code></li>
+<li>[ ] Uso <code translate="no">nice</code> e <code translate="no">renice</code> e sei quando não fazem efeito</li>
+<li>[ ] Coloco teto de CPU e memória em um serviço</li>
+<li>[ ] Sei a diferença entre mudança temporária e permanente</li>
+<li>[ ] Acho o rastro do OOM killer no journal</li>
+<li>[ ] Aplico, verifico e crio perfis do <code translate="no">tuned</code></li></ul>
+<p><strong>Último exercício, sem olhar a aula:</strong> crie um perfil <code translate="no">lab-final</code> que herde de <code translate="no">balanced</code> e use <code translate="no">vm.swappiness=20</code>. Aplique, prove com o <code translate="no">sysctl</code> e o <code translate="no">verify</code>, e volte ao <code translate="no">virtual-guest</code> removendo o perfil.</p>
+<p><strong>Snapshot de fim</strong> (no Proxmox):</p>
+<pre translate="no"><code class="lang-bash">qm snapshot 201 m7a3-fim</code></pre>
+<h2 id="11-na-vida-real">11 · Na vida real</h2>
+<p><strong>Missão, só leitura.</strong> Num servidor Linux que você administre (ou com autorização), rode <strong>apenas</strong>:</p>
+<pre translate="no"><code class="lang-bash">uptime
+nproc
+vmstat 2 5
+free -h
+ps -eo pid,ni,rss,pmem,comm --sort=-rss | head
+ps -eo pid,ni,comm | awk '$2 != 0' | head -n 20
+tuned-adm active 2&gt;/dev/null
+sudo journalctl -k --since "7 days ago" | grep -iE 'out of memory|killed process'</code></pre>
+<p>Perguntas para responder:</p>
+<ol><li>Qual recurso está mais perto do limite?</li>
+<li>Numa VM, o <code translate="no">st</code> passa de zero com frequência?</li>
+<li>Algum serviço roda com nice diferente de 0? Foi de propósito?</li>
+<li>Houve OOM nos últimos 7 dias?</li>
+<li>Existe algum perfil do <code translate="no">tuned</code> aplicado? Ele combina com o papel da máquina?</li></ol>
+<p><strong>Diário:</strong> anote as respostas 1 e 4. Não altere nenhum ajuste.</p>
+<p><strong>Amanhã, sem olhar:</strong> escreva o que cada coluna (<code translate="no">us</code>, <code translate="no">sy</code>, <code translate="no">wa</code>, <code translate="no">st</code>) revela e o comando para colocar um teto de CPU em um serviço.</p>
+<h2 id="12-aprofundar-quando-quiser">12 · Aprofundar quando quiser</h2>
+<ul><li><strong><code translate="no">chrt</code>:</strong> escalonamento de tempo real. Um erro aqui pode travar o servidor.</li>
+<li><strong><code translate="no">CPUWeight=</code> e <code translate="no">IOWeight=</code>:</strong> divisão proporcional entre serviços.</li>
+<li><strong><code translate="no">MemoryHigh=</code>:</strong> freia o serviço antes de chegar ao <code translate="no">MemoryMax</code>.</li>
+<li><strong><code translate="no">systemd-oomd</code>:</strong> encerra processos sob pressão de memória antes do OOM do kernel.</li>
+<li><strong><code translate="no">perf top</code> e <code translate="no">pidstat</code>:</strong> o que o processo está fazendo enquanto consome CPU.</li>
+<li><strong>Criar perfis com <code translate="no">[script]</code>, <code translate="no">[disk]</code> e <code translate="no">[cpu]</code>:</strong> veja <code translate="no">man tuned.conf</code>.</li></ul>
+<p><strong>DeepTutor</strong> (http://10.1.0.149:3782, KB "Curso Linux Sysadmin"):</p>
+<ul><li><code translate="no">!explica a diferença entre nice e CPUQuota</code></li>
+<li><code translate="no">!feynman o que significam wa e st no vmstat</code></li>
+<li><code translate="no">!quiz Aula 7.3, 5 perguntas sobre nice, cgroups e tuned</code></li></ul>
+<h2 id="desafio-do-m7-o-processo-misterioso">Desafio do M7 · O processo misterioso</h2>
+<blockquote><p><strong>A missão:</strong> um processo devora CPU e memória na rocky-lab. Ache, rebaixe a prioridade, limite e encerre do jeito certo, sem reiniciar a VM.</p></blockquote>
+<p>Não há passo a passo. As dicas estão no Gabarito, mas tente sem elas primeiro.</p>
+<p><strong>Antes de começar:</strong> <code translate="no">qm snapshot 201 m7-desafio-inicio</code>. Anote a saída de <code translate="no">uptime -s</code>. Depois, simule o incidente com o comando abaixo, sem tentar entender:</p>
+<pre translate="no"><code class="lang-bash">sudo systemd-run --unit=cache-sync -p Restart=always -p RestartSec=2 python3 -c 'x = b"x" * (300 * 1024 * 1024); exec("while True: pass")'</code></pre>
+<p><strong>Requisitos:</strong></p>
+<ol><li>Descubra o PID, o consumo de CPU e de memória, e o nome da unit responsável.</li>
+<li>Rebaixe o processo para nice 19 e prove.</li>
+<li>Coloque um teto de 25% de CPU, sem reiniciar o serviço, e prove com o <code translate="no">top</code>.</li>
+<li>Mostre que encerrar pelo PID não resolve.</li>
+<li>Encerre do jeito certo.</li>
+<li>Escreva <code translate="no">~/labm7/relatorio.txt</code> com o que encontrou, o que fez e como provou.</li></ol>
+<p><strong>Critérios de aceite:</strong></p>
+<pre translate="no"><code class="lang-bash">systemctl status cache-sync --no-pager
+pgrep -af 'while True'
+uptime -s
+free -h
+cat ~/labm7/relatorio.txt</code></pre>
+<ul><li>[ ] O relatório tem PID, unit, CPU e memória observados</li>
+<li>[ ] O relatório mostra NI = 19 e a CPU perto de 25%</li>
+<li>[ ] O relatório registra que o processo voltou depois do <code translate="no">kill</code></li>
+<li>[ ] A unit <code translate="no">cache-sync</code> não existe mais e o <code translate="no">pgrep</code> não mostra nada</li>
+<li>[ ] O <code translate="no">uptime -s</code> é igual ao anotado no início</li></ul>
+<p><strong>Bônus (opcional):</strong> rode de novo o comando, mas com <code translate="no">-p MemoryMax=200M -p MemorySwapMax=0</code> e sem <code translate="no">Restart=always</code>. Mostre no journal do kernel quem o matou e explique por que o sistema continuou de pé.</p>
+<p><strong>Ao terminar:</strong> <code translate="no">qm snapshot 201 m7-desafio-fim</code>.</p>
+<p><strong>Você fechou o M7.</strong> Agora você lê processos sem se enganar, escolhe o sinal, protege tarefas longas e contém quem abusa. O próximo módulo começa na <a href="8.1-fhs-e-onde-cada-coisa-mora.html">Aula 8.1</a>.</p>
+<h2 id="gabarito-comentado">Gabarito comentado</h2>
+<h3 id="aquecimento">Aquecimento</h3>
+<ol><li>Menor. Quanto maior o número, mais gentil é o processo.</li>
+<li>Não. Sem disputa, o nice não muda nada, e o processo usa toda a CPU disponível.</li>
+<li>A coluna <code translate="no">available</code>.</li></ol>
+<h3 id="quiz">Quiz</h3>
+<ol><li>De -20 a 19, com padrão 0.</li>
+<li>Porque o nice só decide quem passa na frente quando há disputa. Sem concorrência, todo o tempo livre fica para ele.</li>
+<li>O <code translate="no">--runtime</code> vale até o próximo reboot e não grava em disco. O <code translate="no">systemctl edit</code> cria um drop-in permanente.</li>
+<li><code translate="no">wa</code> alto indica CPU esperando E/S, geralmente disco. <code translate="no">st</code> alto indica que o hipervisor não está entregando CPU à VM.</li>
+<li>Com <code translate="no">sudo journalctl -k</code>, buscando <code translate="no">Out of memory</code> ou <code translate="no">Killed process</code>. Num serviço, o <code translate="no">systemctl status</code> também mostra <code translate="no">oom-kill</code>.</li>
+<li>Criando <code translate="no">/etc/tuned/NOME/tuned.conf</code>, com <code translate="no">include=PERFIL</code> em <code translate="no">[main]</code> e a mudança em <code translate="no">[sysctl]</code>.</li></ol>
+<h3 id="dicas-do-desafio">Dicas do Desafio</h3>
+<p>Leia uma de cada vez, só quando travar.</p>
+<ol><li><strong>Achar:</strong> <code translate="no">top</code>, teclas <code translate="no">P</code> e <code translate="no">M</code>. Ou <code translate="no">ps -eo pid,ni,pcpu,rss,comm --sort=-rss | head</code>.</li>
+<li><strong>Origem:</strong> <code translate="no">systemctl status PID</code> responde o nome da unit.</li>
+<li><strong>Rebaixar:</strong> <code translate="no">sudo renice -n 19 -p PID</code> e <code translate="no">ps -o pid,ni,comm -p PID</code>.</li>
+<li><strong>Teto:</strong> <code translate="no">sudo systemctl set-property --runtime cache-sync CPUQuota=25%</code> e duas amostras com <code translate="no">top -b -n2 -d3 -p PID | awk 'NF' | tail -n 1</code>.</li>
+<li><strong>Provar o retorno:</strong> <code translate="no">sudo kill PID</code>, espere uns segundos e rode <code translate="no">systemctl show -p MainPID --value cache-sync</code>. O PID mudou.</li>
+<li><strong>Encerrar:</strong> <code translate="no">sudo systemctl stop cache-sync</code>. Uma unit temporária desaparece depois de parada.</li></ol>
+</article><nav class="paginas" aria-label="Aulas"><a class="ant" href="7.2-jobs-e-sessoes.html"><small>← Anterior</small>7.2 · Jobs e sessões</a><a class="prox" href="8.1-fhs-e-onde-cada-coisa-mora.html"><small>Próxima →</small>8.1 · FHS e onde cada coisa mora</a></nav></main></div>
+<footer><div class="wrap">Gerado a partir do Markdown do curso · Imagens em <code translate="no">img/</code></div></footer>
+</body>
+</html>

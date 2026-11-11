@@ -1,6 +1,6 @@
 # Curso Linux Sysadmin
 
-Curso em português (PT-BR) para sair do zero e trabalhar com fluência em Linux, com laboratórios práticos em Proxmox VE. As duas VMs do curso rodam **Rocky Linux 9** (a `rocky-lab`, 201) e **Debian 13** (a `debian-lab`, 202), para que você aprenda o mesmo conceito nas duas famílias. O curso cobre tudo o que um sysadmin usa e chega a Proxmox, NethServer 8 e NethSecurity. As provas LPI e Red Hat servem só como lista de assuntos.
+Curso em português (PT-BR) para sair do zero e trabalhar com fluência em Linux, com laboratórios práticos em Proxmox VE. As duas VMs do curso rodam **Rocky Linux 9** (a `rocky-lab`, 201) e **Debian 13** (a `debian-lab`, 202), para que você aprenda o mesmo conceito nas duas famílias. O curso cobre tudo o que um sysadmin usa e chega a Proxmox, NethServer 8 e NethSecurity.
 
 O material foi escrito para ser estudado com as VMs ligadas: cada aula parte de um case real, e cada conceito termina em um comando que você digita, quebra e conserta.
 

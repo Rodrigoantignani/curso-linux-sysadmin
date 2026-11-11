@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light dark">
+<title>9.5 · Integrità e spazio · Corso Linux Sysadmin</title>
+<link rel="alternate" hreflang="pt-BR" href="9.5-integridade-e-espaco.html"><link rel="alternate" hreflang="it" href="9.5-integridade-e-espaco.it.html">
+<style>
+:root{color-scheme:light dark;--bg:#f6f1e7;--card:#fffdf8;--ink:#201c16;--muted:#5e564a;--accent:#9a3412;--accent-2:#1f5f4a;--tint:#efe6d4;--line:#ddd2bc;--code:#f1eadb;--shadow:0 1px 2px rgba(60,40,10,.08);--serif:Georgia,"Iowan Old Style","Palatino Linotype",Palatino,serif;--sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--mono:"Cascadia Code",Consolas,"DejaVu Sans Mono",monospace}
+@media (prefers-color-scheme:dark){:root{--bg:#16130f;--card:#201b15;--ink:#f1eadb;--muted:#b9ad98;--accent:#f0a070;--accent-2:#7fd0b0;--tint:#2a231a;--line:#3d3427;--code:#191510;--shadow:none}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:5.5rem}
+body{margin:0;background:var(--bg);color:var(--ink);font:1rem/1.6 var(--sans)}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--accent-2);outline-offset:2px;border-radius:4px}
+.pular{position:absolute;left:-999px;top:0;background:var(--card);padding:.5rem 1rem;z-index:20}
+.pular:focus{left:.5rem;top:.5rem}
+.wrap{width:100%;max-width:84rem;margin:0 auto;padding-inline:max(1rem,env(safe-area-inset-left))}
+.top{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10;border-top:6px solid var(--accent)}
+.top-in{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding-block:.6rem}
+.titles{min-width:0}
+.marca{margin:0;font:700 clamp(1.15rem,1rem + 1vw,1.6rem)/1.15 var(--serif);letter-spacing:-.01em}
+.marca a{text-decoration:none}
+.marca a:hover{color:var(--accent)}
+.meta{margin:.1rem 0 0;color:var(--muted);font-size:.85rem}
+.acoes{display:flex;align-items:center;gap:.9rem;flex:none}
+.acoes>a{font-size:.9rem;font-weight:600;color:var(--muted);text-decoration:none}
+.acoes>a:hover{color:var(--accent);text-decoration:underline}
+.idioma{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--tint)}
+.idioma>*{padding:.35rem .9rem;font-size:.8rem;font-weight:700;letter-spacing:.06em;text-decoration:none;color:var(--muted);min-width:2.75rem;text-align:center}
+.idioma a:hover{color:var(--accent);text-decoration:underline}
+.idioma span{background:var(--accent);color:#fff}
+@media (prefers-color-scheme:dark){.idioma span{color:#16130f}}
+code{font-family:var(--mono);font-size:.9em;background:var(--tint);padding:.1rem .35rem;border-radius:4px;overflow-wrap:anywhere}
+/* índice */
+.capa{max-width:70rem;padding-block:2rem 3rem}
+.stats{border-left:4px solid var(--accent-2);background:var(--card);border-radius:0 10px 10px 0;padding:1rem 1.25rem;margin:0 0 2.5rem;box-shadow:var(--shadow);color:var(--muted)}
+.stats strong{color:var(--ink)}
+.modulo{display:grid;grid-template-columns:15rem minmax(0,1fr);gap:1rem 2rem;padding:1.75rem 0;border-top:1px solid var(--line)}
+.modulo h2{margin:0;font:700 1.25rem/1.25 var(--serif);align-self:start;position:sticky;top:6rem}
+.mn{display:block;font:700 .8rem var(--mono);letter-spacing:.12em;color:var(--accent);margin-bottom:.25rem}
+.sep{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.modulo ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,17rem),1fr));gap:.75rem}
+.modulo li{margin:0}
+.modulo a{display:flex;gap:.45rem;align-items:baseline;height:100%;padding:.85rem 1rem;background:var(--card);border:1px solid var(--line);border-radius:10px;text-decoration:none;font-weight:600;line-height:1.35;box-shadow:var(--shadow);transition:border-color .15s,transform .15s}
+.modulo a:hover{border-color:var(--accent);color:var(--accent)}
+.num{font:700 .85rem var(--mono);color:var(--accent);white-space:nowrap}
+/* aula */
+.doc{display:grid;grid-template-columns:17rem minmax(0,1fr);gap:2.5rem;align-items:start;padding-block:2rem 3rem}
+.lateral{position:sticky;top:5.5rem;max-height:calc(100vh - 6.5rem);overflow:auto;font-size:.875rem;padding-right:.5rem}
+.lateral h2{margin:0 0 .25rem;font:700 .95rem var(--serif);color:var(--muted)}
+.lateral h3{margin:1rem 0 .25rem;font:700 .75rem var(--mono);letter-spacing:.06em;color:var(--accent)}
+.lateral ul{list-style:none;margin:0;padding:0}
+.lateral a{display:flex;gap:.45rem;padding:.25rem .5rem;border-radius:6px;text-decoration:none;color:var(--muted);line-height:1.3}
+.lateral a:hover{background:var(--tint);color:var(--ink)}
+.lateral a[aria-current]{background:var(--tint);color:var(--ink);font-weight:700;box-shadow:inset 3px 0 0 var(--accent)}
+.lateral .num{font-size:.75rem}
+.aula{min-width:0;max-width:56rem;overflow-wrap:break-word;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:clamp(1.25rem,1rem + 2vw,2.75rem);box-shadow:var(--shadow)}
+.aula h1{margin:0 0 1.5rem;font:700 clamp(1.75rem,1.4rem + 1.6vw,2.5rem)/1.15 var(--serif);letter-spacing:-.015em;color:var(--ink)}
+.aula h2{margin:2.5rem 0 .75rem;padding-top:1.25rem;border-top:1px solid var(--line);font:700 1.5rem/1.25 var(--serif)}
+.aula h3{margin:2rem 0 .5rem;font:700 1.15rem/1.3 var(--serif);color:var(--accent)}
+.aula h4,.aula h5,.aula h6{margin:1.5rem 0 .5rem;font-size:1rem}
+.aula p,.aula ul,.aula ol{margin:1rem 0}
+.aula ul,.aula ol{padding-left:1.5rem}
+.aula li{margin:.35rem 0}
+.aula li>ul,.aula li>ol{margin:.35rem 0}
+.aula a{color:var(--accent);text-underline-offset:2px}
+.aula hr{border:0;border-top:1px solid var(--line);margin:2rem 0}
+.tabela{overflow-x:auto;margin:1.25rem 0;border:1px solid var(--line);border-radius:10px}
+.aula table{width:100%;border-collapse:collapse;font-size:.9rem}
+.aula th,.aula td{padding:.55rem .75rem;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+.aula tr:last-child td{border-bottom:0}
+.aula th{background:var(--tint);font-weight:700}
+.aula pre{background:var(--code);border:1px solid var(--line);border-radius:10px;padding:.9rem 1rem;overflow-x:auto;font:.85rem/1.5 var(--mono);margin:1rem 0;tab-size:4}
+.aula pre code{background:none;padding:0;font-size:inherit;overflow-wrap:normal}
+.aula blockquote{margin:1.25rem 0;padding:.75rem 1.25rem;border-left:4px solid var(--accent-2);background:var(--tint);border-radius:0 10px 10px 0}
+.aula blockquote>:first-child{margin-top:0}
+.aula blockquote>:last-child{margin-bottom:0}
+.aula figure{margin:1.75rem 0;text-align:center}
+.aula figure img{display:block;margin:0 auto;max-width:100%;height:auto;border:1px solid var(--line);border-radius:10px;background:#fff}
+.aula figcaption{margin-top:.5rem;color:var(--muted);font-size:.9rem;font-style:italic}
+.paginas{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:2.5rem;padding-top:1.5rem;border-top:1px solid var(--line)}
+.paginas a{display:block;padding:.75rem 1rem;border:1px solid var(--line);border-radius:10px;text-decoration:none;color:var(--ink);font-weight:600;line-height:1.3}
+.paginas a:hover{border-color:var(--accent);color:var(--accent)}
+.paginas small{display:block;color:var(--muted);font-weight:400}
+.paginas .prox{grid-column:2;text-align:right}
+footer{border-top:1px solid var(--line);padding-block:1.5rem;color:var(--muted);font-size:.85rem;text-align:center}
+@media (hover:hover) and (prefers-reduced-motion:no-preference){.modulo a:hover{transform:translateY(-2px)}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+@media (max-width:980px){.doc{grid-template-columns:minmax(0,1fr);padding-top:1rem}.lateral{position:static;max-height:none;order:2}.aula{max-width:none}}
+@media (max-width:860px){.modulo{grid-template-columns:minmax(0,1fr)}.modulo h2{position:static}.mn{display:inline;margin-right:.5rem}}
+@media (max-width:420px){.meta{display:none}.top-in{gap:.5rem}.acoes{gap:.6rem}.capa{padding-top:1.25rem}.paginas{grid-template-columns:minmax(0,1fr)}.paginas .prox{grid-column:1}}
+@media print{.top,.lateral,.paginas{display:none}.aula{border:0;box-shadow:none;padding:0;max-width:none}.doc{display:block}}
+</style>
+</head>
+<body>
+<a class="pular" href="#conteudo">Vai al contenuto</a>
+<header class="top"><div class="wrap top-in"><div class="titles"><p class="marca"><a href="index.it.html">Corso Linux Sysadmin</a></p><p class="meta">Rodrigo Antignani · Lezione 9.5</p></div><div class="acoes"><a href="index.it.html">Indice</a><div class="idioma" role="group" aria-label="Lingua"><a href="9.5-integridade-e-espaco.html" hreflang="pt-BR" lang="pt-BR">PT</a><span aria-current="true">IT</span></div></div></div></header>
+<div class="wrap doc"><aside class="lateral" aria-label="Lezioni"><h2>Lezioni</h2><h3>M0 · Laboratorio</h3><ul><li><a href="0.1-montar-o-laboratorio.it.html"><span class="num">0.1</span><span>Allestire il laboratorio</span></a></li><li><a href="0.2-acesso-e-protecao.it.html"><span class="num">0.2</span><span>Accesso e protezione</span></a></li></ul><h3>M1 · Riga di comando</h3><ul><li><a href="1.1-o-que-e-linux.it.html"><span class="num">1.1</span><span>Che cos'è Linux</span></a></li><li><a href="1.2-o-shell-e-a-ajuda.it.html"><span class="num">1.2</span><span>La shell e la guida</span></a></li><li><a href="1.3-caminhos-e-navegacao.it.html"><span class="num">1.3</span><span>Percorsi e navigazione</span></a></li><li><a href="1.4-criar-copiar-mover-e-apagar.it.html"><span class="num">1.4</span><span>Creare, copiare, spostare ed eliminare</span></a></li><li><a href="1.5-ler-e-procurar-texto.it.html"><span class="num">1.5</span><span>Leggere e cercare testo</span></a></li><li><a href="1.6-redirecionamentos-e-pipes.it.html"><span class="num">1.6</span><span>Reindirizzamenti e pipe</span></a></li><li><a href="1.7-arquivar-e-compactar.it.html"><span class="num">1.7</span><span>Archiviare e comprimere</span></a></li><li><a href="1.8-primeiro-script.it.html"><span class="num">1.8</span><span>Primo script</span></a></li><li><a href="1.9-decidir-e-repetir.it.html"><span class="num">1.9</span><span>Decidere e ripetere</span></a></li><li><a href="1.10-software-livre-na-pratica.it.html"><span class="num">1.10</span><span>Il software libero in pratica</span></a></li></ul><h3>M2 · Sistema, utenti e permessi</h3><ul><li><a href="2.1-instalacao-e-provisionamento.it.html"><span class="num">2.1</span><span>Installazione e provisioning</span></a></li><li><a href="2.2-hardware-e-dispositivos.it.html"><span class="num">2.2</span><span>Hardware e dispositivi</span></a></li><li><a href="2.3-processos-e-logs.it.html"><span class="num">2.3</span><span>Processi e log</span></a></li><li><a href="2.4-rede-no-dia-a-dia.it.html"><span class="num">2.4</span><span>La rete di tutti i giorni</span></a></li><li><a href="2.5-acesso-remoto-e-privilegios.it.html"><span class="num">2.5</span><span>Accesso remoto e privilegi</span></a></li><li><a href="2.6-usuarios-e-grupos.it.html"><span class="num">2.6</span><span>Utenti e gruppi</span></a></li><li><a href="2.7-permissoes-e-dono.it.html"><span class="num">2.7</span><span>Permessi e proprietario</span></a></li><li><a href="2.8-diretorios-e-arquivos-especiais.it.html"><span class="num">2.8</span><span>Directory e file speciali</span></a></li></ul><h3>M3 · Testo ed editor</h3><ul><li><a href="3.1-fluxos-a-fundo.it.html"><span class="num">3.1</span><span>I flussi in profondità</span></a></li><li><a href="3.2-filtros-de-texto.it.html"><span class="num">3.2</span><span>Filtri di testo</span></a></li><li><a href="3.3-regex-e-grep.it.html"><span class="num">3.3</span><span>Regex e grep</span></a></li><li><a href="3.4-sed-e-awk.it.html"><span class="num">3.4</span><span>sed e awk</span></a></li><li><a href="3.5-vi-e-vim-de-verdade.it.html"><span class="num">3.5</span><span>vi e vim sul serio</span></a></li></ul><h3>M4 · systemd e boot</h3><ul><li><a href="4.1-como-o-linux-liga.it.html"><span class="num">4.1</span><span>Come si avvia Linux</span></a></li><li><a href="4.2-systemd-servicos-e-units.it.html"><span class="num">4.2</span><span>systemd: servizi e unit</span></a></li><li><a href="4.3-targets-desligar-e-reiniciar.it.html"><span class="num">4.3</span><span>Target: spegnere e riavviare</span></a></li><li><a href="4.4-grub-e-acesso-de-emergencia.it.html"><span class="num">4.4</span><span>GRUB e accesso di emergenza</span></a></li></ul><h3>M5 · Kernel, moduli e VM</h3><ul><li><a href="5.1-hardware-pelo-kernel.it.html"><span class="num">5.1</span><span>L'hardware visto dal kernel</span></a></li><li><a href="5.2-modulos-e-parametros.it.html"><span class="num">5.2</span><span>Moduli e parametri</span></a></li><li><a href="5.3-linux-como-convidado.it.html"><span class="num">5.3</span><span>Linux come guest</span></a></li></ul><h3>M6 · Pacchetti e repository</h3><ul><li><a href="6.1-pacotes-no-debian.it.html"><span class="num">6.1</span><span>Pacchetti su Debian</span></a></li><li><a href="6.2-pacotes-na-rocky.it.html"><span class="num">6.2</span><span>Pacchetti su Rocky</span></a></li><li><a href="6.3-repositorios.it.html"><span class="num">6.3</span><span>Repository</span></a></li><li><a href="6.4-flatpak.it.html"><span class="num">6.4</span><span>Flatpak</span></a></li><li><a href="6.5-bibliotecas-compartilhadas.it.html"><span class="num">6.5</span><span>Librerie condivise</span></a></li></ul><h3>M7 · Processi e prestazioni</h3><ul><li><a href="7.1-processos-e-sinais.it.html"><span class="num">7.1</span><span>Processi e segnali</span></a></li><li><a href="7.2-jobs-e-sessoes.it.html"><span class="num">7.2</span><span>Job e sessioni</span></a></li><li><a href="7.3-prioridade-e-perfis.it.html"><span class="num">7.3</span><span>Priorità e profili</span></a></li></ul><h3>M8 · File a fondo</h3><ul><li><a href="8.1-fhs-e-onde-cada-coisa-mora.it.html"><span class="num">8.1</span><span>FHS e dove sta ogni cosa</span></a></li><li><a href="8.2-find-a-fundo.it.html"><span class="num">8.2</span><span>find a fondo</span></a></li><li><a href="8.3-arquivamento-avancado.it.html"><span class="num">8.3</span><span>Archiviazione avanzata</span></a></li><li><a href="8.4-links.it.html"><span class="num">8.4</span><span>Link</span></a></li><li><a href="8.5-permissoes-avancadas.it.html"><span class="num">8.5</span><span>Permessi avanzati</span></a></li></ul><h3>M9 · Storage</h3><ul><li><a href="9.1-discos-e-layout.it.html"><span class="num">9.1</span><span>Dischi e layout</span></a></li><li><a href="9.2-particionar.it.html"><span class="num">9.2</span><span>Partizionare</span></a></li><li><a href="9.3-sistemas-de-arquivos.it.html"><span class="num">9.3</span><span>File system</span></a></li><li><a href="9.4-montar-e-persistir.it.html"><span class="num">9.4</span><span>Montare e rendere persistente</span></a></li><li><a href="9.5-integridade-e-espaco.it.html" aria-current="page"><span class="num">9.5</span><span>Integrità e spazio</span></a></li><li><a href="9.6-lvm.it.html"><span class="num">9.6</span><span>LVM</span></a></li><li><a href="9.7-crescer-sem-destruir.it.html"><span class="num">9.7</span><span>Crescere senza distruggere</span></a></li></ul></aside><main id="conteudo" class="aula"><article><h1>Lezione 9.5 · Integrità e spazio</h1>
+<p>In Windows guardi Explorer, vedi la barra del disco diventare rossa e lanci <code translate="no">chkdsk</code> quando succede qualcosa di strano. In Linux le stesse domande hanno strumenti separati: <code translate="no">df</code> e <code translate="no">du</code> per lo spazio, <code translate="no">fsck</code> per la consistenza. In questa lezione riempi davvero <code translate="no">/srv/dados</code>, scopri perché il disco può essere pieno senza avere file, e impari a verificare e riparare un file system in sicurezza.</p>
+<blockquote><p><strong>Il cuore di questa lezione:</strong> leggere <code translate="no">df -h</code>, <code translate="no">df -i</code> e <code translate="no">du -h -d 1</code>; trovare cosa occupa spazio; capire perché un file cancellato può continuare a occupare spazio (<code translate="no">lsof +L1</code>); capire i blocchi riservati di ext4 e la mancanza di inode; e lanciare <code translate="no">e2fsck -f</code> e <code translate="no">xfs_repair</code> solo con il file system smontato. Il resto è approfondimento.</p></blockquote>
+<div class="tabela"><table><thead><tr><th scope="col">Scheda</th><th scope="col"></th></tr></thead><tbody><tr><td><strong>Modulo</strong></td><td>M9 · Storage, lezione 5 di 7</td></tr><tr><td><strong>Quando</strong></td><td>Settimana 14</td></tr><tr><td><strong>Alla fine</strong></td><td>Diagnostichi un disco pieno per blocchi, per inode o per file aperto, e verifichi ext4 e XFS senza rischi</td></tr><tr><td><strong>Prerequisiti</strong></td><td>Lezioni 9.1-9.4 (i tre mount in <code translate="no">/srv</code>)</td></tr><tr><td><strong>Durata</strong></td><td>circa 2h30</td></tr><tr><td><strong>Snapshot</strong></td><td><code translate="no">m9a5-inicio</code> e <code translate="no">m9a5-fim</code> su rocky-lab e debian-lab</td></tr></tbody></table></div>
+<h2 id="1-riscaldamento">1 · Riscaldamento</h2>
+<p>Rispondi prima di leggere.</p>
+<ol><li><code translate="no">df</code> mostra il 100% di uso, ma la somma dei file che vedi è piccola. Cosa può spiegarlo?</li>
+<li>Un disco con metà dello spazio libero risponde "No space left on device". Com'è possibile?</li>
+<li>Perché non si lancia <code translate="no">fsck</code> su un file system montato?</li></ol>
+<h2 id="2-perche-conta">2 · Perché conta</h2>
+<div class="tabela"><table><thead><tr><th scope="col">La richiesta</th><th scope="col">La risposta sbagliata</th><th scope="col">Cosa provoca</th></tr></thead><tbody><tr><td>"Il disco è pieno, ma non trovo cosa occupa spazio"</td><td>Cancellare file alla cieca</td><td>Perdi dati e lo spazio non torna, se il file era aperto</td></tr><tr><td>"Ho cancellato il log da 5 GB e <code translate="no">df</code> non è cambiato"</td><td>Cancellare altra roba</td><td>Il processo tiene ancora il file; bisogna riavviare il servizio</td></tr><tr><td>"Errore di spazio, ma c'è il 40% libero"</td><td>Ingrandire il disco</td><td>Gli inode sono finiti, e un disco più grande da solo non risolve</td></tr><tr><td>"Il server è caduto e il disco è strano"</td><td><code translate="no">fsck</code> con tutto montato</td><td>Corrompe ciò che era integro</td></tr></tbody></table></div>
+<h2 id="3-modello-mentale">3 · Modello mentale</h2>
+<blockquote><p>Un file system è un <strong>magazzino con uno schedario</strong>. Gli <strong>scaffali</strong> sono i blocchi, dove stanno i dati. Le <strong>schede</strong> sono gli inode, una per file. Il magazzino si riempie se finiscono gli scaffali o le schede, e i due conti sono separati. Il responsabile tiene una <strong>riserva di emergenza</strong> di scaffali solo per sé (i blocchi riservati). E l'inventario non si fa mai con il magazzino aperto e la gente che sposta scatole: <code translate="no">fsck</code> vuole il magazzino <strong>chiuso</strong>.</p></blockquote>
+<pre translate="no"><code>Disco "cheio"? Meça nesta ordem:
+
+1. Blocos          df -h            Use% alto?  Avail zerado?
+2. Inodes          df -i            IUse% alto? (muitos arquivos pequenos)
+3. Quem ocupa      du -h -d 1 | sort -h      desça pasta por pasta
+4. Apagado/aberto  lsof +L1         "(deleted)" ainda ocupa bloco
+5. Reserva         tune2fs -l       Reserved block count (ext4)
+
+Integridade, sempre desmontado:
+ext4   umount -&gt; e2fsck -f
+XFS    umount -&gt; xfs_repair -n (olhar) -&gt; xfs_repair (consertar)</code></pre>
+<h3 id="ponte-windows">Ponte Windows</h3>
+<div class="tabela"><table><thead><tr><th scope="col">In Windows</th><th scope="col">In Linux</th><th scope="col">Dove il paragone inganna</th></tr></thead><tbody><tr><td>Barra dello spazio in Explorer</td><td><code translate="no">df -h</code></td><td><code translate="no">df</code> conta per file system montato, non per lettera</td></tr><tr><td><code translate="no">chkdsk</code></td><td><code translate="no">e2fsck</code> e <code translate="no">xfs_repair</code></td><td>Girano con il volume smontato. Non esiste "pianifica al prossimo boot" come regola</td></tr><tr><td>File in uso: "impossibile eliminare"</td><td>Linux cancella, e il dato resta finché non viene chiuso</td><td>Il nome sparisce, ma lo spazio torna solo quando l'ultimo processo chiude</td></tr></tbody></table></div>
+<h2 id="4-l-essenziale">4 · L'essenziale</h2>
+<h3 id="spazio-df-e-du">Spazio: df e du</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Voglio...</th><th scope="col">Comando</th></tr></thead><tbody><tr><td>Uso per file system</td><td><code translate="no">df -h</code></td></tr><tr><td>Mostrare il tipo (ext4, xfs, vfat)</td><td><code translate="no">df -hT</code></td></tr><tr><td>Uso degli inode</td><td><code translate="no">df -i</code></td></tr><tr><td>Dimensione totale di una cartella</td><td><code translate="no">du -sh PASTA</code></td></tr><tr><td>Un livello di cartelle</td><td><code translate="no">du -h -d 1 PASTA</code></td></tr><tr><td>I più grandi per ultimi</td><td><code translate="no">du -h -d 1 PASTA | sort -h</code></td></tr></tbody></table></div>
+<p><code translate="no">-h</code> mostra dimensioni leggibili (base 1024). <code translate="no">-d 1</code> limita a un livello. <code translate="no">sort -h</code> mette <code translate="no">900K</code> prima di <code translate="no">1G</code>. <code translate="no">-x</code> impedisce a <code translate="no">du</code> di attraversare altri punti di montaggio.</p>
+<p><code translate="no">df</code> legge i contatori del file system. <code translate="no">du</code> percorre i file e somma. Se discordano molto, c'è un file cancellato e aperto.</p>
+<h3 id="blocchi-riservati-ext4">Blocchi riservati (ext4)</h3>
+<p>Per impostazione predefinita ext4 riserva il 5% dei blocchi al root. Un utente normale riceve "No space left" quando resta solo lo spazio riservato. <code translate="no">df</code> lo mostra: <code translate="no">Avail</code> arriva a zero con <code translate="no">Used</code> ancora sotto il totale.</p>
+<pre translate="no"><code class="lang-bash">sudo tune2fs -l DISPOSITIVO | grep -i 'reserved block count'
+sudo tune2fs -m 1 DISPOSITIVO</code></pre>
+<p><code translate="no">tune2fs -l</code> elenca il superblocco. <code translate="no">-m</code> imposta la riserva in percentuale. Su un disco solo dati, 1% o 0% è ragionevole. Sulla root, tieni il valore predefinito. <code translate="no">tune2fs</code> non funziona su XFS.</p>
+<h3 id="inode">Inode</h3>
+<p>Ogni file, cartella e link usa un inode. ext4 fissa la quantità alla formattazione (circa uno ogni 16 KiB). Milioni di file minuscoli esauriscono gli inode prima dei blocchi. Il sintomo è <code translate="no">No space left on device</code> con <code translate="no">df -h</code> che mostra spazio. Conferma con <code translate="no">df -i</code>: <code translate="no">IUse%</code> sarà al 100%. XFS alloca gli inode dinamicamente.</p>
+<h3 id="file-cancellato-ma-aperto">File cancellato, ma aperto</h3>
+<p>In Linux <code translate="no">rm</code> rimuove il <strong>nome</strong>. Il dato viene liberato solo quando il contatore dei link arriva a zero <strong>e</strong> nessun processo tiene il file aperto. Ecco i casi:</p>
+<pre translate="no"><code class="lang-bash">sudo lsof +L1</code></pre>
+<p><code translate="no">lsof</code> elenca i file aperti. <code translate="no">+L1</code> filtra quelli con meno di 1 link, cioè cancellati. L'output ha la colonna <code translate="no">NLINK</code> con <code translate="no">0</code> e il nome con <code translate="no">(deleted)</code>. La riparazione corretta è riavviare o ricaricare il servizio proprietario del processo.</p>
+<h3 id="verificare-e-riparare">Verificare e riparare</h3>
+<div class="tabela"><table><thead><tr><th scope="col">File system</th><th scope="col">Guardare senza modificare</th><th scope="col">Riparare</th></tr></thead><tbody><tr><td>ext4</td><td><code translate="no">e2fsck -n DISP</code></td><td><code translate="no">e2fsck -f DISP</code></td></tr><tr><td>XFS</td><td><code translate="no">xfs_repair -n DISP</code></td><td><code translate="no">xfs_repair DISP</code></td></tr></tbody></table></div>
+<p>In ogni caso il file system deve essere <strong>smontato</strong>. <code translate="no">fsck</code> legge il disco direttamente, mentre il kernel modifica le strutture in memoria e scrive dopo. Con entrambi attivi, <code translate="no">fsck</code> "ripara" ciò che non era rotto, e il kernel sovrascrive la riparazione: corruzione vera. Il <code translate="no">-f</code> di <code translate="no">e2fsck</code> forza il controllo completo anche se il file system sembra pulito.</p>
+<p>XFS riesegue il journal al <code translate="no">mount</code>. Per questo <code translate="no">fsck.xfs</code> non fa nulla: lo strumento è <code translate="no">xfs_repair</code>. Se rifiuta per log sporco, monta e smonta una volta. <code translate="no">xfs_repair -L</code> azzera il log e perde le modifiche recenti: solo quando montare è impossibile.</p>
+<p>Il controllo periodico di ext4 sta nel superblocco: <code translate="no">tune2fs -c</code> (ogni N mount) e <code translate="no">-i</code> (intervallo). Sono disattivati. Il sesto campo di <code translate="no">/etc/fstab</code> (passno) decide se <code translate="no">fsck</code> gira al boot.</p>
+<h3 id="rocky-debian">Rocky × Debian</h3>
+<div class="tabela"><table><thead><tr><th scope="col"></th><th scope="col">Rocky</th><th scope="col">Debian</th></tr></thead><tbody><tr><td><code translate="no">lsof</code></td><td><code translate="no">sudo dnf install -y lsof</code></td><td><code translate="no">sudo apt install -y lsof</code></td></tr><tr><td><code translate="no">xfs_repair</code></td><td>Arriva con <code translate="no">xfsprogs</code></td><td><code translate="no">sudo apt install -y xfsprogs</code></td></tr><tr><td><code translate="no">e2fsck</code>, <code translate="no">tune2fs</code></td><td>Arrivano con <code translate="no">e2fsprogs</code></td><td>Arrivano con <code translate="no">e2fsprogs</code></td></tr><tr><td>Verificare il pacchetto</td><td><code translate="no">rpm -q lsof xfsprogs</code></td><td><code translate="no">dpkg -s lsof xfsprogs</code></td></tr><tr><td>Root</td><td>XFS, solo dalla modalità di ripristino</td><td>ext4, solo dalla modalità di ripristino</td></tr></tbody></table></div>
+<h2 id="5-lab-guidato">5 · Lab guidato</h2>
+<p>Riempi solo <code translate="no">/srv/dados</code> (1 GiB, ext4). La root non viene toccata.</p>
+<p><strong>Passo 0 · Snapshot, backup e preparazione.</strong> In Proxmox: <code translate="no">qm snapshot 201 m9a5-inicio</code> e <code translate="no">qm snapshot 202 m9a5-inicio</code>. Ricorda: lo snapshot non è un backup. Il backup PBS della lezione 9.1 resta la vera protezione. Su rocky-lab:</p>
+<pre translate="no"><code class="lang-bash">sudo dnf install -y lsof
+rpm -q lsof xfsprogs
+findmnt /srv/dados /srv/arquivo /srv/troca
+sudo mkdir /srv/dados/lab95
+sudo chown "$USER": /srv/dados/lab95</code></pre>
+<p><code translate="no">findmnt</code> deve mostrare i tre mount della lezione 9.4. <code translate="no">chown</code> consegna la cartella al tuo utente, per sentire la riserva del root.</p>
+<p><strong>Passo 1 · Leggere lo spazio.</strong></p>
+<pre translate="no"><code class="lang-bash">df -h
+df -hT /srv/dados /srv/arquivo /srv/troca
+df -i /srv/dados
+sudo du -h -d 1 /srv | sort -h</code></pre>
+<p>Output atteso (valori approssimativi):</p>
+<pre translate="no"><code>Filesystem     Type  Size  Used Avail Use% Mounted on
+/dev/sdb1      ext4  974M   24K  922M   1% /srv/dados
+/dev/sdb2      xfs   960M   39M  922M   4% /srv/arquivo
+/dev/sdb3      vfat  511M  4.0K  511M   1% /srv/troca
+
+Filesystem      Inodes IUsed IFree IUse% Mounted on
+/dev/sdb1        65536    12 65524    1% /srv/dados</code></pre>
+<p><strong>Passo 2 · Riempire davvero.</strong> Controlla il bersaglio e il nome stabile della partizione:</p>
+<pre translate="no"><code class="lang-bash">findmnt -no SOURCE,FSTYPE /srv/dados
+ls -l /dev/disk/by-id/ | grep 'drive-scsi1-part1'
+dd if=/dev/zero of=/srv/dados/lab95/enche1.bin bs=1M status=progress
+df -h /srv/dados</code></pre>
+<p><code translate="no">dd</code> copia byte da <code translate="no">if</code> (input) a <code translate="no">of</code> (output). Senza <code translate="no">count</code>, scrive finché il disco rifiuta. <code translate="no">bs=1M</code> usa blocchi da 1 MiB; <code translate="no">status=progress</code> mostra l'avanzamento. L'errore finale <code translate="no">No space left on device</code> è quello atteso.</p>
+<p><code translate="no">df</code> mostra <code translate="no">Avail 0</code> e <code translate="no">Use% 100%</code>, ma restano circa 51 MiB: sono il 5% riservato, solo del root. Dimostralo:</p>
+<pre translate="no"><code class="lang-bash">sudo tune2fs -l /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_drive-scsi1-part1 | grep -i 'reserved block count'
+sudo dd if=/dev/zero of=/srv/dados/lab95/root.bin bs=1M count=10</code></pre>
+<p><code translate="no">sudo dd</code> scrive, perché il root usa la riserva. Ora libera la riserva per il tuo utente e riempi di nuovo:</p>
+<pre translate="no"><code class="lang-bash">sudo rm /srv/dados/lab95/root.bin
+sudo tune2fs -m 0 /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_drive-scsi1-part1
+df -h /srv/dados
+dd if=/dev/zero of=/srv/dados/lab95/enche2.bin bs=1M status=progress
+du -h -d 1 /srv/dados | sort -h</code></pre>
+<p>Con <code translate="no">-m 0</code>, <code translate="no">Avail</code> sale di circa 51 MiB e il secondo <code translate="no">dd</code> riempie il resto. <code translate="no">tune2fs</code> regola la riserva con il file system montato.</p>
+<p><strong>Passo 3 · Verificare ext4.</strong> Libera spazio, smonta e controlla il dispositivo giusto:</p>
+<pre translate="no"><code class="lang-bash">rm /srv/dados/lab95/enche1.bin /srv/dados/lab95/enche2.bin
+sudo tune2fs -m 5 /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_drive-scsi1-part1
+sudo umount /srv/dados
+lsblk -f /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_drive-scsi1
+sudo e2fsck -f /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_drive-scsi1-part1
+echo $?</code></pre>
+<p><code translate="no">-m 5</code> ripristina la riserva predefinita. <code translate="no">lsblk -f</code> conferma che <code translate="no">DADOS</code> è senza punto di montaggio. L'output di <code translate="no">e2fsck</code>:</p>
+<pre translate="no"><code>e2fsck 1.46.5 (30-Dec-2021)
+Pass 1: Checking inodes, blocks, and sizes
+Pass 2: Checking directory structure
+Pass 3: Checking directory connectivity
+Pass 4: Checking reference counts
+Pass 5: Checking group summary information
+DADOS: 13/65536 files (0.0% non-contiguous), 14123/262144 blocks
+0</code></pre>
+<p>La versione sulla prima riga cambia da una distribuzione all'altra. Il codice di uscita <code translate="no">0</code> significa nessun errore; <code translate="no">1</code>, che c'è stata una correzione. Ora guarda cosa conserva il controllo automatico e torna al valore predefinito:</p>
+<pre translate="no"><code class="lang-bash">sudo tune2fs -l /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_drive-scsi1-part1 | grep -Ei 'mount count|check interval|last checked'
+sudo tune2fs -c 30 -i 1m /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_drive-scsi1-part1
+sudo tune2fs -c 0 -i 0 /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_drive-scsi1-part1
+sudo mount /srv/dados</code></pre>
+<p><code translate="no">-c 30</code> chiede il controllo ogni 30 mount, e <code translate="no">-i 1m</code> ogni mese. <code translate="no">-c 0 -i 0</code> disattiva entrambi. <code translate="no">mount /srv/dados</code> usa l'fstab della lezione 9.4.</p>
+<p><strong>Passo 4 · Verificare XFS.</strong></p>
+<pre translate="no"><code class="lang-bash">sudo umount /srv/arquivo
+sudo xfs_repair -n /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_drive-scsi1-part2
+sudo xfs_repair /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_drive-scsi1-part2
+sudo mount /srv/arquivo</code></pre>
+<p><code translate="no">-n</code> è la modalità di sola osservazione: non modifica nulla. L'output finisce così:</p>
+<pre translate="no"><code>Phase 7 - verify link counts...
+No modify flag set, skipping filesystem flush and exiting.</code></pre>
+<p>La riparazione vera finisce con <code translate="no">done</code>. Se <code translate="no">umount</code> dice <code translate="no">target is busy</code>, guarda il Guasto 3.</p>
+<p><strong>Passo 5 · debian-lab.</strong> Installa <code translate="no">lsof</code> e <code translate="no">xfsprogs</code> (<code translate="no">dpkg -s</code> conferma), e ripeti i passi 1, 2 e 3. Confronta gli output.</p>
+<h3 id="decidi-1">Decidi 1</h3>
+<p>La root <code translate="no">/</code> di rocky-lab (XFS) è al 97%. Primo passo?</p>
+<p>A) <code translate="no">sudo rm -rf /var/log/*</code>. B) <code translate="no">sudo du -xh -d 1 / | sort -h</code>, e scendere nella cartella più grande. C) <code translate="no">tune2fs -m 0</code> sulla root, per guadagnare spazio.</p>
+<p>Scegli un'opzione prima di continuare.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se hai scelto</th><th scope="col">Risultato</th><th scope="col">Perché</th></tr></thead><tbody><tr><td>A</td><td>Pericoloso</td><td>Cancelli senza sapere cosa occupa spazio, e sparisce lo storico</td></tr><tr><td>B</td><td>Giusto</td><td>Misuri con <code translate="no">-x</code> e trovi il bersaglio prima di agire</td></tr><tr><td>C</td><td>Non funziona</td><td><code translate="no">tune2fs</code> è di ext4, e la root di Rocky è XFS</td></tr></tbody></table></div>
+<h3 id="decidi-2">Decidi 2</h3>
+<p>L'ext4 di <code translate="no">/srv/dados</code> è rimasto con errori dopo un'interruzione di corrente. Qual è la sequenza giusta?</p>
+<p>A) <code translate="no">e2fsck -f</code> con il disco montato, per non fermare il servizio. B) Smontare, <code translate="no">e2fsck -f</code> sul dispositivo e rimontare. C) <code translate="no">xfs_repair</code> sul dispositivo.</p>
+<p>Scegli un'opzione prima di continuare.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se hai scelto</th><th scope="col">Risultato</th><th scope="col">Perché</th></tr></thead><tbody><tr><td>A</td><td>Rischio di corruzione</td><td>Il kernel e <code translate="no">e2fsck</code> toccano insieme le stesse strutture</td></tr><tr><td>B</td><td>Giusto</td><td>Con il file system smontato, <code translate="no">e2fsck</code> è l'unico che scrive</td></tr><tr><td>C</td><td>Strumento sbagliato</td><td><code translate="no">xfs_repair</code> non capisce ext4</td></tr></tbody></table></div>
+<h2 id="6-rompi-e-ripara">6 · Rompi e ripara</h2>
+<p>Fallo su rocky-lab, in <code translate="no">/srv/dados</code>.</p>
+<h3 id="guasto-1-senza-spazio-con-spazio">Guasto 1 · Senza spazio, con spazio</h3>
+<pre translate="no"><code class="lang-bash">mkdir /srv/dados/lab95/inodes
+seq 1 70000 | sed 's|^|/srv/dados/lab95/inodes/f|' | xargs touch 2&gt;&amp;1 | tail -n 2
+echo teste &gt; /srv/dados/lab95/novo.txt
+df -h /srv/dados
+df -i /srv/dados</code></pre>
+<p><strong>Sintomo:</strong> <code translate="no">touch: cannot touch ...: No space left on device</code>, e anche <code translate="no">echo</code> fallisce, con quasi 900 MiB liberi in <code translate="no">df -h</code>.</p>
+<p><strong>Indagine:</strong> <code translate="no">df -i</code> mostra <code translate="no">IUse% 100%</code>. <code translate="no">ls /srv/dados/lab95/inodes | wc -l</code> conta circa 65 mila file.</p>
+<p><strong>Causa:</strong> gli inode sono finiti. Il disco ha spazio, ma non ha schede.</p>
+<p><strong>Riparazione:</strong> cancella i file piccoli. Usa <code translate="no">find</code>, con il percorso scritto per intero:</p>
+<pre translate="no"><code class="lang-bash">find /srv/dados/lab95/inodes -type f -delete
+df -i /srv/dados</code></pre>
+<p>Nella vita reale, trova l'applicazione che crea così tanti file (cache, sessioni, code).</p>
+<h3 id="guasto-2-ho-cancellato-e-lo-spazio-non-torna">Guasto 2 · Ho cancellato e lo spazio non torna</h3>
+<pre translate="no"><code class="lang-bash">dd if=/dev/zero of=/srv/dados/lab95/grande.bin bs=1M count=400
+tail -f /srv/dados/lab95/grande.bin &gt; /dev/null &amp;
+rm /srv/dados/lab95/grande.bin
+df -h /srv/dados
+du -sh /srv/dados</code></pre>
+<p><strong>Sintomo:</strong> <code translate="no">df</code> mostra ancora 400 MiB usati, ma <code translate="no">du</code> mostra quasi niente.</p>
+<p><strong>Indagine:</strong> <code translate="no">sudo lsof +L1</code>. L'output è simile a:</p>
+<pre translate="no"><code>COMMAND  PID USER   FD   TYPE DEVICE SIZE/OFF NLINK NODE NAME
+tail    2417 rodrigo 3r  REG  8,17   419430400    0   12 /srv/dados/lab95/grande.bin (deleted)</code></pre>
+<p><strong>Causa:</strong> <code translate="no">tail</code> tiene ancora il file aperto, con <code translate="no">NLINK</code> 0. Il nome è sparito, il dato no.</p>
+<p><strong>Riparazione:</strong> termina il processo, con il PID mostrato da <code translate="no">lsof</code> (oppure <code translate="no">kill %1</code>, nella stessa sessione):</p>
+<pre translate="no"><code class="lang-bash">kill %1
+df -h /srv/dados</code></pre>
+<p>Lo spazio torna subito. Su un servizio, la riparazione è <code translate="no">sudo systemctl restart SERVICO</code>.</p>
+<h3 id="guasto-3-non-riesco-a-smontare">Guasto 3 · Non riesco a smontare</h3>
+<pre translate="no"><code class="lang-bash">cd /srv/arquivo
+sudo umount /srv/arquivo</code></pre>
+<p><strong>Sintomo:</strong> <code translate="no">umount: /srv/arquivo: target is busy.</code></p>
+<p><strong>Indagine:</strong> <code translate="no">sudo lsof +f -- /srv/arquivo</code> elenca <code translate="no">bash</code> con <code translate="no">cwd</code> in <code translate="no">/srv/arquivo</code>. <code translate="no">findmnt /srv/arquivo</code> conferma che è ancora montato.</p>
+<p><strong>Causa:</strong> la tua stessa shell è dentro la cartella. Un punto di montaggio si smonta solo quando non è in uso.</p>
+<p><strong>Riparazione:</strong> esci dalla cartella e riprova.</p>
+<pre translate="no"><code class="lang-bash">cd ~
+sudo umount /srv/arquivo
+sudo mount /srv/arquivo</code></pre>
+<p>Evita <code translate="no">umount -l</code> e <code translate="no">-f</code>: nascondono l'uso, non lo risolvono.</p>
+<h3 id="pulizia">Pulizia</h3>
+<pre translate="no"><code class="lang-bash">rm -f /srv/dados/lab95/novo.txt
+rmdir /srv/dados/lab95/inodes /srv/dados/lab95
+sudo tune2fs -m 5 /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_drive-scsi1-part1
+ls -la /srv/dados
+findmnt /srv/dados /srv/arquivo /srv/troca</code></pre>
+<p><code translate="no">rm -f</code> non si lamenta se <code translate="no">novo.txt</code> non è nemmeno esistito (l'<code translate="no">echo</code> del Guasto 1 è fallito). <code translate="no">/srv/dados</code> deve mostrare solo <code translate="no">lost+found</code>, e i tre mount tornano attivi. Su debian-lab, fai lo stesso.</p>
+<h2 id="7-trappole">7 · Trappole</h2>
+<div class="tabela"><table><thead><tr><th scope="col">Trappola</th><th scope="col">Cosa succede</th><th scope="col">Come evitarla</th></tr></thead><tbody><tr><td><code translate="no">fsck</code> su file system montato</td><td>Corrompe</td><td><code translate="no">umount</code> prima, sempre</td></tr><tr><td>Cancellare un log aperto</td><td>Lo spazio non torna</td><td><code translate="no">lsof +L1</code> e riavviare il servizio</td></tr><tr><td>Guardare solo <code translate="no">df -h</code></td><td>Perdi il problema degli inode</td><td><code translate="no">df -i</code> insieme</td></tr><tr><td><code translate="no">du</code> senza <code translate="no">-x</code> sulla root</td><td>Somma altri dischi e <code translate="no">/proc</code></td><td><code translate="no">du -xh -d 1 /</code></td></tr><tr><td><code translate="no">tune2fs -m 0</code> sulla root</td><td>Toglie il margine al root</td><td>Solo su dischi dati</td></tr></tbody></table></div>
+<h2 id="8-quiz">8 · Quiz</h2>
+<p>Rispondi senza guardare. Le soluzioni sono alla fine della lezione.</p>
+<ol><li>Qual è la differenza tra ciò che misurano <code translate="no">df</code> e <code translate="no">du</code>?</li>
+<li>Quali due comandi mostrano "c'è spazio" e "gli inode sono finiti", rispettivamente?</li>
+<li>Cosa sono i blocchi riservati e chi può usarli?</li>
+<li>Quale comando elenca i file cancellati ancora aperti?</li>
+<li>Perché <code translate="no">fsck</code> richiede il file system smontato?</li></ol>
+<h2 id="9-promemoria">9 · Promemoria</h2>
+<p><strong>Da sapere a memoria:</strong></p>
+<div class="tabela"><table><thead><tr><th scope="col">Voglio...</th><th scope="col">Comando</th></tr></thead><tbody><tr><td>Spazio</td><td><code translate="no">df -h</code></td></tr><tr><td>Inode</td><td><code translate="no">df -i</code></td></tr><tr><td>Chi occupa</td><td><code translate="no">du -h -d 1 PASTA | sort -h</code></td></tr><tr><td>Cancellato e aperto</td><td><code translate="no">sudo lsof +L1</code></td></tr><tr><td>Riparare ext4</td><td><code translate="no">umount</code>, poi <code translate="no">e2fsck -f DISP</code></td></tr><tr><td>Riparare XFS</td><td><code translate="no">umount</code>, poi <code translate="no">xfs_repair -n DISP</code>, poi <code translate="no">xfs_repair DISP</code></td></tr></tbody></table></div>
+<p><strong>Da consultare:</strong></p>
+<div class="tabela"><table><thead><tr><th scope="col">Voglio...</th><th scope="col">Comando</th></tr></thead><tbody><tr><td>Tipo del file system</td><td><code translate="no">df -hT</code></td></tr><tr><td>Riserva di ext4</td><td><code translate="no">sudo tune2fs -l DISP | grep -i reserved</code></td></tr><tr><td>Cambiare la riserva</td><td><code translate="no">sudo tune2fs -m N DISP</code></td></tr><tr><td>Chi usa il punto</td><td><code translate="no">sudo lsof +f -- PONTO</code></td></tr></tbody></table></div>
+<p><strong>Flashcard:</strong></p>
+<ul><li><code translate="no">df</code> e <code translate="no">du</code> discordano → <em>file cancellato e aperto.</em></li>
+<li>Spazio libero ed errore di scrittura → <em>inode (<code translate="no">df -i</code>).</em></li>
+<li>Riserva di ext4 → <em>5%, solo del root.</em></li>
+<li><code translate="no">fsck</code> → <em>solo smontato.</em></li></ul>
+<h2 id="10-checklist-e-chiusura">10 · Checklist e chiusura</h2>
+<ul><li>[ ] Leggo <code translate="no">df -h</code>, <code translate="no">df -i</code> e <code translate="no">df -hT</code></li>
+<li>[ ] Trovo cosa occupa spazio con <code translate="no">du -h -d 1 | sort -h</code></li>
+<li>[ ] Spiego la riserva del 5% di ext4</li>
+<li>[ ] Lancio <code translate="no">e2fsck -f</code> e <code translate="no">xfs_repair</code> solo con il file system smontato</li>
+<li>[ ] <code translate="no">/srv/dados</code> è tornato vuoto e i tre mount sono attivi</li></ul>
+<p><strong>Ultimo esercizio, senza guardare la lezione:</strong> su debian-lab, riempi <code translate="no">/srv/dados</code> con un file, cancella il file con un processo che lo sta ancora leggendo, mostra la differenza tra <code translate="no">df</code> e <code translate="no">du</code>, trova il processo con <code translate="no">lsof +L1</code>, libera lo spazio, smonta e lancia <code translate="no">e2fsck -f</code> sul dispositivo tramite by-id. Poi pulisci.</p>
+<p><strong>Snapshot di fine</strong> (in Proxmox):</p>
+<pre translate="no"><code class="lang-bash">qm snapshot 201 m9a5-fim
+qm snapshot 202 m9a5-fim</code></pre>
+<h2 id="11-nella-vita-reale">11 · Nella vita reale</h2>
+<p><strong>Missione, sola lettura.</strong> Su un server Linux che amministri (o con autorizzazione), lancia <strong>solo</strong>:</p>
+<pre translate="no"><code class="lang-bash">df -hT -x tmpfs -x devtmpfs
+df -i -x tmpfs -x devtmpfs
+sudo du -xh -d 1 / 2&gt;/dev/null | sort -h | tail -n 8
+sudo lsof +L1 2&gt;/dev/null | head -n 20
+sudo tune2fs -l /dev/DISPOSITIVO | grep -Ei 'reserved block count|mount count|check interval'</code></pre>
+<p>Sostituisci <code translate="no">DISPOSITIVO</code> con un ext4 di <code translate="no">df -hT</code> (senza ext4, salta la riga).</p>
+<p>Domande a cui rispondere:</p>
+<ol><li>Qualche file system sopra l'80% di blocchi o di inode?</li>
+<li>Qual è la cartella più grande sulla root?</li>
+<li>Ci sono file cancellati ancora aperti? Di quale processo?</li></ol>
+<p><strong>Diario:</strong> annota ciò che merita attenzione. Non modificare nulla, non lanciare <code translate="no">fsck</code> e non cancellare file.</p>
+<p><strong>Domani, senza guardare:</strong> scrivi i cinque passi di misura di un disco pieno.</p>
+<h2 id="12-approfondire-quando-vuoi">12 · Approfondire quando vuoi</h2>
+<ul><li><strong><code translate="no">man df</code>, <code translate="no">man du</code>, <code translate="no">man lsof</code>.</strong></li>
+<li><strong><code translate="no">man e2fsck</code>, <code translate="no">man tune2fs</code>, <code translate="no">man xfs_repair</code>:</strong> codici di uscita, opzioni di riserva e fasi della riparazione.</li>
+<li><strong>Red Hat Enterprise Linux, documentazione "Managing file systems":</strong> verificare e riparare XFS ed ext4.</li>
+<li><strong>Wiki di Debian e util-linux:</strong> ext4, <code translate="no">findmnt</code>, <code translate="no">lsblk</code>.</li>
+<li><strong>kernel.org, documentazione di ext4 e XFS:</strong> formato del superblocco, journal e inode.</li></ul>
+<p><strong>DeepTutor</strong> (http://10.1.0.149:3782, KB "Curso Linux Sysadmin"):</p>
+<ul><li><code translate="no">!feynman por que um arquivo apagado continua ocupando espaço</code></li>
+<li><code translate="no">!quiz Aula 9.5, 5 perguntas sobre df, du e fsck</code></li></ul>
+<h2 id="soluzioni-commentate">Soluzioni commentate</h2>
+<h3 id="riscaldamento">Riscaldamento</h3>
+<ol><li>File cancellato e ancora aperto da un processo, oppure spazio fuori dalla portata di <code translate="no">du</code> (un altro punto di montaggio sopra la cartella).</li>
+<li>Gli inode sono finiti. <code translate="no">df -i</code> lo mostra.</li>
+<li>Perché il kernel modifica le strutture in memoria mentre <code translate="no">fsck</code> le legge sul disco; la riparazione può corrompere un volume integro.</li></ol>
+<h3 id="quiz">Quiz</h3>
+<ol><li><code translate="no">df</code> legge i contatori del file system (blocchi usati e liberi). <code translate="no">du</code> percorre i file visibili e somma quanto occupano.</li>
+<li><code translate="no">df -h</code> per i blocchi, e <code translate="no">df -i</code> per gli inode.</li>
+<li>Circa il 5% dei blocchi di ext4, che solo il root può usare. Evita che gli utenti normali blocchino il sistema.</li>
+<li><code translate="no">sudo lsof +L1</code>.</li>
+<li>Perché una sola parte scriva nelle strutture. Se è montato, il kernel e <code translate="no">fsck</code> si contenderebbero gli stessi dati.</li></ol>
+</article><nav class="paginas" aria-label="Lezioni"><a class="ant" href="9.4-montar-e-persistir.it.html"><small>← Precedente</small>9.4 · Montare e rendere persistente</a><a class="prox" href="9.6-lvm.it.html"><small>Successiva →</small>9.6 · LVM</a></nav></main></div>
+<footer><div class="wrap">Generato dal Markdown del corso · Immagini in <code translate="no">img/</code></div></footer>
+</body>
+</html>

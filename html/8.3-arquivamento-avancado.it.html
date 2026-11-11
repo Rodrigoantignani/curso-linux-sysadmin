@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light dark">
+<title>8.3 · Archiviazione avanzata · Corso Linux Sysadmin</title>
+<link rel="alternate" hreflang="pt-BR" href="8.3-arquivamento-avancado.html"><link rel="alternate" hreflang="it" href="8.3-arquivamento-avancado.it.html">
+<style>
+:root{color-scheme:light dark;--bg:#f6f1e7;--card:#fffdf8;--ink:#201c16;--muted:#5e564a;--accent:#9a3412;--accent-2:#1f5f4a;--tint:#efe6d4;--line:#ddd2bc;--code:#f1eadb;--shadow:0 1px 2px rgba(60,40,10,.08);--serif:Georgia,"Iowan Old Style","Palatino Linotype",Palatino,serif;--sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--mono:"Cascadia Code",Consolas,"DejaVu Sans Mono",monospace}
+@media (prefers-color-scheme:dark){:root{--bg:#16130f;--card:#201b15;--ink:#f1eadb;--muted:#b9ad98;--accent:#f0a070;--accent-2:#7fd0b0;--tint:#2a231a;--line:#3d3427;--code:#191510;--shadow:none}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:5.5rem}
+body{margin:0;background:var(--bg);color:var(--ink);font:1rem/1.6 var(--sans)}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--accent-2);outline-offset:2px;border-radius:4px}
+.pular{position:absolute;left:-999px;top:0;background:var(--card);padding:.5rem 1rem;z-index:20}
+.pular:focus{left:.5rem;top:.5rem}
+.wrap{width:100%;max-width:84rem;margin:0 auto;padding-inline:max(1rem,env(safe-area-inset-left))}
+.top{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10;border-top:6px solid var(--accent)}
+.top-in{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding-block:.6rem}
+.titles{min-width:0}
+.marca{margin:0;font:700 clamp(1.15rem,1rem + 1vw,1.6rem)/1.15 var(--serif);letter-spacing:-.01em}
+.marca a{text-decoration:none}
+.marca a:hover{color:var(--accent)}
+.meta{margin:.1rem 0 0;color:var(--muted);font-size:.85rem}
+.acoes{display:flex;align-items:center;gap:.9rem;flex:none}
+.acoes>a{font-size:.9rem;font-weight:600;color:var(--muted);text-decoration:none}
+.acoes>a:hover{color:var(--accent);text-decoration:underline}
+.idioma{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--tint)}
+.idioma>*{padding:.35rem .9rem;font-size:.8rem;font-weight:700;letter-spacing:.06em;text-decoration:none;color:var(--muted);min-width:2.75rem;text-align:center}
+.idioma a:hover{color:var(--accent);text-decoration:underline}
+.idioma span{background:var(--accent);color:#fff}
+@media (prefers-color-scheme:dark){.idioma span{color:#16130f}}
+code{font-family:var(--mono);font-size:.9em;background:var(--tint);padding:.1rem .35rem;border-radius:4px;overflow-wrap:anywhere}
+/* índice */
+.capa{max-width:70rem;padding-block:2rem 3rem}
+.stats{border-left:4px solid var(--accent-2);background:var(--card);border-radius:0 10px 10px 0;padding:1rem 1.25rem;margin:0 0 2.5rem;box-shadow:var(--shadow);color:var(--muted)}
+.stats strong{color:var(--ink)}
+.modulo{display:grid;grid-template-columns:15rem minmax(0,1fr);gap:1rem 2rem;padding:1.75rem 0;border-top:1px solid var(--line)}
+.modulo h2{margin:0;font:700 1.25rem/1.25 var(--serif);align-self:start;position:sticky;top:6rem}
+.mn{display:block;font:700 .8rem var(--mono);letter-spacing:.12em;color:var(--accent);margin-bottom:.25rem}
+.sep{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.modulo ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,17rem),1fr));gap:.75rem}
+.modulo li{margin:0}
+.modulo a{display:flex;gap:.45rem;align-items:baseline;height:100%;padding:.85rem 1rem;background:var(--card);border:1px solid var(--line);border-radius:10px;text-decoration:none;font-weight:600;line-height:1.35;box-shadow:var(--shadow);transition:border-color .15s,transform .15s}
+.modulo a:hover{border-color:var(--accent);color:var(--accent)}
+.num{font:700 .85rem var(--mono);color:var(--accent);white-space:nowrap}
+/* aula */
+.doc{display:grid;grid-template-columns:17rem minmax(0,1fr);gap:2.5rem;align-items:start;padding-block:2rem 3rem}
+.lateral{position:sticky;top:5.5rem;max-height:calc(100vh - 6.5rem);overflow:auto;font-size:.875rem;padding-right:.5rem}
+.lateral h2{margin:0 0 .25rem;font:700 .95rem var(--serif);color:var(--muted)}
+.lateral h3{margin:1rem 0 .25rem;font:700 .75rem var(--mono);letter-spacing:.06em;color:var(--accent)}
+.lateral ul{list-style:none;margin:0;padding:0}
+.lateral a{display:flex;gap:.45rem;padding:.25rem .5rem;border-radius:6px;text-decoration:none;color:var(--muted);line-height:1.3}
+.lateral a:hover{background:var(--tint);color:var(--ink)}
+.lateral a[aria-current]{background:var(--tint);color:var(--ink);font-weight:700;box-shadow:inset 3px 0 0 var(--accent)}
+.lateral .num{font-size:.75rem}
+.aula{min-width:0;max-width:56rem;overflow-wrap:break-word;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:clamp(1.25rem,1rem + 2vw,2.75rem);box-shadow:var(--shadow)}
+.aula h1{margin:0 0 1.5rem;font:700 clamp(1.75rem,1.4rem + 1.6vw,2.5rem)/1.15 var(--serif);letter-spacing:-.015em;color:var(--ink)}
+.aula h2{margin:2.5rem 0 .75rem;padding-top:1.25rem;border-top:1px solid var(--line);font:700 1.5rem/1.25 var(--serif)}
+.aula h3{margin:2rem 0 .5rem;font:700 1.15rem/1.3 var(--serif);color:var(--accent)}
+.aula h4,.aula h5,.aula h6{margin:1.5rem 0 .5rem;font-size:1rem}
+.aula p,.aula ul,.aula ol{margin:1rem 0}
+.aula ul,.aula ol{padding-left:1.5rem}
+.aula li{margin:.35rem 0}
+.aula li>ul,.aula li>ol{margin:.35rem 0}
+.aula a{color:var(--accent);text-underline-offset:2px}
+.aula hr{border:0;border-top:1px solid var(--line);margin:2rem 0}
+.tabela{overflow-x:auto;margin:1.25rem 0;border:1px solid var(--line);border-radius:10px}
+.aula table{width:100%;border-collapse:collapse;font-size:.9rem}
+.aula th,.aula td{padding:.55rem .75rem;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+.aula tr:last-child td{border-bottom:0}
+.aula th{background:var(--tint);font-weight:700}
+.aula pre{background:var(--code);border:1px solid var(--line);border-radius:10px;padding:.9rem 1rem;overflow-x:auto;font:.85rem/1.5 var(--mono);margin:1rem 0;tab-size:4}
+.aula pre code{background:none;padding:0;font-size:inherit;overflow-wrap:normal}
+.aula blockquote{margin:1.25rem 0;padding:.75rem 1.25rem;border-left:4px solid var(--accent-2);background:var(--tint);border-radius:0 10px 10px 0}
+.aula blockquote>:first-child{margin-top:0}
+.aula blockquote>:last-child{margin-bottom:0}
+.aula figure{margin:1.75rem 0;text-align:center}
+.aula figure img{display:block;margin:0 auto;max-width:100%;height:auto;border:1px solid var(--line);border-radius:10px;background:#fff}
+.aula figcaption{margin-top:.5rem;color:var(--muted);font-size:.9rem;font-style:italic}
+.paginas{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:2.5rem;padding-top:1.5rem;border-top:1px solid var(--line)}
+.paginas a{display:block;padding:.75rem 1rem;border:1px solid var(--line);border-radius:10px;text-decoration:none;color:var(--ink);font-weight:600;line-height:1.3}
+.paginas a:hover{border-color:var(--accent);color:var(--accent)}
+.paginas small{display:block;color:var(--muted);font-weight:400}
+.paginas .prox{grid-column:2;text-align:right}
+footer{border-top:1px solid var(--line);padding-block:1.5rem;color:var(--muted);font-size:.85rem;text-align:center}
+@media (hover:hover) and (prefers-reduced-motion:no-preference){.modulo a:hover{transform:translateY(-2px)}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+@media (max-width:980px){.doc{grid-template-columns:minmax(0,1fr);padding-top:1rem}.lateral{position:static;max-height:none;order:2}.aula{max-width:none}}
+@media (max-width:860px){.modulo{grid-template-columns:minmax(0,1fr)}.modulo h2{position:static}.mn{display:inline;margin-right:.5rem}}
+@media (max-width:420px){.meta{display:none}.top-in{gap:.5rem}.acoes{gap:.6rem}.capa{padding-top:1.25rem}.paginas{grid-template-columns:minmax(0,1fr)}.paginas .prox{grid-column:1}}
+@media print{.top,.lateral,.paginas{display:none}.aula{border:0;box-shadow:none;padding:0;max-width:none}.doc{display:block}}
+</style>
+</head>
+<body>
+<a class="pular" href="#conteudo">Vai al contenuto</a>
+<header class="top"><div class="wrap top-in"><div class="titles"><p class="marca"><a href="index.it.html">Corso Linux Sysadmin</a></p><p class="meta">Rodrigo Antignani · Lezione 8.3</p></div><div class="acoes"><a href="index.it.html">Indice</a><div class="idioma" role="group" aria-label="Lingua"><a href="8.3-arquivamento-avancado.html" hreflang="pt-BR" lang="pt-BR">PT</a><span aria-current="true">IT</span></div></div></div></header>
+<div class="wrap doc"><aside class="lateral" aria-label="Lezioni"><h2>Lezioni</h2><h3>M0 · Laboratorio</h3><ul><li><a href="0.1-montar-o-laboratorio.it.html"><span class="num">0.1</span><span>Allestire il laboratorio</span></a></li><li><a href="0.2-acesso-e-protecao.it.html"><span class="num">0.2</span><span>Accesso e protezione</span></a></li></ul><h3>M1 · Riga di comando</h3><ul><li><a href="1.1-o-que-e-linux.it.html"><span class="num">1.1</span><span>Che cos'è Linux</span></a></li><li><a href="1.2-o-shell-e-a-ajuda.it.html"><span class="num">1.2</span><span>La shell e la guida</span></a></li><li><a href="1.3-caminhos-e-navegacao.it.html"><span class="num">1.3</span><span>Percorsi e navigazione</span></a></li><li><a href="1.4-criar-copiar-mover-e-apagar.it.html"><span class="num">1.4</span><span>Creare, copiare, spostare ed eliminare</span></a></li><li><a href="1.5-ler-e-procurar-texto.it.html"><span class="num">1.5</span><span>Leggere e cercare testo</span></a></li><li><a href="1.6-redirecionamentos-e-pipes.it.html"><span class="num">1.6</span><span>Reindirizzamenti e pipe</span></a></li><li><a href="1.7-arquivar-e-compactar.it.html"><span class="num">1.7</span><span>Archiviare e comprimere</span></a></li><li><a href="1.8-primeiro-script.it.html"><span class="num">1.8</span><span>Primo script</span></a></li><li><a href="1.9-decidir-e-repetir.it.html"><span class="num">1.9</span><span>Decidere e ripetere</span></a></li><li><a href="1.10-software-livre-na-pratica.it.html"><span class="num">1.10</span><span>Il software libero in pratica</span></a></li></ul><h3>M2 · Sistema, utenti e permessi</h3><ul><li><a href="2.1-instalacao-e-provisionamento.it.html"><span class="num">2.1</span><span>Installazione e provisioning</span></a></li><li><a href="2.2-hardware-e-dispositivos.it.html"><span class="num">2.2</span><span>Hardware e dispositivi</span></a></li><li><a href="2.3-processos-e-logs.it.html"><span class="num">2.3</span><span>Processi e log</span></a></li><li><a href="2.4-rede-no-dia-a-dia.it.html"><span class="num">2.4</span><span>La rete di tutti i giorni</span></a></li><li><a href="2.5-acesso-remoto-e-privilegios.it.html"><span class="num">2.5</span><span>Accesso remoto e privilegi</span></a></li><li><a href="2.6-usuarios-e-grupos.it.html"><span class="num">2.6</span><span>Utenti e gruppi</span></a></li><li><a href="2.7-permissoes-e-dono.it.html"><span class="num">2.7</span><span>Permessi e proprietario</span></a></li><li><a href="2.8-diretorios-e-arquivos-especiais.it.html"><span class="num">2.8</span><span>Directory e file speciali</span></a></li></ul><h3>M3 · Testo ed editor</h3><ul><li><a href="3.1-fluxos-a-fundo.it.html"><span class="num">3.1</span><span>I flussi in profondità</span></a></li><li><a href="3.2-filtros-de-texto.it.html"><span class="num">3.2</span><span>Filtri di testo</span></a></li><li><a href="3.3-regex-e-grep.it.html"><span class="num">3.3</span><span>Regex e grep</span></a></li><li><a href="3.4-sed-e-awk.it.html"><span class="num">3.4</span><span>sed e awk</span></a></li><li><a href="3.5-vi-e-vim-de-verdade.it.html"><span class="num">3.5</span><span>vi e vim sul serio</span></a></li></ul><h3>M4 · systemd e boot</h3><ul><li><a href="4.1-como-o-linux-liga.it.html"><span class="num">4.1</span><span>Come si avvia Linux</span></a></li><li><a href="4.2-systemd-servicos-e-units.it.html"><span class="num">4.2</span><span>systemd: servizi e unit</span></a></li><li><a href="4.3-targets-desligar-e-reiniciar.it.html"><span class="num">4.3</span><span>Target: spegnere e riavviare</span></a></li><li><a href="4.4-grub-e-acesso-de-emergencia.it.html"><span class="num">4.4</span><span>GRUB e accesso di emergenza</span></a></li></ul><h3>M5 · Kernel, moduli e VM</h3><ul><li><a href="5.1-hardware-pelo-kernel.it.html"><span class="num">5.1</span><span>L'hardware visto dal kernel</span></a></li><li><a href="5.2-modulos-e-parametros.it.html"><span class="num">5.2</span><span>Moduli e parametri</span></a></li><li><a href="5.3-linux-como-convidado.it.html"><span class="num">5.3</span><span>Linux come guest</span></a></li></ul><h3>M6 · Pacchetti e repository</h3><ul><li><a href="6.1-pacotes-no-debian.it.html"><span class="num">6.1</span><span>Pacchetti su Debian</span></a></li><li><a href="6.2-pacotes-na-rocky.it.html"><span class="num">6.2</span><span>Pacchetti su Rocky</span></a></li><li><a href="6.3-repositorios.it.html"><span class="num">6.3</span><span>Repository</span></a></li><li><a href="6.4-flatpak.it.html"><span class="num">6.4</span><span>Flatpak</span></a></li><li><a href="6.5-bibliotecas-compartilhadas.it.html"><span class="num">6.5</span><span>Librerie condivise</span></a></li></ul><h3>M7 · Processi e prestazioni</h3><ul><li><a href="7.1-processos-e-sinais.it.html"><span class="num">7.1</span><span>Processi e segnali</span></a></li><li><a href="7.2-jobs-e-sessoes.it.html"><span class="num">7.2</span><span>Job e sessioni</span></a></li><li><a href="7.3-prioridade-e-perfis.it.html"><span class="num">7.3</span><span>Priorità e profili</span></a></li></ul><h3>M8 · File a fondo</h3><ul><li><a href="8.1-fhs-e-onde-cada-coisa-mora.it.html"><span class="num">8.1</span><span>FHS e dove sta ogni cosa</span></a></li><li><a href="8.2-find-a-fundo.it.html"><span class="num">8.2</span><span>find a fondo</span></a></li><li><a href="8.3-arquivamento-avancado.it.html" aria-current="page"><span class="num">8.3</span><span>Archiviazione avanzata</span></a></li><li><a href="8.4-links.it.html"><span class="num">8.4</span><span>Link</span></a></li><li><a href="8.5-permissoes-avancadas.it.html"><span class="num">8.5</span><span>Permessi avanzati</span></a></li></ul><h3>M9 · Storage</h3><ul><li><a href="9.1-discos-e-layout.it.html"><span class="num">9.1</span><span>Dischi e layout</span></a></li><li><a href="9.2-particionar.it.html"><span class="num">9.2</span><span>Partizionare</span></a></li><li><a href="9.3-sistemas-de-arquivos.it.html"><span class="num">9.3</span><span>File system</span></a></li><li><a href="9.4-montar-e-persistir.it.html"><span class="num">9.4</span><span>Montare e rendere persistente</span></a></li><li><a href="9.5-integridade-e-espaco.it.html"><span class="num">9.5</span><span>Integrità e spazio</span></a></li><li><a href="9.6-lvm.it.html"><span class="num">9.6</span><span>LVM</span></a></li><li><a href="9.7-crescer-sem-destruir.it.html"><span class="num">9.7</span><span>Crescere senza distruggere</span></a></li></ul></aside><main id="conteudo" class="aula"><article><h1>Lezione 8.3 · Archiviazione avanzata</h1>
+<p>Nella lezione 1.7 hai imparato a creare un <code translate="no">tar</code> e a estrarlo. Ora la domanda cambia: cosa entra, cosa resta fuori, cosa preserva i permessi e come dimostrare che la copia è integra. In questa lezione usi anche <code translate="no">dd</code>, che copia un intero disco e che, con una lettera sbagliata, cancella un intero disco.</p>
+<blockquote><p><strong>Il cuore di questa lezione:</strong> selezionare con <code translate="no">--exclude</code> e <code translate="no">-T</code>; estrarre dove vuoi con <code translate="no">-C</code> e <code translate="no">--strip-components</code>; confrontare con <code translate="no">tar -d</code>; riconoscere <code translate="no">cpio</code>; creare un'immagine di disco con <code translate="no">dd</code>; dimostrare l'integrità con <code translate="no">sha256sum</code>. Il resto è approfondimento.</p></blockquote>
+<div class="tabela"><table><thead><tr><th scope="col">Scheda</th><th scope="col"></th></tr></thead><tbody><tr><td><strong>Modulo</strong></td><td>M8 · File a fondo, lezione 3 di 5</td></tr><tr><td><strong>Quando</strong></td><td>Settimana 12</td></tr><tr><td><strong>Alla fine</strong></td><td>Scegli cosa copiare, preservi ciò che conta e dimostri che la copia è integra</td></tr><tr><td><strong>Prerequisiti</strong></td><td>Lezioni 1.7 e 8.2</td></tr><tr><td><strong>Durata</strong></td><td>circa 2h</td></tr><tr><td><strong>Snapshot</strong></td><td><code translate="no">m8a3-inicio</code> e <code translate="no">m8a3-fim</code> su rocky-lab e debian-lab</td></tr></tbody></table></div>
+<h2 id="1-riscaldamento">1 · Riscaldamento</h2>
+<p>Rispondi prima di leggere.</p>
+<ol><li>Cosa significano <code translate="no">if</code> e <code translate="no">of</code> in <code translate="no">dd</code>? Cosa succede se li scambi?</li>
+<li>Un <code translate="no">tar.gz</code> è stato estratto senza errori. Questo garantisce che sia uguale all'originale?</li>
+<li><code translate="no">tar</code>, per impostazione predefinita, registra ACL e contesto SELinux?</li></ol>
+<h2 id="2-perche-conta">2 · Perché conta</h2>
+<div class="tabela"><table><thead><tr><th scope="col">La richiesta</th><th scope="col">La risposta sbagliata</th><th scope="col">Cosa provoca</th></tr></thead><tbody><tr><td>"Il backup del sito ha 40 GB di cache"</td><td>Comprare più disco</td><td>Bastava escludere <code translate="no">cache/</code></td></tr><tr><td>"Ho ripristinato e il servizio non parte"</td><td>Reinstallare</td><td>Mancavano ACL e contesti: il <code translate="no">tar</code> predefinito non li registra</td></tr><tr><td>"Ho clonato il disco con la VM accesa e non fa il boot"</td><td>Clonare di nuovo</td><td>L'immagine di un disco montato esce inconsistente</td></tr><tr><td>"Ho lanciato <code translate="no">dd</code> e il disco è sparito"</td><td>Riprovare</td><td><code translate="no">if</code> e <code translate="no">of</code> invertiti. Solo il backup risolve</td></tr><tr><td>"La copia è arrivata, ma è strana"</td><td>Fidarsi della dimensione</td><td>Solo il checksum dimostra l'uguaglianza</td></tr></tbody></table></div>
+<h2 id="3-modello-mentale">3 · Modello mentale</h2>
+<blockquote><p><code translate="no">tar</code> è uno <strong>scatolone da trasloco</strong>: scegli cosa entra ed etichetti ogni oggetto con proprietario e permessi. <code translate="no">cpio</code> è lo <strong>stesso scatolone, in cui la lista te la consegna un'altra persona</strong>: legge i nomi dallo standard input. <code translate="no">dd</code> è una <strong>fotocopiatrice di fogli</strong>: non sa cosa sia un file, copia blocco per blocco, da un'origine a una destinazione. <code translate="no">sha256sum</code> è il <strong>sigillo</strong>: se cambia un solo bit, il sigillo non corrisponde.</p></blockquote>
+<pre translate="no"><code>tar   nível de arquivo   entende nomes, donos, datas     escolhe o que entra
+cpio  nível de arquivo   recebe a lista pela entrada     find | cpio -o
+dd    nível de bloco     não entende nada, copia tudo    disco inteiro
+
+                     dd if=ORIGEM of=DESTINO bs=4M
+                         in file  out file
+                         ↑        ↑
+                  só leitura   será SOBRESCRITO</code></pre>
+<figure><a href="../img/8.3-tar-cpio-dd.it.jpg"><img src="../img/8.3-tar-cpio-dd.it.jpg" alt="tar, cpio e dd" loading="lazy" decoding="async"></a><figcaption>Prima di premere Invio su un <code translate="no">dd</code>, leggi <code translate="no">of=</code> ad alta voce.</figcaption></figure>
+<h3 id="ponte-windows">Ponte Windows</h3>
+<div class="tabela"><table><thead><tr><th scope="col">In Windows</th><th scope="col">In Linux</th><th scope="col">Dove il paragone inganna</th></tr></thead><tbody><tr><td>7-Zip, <code translate="no">Compress-Archive</code></td><td><code translate="no">tar</code> con compressione</td><td><code translate="no">tar</code> conserva proprietario, permessi e link</td></tr><tr><td><code translate="no">robocopy /XD /XF</code></td><td><code translate="no">tar --exclude</code></td><td>In <code translate="no">tar</code>, la posizione dell'opzione conta</td></tr><tr><td><code translate="no">robocopy /COPYALL</code></td><td><code translate="no">tar --acls --xattrs --selinux</code></td><td>Senza le opzioni, i permessi estesi si perdono</td></tr><tr><td>Backup di immagine, Clonezilla</td><td><code translate="no">dd</code></td><td><code translate="no">dd</code> non sa cosa sia lo spazio libero: copia tutto</td></tr><tr><td><code translate="no">Get-FileHash</code>, <code translate="no">certutil -hashfile</code></td><td><code translate="no">sha256sum</code></td><td>Uguale, ma con <code translate="no">-c</code> verifica una lista</td></tr></tbody></table></div>
+<h2 id="4-l-essenziale">4 · L'essenziale</h2>
+<h3 id="tar-selezione-e-destinazione">tar: selezione e destinazione</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Voglio...</th><th scope="col">Forma</th></tr></thead><tbody><tr><td>Escludere</td><td><code translate="no">tar -czf x.tar.gz --exclude='cache' --exclude='*.log' pasta</code></td></tr><tr><td>Lista di file</td><td><code translate="no">tar -czf x.tar.gz -T lista.txt</code></td></tr><tr><td>Lista con nomi sicuri</td><td><code translate="no">find ... -print0 | tar -czf x.tar.gz --null -T -</code></td></tr><tr><td>Entrare in una cartella prima</td><td><code translate="no">tar -czf x.tar.gz -C /etc ssh</code></td></tr><tr><td>Estrarre altrove</td><td><code translate="no">tar -xzf x.tar.gz -C destino</code></td></tr><tr><td>Togliere il primo livello</td><td><code translate="no">tar -xzf x.tar.gz --strip-components=1</code></td></tr><tr><td>Estrarre solo un elemento</td><td><code translate="no">tar -xzf x.tar.gz caminho/arquivo</code></td></tr><tr><td>Confrontare con il disco</td><td><code translate="no">tar -dzf x.tar.gz</code></td></tr><tr><td>Incrementale</td><td><code translate="no">tar -czf inc.tar.gz -g estado.snar pasta</code></td></tr></tbody></table></div>
+<h3 id="cosa-preservare">Cosa preservare</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Voglio...</th><th scope="col">Opzione</th></tr></thead><tbody><tr><td>Permessi in estrazione</td><td><code translate="no">-p</code> (predefinito per root)</td></tr><tr><td>ACL</td><td><code translate="no">--acls</code></td></tr><tr><td>Attributi estesi</td><td><code translate="no">--xattrs</code></td></tr><tr><td>Contesto SELinux</td><td><code translate="no">--selinux</code></td></tr><tr><td>Proprietario numerico</td><td><code translate="no">--numeric-owner</code></td></tr></tbody></table></div>
+<p>Su Rocky, dopo aver ripristinato in <code translate="no">/etc</code>, lancia <code translate="no">sudo restorecon -Rv /etc/CAMINHO</code>.</p>
+<h3 id="cpio">cpio</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Voglio...</th><th scope="col">Comando</th></tr></thead><tbody><tr><td>Creare</td><td><code translate="no">find pasta -print0 | cpio -o0 -H newc &gt; x.cpio</code></td></tr><tr><td>Elencare</td><td><code translate="no">cpio -tv &lt; x.cpio</code></td></tr><tr><td>Estrarre</td><td><code translate="no">cpio -idmv &lt; x.cpio</code></td></tr></tbody></table></div>
+<p>Lo trovi in due posti: nell'initramfs e dentro i pacchetti RPM.</p>
+<h3 id="dd">dd</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Voglio...</th><th scope="col">Comando</th></tr></thead><tbody><tr><td>Immagine</td><td><code translate="no">sudo dd if=DISCO of=imagem.img bs=4M status=progress conv=fsync</code></td></tr><tr><td>Ripristinare</td><td><code translate="no">sudo dd if=imagem.img of=DISCO bs=4M status=progress conv=fsync</code></td></tr><tr><td>Con compressione</td><td><code translate="no">sudo dd if=DISCO bs=4M | gzip &gt; imagem.img.gz</code></td></tr><tr><td>Sostituire un pezzo di un file</td><td><code translate="no">dd ... conv=notrunc</code></td></tr></tbody></table></div>
+<h3 id="sigillo">Sigillo</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Voglio...</th><th scope="col">Comando</th></tr></thead><tbody><tr><td>Calcolare</td><td><code translate="no">sha256sum arquivo &gt; arquivo.sha256</code></td></tr><tr><td>Verificare</td><td><code translate="no">sha256sum -c arquivo.sha256</code></td></tr></tbody></table></div>
+<h3 id="rocky-debian">Rocky × Debian</h3>
+<div class="tabela"><table><thead><tr><th scope="col"></th><th scope="col">Rocky</th><th scope="col">Debian</th></tr></thead><tbody><tr><td><code translate="no">tar</code> e <code translate="no">dd</code></td><td>Uguali</td><td>Uguali</td></tr><tr><td><code translate="no">cpio</code></td><td><code translate="no">dnf install cpio</code></td><td><code translate="no">apt install cpio</code></td></tr><tr><td>Vedere l'initramfs</td><td><code translate="no">lsinitrd</code></td><td><code translate="no">lsinitramfs</code></td></tr></tbody></table></div>
+<h2 id="5-lab-guidato">5 · Lab guidato</h2>
+<p><strong>Passo 0 · Snapshot e preparazione.</strong> Su Proxmox: <code translate="no">qm snapshot 201 m8a3-inicio</code> e <code translate="no">qm snapshot 202 m8a3-inicio</code>. Su rocky-lab:</p>
+<pre translate="no"><code class="lang-bash">sudo dnf install -y tar cpio
+mkdir -p ~/lab83/site/{html,cache,logs} &amp;&amp; cd ~/lab83
+echo pagina &gt; site/html/index.html
+echo lixo &gt; site/cache/x.tmp
+echo acesso &gt; site/logs/acesso.log</code></pre>
+<p><strong>Passo 1 · Selezionare.</strong></p>
+<pre translate="no"><code class="lang-bash">tar -czf sem-cache.tar.gz --exclude='site/cache' --exclude='*.log' site
+tar -tzf sem-cache.tar.gz
+find site -type f -name '*.html' -print0 &gt; lista.bin
+tar -czf so-html.tar.gz --null -T lista.bin
+tar -tzf so-html.tar.gz</code></pre>
+<p><strong>Passo 2 · Estrarre dove vuoi.</strong></p>
+<pre translate="no"><code class="lang-bash">mkdir destino
+tar -xzf sem-cache.tar.gz -C destino --strip-components=1
+find destino</code></pre>
+<p><code translate="no">--strip-components=1</code> ha tolto <code translate="no">site/</code> dal percorso.</p>
+<p><strong>Passo 3 · Confrontare con il disco.</strong></p>
+<pre translate="no"><code class="lang-bash">tar -dzf sem-cache.tar.gz; echo "saida=$?"
+echo mudou &gt;&gt; site/html/index.html
+tar -dzf sem-cache.tar.gz; echo "saida=$?"</code></pre>
+<p>La seconda volta compaiono <code translate="no">Mod time differs</code> e <code translate="no">Size differs</code>, con uscita 1. Serve a rispondere a "cosa è cambiato dal backup".</p>
+<p><strong>Passo 4 · Incrementale.</strong></p>
+<pre translate="no"><code class="lang-bash">tar -czf full.tar.gz -g estado.snar site
+echo nova &gt; site/html/nova.html
+tar -czf inc1.tar.gz -g estado.snar site
+tar -tzf inc1.tar.gz
+mkdir restaura
+tar -xzf full.tar.gz -g /dev/null -C restaura
+tar -xzf inc1.tar.gz -g /dev/null -C restaura
+find restaura -name '*.html'</code></pre>
+<p>L'incrementale conserva solo ciò che è cambiato. Si ripristina in quest'ordine: il completo, poi ogni incrementale. <code translate="no">estado.snar</code> viene modificato a ogni esecuzione: se si perde, il successivo torna a essere completo.</p>
+<figure><a href="../img/8.3-incremental.it.jpg"><img src="../img/8.3-incremental.it.jpg" alt="Completo e incrementali" loading="lazy" decoding="async"></a><figcaption>Il completo conserva tutto; ogni incrementale conserva solo ciò che è cambiato rispetto al precedente.</figcaption></figure>
+<p><strong>Passo 5 · cpio e initramfs.</strong></p>
+<pre translate="no"><code class="lang-bash">find site -print0 | cpio -o0 -H newc &gt; site.cpio
+cpio -tv &lt; site.cpio | head -n 5
+mkdir viacpio &amp;&amp; cd viacpio
+cpio -idmv &lt; ../site.cpio
+cd ..
+sudo lsinitrd /boot/initramfs-$(uname -r).img | head -n 25</code></pre>
+<p>Il file che il kernel usa al boot è un <code translate="no">cpio</code> compresso.</p>
+<p><strong>Passo 6 · Un disco di laboratorio.</strong> Un file fa la parte del disco, così nulla di reale corre rischi.</p>
+<pre translate="no"><code class="lang-bash">truncate -s 64M disco.img
+L=$(sudo losetup --find --show disco.img)
+echo $L
+sudo mkfs.ext4 -q $L
+sudo mkdir -p /mnt/lab83
+sudo mount $L /mnt/lab83
+echo 'dado importante' | sudo tee /mnt/lab83/nota.txt
+sudo umount /mnt/lab83</code></pre>
+<p><strong>Passo 7 · Immagine e sigillo.</strong> Con il disco smontato:</p>
+<pre translate="no"><code class="lang-bash">sudo dd if=$L of=imagem.img bs=1M status=progress conv=fsync
+sudo chown $USER: imagem.img
+sudo sha256sum $L imagem.img
+sha256sum imagem.img &gt; imagem.sha256
+sha256sum -c imagem.sha256</code></pre>
+<p>I due hash sono uguali.</p>
+<p><strong>Passo 8 · Disastro e ritorno.</strong> Solo sul disco del lab, verifica che <code translate="no">$L</code> sia <code translate="no">/dev/loop</code>.</p>
+<pre translate="no"><code class="lang-bash">echo $L
+sudo dd if=/dev/zero of=$L bs=1M count=8 conv=fsync status=none
+sudo mount $L /mnt/lab83
+sudo dd if=imagem.img of=$L bs=1M status=progress conv=fsync
+sudo mount $L /mnt/lab83
+cat /mnt/lab83/nota.txt
+sudo umount /mnt/lab83</code></pre>
+<p>Il primo <code translate="no">mount</code> fallisce, perché l'inizio del file system è stato azzerato. Dopo il ripristino, la nota torna.</p>
+<p><strong>Passo 9 · debian-lab.</strong> Installa <code translate="no">cpio</code> e ripeti i passi 1, 2 e 5, sostituendo l'ultimo comando con <code translate="no">lsinitramfs /boot/initrd.img-$(uname -r) | head -n 25</code>.</p>
+<h3 id="decidi-1">Decidi 1</h3>
+<p>Mi serve una copia del disco di un server di database in produzione. Come?</p>
+<p>A) <code translate="no">dd</code> con tutto acceso. B) Backup tramite il meccanismo dell'hypervisor o del database, oppure <code translate="no">dd</code> da un sistema in cui il disco non sia montato. C) <code translate="no">cp -r /</code>.</p>
+<p>Scegli un'opzione prima di continuare.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se hai scelto</th><th scope="col">Risultato</th><th scope="col">Perché</th></tr></thead><tbody><tr><td>A</td><td>Immagine inconsistente</td><td>I blocchi cambiano mentre <code translate="no">dd</code> copia</td></tr><tr><td>B</td><td>Giusto</td><td>Su un Proxmox, <code translate="no">vzdump</code> e PBS lo fanno. Su bare metal, avvia da un supporto di ripristino</td></tr><tr><td>C</td><td>Sbagliato</td><td>Entra in <code translate="no">/proc</code> e <code translate="no">/sys</code>, e perde link e metadati</td></tr></tbody></table></div>
+<p><strong>Da ricordare:</strong> <code translate="no">dd</code> solo con il disco fermo.</p>
+<h3 id="decidi-2">Decidi 2</h3>
+<p>Backup di <code translate="no">/etc/ssh</code> su Rocky, da ripristinare poi sulla stessa macchina. Quale comando?</p>
+<p>A) <code translate="no">tar -czf x.tar.gz /etc/ssh</code>. B) <code translate="no">sudo tar --acls --xattrs --selinux -czpf x.tar.gz -C / etc/ssh</code>. C) <code translate="no">cp -r /etc/ssh ~/</code>.</p>
+<p>Scegli un'opzione prima di continuare.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se hai scelto</th><th scope="col">Risultato</th><th scope="col">Perché</th></tr></thead><tbody><tr><td>A</td><td>Incompleto</td><td>Senza root non legge nemmeno le chiavi, e non conserva SELinux</td></tr><tr><td>B</td><td>Giusto</td><td>Preserva tutto, con percorso relativo. Poi, <code translate="no">restorecon</code></td></tr><tr><td>C</td><td>Pessimo</td><td>Perde proprietario, permessi e contesto</td></tr></tbody></table></div>
+<p><strong>Da ricordare:</strong> sappi cosa il tuo backup non conserva.</p>
+<h2 id="6-rompi-e-ripara">6 · Rompi e ripara</h2>
+<h3 id="guasto-1-l-exclude-che-non-ha-escluso">Guasto 1 · L'exclude che non ha escluso</h3>
+<pre translate="no"><code class="lang-bash">cd ~/lab83
+tar -czf errado.tar.gz site --exclude='*.log'
+tar -tzf errado.tar.gz | grep log</code></pre>
+<p><strong>Sintomo:</strong> <code translate="no">acesso.log</code> è dentro, e <code translate="no">tar</code> avvisa di opzioni usate dopo i nomi.</p>
+<p><strong>Diagnosi:</strong> <code translate="no">--exclude</code> vale per ciò che viene dopo.</p>
+<p><strong>Riparazione:</strong> mettilo prima del percorso, come nel Passo 1. Controlla sempre con <code translate="no">tar -t</code>.</p>
+<h3 id="guasto-2-il-dd-che-ha-accorciato-il-file">Guasto 2 · Il dd che ha accorciato il file</h3>
+<pre translate="no"><code class="lang-bash">cp imagem.img copia.img
+ls -l copia.img
+dd if=/dev/zero of=copia.img bs=1 count=1 seek=1000
+ls -l copia.img
+sha256sum imagem.img copia.img</code></pre>
+<p><strong>Sintomo:</strong> il file è rimasto con 1001 byte.</p>
+<p><strong>Diagnosi:</strong> per impostazione predefinita, <code translate="no">dd</code> tronca la destinazione quando è un file.</p>
+<p><strong>Riparazione:</strong> ripristina la copia e usa <code translate="no">conv=notrunc</code>:</p>
+<pre translate="no"><code class="lang-bash">cp imagem.img copia.img
+printf 'X' | dd of=copia.img bs=1 seek=1000 conv=notrunc status=none
+ls -l copia.img
+sha256sum imagem.img copia.img</code></pre>
+<p>La dimensione resta invariata, e l'hash è cambiato per un solo byte.</p>
+<figure><a href="../img/8.3-if-e-of.it.jpg"><img src="../img/8.3-if-e-of.it.jpg" alt="Da dove legge, dove scrive" loading="lazy" decoding="async"></a><figcaption>if= è da dove dd legge; of= è dove scrive, senza chiedere.</figcaption></figure>
+<h3 id="guasto-3-if-e-of-scambiati-racconto">Guasto 3 · if e of scambiati (racconto)</h3>
+<p>Una notte, per salvare il disco, qualcuno digita <code translate="no">dd if=/backup/imagem.img of=/dev/sda</code>, convinto di stare creando l'immagine.</p>
+<p><strong>Sintomo:</strong> il sistema comincia a dare errori, e non parte più nulla.</p>
+<p><strong>Diagnosi:</strong> origine e destinazione erano invertite, e <code translate="no">/dev/sda</code> è stato sovrascritto.</p>
+<p><strong>Riparazione:</strong> non esiste un comando che lo annulli. Solo il ripristino di un backup o di uno snapshot. Prima di lanciare: <code translate="no">lsblk</code>, controllare nome e dimensione, e leggere <code translate="no">of=</code>.</p>
+<h3 id="pulizia">Pulizia</h3>
+<pre translate="no"><code class="lang-bash">cd ~
+sudo losetup -j ~/lab83/disco.img
+sudo losetup -d "$(sudo losetup -j ~/lab83/disco.img | cut -d: -f1)"
+sudo rmdir /mnt/lab83
+rm -r ~/lab83</code></pre>
+<h2 id="7-trappole">7 · Trappole</h2>
+<div class="tabela"><table><thead><tr><th scope="col">Trappola</th><th scope="col">Cosa succede</th><th scope="col">Come evitarla</th></tr></thead><tbody><tr><td><code translate="no">--exclude</code> dopo il percorso</td><td>Non esclude</td><td>Prima del percorso</td></tr><tr><td>Percorso assoluto in <code translate="no">tar</code></td><td><code translate="no">tar</code> toglie la <code translate="no">/</code>, ed estrae in relativo</td><td>Usa <code translate="no">-C /</code> in creazione</td></tr><tr><td>Backup senza <code translate="no">--acls</code> e <code translate="no">--selinux</code></td><td>Ripristina senza metadati</td><td>Includi le opzioni</td></tr><tr><td>Perdere il <code translate="no">.snar</code></td><td>L'incrementale diventa completo</td><td>Conservalo insieme al backup</td></tr><tr><td><code translate="no">dd</code> su disco montato</td><td>Immagine inconsistente</td><td>Smonta o usa uno snapshot</td></tr><tr><td>Confondere <code translate="no">/dev/sda</code> e <code translate="no">/dev/sdb</code></td><td>Cancella il disco sbagliato</td><td><code translate="no">lsblk</code> prima</td></tr><tr><td><code translate="no">dd</code> su file senza <code translate="no">notrunc</code></td><td>Tronca il file</td><td><code translate="no">conv=notrunc</code></td></tr><tr><td><code translate="no">bs</code> piccolo su disco grande</td><td>Lentissimo</td><td><code translate="no">bs=4M</code></td></tr><tr><td>Fidarsi della dimensione</td><td>Non dimostra nulla</td><td><code translate="no">sha256sum -c</code></td></tr></tbody></table></div>
+<h2 id="8-quiz">8 · Quiz</h2>
+<p>Rispondi senza guardare. Le soluzioni sono alla fine della lezione.</p>
+<ol><li>Perché <code translate="no">--exclude</code> dopo il percorso non funziona?</li>
+<li>Cosa fa <code translate="no">--strip-components=1</code>?</li>
+<li>In che ordine si ripristina un backup incrementale di <code translate="no">tar</code>?</li>
+<li>Come elencare un <code translate="no">cpio</code>?</li>
+<li>Perché non usare <code translate="no">dd</code> su un disco montato?</li>
+<li>Come dimostrare che l'immagine è uguale all'origine?</li></ol>
+<h2 id="9-promemoria">9 · Promemoria</h2>
+<p><strong>Da sapere a memoria:</strong></p>
+<div class="tabela"><table><thead><tr><th scope="col">Voglio...</th><th scope="col">Comando</th></tr></thead><tbody><tr><td>Escludere</td><td><code translate="no">tar -czf x.tar.gz --exclude='PADRAO' pasta</code></td></tr><tr><td>Elencare</td><td><code translate="no">tar -tzf x.tar.gz</code></td></tr><tr><td>Estrarre altrove</td><td><code translate="no">tar -xzf x.tar.gz -C destino</code></td></tr><tr><td>Confrontare</td><td><code translate="no">tar -dzf x.tar.gz</code></td></tr><tr><td>Immagine</td><td><code translate="no">sudo dd if=ORIGEM of=imagem.img bs=4M status=progress conv=fsync</code></td></tr><tr><td>Sigillo</td><td><code translate="no">sha256sum -c arquivo.sha256</code></td></tr></tbody></table></div>
+<p><strong>Da consultare:</strong></p>
+<div class="tabela"><table><thead><tr><th scope="col">Voglio...</th><th scope="col">Comando</th></tr></thead><tbody><tr><td>Preservare tutto</td><td><code translate="no">--acls --xattrs --selinux -p</code></td></tr><tr><td>Incrementale</td><td><code translate="no">-g estado.snar</code></td></tr><tr><td>Lista sicura</td><td><code translate="no">find ... -print0 | tar --null -T - -czf x.tar.gz</code></td></tr><tr><td>cpio</td><td><code translate="no">cpio -o0 -H newc</code>, <code translate="no">cpio -tv</code>, <code translate="no">cpio -idmv</code></td></tr><tr><td>Initramfs</td><td><code translate="no">lsinitrd</code>, <code translate="no">lsinitramfs</code></td></tr><tr><td>Dispositivo da file</td><td><code translate="no">losetup --find --show</code>, <code translate="no">losetup -d</code></td></tr></tbody></table></div>
+<p><strong>Flashcard:</strong></p>
+<ul><li><code translate="no">of=</code> → <em>la destinazione, sovrascritta senza chiedere.</em></li>
+<li><code translate="no">tar</code>, <code translate="no">cpio</code>, <code translate="no">dd</code> → <em>file, lista e blocco.</em></li>
+<li><code translate="no">conv=notrunc</code> → <em>non tronca la destinazione.</em></li>
+<li>Backup senza <code translate="no">--selinux</code> → <em>contesti persi.</em></li>
+<li>Prova di uguaglianza → <em>hash.</em></li></ul>
+<h2 id="10-checklist-e-chiusura">10 · Checklist e chiusura</h2>
+<ul><li>[ ] Escludo da <code translate="no">tar</code> e confermo con <code translate="no">-t</code></li>
+<li>[ ] Estraggo nella destinazione e tolgo i livelli</li>
+<li>[ ] Faccio backup completo e incrementale</li>
+<li>[ ] So cosa <code translate="no">tar</code> non registra per impostazione predefinita</li>
+<li>[ ] Elenco ed estraggo un <code translate="no">cpio</code></li>
+<li>[ ] Faccio un'immagine e ripristino con <code translate="no">dd</code> su un disco di lab</li>
+<li>[ ] Dimostro l'uguaglianza con l'hash</li></ul>
+<p><strong>Ultimo esercizio, senza guardare la lezione:</strong> su debian-lab, genera un <code translate="no">tar.gz</code> di <code translate="no">/etc/ssh</code> senza le chiavi private (<code translate="no">ssh_host_*_key</code>), elenca il contenuto per dimostrarlo e crea il file <code translate="no">.sha256</code> corrispondente.</p>
+<p><strong>Snapshot di fine</strong> (su Proxmox):</p>
+<pre translate="no"><code class="lang-bash">qm snapshot 201 m8a3-fim
+qm snapshot 202 m8a3-fim</code></pre>
+<h2 id="11-nella-vita-reale">11 · Nella vita reale</h2>
+<p><strong>Missione, sola lettura.</strong> Su un server Linux che amministri (o con autorizzazione), lancia <strong>solo</strong>:</p>
+<pre translate="no"><code class="lang-bash">lsblk -o NAME,SIZE,TYPE,MOUNTPOINTS
+sudo find / -xdev -type f \( -name '*.tar.gz' -o -name '*.tgz' -o -name '*.img' \) -size +100M -ls</code></pre>
+<p>Su un file <code translate="no">tar</code> trovato, elenca senza estrarre:</p>
+<pre translate="no"><code class="lang-bash">tar -tzf ARQUIVO | head -n 20
+tar -tzvf ARQUIVO | tail -n 3</code></pre>
+<p>Domande a cui rispondere:</p>
+<ol><li>Qual è il disco di sistema? Quale sarebbe l'<code translate="no">of=</code> sbagliato?</li>
+<li>Esiste un'immagine o un backup senza documentazione?</li>
+<li>Quel file è mai stato testato?</li></ol>
+<p><strong>Diario:</strong> annota chi è il responsabile di quel backup e quando è stato testato.</p>
+<p><strong>Domani, senza guardare:</strong> scrivi il comando <code translate="no">dd</code> per creare un'immagine di <code translate="no">/dev/sdb</code>, e di' cosa devi controllare prima.</p>
+<h2 id="12-approfondire-quando-vuoi">12 · Approfondire quando vuoi</h2>
+<ul><li><strong><code translate="no">rpm2cpio pacote.rpm | cpio -idmv</code>:</strong> estrarre i file di un pacchetto senza installarlo.</li>
+<li><strong><code translate="no">ddrescue</code>:</strong> copiare un disco difettoso, tollerando gli errori.</li>
+<li><strong><code translate="no">fsarchiver</code>, <code translate="no">partclone</code>:</strong> copiano solo i blocchi in uso.</li>
+<li><strong><code translate="no">restic</code> e <code translate="no">borg</code>:</strong> deduplicazione e cifratura; NS8 usa <code translate="no">restic</code> nei backup.</li>
+<li><strong><code translate="no">zstd</code> in <code translate="no">tar</code>:</strong> <code translate="no">tar --zstd -cf</code>, opzione veloce e molto compatta.</li></ul>
+<p><strong>DeepTutor</strong> (http://10.1.0.149:3782, KB "Curso Linux Sysadmin"):</p>
+<ul><li><code translate="no">!explica a diferença entre tar, cpio e dd</code></li>
+<li><code translate="no">!feynman por que dd em disco montado gera imagem inconsistente</code></li>
+<li><code translate="no">!quiz Aula 8.3, 5 perguntas sobre arquivamento</code></li></ul>
+<h2 id="soluzioni-commentate">Soluzioni commentate</h2>
+<h3 id="riscaldamento">Riscaldamento</h3>
+<ol><li><code translate="no">if</code> è l'origine e <code translate="no">of</code> è la destinazione. Se li scambi, <code translate="no">dd</code> sovrascrive l'origine, senza chiedere.</li>
+<li>No. Solo un hash confrontato con l'originale dimostra l'uguaglianza.</li>
+<li>No. Bisogna chiederlo con <code translate="no">--acls</code> e <code translate="no">--selinux</code>, e in molti casi con <code translate="no">--xattrs</code>.</li></ol>
+<h3 id="quiz">Quiz</h3>
+<ol><li>Perché, in creazione, quelle opzioni valgono per i nomi che vengono dopo di esse.</li>
+<li>Rimuove il primo livello dei percorsi in estrazione.</li>
+<li>Prima il completo, poi ogni incrementale, nell'ordine in cui sono stati creati.</li>
+<li><code translate="no">cpio -tv &lt; arquivo.cpio</code>.</li>
+<li>Perché i blocchi cambiano durante la copia, e l'immagine risulta in uno stato che non è mai esistito.</li>
+<li>Con l'<code translate="no">sha256sum</code> dell'origine e dell'immagine, con il disco senza scritture.</li></ol>
+</article><nav class="paginas" aria-label="Lezioni"><a class="ant" href="8.2-find-a-fundo.it.html"><small>← Precedente</small>8.2 · find a fondo</a><a class="prox" href="8.4-links.it.html"><small>Successiva →</small>8.4 · Link</a></nav></main></div>
+<footer><div class="wrap">Generato dal Markdown del corso · Immagini in <code translate="no">img/</code></div></footer>
+</body>
+</html>

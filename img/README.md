@@ -63,6 +63,14 @@ Diagramas editáveis, criados para substituir os antigos placeholders de conteú
 | `6.3-gpgcheck-repomd.svg` | [Aula 6.3](../aulas/6.3-repositorios.md) | No RPM cada pacote é assinado; no Debian o índice é assinado e os pacotes pelo hash |
 | `6.4-flatpak-unused.svg` | [Aula 6.4](../aulas/6.4-flatpak.md) | Remover o app não remove o runtime: use flatpak uninstall --unused |
 | `6.5-ldconfig-soname.svg` | [Aula 6.5](../aulas/6.5-bibliotecas-compartilhadas.md) | O loader procura pelo soname; sem ldconfig não acha, mesmo com o arquivo lá |
+| `7.1-sinais-e-estados.svg` | [Aula 7.1](../aulas/7.1-processos-e-sinais.md) | Os sinais do dia a dia e os estados R, S, D, T e Z |
+| `7.2-queda-do-ssh.svg` | [Aula 7.2](../aulas/7.2-jobs-e-sessoes.md) | O caminho do SIGHUP na queda da conexão e quem sobrevive a ela |
+| `7.3-conter-processo.svg` | [Aula 7.3](../aulas/7.3-prioridade-e-perfis.md) | Medir, achar, rebaixar e limitar um processo com nice e cgroup |
+| `8.1-mapa-fhs.svg` | [Aula 8.1](../aulas/8.1-fhs-e-onde-cada-coisa-mora.md) | O papel de cada pasta e como descobrir quem responde a um comando |
+| `8.2-find-avalia.svg` | [Aula 8.2](../aulas/8.2-find-a-fundo.md) | A ordem de avaliação do find e as armadilhas mais comuns |
+| `8.3-tar-cpio-dd.svg` | [Aula 8.3](../aulas/8.3-arquivamento-avancado.md) | Os três níveis de cópia e o que conferir antes de um dd |
+| `8.4-inode-e-links.svg` | [Aula 8.4](../aulas/8.4-links.md) | Nome, inode, links físico e simbólico, e o que os quebra |
+| `8.5-roteiro-permission-denied.svg` | [Aula 8.5](../aulas/8.5-permissoes-avancadas.md) | O roteiro de diagnóstico e os blocos de uma pasta de equipe |
 
 ## Infográficos do NotebookLM
 
@@ -102,7 +110,6 @@ As 32 imagens abaixo foram geradas no NotebookLM a partir do texto de cada aula 
 | `1.9-erros-de-decisao.jpg` | [1.9](../aulas/1.9-decidir-e-repetir.md) | O script que parece ter decidido: `test`, `if` e os erros de sintaxe mais comuns |
 | `1.9-semaforo-codigos-saida.jpg` | [1.9](../aulas/1.9-decidir-e-repetir.md) | O semáforo do Linux: códigos de saída, `$?`, `if`, `[ ]`, `&&` e `\|\|` |
 | `1.10-escada-licencas.jpg` | [1.10](../aulas/1.10-software-livre-na-pratica.md) | A escada das licenças: quando cada uma obriga a abrir o código |
-| `1.10-software-livre-prova.jpg` | [1.10](../aulas/1.10-software-livre-na-pratica.md) | O que o Linux Essentials cobra sobre software livre, licenças e modelos de negócio |
 | `1.10-arquitetura-inventario.jpg` | [1.10](../aulas/1.10-software-livre-na-pratica.md) | Anatomia do `inventario.sh`: seções, comandos e saída esperada nas duas VMs |
 
 ### M2 · Sistema, usuários e permissões

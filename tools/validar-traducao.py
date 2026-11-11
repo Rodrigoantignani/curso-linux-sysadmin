@@ -125,7 +125,11 @@ def conferir(pt_path, it_path):
         cb = collections.Counter(m.group(2) for m in CODE.finditer(b))
         if ca != cb:
             erros.append(f"L{i}: código inline alterado. Sumiu: {list((ca - cb))[:4]} Apareceu: {list((cb - ca))[:4]}")
-        if [m.groups() for m in LINK.finditer(a)] != [m.groups() for m in LINK.finditer(b)]:
+        # A mesma imagem pode ter versão italiana (.it.jpg) ou ainda estar em outro formato.
+        def alvos(linha):
+            return [(m.group(1), re.sub(r"(\.it)?\.(jpg|png|svg)$", "", m.group(2)) if m.group(1) else m.group(2))
+                    for m in LINK.finditer(linha)]
+        if alvos(a) != alvos(b):
             erros.append(f"L{i}: link ou imagem alterado")
 
         texto = fora_de_codigo(b)

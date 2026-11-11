@@ -1,8 +1,8 @@
 # Aulas
 
-Índice das **37 aulas publicadas**, de M0 a M6. Cada título leva direto ao arquivo da aula; a coluna Semana segue o cronograma do [plano do curso](00-plano-do-curso.md).
+Índice das **52 aulas publicadas**, de M0 a M9. Cada título leva direto ao arquivo da aula; a coluna Semana segue o cronograma do [plano do curso](00-plano-do-curso.md).
 
-**Cobertura atual:** 37 de 188 aulas · semanas 1 a 11 de 48.
+**Cobertura atual:** 52 de 188 aulas · semanas 1 a 14 de 48.
 
 ## Como estudar uma aula
 
@@ -15,7 +15,7 @@
 
 ## Fase 1 · Fundamentos · 20 aulas · semanas 1 a 6
 
-Meta da fase: usar o terminal com segurança e entender o que cada comando faz por baixo, nas duas distros. A fase fecha com o Linux Essentials 010-200.
+Meta da fase: usar o terminal com segurança e entender o que cada comando faz por baixo, nas duas distros. A fase fecha com um dia de incidente nas duas VMs.
 
 ### M0 · Laboratório · 2 aulas · semana 1
 
@@ -58,11 +58,11 @@ Meta da fase: usar o terminal com segurança e entender o que cada comando faz p
 
 **Desafio do módulo:** uma pasta `/srv/equipe` onde dois usuários criam e editam arquivos, mas nenhum apaga o arquivo do outro, nas duas VMs.
 
-**Fechamento da fase (semana 6):** revisão espaçada de M0 a M2, dois simulados de 40 questões em 60 minutos e a prova **Linux Essentials 010-200**.
+**Fechamento da fase (semana 6):** revisão espaçada de M0 a M2 e um dia de incidente nas duas VMs, sem consulta.
 
-## Fase 2 · Administrador · 17 aulas publicadas de 63 · semanas 7 a 11
+## Fase 2 · Administrador · 32 aulas publicadas de 63 · semanas 7 a 14
 
-Meta da fase: administrar sozinho um servidor Linux de ponta a ponta, nas duas famílias, com tudo sobrevivendo ao reboot. Todo lab termina com reboot e verificação, como na prova da Red Hat.
+Meta da fase: administrar sozinho um servidor Linux de ponta a ponta, nas duas famílias, com tudo sobrevivendo ao reboot. Todo lab termina com reboot e verificação.
 
 ### M3 · Texto e editor · 5 aulas · semanas 7 e 8
 
@@ -109,13 +109,50 @@ Meta da fase: administrar sozinho um servidor Linux de ponta a ponta, nas duas f
 
 **Desafio do módulo:** a VM 201 instala pacotes sem internet, só com a ISO como repositório.
 
+### M7 · Processos e desempenho · 3 aulas · semana 11
+
+| Aula | Semana | O que você aprende |
+| --- | --- | --- |
+| [7.1 · Processos e sinais](aulas/7.1-processos-e-sinais.md) | 11 | `ps`, `top`, `pgrep`, `pkill`, `kill` e os sinais; estados e zumbis |
+| [7.2 · Jobs e sessões](aulas/7.2-jobs-e-sessoes.md) | 11 | `&`, `jobs`, `fg`, `bg`, `nohup` e `tmux`; tarefa longa que sobrevive à queda do SSH |
+| [7.3 · Prioridade e perfis](aulas/7.3-prioridade-e-perfis.md) | 11 | `nice`, `renice` e `tuned-adm`; achar e conter o processo que devora CPU ou memória |
+
+**Desafio do módulo:** um processo misterioso devora CPU e memória. Ache, rebaixe a prioridade e encerre, sem reiniciar nada.
+
+### M8 · Arquivos a fundo · 5 aulas · semanas 12 e 13
+
+| Aula | Semana | O que você aprende |
+| --- | --- | --- |
+| [8.1 · FHS e onde cada coisa mora](aulas/8.1-fhs-e-onde-cada-coisa-mora.md) | 12 | `/etc`, `/var`, `/usr`, `/opt` e `/srv`; `which`, `type`, `whereis` e `locate` |
+| [8.2 · find a fundo](aulas/8.2-find-a-fundo.md) | 12 | Por nome, tipo, dono, tamanho, data e permissão; `-exec` e `xargs` com segurança |
+| [8.3 · Arquivamento avançado](aulas/8.3-arquivamento-avancado.md) | 12 | `tar` com seleção e exclusão, `cpio` e `dd`; imagem de disco e checksum |
+| [8.4 · Links](aulas/8.4-links.md) | 13 | Inodes, links físicos e simbólicos; o que acontece quando o original some |
+| [8.5 · Permissões avançadas](aulas/8.5-permissoes-avancadas.md) | 13 | SUID, SGID, sticky, `umask` e ACL; diagnosticar `Permission denied` passo a passo |
+
+**Desafio do módulo:** três `Permission denied` com causas diferentes; achar cada uma.
+
+### M9 · Armazenamento · 7 aulas · semanas 13 e 14
+
+| Aula | Semana | O que você aprende |
+| --- | --- | --- |
+| [9.1 · Discos e layout](aulas/9.1-discos-e-layout.md) | 13 | MBR e GPT, nomes de dispositivo, planejar partições e LVM |
+| [9.2 · Particionar](aulas/9.2-particionar.md) | 13 | `fdisk`, `gdisk` e `parted` em discos novos adicionados pelo Proxmox |
+| [9.3 · Sistemas de arquivos](aulas/9.3-sistemas-de-arquivos.md) | 13 | ext4, XFS e VFAT: criar, rotular e comparar |
+| [9.4 · Montar e persistir](aulas/9.4-montar-e-persistir.md) | 14 | `mount`, `/etc/fstab` por UUID e LABEL, `nofail`, units de montagem |
+| [9.5 · Integridade e espaço](aulas/9.5-integridade-e-espaco.md) | 14 | `df`, `du`, `fsck`, `xfs_repair` e `tune2fs`; disco cheio de verdade |
+| [9.6 · LVM](aulas/9.6-lvm.md) | 14 | PV, VG e LV: criar, estender, reduzir e remover |
+| [9.7 · Crescer sem destruir](aulas/9.7-crescer-sem-destruir.md) | 14 | Nova partição, novo LV e swap sem perder dados; aumentar o disco no Proxmox até o sistema de arquivos |
+
+**Desafio do módulo:** um `fstab` com erro impede o boot. Conserte pelo modo de emergência.
+
+**Fechamento do bloco A (semana 14):** dia de incidente misturando M3 a M9 e revisão do caderno de erros.
+
 ## O que vem depois
 
-As 151 aulas restantes já estão planejadas no [plano do curso](00-plano-do-curso.md):
+As 136 aulas restantes já estão planejadas no [plano do curso](00-plano-do-curso.md):
 
 | Módulos | Semanas | Foco | Fecha com |
 | --- | --- | --- | --- |
-| M7 a M9 | 11 a 14 | Processos e desempenho, arquivos a fundo e armazenamento | Dia de incidente |
 | M10 a M15 | 15 a 21 | Usuários e acesso privilegiado, rede, segurança do host, armazenamento em rede, agendamento, e-mail local, impressão, shell e interfaces gráficas | Dia de incidente |
 | M16 | 21 e 22 | Rocky 10 e incidentes com relógio | Incidente cronometrado com reboot |
 | M17 a M21 | 22 a 31 | Proxmox, Podman, serviços de rede, proxy, NethServer 8, Mail, WebTop, Nextcloud e NethVoice | Incidente combinado no NS8 |

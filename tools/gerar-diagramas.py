@@ -609,12 +609,12 @@ add("6.5-loader", "A agenda do loader", "O binário pede pelo nome; o loader pro
 # ---------------- M1 ----------------
 add("1.5-fluxo-ler-texto", "Como ler um arquivo sem travar o terminal", "Medir o tamanho, escolher a lupa certa e nunca usar cat em log gigante", "split",
     {"left": ("O arquivo dita a ferramenta", "tamanho do arquivo → comando certo", [
-        ("Até 20 linhas", "cat ou cat n — cabe na tela"),
-        ("Dezenas a centenas", "head n 20 / tail n 20 — só o começo ou o fim"),
+        ("Até 20 linhas", "cat ou cat -n — cabe na tela"),
+        ("Dezenas a centenas", "head -n 20 / tail -n 20 — só o começo ou o fim"),
         ("Qualquer coisa maior", "less — lê só o que está na tela"),
         ("Acompanhar ao vivo", "tail -f — fica olhando o fim"),
         ("Log rotacionado", "tail -F — reabre se o arquivo for trocado")]),
-     "right": ("O que o grep deixa passar", "a linha exista, mas o padrão não casa", [
+     "right": ("O que o grep deixa passar", "a linha existe, mas o padrão não casa", [
         ("maiúsculas × minúsculas", "ERROR ≠ error; use -i para ignorar caixa"),
         ("não está no fim", "$ é antes do \\n, não do caractere; cat -A mostra o invisível"),
         ("veio do Windows", "\\r no fim de cada linha; cat -A mostra ^M"),
@@ -747,8 +747,8 @@ add("1.5-fluxo-grep", "Como o grep peneira um arquivo", "Passa o rolo inteiro e 
         ("grep -c", "só conta, não mostra as linhas"),
         ("grep -v", "mostra as linhas que NÃO casam"),
         ("grep -C 3", "mostra 3 linhas antes e depois de cada achado")], "side": ("Quando o grep erra", [
-        ("arquivo do Windows", "\r no fim de cada linha; cat -A mostra ^M"),
-        ("última linha sem \n", "wc -l não conta a última linha"),
+        ("arquivo do Windows", "\\r no fim de cada linha; cat -A mostra ^M"),
+        ("última linha sem \\n", "wc -l não conta a última linha"),
         ("padrão casa em qualquer lugar", "use -w para palavra inteira")])},
     "O grep não recorta o trecho: ele mostra a linha completa. Teste sempre com uma linha que deve casar e outra que não deve.", "blue")
 
@@ -906,6 +906,112 @@ add("6.5-ldconfig-soname", "O loader procura pelo soname", "Não pelo arquivo co
         ("soname", "libola.so.1: o nome gravado no programa"),
         ("linker name", "libola.so: serve para compilar com -l")])},
     "Se a pasta não está na lista e ninguém rodou ldconfig, o loader não acha, mesmo com o arquivo lá. Soname diferente = interface diferente.", "red")
+
+# ---------------- M7 ----------------
+add("7.1-sinais-e-estados", "Sinais e estados de um processo", "Alguns sinais são pedidos ao programa; KILL e STOP são ordens executadas pelo kernel", "flow_v",
+    {"steps": [
+        ("TERM (15)", "Pedido de saída. O programa pode limpar e gravar. Sem tratamento, sai com 143."),
+        ("HUP (1)", "Muitos daemons releem a configuração. Quem não trata o sinal morre."),
+        ("INT (2)", "O mesmo que Ctrl+C. Sem tratamento, sai com 130."),
+        ("STOP (19) e CONT (18)", "O kernel congela o processo, que fica em T. CONT descongela."),
+        ("KILL (9)", "O kernel elimina, sem limpeza. É o último degrau. Saída 137.")], "side": ("Os estados", [
+        ("R e S", "Rodando ou dormindo. S acorda quando recebe um sinal."),
+        ("D", "Preso em E/S. Nenhum sinal entra até a operação terminar."),
+        ("T", "Parado por STOP, Ctrl+Z ou leitura em segundo plano."),
+        ("Z", "Já terminou. Espera o pai ler a saída; trate o pai.")])},
+    "A ordem de sempre: TERM, espera, confere e só então KILL. Em serviço, use systemctl stop ou reload.", "purple")
+
+add("7.2-queda-do-ssh", "O que acontece quando a conexão cai", "O SIGHUP segue o caminho do terminal; o tmux deixa o processo fora desse caminho", "flow_v",
+    {"steps": [
+        ("A conexão cai", "O sshd perde o cliente e o terminal pts desaparece."),
+        ("SIGHUP no bash", "O shell, líder da sessão, recebe o aviso de que o terminal sumiu."),
+        ("Repasse aos jobs", "O bash reenvia o SIGHUP aos jobs da lista dele."),
+        ("Job comum", "comando & morre junto, porque não trata o sinal."),
+        ("tmux attach", "O servidor tmux, fora da sessão perdida, continua com o processo. Basta voltar.")], "side": ("Quem sobrevive", [
+        ("nohup", "Ignora o SIGHUP. Defina a saída para não criar nohup.out."),
+        ("disown", "Tira o job da lista de repasse."),
+        ("tmux", "Sobrevive à queda e permite voltar à mesma tela."),
+        ("exit", "Com huponexit em off, o bash não avisa os jobs.")])},
+    "Reboot derruba todos eles. O que precisa voltar depois do boot vira unit do systemd.", "cyan")
+
+add("7.3-conter-processo", "Rebaixar, limitar ou ajustar", "Do ajuste mais leve ao teto: primeiro entenda qual recurso falta", "flow_v",
+    {"steps": [
+        ("Medir", "uptime e nproc, vmstat 2 5, free -h. Descubra se falta CPU, memória ou disco."),
+        ("Achar", "top com P e M. systemctl status PID mostra a unit responsável."),
+        ("nice e renice", "Divide a fila. Só tem efeito quando há disputa pela CPU."),
+        ("CPUQuota", "Teto por cgroup, mesmo com CPU livre. set-property --runtime não reinicia."),
+        ("MemoryMax", "Passou do teto, o OOM age só dentro daquele cgroup.")], "side": ("Não confunda", [
+        ("renice x Nice=", "renice morre com o processo. Nice= fica no unit."),
+        ("wa x st", "wa espera disco; st é CPU negada pelo hipervisor."),
+        ("free x available", "Leia available, o que os programas ainda podem usar."),
+        ("tuned", "Perfil de ajustes do sistema inteiro: profile e verify.")])},
+    "O nice divide a fila; o cgroup põe um teto. A vítima do OOM nem sempre é a culpada.", "amber")
+
+# ---------------- M8 ----------------
+add("8.1-mapa-fhs", "O mapa do FHS", "Antes de escolher a pasta, pergunte: é configuração, programa, dado que muda ou rascunho?", "flow_v",
+    {"steps": [
+        ("/etc", "Configuração da máquina, em texto. O seu ajuste fica aqui."),
+        ("/usr", "Programas e bibliotecas dos pacotes. /usr/local é o que você instalou."),
+        ("/var", "O que muda e cresce: log, spool, cache e bancos em /var/lib."),
+        ("/opt e /srv", "/opt recebe aplicações de terceiros; /srv, os dados que o servidor entrega."),
+        ("/tmp e /run", "Temporários. Confira com findmnt: podem estar em memória.")], "side": ("Quem responde", [
+        ("type -a", "Mostra alias, builtin, função e PATH."),
+        ("which", "Só procura no PATH."),
+        ("rpm -qf, dpkg -S", "Dizem qual pacote é dono de um arquivo."),
+        ("locate", "Rápido, mas só vê o último updatedb.")])},
+    "/proc, /sys e /dev são virtuais: mostram o estado do kernel e não ocupam disco.", "blue")
+
+add("8.2-find-avalia", "Como o find avalia um arquivo", "Da esquerda para a direita; a ação executa no ponto em que aparece", "flow_v",
+    {"steps": [
+        ("Onde", "De qual pasta começa. Em find /, junte -xdev."),
+        ("Tipo e nome", "-type f e -name entre aspas. Um não encerra a busca naquele arquivo."),
+        ("Idade e tamanho", "-mtime +30 tem pelo menos 31 dias. -size arredonda para cima."),
+        ("Dono e permissão", "-user, -nouser, -perm -g+w ou -perm /6000."),
+        ("Ação, por último", "-print para conferir; só depois -exec ou -delete.")], "side": ("Armadilhas", [
+        ("Sem aspas", "O shell expande o curinga antes do find."),
+        ("-delete no início", "Vale para tudo o que chegou até ali."),
+        ("-o sem parênteses", "A ação fica só de um lado."),
+        ("-size -1M", "Só encontra arquivos vazios.")])},
+    "Ritual: a mesma linha com -print, conferir a lista e só então trocar pela ação.", "green")
+
+add("8.3-tar-cpio-dd", "tar, cpio e dd", "Três níveis de cópia: por escolha, por lista ou por bloco", "flow_v",
+    {"steps": [
+        ("tar", "Nível de arquivo. --exclude, -T e -C escolhem o que entra e onde."),
+        ("Preservar", "--acls, --xattrs e --selinux não vêm por padrão."),
+        ("cpio", "Recebe a lista pela entrada padrão. É o formato do initramfs."),
+        ("dd", "Nível de bloco. Copia tudo, sem saber o que é arquivo."),
+        ("sha256sum", "O lacre. Só o hash prova que a cópia é igual.")], "side": ("Antes do Enter", [
+        ("if e of", "if é origem; of é destino, sobrescrito sem perguntar."),
+        ("lsblk", "Confira nome e tamanho do disco."),
+        ("Desmontado", "dd com o disco em uso gera imagem inconsistente."),
+        ("notrunc", "Sem ele, dd corta o arquivo de destino.")])},
+    "Leia o of= em voz alta antes de confirmar. Nenhum comando desfaz um dd errado.", "red")
+
+add("8.4-inode-e-links", "Inode, link físico e link simbólico", "O nome fica na pasta; o físico aponta para o inode e o simbólico aponta para um caminho", "flow_v",
+    {"steps": [
+        ("Nome", "Entrada na pasta: associa um nome a um número de inode."),
+        ("Inode", "Dono, modo, datas e contagem de links. Não guarda o nome."),
+        ("Link físico", "Mais um nome para o mesmo inode. Só no mesmo disco e só para arquivo."),
+        ("Link simbólico", "Arquivo que guarda um caminho. Atravessa discos e aponta para pasta."),
+        ("rm", "Tira um nome. Com zero links e sem ninguém usando, os dados são liberados.")], "side": ("Quando quebra", [
+        ("Original apagado", "O físico continua; o simbólico fica quebrado."),
+        ("Link relativo", "Resolve a partir da pasta do próprio link."),
+        ("sed -i", "Cria arquivo novo e corta o link físico."),
+        ("df -i", "Mostra quando acabam os inodes.")])},
+    "Disco cheio com espaço livre? Rode df -i. Para achar links quebrados, find -xtype l.", "purple")
+
+add("8.5-roteiro-permission-denied", "Roteiro do Permission denied", "Sete camadas podem negar o acesso; vá de cima para baixo", "flow_v",
+    {"steps": [
+        ("1 · Quem sou", "id. Grupo novo exige login novo."),
+        ("2 · O caminho todo", "namei -l mostra cada degrau. Falta x em alguma pasta?"),
+        ("3 · Modo e ACL", "ls -l e getfacl. Procure entrada específica e #effective."),
+        ("4 · Atributos", "lsattr. O i trava até o root."),
+        ("5 · Camadas externas", "findmnt -T para ro e noexec; SELinux ou AppArmor por último.")], "side": ("Pasta de equipe", [
+        ("SGID", "2770: o que for criado herda o grupo."),
+        ("Sticky", "Só o dono apaga o que é seu."),
+        ("ACL", "Exceção precisa, para um usuário ou grupo."),
+        ("ACL padrão", "Vale apenas para o que for criado depois.")])},
+    "chmod 777 nunca é um passo do roteiro: ele esconde a causa e abre tudo a todos.", "amber")
 
 def build(name, title, subtitle, layout, data, footer, accent):
     if layout == "flow_v":

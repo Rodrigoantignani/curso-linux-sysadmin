@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light dark">
+<title>7.1 · Processos e sinais · Curso Linux Sysadmin</title>
+<link rel="alternate" hreflang="pt-BR" href="7.1-processos-e-sinais.html"><link rel="alternate" hreflang="it" href="7.1-processos-e-sinais.it.html">
+<style>
+:root{color-scheme:light dark;--bg:#f6f1e7;--card:#fffdf8;--ink:#201c16;--muted:#5e564a;--accent:#9a3412;--accent-2:#1f5f4a;--tint:#efe6d4;--line:#ddd2bc;--code:#f1eadb;--shadow:0 1px 2px rgba(60,40,10,.08);--serif:Georgia,"Iowan Old Style","Palatino Linotype",Palatino,serif;--sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--mono:"Cascadia Code",Consolas,"DejaVu Sans Mono",monospace}
+@media (prefers-color-scheme:dark){:root{--bg:#16130f;--card:#201b15;--ink:#f1eadb;--muted:#b9ad98;--accent:#f0a070;--accent-2:#7fd0b0;--tint:#2a231a;--line:#3d3427;--code:#191510;--shadow:none}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:5.5rem}
+body{margin:0;background:var(--bg);color:var(--ink);font:1rem/1.6 var(--sans)}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--accent-2);outline-offset:2px;border-radius:4px}
+.pular{position:absolute;left:-999px;top:0;background:var(--card);padding:.5rem 1rem;z-index:20}
+.pular:focus{left:.5rem;top:.5rem}
+.wrap{width:100%;max-width:84rem;margin:0 auto;padding-inline:max(1rem,env(safe-area-inset-left))}
+.top{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10;border-top:6px solid var(--accent)}
+.top-in{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding-block:.6rem}
+.titles{min-width:0}
+.marca{margin:0;font:700 clamp(1.15rem,1rem + 1vw,1.6rem)/1.15 var(--serif);letter-spacing:-.01em}
+.marca a{text-decoration:none}
+.marca a:hover{color:var(--accent)}
+.meta{margin:.1rem 0 0;color:var(--muted);font-size:.85rem}
+.acoes{display:flex;align-items:center;gap:.9rem;flex:none}
+.acoes>a{font-size:.9rem;font-weight:600;color:var(--muted);text-decoration:none}
+.acoes>a:hover{color:var(--accent);text-decoration:underline}
+.idioma{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--tint)}
+.idioma>*{padding:.35rem .9rem;font-size:.8rem;font-weight:700;letter-spacing:.06em;text-decoration:none;color:var(--muted);min-width:2.75rem;text-align:center}
+.idioma a:hover{color:var(--accent);text-decoration:underline}
+.idioma span{background:var(--accent);color:#fff}
+@media (prefers-color-scheme:dark){.idioma span{color:#16130f}}
+code{font-family:var(--mono);font-size:.9em;background:var(--tint);padding:.1rem .35rem;border-radius:4px;overflow-wrap:anywhere}
+/* índice */
+.capa{max-width:70rem;padding-block:2rem 3rem}
+.stats{border-left:4px solid var(--accent-2);background:var(--card);border-radius:0 10px 10px 0;padding:1rem 1.25rem;margin:0 0 2.5rem;box-shadow:var(--shadow);color:var(--muted)}
+.stats strong{color:var(--ink)}
+.modulo{display:grid;grid-template-columns:15rem minmax(0,1fr);gap:1rem 2rem;padding:1.75rem 0;border-top:1px solid var(--line)}
+.modulo h2{margin:0;font:700 1.25rem/1.25 var(--serif);align-self:start;position:sticky;top:6rem}
+.mn{display:block;font:700 .8rem var(--mono);letter-spacing:.12em;color:var(--accent);margin-bottom:.25rem}
+.sep{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.modulo ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,17rem),1fr));gap:.75rem}
+.modulo li{margin:0}
+.modulo a{display:flex;gap:.45rem;align-items:baseline;height:100%;padding:.85rem 1rem;background:var(--card);border:1px solid var(--line);border-radius:10px;text-decoration:none;font-weight:600;line-height:1.35;box-shadow:var(--shadow);transition:border-color .15s,transform .15s}
+.modulo a:hover{border-color:var(--accent);color:var(--accent)}
+.num{font:700 .85rem var(--mono);color:var(--accent);white-space:nowrap}
+/* aula */
+.doc{display:grid;grid-template-columns:17rem minmax(0,1fr);gap:2.5rem;align-items:start;padding-block:2rem 3rem}
+.lateral{position:sticky;top:5.5rem;max-height:calc(100vh - 6.5rem);overflow:auto;font-size:.875rem;padding-right:.5rem}
+.lateral h2{margin:0 0 .25rem;font:700 .95rem var(--serif);color:var(--muted)}
+.lateral h3{margin:1rem 0 .25rem;font:700 .75rem var(--mono);letter-spacing:.06em;color:var(--accent)}
+.lateral ul{list-style:none;margin:0;padding:0}
+.lateral a{display:flex;gap:.45rem;padding:.25rem .5rem;border-radius:6px;text-decoration:none;color:var(--muted);line-height:1.3}
+.lateral a:hover{background:var(--tint);color:var(--ink)}
+.lateral a[aria-current]{background:var(--tint);color:var(--ink);font-weight:700;box-shadow:inset 3px 0 0 var(--accent)}
+.lateral .num{font-size:.75rem}
+.aula{min-width:0;max-width:56rem;overflow-wrap:break-word;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:clamp(1.25rem,1rem + 2vw,2.75rem);box-shadow:var(--shadow)}
+.aula h1{margin:0 0 1.5rem;font:700 clamp(1.75rem,1.4rem + 1.6vw,2.5rem)/1.15 var(--serif);letter-spacing:-.015em;color:var(--ink)}
+.aula h2{margin:2.5rem 0 .75rem;padding-top:1.25rem;border-top:1px solid var(--line);font:700 1.5rem/1.25 var(--serif)}
+.aula h3{margin:2rem 0 .5rem;font:700 1.15rem/1.3 var(--serif);color:var(--accent)}
+.aula h4,.aula h5,.aula h6{margin:1.5rem 0 .5rem;font-size:1rem}
+.aula p,.aula ul,.aula ol{margin:1rem 0}
+.aula ul,.aula ol{padding-left:1.5rem}
+.aula li{margin:.35rem 0}
+.aula li>ul,.aula li>ol{margin:.35rem 0}
+.aula a{color:var(--accent);text-underline-offset:2px}
+.aula hr{border:0;border-top:1px solid var(--line);margin:2rem 0}
+.tabela{overflow-x:auto;margin:1.25rem 0;border:1px solid var(--line);border-radius:10px}
+.aula table{width:100%;border-collapse:collapse;font-size:.9rem}
+.aula th,.aula td{padding:.55rem .75rem;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+.aula tr:last-child td{border-bottom:0}
+.aula th{background:var(--tint);font-weight:700}
+.aula pre{background:var(--code);border:1px solid var(--line);border-radius:10px;padding:.9rem 1rem;overflow-x:auto;font:.85rem/1.5 var(--mono);margin:1rem 0;tab-size:4}
+.aula pre code{background:none;padding:0;font-size:inherit;overflow-wrap:normal}
+.aula blockquote{margin:1.25rem 0;padding:.75rem 1.25rem;border-left:4px solid var(--accent-2);background:var(--tint);border-radius:0 10px 10px 0}
+.aula blockquote>:first-child{margin-top:0}
+.aula blockquote>:last-child{margin-bottom:0}
+.aula figure{margin:1.75rem 0;text-align:center}
+.aula figure img{display:block;margin:0 auto;max-width:100%;height:auto;border:1px solid var(--line);border-radius:10px;background:#fff}
+.aula figcaption{margin-top:.5rem;color:var(--muted);font-size:.9rem;font-style:italic}
+.paginas{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:2.5rem;padding-top:1.5rem;border-top:1px solid var(--line)}
+.paginas a{display:block;padding:.75rem 1rem;border:1px solid var(--line);border-radius:10px;text-decoration:none;color:var(--ink);font-weight:600;line-height:1.3}
+.paginas a:hover{border-color:var(--accent);color:var(--accent)}
+.paginas small{display:block;color:var(--muted);font-weight:400}
+.paginas .prox{grid-column:2;text-align:right}
+footer{border-top:1px solid var(--line);padding-block:1.5rem;color:var(--muted);font-size:.85rem;text-align:center}
+@media (hover:hover) and (prefers-reduced-motion:no-preference){.modulo a:hover{transform:translateY(-2px)}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+@media (max-width:980px){.doc{grid-template-columns:minmax(0,1fr);padding-top:1rem}.lateral{position:static;max-height:none;order:2}.aula{max-width:none}}
+@media (max-width:860px){.modulo{grid-template-columns:minmax(0,1fr)}.modulo h2{position:static}.mn{display:inline;margin-right:.5rem}}
+@media (max-width:420px){.meta{display:none}.top-in{gap:.5rem}.acoes{gap:.6rem}.capa{padding-top:1.25rem}.paginas{grid-template-columns:minmax(0,1fr)}.paginas .prox{grid-column:1}}
+@media print{.top,.lateral,.paginas{display:none}.aula{border:0;box-shadow:none;padding:0;max-width:none}.doc{display:block}}
+</style>
+</head>
+<body>
+<a class="pular" href="#conteudo">Pular para o conteúdo</a>
+<header class="top"><div class="wrap top-in"><div class="titles"><p class="marca"><a href="index.html">Curso Linux Sysadmin</a></p><p class="meta">Rodrigo Antignani · Aula 7.1</p></div><div class="acoes"><a href="index.html">Índice</a><div class="idioma" role="group" aria-label="Idioma"><span aria-current="true">PT</span><a href="7.1-processos-e-sinais.it.html" hreflang="it" lang="it">IT</a></div></div></div></header>
+<div class="wrap doc"><aside class="lateral" aria-label="Aulas"><h2>Aulas</h2><h3>M0 · Laboratório</h3><ul><li><a href="0.1-montar-o-laboratorio.html"><span class="num">0.1</span><span>Montar o laboratório</span></a></li><li><a href="0.2-acesso-e-protecao.html"><span class="num">0.2</span><span>Acesso e proteção</span></a></li></ul><h3>M1 · Linha de comando</h3><ul><li><a href="1.1-o-que-e-linux.html"><span class="num">1.1</span><span>O que é Linux</span></a></li><li><a href="1.2-o-shell-e-a-ajuda.html"><span class="num">1.2</span><span>O shell e a ajuda</span></a></li><li><a href="1.3-caminhos-e-navegacao.html"><span class="num">1.3</span><span>Caminhos e navegação</span></a></li><li><a href="1.4-criar-copiar-mover-e-apagar.html"><span class="num">1.4</span><span>Criar, copiar, mover e apagar</span></a></li><li><a href="1.5-ler-e-procurar-texto.html"><span class="num">1.5</span><span>Ler e procurar texto</span></a></li><li><a href="1.6-redirecionamentos-e-pipes.html"><span class="num">1.6</span><span>Redirecionamentos e pipes</span></a></li><li><a href="1.7-arquivar-e-compactar.html"><span class="num">1.7</span><span>Arquivar e compactar</span></a></li><li><a href="1.8-primeiro-script.html"><span class="num">1.8</span><span>Primeiro script</span></a></li><li><a href="1.9-decidir-e-repetir.html"><span class="num">1.9</span><span>Decidir e repetir</span></a></li><li><a href="1.10-software-livre-na-pratica.html"><span class="num">1.10</span><span>Software livre na prática</span></a></li></ul><h3>M2 · Sistema, usuários e permissões</h3><ul><li><a href="2.1-instalacao-e-provisionamento.html"><span class="num">2.1</span><span>Instalação e provisionamento</span></a></li><li><a href="2.2-hardware-e-dispositivos.html"><span class="num">2.2</span><span>Hardware e dispositivos</span></a></li><li><a href="2.3-processos-e-logs.html"><span class="num">2.3</span><span>Processos e logs</span></a></li><li><a href="2.4-rede-no-dia-a-dia.html"><span class="num">2.4</span><span>Rede no dia a dia</span></a></li><li><a href="2.5-acesso-remoto-e-privilegios.html"><span class="num">2.5</span><span>Acesso remoto e privilégios</span></a></li><li><a href="2.6-usuarios-e-grupos.html"><span class="num">2.6</span><span>Usuários e grupos</span></a></li><li><a href="2.7-permissoes-e-dono.html"><span class="num">2.7</span><span>Permissões e dono</span></a></li><li><a href="2.8-diretorios-e-arquivos-especiais.html"><span class="num">2.8</span><span>Diretórios e arquivos especiais</span></a></li></ul><h3>M3 · Texto e editor</h3><ul><li><a href="3.1-fluxos-a-fundo.html"><span class="num">3.1</span><span>Fluxos a fundo</span></a></li><li><a href="3.2-filtros-de-texto.html"><span class="num">3.2</span><span>Filtros de texto</span></a></li><li><a href="3.3-regex-e-grep.html"><span class="num">3.3</span><span>Regex e grep</span></a></li><li><a href="3.4-sed-e-awk.html"><span class="num">3.4</span><span>sed e awk</span></a></li><li><a href="3.5-vi-e-vim-de-verdade.html"><span class="num">3.5</span><span>vi e vim de verdade</span></a></li></ul><h3>M4 · systemd e boot</h3><ul><li><a href="4.1-como-o-linux-liga.html"><span class="num">4.1</span><span>Como o Linux liga</span></a></li><li><a href="4.2-systemd-servicos-e-units.html"><span class="num">4.2</span><span>systemd: serviços e units</span></a></li><li><a href="4.3-targets-desligar-e-reiniciar.html"><span class="num">4.3</span><span>Targets: desligar e reiniciar</span></a></li><li><a href="4.4-grub-e-acesso-de-emergencia.html"><span class="num">4.4</span><span>GRUB e acesso de emergência</span></a></li></ul><h3>M5 · Kernel, módulos e VM</h3><ul><li><a href="5.1-hardware-pelo-kernel.html"><span class="num">5.1</span><span>Hardware pelo kernel</span></a></li><li><a href="5.2-modulos-e-parametros.html"><span class="num">5.2</span><span>Módulos e parâmetros</span></a></li><li><a href="5.3-linux-como-convidado.html"><span class="num">5.3</span><span>Linux como convidado</span></a></li></ul><h3>M6 · Pacotes e repositórios</h3><ul><li><a href="6.1-pacotes-no-debian.html"><span class="num">6.1</span><span>Pacotes no Debian</span></a></li><li><a href="6.2-pacotes-na-rocky.html"><span class="num">6.2</span><span>Pacotes na Rocky</span></a></li><li><a href="6.3-repositorios.html"><span class="num">6.3</span><span>Repositórios</span></a></li><li><a href="6.4-flatpak.html"><span class="num">6.4</span><span>Flatpak</span></a></li><li><a href="6.5-bibliotecas-compartilhadas.html"><span class="num">6.5</span><span>Bibliotecas compartilhadas</span></a></li></ul><h3>M7 · Processos e desempenho</h3><ul><li><a href="7.1-processos-e-sinais.html" aria-current="page"><span class="num">7.1</span><span>Processos e sinais</span></a></li><li><a href="7.2-jobs-e-sessoes.html"><span class="num">7.2</span><span>Jobs e sessões</span></a></li><li><a href="7.3-prioridade-e-perfis.html"><span class="num">7.3</span><span>Prioridade e perfis</span></a></li></ul><h3>M8 · Arquivos a fundo</h3><ul><li><a href="8.1-fhs-e-onde-cada-coisa-mora.html"><span class="num">8.1</span><span>FHS e onde cada coisa mora</span></a></li><li><a href="8.2-find-a-fundo.html"><span class="num">8.2</span><span>find a fundo</span></a></li><li><a href="8.3-arquivamento-avancado.html"><span class="num">8.3</span><span>Arquivamento avançado</span></a></li><li><a href="8.4-links.html"><span class="num">8.4</span><span>Links</span></a></li><li><a href="8.5-permissoes-avancadas.html"><span class="num">8.5</span><span>Permissões avançadas</span></a></li></ul><h3>M9 · Armazenamento</h3><ul><li><a href="9.1-discos-e-layout.html"><span class="num">9.1</span><span>Discos e layout</span></a></li><li><a href="9.2-particionar.html"><span class="num">9.2</span><span>Particionar</span></a></li><li><a href="9.3-sistemas-de-arquivos.html"><span class="num">9.3</span><span>Sistemas de arquivos</span></a></li><li><a href="9.4-montar-e-persistir.html"><span class="num">9.4</span><span>Montar e persistir</span></a></li><li><a href="9.5-integridade-e-espaco.html"><span class="num">9.5</span><span>Integridade e espaço</span></a></li><li><a href="9.6-lvm.html"><span class="num">9.6</span><span>LVM</span></a></li><li><a href="9.7-crescer-sem-destruir.html"><span class="num">9.7</span><span>Crescer sem destruir</span></a></li></ul></aside><main id="conteudo" class="aula"><article><h1>Aula 7.1 · Processos e sinais</h1>
+<p>Na aula 2.3 você aprendeu a listar um processo e a encerrá-lo. Agora vem o que separa quem resolve de quem reinicia: ler o estado de cada processo, escolher o sinal certo e saber por que alguns processos não morrem, ou voltam logo depois de mortos.</p>
+<blockquote><p><strong>Núcleo desta aula:</strong> ler <code translate="no">ps</code> e <code translate="no">top</code> sem se enganar; explicar os estados R, S, D, T e Z; usar TERM, HUP, STOP, CONT e KILL na ordem certa; mirar com precisão usando <code translate="no">pgrep</code> e <code translate="no">pkill</code>; descobrir de que serviço um PID veio. O resto é aprofundamento.</p></blockquote>
+<div class="tabela"><table><thead><tr><th scope="col">Ficha</th><th scope="col"></th></tr></thead><tbody><tr><td><strong>Módulo</strong></td><td>M7 · Processos e desempenho, aula 1 de 3</td></tr><tr><td><strong>Quando</strong></td><td>Semana 11</td></tr><tr><td><strong>Ao final</strong></td><td>Você encerra o processo certo do jeito certo e explica por que um processo não morre</td></tr><tr><td><strong>Pré-requisitos</strong></td><td>Aulas 2.3 e 4.2</td></tr><tr><td><strong>Tempo</strong></td><td>cerca de 2h</td></tr><tr><td><strong>Snapshots</strong></td><td><code translate="no">m7a1-inicio</code> e <code translate="no">m7a1-fim</code> na rocky-lab e na debian-lab</td></tr></tbody></table></div>
+<h2 id="1-aquecimento">1 · Aquecimento</h2>
+<p>Responda antes de ler.</p>
+<ol><li>Qual a diferença entre <code translate="no">kill PID</code> e <code translate="no">kill -9 PID</code>? Qual deles o programa consegue ouvir?</li>
+<li>Para o mesmo processo, o <code translate="no">ps</code> mostra 75% de CPU e o <code translate="no">top</code> mostra 0%. Os dois podem estar certos?</li>
+<li>Um processo aparece com estado <code translate="no">Z</code>. O <code translate="no">kill -9</code> resolve?</li></ol>
+<h2 id="2-por-que-importa">2 · Por que importa</h2>
+<div class="tabela"><table><thead><tr><th scope="col">O chamado</th><th scope="col">A resposta errada</th><th scope="col">O que ela causa</th></tr></thead><tbody><tr><td>"O banco está lento, mata o processo"</td><td><code translate="no">kill -9</code> logo de cara</td><td>O banco não grava o que tinha em memória e passa a próxima subida recuperando dados</td></tr><tr><td>"Matei o processo e ele voltou"</td><td>Matar de novo, em loop</td><td>Quem o sobe é o systemd. O certo é parar o serviço</td></tr><tr><td>"Tem 40 zumbis no servidor"</td><td><code translate="no">kill -9</code> em todos</td><td>Zumbi já morreu. Quem precisa de atenção é o pai</td></tr><tr><td>"A carga está em 40 e a CPU está parada"</td><td>Reiniciar o servidor</td><td>Os processos estão presos em disco ou em NFS. A causa continua lá depois do boot</td></tr><tr><td>"Só queria recarregar a configuração"</td><td><code translate="no">systemctl restart</code> no horário de pico</td><td>Derruba as conexões, quando um <code translate="no">reload</code> (HUP) bastava</td></tr></tbody></table></div>
+<h2 id="3-modelo-mental">3 · Modelo mental</h2>
+<blockquote><p>Um processo é um <strong>funcionário</strong>, e um sinal é um <strong>bilhete</strong> entregue a ele. TERM diz "feche o que está fazendo e vá embora", e ele pode arrumar a mesa antes. HUP diz "releia as instruções". STOP e KILL não são bilhetes: quem age é o <strong>kernel</strong>, que congela ou retira o funcionário sem perguntar. Um zumbi é a <strong>ficha de quem já saiu</strong>, parada na mesa do chefe até ele assinar. Quem está em D está <strong>no elevador parado</strong>: nenhum bilhete chega lá até a porta abrir.</p></blockquote>
+<pre translate="no"><code>         kill -TERM ──► o programa decide: limpa, grava e sai   (saída 143 se não tratar)
+         kill -HUP  ──► muitos daemons: relê a configuração
+         kill -INT  ──► o mesmo que Ctrl+C                      (saída 130)
+         kill -STOP ──► o kernel congela (estado T)  ◄── kill -CONT descongela
+         kill -KILL ──► o kernel elimina, sem aviso             (saída 137)
+
+  R rodando   S dormindo, acorda com sinal   D preso em E/S, nem KILL entra
+  T parado    Z terminou, espera o pai ler a saída     I thread ociosa do kernel</code></pre>
+<figure><a href="../img/7.1-sinais-e-estados.jpg"><img src="../img/7.1-sinais-e-estados.jpg" alt="Sinais e estados de um processo" loading="lazy" decoding="async"></a><figcaption>STOP e KILL são os únicos sinais que o programa não pode tratar nem ignorar.</figcaption></figure>
+<h3 id="ponte-windows">Ponte Windows</h3>
+<div class="tabela"><table><thead><tr><th scope="col">No Windows</th><th scope="col">No Linux</th><th scope="col">Onde a comparação engana</th></tr></thead><tbody><tr><td>Gerenciador de Tarefas, <code translate="no">Get-Process</code></td><td><code translate="no">top</code>, <code translate="no">ps</code></td><td>O <code translate="no">ps</code> é uma foto. A sua coluna <code translate="no">%CPU</code> é a média da vida inteira do processo</td></tr><tr><td><code translate="no">taskkill /PID n</code></td><td><code translate="no">kill n</code> (TERM)</td><td>O <code translate="no">kill</code> não serve só para matar: ele entrega qualquer sinal</td></tr><tr><td><code translate="no">taskkill /F</code>, <code translate="no">Stop-Process -Force</code></td><td><code translate="no">kill -9</code></td><td>Equivalentes na brutalidade: nenhum dá chance de limpar</td></tr><tr><td>Árvore de processos do Process Explorer</td><td><code translate="no">ps -ef --forest</code>, <code translate="no">pstree -p</code></td><td>No Linux todo processo tem um pai que recolhe a saída dele. É daí que vem o zumbi</td></tr><tr><td>Serviço com recuperação "Reiniciar o serviço"</td><td><code translate="no">Restart=</code> no unit</td><td>É o mesmo motivo do "matei e voltou"</td></tr></tbody></table></div>
+<h2 id="4-o-essencial">4 · O essencial</h2>
+<h3 id="ler-sem-se-enganar">Ler sem se enganar</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Quero...</th><th scope="col">Comando</th></tr></thead><tbody><tr><td>Ver todos, com a família</td><td><code translate="no">ps -ef --forest</code></td></tr><tr><td>Escolher as colunas e ordenar</td><td><code translate="no">ps -eo pid,ppid,stat,ni,pcpu,pmem,etime,comm --sort=-pcpu | head</code></td></tr><tr><td>Ver a família de um PID até o PID 1</td><td><code translate="no">pstree -ps PID</code></td></tr><tr><td>Ver a CPU de agora</td><td><code translate="no">top</code> e, para script, <code translate="no">top -b -n2 -d2 -p PID</code></td></tr><tr><td>Ver carga e tempo ligado</td><td><code translate="no">uptime</code></td></tr><tr><td>Ver memória</td><td><code translate="no">free -h</code></td></tr><tr><td>Repetir um comando a cada 2 segundos</td><td><code translate="no">watch -n 2 'ps -eo stat | sort | uniq -c'</code></td></tr><tr><td>Descobrir o serviço de um PID</td><td><code translate="no">systemctl status PID</code></td></tr><tr><td>Ver o estado detalhado</td><td><code translate="no">grep -E 'State|PPid|VmRSS' /proc/PID/status</code></td></tr><tr><td>Ver o executável e a pasta</td><td><code translate="no">ls -l /proc/PID/exe /proc/PID/cwd</code></td></tr><tr><td>Ver o que ele tem aberto</td><td><code translate="no">ls -l /proc/PID/fd</code></td></tr></tbody></table></div>
+<p>Teclas do <code translate="no">top</code>: <code translate="no">P</code> ordena por CPU, <code translate="no">M</code> por memória, <code translate="no">c</code> mostra o comando inteiro, <code translate="no">1</code> abre por núcleo, <code translate="no">H</code> mostra threads, <code translate="no">k</code> manda sinal, <code translate="no">q</code> sai.</p>
+<p><strong>A carga</strong> do <code translate="no">uptime</code> conta os processos que querem CPU e os que estão em D, na média de 1, 5 e 15 minutos. Compare com <code translate="no">nproc</code>. Carga alta com CPU ociosa aponta para E/S, não para falta de CPU.</p>
+<h3 id="os-sinais-que-voce-usa">Os sinais que você usa</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Sinal</th><th scope="col">Número</th><th scope="col">Para quê</th><th scope="col">Dá para tratar?</th></tr></thead><tbody><tr><td>HUP</td><td>1</td><td>Em daemons, reler a configuração. Também avisa que o terminal caiu</td><td>Sim</td></tr><tr><td>INT</td><td>2</td><td>Ctrl+C</td><td>Sim</td></tr><tr><td>KILL</td><td>9</td><td>Eliminar, em último caso</td><td><strong>Não</strong></td></tr><tr><td>TERM</td><td>15</td><td>Pedido normal de saída. É o padrão do <code translate="no">kill</code></td><td>Sim</td></tr><tr><td>CONT</td><td>18</td><td>Descongelar</td><td>Sim, e ele acorda de qualquer jeito</td></tr><tr><td>STOP</td><td>19</td><td>Congelar</td><td><strong>Não</strong></td></tr></tbody></table></div>
+<p>A ordem de sempre: <strong>TERM, espera alguns segundos, confere, e só então KILL</strong>. Num serviço, prefira <code translate="no">systemctl stop</code> ou <code translate="no">systemctl reload</code>, porque o systemd sabe como aquele serviço deve parar.</p>
+<figure><a href="../img/7.1-escada-do-kill.jpg"><img src="../img/7.1-escada-do-kill.jpg" alt="A escada do kill" loading="lazy" decoding="async"></a><figcaption>Mire, peça, confira. O KILL fica para o fim.</figcaption></figure>
+<h3 id="a-coluna-stat">A coluna STAT</h3>
+<p>A primeira letra é o estado. As seguintes são detalhes: <code translate="no">s</code> líder de sessão, <code translate="no">+</code> em primeiro plano, <code translate="no">l</code> com várias threads, <code translate="no">&lt;</code> prioridade alta, <code translate="no">N</code> prioridade baixa.</p>
+<h3 id="mirar-com-precisao">Mirar com precisão</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Quero...</th><th scope="col">Comando</th></tr></thead><tbody><tr><td>Conferir antes de atirar</td><td><code translate="no">pgrep -a nome</code></td></tr><tr><td>Procurar na linha de comando inteira</td><td><code translate="no">pgrep -af 'texto'</code></td></tr><tr><td>Nome exato</td><td><code translate="no">pgrep -x sleep</code></td></tr><tr><td>De um usuário</td><td><code translate="no">pgrep -u rodrigo -a</code></td></tr><tr><td>Filhos de um PID</td><td><code translate="no">pgrep -P PID</code></td></tr><tr><td>Enviar o sinal com o mesmo critério</td><td><code translate="no">pkill</code>, com as mesmas opções</td></tr><tr><td>Por nome exato, com <code translate="no">psmisc</code></td><td><code translate="no">killall -e nome</code></td></tr></tbody></table></div>
+<p>Regra: <strong>todo <code translate="no">pkill</code> nasce como <code translate="no">pgrep -a</code></strong>. Olhe a lista, depois troque a palavra.</p>
+<h3 id="rocky-debian">Rocky × Debian</h3>
+<div class="tabela"><table><thead><tr><th scope="col"></th><th scope="col">Rocky</th><th scope="col">Debian</th></tr></thead><tbody><tr><td><code translate="no">pstree</code>, <code translate="no">killall</code>, <code translate="no">fuser</code></td><td>Pacote <code translate="no">psmisc</code></td><td>Pacote <code translate="no">psmisc</code></td></tr><tr><td><code translate="no">ps</code>, <code translate="no">top</code>, <code translate="no">free</code>, <code translate="no">pgrep</code></td><td>Pacote <code translate="no">procps-ng</code></td><td>Pacote <code translate="no">procps</code></td></tr><tr><td>Nome do serviço de SSH</td><td><code translate="no">sshd</code></td><td><code translate="no">ssh</code></td></tr></tbody></table></div>
+<h2 id="5-lab-guiado">5 · Lab guiado</h2>
+<p><strong>Passo 0 · Snapshots e preparo.</strong> No Proxmox: <code translate="no">qm snapshot 201 m7a1-inicio</code> e <code translate="no">qm snapshot 202 m7a1-inicio</code>. Na rocky-lab:</p>
+<pre translate="no"><code class="lang-bash">sudo dnf install -y psmisc
+mkdir -p ~/lab71 &amp;&amp; cd ~/lab71</code></pre>
+<p><strong>Passo 1 · Ler o que está rodando.</strong></p>
+<pre translate="no"><code class="lang-bash">ps -ef --forest | head -n 25
+ps -eo pid,ppid,stat,ni,pcpu,pmem,etime,comm --sort=-pcpu | head
+pstree -ps $$
+uptime
+nproc
+free -h</code></pre>
+<p>O <code translate="no">pstree -ps $$</code> mostra a sua linhagem: <code translate="no">systemd</code>, <code translate="no">sshd</code>, <code translate="no">bash</code>. No <code translate="no">free -h</code>, olhe a coluna <code translate="no">available</code>, que é o que os programas ainda podem usar.</p>
+<p><strong>Passo 2 · A mentira do <code translate="no">%CPU</code>.</strong> O processo abaixo gasta CPU por 10 segundos e depois dorme.</p>
+<pre translate="no"><code class="lang-bash">bash -c 'fim=$((SECONDS+10)); while [ $SECONDS -lt $fim ]; do :; done; sleep 300; true' &amp;
+GASTOU=$!
+sleep 13
+ps -o pid,pcpu,etime,comm -p $GASTOU
+top -b -n2 -d2 -p $GASTOU | awk 'NF' | tail -n 1
+pkill -P $GASTOU</code></pre>
+<p>O <code translate="no">ps</code> mostra algo perto de 75%: é a média desde que o processo nasceu. O <code translate="no">top</code> mostra 0, porque compara duas amostras. Para saber quem consome CPU <strong>agora</strong>, use o <code translate="no">top</code>. O <code translate="no">-n2</code> existe porque a primeira amostra do <code translate="no">top</code> também é uma média.</p>
+<p>O <code translate="no">pkill -P</code> encerra o <code translate="no">sleep</code> filho, e o <code translate="no">bash</code> termina em seguida. Um <code translate="no">kill $GASTOU</code> mataria só o <code translate="no">bash</code> e deixaria o <code translate="no">sleep</code> órfão, vivo por cinco minutos.</p>
+<p><strong>Passo 3 · Um serviço de brinquedo.</strong> Crie um script que responde a sinais.</p>
+<pre translate="no"><code class="lang-bash">cat &gt; ~/lab71/servico.sh &lt;&lt;'EOF'
+#!/bin/bash
+trap 'echo "$(date +%T) HUP: relendo a configuracao"' HUP
+trap 'echo "$(date +%T) TERM: salvando e saindo"; exit 0' TERM
+while true; do
+  echo "$(date +%T) trabalhando"
+  sleep 2
+done
+EOF
+chmod +x ~/lab71/servico.sh
+./servico.sh &gt; servico.log &amp;
+S=$!</code></pre>
+<p><strong>Passo 4 · Olhar por dentro, em <code translate="no">/proc</code>.</strong></p>
+<pre translate="no"><code class="lang-bash">grep -E 'State|PPid|VmRSS|Threads' /proc/$S/status
+ls -l /proc/$S/exe /proc/$S/cwd
+tr '\0' ' ' &lt; /proc/$S/cmdline; echo
+ls -l /proc/$S/fd</code></pre>
+<p>O <code translate="no">exe</code> aponta para <code translate="no">/usr/bin/bash</code>, porque é o bash que roda o script. No <code translate="no">fd</code>, o descritor 1 aponta para <code translate="no">servico.log</code>: é assim que você descobre para onde um processo está escrevendo, mesmo sem saber como ele foi iniciado.</p>
+<figure><a href="../img/7.1-foto-filme-raio-x.jpg"><img src="../img/7.1-foto-filme-raio-x.jpg" alt="Três jeitos de olhar um processo" loading="lazy" decoding="async"></a><figcaption>O ps tira uma foto, o top filma e o /proc mostra o processo por dentro.</figcaption></figure>
+<p><strong>Passo 5 · Mandar sinais.</strong></p>
+<pre translate="no"><code class="lang-bash">kill -HUP $S; sleep 3; tail -n 3 servico.log
+kill -STOP $S; ps -o pid,stat,comm -p $S
+date +%T; sleep 6; tail -n 1 servico.log
+kill -CONT $S; sleep 3; tail -n 1 servico.log
+kill -TERM $S; sleep 3; tail -n 2 servico.log
+wait $S; echo "saida=$?"</code></pre>
+<p>O HUP aparece no log e o programa continua. Durante o STOP o estado vira <code translate="no">T</code>, e o horário no log para. Com o TERM, o script grava <code translate="no">salvando e saindo</code> e termina com <code translate="no">saida=0</code>. Agora o contraste:</p>
+<pre translate="no"><code class="lang-bash">./servico.sh &gt; servico.log &amp;
+S=$!
+sleep 3
+kill -9 $S
+wait $S; echo "saida=$?"
+tail -n 2 servico.log</code></pre>
+<p>Sem <code translate="no">salvando e saindo</code> e com <code translate="no">saida=137</code>, que é 128 + 9. Quando um script ou o systemd mostrar 137 ou 143, você sabe que o processo morreu por KILL ou por TERM.</p>
+<p><strong>Passo 6 · Mirar antes de atirar.</strong></p>
+<pre translate="no"><code class="lang-bash">sleep 5001 &amp;
+sleep 5002 &amp;
+pgrep -a sleep
+pgrep -af 'sleep 5001'
+pkill -f 'sleep 5001'
+pgrep -a sleep
+pkill -x sleep
+pgrep -a sleep</code></pre>
+<p>Só depois de ver a lista, troque <code translate="no">pgrep</code> por <code translate="no">pkill</code>. O <code translate="no">-f</code> procura na linha inteira e o <code translate="no">-x</code> exige o nome exato.</p>
+<p><strong>Passo 7 · De qual serviço veio esse PID?</strong></p>
+<pre translate="no"><code class="lang-bash">P=$(systemctl show -p MainPID --value sshd)
+ps -o pid,ppid,etime,cmd -p $P
+systemctl status $P --no-pager | head -n 4
+cat /proc/$P/cgroup</code></pre>
+<p>O <code translate="no">systemctl status</code> aceita um PID e responde a qual unit ele pertence. Guarde isso: é o primeiro comando diante de um processo desconhecido.</p>
+<p><strong>Passo 8 · debian-lab.</strong> Instale o <code translate="no">psmisc</code> e repita os passos 1 e 7, trocando <code translate="no">sshd</code> por <code translate="no">ssh</code>. Os comandos e os sinais são os mesmos.</p>
+<h3 id="decida-1">Decida 1</h3>
+<p>O processo do banco de dados está a 100% de CPU e o sistema de gestão parou de responder. O gerente pede pressa. O que você faz primeiro?</p>
+<p>A) <code translate="no">kill -9</code> no processo, para liberar logo. B) Reinicia o servidor. C) Anota o que está acontecendo com <code translate="no">top</code> e <code translate="no">ps</code>, tenta <code translate="no">systemctl stop</code> e deixa o serviço terminar. Só usa KILL se ele não parar dentro do tempo combinado.</p>
+<p>Marque uma opção antes.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se você marcou</th><th scope="col">Resultado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>A</td><td>Risco de perder dados</td><td>O banco não termina o que tinha em memória e a próxima subida faz recuperação</td></tr><tr><td>B</td><td>O mesmo risco, para todos os serviços</td><td>Você apaga as evidências e derruba o que estava funcionando</td></tr><tr><td>C</td><td>Certo</td><td>O systemd manda TERM e, passado o tempo limite, KILL. Você ainda fica com a evidência para achar a causa</td></tr></tbody></table></div>
+<p><strong>Para fixar:</strong> <code translate="no">kill -9</code> é o fim da escada, não o começo.</p>
+<h3 id="decida-2">Decida 2</h3>
+<p>Carga em 40, num servidor de 8 núcleos. O <code translate="no">top</code> mostra CPU quase toda ociosa. O que você olha?</p>
+<p>A) Quem está em primeiro no <code translate="no">top</code> por CPU. B) <code translate="no">ps -eo pid,stat,wchan:20,comm | awk '$2 ~ /^D/'</code>. C) Aumenta a memória da VM.</p>
+<p>Marque uma opção antes.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se você marcou</th><th scope="col">Resultado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>A</td><td>Não acha nada</td><td>Quem está em D não usa CPU, mas conta na carga</td></tr><tr><td>B</td><td>Certo</td><td>Mostra quem está preso e, no <code translate="no">wchan</code>, em que função do kernel. Costuma ser disco ou NFS</td></tr><tr><td>C</td><td>Gasto sem efeito</td><td>O gargalo não é memória</td></tr></tbody></table></div>
+<p><strong>Para fixar:</strong> carga alta com CPU parada é sinal de processos esperando E/S.</p>
+<h2 id="6-quebre-e-conserte">6 · Quebre e conserte</h2>
+<figure><a href="../img/7.1-tres-teimosos.jpg"><img src="../img/7.1-tres-teimosos.jpg" alt="Três processos que não saem" loading="lazy" decoding="async"></a><figcaption>Nos três casos, matar de novo não resolve. Ache quem segura o processo.</figcaption></figure>
+<h3 id="quebra-1-matei-e-voltou">Quebra 1 · Matei e voltou</h3>
+<pre translate="no"><code class="lang-bash">sudo systemd-run --unit=lab-teimoso -p Restart=always -p RestartSec=2 sleep 5000
+sleep 1
+sudo kill -9 "$(pgrep -f 'sleep 5000')"
+sleep 4
+pgrep -af 'sleep 5000'</code></pre>
+<p><strong>Sintoma:</strong> o processo está lá de novo, com outro PID.</p>
+<p><strong>Diagnóstico:</strong></p>
+<pre translate="no"><code class="lang-bash">P=$(pgrep -f 'sleep 5000')
+ps -o pid,ppid,etime,cmd -p $P
+systemctl status $P --no-pager | head -n 3</code></pre>
+<p>O PPID é 1 e o <code translate="no">etime</code> é de poucos segundos. O status mostra o nome da unit.</p>
+<p><strong>Conserto:</strong> <code translate="no">sudo systemctl stop lab-teimoso</code>. Confira com <code translate="no">pgrep -af 'sleep 5000'</code>, que não deve mostrar nada.</p>
+<p><strong>Na vida real:</strong> antes de matar pela segunda vez, pergunte quem subiu o processo de volta. Pode ser o systemd, o cron, um contêiner ou um script de supervisão.</p>
+<h3 id="quebra-2-o-zumbi-imortal">Quebra 2 · O zumbi imortal</h3>
+<pre translate="no"><code class="lang-bash">(sleep 1 &amp; exec sleep 300) &amp;
+PAI=$!
+sleep 2
+ps -o pid,ppid,stat,comm --ppid $PAI
+Z=$(ps -o pid= --ppid $PAI)
+kill -9 $Z
+sleep 1
+ps -o pid,ppid,stat,comm -p $Z</code></pre>
+<p><strong>Sintoma:</strong> estado <code translate="no">Z</code>, com <code translate="no">&lt;defunct&gt;</code>, e o <code translate="no">kill -9</code> não muda nada.</p>
+<p><strong>Diagnóstico:</strong> o processo já terminou. Sobrou só a entrada na tabela, esperando o pai ler o código de saída. Aqui o pai é um <code translate="no">sleep</code>, que nunca faz isso.</p>
+<p><strong>Conserto:</strong></p>
+<pre translate="no"><code class="lang-bash">kill $PAI
+sleep 1
+ps -o pid,ppid,stat,comm -p $Z</code></pre>
+<p>O filho passa a ser adotado por um processo que recolhe a saída, e a entrada some.</p>
+<p><strong>Na vida real:</strong> um zumbi não gasta CPU nem memória, só uma entrada na tabela. Poucos e estáveis são inofensivos. Muitos e aumentando indicam um pai com defeito, e o conserto é reiniciar ou corrigir esse pai.</p>
+<h3 id="quebra-3-preso-em-d-narrativa">Quebra 3 · Preso em D (narrativa)</h3>
+<p>O servidor NFS caiu. Um <code translate="no">ls /mnt/nfs</code> não volta, Ctrl+C não funciona, <code translate="no">kill -9</code> não funciona e a carga sobe sem parar.</p>
+<p><strong>Diagnóstico:</strong> <code translate="no">ps -eo pid,stat,wchan:20,comm | awk '$2 ~ /^D/'</code> e <code translate="no">journalctl -k -n 50</code>, que costuma mostrar <code translate="no">nfs: server ... not responding</code>.</p>
+<p><strong>Conserto:</strong> trazer o servidor NFS de volta. O sinal fica na fila e é entregue quando a operação termina. Em último caso, <code translate="no">umount -f</code> ou <code translate="no">umount -l</code>, sabendo que escritas pendentes podem se perder. Se o disco local é que falhou, a saída pode ser o reboot.</p>
+<p><strong>Para fixar:</strong> nenhum sinal alcança um processo em D. Procure a causa na E/S.</p>
+<h3 id="limpeza">Limpeza</h3>
+<pre translate="no"><code class="lang-bash">sudo systemctl stop lab-teimoso 2&gt;/dev/null
+pkill -f servico.sh
+pkill -x sleep
+pgrep -af 'servico|sleep 5'</code></pre>
+<p>O último comando não deve mostrar nada.</p>
+<h2 id="7-armadilhas">7 · Armadilhas</h2>
+<div class="tabela"><table><thead><tr><th scope="col">Armadilha</th><th scope="col">O que acontece</th><th scope="col">Como evitar</th></tr></thead><tbody><tr><td>Confiar no <code translate="no">%CPU</code> do <code translate="no">ps</code></td><td>É a média da vida do processo</td><td>Use <code translate="no">top</code>, com duas amostras</td></tr><tr><td><code translate="no">kill -9</code> como primeira opção</td><td>O programa não limpa nem grava</td><td>TERM, espera, confere, KILL</td></tr><tr><td><code translate="no">pkill -f</code> com texto curto</td><td>Acerta o que você não queria. <code translate="no">pkill -f rodrigo</code> derruba a sua própria sessão SSH</td><td>Rode <code translate="no">pgrep -af</code> antes e use um texto longo</td></tr><tr><td><code translate="no">pgrep nome</code> com nome longo</td><td>O nome do processo tem no máximo 15 caracteres</td><td>Use <code translate="no">-f</code></td></tr><tr><td><code translate="no">ps aux | grep nome</code></td><td>O próprio <code translate="no">grep</code> aparece na lista</td><td>Use <code translate="no">pgrep -a</code></td></tr><tr><td>Matar zumbi</td><td>Não muda nada</td><td>Olhe o PPID e trate o pai</td></tr><tr><td>Matar um processo de serviço</td><td>Ele volta, se o unit tiver <code translate="no">Restart=</code></td><td><code translate="no">systemctl status PID</code>, depois <code translate="no">systemctl stop</code></td></tr><tr><td>Achar que HUP sempre recarrega</td><td>Um programa que não trata HUP morre</td><td>Confira no <code translate="no">man</code> ou use <code translate="no">systemctl reload</code></td></tr><tr><td>Copiar número de sinal de outro sistema</td><td>Em outras arquiteturas alguns números mudam</td><td>Use nomes: <code translate="no">-TERM</code>, <code translate="no">-HUP</code>, <code translate="no">-KILL</code></td></tr></tbody></table></div>
+<h2 id="8-quiz">8 · Quiz</h2>
+<p>Responda sem olhar. O gabarito está no fim da aula.</p>
+<ol><li>Quais dois sinais o programa não consegue tratar?</li>
+<li>Um script termina com código 143. O que aconteceu?</li>
+<li>O que está sendo esperado em um processo no estado Z? E no estado D?</li>
+<li>Como descobrir, em um comando, de qual unit veio um PID?</li>
+<li>Por que <code translate="no">ps</code> e <code translate="no">top</code> podem discordar sobre CPU?</li>
+<li>Antes de um <code translate="no">pkill -f 'backup'</code>, qual comando você roda?</li></ol>
+<h2 id="9-cola">9 · Cola</h2>
+<p><strong>Para saber de cor:</strong></p>
+<div class="tabela"><table><thead><tr><th scope="col">Quero...</th><th scope="col">Comando</th></tr></thead><tbody><tr><td>Quem gasta CPU agora</td><td><code translate="no">top</code>, tecla <code translate="no">P</code></td></tr><tr><td>Quem gasta memória</td><td><code translate="no">top</code>, tecla <code translate="no">M</code></td></tr><tr><td>Listar com critério</td><td><code translate="no">pgrep -af 'texto'</code></td></tr><tr><td>Pedir para sair</td><td><code translate="no">kill PID</code></td></tr><tr><td>Forçar, em último caso</td><td><code translate="no">kill -9 PID</code></td></tr><tr><td>Unit de um PID</td><td><code translate="no">systemctl status PID</code></td></tr><tr><td>Presos em E/S</td><td><code translate="no">ps -eo pid,stat,wchan:20,comm | awk '$2 ~ /^D/'</code></td></tr><tr><td>Zumbis</td><td><code translate="no">ps -eo pid,ppid,stat,comm | awk '$3 ~ /^Z/'</code></td></tr></tbody></table></div>
+<p><strong>Para consultar:</strong></p>
+<div class="tabela"><table><thead><tr><th scope="col">Quero...</th><th scope="col">Comando</th></tr></thead><tbody><tr><td>Lista de sinais</td><td><code translate="no">kill -l</code></td></tr><tr><td>Testar se o PID existe</td><td><code translate="no">kill -0 PID; echo $?</code></td></tr><tr><td>Árvore</td><td><code translate="no">ps -ef --forest</code>, <code translate="no">pstree -ps PID</code></td></tr><tr><td>Sinal para um serviço</td><td><code translate="no">sudo systemctl kill -s HUP UNIT</code></td></tr><tr><td>Executável e pasta</td><td><code translate="no">ls -l /proc/PID/exe /proc/PID/cwd</code></td></tr><tr><td>Arquivos abertos</td><td><code translate="no">ls -l /proc/PID/fd</code></td></tr><tr><td>Variáveis do processo</td><td><code translate="no">sudo tr '\0' '\n' &lt; /proc/PID/environ</code></td></tr><tr><td>Contar por estado</td><td><code translate="no">ps -eo stat= | cut -c1 | sort | uniq -c</code></td></tr></tbody></table></div>
+<p><strong>Flashcards:</strong></p>
+<ul><li>TERM → <em>pedido; o programa pode limpar. É o padrão.</em></li>
+<li>KILL e STOP → <em>o kernel age; o programa não pode tratar.</em></li>
+<li>137 e 143 → <em>128 + 9 e 128 + 15.</em></li>
+<li>Z → <em>já morreu; trate o pai.</em></li>
+<li>D → <em>preso em E/S; nenhum sinal entra.</em></li>
+<li>Matou e voltou → <em><code translate="no">systemctl status PID</code>.</em></li></ul>
+<h2 id="10-checklist-e-fechamento">10 · Checklist e fechamento</h2>
+<ul><li>[ ] Explico os estados R, S, D, T e Z</li>
+<li>[ ] Sei por que <code translate="no">ps</code> e <code translate="no">top</code> discordam sobre CPU</li>
+<li>[ ] Uso a sequência TERM, espera, confere, KILL</li>
+<li>[ ] Rodo <code translate="no">pgrep -a</code> antes de todo <code translate="no">pkill</code></li>
+<li>[ ] Descubro de que serviço veio um PID</li>
+<li>[ ] Sei o que fazer com zumbis e com processos em D</li>
+<li>[ ] Leio 137 e 143 como sinais</li></ul>
+<p><strong>Último exercício, sem olhar a aula:</strong> na debian-lab, escreva um script que grave <code translate="no">tchau</code> em um arquivo ao receber TERM. Rode em segundo plano, mande TERM e prove pelo arquivo. Repita com KILL e explique a diferença.</p>
+<p><strong>Snapshot de fim</strong> (no Proxmox):</p>
+<pre translate="no"><code class="lang-bash">qm snapshot 201 m7a1-fim
+qm snapshot 202 m7a1-fim</code></pre>
+<h2 id="11-na-vida-real">11 · Na vida real</h2>
+<p><strong>Missão, só leitura.</strong> Num servidor Linux que você administre (ou com autorização), rode <strong>apenas</strong>:</p>
+<pre translate="no"><code class="lang-bash">uptime
+nproc
+free -h
+ps -eo stat= | cut -c1 | sort | uniq -c
+ps -eo pid,ppid,stat,comm | awk '$3 ~ /^Z/'
+ps -eo pid,stat,wchan:20,comm | awk '$2 ~ /^D/'
+ps -eo pid,ppid,pmem,etime,comm --sort=-pmem | head</code></pre>
+<p>Perguntas para responder:</p>
+<ol><li>A carga de 15 minutos é maior que o número de núcleos?</li>
+<li>Quantos processos estão em cada estado? Existe algum em D ou Z?</li>
+<li>Se há zumbis, quem é o pai de cada um?</li>
+<li>Quais são os três maiores em memória, e de que unit vem cada um? Consulte com <code translate="no">systemctl status PID</code>.</li></ol>
+<p><strong>Diário:</strong> anote a resposta da 4. Não envie nenhum sinal.</p>
+<p><strong>Amanhã, sem olhar:</strong> escreva os cinco sinais da aula, com número, e diga quais o programa não pode tratar.</p>
+<h2 id="12-aprofundar-quando-quiser">12 · Aprofundar quando quiser</h2>
+<ul><li><strong><code translate="no">man 7 signal</code>:</strong> a lista completa e o comportamento padrão de cada sinal.</li>
+<li><strong><code translate="no">strace -p PID</code>:</strong> ver em que chamada de sistema um processo está parado.</li>
+<li><strong><code translate="no">lsof -p PID</code> e <code translate="no">fuser -v ARQUIVO</code>:</strong> quem está segurando um arquivo ou uma porta.</li>
+<li><strong><code translate="no">KillMode=</code> e <code translate="no">TimeoutStopSec=</code>:</strong> como o systemd para um serviço e quanto tempo espera antes do KILL.</li>
+<li><strong><code translate="no">pidstat</code></strong> (pacote <code translate="no">sysstat</code>): consumo por processo ao longo do tempo.</li></ul>
+<p><strong>DeepTutor</strong> (http://10.1.0.149:3782, KB "Curso Linux Sysadmin"):</p>
+<ul><li><code translate="no">!explica a diferença entre os estados S e D de um processo</code></li>
+<li><code translate="no">!feynman o que é um processo zumbi e por que kill não resolve</code></li>
+<li><code translate="no">!quiz Aula 7.1, 5 perguntas sobre sinais e estados</code></li></ul>
+<h2 id="gabarito-comentado">Gabarito comentado</h2>
+<h3 id="aquecimento">Aquecimento</h3>
+<ol><li>O <code translate="no">kill PID</code> manda TERM, que o programa pode tratar para sair com calma. O <code translate="no">kill -9</code> manda KILL, que nem chega ao programa: o kernel o elimina.</li>
+<li>Sim. O <code translate="no">%CPU</code> do <code translate="no">ps</code> é a média desde o início do processo. O <code translate="no">top</code> mede o intervalo entre duas amostras. Um processo que trabalhou muito e agora dorme mostra exatamente isso.</li>
+<li>Não. O processo já terminou, e o sinal não tem quem receba. É preciso que o pai leia a saída ou termine.</li></ol>
+<h3 id="quiz">Quiz</h3>
+<ol><li>KILL (9) e STOP (19).</li>
+<li>O processo morreu por TERM: 128 + 15.</li>
+<li>No Z, espera-se que o pai leia o código de saída (<code translate="no">wait</code>). No D, o processo espera uma operação de E/S terminar no kernel.</li>
+<li><code translate="no">systemctl status PID</code>.</li>
+<li>Porque o <code translate="no">ps</code> calcula a média da vida inteira do processo, e o <code translate="no">top</code> compara duas amostras próximas.</li>
+<li><code translate="no">pgrep -af 'backup'</code>, para ver exatamente o que será atingido.</li></ol>
+</article><nav class="paginas" aria-label="Aulas"><a class="ant" href="6.5-bibliotecas-compartilhadas.html"><small>← Anterior</small>6.5 · Bibliotecas compartilhadas</a><a class="prox" href="7.2-jobs-e-sessoes.html"><small>Próxima →</small>7.2 · Jobs e sessões</a></nav></main></div>
+<footer><div class="wrap">Gerado a partir do Markdown do curso · Imagens em <code translate="no">img/</code></div></footer>
+</body>
+</html>

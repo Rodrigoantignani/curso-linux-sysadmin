@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light dark">
+<title>9.4 · Montare e rendere persistente · Corso Linux Sysadmin</title>
+<link rel="alternate" hreflang="pt-BR" href="9.4-montar-e-persistir.html"><link rel="alternate" hreflang="it" href="9.4-montar-e-persistir.it.html">
+<style>
+:root{color-scheme:light dark;--bg:#f6f1e7;--card:#fffdf8;--ink:#201c16;--muted:#5e564a;--accent:#9a3412;--accent-2:#1f5f4a;--tint:#efe6d4;--line:#ddd2bc;--code:#f1eadb;--shadow:0 1px 2px rgba(60,40,10,.08);--serif:Georgia,"Iowan Old Style","Palatino Linotype",Palatino,serif;--sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--mono:"Cascadia Code",Consolas,"DejaVu Sans Mono",monospace}
+@media (prefers-color-scheme:dark){:root{--bg:#16130f;--card:#201b15;--ink:#f1eadb;--muted:#b9ad98;--accent:#f0a070;--accent-2:#7fd0b0;--tint:#2a231a;--line:#3d3427;--code:#191510;--shadow:none}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:5.5rem}
+body{margin:0;background:var(--bg);color:var(--ink);font:1rem/1.6 var(--sans)}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--accent-2);outline-offset:2px;border-radius:4px}
+.pular{position:absolute;left:-999px;top:0;background:var(--card);padding:.5rem 1rem;z-index:20}
+.pular:focus{left:.5rem;top:.5rem}
+.wrap{width:100%;max-width:84rem;margin:0 auto;padding-inline:max(1rem,env(safe-area-inset-left))}
+.top{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10;border-top:6px solid var(--accent)}
+.top-in{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding-block:.6rem}
+.titles{min-width:0}
+.marca{margin:0;font:700 clamp(1.15rem,1rem + 1vw,1.6rem)/1.15 var(--serif);letter-spacing:-.01em}
+.marca a{text-decoration:none}
+.marca a:hover{color:var(--accent)}
+.meta{margin:.1rem 0 0;color:var(--muted);font-size:.85rem}
+.acoes{display:flex;align-items:center;gap:.9rem;flex:none}
+.acoes>a{font-size:.9rem;font-weight:600;color:var(--muted);text-decoration:none}
+.acoes>a:hover{color:var(--accent);text-decoration:underline}
+.idioma{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--tint)}
+.idioma>*{padding:.35rem .9rem;font-size:.8rem;font-weight:700;letter-spacing:.06em;text-decoration:none;color:var(--muted);min-width:2.75rem;text-align:center}
+.idioma a:hover{color:var(--accent);text-decoration:underline}
+.idioma span{background:var(--accent);color:#fff}
+@media (prefers-color-scheme:dark){.idioma span{color:#16130f}}
+code{font-family:var(--mono);font-size:.9em;background:var(--tint);padding:.1rem .35rem;border-radius:4px;overflow-wrap:anywhere}
+/* índice */
+.capa{max-width:70rem;padding-block:2rem 3rem}
+.stats{border-left:4px solid var(--accent-2);background:var(--card);border-radius:0 10px 10px 0;padding:1rem 1.25rem;margin:0 0 2.5rem;box-shadow:var(--shadow);color:var(--muted)}
+.stats strong{color:var(--ink)}
+.modulo{display:grid;grid-template-columns:15rem minmax(0,1fr);gap:1rem 2rem;padding:1.75rem 0;border-top:1px solid var(--line)}
+.modulo h2{margin:0;font:700 1.25rem/1.25 var(--serif);align-self:start;position:sticky;top:6rem}
+.mn{display:block;font:700 .8rem var(--mono);letter-spacing:.12em;color:var(--accent);margin-bottom:.25rem}
+.sep{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.modulo ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,17rem),1fr));gap:.75rem}
+.modulo li{margin:0}
+.modulo a{display:flex;gap:.45rem;align-items:baseline;height:100%;padding:.85rem 1rem;background:var(--card);border:1px solid var(--line);border-radius:10px;text-decoration:none;font-weight:600;line-height:1.35;box-shadow:var(--shadow);transition:border-color .15s,transform .15s}
+.modulo a:hover{border-color:var(--accent);color:var(--accent)}
+.num{font:700 .85rem var(--mono);color:var(--accent);white-space:nowrap}
+/* aula */
+.doc{display:grid;grid-template-columns:17rem minmax(0,1fr);gap:2.5rem;align-items:start;padding-block:2rem 3rem}
+.lateral{position:sticky;top:5.5rem;max-height:calc(100vh - 6.5rem);overflow:auto;font-size:.875rem;padding-right:.5rem}
+.lateral h2{margin:0 0 .25rem;font:700 .95rem var(--serif);color:var(--muted)}
+.lateral h3{margin:1rem 0 .25rem;font:700 .75rem var(--mono);letter-spacing:.06em;color:var(--accent)}
+.lateral ul{list-style:none;margin:0;padding:0}
+.lateral a{display:flex;gap:.45rem;padding:.25rem .5rem;border-radius:6px;text-decoration:none;color:var(--muted);line-height:1.3}
+.lateral a:hover{background:var(--tint);color:var(--ink)}
+.lateral a[aria-current]{background:var(--tint);color:var(--ink);font-weight:700;box-shadow:inset 3px 0 0 var(--accent)}
+.lateral .num{font-size:.75rem}
+.aula{min-width:0;max-width:56rem;overflow-wrap:break-word;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:clamp(1.25rem,1rem + 2vw,2.75rem);box-shadow:var(--shadow)}
+.aula h1{margin:0 0 1.5rem;font:700 clamp(1.75rem,1.4rem + 1.6vw,2.5rem)/1.15 var(--serif);letter-spacing:-.015em;color:var(--ink)}
+.aula h2{margin:2.5rem 0 .75rem;padding-top:1.25rem;border-top:1px solid var(--line);font:700 1.5rem/1.25 var(--serif)}
+.aula h3{margin:2rem 0 .5rem;font:700 1.15rem/1.3 var(--serif);color:var(--accent)}
+.aula h4,.aula h5,.aula h6{margin:1.5rem 0 .5rem;font-size:1rem}
+.aula p,.aula ul,.aula ol{margin:1rem 0}
+.aula ul,.aula ol{padding-left:1.5rem}
+.aula li{margin:.35rem 0}
+.aula li>ul,.aula li>ol{margin:.35rem 0}
+.aula a{color:var(--accent);text-underline-offset:2px}
+.aula hr{border:0;border-top:1px solid var(--line);margin:2rem 0}
+.tabela{overflow-x:auto;margin:1.25rem 0;border:1px solid var(--line);border-radius:10px}
+.aula table{width:100%;border-collapse:collapse;font-size:.9rem}
+.aula th,.aula td{padding:.55rem .75rem;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+.aula tr:last-child td{border-bottom:0}
+.aula th{background:var(--tint);font-weight:700}
+.aula pre{background:var(--code);border:1px solid var(--line);border-radius:10px;padding:.9rem 1rem;overflow-x:auto;font:.85rem/1.5 var(--mono);margin:1rem 0;tab-size:4}
+.aula pre code{background:none;padding:0;font-size:inherit;overflow-wrap:normal}
+.aula blockquote{margin:1.25rem 0;padding:.75rem 1.25rem;border-left:4px solid var(--accent-2);background:var(--tint);border-radius:0 10px 10px 0}
+.aula blockquote>:first-child{margin-top:0}
+.aula blockquote>:last-child{margin-bottom:0}
+.aula figure{margin:1.75rem 0;text-align:center}
+.aula figure img{display:block;margin:0 auto;max-width:100%;height:auto;border:1px solid var(--line);border-radius:10px;background:#fff}
+.aula figcaption{margin-top:.5rem;color:var(--muted);font-size:.9rem;font-style:italic}
+.paginas{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:2.5rem;padding-top:1.5rem;border-top:1px solid var(--line)}
+.paginas a{display:block;padding:.75rem 1rem;border:1px solid var(--line);border-radius:10px;text-decoration:none;color:var(--ink);font-weight:600;line-height:1.3}
+.paginas a:hover{border-color:var(--accent);color:var(--accent)}
+.paginas small{display:block;color:var(--muted);font-weight:400}
+.paginas .prox{grid-column:2;text-align:right}
+footer{border-top:1px solid var(--line);padding-block:1.5rem;color:var(--muted);font-size:.85rem;text-align:center}
+@media (hover:hover) and (prefers-reduced-motion:no-preference){.modulo a:hover{transform:translateY(-2px)}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+@media (max-width:980px){.doc{grid-template-columns:minmax(0,1fr);padding-top:1rem}.lateral{position:static;max-height:none;order:2}.aula{max-width:none}}
+@media (max-width:860px){.modulo{grid-template-columns:minmax(0,1fr)}.modulo h2{position:static}.mn{display:inline;margin-right:.5rem}}
+@media (max-width:420px){.meta{display:none}.top-in{gap:.5rem}.acoes{gap:.6rem}.capa{padding-top:1.25rem}.paginas{grid-template-columns:minmax(0,1fr)}.paginas .prox{grid-column:1}}
+@media print{.top,.lateral,.paginas{display:none}.aula{border:0;box-shadow:none;padding:0;max-width:none}.doc{display:block}}
+</style>
+</head>
+<body>
+<a class="pular" href="#conteudo">Vai al contenuto</a>
+<header class="top"><div class="wrap top-in"><div class="titles"><p class="marca"><a href="index.it.html">Corso Linux Sysadmin</a></p><p class="meta">Rodrigo Antignani · Lezione 9.4</p></div><div class="acoes"><a href="index.it.html">Indice</a><div class="idioma" role="group" aria-label="Lingua"><a href="9.4-montar-e-persistir.html" hreflang="pt-BR" lang="pt-BR">PT</a><span aria-current="true">IT</span></div></div></div></header>
+<div class="wrap doc"><aside class="lateral" aria-label="Lezioni"><h2>Lezioni</h2><h3>M0 · Laboratorio</h3><ul><li><a href="0.1-montar-o-laboratorio.it.html"><span class="num">0.1</span><span>Allestire il laboratorio</span></a></li><li><a href="0.2-acesso-e-protecao.it.html"><span class="num">0.2</span><span>Accesso e protezione</span></a></li></ul><h3>M1 · Riga di comando</h3><ul><li><a href="1.1-o-que-e-linux.it.html"><span class="num">1.1</span><span>Che cos'è Linux</span></a></li><li><a href="1.2-o-shell-e-a-ajuda.it.html"><span class="num">1.2</span><span>La shell e la guida</span></a></li><li><a href="1.3-caminhos-e-navegacao.it.html"><span class="num">1.3</span><span>Percorsi e navigazione</span></a></li><li><a href="1.4-criar-copiar-mover-e-apagar.it.html"><span class="num">1.4</span><span>Creare, copiare, spostare ed eliminare</span></a></li><li><a href="1.5-ler-e-procurar-texto.it.html"><span class="num">1.5</span><span>Leggere e cercare testo</span></a></li><li><a href="1.6-redirecionamentos-e-pipes.it.html"><span class="num">1.6</span><span>Reindirizzamenti e pipe</span></a></li><li><a href="1.7-arquivar-e-compactar.it.html"><span class="num">1.7</span><span>Archiviare e comprimere</span></a></li><li><a href="1.8-primeiro-script.it.html"><span class="num">1.8</span><span>Primo script</span></a></li><li><a href="1.9-decidir-e-repetir.it.html"><span class="num">1.9</span><span>Decidere e ripetere</span></a></li><li><a href="1.10-software-livre-na-pratica.it.html"><span class="num">1.10</span><span>Il software libero in pratica</span></a></li></ul><h3>M2 · Sistema, utenti e permessi</h3><ul><li><a href="2.1-instalacao-e-provisionamento.it.html"><span class="num">2.1</span><span>Installazione e provisioning</span></a></li><li><a href="2.2-hardware-e-dispositivos.it.html"><span class="num">2.2</span><span>Hardware e dispositivi</span></a></li><li><a href="2.3-processos-e-logs.it.html"><span class="num">2.3</span><span>Processi e log</span></a></li><li><a href="2.4-rede-no-dia-a-dia.it.html"><span class="num">2.4</span><span>La rete di tutti i giorni</span></a></li><li><a href="2.5-acesso-remoto-e-privilegios.it.html"><span class="num">2.5</span><span>Accesso remoto e privilegi</span></a></li><li><a href="2.6-usuarios-e-grupos.it.html"><span class="num">2.6</span><span>Utenti e gruppi</span></a></li><li><a href="2.7-permissoes-e-dono.it.html"><span class="num">2.7</span><span>Permessi e proprietario</span></a></li><li><a href="2.8-diretorios-e-arquivos-especiais.it.html"><span class="num">2.8</span><span>Directory e file speciali</span></a></li></ul><h3>M3 · Testo ed editor</h3><ul><li><a href="3.1-fluxos-a-fundo.it.html"><span class="num">3.1</span><span>I flussi in profondità</span></a></li><li><a href="3.2-filtros-de-texto.it.html"><span class="num">3.2</span><span>Filtri di testo</span></a></li><li><a href="3.3-regex-e-grep.it.html"><span class="num">3.3</span><span>Regex e grep</span></a></li><li><a href="3.4-sed-e-awk.it.html"><span class="num">3.4</span><span>sed e awk</span></a></li><li><a href="3.5-vi-e-vim-de-verdade.it.html"><span class="num">3.5</span><span>vi e vim sul serio</span></a></li></ul><h3>M4 · systemd e boot</h3><ul><li><a href="4.1-como-o-linux-liga.it.html"><span class="num">4.1</span><span>Come si avvia Linux</span></a></li><li><a href="4.2-systemd-servicos-e-units.it.html"><span class="num">4.2</span><span>systemd: servizi e unit</span></a></li><li><a href="4.3-targets-desligar-e-reiniciar.it.html"><span class="num">4.3</span><span>Target: spegnere e riavviare</span></a></li><li><a href="4.4-grub-e-acesso-de-emergencia.it.html"><span class="num">4.4</span><span>GRUB e accesso di emergenza</span></a></li></ul><h3>M5 · Kernel, moduli e VM</h3><ul><li><a href="5.1-hardware-pelo-kernel.it.html"><span class="num">5.1</span><span>L'hardware visto dal kernel</span></a></li><li><a href="5.2-modulos-e-parametros.it.html"><span class="num">5.2</span><span>Moduli e parametri</span></a></li><li><a href="5.3-linux-como-convidado.it.html"><span class="num">5.3</span><span>Linux come guest</span></a></li></ul><h3>M6 · Pacchetti e repository</h3><ul><li><a href="6.1-pacotes-no-debian.it.html"><span class="num">6.1</span><span>Pacchetti su Debian</span></a></li><li><a href="6.2-pacotes-na-rocky.it.html"><span class="num">6.2</span><span>Pacchetti su Rocky</span></a></li><li><a href="6.3-repositorios.it.html"><span class="num">6.3</span><span>Repository</span></a></li><li><a href="6.4-flatpak.it.html"><span class="num">6.4</span><span>Flatpak</span></a></li><li><a href="6.5-bibliotecas-compartilhadas.it.html"><span class="num">6.5</span><span>Librerie condivise</span></a></li></ul><h3>M7 · Processi e prestazioni</h3><ul><li><a href="7.1-processos-e-sinais.it.html"><span class="num">7.1</span><span>Processi e segnali</span></a></li><li><a href="7.2-jobs-e-sessoes.it.html"><span class="num">7.2</span><span>Job e sessioni</span></a></li><li><a href="7.3-prioridade-e-perfis.it.html"><span class="num">7.3</span><span>Priorità e profili</span></a></li></ul><h3>M8 · File a fondo</h3><ul><li><a href="8.1-fhs-e-onde-cada-coisa-mora.it.html"><span class="num">8.1</span><span>FHS e dove sta ogni cosa</span></a></li><li><a href="8.2-find-a-fundo.it.html"><span class="num">8.2</span><span>find a fondo</span></a></li><li><a href="8.3-arquivamento-avancado.it.html"><span class="num">8.3</span><span>Archiviazione avanzata</span></a></li><li><a href="8.4-links.it.html"><span class="num">8.4</span><span>Link</span></a></li><li><a href="8.5-permissoes-avancadas.it.html"><span class="num">8.5</span><span>Permessi avanzati</span></a></li></ul><h3>M9 · Storage</h3><ul><li><a href="9.1-discos-e-layout.it.html"><span class="num">9.1</span><span>Dischi e layout</span></a></li><li><a href="9.2-particionar.it.html"><span class="num">9.2</span><span>Partizionare</span></a></li><li><a href="9.3-sistemas-de-arquivos.it.html"><span class="num">9.3</span><span>File system</span></a></li><li><a href="9.4-montar-e-persistir.it.html" aria-current="page"><span class="num">9.4</span><span>Montare e rendere persistente</span></a></li><li><a href="9.5-integridade-e-espaco.it.html"><span class="num">9.5</span><span>Integrità e spazio</span></a></li><li><a href="9.6-lvm.it.html"><span class="num">9.6</span><span>LVM</span></a></li><li><a href="9.7-crescer-sem-destruir.it.html"><span class="num">9.7</span><span>Crescere senza distruggere</span></a></li></ul></aside><main id="conteudo" class="aula"><article><h1>Lezione 9.4 · Montare e rendere persistente</h1>
+<p>In Windows, il disco nuovo riceve una lettera e resta lì anche dopo il riavvio. In Linux, un file system compare solo quando qualcuno lo <strong>monta</strong> in una cartella, e, senza registrazione, il montaggio sparisce al reboot. In questa lezione monti le tre partizioni della 9.3 in <code translate="no">/srv/dados</code>, <code translate="no">/srv/arquivo</code> e <code translate="no">/srv/troca</code>, lasci tutto registrato in modo sicuro e lo dimostri con un reboot.</p>
+<blockquote><p><strong>Il cuore di questa lezione:</strong> montare e smontare con <code translate="no">mount</code> e <code translate="no">umount</code>; leggere lo stato con <code translate="no">findmnt</code>; scrivere una riga di <code translate="no">/etc/fstab</code> con i sei campi; scegliere <code translate="no">UUID=</code> o <code translate="no">LABEL=</code> al posto di <code translate="no">/dev/sdb1</code>; usare <code translate="no">nofail</code>; validare con <code translate="no">findmnt --verify</code> e <code translate="no">mount -a</code> prima di riavviare; e montare un VFAT con una unit di systemd. Il resto è approfondimento.</p></blockquote>
+<div class="tabela"><table><thead><tr><th scope="col">Scheda</th><th scope="col"></th></tr></thead><tbody><tr><td><strong>Modulo</strong></td><td>M9 · Storage, lezione 4 di 7</td></tr><tr><td><strong>Quando</strong></td><td>Settimana 14</td></tr><tr><td><strong>Alla fine</strong></td><td>Tre montaggi che sopravvivono al reboot, e un fstab che validi prima di fidarti</td></tr><tr><td><strong>Prerequisiti</strong></td><td>Lezioni 9.1, 9.2 e 9.3 (le tre partizioni di <code translate="no">scsi1</code> con file system ed etichette)</td></tr><tr><td><strong>Durata</strong></td><td>circa 2h30</td></tr><tr><td><strong>Snapshot</strong></td><td><code translate="no">m9a4-inicio</code> e <code translate="no">m9a4-fim</code> su rocky-lab e debian-lab</td></tr></tbody></table></div>
+<h2 id="1-riscaldamento">1 · Riscaldamento</h2>
+<p>Rispondi prima di leggere.</p>
+<ol><li>Un file system esiste sul disco, ma <code translate="no">ls</code> sulla cartella la mostra vuota. Cosa può essere successo?</li>
+<li>Perché il nome <code translate="no">/dev/sdb1</code> è una cattiva scelta per una registrazione permanente?</li>
+<li>Il server ha un disco dati che a volte non è presente. Cosa succede al boot se l'fstab richiede quel disco?</li></ol>
+<h2 id="2-perche-conta">2 · Perché conta</h2>
+<div class="tabela"><table><thead><tr><th scope="col">La richiesta</th><th scope="col">La risposta sbagliata</th><th scope="col">Cosa provoca</th></tr></thead><tbody><tr><td>"Abbiamo riavviato e i dati sono spariti"</td><td>Copiare di nuovo tutto</td><td>Il montaggio non era nell'fstab, e i dati nuovi sono finiti sul disco della root</td></tr><tr><td>"Il server non parte dopo il reboot"</td><td>Reinstallare</td><td>Una riga sbagliata nell'fstab, senza <code translate="no">nofail</code>, manda il boot in modalità di emergenza</td></tr><tr><td>"Il disco è diventato <code translate="no">/dev/sdc</code> e il backup è fallito"</td><td>Cambiare il nome nello script</td><td>La registrazione usava il nome del dispositivo, e l'ordine non è garantito</td></tr><tr><td>"Ho scritto nella cartella e il disco è ancora vuoto"</td><td>Cercare l'errore nel programma</td><td>Hai scritto sulla root, sotto un montaggio che era caduto</td></tr></tbody></table></div>
+<h2 id="3-modello-mentale">3 · Modello mentale</h2>
+<blockquote><p>Un disco formattato è una <strong>stanza senza porta</strong>. Montare significa <strong>installare la porta in una parete</strong>: la cartella vuota è il vano, e ciò che si apre dietro è il file system. <code translate="no">/etc/fstab</code> è l'<strong>elenco delle porte che la casa rimonta ogni volta che torna la corrente</strong>. Scrivi l'indirizzo della stanza per <strong>ciò che è</strong> (UUID o etichetta), e non per l'ordine in cui le stanze sono state costruite (<code translate="no">sdb1</code>). E, se una porta si deforma, la casa si accende lo stesso, purché l'elenco dica <code translate="no">nofail</code>.</p></blockquote>
+<pre translate="no"><code>              /   (raiz, no disco do sistema)
+              └── srv
+                   ├── dados    ← scsi1-part1  ext4  DADOS    fstab, UUID=
+                   ├── arquivo  ← scsi1-part2  xfs   ARQUIVO  fstab, LABEL=
+                   └── troca    ← scsi1-part3  vfat  TROCA    unit srv-troca.mount
+
+mount   : liga agora (some no reboot)
+fstab   : liga em todo boot (lido pelo systemd na partida)
+unit    : liga em todo boot (mesma ideia, escrita como serviço)</code></pre>
+<h3 id="ponte-windows">Ponte Windows</h3>
+<div class="tabela"><table><thead><tr><th scope="col">In Windows</th><th scope="col">In Linux</th><th scope="col">Dove il paragone inganna</th></tr></thead><tbody><tr><td>Lettera di unità (<code translate="no">D:</code>)</td><td>Punto di montaggio (<code translate="no">/srv/dados</code>)</td><td>Non ci sono lettere: tutto vive in un unico albero</td></tr><tr><td>Assegnare la lettera (Gestione disco, <code translate="no">diskpart</code>)</td><td><code translate="no">mount</code></td><td>Il semplice <code translate="no">mount</code> non è persistente</td></tr><tr><td>Lettera salvata nel registro (<code translate="no">MountedDevices</code>)</td><td><code translate="no">/etc/fstab</code></td><td>È un file di testo, che modifichi e validi</td></tr><tr><td>Percorso del volume <code translate="no">\\?\Volume{GUID}\</code></td><td><code translate="no">UUID=</code></td><td>Stessa idea: identificare per ciò che il volume è</td></tr><tr><td><code translate="no">chkdsk</code> all'avvio</td><td>Campo 6 dell'fstab (<code translate="no">pass</code>)</td><td>Lo usa solo ext4; XFS non ne ha bisogno</td></tr></tbody></table></div>
+<h2 id="4-l-essenziale">4 · L'essenziale</h2>
+<h3 id="montare-e-smontare-a-mano">Montare e smontare a mano</h3>
+<pre translate="no"><code class="lang-bash">sudo mount /dev/disk/by-label/DADOS /srv/dados
+findmnt /srv/dados
+sudo umount /srv/dados</code></pre>
+<ul><li><code translate="no">mount ORIGEM DESTINO</code>: collega il file system dell'origine alla cartella di destinazione. Il tipo (<code translate="no">ext4</code>, <code translate="no">xfs</code>, <code translate="no">vfat</code>) viene rilevato da solo.</li>
+<li><code translate="no">findmnt CAMINHO</code>: mostra come quel percorso è montato. Senza argomento, elenca l'intero albero. <code translate="no">-o TARGET,SOURCE,FSTYPE,OPTIONS</code> sceglie le colonne.</li>
+<li><code translate="no">umount DESTINO</code>: scollega. Dà <code translate="no">target is busy</code> se qualche processo usa la cartella (esci con <code translate="no">cd ~</code>).</li></ul>
+<h3 id="l-fstab-campo-per-campo">L'fstab, campo per campo</h3>
+<p>Una riga, sei campi separati da spazi:</p>
+<pre translate="no"><code>UUID=3f0c...  /srv/dados  ext4  defaults,nofail,x-systemd.device-timeout=10s  0  2</code></pre>
+<div class="tabela"><table><thead><tr><th scope="col">Campo</th><th scope="col">Esempio</th><th scope="col">Significa</th></tr></thead><tbody><tr><td>1 · Origine</td><td><code translate="no">UUID=...</code>, <code translate="no">LABEL=ARQUIVO</code></td><td>Chi è il file system</td></tr><tr><td>2 · Destinazione</td><td><code translate="no">/srv/dados</code></td><td>La cartella (deve esistere)</td></tr><tr><td>3 · Tipo</td><td><code translate="no">ext4</code>, <code translate="no">xfs</code>, <code translate="no">vfat</code></td><td>Il file system</td></tr><tr><td>4 · Opzioni</td><td><code translate="no">defaults,nofail</code></td><td>Come montare</td></tr><tr><td>5 · <code translate="no">dump</code></td><td><code translate="no">0</code></td><td>Residuo di un vecchio programma di backup. Usa <code translate="no">0</code></td></tr><tr><td>6 · <code translate="no">pass</code></td><td><code translate="no">0</code>, <code translate="no">1</code> o <code translate="no">2</code></td><td>Ordine di <code translate="no">fsck</code> al boot: <code translate="no">1</code> solo per la root, <code translate="no">2</code> per gli altri ext4, <code translate="no">0</code> per non controllare (XFS e VFAT)</td></tr></tbody></table></div>
+<p>Come origine, preferisci <code translate="no">UUID=</code> (identificatore scritto da <code translate="no">mkfs</code>, unico) o <code translate="no">LABEL=</code> (etichetta che hai scelto tu, leggibile). Evita <code translate="no">/dev/sdb1</code>: l'ordine dei nomi cambia.</p>
+<h3 id="opzioni-che-contano">Opzioni che contano</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Opzione</th><th scope="col">Effetto</th></tr></thead><tbody><tr><td><code translate="no">defaults</code></td><td><code translate="no">rw,suid,dev,exec,auto,nouser,async</code>: il comune, per l'uso normale</td></tr><tr><td><code translate="no">nofail</code></td><td>Se il dispositivo non esiste o non si monta, il boot continua</td></tr><tr><td><code translate="no">x-systemd.device-timeout=10s</code></td><td>Aspetta 10 s il dispositivo, e non 90 s</td></tr><tr><td><code translate="no">noexec</code>, <code translate="no">nosuid</code>, <code translate="no">nodev</code></td><td>Hardening (non esegue binari, ignora SUID e dispositivi)</td></tr></tbody></table></div>
+<p><code translate="no">nofail</code> con <code translate="no">x-systemd.device-timeout</code> è la coppia di ogni disco dati. La root e <code translate="no">/boot</code> restano senza <code translate="no">nofail</code>, perché il sistema dipende da loro.</p>
+<h3 id="unit-di-montaggio-per-il-vfat">Unit di montaggio, per il VFAT</h3>
+<p>systemd trasforma ogni riga dell'fstab in una unit di montaggio. Puoi anche scrivere la unit a mano. Il nome è il percorso, con <code translate="no">/</code> che diventa <code translate="no">-</code>, e lo calcola <code translate="no">systemd-escape</code>:</p>
+<pre translate="no"><code class="lang-bash">systemd-escape -p --suffix=mount /srv/troca</code></pre>
+<ul><li><code translate="no">-p</code> tratta l'argomento come un percorso; <code translate="no">--suffix=mount</code> aggiunge il tipo. L'output è <code translate="no">srv-troca.mount</code>.</li></ul>
+<p>Il file <code translate="no">/etc/systemd/system/srv-troca.mount</code> ha tre blocchi: <code translate="no">[Unit]</code>, <code translate="no">[Mount]</code> (<code translate="no">What=</code>, <code translate="no">Where=</code>, <code translate="no">Type=</code>, <code translate="no">Options=</code>) e <code translate="no">[Install]</code>. <code translate="no">Where=</code> deve coincidere con il nome del file, altrimenti systemd rifiuta.</p>
+<p>In un fstab, <code translate="no">nofail</code> fa creare a systemd una dipendenza <strong>debole</strong> (<code translate="no">Wants=</code>), e non una obbligatoria (<code translate="no">Requires=</code>). Nella unit scritta a mano, a farlo è <code translate="no">[Install]</code> con <code translate="no">WantedBy=local-fs.target</code>: se il montaggio fallisce, il boot continua.</p>
+<p>VFAT non conserva né proprietario né modo. Le opzioni <code translate="no">uid=</code>, <code translate="no">gid=</code> e <code translate="no">umask=</code> dicono chi sembra essere il proprietario e cosa può fare: con <code translate="no">umask=022</code>, tutto appare come <code translate="no">rwxr-xr-x</code>.</p>
+<h3 id="verificare-prima-di-riavviare">Verificare prima di riavviare</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Voglio...</th><th scope="col">Comando</th></tr></thead><tbody><tr><td>Controllare la sintassi e le origini dell'fstab</td><td><code translate="no">sudo findmnt --verify</code></td></tr><tr><td>Mostrare ogni test</td><td><code translate="no">sudo findmnt --verify --verbose</code></td></tr><tr><td>Montare tutto ciò che manca nell'fstab</td><td><code translate="no">sudo mount -a</code></td></tr><tr><td>Avvisare systemd che l'fstab è cambiato</td><td><code translate="no">sudo systemctl daemon-reload</code></td></tr><tr><td>Vedere tutto ciò che è montato in <code translate="no">/srv</code></td><td><code translate="no">findmnt -o TARGET,SOURCE,FSTYPE,OPTIONS | grep srv</code></td></tr></tbody></table></div>
+<p>Prima di modificare: <code translate="no">sudo cp -a /etc/fstab /etc/fstab.bak</code> (<code translate="no">-a</code> conserva proprietario, modo e data).</p>
+<h3 id="rocky-debian">Rocky × Debian</h3>
+<div class="tabela"><table><thead><tr><th scope="col"></th><th scope="col">Rocky</th><th scope="col">Debian</th></tr></thead><tbody><tr><td>Root nell'fstab</td><td><code translate="no">/dev/mapper/rl-root</code></td><td><code translate="no">/dev/mapper/debian--lab--vg-root</code> o <code translate="no">UUID=</code></td></tr><tr><td>Aspetto del file</td><td>Poche righe, con l'intestazione dell'installer</td><td>Commenti che spiegano ogni riga</td></tr><tr><td>XFS</td><td>Nativo</td><td>Installa <code translate="no">xfsprogs</code> per gli strumenti (<code translate="no">xfs_info</code>, <code translate="no">xfs_repair</code>)</td></tr><tr><td>Modificando l'fstab</td><td><code translate="no">systemctl daemon-reload</code> (<code translate="no">mount</code> dà un <code translate="no">(hint)</code> se te ne dimentichi)</td><td>Lo stesso</td></tr><tr><td>Pacchetti</td><td><code translate="no">rpm -q xfsprogs dosfstools</code></td><td><code translate="no">dpkg -s xfsprogs dosfstools</code></td></tr></tbody></table></div>
+<h2 id="5-lab-guidato">5 · Lab guidato</h2>
+<p><strong>Passo 0 · Snapshot, backup e controllo.</strong> Il backup di PBS che hai fatto nella 9.1 resta valido. Ricorda: lo snapshot non è un backup. In Proxmox:</p>
+<pre translate="no"><code class="lang-bash">qm snapshot 201 m9a4-inicio
+qm snapshot 202 m9a4-inicio
+pvesm list PBS-LAB --vmid 201</code></pre>
+<p>L'ultimo comando deve elencare il backup della 9.1. Su rocky-lab, controlla il disco (lo <code translate="no">scsi1</code> della 2.2, ampliato nella 9.1) <strong>dal nome stabile</strong>, e solo dopo guarda le partizioni:</p>
+<pre translate="no"><code class="lang-bash">ls -l /dev/disk/by-id/ | grep scsi1
+lsblk -f
+ls -l /dev/disk/by-label/</code></pre>
+<p>Output atteso (la lettera potrebbe non essere <code translate="no">sdb</code>):</p>
+<pre translate="no"><code>NAME   FSTYPE FSVER LABEL   UUID                                 MOUNTPOINTS
+sdb
+├─sdb1 ext4   1.0   DADOS   3f0c1c1e-5a47-4d0e-9b53-0d6a1c2f7e11
+├─sdb2 xfs          ARQUIVO 8b7a52f4-12c9-4c7e-a1d0-6e7f3b9c0a42
+└─sdb3 vfat   FAT32 TROCA   4A21-9C3E</code></pre>
+<p>Se manca qualche etichetta, torna alla 9.3. Controlla i pacchetti con <code translate="no">rpm -q xfsprogs dosfstools</code> e installa ciò che manca con <code translate="no">sudo dnf install -y xfsprogs dosfstools</code>. Crea le cartelle:</p>
+<pre translate="no"><code class="lang-bash">sudo mkdir -p /srv/dados /srv/arquivo /srv/troca</code></pre>
+<p><strong>Passo 1 · Montare a mano, uno alla volta.</strong></p>
+<pre translate="no"><code class="lang-bash">sudo mount /dev/disk/by-label/DADOS /srv/dados
+findmnt -o TARGET,SOURCE,FSTYPE,OPTIONS /srv/dados
+sudo umount /srv/dados
+findmnt /srv/dados</code></pre>
+<p>La prima interrogazione mostra <code translate="no">/srv/dados /dev/sdb1 ext4 rw,relatime</code>. Dopo <code translate="no">umount</code>, il secondo <code translate="no">findmnt</code> non stampa nulla: non è più un punto di montaggio. Ripeti con <code translate="no">ARQUIVO</code> in <code translate="no">/srv/arquivo</code> (compare <code translate="no">xfs</code>) e <code translate="no">TROCA</code> in <code translate="no">/srv/troca</code> (compare <code translate="no">vfat</code>). Smonta tutti e tre.</p>
+<p><strong>Passo 2 · <code translate="no">/srv/dados</code> nell'fstab, per UUID.</strong></p>
+<pre translate="no"><code class="lang-bash">sudo cp -a /etc/fstab /etc/fstab.bak
+DADOS_UUID=$(sudo blkid -s UUID -o value /dev/disk/by-label/DADOS)
+echo "$DADOS_UUID"
+echo "UUID=$DADOS_UUID /srv/dados ext4 defaults,nofail,x-systemd.device-timeout=10s 0 2" | sudo tee -a /etc/fstab
+tail -n 3 /etc/fstab</code></pre>
+<ul><li><code translate="no">blkid -s UUID -o value DISPOSITIVO</code> stampa solo l'UUID, senza il resto della riga.</li>
+<li><code translate="no">tee -a</code> aggiunge in fondo al file con <code translate="no">sudo</code>. Un semplice <code translate="no">&gt;&gt;</code> fallirebbe, perché la redirezione gira come te, e non come root.</li></ul>
+<p><strong>Passo 3 · <code translate="no">/srv/arquivo</code> nell'fstab, per LABEL.</strong></p>
+<pre translate="no"><code class="lang-bash">echo "LABEL=ARQUIVO /srv/arquivo xfs defaults,nofail,x-systemd.device-timeout=10s 0 0" | sudo tee -a /etc/fstab</code></pre>
+<p>Il campo 6 è <code translate="no">0</code>: XFS non usa <code translate="no">fsck</code> al boot (<code translate="no">fsck.xfs</code> non fa nulla, e la riparazione è manuale, argomento della 9.5).</p>
+<p><strong>Passo 4 · <code translate="no">/srv/troca</code> con una unit di systemd.</strong> Scopri il tuo UID e GID, e il nome della unit:</p>
+<pre translate="no"><code class="lang-bash">id -u; id -g
+systemd-escape -p --suffix=mount /srv/troca</code></pre>
+<p>Crea il file (sostituisci <code translate="no">1000</code> con ciò che ha mostrato <code translate="no">id</code>):</p>
+<pre translate="no"><code class="lang-bash">sudo tee /etc/systemd/system/srv-troca.mount &gt; /dev/null &lt;&lt;'EOF'
+[Unit]
+Description=Troca (VFAT, rotulo TROCA)
+
+[Mount]
+What=/dev/disk/by-label/TROCA
+Where=/srv/troca
+Type=vfat
+Options=uid=1000,gid=1000,umask=022,nofail
+
+[Install]
+WantedBy=local-fs.target
+EOF</code></pre>
+<ul><li><code translate="no">What=</code> punta all'etichetta, e non a <code translate="no">sdb3</code>.</li>
+<li><code translate="no">Options=</code> è l'elenco del campo 4. <code translate="no">nofail</code> qui è lo stesso testo dell'fstab, e la vera protezione viene da <code translate="no">WantedBy=</code> di <code translate="no">[Install]</code>, come ha spiegato la lezione.</li></ul>
+<p><strong>Passo 5 · Validare prima di riavviare.</strong></p>
+<pre translate="no"><code class="lang-bash">sudo findmnt --verify
+sudo systemctl daemon-reload
+sudo mount -a
+sudo systemctl enable --now srv-troca.mount
+findmnt -o TARGET,SOURCE,FSTYPE,OPTIONS | grep srv</code></pre>
+<ul><li>In <code translate="no">findmnt --verify</code>, le righe di <code translate="no">/srv</code> non devono avere avvisi. Su Rocky, di solito avvisa <code translate="no">recommended root FS passno is 1 (current is 0)</code> sulla root: la riga è dell'installer, e XFS non usa <code translate="no">fsck</code> al boot. Lasciala com'è. Senza alcun avviso, il riepilogo è <code translate="no">Success, no errors or warnings detected</code>.</li>
+<li><code translate="no">daemon-reload</code> fa rileggere a systemd l'fstab e la nuova unit.</li>
+<li><code translate="no">mount -a</code> monta <code translate="no">/srv/dados</code> e <code translate="no">/srv/arquivo</code>. <code translate="no">enable --now</code> attiva la unit adesso e nei prossimi boot.</li></ul>
+<p>Output atteso dell'ultimo comando: le tre righe, con <code translate="no">ext4</code>, <code translate="no">xfs</code> e <code translate="no">vfat</code> (quest'ultimo con <code translate="no">uid=1000,gid=1000</code> e <code translate="no">fmask=0022</code>).</p>
+<p>Ora assegna a te stesso la proprietà delle prime due e prova la terza:</p>
+<pre translate="no"><code class="lang-bash">sudo chown "$USER": /srv/dados /srv/arquivo
+echo ola &gt; /srv/dados/ola.txt
+echo ola &gt; /srv/arquivo/ola.txt
+touch /srv/troca/ola.txt
+chmod 600 /srv/troca/ola.txt
+ls -ld /srv/troca</code></pre>
+<p><code translate="no">chmod</code> su VFAT fallisce con <code translate="no">Operation not permitted</code>. <code translate="no">ls -ld /srv/troca</code> mostra te come proprietario, grazie a <code translate="no">uid=</code>.</p>
+<p><strong>Passo 6 · Riavviare e dimostrare.</strong></p>
+<pre translate="no"><code class="lang-bash">sudo systemctl reboot</code></pre>
+<p>Rientra e lancia:</p>
+<pre translate="no"><code class="lang-bash">findmnt -o TARGET,SOURCE,FSTYPE | grep srv
+cat /srv/dados/ola.txt /srv/arquivo/ola.txt
+systemctl --failed</code></pre>
+<p>I tre montaggi tornano, con i file, e nessuna <code translate="no">srv-*.mount</code> compare in <code translate="no">--failed</code>.</p>
+<p><strong>Passo 7 · debian-lab.</strong> Ripeti i passi da 0 a 6 su debian-lab (<code translate="no">xfsprogs</code> con <code translate="no">sudo apt install -y xfsprogs</code>). <strong>Aggiungi</strong> soltanto le tue righe in fondo al suo <code translate="no">/etc/fstab</code>, che ha già commenti e <code translate="no">UUID=</code>.</p>
+<h3 id="decidi-1">Decidi 1</h3>
+<p>Il server ha un disco dati che, a volte, viene spento per manutenzione. Eppure deve partire da solo. Qual è la riga giusta?</p>
+<p>A) <code translate="no">/dev/sdb1 /srv/dados ext4 defaults 0 2</code>. B) <code translate="no">UUID=... /srv/dados ext4 defaults,nofail,x-systemd.device-timeout=10s 0 2</code>. C) Togliere la riga dall'fstab e montare a mano dopo ogni boot.</p>
+<p>Scegli un'opzione prima di continuare.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se hai scelto</th><th scope="col">Risultato</th><th scope="col">Perché</th></tr></thead><tbody><tr><td>A</td><td>Sbagliato</td><td>Il nome del dispositivo cambia, e senza <code translate="no">nofail</code> l'assenza del disco blocca il boot</td></tr><tr><td>B</td><td>Giusto</td><td>Identifica per UUID, non blocca il boot e aspetta poco</td></tr><tr><td>C</td><td>Non scala</td><td>Qualcuno se ne dimentica, e il servizio scrive sulla root</td></tr></tbody></table></div>
+<p><strong>Da ricordare:</strong> un disco dati vuole <code translate="no">UUID=</code> o <code translate="no">LABEL=</code> e <code translate="no">nofail</code>.</p>
+<h3 id="decidi-2">Decidi 2</h3>
+<p>Hai modificato l'fstab. Prima di riavviare, cosa fai?</p>
+<p>A) Riavvii e vedi. B) <code translate="no">sudo findmnt --verify</code>, <code translate="no">sudo systemctl daemon-reload</code> e <code translate="no">sudo mount -a</code>. C) Ti fidi, perché hai copiato la riga da un altro server.</p>
+<p>Scegli un'opzione prima di continuare.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se hai scelto</th><th scope="col">Risultato</th><th scope="col">Perché</th></tr></thead><tbody><tr><td>A</td><td>Rischioso</td><td>Un errore diventa una corsa alla console</td></tr><tr><td>B</td><td>Giusto</td><td>Trovi l'errore a sistema in piedi, dove la riparazione è un <code translate="no">cp</code></td></tr><tr><td>C</td><td>Rischioso</td><td>L'UUID dell'altro server non esiste su questo</td></tr></tbody></table></div>
+<p><strong>Da ricordare:</strong> <code translate="no">mount -a</code> è la prova generale del boot.</p>
+<h2 id="6-rompi-e-ripara">6 · Rompi e ripara</h2>
+<h3 id="guasto-1-la-scrittura-che-resta-nascosta">Guasto 1 · La scrittura che resta nascosta</h3>
+<p>Su rocky-lab, simula un montaggio caduto:</p>
+<pre translate="no"><code class="lang-bash">sudo umount /srv/arquivo
+echo oi | sudo tee /srv/arquivo/escondido.txt
+sudo mount /srv/arquivo
+ls /srv/arquivo</code></pre>
+<p><strong>Sintomo:</strong> <code translate="no">escondido.txt</code> è sparito, e il disco XFS non l'ha mai ricevuto.</p>
+<p><strong>Diagnosi:</strong> <code translate="no">mountpoint /srv/arquivo</code> dice che adesso è un punto di montaggio. Il file è stato scritto sulla <strong>root</strong>, nella cartella vuota, e il montaggio l'ha coperto. Per vedere cosa c'è sotto, monta la root in un altro posto:</p>
+<pre translate="no"><code class="lang-bash">sudo mkdir -p /mnt/raiz
+sudo mount --bind / /mnt/raiz
+ls /mnt/raiz/srv/arquivo</code></pre>
+<p><strong>Riparazione:</strong> cancella dal percorso di sotto: <code translate="no">sudo rm /mnt/raiz/srv/arquivo/escondido.txt</code>. Poi <code translate="no">sudo umount /mnt/raiz</code>.</p>
+<h3 id="guasto-2-uuid-digitato-male">Guasto 2 · UUID digitato male</h3>
+<pre translate="no"><code class="lang-bash">sudo cp -a /etc/fstab /etc/fstab.ok
+echo "UUID=11111111-2222-3333-4444-555555555555 /srv/teste ext4 defaults,nofail 0 2" | sudo tee -a /etc/fstab
+sudo mkdir -p /srv/teste
+sudo mount -a</code></pre>
+<p><strong>Sintomo:</strong> nessuno, ed è questo il pericolo. <code translate="no">mount -a</code> termina in silenzio, perché <code translate="no">nofail</code> dice anche a <code translate="no">mount</code> di non lamentarsi per un dispositivo che non esiste. E <code translate="no">findmnt /srv/teste</code> non mostra nulla.</p>
+<p><strong>Diagnosi:</strong> <code translate="no">sudo findmnt --verify</code> segnala la riga <code translate="no">/srv/teste</code> con un avviso di origine non trovata (l'<code translate="no">UUID=11111111-...</code>), e il riepilogo finale conta quell'avviso. Confronta con <code translate="no">lsblk -f</code>: quell'UUID non esiste.</p>
+<p><strong>Riparazione:</strong> <code translate="no">sudo cp -a /etc/fstab.ok /etc/fstab</code> e <code translate="no">sudo systemctl daemon-reload</code>. Senza <code translate="no">nofail</code>, quella riga sarebbe un boot in modalità di emergenza. Con l'opzione, è un disco che non si monta mai e nessuno se ne accorge. Per questo si valida con entrambi: <code translate="no">findmnt --verify</code> e <code translate="no">mount -a</code>.</p>
+<h3 id="guasto-3-la-unit-che-non-corrisponde-al-nome">Guasto 3 · La unit che non corrisponde al nome</h3>
+<pre translate="no"><code class="lang-bash">sudo systemctl stop srv-troca.mount
+sudo sed -i 's|^Where=.*|Where=/srv/trocas|' /etc/systemd/system/srv-troca.mount
+sudo systemctl daemon-reload
+sudo systemctl start srv-troca.mount</code></pre>
+<p><strong>Sintomo:</strong> <code translate="no">Failed to start srv-troca.mount</code>.</p>
+<p><strong>Diagnosi:</strong> <code translate="no">systemctl status srv-troca.mount</code> mostra <code translate="no">Where= setting doesn't match unit name. Refusing.</code> <code translate="no">journalctl -u srv-troca.mount -b</code> riporta la stessa riga.</p>
+<p><strong>Riparazione:</strong> <code translate="no">sudo sed -i 's|^Where=.*|Where=/srv/troca|' /etc/systemd/system/srv-troca.mount</code>, poi <code translate="no">sudo systemctl daemon-reload</code> e <code translate="no">sudo systemctl start srv-troca.mount</code>. Il nome della unit <strong>è</strong> il percorso.</p>
+<h3 id="pulizia">Pulizia</h3>
+<pre translate="no"><code class="lang-bash">sudo rmdir /mnt/raiz /srv/teste
+sudo rm -f /etc/fstab.ok /srv/dados/ola.txt /srv/arquivo/ola.txt /srv/troca/ola.txt
+findmnt -o TARGET,SOURCE,FSTYPE | grep srv</code></pre>
+<p>Conserva <code translate="no">/etc/fstab.bak</code>, le righe dell'fstab e la unit: i tre montaggi restano, come si aspetta la 9.5.</p>
+<h2 id="7-trappole">7 · Trappole</h2>
+<div class="tabela"><table><thead><tr><th scope="col">Trappola</th><th scope="col">Cosa succede</th><th scope="col">Come evitarla</th></tr></thead><tbody><tr><td><code translate="no">/dev/sdb1</code> nell'fstab</td><td>Cambia nome e monta il disco sbagliato</td><td><code translate="no">UUID=</code> o <code translate="no">LABEL=</code></td></tr><tr><td>Disco dati senza <code translate="no">nofail</code></td><td>Boot in modalità di emergenza</td><td><code translate="no">nofail</code> e <code translate="no">x-systemd.device-timeout=10s</code></td></tr><tr><td>Dimenticare <code translate="no">daemon-reload</code></td><td>systemd usa il vecchio fstab</td><td>Lancialo dopo ogni modifica</td></tr><tr><td>Scrivere con il montaggio caduto</td><td>Dati sulla root, sotto</td><td><code translate="no">mountpoint -q /srv/dados</code> negli script</td></tr></tbody></table></div>
+<h2 id="8-quiz">8 · Quiz</h2>
+<p>Rispondi senza guardare. Le soluzioni sono alla fine della lezione.</p>
+<ol><li>Quali sono i sei campi di una riga dell'fstab?</li>
+<li>Qual è la differenza tra <code translate="no">UUID=</code> e <code translate="no">LABEL=</code>? Quale dei due cambia se rifai <code translate="no">mkfs</code>?</li>
+<li>Cosa fa <code translate="no">nofail</code>, e cosa non fa?</li>
+<li>A cosa serve <code translate="no">findmnt --verify</code>, e perché <code translate="no">mount -a</code> completa il test?</li>
+<li>Come si chiama la unit che monta <code translate="no">/srv/troca</code>?</li>
+<li>Perché <code translate="no">chmod</code> fallisce su un VFAT montato?</li></ol>
+<h2 id="9-promemoria">9 · Promemoria</h2>
+<p><strong>Da sapere a memoria:</strong></p>
+<div class="tabela"><table><thead><tr><th scope="col">Voglio...</th><th scope="col">Comando</th></tr></thead><tbody><tr><td>Montare</td><td><code translate="no">sudo mount ORIGEM PASTA</code></td></tr><tr><td>Vedere un montaggio</td><td><code translate="no">findmnt PASTA</code></td></tr><tr><td>UUID di un dispositivo</td><td><code translate="no">sudo blkid -s UUID -o value DISP</code></td></tr><tr><td>Copia dell'fstab</td><td><code translate="no">sudo cp -a /etc/fstab /etc/fstab.bak</code></td></tr><tr><td>Validare</td><td><code translate="no">sudo findmnt --verify</code>, <code translate="no">sudo mount -a</code></td></tr><tr><td>Rileggere l'fstab</td><td><code translate="no">sudo systemctl daemon-reload</code></td></tr></tbody></table></div>
+<p><strong>Da consultare:</strong></p>
+<div class="tabela"><table><thead><tr><th scope="col">Voglio...</th><th scope="col">Comando</th></tr></thead><tbody><tr><td>Nome della unit</td><td><code translate="no">systemd-escape -p --suffix=mount /srv/troca</code></td></tr><tr><td>Attivare la unit</td><td><code translate="no">sudo systemctl enable --now srv-troca.mount</code></td></tr><tr><td>Vedere cosa c'è sotto</td><td><code translate="no">sudo mount --bind / /mnt/raiz</code></td></tr><tr><td>Unit con errore</td><td><code translate="no">systemctl --failed</code>, <code translate="no">journalctl -u UNIT -b</code></td></tr></tbody></table></div>
+<p><strong>Flashcard:</strong></p>
+<ul><li><code translate="no">mount</code> da solo → <em>sparisce al reboot.</em></li>
+<li><code translate="no">UUID=</code> → <em>non cambia con l'ordine dei dischi.</em></li>
+<li><code translate="no">nofail</code> → <em>il boot continua.</em></li>
+<li><code translate="no">findmnt --verify</code> → <em>prova della sintassi.</em></li></ul>
+<h2 id="10-checklist-e-chiusura">10 · Checklist e chiusura</h2>
+<ul><li>[ ] Monto e smonto a mano e leggo con <code translate="no">findmnt</code></li>
+<li>[ ] Scrivo a memoria una riga di fstab con i sei campi</li>
+<li>[ ] Scelgo <code translate="no">UUID=</code> o <code translate="no">LABEL=</code>, mai <code translate="no">/dev/sdb1</code></li>
+<li>[ ] Uso <code translate="no">nofail</code> e <code translate="no">x-systemd.device-timeout=10s</code> sui dischi dati</li>
+<li>[ ] Valido con <code translate="no">findmnt --verify</code> e <code translate="no">mount -a</code> prima di riavviare</li>
+<li>[ ] Monto un VFAT con una unit, con <code translate="no">uid=</code>, <code translate="no">gid=</code> e <code translate="no">umask=</code></li>
+<li>[ ] Dimostro i montaggi con un reboot</li></ul>
+<p><strong>Ultimo esercizio, senza guardare la lezione:</strong> su debian-lab, ripristina <code translate="no">/etc/fstab.bak</code>, smonta tutto e rifai i tre montaggi. Dimostralo con un reboot.</p>
+<p><strong>Snapshot di fine</strong> (in Proxmox):</p>
+<pre translate="no"><code class="lang-bash">qm snapshot 201 m9a4-fim
+qm snapshot 202 m9a4-fim</code></pre>
+<h2 id="11-nella-vita-reale">11 · Nella vita reale</h2>
+<p><strong>Missione, sola lettura.</strong> Su un server Linux che amministri (o con autorizzazione), lancia <strong>solo</strong>:</p>
+<pre translate="no"><code class="lang-bash">grep -vE '^\s*(#|$)' /etc/fstab
+findmnt -o TARGET,SOURCE,FSTYPE,OPTIONS --real
+sudo findmnt --verify
+systemctl --failed --no-pager
+systemctl list-units --type=mount --no-pager</code></pre>
+<p>Domande a cui rispondere:</p>
+<ol><li>Qualche riga usa <code translate="no">/dev/sdX</code> invece di <code translate="no">UUID=</code> o <code translate="no">LABEL=</code>?</li>
+<li>C'è un disco dati senza <code translate="no">nofail</code>?</li>
+<li><code translate="no">findmnt --verify</code> ha avvisi? Quali?</li></ol>
+<p><strong>Diario:</strong> annota ciò che merita attenzione. Non modificare né montare nulla.</p>
+<h2 id="12-approfondire-quando-vuoi">12 · Approfondire quando vuoi</h2>
+<ul><li><strong><code translate="no">man fstab</code>, <code translate="no">man mount</code>, <code translate="no">man findmnt</code>:</strong> campi, opzioni e <code translate="no">--verify</code>.</li>
+<li><strong><code translate="no">man systemd.mount</code> e <code translate="no">man systemd-fstab-generator</code>:</strong> unit di montaggio e come l'fstab diventa una unit.</li>
+<li><strong>Red Hat docs e Debian wiki (fstab):</strong> montaggio persistente.</li>
+<li><strong>kernel.org (VFAT) e util-linux:</strong> <code translate="no">uid</code>, <code translate="no">gid</code>, <code translate="no">umask</code>; <code translate="no">mount</code>, <code translate="no">findmnt</code>, <code translate="no">blkid</code>.</li></ul>
+<p><strong>DeepTutor</strong> (http://10.1.0.149:3782, KB "Curso Linux Sysadmin"):</p>
+<ul><li><code translate="no">!explica os seis campos do fstab</code></li>
+<li><code translate="no">!quiz Aula 9.4, 5 perguntas sobre fstab</code></li></ul>
+<h2 id="soluzioni-commentate">Soluzioni commentate</h2>
+<h3 id="riscaldamento">Riscaldamento</h3>
+<ol><li>Il montaggio non è attivo: la cartella mostra ciò che esiste sulla root, senza il disco. Controlla con <code translate="no">findmnt</code> o <code translate="no">mountpoint</code>.</li>
+<li>L'ordine dei nomi <code translate="no">sdX</code> non è garantito e può cambiare da un boot all'altro.</li>
+<li>Senza <code translate="no">nofail</code>, il boot aspetta il disco e finisce in modalità di emergenza. Con <code translate="no">nofail</code>, il boot continua.</li></ol>
+<h3 id="quiz">Quiz</h3>
+<ol><li>Origine, destinazione, tipo, opzioni, <code translate="no">dump</code> e <code translate="no">pass</code>.</li>
+<li><code translate="no">UUID=</code> è l'identificatore scritto da <code translate="no">mkfs</code>, unico. <code translate="no">LABEL=</code> è il nome che scegli tu. Un nuovo <code translate="no">mkfs</code> genera un nuovo UUID. L'etichetta cambia solo se la cambi tu o se ti dimentichi di rimetterla.</li>
+<li>Fa proseguire il boot se il dispositivo manca o non si monta (dipendenza debole). Non monta il disco che manca e non avvisa da sola.</li>
+<li><code translate="no">--verify</code> controlla sintassi, origini e destinazioni, senza montare, e segnala persino un'origine che <code translate="no">nofail</code> nasconderebbe. <code translate="no">mount -a</code> prova davvero, trovando errori che la lettura non vede (per esempio un'opzione che il file system rifiuta).</li>
+<li><code translate="no">srv-troca.mount</code>: senza la barra iniziale, <code translate="no">/</code> diventa <code translate="no">-</code>, più <code translate="no">.mount</code>.</li>
+<li>Perché VFAT non conserva né proprietario né modo. Proprietario e permessi arrivano da <code translate="no">uid=</code>, <code translate="no">gid=</code> e <code translate="no">umask=</code> al montaggio.</li></ol>
+</article><nav class="paginas" aria-label="Lezioni"><a class="ant" href="9.3-sistemas-de-arquivos.it.html"><small>← Precedente</small>9.3 · File system</a><a class="prox" href="9.5-integridade-e-espaco.it.html"><small>Successiva →</small>9.5 · Integrità e spazio</a></nav></main></div>
+<footer><div class="wrap">Generato dal Markdown del corso · Immagini in <code translate="no">img/</code></div></footer>
+</body>
+</html>

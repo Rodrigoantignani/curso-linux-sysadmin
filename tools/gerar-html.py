@@ -73,6 +73,27 @@ CATALOGO = [
         ("6.4-flatpak", "Flatpak", "Flatpak"),
         ("6.5-bibliotecas-compartilhadas", "Bibliotecas compartilhadas", "Librerie condivise"),
     ]),
+    ("M7", "Processos e desempenho", "Processi e prestazioni", [
+        ("7.1-processos-e-sinais", "Processos e sinais", "Processi e segnali"),
+        ("7.2-jobs-e-sessoes", "Jobs e sessões", "Job e sessioni"),
+        ("7.3-prioridade-e-perfis", "Prioridade e perfis", "Priorità e profili"),
+    ]),
+    ("M8", "Arquivos a fundo", "File a fondo", [
+        ("8.1-fhs-e-onde-cada-coisa-mora", "FHS e onde cada coisa mora", "FHS e dove sta ogni cosa"),
+        ("8.2-find-a-fundo", "find a fundo", "find a fondo"),
+        ("8.3-arquivamento-avancado", "Arquivamento avançado", "Archiviazione avanzata"),
+        ("8.4-links", "Links", "Link"),
+        ("8.5-permissoes-avancadas", "Permissões avançadas", "Permessi avanzati"),
+    ]),
+    ("M9", "Armazenamento", "Storage", [
+        ("9.1-discos-e-layout", "Discos e layout", "Dischi e layout"),
+        ("9.2-particionar", "Particionar", "Partizionare"),
+        ("9.3-sistemas-de-arquivos", "Sistemas de arquivos", "File system"),
+        ("9.4-montar-e-persistir", "Montar e persistir", "Montare e rendere persistente"),
+        ("9.5-integridade-e-espaco", "Integridade e espaço", "Integrità e spazio"),
+        ("9.6-lvm", "LVM", "LVM"),
+        ("9.7-crescer-sem-destruir", "Crescer sem destruir", "Crescere senza distruggere"),
+    ]),
 ]
 
 TEXTOS = {
@@ -81,7 +102,7 @@ TEXTOS = {
         "idioma": "Idioma", "aulas": "Aulas", "aula": "Aula", "anterior": "Anterior",
         "proxima": "Próxima", "pular": "Pular para o conteúdo",
         "meta": "{autor} · {n} aulas · {img} imagens",
-        "stats": "<strong>{n} aulas publicadas</strong> · M0 a M6 · Semanas 1 a 11 de 46 · <strong>{img} imagens</strong>",
+        "stats": "<strong>{n} aulas publicadas</strong> · M0 a M9 · Semanas 1 a 14 de 48 · <strong>{img} imagens</strong>",
         "rodape": "Gerado a partir do Markdown do curso · Imagens em <code translate=\"no\">img/</code>",
     },
     "it": {
@@ -89,7 +110,7 @@ TEXTOS = {
         "idioma": "Lingua", "aulas": "Lezioni", "aula": "Lezione", "anterior": "Precedente",
         "proxima": "Successiva", "pular": "Vai al contenuto",
         "meta": "{autor} · {n} lezioni · {img} immagini",
-        "stats": "<strong>{n} lezioni pubblicate</strong> · Da M0 a M6 · Settimane da 1 a 11 di 46 · <strong>{img} immagini</strong>",
+        "stats": "<strong>{n} lezioni pubblicate</strong> · Da M0 a M9 · Settimane da 1 a 14 di 48 · <strong>{img} immagini</strong>",
         "rodape": "Generato dal Markdown del corso · Immagini in <code translate=\"no\">img/</code>",
     },
 }

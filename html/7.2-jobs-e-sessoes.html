@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light dark">
+<title>7.2 · Jobs e sessões · Curso Linux Sysadmin</title>
+<link rel="alternate" hreflang="pt-BR" href="7.2-jobs-e-sessoes.html"><link rel="alternate" hreflang="it" href="7.2-jobs-e-sessoes.it.html">
+<style>
+:root{color-scheme:light dark;--bg:#f6f1e7;--card:#fffdf8;--ink:#201c16;--muted:#5e564a;--accent:#9a3412;--accent-2:#1f5f4a;--tint:#efe6d4;--line:#ddd2bc;--code:#f1eadb;--shadow:0 1px 2px rgba(60,40,10,.08);--serif:Georgia,"Iowan Old Style","Palatino Linotype",Palatino,serif;--sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--mono:"Cascadia Code",Consolas,"DejaVu Sans Mono",monospace}
+@media (prefers-color-scheme:dark){:root{--bg:#16130f;--card:#201b15;--ink:#f1eadb;--muted:#b9ad98;--accent:#f0a070;--accent-2:#7fd0b0;--tint:#2a231a;--line:#3d3427;--code:#191510;--shadow:none}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:5.5rem}
+body{margin:0;background:var(--bg);color:var(--ink);font:1rem/1.6 var(--sans)}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--accent-2);outline-offset:2px;border-radius:4px}
+.pular{position:absolute;left:-999px;top:0;background:var(--card);padding:.5rem 1rem;z-index:20}
+.pular:focus{left:.5rem;top:.5rem}
+.wrap{width:100%;max-width:84rem;margin:0 auto;padding-inline:max(1rem,env(safe-area-inset-left))}
+.top{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10;border-top:6px solid var(--accent)}
+.top-in{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding-block:.6rem}
+.titles{min-width:0}
+.marca{margin:0;font:700 clamp(1.15rem,1rem + 1vw,1.6rem)/1.15 var(--serif);letter-spacing:-.01em}
+.marca a{text-decoration:none}
+.marca a:hover{color:var(--accent)}
+.meta{margin:.1rem 0 0;color:var(--muted);font-size:.85rem}
+.acoes{display:flex;align-items:center;gap:.9rem;flex:none}
+.acoes>a{font-size:.9rem;font-weight:600;color:var(--muted);text-decoration:none}
+.acoes>a:hover{color:var(--accent);text-decoration:underline}
+.idioma{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--tint)}
+.idioma>*{padding:.35rem .9rem;font-size:.8rem;font-weight:700;letter-spacing:.06em;text-decoration:none;color:var(--muted);min-width:2.75rem;text-align:center}
+.idioma a:hover{color:var(--accent);text-decoration:underline}
+.idioma span{background:var(--accent);color:#fff}
+@media (prefers-color-scheme:dark){.idioma span{color:#16130f}}
+code{font-family:var(--mono);font-size:.9em;background:var(--tint);padding:.1rem .35rem;border-radius:4px;overflow-wrap:anywhere}
+/* índice */
+.capa{max-width:70rem;padding-block:2rem 3rem}
+.stats{border-left:4px solid var(--accent-2);background:var(--card);border-radius:0 10px 10px 0;padding:1rem 1.25rem;margin:0 0 2.5rem;box-shadow:var(--shadow);color:var(--muted)}
+.stats strong{color:var(--ink)}
+.modulo{display:grid;grid-template-columns:15rem minmax(0,1fr);gap:1rem 2rem;padding:1.75rem 0;border-top:1px solid var(--line)}
+.modulo h2{margin:0;font:700 1.25rem/1.25 var(--serif);align-self:start;position:sticky;top:6rem}
+.mn{display:block;font:700 .8rem var(--mono);letter-spacing:.12em;color:var(--accent);margin-bottom:.25rem}
+.sep{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.modulo ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,17rem),1fr));gap:.75rem}
+.modulo li{margin:0}
+.modulo a{display:flex;gap:.45rem;align-items:baseline;height:100%;padding:.85rem 1rem;background:var(--card);border:1px solid var(--line);border-radius:10px;text-decoration:none;font-weight:600;line-height:1.35;box-shadow:var(--shadow);transition:border-color .15s,transform .15s}
+.modulo a:hover{border-color:var(--accent);color:var(--accent)}
+.num{font:700 .85rem var(--mono);color:var(--accent);white-space:nowrap}
+/* aula */
+.doc{display:grid;grid-template-columns:17rem minmax(0,1fr);gap:2.5rem;align-items:start;padding-block:2rem 3rem}
+.lateral{position:sticky;top:5.5rem;max-height:calc(100vh - 6.5rem);overflow:auto;font-size:.875rem;padding-right:.5rem}
+.lateral h2{margin:0 0 .25rem;font:700 .95rem var(--serif);color:var(--muted)}
+.lateral h3{margin:1rem 0 .25rem;font:700 .75rem var(--mono);letter-spacing:.06em;color:var(--accent)}
+.lateral ul{list-style:none;margin:0;padding:0}
+.lateral a{display:flex;gap:.45rem;padding:.25rem .5rem;border-radius:6px;text-decoration:none;color:var(--muted);line-height:1.3}
+.lateral a:hover{background:var(--tint);color:var(--ink)}
+.lateral a[aria-current]{background:var(--tint);color:var(--ink);font-weight:700;box-shadow:inset 3px 0 0 var(--accent)}
+.lateral .num{font-size:.75rem}
+.aula{min-width:0;max-width:56rem;overflow-wrap:break-word;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:clamp(1.25rem,1rem + 2vw,2.75rem);box-shadow:var(--shadow)}
+.aula h1{margin:0 0 1.5rem;font:700 clamp(1.75rem,1.4rem + 1.6vw,2.5rem)/1.15 var(--serif);letter-spacing:-.015em;color:var(--ink)}
+.aula h2{margin:2.5rem 0 .75rem;padding-top:1.25rem;border-top:1px solid var(--line);font:700 1.5rem/1.25 var(--serif)}
+.aula h3{margin:2rem 0 .5rem;font:700 1.15rem/1.3 var(--serif);color:var(--accent)}
+.aula h4,.aula h5,.aula h6{margin:1.5rem 0 .5rem;font-size:1rem}
+.aula p,.aula ul,.aula ol{margin:1rem 0}
+.aula ul,.aula ol{padding-left:1.5rem}
+.aula li{margin:.35rem 0}
+.aula li>ul,.aula li>ol{margin:.35rem 0}
+.aula a{color:var(--accent);text-underline-offset:2px}
+.aula hr{border:0;border-top:1px solid var(--line);margin:2rem 0}
+.tabela{overflow-x:auto;margin:1.25rem 0;border:1px solid var(--line);border-radius:10px}
+.aula table{width:100%;border-collapse:collapse;font-size:.9rem}
+.aula th,.aula td{padding:.55rem .75rem;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+.aula tr:last-child td{border-bottom:0}
+.aula th{background:var(--tint);font-weight:700}
+.aula pre{background:var(--code);border:1px solid var(--line);border-radius:10px;padding:.9rem 1rem;overflow-x:auto;font:.85rem/1.5 var(--mono);margin:1rem 0;tab-size:4}
+.aula pre code{background:none;padding:0;font-size:inherit;overflow-wrap:normal}
+.aula blockquote{margin:1.25rem 0;padding:.75rem 1.25rem;border-left:4px solid var(--accent-2);background:var(--tint);border-radius:0 10px 10px 0}
+.aula blockquote>:first-child{margin-top:0}
+.aula blockquote>:last-child{margin-bottom:0}
+.aula figure{margin:1.75rem 0;text-align:center}
+.aula figure img{display:block;margin:0 auto;max-width:100%;height:auto;border:1px solid var(--line);border-radius:10px;background:#fff}
+.aula figcaption{margin-top:.5rem;color:var(--muted);font-size:.9rem;font-style:italic}
+.paginas{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:2.5rem;padding-top:1.5rem;border-top:1px solid var(--line)}
+.paginas a{display:block;padding:.75rem 1rem;border:1px solid var(--line);border-radius:10px;text-decoration:none;color:var(--ink);font-weight:600;line-height:1.3}
+.paginas a:hover{border-color:var(--accent);color:var(--accent)}
+.paginas small{display:block;color:var(--muted);font-weight:400}
+.paginas .prox{grid-column:2;text-align:right}
+footer{border-top:1px solid var(--line);padding-block:1.5rem;color:var(--muted);font-size:.85rem;text-align:center}
+@media (hover:hover) and (prefers-reduced-motion:no-preference){.modulo a:hover{transform:translateY(-2px)}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+@media (max-width:980px){.doc{grid-template-columns:minmax(0,1fr);padding-top:1rem}.lateral{position:static;max-height:none;order:2}.aula{max-width:none}}
+@media (max-width:860px){.modulo{grid-template-columns:minmax(0,1fr)}.modulo h2{position:static}.mn{display:inline;margin-right:.5rem}}
+@media (max-width:420px){.meta{display:none}.top-in{gap:.5rem}.acoes{gap:.6rem}.capa{padding-top:1.25rem}.paginas{grid-template-columns:minmax(0,1fr)}.paginas .prox{grid-column:1}}
+@media print{.top,.lateral,.paginas{display:none}.aula{border:0;box-shadow:none;padding:0;max-width:none}.doc{display:block}}
+</style>
+</head>
+<body>
+<a class="pular" href="#conteudo">Pular para o conteúdo</a>
+<header class="top"><div class="wrap top-in"><div class="titles"><p class="marca"><a href="index.html">Curso Linux Sysadmin</a></p><p class="meta">Rodrigo Antignani · Aula 7.2</p></div><div class="acoes"><a href="index.html">Índice</a><div class="idioma" role="group" aria-label="Idioma"><span aria-current="true">PT</span><a href="7.2-jobs-e-sessoes.it.html" hreflang="it" lang="it">IT</a></div></div></div></header>
+<div class="wrap doc"><aside class="lateral" aria-label="Aulas"><h2>Aulas</h2><h3>M0 · Laboratório</h3><ul><li><a href="0.1-montar-o-laboratorio.html"><span class="num">0.1</span><span>Montar o laboratório</span></a></li><li><a href="0.2-acesso-e-protecao.html"><span class="num">0.2</span><span>Acesso e proteção</span></a></li></ul><h3>M1 · Linha de comando</h3><ul><li><a href="1.1-o-que-e-linux.html"><span class="num">1.1</span><span>O que é Linux</span></a></li><li><a href="1.2-o-shell-e-a-ajuda.html"><span class="num">1.2</span><span>O shell e a ajuda</span></a></li><li><a href="1.3-caminhos-e-navegacao.html"><span class="num">1.3</span><span>Caminhos e navegação</span></a></li><li><a href="1.4-criar-copiar-mover-e-apagar.html"><span class="num">1.4</span><span>Criar, copiar, mover e apagar</span></a></li><li><a href="1.5-ler-e-procurar-texto.html"><span class="num">1.5</span><span>Ler e procurar texto</span></a></li><li><a href="1.6-redirecionamentos-e-pipes.html"><span class="num">1.6</span><span>Redirecionamentos e pipes</span></a></li><li><a href="1.7-arquivar-e-compactar.html"><span class="num">1.7</span><span>Arquivar e compactar</span></a></li><li><a href="1.8-primeiro-script.html"><span class="num">1.8</span><span>Primeiro script</span></a></li><li><a href="1.9-decidir-e-repetir.html"><span class="num">1.9</span><span>Decidir e repetir</span></a></li><li><a href="1.10-software-livre-na-pratica.html"><span class="num">1.10</span><span>Software livre na prática</span></a></li></ul><h3>M2 · Sistema, usuários e permissões</h3><ul><li><a href="2.1-instalacao-e-provisionamento.html"><span class="num">2.1</span><span>Instalação e provisionamento</span></a></li><li><a href="2.2-hardware-e-dispositivos.html"><span class="num">2.2</span><span>Hardware e dispositivos</span></a></li><li><a href="2.3-processos-e-logs.html"><span class="num">2.3</span><span>Processos e logs</span></a></li><li><a href="2.4-rede-no-dia-a-dia.html"><span class="num">2.4</span><span>Rede no dia a dia</span></a></li><li><a href="2.5-acesso-remoto-e-privilegios.html"><span class="num">2.5</span><span>Acesso remoto e privilégios</span></a></li><li><a href="2.6-usuarios-e-grupos.html"><span class="num">2.6</span><span>Usuários e grupos</span></a></li><li><a href="2.7-permissoes-e-dono.html"><span class="num">2.7</span><span>Permissões e dono</span></a></li><li><a href="2.8-diretorios-e-arquivos-especiais.html"><span class="num">2.8</span><span>Diretórios e arquivos especiais</span></a></li></ul><h3>M3 · Texto e editor</h3><ul><li><a href="3.1-fluxos-a-fundo.html"><span class="num">3.1</span><span>Fluxos a fundo</span></a></li><li><a href="3.2-filtros-de-texto.html"><span class="num">3.2</span><span>Filtros de texto</span></a></li><li><a href="3.3-regex-e-grep.html"><span class="num">3.3</span><span>Regex e grep</span></a></li><li><a href="3.4-sed-e-awk.html"><span class="num">3.4</span><span>sed e awk</span></a></li><li><a href="3.5-vi-e-vim-de-verdade.html"><span class="num">3.5</span><span>vi e vim de verdade</span></a></li></ul><h3>M4 · systemd e boot</h3><ul><li><a href="4.1-como-o-linux-liga.html"><span class="num">4.1</span><span>Como o Linux liga</span></a></li><li><a href="4.2-systemd-servicos-e-units.html"><span class="num">4.2</span><span>systemd: serviços e units</span></a></li><li><a href="4.3-targets-desligar-e-reiniciar.html"><span class="num">4.3</span><span>Targets: desligar e reiniciar</span></a></li><li><a href="4.4-grub-e-acesso-de-emergencia.html"><span class="num">4.4</span><span>GRUB e acesso de emergência</span></a></li></ul><h3>M5 · Kernel, módulos e VM</h3><ul><li><a href="5.1-hardware-pelo-kernel.html"><span class="num">5.1</span><span>Hardware pelo kernel</span></a></li><li><a href="5.2-modulos-e-parametros.html"><span class="num">5.2</span><span>Módulos e parâmetros</span></a></li><li><a href="5.3-linux-como-convidado.html"><span class="num">5.3</span><span>Linux como convidado</span></a></li></ul><h3>M6 · Pacotes e repositórios</h3><ul><li><a href="6.1-pacotes-no-debian.html"><span class="num">6.1</span><span>Pacotes no Debian</span></a></li><li><a href="6.2-pacotes-na-rocky.html"><span class="num">6.2</span><span>Pacotes na Rocky</span></a></li><li><a href="6.3-repositorios.html"><span class="num">6.3</span><span>Repositórios</span></a></li><li><a href="6.4-flatpak.html"><span class="num">6.4</span><span>Flatpak</span></a></li><li><a href="6.5-bibliotecas-compartilhadas.html"><span class="num">6.5</span><span>Bibliotecas compartilhadas</span></a></li></ul><h3>M7 · Processos e desempenho</h3><ul><li><a href="7.1-processos-e-sinais.html"><span class="num">7.1</span><span>Processos e sinais</span></a></li><li><a href="7.2-jobs-e-sessoes.html" aria-current="page"><span class="num">7.2</span><span>Jobs e sessões</span></a></li><li><a href="7.3-prioridade-e-perfis.html"><span class="num">7.3</span><span>Prioridade e perfis</span></a></li></ul><h3>M8 · Arquivos a fundo</h3><ul><li><a href="8.1-fhs-e-onde-cada-coisa-mora.html"><span class="num">8.1</span><span>FHS e onde cada coisa mora</span></a></li><li><a href="8.2-find-a-fundo.html"><span class="num">8.2</span><span>find a fundo</span></a></li><li><a href="8.3-arquivamento-avancado.html"><span class="num">8.3</span><span>Arquivamento avançado</span></a></li><li><a href="8.4-links.html"><span class="num">8.4</span><span>Links</span></a></li><li><a href="8.5-permissoes-avancadas.html"><span class="num">8.5</span><span>Permissões avançadas</span></a></li></ul><h3>M9 · Armazenamento</h3><ul><li><a href="9.1-discos-e-layout.html"><span class="num">9.1</span><span>Discos e layout</span></a></li><li><a href="9.2-particionar.html"><span class="num">9.2</span><span>Particionar</span></a></li><li><a href="9.3-sistemas-de-arquivos.html"><span class="num">9.3</span><span>Sistemas de arquivos</span></a></li><li><a href="9.4-montar-e-persistir.html"><span class="num">9.4</span><span>Montar e persistir</span></a></li><li><a href="9.5-integridade-e-espaco.html"><span class="num">9.5</span><span>Integridade e espaço</span></a></li><li><a href="9.6-lvm.html"><span class="num">9.6</span><span>LVM</span></a></li><li><a href="9.7-crescer-sem-destruir.html"><span class="num">9.7</span><span>Crescer sem destruir</span></a></li></ul></aside><main id="conteudo" class="aula"><article><h1>Aula 7.2 · Jobs e sessões</h1>
+<p>A atualização estava em 80% quando a VPN caiu. Quem já viveu isso sabe o tamanho do problema. Nesta aula você entende por que um comando morre junto com a conexão e escolhe a ferramenta certa para cada tarefa longa: job, <code translate="no">nohup</code>, <code translate="no">disown</code>, <code translate="no">tmux</code> ou <code translate="no">systemd-run</code>.</p>
+<blockquote><p><strong>Núcleo desta aula:</strong> controlar jobs com <code translate="no">&amp;</code>, Ctrl+Z, <code translate="no">jobs</code>, <code translate="no">fg</code> e <code translate="no">bg</code>; entender o que o SIGHUP faz quando o terminal some; usar <code translate="no">nohup</code> sem encher o disco; trabalhar no <code translate="no">tmux</code> e voltar para a sessão depois da queda; e saber quando a tarefa merece ser um serviço. O resto é aprofundamento.</p></blockquote>
+<div class="tabela"><table><thead><tr><th scope="col">Ficha</th><th scope="col"></th></tr></thead><tbody><tr><td><strong>Módulo</strong></td><td>M7 · Processos e desempenho, aula 2 de 3</td></tr><tr><td><strong>Quando</strong></td><td>Semana 11</td></tr><tr><td><strong>Ao final</strong></td><td>A sua tarefa longa sobrevive à queda do SSH, e você volta a ela de onde estiver</td></tr><tr><td><strong>Pré-requisitos</strong></td><td>Aulas 0.2, 2.3 e 7.1</td></tr><tr><td><strong>Tempo</strong></td><td>cerca de 2h</td></tr><tr><td><strong>Snapshots</strong></td><td><code translate="no">m7a2-inicio</code> e <code translate="no">m7a2-fim</code> na rocky-lab e na debian-lab</td></tr></tbody></table></div>
+<h2 id="1-aquecimento">1 · Aquecimento</h2>
+<p>Responda antes de ler.</p>
+<ol><li>Que sinal o Ctrl+C envia? E qual seria o código de saída?</li>
+<li>Um comando foi iniciado com <code translate="no">&amp;</code> e você fechou a janela do SSH. Ele continua rodando?</li>
+<li>Se você sair com <code translate="no">exit</code> em vez de fechar a janela, a resposta muda?</li></ol>
+<h2 id="2-por-que-importa">2 · Por que importa</h2>
+<div class="tabela"><table><thead><tr><th scope="col">O chamado</th><th scope="col">A resposta errada</th><th scope="col">O que ela causa</th></tr></thead><tbody><tr><td>"O <code translate="no">dnf upgrade</code> parou no meio quando a conexão caiu"</td><td>Rodar direto no SSH de novo</td><td>A próxima queda pode deixar o sistema pela metade</td></tr><tr><td>"O disco encheu e ninguém sabe por quê"</td><td>Procurar só nos logs</td><td>Um <code translate="no">nohup.out</code> gigante, esquecido na pasta de alguém</td></tr><tr><td>"O script parou sozinho, sem erro"</td><td>Rodar de novo</td><td>Ele está em segundo plano esperando uma resposta que ninguém vê</td></tr><tr><td>"Deixei no <code translate="no">tmux</code> e sumiu"</td><td>Achar que o <code translate="no">tmux</code> falhou</td><td>Foi aberto como root, ou o servidor reiniciou</td></tr><tr><td>"Todo dia eu abro o <code translate="no">tmux</code> para rodar esse backup"</td><td>Continuar assim</td><td>Tarefa repetida merece serviço e agendamento</td></tr></tbody></table></div>
+<h2 id="3-modelo-mental">3 · Modelo mental</h2>
+<blockquote><p>A conexão SSH é um <strong>fio de telefone</strong> entre você e o shell. Quando o fio é cortado, o shell recebe o aviso (SIGHUP) e o repassa aos jobs dele. O <code translate="no">nohup</code> e o <code translate="no">disown</code> são jeitos de <strong>tapar o ouvido</strong> de um processo para esse aviso. O <code translate="no">tmux</code> faz outra coisa: <strong>instala um ramal dentro do servidor</strong>. O seu programa fala com o ramal, o seu SSH só olha para ele, e quando o fio cai o ramal continua atendendo.</p></blockquote>
+<pre translate="no"><code>ssh ── sshd ── bash (líder da sessão) ── pts/0
+                 ├─ vim         primeiro plano
+                 └─ backup.sh   segundo plano
+
+conexão cai → o pts some → SIGHUP no bash → o bash repassa SIGHUP aos jobs → backup morre
+
+
+ssh ── sshd ── bash ── cliente tmux  ┄┄ olha para ┄┄  servidor tmux  (pai = PID 1)
+                                                        └─ bash ── backup.sh
+
+conexão cai → morre só o cliente → o servidor e o backup continuam → tmux attach</code></pre>
+<figure><a href="../img/7.2-queda-do-ssh.jpg"><img src="../img/7.2-queda-do-ssh.jpg" alt="Quando a conexão cai" loading="lazy" decoding="async"></a><figcaption>O <code translate="no">tmux</code> não protege o processo do sinal: ele tira o processo do caminho do sinal.</figcaption></figure>
+<h3 id="ponte-windows">Ponte Windows</h3>
+<div class="tabela"><table><thead><tr><th scope="col">No Windows</th><th scope="col">No Linux</th><th scope="col">Onde a comparação engana</th></tr></thead><tbody><tr><td>Desconectar do RDP, com os programas abertos</td><td><code translate="no">Ctrl+b d</code> no <code translate="no">tmux</code></td><td>Sem <code translate="no">tmux</code>, cair o SSH não equivale a desconectar do RDP: os processos recebem SIGHUP</td></tr><tr><td>Fazer logoff do RDP</td><td><code translate="no">tmux kill-session</code></td><td>Encerra tudo o que estava na sessão</td></tr><tr><td><code translate="no">Start-Job</code> no PowerShell</td><td><code translate="no">comando &amp;</code></td><td>O job do PowerShell depende da sessão, como o do bash</td></tr><tr><td>Tarefa agendada para rodar uma vez</td><td><code translate="no">systemd-run</code></td><td>O <code translate="no">systemd-run</code> executa na hora e registra a saída no journal</td></tr><tr><td>Reinício do Windows</td><td>Reboot</td><td>A sessão do <code translate="no">tmux</code> também não sobrevive</td></tr></tbody></table></div>
+<h2 id="4-o-essencial">4 · O essencial</h2>
+<h3 id="teclas-e-comandos-de-job">Teclas e comandos de job</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Quero...</th><th scope="col">Como</th></tr></thead><tbody><tr><td>Rodar em segundo plano</td><td><code translate="no">comando &amp;</code></td></tr><tr><td>Interromper (SIGINT)</td><td>Ctrl+C</td></tr><tr><td>Pausar (SIGTSTP)</td><td>Ctrl+Z</td></tr><tr><td>Ver os jobs, com PID</td><td><code translate="no">jobs -l</code></td></tr><tr><td>Trazer para a frente</td><td><code translate="no">fg %1</code></td></tr><tr><td>Continuar em segundo plano</td><td><code translate="no">bg %1</code></td></tr><tr><td>Encerrar um job</td><td><code translate="no">kill %1</code></td></tr><tr><td>Esperar os jobs terminarem</td><td><code translate="no">wait</code></td></tr><tr><td>Tirar da lista do shell</td><td><code translate="no">disown %1</code></td></tr></tbody></table></div>
+<h3 id="qual-ferramenta">Qual ferramenta</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Ferramenta</th><th scope="col">Sobrevive à queda do SSH</th><th scope="col">Sobrevive ao reboot</th><th scope="col">Dá para voltar a ver</th><th scope="col">Onde fica a saída</th></tr></thead><tbody><tr><td><code translate="no">comando &amp;</code></td><td>Não</td><td>Não</td><td>Só no mesmo shell</td><td>No terminal</td></tr><tr><td><code translate="no">nohup comando &amp;</code></td><td>Sim</td><td>Não</td><td>Não</td><td><code translate="no">nohup.out</code>, se o terminal era a saída</td></tr><tr><td><code translate="no">disown</code></td><td>Sim</td><td>Não</td><td>Não</td><td>No terminal que sumiu</td></tr><tr><td><code translate="no">tmux</code> ou <code translate="no">screen</code></td><td>Sim</td><td>Não</td><td><strong>Sim</strong></td><td>Na tela da sessão</td></tr><tr><td><code translate="no">systemd-run</code></td><td>Sim</td><td>Não</td><td>Pelo journal</td><td><code translate="no">journalctl -u NOME</code></td></tr><tr><td>Unit com <code translate="no">enable</code> e timer</td><td>Sim</td><td><strong>Sim</strong></td><td>Pelo journal</td><td><code translate="no">journalctl -u NOME</code></td></tr></tbody></table></div>
+<p><strong>Como escolher:</strong> trabalho interativo, ou algo que precisa ser acompanhado, vai no <code translate="no">tmux</code>. Tarefa pontual sem interação vai no <code translate="no">systemd-run</code>. Se esqueceu de usar tudo isso e o comando já está rodando, <code translate="no">Ctrl+Z</code>, <code translate="no">bg</code> e <code translate="no">disown</code> salvam. Tarefa que se repete vira unit com timer.</p>
+<figure><a href="../img/7.2-qual-ferramenta.jpg"><img src="../img/7.2-qual-ferramenta.jpg" alt="Qual ferramenta usar" loading="lazy" decoding="async"></a><figcaption>Responda a pergunta da esquerda e pegue a ferramenta da direita.</figcaption></figure>
+<h3 id="tmux">tmux</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Quero...</th><th scope="col">Como</th></tr></thead><tbody><tr><td>Criar uma sessão com nome</td><td><code translate="no">tmux new -s nome</code></td></tr><tr><td>Sair e deixar rodando</td><td><code translate="no">Ctrl+b</code> e depois <code translate="no">d</code></td></tr><tr><td>Listar as sessões</td><td><code translate="no">tmux ls</code></td></tr><tr><td>Voltar</td><td><code translate="no">tmux attach -t nome</code></td></tr><tr><td>Nova janela</td><td><code translate="no">Ctrl+b</code> e <code translate="no">c</code></td></tr><tr><td>Próxima janela</td><td><code translate="no">Ctrl+b</code> e <code translate="no">n</code></td></tr><tr><td>Dividir lado a lado</td><td><code translate="no">Ctrl+b</code> e <code translate="no">%</code></td></tr><tr><td>Dividir em cima e embaixo</td><td><code translate="no">Ctrl+b</code> e <code translate="no">"</code></td></tr><tr><td>Trocar de painel</td><td><code translate="no">Ctrl+b</code> e <code translate="no">o</code></td></tr><tr><td>Rolar a tela</td><td><code translate="no">Ctrl+b</code> e <code translate="no">[</code>, com <code translate="no">q</code> para sair</td></tr><tr><td>Encerrar a sessão</td><td><code translate="no">tmux kill-session -t nome</code></td></tr></tbody></table></div>
+<p>O <code translate="no">screen</code> faz o mesmo com outros comandos: <code translate="no">screen -S nome</code>, <code translate="no">Ctrl+a</code> e <code translate="no">d</code>, <code translate="no">screen -ls</code>, <code translate="no">screen -r nome</code>. Você vai encontrá-lo em servidores antigos.</p>
+<h3 id="rocky-debian">Rocky × Debian</h3>
+<div class="tabela"><table><thead><tr><th scope="col"></th><th scope="col">Rocky 9</th><th scope="col">Debian 13</th></tr></thead><tbody><tr><td><code translate="no">tmux</code></td><td><code translate="no">dnf install tmux</code></td><td><code translate="no">apt install tmux</code></td></tr><tr><td><code translate="no">screen</code></td><td>Pacote do EPEL</td><td><code translate="no">apt install screen</code></td></tr><tr><td>Comportamento de jobs e SIGHUP</td><td>O mesmo, é do bash</td><td>O mesmo, é do bash</td></tr></tbody></table></div>
+<h2 id="5-lab-guiado">5 · Lab guiado</h2>
+<p>Você vai precisar de <strong>duas janelas SSH</strong> para a rocky-lab: a <strong>A</strong>, que será derrubada, e a <strong>B</strong>, que observa.</p>
+<p><strong>Passo 0 · Snapshots e preparo.</strong> No Proxmox: <code translate="no">qm snapshot 201 m7a2-inicio</code> e <code translate="no">qm snapshot 202 m7a2-inicio</code>. Na janela A:</p>
+<pre translate="no"><code class="lang-bash">sudo dnf install -y tmux
+mkdir -p ~/lab72 &amp;&amp; cd ~/lab72
+cat &gt; conta.sh &lt;&lt;'EOF'
+#!/bin/bash
+while true; do
+  date +%T &gt;&gt; "$1"
+  sleep 1
+done
+EOF
+chmod +x conta.sh</code></pre>
+<p><strong>Passo 1 · Controlar jobs.</strong></p>
+<pre translate="no"><code class="lang-bash">sleep 301 &amp;
+sleep 302</code></pre>
+<p>O segundo comando prende o terminal. Tecle <strong>Ctrl+Z</strong>, e continue:</p>
+<pre translate="no"><code class="lang-bash">jobs -l
+bg %2
+jobs -l
+fg %1</code></pre>
+<p>Tecle <strong>Ctrl+C</strong> para encerrar o <code translate="no">sleep 301</code>. Depois:</p>
+<pre translate="no"><code class="lang-bash">jobs
+kill %2
+jobs</code></pre>
+<p>Repare no estado: <code translate="no">Running</code>, depois <code translate="no">Stopped</code> com o Ctrl+Z, e <code translate="no">Running</code> de novo com o <code translate="no">bg</code>.</p>
+<p><strong>Passo 2 · O teste da queda.</strong> Na janela A, inicie quatro contadores, cada um protegido de um jeito:</p>
+<pre translate="no"><code class="lang-bash">cd ~/lab72
+./conta.sh a-sem-nada.log &amp;
+nohup ./conta.sh b-nohup.log &gt; /dev/null 2&gt;&amp;1 &amp;
+./conta.sh c-disown.log &amp;
+disown
+jobs -l
+tmux new -d -s lab './conta.sh d-tmux.log'</code></pre>
+<p>Agora <strong>feche a janela A no X</strong>, sem digitar <code translate="no">exit</code>. Na janela B, depois de alguns segundos:</p>
+<pre translate="no"><code class="lang-bash">cd ~/lab72
+for f in *.log; do echo "$f $(tail -n 1 "$f")"; done; date +%T</code></pre>
+<div class="tabela"><table><thead><tr><th scope="col">Arquivo</th><th scope="col">Esperado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td><code translate="no">a-sem-nada.log</code></td><td>Parou na hora da queda</td><td>O bash repassou o SIGHUP ao job</td></tr><tr><td><code translate="no">b-nohup.log</code></td><td>Continua atualizando</td><td>O <code translate="no">nohup</code> faz o processo ignorar o SIGHUP</td></tr><tr><td><code translate="no">c-disown.log</code></td><td>Continua atualizando</td><td>O <code translate="no">disown</code> tirou o job da lista de quem recebe o repasse</td></tr><tr><td><code translate="no">d-tmux.log</code></td><td>Continua atualizando</td><td>O processo mora no servidor do <code translate="no">tmux</code></td></tr></tbody></table></div>
+<p>Encerre o que sobrou, na janela B:</p>
+<pre translate="no"><code class="lang-bash">pkill -f 'conta.sh b-nohup'
+pkill -f 'conta.sh c-disown'
+tmux kill-session -t lab</code></pre>
+<p><strong>Passo 3 · A surpresa do <code translate="no">exit</code>.</strong> Abra outra janela A:</p>
+<pre translate="no"><code class="lang-bash">cd ~/lab72
+./conta.sh e-exit.log &amp;
+shopt huponexit
+exit</code></pre>
+<p>Na janela B, repita o <code translate="no">for</code> do Passo 2. O <code translate="no">e-exit.log</code> <strong>continua atualizando</strong>. Com <code translate="no">huponexit</code> em <code translate="no">off</code>, que é o padrão, o bash não avisa os jobs quando você sai por <code translate="no">exit</code>. O SIGHUP do Passo 2 veio da queda do terminal. Por isso alguém jura que "funcionava ontem": ontem saiu por <code translate="no">exit</code>, hoje a conexão caiu.</p>
+<p>Se a janela do SSH travar ao sair, tecle Enter, depois <code translate="no">~</code> e <code translate="no">.</code>, que encerram o cliente SSH. Limpe:</p>
+<pre translate="no"><code class="lang-bash">pkill -f 'conta.sh e-exit'</code></pre>
+<p><strong>Passo 4 · Trabalhar no <code translate="no">tmux</code>.</strong> Numa janela nova:</p>
+<pre translate="no"><code class="lang-bash">tmux new -s trabalho</code></pre>
+<p>Dentro dele: rode <code translate="no">top</code>; tecle <code translate="no">Ctrl+b</code> e <code translate="no">c</code>, e rode <code translate="no">ls -l /etc | less</code>; tecle <code translate="no">Ctrl+b</code> e <code translate="no">n</code> para voltar e <code translate="no">Ctrl+b</code> e <code translate="no">%</code> para dividir a tela; alterne com <code translate="no">Ctrl+b</code> e <code translate="no">o</code>. Saia com <code translate="no">Ctrl+b</code> e <code translate="no">d</code>. Depois:</p>
+<pre translate="no"><code class="lang-bash">tmux ls
+ps -o pid,ppid,cmd -p "$(tmux display-message -p '#{pid}')"
+tmux attach -t trabalho</code></pre>
+<p>O <code translate="no">top</code> continua ali, do jeito que você deixou. O PPID do servidor normalmente é 1: ele não depende da sua conexão. Ao terminar, <code translate="no">Ctrl+b</code> e <code translate="no">d</code>, e <code translate="no">tmux kill-session -t trabalho</code>.</p>
+<figure><a href="../img/7.2-tmux-segura.jpg"><img src="../img/7.2-tmux-segura.jpg" alt="O tmux segura a tela" loading="lazy" decoding="async"></a><figcaption>A conexão cai, a sessão do tmux continua no servidor.</figcaption></figure>
+<p><strong>Passo 5 · Já comecei sem proteção.</strong> Numa janela nova:</p>
+<pre translate="no"><code class="lang-bash">~/lab72/conta.sh ~/lab72/f-resgate.log</code></pre>
+<p>Tecle <strong>Ctrl+Z</strong>, e continue:</p>
+<pre translate="no"><code class="lang-bash">bg
+disown</code></pre>
+<p>Feche a janela no X. Na janela B, confira que o <code translate="no">f-resgate.log</code> continua atualizando e encerre com <code translate="no">pkill -f 'conta.sh .*f-resgate'</code>. É o resgate para quando você percebe tarde demais.</p>
+<p><strong>Passo 6 · Uma tarefa que vira unidade.</strong></p>
+<pre translate="no"><code class="lang-bash">sudo systemd-run --unit=lab-tarefa bash -c 'for i in 1 2 3 4 5 6; do echo "passo $i"; sleep 5; done'
+systemctl status lab-tarefa --no-pager | head -n 6
+sudo journalctl -u lab-tarefa -f</code></pre>
+<p>Saia do <code translate="no">journalctl</code> com Ctrl+C, depois que os seis passos aparecerem. A tarefa não dependeu do seu terminal, e o registro continua no journal depois que ela termina. Veja com <code translate="no">sudo journalctl -u lab-tarefa --no-pager | tail -n 8</code>.</p>
+<p><strong>Passo 7 · debian-lab.</strong> Instale o <code translate="no">tmux</code> e repita o Passo 2. O resultado é o mesmo, porque o comportamento vem do bash e do kernel.</p>
+<h3 id="decida-1">Decida 1</h3>
+<p>Você vai rodar <code translate="no">dnf upgrade</code> por SSH em um servidor remoto, através de VPN instável. Como faz?</p>
+<p>A) Direto no SSH, porque costuma ser rápido. B) <code translate="no">nohup dnf -y upgrade &amp;</code>. C) Dentro do <code translate="no">tmux</code>, acompanhando.</p>
+<p>Marque uma opção antes.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se você marcou</th><th scope="col">Resultado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>A</td><td>Risco real</td><td>Uma queda no meio pode interromper a transação</td></tr><tr><td>B</td><td>Sobrevive, mas às cegas</td><td>Você não vê perguntas nem erros na hora, e o <code translate="no">-y</code> aceita tudo</td></tr><tr><td>C</td><td>Certo</td><td>Sobrevive à queda, e você volta para a mesma tela e vê como terminou</td></tr></tbody></table></div>
+<p><strong>Para fixar:</strong> trabalho que você precisa acompanhar vai no <code translate="no">tmux</code>, sempre.</p>
+<h3 id="decida-2">Decida 2</h3>
+<p>Toda noite alguém entra no servidor, abre o <code translate="no">tmux</code> e dispara um script de cópia. O que você propõe?</p>
+<p>A) Continuar, porque funciona. B) Um <code translate="no">nohup</code> no <code translate="no">.bashrc</code>. C) Uma unit com timer do systemd, com a saída no journal.</p>
+<p>Marque uma opção antes.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se você marcou</th><th scope="col">Resultado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>A</td><td>Depende de uma pessoa</td><td>Em férias ou feriado, a cópia não roda</td></tr><tr><td>B</td><td>Pior</td><td>Dispara a cada login, sem controle e sem registro</td></tr><tr><td>C</td><td>Certo</td><td>Roda sozinho, volta depois do reboot e deixa histórico. Você vai fazer isso em detalhe mais adiante no curso</td></tr></tbody></table></div>
+<p><strong>Para fixar:</strong> o <code translate="no">tmux</code> serve para trabalho humano. Rotina é serviço.</p>
+<h2 id="6-quebre-e-conserte">6 · Quebre e conserte</h2>
+<figure><a href="../img/7.2-tres-sustos.jpg"><img src="../img/7.2-tres-sustos.jpg" alt="Três sustos com jobs" loading="lazy" decoding="async"></a><figcaption>Três sintomas que parecem defeito e têm explicação simples.</figcaption></figure>
+<h3 id="quebra-1-o-script-parou-sozinho">Quebra 1 · O script parou sozinho</h3>
+<pre translate="no"><code class="lang-bash">cat &gt; ~/lab72/pergunta.sh &lt;&lt;'EOF'
+#!/bin/bash
+read -p "Continuar? " resposta
+echo "$(date +%T) resposta: $resposta" &gt;&gt; ~/lab72/resposta.log
+EOF
+chmod +x ~/lab72/pergunta.sh
+~/lab72/pergunta.sh &amp;
+sleep 1
+jobs -l</code></pre>
+<p><strong>Sintoma:</strong> <code translate="no">Stopped (tty input)</code>, ou <code translate="no">Fermato (input da terminale)</code> numa VM em italiano, e o <code translate="no">resposta.log</code> não aparece.</p>
+<p><strong>Diagnóstico:</strong> um processo em segundo plano tentou ler do terminal e o kernel o parou. No <code translate="no">ps</code>, o estado é <code translate="no">T</code>.</p>
+<p><strong>Conserto:</strong> <code translate="no">fg</code>, e responda. Num script automatizado, entregue a resposta na entrada, como em <code translate="no">echo s | ~/lab72/pergunta.sh &amp;</code>.</p>
+<p><strong>Na vida real:</strong> é o motivo de <code translate="no">sudo comando &amp;</code> ficar parado esperando a senha. Rode <code translate="no">sudo -v</code> antes, ou faça a tarefa dentro do <code translate="no">tmux</code>.</p>
+<h3 id="quebra-2-o-nohup-out-escondido">Quebra 2 · O <code translate="no">nohup.out</code> escondido</h3>
+<pre translate="no"><code class="lang-bash">cd ~/lab72
+nohup bash -c 'for i in {1..20000}; do echo "linha $i"; done' &amp;
+sleep 2
+ls -lh nohup.out</code></pre>
+<p><strong>Sintoma:</strong> apareceu um arquivo que ninguém pediu. Num processo que roda por semanas, ele enche o disco.</p>
+<p><strong>Diagnóstico:</strong> procure onde estão e quem está escrevendo: <code translate="no">sudo find / -xdev -name nohup.out -size +10M 2&gt;/dev/null</code> e <code translate="no">sudo fuser -v nohup.out</code>.</p>
+<p><strong>Conserto:</strong> rode com a saída definida, como em <code translate="no">nohup comando &gt; /var/log/tarefa.log 2&gt;&amp;1 &amp;</code>. Com o processo vivo, esvazie com <code translate="no">: &gt; nohup.out</code>. Se você apagar o arquivo, o espaço só volta quando o processo terminar.</p>
+<h3 id="quebra-3-a-sessao-que-sumiu">Quebra 3 · A sessão que sumiu</h3>
+<pre translate="no"><code class="lang-bash">sudo tmux new -d -s raiz 'sleep 600'
+tmux ls
+sudo tmux ls</code></pre>
+<p><strong>Sintoma:</strong> como <code translate="no">rodrigo</code>, o <code translate="no">tmux ls</code> responde <code translate="no">no server running</code>, <code translate="no">error connecting to /tmp/tmux-UID/default</code> ou não mostra a sessão <code translate="no">raiz</code>. Com <code translate="no">sudo</code>, ela aparece.</p>
+<p><strong>Diagnóstico:</strong> cada usuário tem o próprio servidor, com um socket em <code translate="no">/tmp/tmux-UID/</code>.</p>
+<p><strong>Conserto:</strong> volte como o mesmo usuário que criou a sessão: <code translate="no">sudo tmux attach -t raiz</code>. Para encerrar, <code translate="no">sudo tmux kill-session -t raiz</code>.</p>
+<p><strong>Na vida real:</strong> a outra causa comum é o reboot. Confira com <code translate="no">uptime</code>. O <code translate="no">tmux</code> não sobrevive a ele.</p>
+<h3 id="limpeza">Limpeza</h3>
+<pre translate="no"><code class="lang-bash">pkill -f conta.sh
+pkill -KILL -f pergunta.sh
+tmux kill-server 2&gt;/dev/null
+sudo tmux kill-server 2&gt;/dev/null
+pgrep -af 'conta.sh|pergunta.sh'</code></pre>
+<p>O último comando não deve mostrar nada. O <code translate="no">-KILL</code> está ali porque um processo parado só trata o <code translate="no">SIGTERM</code> quando volta a rodar. A pasta <code translate="no">~/lab72</code> pode ficar.</p>
+<h2 id="7-armadilhas">7 · Armadilhas</h2>
+<div class="tabela"><table><thead><tr><th scope="col">Armadilha</th><th scope="col">O que acontece</th><th scope="col">Como evitar</th></tr></thead><tbody><tr><td>Confiar em <code translate="no">comando &amp;</code> numa rede instável</td><td>O job morre com a queda</td><td>Use <code translate="no">tmux</code></td></tr><tr><td>Testar com <code translate="no">exit</code> e concluir que está protegido</td><td>A queda real se comporta de outro jeito</td><td>Teste fechando a janela</td></tr><tr><td><code translate="no">nohup</code> sem redirecionar</td><td>O <code translate="no">nohup.out</code> cresce até encher o disco</td><td>Sempre <code translate="no">&gt; arquivo 2&gt;&amp;1</code></td></tr><tr><td>Apagar arquivo que ainda está aberto</td><td>O espaço não volta</td><td>Esvazie com <code translate="no">: &gt; arquivo</code></td></tr><tr><td><code translate="no">sudo comando &amp;</code></td><td>Fica parado pedindo a senha</td><td><code translate="no">sudo -v</code> antes, ou <code translate="no">tmux</code></td></tr><tr><td>Abrir o <code translate="no">tmux</code> como root e procurar como usuário</td><td>"Sumiu"</td><td>Mesmo usuário nos dois</td></tr><tr><td>Achar que o <code translate="no">tmux</code> sobrevive ao reboot</td><td>A sessão não existe mais</td><td>Tarefa que precisa voltar vira unit</td></tr><tr><td><code translate="no">tmux</code> dentro de <code translate="no">tmux</code></td><td>O <code translate="no">Ctrl+b</code> vai para o de fora</td><td>Saia do interno ou tecle <code translate="no">Ctrl+b</code> duas vezes</td></tr><tr><td>Política que encerra processos ao sair</td><td>Até o <code translate="no">tmux</code> pode morrer</td><td>Confira <code translate="no">KillUserProcesses</code> em <code translate="no">/etc/systemd/logind.conf</code></td></tr></tbody></table></div>
+<h2 id="8-quiz">8 · Quiz</h2>
+<p>Responda sem olhar. O gabarito está no fim da aula.</p>
+<ol><li>Qual a diferença entre Ctrl+C e Ctrl+Z?</li>
+<li>Um comando já está rodando sem proteção. Quais três passos o salvam da queda do SSH?</li>
+<li>Por que um job iniciado com <code translate="no">&amp;</code> pode sobreviver ao <code translate="no">exit</code> e morrer com a queda da conexão?</li>
+<li>O que acontece com a saída de <code translate="no">nohup comando &amp;</code> quando o terminal é a saída?</li>
+<li>Por que o <code translate="no">tmux</code> continua depois que o SSH cai?</li>
+<li>Como escolher entre <code translate="no">tmux</code>, <code translate="no">systemd-run</code> e uma unit com timer?</li></ol>
+<h2 id="9-cola">9 · Cola</h2>
+<p><strong>Para saber de cor:</strong></p>
+<div class="tabela"><table><thead><tr><th scope="col">Quero...</th><th scope="col">Comando</th></tr></thead><tbody><tr><td>Segundo plano</td><td><code translate="no">comando &amp;</code></td></tr><tr><td>Pausar e continuar atrás</td><td>Ctrl+Z, depois <code translate="no">bg</code></td></tr><tr><td>Trazer para a frente</td><td><code translate="no">fg %N</code></td></tr><tr><td>Resgatar da queda</td><td>Ctrl+Z, <code translate="no">bg</code>, <code translate="no">disown</code></td></tr><tr><td>Sessão nova</td><td><code translate="no">tmux new -s nome</code></td></tr><tr><td>Sair deixando rodando</td><td><code translate="no">Ctrl+b</code> e <code translate="no">d</code></td></tr><tr><td>Voltar</td><td><code translate="no">tmux attach -t nome</code></td></tr><tr><td>Listar sessões</td><td><code translate="no">tmux ls</code></td></tr></tbody></table></div>
+<p><strong>Para consultar:</strong></p>
+<div class="tabela"><table><thead><tr><th scope="col">Quero...</th><th scope="col">Comando</th></tr></thead><tbody><tr><td>Nohup com saída definida</td><td><code translate="no">nohup comando &gt; arquivo 2&gt;&amp;1 &amp;</code></td></tr><tr><td>Tarefa como unit temporária</td><td><code translate="no">sudo systemd-run --unit=NOME comando</code></td></tr><tr><td>Saída da unit temporária</td><td><code translate="no">journalctl -u NOME</code></td></tr><tr><td>Ver o texto do <code translate="no">tmux</code> sem entrar</td><td><code translate="no">tmux capture-pane -pt nome</code></td></tr><tr><td>Ver se o shell avisa os jobs</td><td><code translate="no">shopt huponexit</code></td></tr><tr><td>Encerrar o cliente SSH travado</td><td>Enter, <code translate="no">~</code>, <code translate="no">.</code></td></tr><tr><td>Screen</td><td><code translate="no">screen -S nome</code>, <code translate="no">Ctrl+a</code> e <code translate="no">d</code>, <code translate="no">screen -r nome</code></td></tr><tr><td>Sessões de login</td><td><code translate="no">loginctl list-sessions</code></td></tr></tbody></table></div>
+<p><strong>Flashcards:</strong></p>
+<ul><li>Fio cortado → <em>SIGHUP no shell, que repassa aos jobs.</em></li>
+<li><code translate="no">nohup</code> → <em>ignora o SIGHUP; a saída vai para <code translate="no">nohup.out</code>.</em></li>
+<li><code translate="no">disown</code> → <em>tira o job da lista de repasse.</em></li>
+<li><code translate="no">tmux</code> → <em>o processo mora num servidor que não depende do SSH.</em></li>
+<li>Rotina → <em>unit com timer, não <code translate="no">tmux</code>.</em></li></ul>
+<h2 id="10-checklist-e-fechamento">10 · Checklist e fechamento</h2>
+<ul><li>[ ] Uso <code translate="no">&amp;</code>, Ctrl+Z, <code translate="no">jobs</code>, <code translate="no">fg</code> e <code translate="no">bg</code> sem pensar</li>
+<li>[ ] Explico o que o SIGHUP faz quando a conexão cai</li>
+<li>[ ] Sei a diferença entre <code translate="no">exit</code> e queda do terminal</li>
+<li>[ ] Uso <code translate="no">nohup</code> sempre com a saída definida</li>
+<li>[ ] Crio, deixo e volto a uma sessão do <code translate="no">tmux</code></li>
+<li>[ ] Resgato um comando que já começou sem proteção</li>
+<li>[ ] Sei quando a tarefa deve virar serviço</li></ul>
+<p><strong>Último exercício, sem olhar a aula:</strong> na debian-lab, crie uma sessão <code translate="no">tmux</code> com duas janelas. Rode um contador em uma delas, feche a conexão no X, reconecte e volte para a mesma tela. Encerre a sessão ao final.</p>
+<p><strong>Snapshot de fim</strong> (no Proxmox):</p>
+<pre translate="no"><code class="lang-bash">qm snapshot 201 m7a2-fim
+qm snapshot 202 m7a2-fim</code></pre>
+<h2 id="11-na-vida-real">11 · Na vida real</h2>
+<p><strong>Missão, só leitura.</strong> Num servidor Linux que você administre (ou com autorização), rode <strong>apenas</strong>:</p>
+<pre translate="no"><code class="lang-bash">who
+loginctl list-sessions --no-pager
+tmux ls 2&gt;/dev/null
+command -v tmux screen
+grep -i KillUserProcesses /etc/systemd/logind.conf
+sudo find / -xdev -name nohup.out -size +10M 2&gt;/dev/null</code></pre>
+<p>Perguntas para responder:</p>
+<ol><li>Quem está conectado agora, e desde quando?</li>
+<li>O <code translate="no">tmux</code> ou o <code translate="no">screen</code> está instalado?</li>
+<li>Existe algum <code translate="no">nohup.out</code> grande esquecido?</li>
+<li>O <code translate="no">KillUserProcesses</code> está comentado ou definido como <code translate="no">no</code>?</li></ol>
+<p><strong>Diário:</strong> anote se o servidor tem uma ferramenta pronta para a sua próxima tarefa longa. Se não tiver, inclua a instalação numa janela de manutenção.</p>
+<p><strong>Amanhã, sem olhar:</strong> escreva a sequência para criar, deixar e retomar uma sessão do <code translate="no">tmux</code>.</p>
+<h2 id="12-aprofundar-quando-quiser">12 · Aprofundar quando quiser</h2>
+<ul><li><strong><code translate="no">~/.tmux.conf</code>:</strong> trocar a tecla de prefixo, ligar o mouse e aumentar o histórico.</li>
+<li><strong><code translate="no">tmux-resurrect</code>:</strong> salvar o layout das sessões. Os processos, em si, não voltam.</li>
+<li><strong><code translate="no">loginctl enable-linger</code>:</strong> manter os serviços do usuário depois do logout.</li>
+<li><strong><code translate="no">setsid</code>:</strong> iniciar um processo em uma sessão nova, sem terminal de controle.</li>
+<li><strong><code translate="no">mosh</code>:</strong> cliente remoto que tolera troca de rede e de IP.</li></ul>
+<p><strong>DeepTutor</strong> (http://10.1.0.149:3782, KB "Curso Linux Sysadmin"):</p>
+<ul><li><code translate="no">!explica o que acontece com um job quando a sessão SSH cai</code></li>
+<li><code translate="no">!feynman a diferença entre nohup, disown e tmux</code></li>
+<li><code translate="no">!quiz Aula 7.2, 5 perguntas sobre jobs e tmux</code></li></ul>
+<h2 id="gabarito-comentado">Gabarito comentado</h2>
+<h3 id="aquecimento">Aquecimento</h3>
+<ol><li>SIGINT, e o código de saída costuma ser 130 (128 + 2).</li>
+<li>Normalmente não. Quando o terminal some, o bash recebe SIGHUP e o repassa aos jobs.</li>
+<li>Muda. No <code translate="no">exit</code>, com <code translate="no">huponexit</code> em <code translate="no">off</code>, o bash não avisa os jobs, e eles continuam.</li></ol>
+<h3 id="quiz">Quiz</h3>
+<ol><li>O Ctrl+C manda SIGINT, normalmente encerrando o programa. O Ctrl+Z manda SIGTSTP, que pausa o programa e devolve o shell.</li>
+<li>Ctrl+Z, <code translate="no">bg</code> e <code translate="no">disown</code>.</li>
+<li>Porque quem envia o aviso é diferente. Na queda do terminal, o bash recebe SIGHUP e repassa. No <code translate="no">exit</code>, com a opção padrão, ele simplesmente sai.</li>
+<li>Vai para <code translate="no">nohup.out</code>, na pasta atual. Se não der para criar ali, vai para <code translate="no">~/nohup.out</code>.</li>
+<li>Porque o programa roda como filho do servidor do <code translate="no">tmux</code>, que não depende da conexão. A queda elimina apenas o cliente.</li>
+<li><code translate="no">tmux</code> para trabalho que uma pessoa acompanha. <code translate="no">systemd-run</code> para tarefa pontual sem interação, com registro no journal. Unit com timer para o que se repete ou precisa voltar depois do reboot.</li></ol>
+</article><nav class="paginas" aria-label="Aulas"><a class="ant" href="7.1-processos-e-sinais.html"><small>← Anterior</small>7.1 · Processos e sinais</a><a class="prox" href="7.3-prioridade-e-perfis.html"><small>Próxima →</small>7.3 · Prioridade e perfis</a></nav></main></div>
+<footer><div class="wrap">Gerado a partir do Markdown do curso · Imagens em <code translate="no">img/</code></div></footer>
+</body>
+</html>

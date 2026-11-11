@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light dark">
+<title>9.3 · Sistemas de arquivos · Curso Linux Sysadmin</title>
+<link rel="alternate" hreflang="pt-BR" href="9.3-sistemas-de-arquivos.html"><link rel="alternate" hreflang="it" href="9.3-sistemas-de-arquivos.it.html">
+<style>
+:root{color-scheme:light dark;--bg:#f6f1e7;--card:#fffdf8;--ink:#201c16;--muted:#5e564a;--accent:#9a3412;--accent-2:#1f5f4a;--tint:#efe6d4;--line:#ddd2bc;--code:#f1eadb;--shadow:0 1px 2px rgba(60,40,10,.08);--serif:Georgia,"Iowan Old Style","Palatino Linotype",Palatino,serif;--sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--mono:"Cascadia Code",Consolas,"DejaVu Sans Mono",monospace}
+@media (prefers-color-scheme:dark){:root{--bg:#16130f;--card:#201b15;--ink:#f1eadb;--muted:#b9ad98;--accent:#f0a070;--accent-2:#7fd0b0;--tint:#2a231a;--line:#3d3427;--code:#191510;--shadow:none}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:5.5rem}
+body{margin:0;background:var(--bg);color:var(--ink);font:1rem/1.6 var(--sans)}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--accent-2);outline-offset:2px;border-radius:4px}
+.pular{position:absolute;left:-999px;top:0;background:var(--card);padding:.5rem 1rem;z-index:20}
+.pular:focus{left:.5rem;top:.5rem}
+.wrap{width:100%;max-width:84rem;margin:0 auto;padding-inline:max(1rem,env(safe-area-inset-left))}
+.top{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10;border-top:6px solid var(--accent)}
+.top-in{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding-block:.6rem}
+.titles{min-width:0}
+.marca{margin:0;font:700 clamp(1.15rem,1rem + 1vw,1.6rem)/1.15 var(--serif);letter-spacing:-.01em}
+.marca a{text-decoration:none}
+.marca a:hover{color:var(--accent)}
+.meta{margin:.1rem 0 0;color:var(--muted);font-size:.85rem}
+.acoes{display:flex;align-items:center;gap:.9rem;flex:none}
+.acoes>a{font-size:.9rem;font-weight:600;color:var(--muted);text-decoration:none}
+.acoes>a:hover{color:var(--accent);text-decoration:underline}
+.idioma{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--tint)}
+.idioma>*{padding:.35rem .9rem;font-size:.8rem;font-weight:700;letter-spacing:.06em;text-decoration:none;color:var(--muted);min-width:2.75rem;text-align:center}
+.idioma a:hover{color:var(--accent);text-decoration:underline}
+.idioma span{background:var(--accent);color:#fff}
+@media (prefers-color-scheme:dark){.idioma span{color:#16130f}}
+code{font-family:var(--mono);font-size:.9em;background:var(--tint);padding:.1rem .35rem;border-radius:4px;overflow-wrap:anywhere}
+/* índice */
+.capa{max-width:70rem;padding-block:2rem 3rem}
+.stats{border-left:4px solid var(--accent-2);background:var(--card);border-radius:0 10px 10px 0;padding:1rem 1.25rem;margin:0 0 2.5rem;box-shadow:var(--shadow);color:var(--muted)}
+.stats strong{color:var(--ink)}
+.modulo{display:grid;grid-template-columns:15rem minmax(0,1fr);gap:1rem 2rem;padding:1.75rem 0;border-top:1px solid var(--line)}
+.modulo h2{margin:0;font:700 1.25rem/1.25 var(--serif);align-self:start;position:sticky;top:6rem}
+.mn{display:block;font:700 .8rem var(--mono);letter-spacing:.12em;color:var(--accent);margin-bottom:.25rem}
+.sep{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.modulo ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,17rem),1fr));gap:.75rem}
+.modulo li{margin:0}
+.modulo a{display:flex;gap:.45rem;align-items:baseline;height:100%;padding:.85rem 1rem;background:var(--card);border:1px solid var(--line);border-radius:10px;text-decoration:none;font-weight:600;line-height:1.35;box-shadow:var(--shadow);transition:border-color .15s,transform .15s}
+.modulo a:hover{border-color:var(--accent);color:var(--accent)}
+.num{font:700 .85rem var(--mono);color:var(--accent);white-space:nowrap}
+/* aula */
+.doc{display:grid;grid-template-columns:17rem minmax(0,1fr);gap:2.5rem;align-items:start;padding-block:2rem 3rem}
+.lateral{position:sticky;top:5.5rem;max-height:calc(100vh - 6.5rem);overflow:auto;font-size:.875rem;padding-right:.5rem}
+.lateral h2{margin:0 0 .25rem;font:700 .95rem var(--serif);color:var(--muted)}
+.lateral h3{margin:1rem 0 .25rem;font:700 .75rem var(--mono);letter-spacing:.06em;color:var(--accent)}
+.lateral ul{list-style:none;margin:0;padding:0}
+.lateral a{display:flex;gap:.45rem;padding:.25rem .5rem;border-radius:6px;text-decoration:none;color:var(--muted);line-height:1.3}
+.lateral a:hover{background:var(--tint);color:var(--ink)}
+.lateral a[aria-current]{background:var(--tint);color:var(--ink);font-weight:700;box-shadow:inset 3px 0 0 var(--accent)}
+.lateral .num{font-size:.75rem}
+.aula{min-width:0;max-width:56rem;overflow-wrap:break-word;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:clamp(1.25rem,1rem + 2vw,2.75rem);box-shadow:var(--shadow)}
+.aula h1{margin:0 0 1.5rem;font:700 clamp(1.75rem,1.4rem + 1.6vw,2.5rem)/1.15 var(--serif);letter-spacing:-.015em;color:var(--ink)}
+.aula h2{margin:2.5rem 0 .75rem;padding-top:1.25rem;border-top:1px solid var(--line);font:700 1.5rem/1.25 var(--serif)}
+.aula h3{margin:2rem 0 .5rem;font:700 1.15rem/1.3 var(--serif);color:var(--accent)}
+.aula h4,.aula h5,.aula h6{margin:1.5rem 0 .5rem;font-size:1rem}
+.aula p,.aula ul,.aula ol{margin:1rem 0}
+.aula ul,.aula ol{padding-left:1.5rem}
+.aula li{margin:.35rem 0}
+.aula li>ul,.aula li>ol{margin:.35rem 0}
+.aula a{color:var(--accent);text-underline-offset:2px}
+.aula hr{border:0;border-top:1px solid var(--line);margin:2rem 0}
+.tabela{overflow-x:auto;margin:1.25rem 0;border:1px solid var(--line);border-radius:10px}
+.aula table{width:100%;border-collapse:collapse;font-size:.9rem}
+.aula th,.aula td{padding:.55rem .75rem;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+.aula tr:last-child td{border-bottom:0}
+.aula th{background:var(--tint);font-weight:700}
+.aula pre{background:var(--code);border:1px solid var(--line);border-radius:10px;padding:.9rem 1rem;overflow-x:auto;font:.85rem/1.5 var(--mono);margin:1rem 0;tab-size:4}
+.aula pre code{background:none;padding:0;font-size:inherit;overflow-wrap:normal}
+.aula blockquote{margin:1.25rem 0;padding:.75rem 1.25rem;border-left:4px solid var(--accent-2);background:var(--tint);border-radius:0 10px 10px 0}
+.aula blockquote>:first-child{margin-top:0}
+.aula blockquote>:last-child{margin-bottom:0}
+.aula figure{margin:1.75rem 0;text-align:center}
+.aula figure img{display:block;margin:0 auto;max-width:100%;height:auto;border:1px solid var(--line);border-radius:10px;background:#fff}
+.aula figcaption{margin-top:.5rem;color:var(--muted);font-size:.9rem;font-style:italic}
+.paginas{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:2.5rem;padding-top:1.5rem;border-top:1px solid var(--line)}
+.paginas a{display:block;padding:.75rem 1rem;border:1px solid var(--line);border-radius:10px;text-decoration:none;color:var(--ink);font-weight:600;line-height:1.3}
+.paginas a:hover{border-color:var(--accent);color:var(--accent)}
+.paginas small{display:block;color:var(--muted);font-weight:400}
+.paginas .prox{grid-column:2;text-align:right}
+footer{border-top:1px solid var(--line);padding-block:1.5rem;color:var(--muted);font-size:.85rem;text-align:center}
+@media (hover:hover) and (prefers-reduced-motion:no-preference){.modulo a:hover{transform:translateY(-2px)}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+@media (max-width:980px){.doc{grid-template-columns:minmax(0,1fr);padding-top:1rem}.lateral{position:static;max-height:none;order:2}.aula{max-width:none}}
+@media (max-width:860px){.modulo{grid-template-columns:minmax(0,1fr)}.modulo h2{position:static}.mn{display:inline;margin-right:.5rem}}
+@media (max-width:420px){.meta{display:none}.top-in{gap:.5rem}.acoes{gap:.6rem}.capa{padding-top:1.25rem}.paginas{grid-template-columns:minmax(0,1fr)}.paginas .prox{grid-column:1}}
+@media print{.top,.lateral,.paginas{display:none}.aula{border:0;box-shadow:none;padding:0;max-width:none}.doc{display:block}}
+</style>
+</head>
+<body>
+<a class="pular" href="#conteudo">Pular para o conteúdo</a>
+<header class="top"><div class="wrap top-in"><div class="titles"><p class="marca"><a href="index.html">Curso Linux Sysadmin</a></p><p class="meta">Rodrigo Antignani · Aula 9.3</p></div><div class="acoes"><a href="index.html">Índice</a><div class="idioma" role="group" aria-label="Idioma"><span aria-current="true">PT</span><a href="9.3-sistemas-de-arquivos.it.html" hreflang="it" lang="it">IT</a></div></div></div></header>
+<div class="wrap doc"><aside class="lateral" aria-label="Aulas"><h2>Aulas</h2><h3>M0 · Laboratório</h3><ul><li><a href="0.1-montar-o-laboratorio.html"><span class="num">0.1</span><span>Montar o laboratório</span></a></li><li><a href="0.2-acesso-e-protecao.html"><span class="num">0.2</span><span>Acesso e proteção</span></a></li></ul><h3>M1 · Linha de comando</h3><ul><li><a href="1.1-o-que-e-linux.html"><span class="num">1.1</span><span>O que é Linux</span></a></li><li><a href="1.2-o-shell-e-a-ajuda.html"><span class="num">1.2</span><span>O shell e a ajuda</span></a></li><li><a href="1.3-caminhos-e-navegacao.html"><span class="num">1.3</span><span>Caminhos e navegação</span></a></li><li><a href="1.4-criar-copiar-mover-e-apagar.html"><span class="num">1.4</span><span>Criar, copiar, mover e apagar</span></a></li><li><a href="1.5-ler-e-procurar-texto.html"><span class="num">1.5</span><span>Ler e procurar texto</span></a></li><li><a href="1.6-redirecionamentos-e-pipes.html"><span class="num">1.6</span><span>Redirecionamentos e pipes</span></a></li><li><a href="1.7-arquivar-e-compactar.html"><span class="num">1.7</span><span>Arquivar e compactar</span></a></li><li><a href="1.8-primeiro-script.html"><span class="num">1.8</span><span>Primeiro script</span></a></li><li><a href="1.9-decidir-e-repetir.html"><span class="num">1.9</span><span>Decidir e repetir</span></a></li><li><a href="1.10-software-livre-na-pratica.html"><span class="num">1.10</span><span>Software livre na prática</span></a></li></ul><h3>M2 · Sistema, usuários e permissões</h3><ul><li><a href="2.1-instalacao-e-provisionamento.html"><span class="num">2.1</span><span>Instalação e provisionamento</span></a></li><li><a href="2.2-hardware-e-dispositivos.html"><span class="num">2.2</span><span>Hardware e dispositivos</span></a></li><li><a href="2.3-processos-e-logs.html"><span class="num">2.3</span><span>Processos e logs</span></a></li><li><a href="2.4-rede-no-dia-a-dia.html"><span class="num">2.4</span><span>Rede no dia a dia</span></a></li><li><a href="2.5-acesso-remoto-e-privilegios.html"><span class="num">2.5</span><span>Acesso remoto e privilégios</span></a></li><li><a href="2.6-usuarios-e-grupos.html"><span class="num">2.6</span><span>Usuários e grupos</span></a></li><li><a href="2.7-permissoes-e-dono.html"><span class="num">2.7</span><span>Permissões e dono</span></a></li><li><a href="2.8-diretorios-e-arquivos-especiais.html"><span class="num">2.8</span><span>Diretórios e arquivos especiais</span></a></li></ul><h3>M3 · Texto e editor</h3><ul><li><a href="3.1-fluxos-a-fundo.html"><span class="num">3.1</span><span>Fluxos a fundo</span></a></li><li><a href="3.2-filtros-de-texto.html"><span class="num">3.2</span><span>Filtros de texto</span></a></li><li><a href="3.3-regex-e-grep.html"><span class="num">3.3</span><span>Regex e grep</span></a></li><li><a href="3.4-sed-e-awk.html"><span class="num">3.4</span><span>sed e awk</span></a></li><li><a href="3.5-vi-e-vim-de-verdade.html"><span class="num">3.5</span><span>vi e vim de verdade</span></a></li></ul><h3>M4 · systemd e boot</h3><ul><li><a href="4.1-como-o-linux-liga.html"><span class="num">4.1</span><span>Como o Linux liga</span></a></li><li><a href="4.2-systemd-servicos-e-units.html"><span class="num">4.2</span><span>systemd: serviços e units</span></a></li><li><a href="4.3-targets-desligar-e-reiniciar.html"><span class="num">4.3</span><span>Targets: desligar e reiniciar</span></a></li><li><a href="4.4-grub-e-acesso-de-emergencia.html"><span class="num">4.4</span><span>GRUB e acesso de emergência</span></a></li></ul><h3>M5 · Kernel, módulos e VM</h3><ul><li><a href="5.1-hardware-pelo-kernel.html"><span class="num">5.1</span><span>Hardware pelo kernel</span></a></li><li><a href="5.2-modulos-e-parametros.html"><span class="num">5.2</span><span>Módulos e parâmetros</span></a></li><li><a href="5.3-linux-como-convidado.html"><span class="num">5.3</span><span>Linux como convidado</span></a></li></ul><h3>M6 · Pacotes e repositórios</h3><ul><li><a href="6.1-pacotes-no-debian.html"><span class="num">6.1</span><span>Pacotes no Debian</span></a></li><li><a href="6.2-pacotes-na-rocky.html"><span class="num">6.2</span><span>Pacotes na Rocky</span></a></li><li><a href="6.3-repositorios.html"><span class="num">6.3</span><span>Repositórios</span></a></li><li><a href="6.4-flatpak.html"><span class="num">6.4</span><span>Flatpak</span></a></li><li><a href="6.5-bibliotecas-compartilhadas.html"><span class="num">6.5</span><span>Bibliotecas compartilhadas</span></a></li></ul><h3>M7 · Processos e desempenho</h3><ul><li><a href="7.1-processos-e-sinais.html"><span class="num">7.1</span><span>Processos e sinais</span></a></li><li><a href="7.2-jobs-e-sessoes.html"><span class="num">7.2</span><span>Jobs e sessões</span></a></li><li><a href="7.3-prioridade-e-perfis.html"><span class="num">7.3</span><span>Prioridade e perfis</span></a></li></ul><h3>M8 · Arquivos a fundo</h3><ul><li><a href="8.1-fhs-e-onde-cada-coisa-mora.html"><span class="num">8.1</span><span>FHS e onde cada coisa mora</span></a></li><li><a href="8.2-find-a-fundo.html"><span class="num">8.2</span><span>find a fundo</span></a></li><li><a href="8.3-arquivamento-avancado.html"><span class="num">8.3</span><span>Arquivamento avançado</span></a></li><li><a href="8.4-links.html"><span class="num">8.4</span><span>Links</span></a></li><li><a href="8.5-permissoes-avancadas.html"><span class="num">8.5</span><span>Permissões avançadas</span></a></li></ul><h3>M9 · Armazenamento</h3><ul><li><a href="9.1-discos-e-layout.html"><span class="num">9.1</span><span>Discos e layout</span></a></li><li><a href="9.2-particionar.html"><span class="num">9.2</span><span>Particionar</span></a></li><li><a href="9.3-sistemas-de-arquivos.html" aria-current="page"><span class="num">9.3</span><span>Sistemas de arquivos</span></a></li><li><a href="9.4-montar-e-persistir.html"><span class="num">9.4</span><span>Montar e persistir</span></a></li><li><a href="9.5-integridade-e-espaco.html"><span class="num">9.5</span><span>Integridade e espaço</span></a></li><li><a href="9.6-lvm.html"><span class="num">9.6</span><span>LVM</span></a></li><li><a href="9.7-crescer-sem-destruir.html"><span class="num">9.7</span><span>Crescer sem destruir</span></a></li></ul></aside><main id="conteudo" class="aula"><article><h1>Aula 9.3 · Sistemas de arquivos</h1>
+<p>No Windows, você formata uma partição no Gerenciamento de Disco e escolhe NTFS. No Linux, a partição da aula 9.2 é só um espaço demarcado: nada que você grave nela ainda tem endereço. Nesta aula você cria três sistemas de arquivos diferentes (ext4, XFS e VFAT) nas três partições do disco novo, compara o comportamento de cada um e aprende a ler a identidade deles.</p>
+<blockquote><p><strong>Núcleo desta aula:</strong> saber que partição e sistema de arquivos são coisas separadas; criar com <code translate="no">mkfs.ext4</code>, <code translate="no">mkfs.xfs</code> e <code translate="no">mkfs.vfat</code>; ler tipo, rótulo e UUID com <code translate="no">blkid</code> e <code translate="no">lsblk -f</code>; montar temporariamente para testar; e conferir o alvo antes de qualquer comando que apaga. O resto é aprofundamento.</p></blockquote>
+<div class="tabela"><table><thead><tr><th scope="col">Ficha</th><th scope="col"></th></tr></thead><tbody><tr><td><strong>Módulo</strong></td><td>M9 · Armazenamento, aula 3 de 7</td></tr><tr><td><strong>Quando</strong></td><td>Semana 13</td></tr><tr><td><strong>Ao final</strong></td><td>Três sistemas de arquivos criados no <code translate="no">scsi1</code>, com rótulos <code translate="no">DADOS</code>, <code translate="no">ARQUIVO</code> e <code translate="no">TROCA</code>, e nada montado de forma permanente</td></tr><tr><td><strong>Pré-requisitos</strong></td><td>Aulas 9.1 e 9.2</td></tr><tr><td><strong>Tempo</strong></td><td>cerca de 2h</td></tr><tr><td><strong>Snapshots</strong></td><td><code translate="no">m9a3-inicio</code> e <code translate="no">m9a3-fim</code> na rocky-lab e na debian-lab</td></tr></tbody></table></div>
+<h2 id="1-aquecimento">1 · Aquecimento</h2>
+<p>Responda antes de ler.</p>
+<ol><li>Uma partição recém-criada já pode guardar arquivos? Por quê?</li>
+<li>O que acontece com os dados de uma partição quando você roda <code translate="no">mkfs</code> nela?</li>
+<li>Dois discos têm o mesmo rótulo. Por que isso dá problema?</li></ol>
+<h2 id="2-por-que-importa">2 · Por que importa</h2>
+<div class="tabela"><table><thead><tr><th scope="col">O chamado</th><th scope="col">A resposta errada</th><th scope="col">O que ela causa</th></tr></thead><tbody><tr><td>"O disco novo não monta"</td><td>Tentar <code translate="no">mount</code> com tipos diferentes até um funcionar</td><td>Esconde o erro real: a partição nunca foi formatada</td></tr><tr><td>"Formatei o disco errado"</td><td>Rodar <code translate="no">mkfs</code> no <code translate="no">/dev/sdb</code>, "porque era o sdb ontem"</td><td>Perde dados. A ordem dos nomes <code translate="no">sdX</code> muda entre boots</td></tr><tr><td>"Preciso reduzir esse volume"</td><td>Tentar encolher um XFS</td><td>XFS não encolhe. Só se recria e se restaura</td></tr><tr><td>"O pendrive FAT não aceita <code translate="no">chmod</code>"</td><td>Insistir com <code translate="no">sudo</code></td><td>VFAT não tem dono nem permissões. Isso se resolve na montagem</td></tr></tbody></table></div>
+<h2 id="3-modelo-mental">3 · Modelo mental</h2>
+<blockquote><p>O disco é um <strong>terreno</strong>, e a partição é um <strong>lote demarcado</strong>. Um lote vazio não tem endereço. O <code translate="no">mkfs</code> é a <strong>obra</strong>: levanta o prédio com índice de salas (os inodes), diário de obras (o journal) e livro de registro. O <strong>rótulo</strong> é a placa na porta: nome humano, pode repetir. O <strong>UUID</strong> é a matrícula no cartório: único, gerado na obra. O <code translate="no">mount</code> só liga a porta do prédio a uma pasta da árvore.</p></blockquote>
+<pre translate="no"><code>Disco  →  Partição (lote)  →  mkfs (obra)  →  mount (porta)
+
+/dev/sdb  /dev/sdb1           ext4  DADOS      /mnt/teste
+          /dev/sdb2           xfs   ARQUIVO    (um de cada vez)
+          /dev/sdb3           vfat  TROCA
+
+Identidade de um sistema de arquivos:
+  TYPE   ext4, xfs, vfat    como o espaço foi organizado
+  LABEL  DADOS              nome humano, mutável, pode repetir
+  UUID   gerado pelo mkfs   único: é o que o fstab usa (aula 9.4)</code></pre>
+<p>Leia da esquerda para a direita: o <code translate="no">mkfs</code> só mexe na partição, e o <code translate="no">mount</code> só liga o resultado a uma pasta.</p>
+<h3 id="ponte-windows">Ponte Windows</h3>
+<div class="tabela"><table><thead><tr><th scope="col">No Windows</th><th scope="col">No Linux</th><th scope="col">Onde a comparação engana</th></tr></thead><tbody><tr><td>Gerenciamento de Disco, "Formatar"</td><td><code translate="no">mkfs.TIPO</code></td><td>Sem assistente e sem perguntas</td></tr><tr><td>NTFS</td><td>ext4 ou XFS</td><td>O NTFS faz tudo. No Linux a escolha é por perfil de uso</td></tr><tr><td>FAT32 do pendrive</td><td>VFAT</td><td>Mesmo comportamento: sem dono, sem permissões</td></tr><tr><td>Letra de unidade (<code translate="no">E:</code>)</td><td>Ponto de montagem</td><td>Você liga o sistema de arquivos onde quiser</td></tr><tr><td>Nome do volume</td><td><code translate="no">LABEL</code></td><td>Igual: pode repetir. O GUID do volume é o UUID</td></tr></tbody></table></div>
+<h2 id="4-o-essencial">4 · O essencial</h2>
+<h3 id="particao-nao-e-sistema-de-arquivos-o-mkfs">Partição não é sistema de arquivos: o <code translate="no">mkfs</code></h3>
+<p>A 9.2 criou o lote. Falta a obra. Todo <code translate="no">mkfs.TIPO</code> grava as estruturas na partição indicada e <strong>não pede confirmação</strong> se ela está vazia. Por isso o hábito vem antes: <code translate="no">lsblk</code> e <code translate="no">/dev/disk/by-id/</code>.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Tipo</th><th scope="col">Comando</th><th scope="col">O que cada opção faz</th></tr></thead><tbody><tr><td>ext4</td><td><code translate="no">sudo mkfs.ext4 -L DADOS DISPOSITIVO</code></td><td><code translate="no">-L</code> define o rótulo</td></tr><tr><td>XFS</td><td><code translate="no">sudo mkfs.xfs -L ARQUIVO DISPOSITIVO</code></td><td><code translate="no">-L</code> define o rótulo</td></tr><tr><td>VFAT</td><td><code translate="no">sudo mkfs.vfat -F 32 -n TROCA DISPOSITIVO</code></td><td><code translate="no">-F 32</code> escolhe FAT32, <code translate="no">-n</code> define o nome do volume</td></tr></tbody></table></div>
+<p>Se a partição já tiver um sistema de arquivos, o <code translate="no">mkfs.xfs</code> recusa. Não force: descubra primeiro o que existe ali.</p>
+<h3 id="ler-a-identidade">Ler a identidade</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Quero...</th><th scope="col">Comando</th></tr></thead><tbody><tr><td>Tipo, rótulo e UUID de tudo</td><td><code translate="no">sudo blkid</code></td></tr><tr><td>Árvore com tipo, rótulo, UUID e montagem</td><td><code translate="no">lsblk -f</code></td></tr><tr><td>Detalhes do ext4</td><td><code translate="no">sudo tune2fs -l DISPOSITIVO</code></td></tr><tr><td>Detalhes do XFS (montado)</td><td><code translate="no">xfs_info PONTO_DE_MONTAGEM</code></td></tr><tr><td>Rótulo do ext4</td><td><code translate="no">sudo e2label DISPOSITIVO</code></td></tr><tr><td>Rótulo do XFS</td><td><code translate="no">sudo xfs_admin -l DISPOSITIVO</code></td></tr><tr><td>Rótulo do VFAT</td><td><code translate="no">sudo fatlabel DISPOSITIVO</code></td></tr></tbody></table></div>
+<p>O <code translate="no">blkid</code> lê o que está gravado no disco. O <code translate="no">lsblk -f</code> mostra o mesmo, mais a montagem.</p>
+<h3 id="rotulos">Rótulos</h3>
+<div class="tabela"><table><thead><tr><th scope="col"></th><th scope="col">ext4</th><th scope="col">XFS</th><th scope="col">VFAT</th></tr></thead><tbody><tr><td>Tamanho máximo</td><td>16</td><td>12</td><td>11</td></tr><tr><td>Mudar</td><td><code translate="no">e2label DISP NOVO</code></td><td><code translate="no">xfs_admin -L NOVO DISP</code></td><td><code translate="no">fatlabel DISP NOVO</code></td></tr><tr><td>Com a partição montada</td><td>Pode</td><td>Não pode</td><td>Pode</td></tr></tbody></table></div>
+<p>Use maiúsculas e sem espaço. O UUID não muda com o rótulo.</p>
+<h3 id="comparacao-ext4-xfs-vfat">Comparação: ext4 × XFS × VFAT</h3>
+<div class="tabela"><table><thead><tr><th scope="col"></th><th scope="col">ext4</th><th scope="col">XFS</th><th scope="col">VFAT (FAT32)</th></tr></thead><tbody><tr><td>Padrão em</td><td>Debian</td><td>Rocky</td><td>pendrives, partição EFI</td></tr><tr><td>Journal</td><td>Sim</td><td>Sim</td><td><strong>Não</strong></td></tr><tr><td><strong>Encolher</strong></td><td>Sim, <strong>desmontado</strong></td><td><strong>Nunca</strong></td><td>Só com ferramentas extras</td></tr><tr><td>Dono e permissões</td><td>Sim</td><td>Sim</td><td><strong>Não</strong> (vêm da montagem)</td></tr><tr><td>Tamanho máximo de arquivo</td><td>16 TiB</td><td>8 EiB</td><td><strong>4 GiB menos 1 byte</strong></td></tr></tbody></table></div>
+<p>O <strong>journal</strong> é um diário: o sistema anota o que vai fazer antes de fazer, e após uma queda de energia evita a verificação demorada. Sem journal, o VFAT pode ficar corrompido.</p>
+<h3 id="ver-as-assinaturas-wipefs">Ver as assinaturas: <code translate="no">wipefs</code></h3>
+<p>O <code translate="no">wipefs DISPOSITIVO</code>, sem opções, só <strong>lista</strong> as assinaturas de sistema de arquivos. Com <code translate="no">-a</code>, apaga. Nesta aula, o <code translate="no">-a</code> aparece apenas contra um arquivo de imagem, na Quebra 1.</p>
+<h3 id="rocky-debian">Rocky × Debian</h3>
+<div class="tabela"><table><thead><tr><th scope="col"></th><th scope="col">Rocky</th><th scope="col">Debian</th></tr></thead><tbody><tr><td>Padrão do instalador</td><td>XFS</td><td>ext4</td></tr><tr><td><code translate="no">mkfs.xfs</code>, <code translate="no">xfs_info</code>, <code translate="no">xfs_admin</code></td><td><code translate="no">xfsprogs</code>, já vem</td><td><code translate="no">sudo apt install xfsprogs</code></td></tr><tr><td><code translate="no">mkfs.vfat</code>, <code translate="no">fatlabel</code></td><td><code translate="no">sudo dnf install dosfstools</code></td><td><code translate="no">sudo apt install dosfstools</code></td></tr><tr><td><code translate="no">mkfs.ext4</code>, <code translate="no">tune2fs</code>, <code translate="no">e2label</code></td><td><code translate="no">e2fsprogs</code>, já vem</td><td><code translate="no">e2fsprogs</code>, já vem</td></tr><tr><td>Conferir pacote</td><td><code translate="no">rpm -q xfsprogs dosfstools</code></td><td><code translate="no">dpkg -s xfsprogs dosfstools</code></td></tr></tbody></table></div>
+<p>Os comandos de <code translate="no">mkfs</code> e de leitura são idênticos nas duas.</p>
+<h2 id="5-lab-guiado">5 · Lab guiado</h2>
+<p><strong>Passo 0 · Snapshots e pacotes.</strong> O backup no PBS-LAB da 9.1 continua valendo: snapshot não é backup. No Proxmox:</p>
+<pre translate="no"><code class="lang-bash">qm snapshot 201 m9a3-inicio
+qm snapshot 202 m9a3-inicio</code></pre>
+<p>Na rocky-lab:</p>
+<pre translate="no"><code class="lang-bash">sudo dnf install -y dosfstools gdisk
+rpm -q xfsprogs e2fsprogs dosfstools</code></pre>
+<p>Na debian-lab:</p>
+<pre translate="no"><code class="lang-bash">sudo apt install -y xfsprogs dosfstools gdisk
+dpkg -s xfsprogs dosfstools | grep -E '^(Package|Status)'</code></pre>
+<p>O <code translate="no">rpm -q</code> e o <code translate="no">dpkg -s</code> dizem se o pacote está instalado. Os três nomes têm de aparecer sem erro.</p>
+<p><strong>Passo 1 · Conferir o alvo.</strong> Esta etapa não grava nada. Na rocky-lab (a mesma coisa na debian-lab):</p>
+<pre translate="no"><code class="lang-bash">ls -l /dev/disk/by-id/ | grep drive-scsi1
+D=/dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_drive-scsi1
+lsblk -f "$D"
+sudo wipefs "$D-part1" "$D-part2" "$D-part3"</code></pre>
+<p>O <code translate="no">D=</code> guarda o nome estável do disco numa variável. Em outro terminal, defina de novo. Saída esperada:</p>
+<pre translate="no"><code>... scsi-0QEMU_QEMU_HARDDISK_drive-scsi1 -&gt; ../../sdb
+... scsi-0QEMU_QEMU_HARDDISK_drive-scsi1-part1 -&gt; ../../sdb1
+(part2 e part3 também)
+NAME   FSTYPE FSVER LABEL UUID FSAVAIL FSUSE% MOUNTPOINTS
+sdb
+├─sdb1
+├─sdb2
+└─sdb3</code></pre>
+<p>Este é o disco da aula 2.2, ampliado para 4 GB na 9.1. Na rocky-lab, o link <code translate="no">/dev/lab-dados</code> da 2.2 aponta para o mesmo disco, mas use o <code translate="no">by-id</code>, que existe nas duas VMs. Seu <code translate="no">sdb</code> pode ter outro nome. <code translate="no">FSTYPE</code> vazio e <code translate="no">wipefs</code> sem saída provam que as partições estão em branco. Se aparecer algum tipo, <strong>pare</strong>: o disco não é o que você acha, ou a 9.2 não terminou.</p>
+<p><strong>Passo 2 · ext4 na partição 1.</strong></p>
+<pre translate="no"><code class="lang-bash">sudo mkfs.ext4 -L DADOS "$D-part1"</code></pre>
+<pre translate="no"><code>mke2fs 1.46.5 (30-Dec-2021)
+Creating filesystem with 262144 4k blocks and 65536 inodes
+Filesystem UUID: 3f6c0a52-9b1e-4d4a-8d57-2f0e6c1d9a11
+Superblock backups stored on blocks:
+	32768, 98304, 163840, 229376
+
+Allocating group tables: done
+Writing inode tables: done
+Creating journal (8192 blocks): done
+Writing superblocks and filesystem accounting information: done</code></pre>
+<p><strong>Passo 3 · XFS na partição 2.</strong></p>
+<pre translate="no"><code class="lang-bash">sudo mkfs.xfs -L ARQUIVO "$D-part2"</code></pre>
+<p>A saída é uma tabela <code translate="no">meta-data=</code>, <code translate="no">data =</code>, <code translate="no">naming =</code>, <code translate="no">log =</code>.</p>
+<p><strong>Passo 4 · VFAT na partição 3.</strong></p>
+<pre translate="no"><code class="lang-bash">sudo mkfs.vfat -F 32 -n TROCA "$D-part3"</code></pre>
+<pre translate="no"><code>mkfs.fat 4.2 (2021-01-24)</code></pre>
+<p><strong>Passo 5 · Ler a identidade.</strong></p>
+<pre translate="no"><code class="lang-bash">sudo blkid "$D-part1" "$D-part2" "$D-part3"
+lsblk -f "$D"</code></pre>
+<pre translate="no"><code>/dev/sdb1: LABEL="DADOS" UUID="3f6c0a52-9b1e-4d4a-8d57-2f0e6c1d9a11" BLOCK_SIZE="4096" TYPE="ext4" PARTUUID="..."
+/dev/sdb2: LABEL="ARQUIVO" UUID="a1d3...e7" BLOCK_SIZE="512" TYPE="xfs" PARTUUID="..."
+/dev/sdb3: LABEL="TROCA" UUID="7C2E-1A09" BLOCK_SIZE="512" TYPE="vfat" PARTUUID="..."
+NAME   FSTYPE FSVER LABEL   UUID                 FSAVAIL FSUSE% MOUNTPOINTS
+sdb
+├─sdb1 ext4   1.0   DADOS   3f6c0a52-...
+├─sdb2 xfs          ARQUIVO a1d3...
+└─sdb3 vfat   FAT32 TROCA   7C2E-1A09</code></pre>
+<p>O UUID do VFAT é curto: é o número de série do volume. Os seus valores serão outros.</p>
+<p><strong>Passo 6 · Detalhes de cada tipo.</strong></p>
+<pre translate="no"><code class="lang-bash">sudo tune2fs -l "$D-part1" | grep -E 'Filesystem (features|volume name|UUID)|Block count|Reserved block|Inode count|Journal'
+sudo xfs_admin -l "$D-part2"
+sudo fatlabel "$D-part3"</code></pre>
+<p>O <code translate="no">tune2fs -l</code> lista o superbloco do ext4: procure <code translate="no">has_journal</code>. O <code translate="no">xfs_admin -l</code> mostra <code translate="no">label = "ARQUIVO"</code>.</p>
+<p><strong>Passo 7 · Montar um de cada vez.</strong> Monte, compare e desmonte antes de passar ao seguinte.</p>
+<pre translate="no"><code class="lang-bash">sudo mkdir -p /mnt/teste
+sudo mount "$D-part1" /mnt/teste
+df -hT /mnt/teste
+ls -la /mnt/teste
+sudo touch /mnt/teste/a.txt
+sudo chmod 600 /mnt/teste/a.txt
+ls -l /mnt/teste/a.txt
+sudo umount /mnt/teste</code></pre>
+<pre translate="no"><code>Filesystem     Type  Size  Used Avail Use% Mounted on
+/dev/sdb1      ext4  974M   24K  923M   1% /mnt/teste</code></pre>
+<p>O ext4 mostra a pasta <code translate="no">lost+found</code>, e o <code translate="no">chmod 600</code> funciona. Repita com o XFS (<code translate="no">part2</code>), acrescentando <code translate="no">xfs_info /mnt/teste | head -n 4</code>. O XFS não tem <code translate="no">lost+found</code>, e o <code translate="no">df</code> já mostra algumas dezenas de MB usados antes de qualquer arquivo: são os metadados e o journal. Agora o VFAT:</p>
+<pre translate="no"><code class="lang-bash">sudo mount "$D-part3" /mnt/teste
+df -hT /mnt/teste
+sudo touch /mnt/teste/a.txt
+ls -l /mnt/teste/a.txt
+sudo chmod 600 /mnt/teste/a.txt
+sudo umount /mnt/teste</code></pre>
+<pre translate="no"><code>-rwxr-xr-x. 1 root root 0 ... /mnt/teste/a.txt
+chmod: changing permissions of '/mnt/teste/a.txt': Operation not permitted</code></pre>
+<p>No VFAT, todos os arquivos são do root e têm <code translate="no">rwxr-xr-x</code>, e o <code translate="no">chmod</code> falha, mesmo com <code translate="no">sudo</code>. Isso é o que a Quebra 3 detalha.</p>
+<p><strong>Passo 8 · Mudar rótulos e voltar.</strong></p>
+<pre translate="no"><code class="lang-bash">sudo e2label "$D-part1" TESTE
+sudo e2label "$D-part1" DADOS
+sudo xfs_admin -L TESTE "$D-part2"
+sudo xfs_admin -L ARQUIVO "$D-part2"
+lsblk -f "$D"</code></pre>
+<p>O <code translate="no">xfs_admin -L</code> exige a partição desmontada. No fim, os rótulos têm de estar <code translate="no">DADOS</code>, <code translate="no">ARQUIVO</code> e <code translate="no">TROCA</code>: a 9.4 depende deles.</p>
+<p><strong>Passo 9 · debian-lab.</strong> Repita os passos 1 a 8 na debian-lab. Os comandos são os mesmos, e os UUIDs serão outros.</p>
+<h3 id="decida-1">Decida 1</h3>
+<p>Um volume de arquivos de projeto vai crescer por meses, e a equipe talvez precise devolver espaço a outro volume. Qual sistema de arquivos?</p>
+<p>A) XFS, o padrão da Rocky. B) ext4. C) VFAT, que o Windows lê.</p>
+<p>Marque uma opção antes.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se você marcou</th><th scope="col">Resultado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>A</td><td>Risco</td><td>XFS cresce, mas não encolhe nunca. Devolver espaço exige recriar</td></tr><tr><td>B</td><td>Certo</td><td>Cresce montado e encolhe desmontado</td></tr><tr><td>C</td><td>Errado</td><td>Sem permissões, sem journal, arquivos de até 4 GiB</td></tr></tbody></table></div>
+<p><strong>Para fixar:</strong> escolha pelo que você vai precisar fazer depois.</p>
+<h3 id="decida-2">Decida 2</h3>
+<p>Você precisa formatar "o disco de 4 GB". O <code translate="no">lsblk</code> mostra <code translate="no">sdb</code> e <code translate="no">sdc</code>, com 4 GB e 3 GB. Ontem o disco de 4 GB era o <code translate="no">sdc</code>. O que fazer?</p>
+<p>A) Usar <code translate="no">sdc</code>, como ontem. B) Conferir <code translate="no">ls -l /dev/disk/by-id/</code> e <code translate="no">lsblk -f</code>, e só então formatar. C) Rodar <code translate="no">wipefs -a</code> nos dois.</p>
+<p>Marque uma opção antes.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se você marcou</th><th scope="col">Resultado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>A</td><td>Perigo</td><td>A ordem dos nomes <code translate="no">sdX</code> não é garantida</td></tr><tr><td>B</td><td>Certo</td><td>O <code translate="no">by-id</code> identifica o disco. O <code translate="no">FSTYPE</code> vazio confirma</td></tr><tr><td>C</td><td>Desastre</td><td>Apaga as assinaturas do disco que tinha dados</td></tr></tbody></table></div>
+<p><strong>Para fixar:</strong> <code translate="no">lsblk</code> e <code translate="no">by-id</code> antes de gravar.</p>
+<h2 id="6-quebre-e-conserte">6 · Quebre e conserte</h2>
+<p>Aqui você usa um arquivo de imagem em um loop, para nenhum erro atingir o <code translate="no">scsi1</code>. Na rocky-lab:</p>
+<pre translate="no"><code class="lang-bash">truncate -s 512M ~/fs-teste.img
+sudo losetup --find --show ~/fs-teste.img
+sudo mkfs.ext4 -L PRIMEIRO /dev/loop0
+losetup -a</code></pre>
+<p>O <code translate="no">losetup --find --show</code> imprime o nome escolhido. Se não for <code translate="no">/dev/loop0</code>, troque-o em todos os comandos abaixo.</p>
+<h3 id="quebra-1-a-particao-que-ja-tem-dono">Quebra 1 · A partição que já tem dono</h3>
+<pre translate="no"><code class="lang-bash">sudo mkfs.xfs -L SEGUNDO /dev/loop0</code></pre>
+<p><strong>Sintoma:</strong> <code translate="no">mkfs.xfs: /dev/loop0 appears to contain an existing filesystem (ext4)</code> e a dica de usar <code translate="no">-f</code>.</p>
+<p><strong>Investigação:</strong> <code translate="no">sudo blkid /dev/loop0</code> e <code translate="no">sudo wipefs /dev/loop0</code> mostram o <code translate="no">ext4</code> e o rótulo <code translate="no">PRIMEIRO</code>.</p>
+<p><strong>Causa:</strong> o <code translate="no">mkfs.xfs</code> detectou uma assinatura e protegeu os dados.</p>
+<p><strong>Conserto:</strong> neste exercício, o conteúdo não vale nada. Apague a assinatura e formate:</p>
+<pre translate="no"><code class="lang-bash">sudo wipefs -a /dev/loop0
+sudo mkfs.xfs -L SEGUNDO /dev/loop0</code></pre>
+<p>Num disco de verdade, só use o <code translate="no">wipefs -a</code> depois de conferir o alvo.</p>
+<h3 id="quebra-2-o-tipo-errado">Quebra 2 · O tipo errado</h3>
+<pre translate="no"><code class="lang-bash">sudo mount -t ext4 /dev/loop0 /mnt/teste</code></pre>
+<p><strong>Sintoma:</strong> <code translate="no">mount: /mnt/teste: wrong fs type, bad option, bad superblock on /dev/loop0, missing codepage or helper program, or other error.</code></p>
+<p><strong>Investigação:</strong> <code translate="no">sudo blkid /dev/loop0</code> mostra <code translate="no">TYPE="xfs"</code>. O <code translate="no">sudo dmesg | tail -n 3</code> registra que o superbloco do ext4 é inválido.</p>
+<p><strong>Causa:</strong> você pediu ext4 para uma partição XFS.</p>
+<p><strong>Conserto:</strong> <code translate="no">sudo mount /dev/loop0 /mnt/teste</code>. Sem <code translate="no">-t</code>, o mount lê o tipo gravado. Depois, <code translate="no">sudo umount /mnt/teste</code>.</p>
+<h3 id="quebra-3-o-vfat-que-nao-obedece">Quebra 3 · O VFAT que não obedece</h3>
+<pre translate="no"><code class="lang-bash">sudo mkfs.vfat -F 32 -n TESTE /dev/loop0
+sudo mount /dev/loop0 /mnt/teste
+sudo touch /mnt/teste/x.txt
+sudo chmod 600 /mnt/teste/x.txt
+sudo chown nobody /mnt/teste/x.txt</code></pre>
+<p><strong>Sintoma:</strong> <code translate="no">Operation not permitted</code> no <code translate="no">chmod</code> e no <code translate="no">chown</code>, mesmo com <code translate="no">sudo</code>. O <code translate="no">ls -l</code> mostra tudo como <code translate="no">root root</code>.</p>
+<p><strong>Investigação:</strong> <code translate="no">mount | grep teste</code> mostra <code translate="no">vfat</code> com <code translate="no">fmask=0022,dmask=0022</code>. Sem <code translate="no">uid=</code> e <code translate="no">gid=</code> nas opções, o dono é o root.</p>
+<p><strong>Causa:</strong> o FAT não guarda dono nem permissões. O kernel os inventa na montagem, pelas opções <code translate="no">uid=</code>, <code translate="no">gid=</code>, <code translate="no">umask=</code>.</p>
+<p><strong>Conserto:</strong> só pelas opções de montagem. A aula 9.4 faz isso em <code translate="no">/srv/troca</code>.</p>
+<h3 id="limpeza">Limpeza</h3>
+<pre translate="no"><code class="lang-bash">sudo umount /mnt/teste
+sudo losetup -d /dev/loop0
+rm ~/fs-teste.img
+losetup -a
+findmnt /mnt/teste</code></pre>
+<p>O <code translate="no">losetup -a</code> não pode mais listar o arquivo, e o <code translate="no">findmnt /mnt/teste</code> não deve mostrar nada.</p>
+<h2 id="7-armadilhas">7 · Armadilhas</h2>
+<div class="tabela"><table><thead><tr><th scope="col">Armadilha</th><th scope="col">O que acontece</th><th scope="col">Como evitar</th></tr></thead><tbody><tr><td><code translate="no">mkfs</code> no disco inteiro, em vez da partição</td><td>Destrói a tabela de partições</td><td>Use <code translate="no">-part1</code>, <code translate="no">-part2</code>, e confira com <code translate="no">lsblk</code></td></tr><tr><td>Confiar no <code translate="no">/dev/sdb</code></td><td>Formata o disco errado depois de um reboot</td><td>Use <code translate="no">/dev/disk/by-id/</code></td></tr><tr><td>Planejar encolher XFS</td><td>Impossível</td><td>Escolha ext4, ou aceite recriar</td></tr><tr><td>Usar <code translate="no">-f</code> ou <code translate="no">wipefs -a</code> "para passar"</td><td>Apaga o que você não conferiu</td><td>Leia <code translate="no">blkid</code> e <code translate="no">wipefs</code> antes</td></tr><tr><td>Dados importantes em VFAT</td><td>Sem journal, sem permissões</td><td>VFAT só para troca e para a EFI</td></tr></tbody></table></div>
+<h2 id="8-quiz">8 · Quiz</h2>
+<p>Responda sem olhar. O gabarito está no fim da aula.</p>
+<ol><li>Qual a diferença entre partição e sistema de arquivos?</li>
+<li>Por que o <code translate="no">mkfs</code> não deve ser feito no <code translate="no">/dev/sdb1</code> "porque ontem era esse"?</li>
+<li>Qual o tamanho máximo do rótulo em ext4, XFS e VFAT?</li>
+<li>Qual desses não encolhe nunca: ext4, XFS ou VFAT?</li>
+<li>Por que o <code translate="no">chmod</code> falha em VFAT, mesmo com <code translate="no">sudo</code>?</li>
+<li>Para que serve o journal, e qual desses três não tem?</li></ol>
+<h2 id="9-cola">9 · Cola</h2>
+<p><strong>Para saber de cor:</strong></p>
+<div class="tabela"><table><thead><tr><th scope="col">Quero...</th><th scope="col">Comando</th></tr></thead><tbody><tr><td>ext4 com rótulo</td><td><code translate="no">sudo mkfs.ext4 -L NOME DISP</code></td></tr><tr><td>XFS com rótulo</td><td><code translate="no">sudo mkfs.xfs -L NOME DISP</code></td></tr><tr><td>FAT32 com nome</td><td><code translate="no">sudo mkfs.vfat -F 32 -n NOME DISP</code></td></tr><tr><td>Ver tipo, rótulo e UUID</td><td><code translate="no">sudo blkid</code>, <code translate="no">lsblk -f</code></td></tr><tr><td>Listar assinaturas</td><td><code translate="no">sudo wipefs DISP</code></td></tr></tbody></table></div>
+<p><strong>Para consultar:</strong></p>
+<div class="tabela"><table><thead><tr><th scope="col">Quero...</th><th scope="col">Comando</th></tr></thead><tbody><tr><td>Detalhes do ext4</td><td><code translate="no">sudo tune2fs -l DISP</code></td></tr><tr><td>Rótulo do ext4</td><td><code translate="no">sudo e2label DISP [NOVO]</code></td></tr><tr><td>Rótulo do XFS</td><td><code translate="no">sudo xfs_admin -l DISP</code>, <code translate="no">-L NOVO</code></td></tr><tr><td>Rótulo do VFAT</td><td><code translate="no">sudo fatlabel DISP [NOVO]</code></td></tr></tbody></table></div>
+<p><strong>Flashcards:</strong></p>
+<ul><li>Partição → <em>lote, ainda não é prédio.</em></li>
+<li>XFS → <em>cresce, nunca encolhe.</em></li>
+<li>VFAT → <em>sem journal, sem permissões.</em></li>
+<li><code translate="no">sdX</code> → <em>muda. O <code translate="no">by-id</code> fica.</em></li></ul>
+<h2 id="10-checklist-e-fechamento">10 · Checklist e fechamento</h2>
+<ul><li>[ ] Explico a diferença entre partição e sistema de arquivos</li>
+<li>[ ] Confiro o alvo com <code translate="no">lsblk</code> e <code translate="no">by-id</code> antes de formatar</li>
+<li>[ ] Crio ext4, XFS e VFAT, cada um com rótulo</li>
+<li>[ ] Sei o que cada tipo permite: encolher, journal, permissões</li>
+<li>[ ] Deixei os três rótulos como <code translate="no">DADOS</code>, <code translate="no">ARQUIVO</code> e <code translate="no">TROCA</code>, e nada montado</li></ul>
+<p><strong>Último exercício, sem olhar a aula:</strong> numa imagem nova de 512 MiB ligada a um loop, crie um XFS com o rótulo <code translate="no">LIVRE</code>, monte, grave um arquivo, desmonte e prove com <code translate="no">blkid</code> o tipo e o rótulo. Depois limpe.</p>
+<p><strong>Snapshot de fim</strong> (no Proxmox):</p>
+<pre translate="no"><code class="lang-bash">qm snapshot 201 m9a3-fim
+qm snapshot 202 m9a3-fim</code></pre>
+<h2 id="11-na-vida-real">11 · Na vida real</h2>
+<p><strong>Missão, só leitura.</strong> Num servidor Linux que você administre (ou com autorização), rode <strong>apenas</strong>:</p>
+<pre translate="no"><code class="lang-bash">lsblk -f
+sudo blkid
+findmnt -t ext4,xfs,vfat -o TARGET,SOURCE,FSTYPE,OPTIONS
+df -hT -x tmpfs -x devtmpfs
+sudo tune2fs -l "$(findmnt -no SOURCE /)" 2&gt;/dev/null | head -n 12
+sudo xfs_info / 2&gt;/dev/null | head -n 4</code></pre>
+<p>Perguntas para responder:</p>
+<ol><li>Quais tipos de sistema de arquivos o servidor usa, e onde?</li>
+<li>Algum volume tem rótulo repetido?</li>
+<li>Há VFAT além da partição EFI?</li></ol>
+<p><strong>Diário:</strong> anote o que merece atenção. Não altere nada: nada de <code translate="no">mkfs</code>, <code translate="no">wipefs -a</code> ou <code translate="no">fsck</code>.</p>
+<p><strong>Amanhã, sem olhar:</strong> diga qual tipo não encolhe.</p>
+<h2 id="12-aprofundar-quando-quiser">12 · Aprofundar quando quiser</h2>
+<ul><li><strong>Man pages:</strong> <code translate="no">man mkfs.ext4</code>, <code translate="no">man mkfs.xfs</code>, <code translate="no">man mkfs.fat</code>, <code translate="no">man xfs_admin</code>, <code translate="no">man tune2fs</code>, <code translate="no">man blkid</code>, <code translate="no">man wipefs</code>.</li>
+<li><strong>Red Hat:</strong> "Managing file systems", na documentação do RHEL 9.</li>
+<li><strong>kernel.org:</strong> docs.kernel.org/filesystems (ext4 e XFS).</li>
+<li><strong>util-linux:</strong> github.com/util-linux/util-linux.</li>
+<li><strong>Debian:</strong> wiki.debian.org/FileSystem.</li></ul>
+<p><strong>DeepTutor</strong> (http://10.1.0.149:3782, KB "Curso Linux Sysadmin"): <code translate="no">!quiz Aula 9.3, 5 perguntas sobre mkfs, ext4, XFS e VFAT</code></p>
+<h2 id="gabarito-comentado">Gabarito comentado</h2>
+<h3 id="aquecimento">Aquecimento</h3>
+<ol><li>Não. A partição só delimita o espaço. Sem <code translate="no">mkfs</code>, não existe estrutura para registrar arquivos.</li>
+<li>Os dados ficam inacessíveis, porque as estruturas antigas são sobrescritas. Por isso, confira o alvo antes.</li>
+<li>A montagem por <code translate="no">LABEL=</code> pode pegar o disco errado. O UUID é único.</li></ol>
+<h3 id="quiz">Quiz</h3>
+<ol><li>A partição é um pedaço do disco, na tabela de partições. O sistema de arquivos é a organização interna dela, criada pelo <code translate="no">mkfs</code>.</li>
+<li>Porque os nomes <code translate="no">sdX</code> dependem da ordem em que o kernel descobre os discos. Use <code translate="no">by-id</code>.</li>
+<li>16 no ext4, 12 no XFS e 11 no VFAT.</li>
+<li>XFS.</li>
+<li>Porque o FAT não guarda dono nem permissões. Esses valores vêm das opções de montagem.</li>
+<li>Para registrar o que será feito antes de fazer, e assim se recuperar de uma queda sem verificação longa. O VFAT não tem.</li></ol>
+</article><nav class="paginas" aria-label="Aulas"><a class="ant" href="9.2-particionar.html"><small>← Anterior</small>9.2 · Particionar</a><a class="prox" href="9.4-montar-e-persistir.html"><small>Próxima →</small>9.4 · Montar e persistir</a></nav></main></div>
+<footer><div class="wrap">Gerado a partir do Markdown do curso · Imagens em <code translate="no">img/</code></div></footer>
+</body>
+</html>

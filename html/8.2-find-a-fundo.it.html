@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light dark">
+<title>8.2 · find a fondo · Corso Linux Sysadmin</title>
+<link rel="alternate" hreflang="pt-BR" href="8.2-find-a-fundo.html"><link rel="alternate" hreflang="it" href="8.2-find-a-fundo.it.html">
+<style>
+:root{color-scheme:light dark;--bg:#f6f1e7;--card:#fffdf8;--ink:#201c16;--muted:#5e564a;--accent:#9a3412;--accent-2:#1f5f4a;--tint:#efe6d4;--line:#ddd2bc;--code:#f1eadb;--shadow:0 1px 2px rgba(60,40,10,.08);--serif:Georgia,"Iowan Old Style","Palatino Linotype",Palatino,serif;--sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--mono:"Cascadia Code",Consolas,"DejaVu Sans Mono",monospace}
+@media (prefers-color-scheme:dark){:root{--bg:#16130f;--card:#201b15;--ink:#f1eadb;--muted:#b9ad98;--accent:#f0a070;--accent-2:#7fd0b0;--tint:#2a231a;--line:#3d3427;--code:#191510;--shadow:none}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:5.5rem}
+body{margin:0;background:var(--bg);color:var(--ink);font:1rem/1.6 var(--sans)}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--accent-2);outline-offset:2px;border-radius:4px}
+.pular{position:absolute;left:-999px;top:0;background:var(--card);padding:.5rem 1rem;z-index:20}
+.pular:focus{left:.5rem;top:.5rem}
+.wrap{width:100%;max-width:84rem;margin:0 auto;padding-inline:max(1rem,env(safe-area-inset-left))}
+.top{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10;border-top:6px solid var(--accent)}
+.top-in{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding-block:.6rem}
+.titles{min-width:0}
+.marca{margin:0;font:700 clamp(1.15rem,1rem + 1vw,1.6rem)/1.15 var(--serif);letter-spacing:-.01em}
+.marca a{text-decoration:none}
+.marca a:hover{color:var(--accent)}
+.meta{margin:.1rem 0 0;color:var(--muted);font-size:.85rem}
+.acoes{display:flex;align-items:center;gap:.9rem;flex:none}
+.acoes>a{font-size:.9rem;font-weight:600;color:var(--muted);text-decoration:none}
+.acoes>a:hover{color:var(--accent);text-decoration:underline}
+.idioma{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--tint)}
+.idioma>*{padding:.35rem .9rem;font-size:.8rem;font-weight:700;letter-spacing:.06em;text-decoration:none;color:var(--muted);min-width:2.75rem;text-align:center}
+.idioma a:hover{color:var(--accent);text-decoration:underline}
+.idioma span{background:var(--accent);color:#fff}
+@media (prefers-color-scheme:dark){.idioma span{color:#16130f}}
+code{font-family:var(--mono);font-size:.9em;background:var(--tint);padding:.1rem .35rem;border-radius:4px;overflow-wrap:anywhere}
+/* índice */
+.capa{max-width:70rem;padding-block:2rem 3rem}
+.stats{border-left:4px solid var(--accent-2);background:var(--card);border-radius:0 10px 10px 0;padding:1rem 1.25rem;margin:0 0 2.5rem;box-shadow:var(--shadow);color:var(--muted)}
+.stats strong{color:var(--ink)}
+.modulo{display:grid;grid-template-columns:15rem minmax(0,1fr);gap:1rem 2rem;padding:1.75rem 0;border-top:1px solid var(--line)}
+.modulo h2{margin:0;font:700 1.25rem/1.25 var(--serif);align-self:start;position:sticky;top:6rem}
+.mn{display:block;font:700 .8rem var(--mono);letter-spacing:.12em;color:var(--accent);margin-bottom:.25rem}
+.sep{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.modulo ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,17rem),1fr));gap:.75rem}
+.modulo li{margin:0}
+.modulo a{display:flex;gap:.45rem;align-items:baseline;height:100%;padding:.85rem 1rem;background:var(--card);border:1px solid var(--line);border-radius:10px;text-decoration:none;font-weight:600;line-height:1.35;box-shadow:var(--shadow);transition:border-color .15s,transform .15s}
+.modulo a:hover{border-color:var(--accent);color:var(--accent)}
+.num{font:700 .85rem var(--mono);color:var(--accent);white-space:nowrap}
+/* aula */
+.doc{display:grid;grid-template-columns:17rem minmax(0,1fr);gap:2.5rem;align-items:start;padding-block:2rem 3rem}
+.lateral{position:sticky;top:5.5rem;max-height:calc(100vh - 6.5rem);overflow:auto;font-size:.875rem;padding-right:.5rem}
+.lateral h2{margin:0 0 .25rem;font:700 .95rem var(--serif);color:var(--muted)}
+.lateral h3{margin:1rem 0 .25rem;font:700 .75rem var(--mono);letter-spacing:.06em;color:var(--accent)}
+.lateral ul{list-style:none;margin:0;padding:0}
+.lateral a{display:flex;gap:.45rem;padding:.25rem .5rem;border-radius:6px;text-decoration:none;color:var(--muted);line-height:1.3}
+.lateral a:hover{background:var(--tint);color:var(--ink)}
+.lateral a[aria-current]{background:var(--tint);color:var(--ink);font-weight:700;box-shadow:inset 3px 0 0 var(--accent)}
+.lateral .num{font-size:.75rem}
+.aula{min-width:0;max-width:56rem;overflow-wrap:break-word;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:clamp(1.25rem,1rem + 2vw,2.75rem);box-shadow:var(--shadow)}
+.aula h1{margin:0 0 1.5rem;font:700 clamp(1.75rem,1.4rem + 1.6vw,2.5rem)/1.15 var(--serif);letter-spacing:-.015em;color:var(--ink)}
+.aula h2{margin:2.5rem 0 .75rem;padding-top:1.25rem;border-top:1px solid var(--line);font:700 1.5rem/1.25 var(--serif)}
+.aula h3{margin:2rem 0 .5rem;font:700 1.15rem/1.3 var(--serif);color:var(--accent)}
+.aula h4,.aula h5,.aula h6{margin:1.5rem 0 .5rem;font-size:1rem}
+.aula p,.aula ul,.aula ol{margin:1rem 0}
+.aula ul,.aula ol{padding-left:1.5rem}
+.aula li{margin:.35rem 0}
+.aula li>ul,.aula li>ol{margin:.35rem 0}
+.aula a{color:var(--accent);text-underline-offset:2px}
+.aula hr{border:0;border-top:1px solid var(--line);margin:2rem 0}
+.tabela{overflow-x:auto;margin:1.25rem 0;border:1px solid var(--line);border-radius:10px}
+.aula table{width:100%;border-collapse:collapse;font-size:.9rem}
+.aula th,.aula td{padding:.55rem .75rem;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+.aula tr:last-child td{border-bottom:0}
+.aula th{background:var(--tint);font-weight:700}
+.aula pre{background:var(--code);border:1px solid var(--line);border-radius:10px;padding:.9rem 1rem;overflow-x:auto;font:.85rem/1.5 var(--mono);margin:1rem 0;tab-size:4}
+.aula pre code{background:none;padding:0;font-size:inherit;overflow-wrap:normal}
+.aula blockquote{margin:1.25rem 0;padding:.75rem 1.25rem;border-left:4px solid var(--accent-2);background:var(--tint);border-radius:0 10px 10px 0}
+.aula blockquote>:first-child{margin-top:0}
+.aula blockquote>:last-child{margin-bottom:0}
+.aula figure{margin:1.75rem 0;text-align:center}
+.aula figure img{display:block;margin:0 auto;max-width:100%;height:auto;border:1px solid var(--line);border-radius:10px;background:#fff}
+.aula figcaption{margin-top:.5rem;color:var(--muted);font-size:.9rem;font-style:italic}
+.paginas{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:2.5rem;padding-top:1.5rem;border-top:1px solid var(--line)}
+.paginas a{display:block;padding:.75rem 1rem;border:1px solid var(--line);border-radius:10px;text-decoration:none;color:var(--ink);font-weight:600;line-height:1.3}
+.paginas a:hover{border-color:var(--accent);color:var(--accent)}
+.paginas small{display:block;color:var(--muted);font-weight:400}
+.paginas .prox{grid-column:2;text-align:right}
+footer{border-top:1px solid var(--line);padding-block:1.5rem;color:var(--muted);font-size:.85rem;text-align:center}
+@media (hover:hover) and (prefers-reduced-motion:no-preference){.modulo a:hover{transform:translateY(-2px)}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+@media (max-width:980px){.doc{grid-template-columns:minmax(0,1fr);padding-top:1rem}.lateral{position:static;max-height:none;order:2}.aula{max-width:none}}
+@media (max-width:860px){.modulo{grid-template-columns:minmax(0,1fr)}.modulo h2{position:static}.mn{display:inline;margin-right:.5rem}}
+@media (max-width:420px){.meta{display:none}.top-in{gap:.5rem}.acoes{gap:.6rem}.capa{padding-top:1.25rem}.paginas{grid-template-columns:minmax(0,1fr)}.paginas .prox{grid-column:1}}
+@media print{.top,.lateral,.paginas{display:none}.aula{border:0;box-shadow:none;padding:0;max-width:none}.doc{display:block}}
+</style>
+</head>
+<body>
+<a class="pular" href="#conteudo">Vai al contenuto</a>
+<header class="top"><div class="wrap top-in"><div class="titles"><p class="marca"><a href="index.it.html">Corso Linux Sysadmin</a></p><p class="meta">Rodrigo Antignani · Lezione 8.2</p></div><div class="acoes"><a href="index.it.html">Indice</a><div class="idioma" role="group" aria-label="Lingua"><a href="8.2-find-a-fundo.html" hreflang="pt-BR" lang="pt-BR">PT</a><span aria-current="true">IT</span></div></div></div></header>
+<div class="wrap doc"><aside class="lateral" aria-label="Lezioni"><h2>Lezioni</h2><h3>M0 · Laboratorio</h3><ul><li><a href="0.1-montar-o-laboratorio.it.html"><span class="num">0.1</span><span>Allestire il laboratorio</span></a></li><li><a href="0.2-acesso-e-protecao.it.html"><span class="num">0.2</span><span>Accesso e protezione</span></a></li></ul><h3>M1 · Riga di comando</h3><ul><li><a href="1.1-o-que-e-linux.it.html"><span class="num">1.1</span><span>Che cos'è Linux</span></a></li><li><a href="1.2-o-shell-e-a-ajuda.it.html"><span class="num">1.2</span><span>La shell e la guida</span></a></li><li><a href="1.3-caminhos-e-navegacao.it.html"><span class="num">1.3</span><span>Percorsi e navigazione</span></a></li><li><a href="1.4-criar-copiar-mover-e-apagar.it.html"><span class="num">1.4</span><span>Creare, copiare, spostare ed eliminare</span></a></li><li><a href="1.5-ler-e-procurar-texto.it.html"><span class="num">1.5</span><span>Leggere e cercare testo</span></a></li><li><a href="1.6-redirecionamentos-e-pipes.it.html"><span class="num">1.6</span><span>Reindirizzamenti e pipe</span></a></li><li><a href="1.7-arquivar-e-compactar.it.html"><span class="num">1.7</span><span>Archiviare e comprimere</span></a></li><li><a href="1.8-primeiro-script.it.html"><span class="num">1.8</span><span>Primo script</span></a></li><li><a href="1.9-decidir-e-repetir.it.html"><span class="num">1.9</span><span>Decidere e ripetere</span></a></li><li><a href="1.10-software-livre-na-pratica.it.html"><span class="num">1.10</span><span>Il software libero in pratica</span></a></li></ul><h3>M2 · Sistema, utenti e permessi</h3><ul><li><a href="2.1-instalacao-e-provisionamento.it.html"><span class="num">2.1</span><span>Installazione e provisioning</span></a></li><li><a href="2.2-hardware-e-dispositivos.it.html"><span class="num">2.2</span><span>Hardware e dispositivi</span></a></li><li><a href="2.3-processos-e-logs.it.html"><span class="num">2.3</span><span>Processi e log</span></a></li><li><a href="2.4-rede-no-dia-a-dia.it.html"><span class="num">2.4</span><span>La rete di tutti i giorni</span></a></li><li><a href="2.5-acesso-remoto-e-privilegios.it.html"><span class="num">2.5</span><span>Accesso remoto e privilegi</span></a></li><li><a href="2.6-usuarios-e-grupos.it.html"><span class="num">2.6</span><span>Utenti e gruppi</span></a></li><li><a href="2.7-permissoes-e-dono.it.html"><span class="num">2.7</span><span>Permessi e proprietario</span></a></li><li><a href="2.8-diretorios-e-arquivos-especiais.it.html"><span class="num">2.8</span><span>Directory e file speciali</span></a></li></ul><h3>M3 · Testo ed editor</h3><ul><li><a href="3.1-fluxos-a-fundo.it.html"><span class="num">3.1</span><span>I flussi in profondità</span></a></li><li><a href="3.2-filtros-de-texto.it.html"><span class="num">3.2</span><span>Filtri di testo</span></a></li><li><a href="3.3-regex-e-grep.it.html"><span class="num">3.3</span><span>Regex e grep</span></a></li><li><a href="3.4-sed-e-awk.it.html"><span class="num">3.4</span><span>sed e awk</span></a></li><li><a href="3.5-vi-e-vim-de-verdade.it.html"><span class="num">3.5</span><span>vi e vim sul serio</span></a></li></ul><h3>M4 · systemd e boot</h3><ul><li><a href="4.1-como-o-linux-liga.it.html"><span class="num">4.1</span><span>Come si avvia Linux</span></a></li><li><a href="4.2-systemd-servicos-e-units.it.html"><span class="num">4.2</span><span>systemd: servizi e unit</span></a></li><li><a href="4.3-targets-desligar-e-reiniciar.it.html"><span class="num">4.3</span><span>Target: spegnere e riavviare</span></a></li><li><a href="4.4-grub-e-acesso-de-emergencia.it.html"><span class="num">4.4</span><span>GRUB e accesso di emergenza</span></a></li></ul><h3>M5 · Kernel, moduli e VM</h3><ul><li><a href="5.1-hardware-pelo-kernel.it.html"><span class="num">5.1</span><span>L'hardware visto dal kernel</span></a></li><li><a href="5.2-modulos-e-parametros.it.html"><span class="num">5.2</span><span>Moduli e parametri</span></a></li><li><a href="5.3-linux-como-convidado.it.html"><span class="num">5.3</span><span>Linux come guest</span></a></li></ul><h3>M6 · Pacchetti e repository</h3><ul><li><a href="6.1-pacotes-no-debian.it.html"><span class="num">6.1</span><span>Pacchetti su Debian</span></a></li><li><a href="6.2-pacotes-na-rocky.it.html"><span class="num">6.2</span><span>Pacchetti su Rocky</span></a></li><li><a href="6.3-repositorios.it.html"><span class="num">6.3</span><span>Repository</span></a></li><li><a href="6.4-flatpak.it.html"><span class="num">6.4</span><span>Flatpak</span></a></li><li><a href="6.5-bibliotecas-compartilhadas.it.html"><span class="num">6.5</span><span>Librerie condivise</span></a></li></ul><h3>M7 · Processi e prestazioni</h3><ul><li><a href="7.1-processos-e-sinais.it.html"><span class="num">7.1</span><span>Processi e segnali</span></a></li><li><a href="7.2-jobs-e-sessoes.it.html"><span class="num">7.2</span><span>Job e sessioni</span></a></li><li><a href="7.3-prioridade-e-perfis.it.html"><span class="num">7.3</span><span>Priorità e profili</span></a></li></ul><h3>M8 · File a fondo</h3><ul><li><a href="8.1-fhs-e-onde-cada-coisa-mora.it.html"><span class="num">8.1</span><span>FHS e dove sta ogni cosa</span></a></li><li><a href="8.2-find-a-fundo.it.html" aria-current="page"><span class="num">8.2</span><span>find a fondo</span></a></li><li><a href="8.3-arquivamento-avancado.it.html"><span class="num">8.3</span><span>Archiviazione avanzata</span></a></li><li><a href="8.4-links.it.html"><span class="num">8.4</span><span>Link</span></a></li><li><a href="8.5-permissoes-avancadas.it.html"><span class="num">8.5</span><span>Permessi avanzati</span></a></li></ul><h3>M9 · Storage</h3><ul><li><a href="9.1-discos-e-layout.it.html"><span class="num">9.1</span><span>Dischi e layout</span></a></li><li><a href="9.2-particionar.it.html"><span class="num">9.2</span><span>Partizionare</span></a></li><li><a href="9.3-sistemas-de-arquivos.it.html"><span class="num">9.3</span><span>File system</span></a></li><li><a href="9.4-montar-e-persistir.it.html"><span class="num">9.4</span><span>Montare e rendere persistente</span></a></li><li><a href="9.5-integridade-e-espaco.it.html"><span class="num">9.5</span><span>Integrità e spazio</span></a></li><li><a href="9.6-lvm.it.html"><span class="num">9.6</span><span>LVM</span></a></li><li><a href="9.7-crescer-sem-destruir.it.html"><span class="num">9.7</span><span>Crescere senza distruggere</span></a></li></ul></aside><main id="conteudo" class="aula"><article><h1>Lezione 8.2 · find a fondo</h1>
+<p><code translate="no">locate</code> risponde in fretta, ma conosce solo i nomi. Quando la domanda è "cosa ha superato 1 GB, non è stato toccato da 90 giorni e appartiene a un utente che se n'è andato", lo strumento è <code translate="no">find</code>. È anche il comando più pericoloso di questa fase, perché agisce in blocco. Qui impari a costruire la ricerca e a verificarne il risultato prima di agire.</p>
+<blockquote><p><strong>Il cuore di questa lezione:</strong> combinare nome, tipo, proprietario, dimensione, data e permessi; leggere <code translate="no">-mtime</code> e <code translate="no">-size</code> senza cadere negli arrotondamenti; usare le parentesi e <code translate="no">-prune</code>; agire con <code translate="no">-exec</code> e <code translate="no">xargs</code>; e guardare sempre la lista prima di <code translate="no">-delete</code>. Il resto è approfondimento.</p></blockquote>
+<div class="tabela"><table><thead><tr><th scope="col">Scheda</th><th scope="col"></th></tr></thead><tbody><tr><td><strong>Modulo</strong></td><td>M8 · File a fondo, lezione 2 di 5</td></tr><tr><td><strong>Quando</strong></td><td>Settimana 12</td></tr><tr><td><strong>Alla fine</strong></td><td>Trovi file con qualsiasi criterio e agisci su di essi in sicurezza</td></tr><tr><td><strong>Prerequisiti</strong></td><td>Lezioni 1.6, 2.7 e 8.1</td></tr><tr><td><strong>Durata</strong></td><td>circa 2h</td></tr><tr><td><strong>Snapshot</strong></td><td><code translate="no">m8a2-inicio</code> e <code translate="no">m8a2-fim</code> su rocky-lab e debian-lab</td></tr></tbody></table></div>
+<h2 id="1-riscaldamento">1 · Riscaldamento</h2>
+<p>Rispondi prima di leggere.</p>
+<ol><li>Che cosa significa <code translate="no">-mtime +30</code>? Il file di esattamente 30 giorni rientra?</li>
+<li>Cosa c'è di sbagliato in <code translate="no">find . -name *.log</code>?</li>
+<li>Qual è la differenza tra <code translate="no">-exec comando {} \;</code> e <code translate="no">-exec comando {} +</code>?</li></ol>
+<h2 id="2-perche-conta">2 · Perché conta</h2>
+<div class="tabela"><table><thead><tr><th scope="col">La richiesta</th><th scope="col">La risposta sbagliata</th><th scope="col">Cosa provoca</th></tr></thead><tbody><tr><td>"Pulisci i log più vecchi di 30 giorni"</td><td><code translate="no">find ... -delete</code> senza guardare prima</td><td>Cancella anche ciò che non era un log</td></tr><tr><td>"Il server si è bloccato quando ho lanciato la ricerca"</td><td>Ripetere la ricerca</td><td><code translate="no">find /</code> è entrato nell'NFS. Mancava <code translate="no">-xdev</code></td></tr><tr><td>"Chi ha lasciato l'azienda ha lasciato dei file"</td><td>Cercare cartella per cartella</td><td><code translate="no">find -nouser</code> risolve in una riga</td></tr><tr><td>"Dobbiamo fare l'audit dei SUID"</td><td>Elencare solo <code translate="no">/usr/bin</code></td><td>Un SUID strano in un'altra cartella passa inosservato</td></tr><tr><td>"Ho copiato la riga da Google e ha cancellato tutto"</td><td>Ripristinare senza capire</td><td>L'ordine delle opzioni conta in <code translate="no">find</code></td></tr></tbody></table></div>
+<h2 id="3-modello-mentale">3 · Modello mentale</h2>
+<blockquote><p><code translate="no">find</code> è un <strong>ispettore che percorre tutti i corridoi</strong>. Su ogni file legge una <strong>lista di domande, da sinistra a destra</strong>. Se una risponde "no", salta al file successivo. Anche un'azione, come <code translate="no">-delete</code>, è un elemento della lista: l'ispettore la esegue nel momento in cui ci arriva. Per questo l'ordine è tutto.</p></blockquote>
+<pre translate="no"><code>find  ONDE     PERGUNTAS                         AÇÃO
+find  /var     -xdev -type f -name '*.gz' -mtime +90   -print
+      │        │      │       │            │           │
+      │        │      │       │            │           └─ só agora age
+      │        │      │       │            └─ mais de 90 dias?
+      │        │      │       └─ o nome casa?
+      │        │      └─ é arquivo comum?
+      │        └─ fica neste disco
+      └─ de onde começa
+
+E implícito entre as perguntas · -o é OU · \( \) agrupa · ! nega</code></pre>
+<figure><a href="../img/8.2-find-avalia.it.jpg"><img src="../img/8.2-find-avalia.it.jpg" alt="Come find valuta un file" loading="lazy" decoding="async"></a><figcaption>La ricerca può diventare azione solo dopo che hai visto la lista.</figcaption></figure>
+<h3 id="ponte-windows">Ponte Windows</h3>
+<div class="tabela"><table><thead><tr><th scope="col">In Windows</th><th scope="col">In Linux</th><th scope="col">Dove il paragone inganna</th></tr></thead><tbody><tr><td><code translate="no">dir /s /b *.log</code></td><td><code translate="no">find . -name '*.log'</code></td><td><code translate="no">find</code> testa molto più del nome</td></tr><tr><td><code translate="no">Get-ChildItem -Recurse -Filter</code></td><td><code translate="no">find</code></td><td>In PowerShell filtri oggetti. In <code translate="no">find</code>, l'espressione sta nelle opzioni</td></tr><tr><td><code translate="no">forfiles /d -30 /c "cmd /c del @file"</code></td><td><code translate="no">find -mtime +30 -delete</code></td><td><code translate="no">forfiles</code> conta i giorni in un altro modo. Elenca sempre prima</td></tr><tr><td><code translate="no">robocopy /L</code> per simulare</td><td><code translate="no">find</code> con <code translate="no">-print</code> prima dell'azione</td><td><code translate="no">find</code> non ha una modalità simulata: a simulare sei tu</td></tr></tbody></table></div>
+<h2 id="4-l-essenziale">4 · L'essenziale</h2>
+<h3 id="domande">Domande</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Per...</th><th scope="col">Esempio</th><th scope="col">Nota</th></tr></thead><tbody><tr><td>Nome</td><td><code translate="no">-name '*.log'</code>, <code translate="no">-iname</code></td><td>Sempre tra virgolette</td></tr><tr><td>Percorso</td><td><code translate="no">-path '*/cache/*'</code></td><td>Guarda il percorso intero</td></tr><tr><td>Tipo</td><td><code translate="no">-type f</code>, <code translate="no">-type d</code>, <code translate="no">-type l</code></td><td>File, cartella, link</td></tr><tr><td>Proprietario</td><td><code translate="no">-user rodrigo</code>, <code translate="no">-group adm</code></td><td></td></tr><tr><td>Senza proprietario</td><td><code translate="no">-nouser</code>, <code translate="no">-nogroup</code></td><td>UID senza utente</td></tr><tr><td>Dimensione</td><td><code translate="no">-size +100M</code>, <code translate="no">-size -10k</code></td><td>Suffissi <code translate="no">c</code>, <code translate="no">k</code>, <code translate="no">M</code>, <code translate="no">G</code></td></tr><tr><td>Vuoto</td><td><code translate="no">-empty</code></td><td>File o cartella</td></tr><tr><td>Modifica</td><td><code translate="no">-mtime +30</code>, <code translate="no">-mmin -60</code></td><td>Giorni e minuti</td></tr><tr><td>Accesso, stato</td><td><code translate="no">-atime</code>, <code translate="no">-ctime</code></td><td><code translate="no">-ctime</code> è il cambio dei metadati</td></tr><tr><td>Dopo una data</td><td><code translate="no">-newermt '2026-11-01'</code></td><td></td></tr><tr><td>Più recente di</td><td><code translate="no">-newer ARQUIVO</code></td><td></td></tr><tr><td>Permessi esatti</td><td><code translate="no">-perm 644</code></td><td>Uguale a 644</td></tr><tr><td>Tutti questi bit</td><td><code translate="no">-perm -g+w</code></td><td>Deve averli tutti</td></tr><tr><td>Uno qualsiasi di questi</td><td><code translate="no">-perm /6000</code></td><td>SUID o SGID</td></tr><tr><td>Limite di discesa</td><td><code translate="no">-maxdepth 2</code></td><td>Va prima delle domande</td></tr><tr><td>Non uscire dal disco</td><td><code translate="no">-xdev</code></td><td>Essenziale in <code translate="no">find /</code></td></tr></tbody></table></div>
+<h3 id="gli-arrotondamenti">Gli arrotondamenti</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Espressione</th><th scope="col">Cosa significa</th></tr></thead><tbody><tr><td><code translate="no">-mtime 0</code></td><td>Modificato nelle ultime 24 ore</td></tr><tr><td><code translate="no">-mtime +30</code></td><td>Età, in giorni interi, maggiore di 30: ha almeno 31 giorni</td></tr><tr><td><code translate="no">-mtime -7</code></td><td>Meno di 7 giorni</td></tr><tr><td><code translate="no">-size +1M</code></td><td>Più di 1 MiB</td></tr><tr><td><code translate="no">-size -1M</code></td><td><strong>Solo file vuoti</strong>, perché 500 KB si arrotonda per eccesso a 1M</td></tr></tbody></table></div>
+<p>Per limiti piccoli, usa un'unità più piccola, come <code translate="no">-size -1024k</code>.</p>
+<h3 id="azioni">Azioni</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Voglio...</th><th scope="col">Forma</th></tr></thead><tbody><tr><td>Vedere la lista</td><td><code translate="no">-print</code> (predefinito) o <code translate="no">-ls</code></td></tr><tr><td>Formattare</td><td><code translate="no">-printf '%s %p\n'</code></td></tr><tr><td>Eseguire uno per file</td><td><code translate="no">-exec comando {} \;</code></td></tr><tr><td>Eseguire in blocco, più veloce</td><td><code translate="no">-exec comando {} +</code></td></tr><tr><td>Chiedere prima</td><td><code translate="no">-ok comando {} \;</code></td></tr><tr><td>Cancellare</td><td><code translate="no">-delete</code>, <strong>sempre per ultimo</strong></td></tr><tr><td>Passare a un altro comando</td><td><code translate="no">-print0 | xargs -0 -r comando</code></td></tr></tbody></table></div>
+<figure><a href="../img/8.2-um-ou-lote.it.jpg"><img src="../img/8.2-um-ou-lote.it.jpg" alt="Uno per uno o in blocco" loading="lazy" decoding="async"></a><figcaption>Con <code translate="no">\;</code> il comando gira una volta per file; con <code translate="no">+</code> gira una volta sola per tutti.</figcaption></figure>
+<h3 id="escludere-una-cartella-dalla-discesa">Escludere una cartella dalla discesa</h3>
+<pre translate="no"><code class="lang-bash">find . -path ./app/tmp -prune -o -name '*.log' -print</code></pre>
+<p>Leggila così: se è quella cartella, non entrare; altrimenti, testa il nome. Il <code translate="no">-print</code> finale è obbligatorio.</p>
+<h3 id="rocky-debian">Rocky × Debian</h3>
+<p><code translate="no">find</code> è lo stesso su entrambe. Cambiano le cartelle e i SUID trovati. In ogni famiglia, i log ruotati possono avere nomi diversi, quindi guarda prima di filtrare.</p>
+<h2 id="5-lab-guidato">5 · Lab guidato</h2>
+<p><strong>Passo 0 · Snapshot e albero.</strong> Su Proxmox: <code translate="no">qm snapshot 201 m8a2-inicio</code> e <code translate="no">qm snapshot 202 m8a2-inicio</code>. Su rocky-lab:</p>
+<pre translate="no"><code class="lang-bash">mkdir -p ~/lab82/{app/logs,app/tmp,dados,"nome com espaco"}
+cd ~/lab82
+touch app/logs/hoje.log app/tmp/a.tmp app/tmp/b.bak dados/planilha.csv
+touch "nome com espaco/relatorio final.txt"
+touch -d '40 days ago' app/logs/antigo.log
+touch -d '3 days ago' app/logs/recente.log
+truncate -s 5M dados/grande.bin
+truncate -s 500K dados/medio.bin
+chmod 666 dados/planilha.csv
+sudo touch dados/do-root.txt
+find . -type f | wc -l</code></pre>
+<p>Sono 10 file.</p>
+<p><strong>Passo 1 · Tipo, nome e proprietario.</strong></p>
+<pre translate="no"><code class="lang-bash">find . -type d
+find . -type f -name '*.log'
+find . -iname '*.CSV'
+find . -type f -user root
+find . -maxdepth 1</code></pre>
+<p><strong>Passo 2 · Date.</strong></p>
+<pre translate="no"><code class="lang-bash">find . -type f -mtime +30
+find . -type f -mtime -7
+find . -type f -mtime 3
+find . -type f -newermt "$(date -d yesterday +%F)"</code></pre>
+<p><strong>Passo 3 · Dimensione, e l'arrotondamento.</strong></p>
+<pre translate="no"><code class="lang-bash">ls -lh dados
+find . -type f -size +1M
+find . -type f -size -1M
+find . -type f -size -1024k -size +0</code></pre>
+<p><code translate="no">medio.bin</code>, da 500 KB, <strong>non compare</strong> in <code translate="no">-size -1M</code>, perché viene arrotondato a 1M. Con <code translate="no">-1024k</code>, compare.</p>
+<p><strong>Passo 4 · Permessi.</strong></p>
+<pre translate="no"><code class="lang-bash">find . -type f -perm 666
+find . -type f -perm -o+w
+sudo find / -xdev -type f -perm /6000 -ls</code></pre>
+<p>L'ultimo è l'audit di SUID e SGID della macchina. Salva quell'output in un file sui server di cui ti occupi: il confronto nel tempo rivela cosa è nuovo.</p>
+<p><strong>Passo 5 · Combinare.</strong></p>
+<pre translate="no"><code class="lang-bash">find . -type f \( -name '*.tmp' -o -name '*.bak' \)
+find . -type f ! -name '*.log'
+find . -path ./app/tmp -prune -o -type f -name '*.*' -print</code></pre>
+<p><strong>Passo 6 · Agire: <code translate="no">\;</code> e <code translate="no">+</code>.</strong></p>
+<pre translate="no"><code class="lang-bash">find . -name '*.log' -exec echo RODOU {} \;
+find . -name '*.log' -exec echo RODOU {} +
+find . -type f -name '*.txt' -print0 | xargs -0 -r ls -l</code></pre>
+<p>Con <code translate="no">\;</code>, <code translate="no">echo</code> gira una volta per file. Con <code translate="no">+</code>, una volta sola, con tutti. <code translate="no">xargs -0</code> protegge il nome con lo spazio, come hai visto nella lezione 1.6.</p>
+<p><strong>Passo 7 · Il rituale prima di cancellare.</strong></p>
+<pre translate="no"><code class="lang-bash">find app/tmp -type f -name '*.tmp'
+find app/tmp -type f -name '*.tmp' -delete
+find app/tmp -type f</code></pre>
+<p>Stessa riga, con l'azione solo alla fine. È questa la procedura, sempre.</p>
+<p><strong>Passo 8 · Chi occupa di più.</strong></p>
+<pre translate="no"><code class="lang-bash">sudo find /var -xdev -type f -printf '%s %p\n' | sort -n | tail -n 5</code></pre>
+<p><strong>Passo 9 · debian-lab.</strong> Ripeti i passi 0, 3 e 4. Il Passo 4 mostra un'altra lista di SUID.</p>
+<h3 id="decidi-1">Decidi 1</h3>
+<p>Devo cancellare i file <code translate="no">.gz</code> più vecchi di 90 giorni in <code translate="no">/var/log/app</code>. Qual è la procedura?</p>
+<p>A) <code translate="no">find /var/log/app -mtime +90 -delete</code>. B) Lanciare <code translate="no">find /var/log/app -type f -name '*.gz' -mtime +90 -print</code>, controllare, e poi sostituire <code translate="no">-print</code> con <code translate="no">-delete</code>. C) <code translate="no">rm $(find /var/log/app -name '*.gz')</code>.</p>
+<p>Scegli un'opzione prima di continuare.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se hai scelto</th><th scope="col">Risultato</th><th scope="col">Perché</th></tr></thead><tbody><tr><td>A</td><td>Rischio</td><td>Senza filtro di nome e tipo, si porta via ciò che non era <code translate="no">.gz</code></td></tr><tr><td>B</td><td>Giusto</td><td>Approvi la lista e poi agisci</td></tr><tr><td>C</td><td>Sbagliato</td><td>Ignora l'età e si rompe sui nomi con spazi</td></tr></tbody></table></div>
+<p><strong>Da ricordare:</strong> l'azione entra per ultima, dopo aver visto la lista.</p>
+<h3 id="decidi-2">Decidi 2</h3>
+<p>Disco quasi pieno su un server con NFS montato. Cosa usare?</p>
+<p>A) <code translate="no">find / -size +1G</code>. B) <code translate="no">sudo find / -xdev -type f -size +1G -exec ls -lh {} +</code>. C) <code translate="no">locate</code> con <code translate="no">.iso</code>.</p>
+<p>Scegli un'opzione prima di continuare.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se hai scelto</th><th scope="col">Risultato</th><th scope="col">Perché</th></tr></thead><tbody><tr><td>A</td><td>Lento e fuorviante</td><td>Percorre l'NFS, e senza root salta delle cartelle</td></tr><tr><td>B</td><td>Giusto</td><td>Resta sul disco giusto, vede tutto e mostra la dimensione</td></tr><tr><td>C</td><td>Incompleto</td><td>Guarda solo i nomi, e non ogni file grande è un <code translate="no">.iso</code></td></tr></tbody></table></div>
+<p><strong>Da ricordare:</strong> in un <code translate="no">find /</code>, <code translate="no">-xdev</code> ci va insieme.</p>
+<h2 id="6-rompi-e-ripara">6 · Rompi e ripara</h2>
+<h3 id="guasto-1-il-carattere-jolly-della-shell">Guasto 1 · Il carattere jolly della shell</h3>
+<pre translate="no"><code class="lang-bash">cd ~/lab82
+touch um.log dois.log
+find . -name *.log</code></pre>
+<p><strong>Sintomo:</strong> <code translate="no">find: paths must precede expression</code>.</p>
+<p><strong>Diagnosi:</strong> la shell ha espanso <code translate="no">*.log</code> prima di chiamare <code translate="no">find</code>, che ha ricevuto <code translate="no">-name dois.log um.log</code>.</p>
+<p><strong>Riparazione:</strong> <code translate="no">find . -name '*.log'</code>. Il pericolo è quando nella cartella c'è un solo <code translate="no">.log</code>: non c'è nessun errore, e <code translate="no">find</code> cerca soltanto quel nome.</p>
+<figure><a href="../img/8.2-ordem-que-apaga.it.jpg"><img src="../img/8.2-ordem-que-apaga.it.jpg" alt="L&#x27;ordine di find" loading="lazy" decoding="async"></a><figcaption>find legge da sinistra a destra: l'azione va sempre in fondo.</figcaption></figure>
+<h3 id="guasto-2-l-ordine-che-cancella-tutto">Guasto 2 · L'ordine che cancella tutto</h3>
+<p>In una copia usa e getta:</p>
+<pre translate="no"><code class="lang-bash">cp -r ~/lab82 ~/lab82-copia
+find ~/lab82-copia -delete -name '*.tmp'
+ls ~/lab82-copia</code></pre>
+<p><strong>Sintomo:</strong> <code translate="no">No such file or directory</code>: l'intero albero è sparito.</p>
+<p><strong>Diagnosi:</strong> <code translate="no">find</code> esegue da sinistra a destra. <code translate="no">-delete</code> è venuto per primo e ha valso per tutto, e <code translate="no">-name</code> è arrivato dopo.</p>
+<p><strong>Riparazione:</strong> azione in fondo e, prima, la lista. In produzione, senza backup, non c'è riparazione: per questo il rituale.</p>
+<h3 id="guasto-3-l-or-senza-parentesi">Guasto 3 · L'OR senza parentesi</h3>
+<pre translate="no"><code class="lang-bash">cd ~/lab82
+touch app/tmp/c.tmp
+find . -name '*.tmp' -o -name '*.bak' -exec ls -l {} +</code></pre>
+<p><strong>Sintomo:</strong> compare solo il <code translate="no">.bak</code>.</p>
+<p><strong>Diagnosi:</strong> l'AND lega più forte dell'OR. <code translate="no">-exec</code> è rimasto solo con il lato di <code translate="no">-name '*.bak'</code>.</p>
+<p><strong>Riparazione:</strong> <code translate="no">find . \( -name '*.tmp' -o -name '*.bak' \) -exec ls -l {} +</code>.</p>
+<h3 id="pulizia">Pulizia</h3>
+<pre translate="no"><code class="lang-bash">sudo rm -r ~/lab82</code></pre>
+<h2 id="7-trappole">7 · Trappole</h2>
+<div class="tabela"><table><thead><tr><th scope="col">Trappola</th><th scope="col">Cosa succede</th><th scope="col">Come evitarla</th></tr></thead><tbody><tr><td><code translate="no">-name *.log</code> senza virgolette</td><td>La shell espande prima</td><td>Usa le virgolette</td></tr><tr><td><code translate="no">-delete</code> prima delle domande</td><td>Cancella tutto</td><td>Azione sempre in fondo</td></tr><tr><td><code translate="no">-size -1M</code></td><td>Prende solo i vuoti</td><td>Unità più piccola</td></tr><tr><td><code translate="no">-mtime 30</code></td><td>Esattamente quella fascia di un giorno</td><td><code translate="no">+30</code> o <code translate="no">-30</code></td></tr><tr><td><code translate="no">find /</code> senza <code translate="no">-xdev</code></td><td>Entra in NFS e <code translate="no">/proc</code></td><td><code translate="no">-xdev</code></td></tr><tr><td><code translate="no">-o</code> senza parentesi</td><td>L'azione resta da un lato solo</td><td><code translate="no">\( ... \)</code></td></tr><tr><td><code translate="no">-exec rm</code> con <code translate="no">\;</code> su milioni di file</td><td>Lentissimo</td><td><code translate="no">+</code> o <code translate="no">-delete</code></td></tr><tr><td><code translate="no">xargs</code> senza <code translate="no">-0</code></td><td>Il nome con spazio diventa due</td><td><code translate="no">-print0</code> e <code translate="no">-0</code></td></tr><tr><td><code translate="no">xargs</code> con lista vuota</td><td>Esegue il comando senza argomenti</td><td><code translate="no">-r</code></td></tr><tr><td>Lanciare senza <code translate="no">sudo</code></td><td>Cartelle saltate, risultato parziale</td><td>Guarda gli errori di permesso</td></tr></tbody></table></div>
+<h2 id="8-quiz">8 · Quiz</h2>
+<p>Rispondi senza guardare. Le soluzioni sono alla fine della lezione.</p>
+<ol><li>Come elencare SUID e SGID su tutta la radice, senza uscire dal disco?</li>
+<li>Perché <code translate="no">-size -1M</code> non trova un file da 500 KB?</li>
+<li>Cosa fa <code translate="no">-prune</code>, e perché serve <code translate="no">-print</code>?</li>
+<li>Qual è la differenza tra <code translate="no">-perm -g+w</code> e <code translate="no">-perm /g+w,o+w</code>?</li>
+<li>Qual è la procedura sicura per cancellare con <code translate="no">find</code>?</li>
+<li>Come elencare i file il cui proprietario non esiste più?</li></ol>
+<h2 id="9-promemoria">9 · Promemoria</h2>
+<p><strong>Da sapere a memoria:</strong></p>
+<div class="tabela"><table><thead><tr><th scope="col">Voglio...</th><th scope="col">Comando</th></tr></thead><tbody><tr><td>Per nome</td><td><code translate="no">find CAMINHO -type f -name 'PADRAO'</code></td></tr><tr><td>Grandi</td><td><code translate="no">sudo find / -xdev -type f -size +1G -ls</code></td></tr><tr><td>Vecchi</td><td><code translate="no">find CAMINHO -type f -mtime +30</code></td></tr><tr><td>Senza proprietario</td><td><code translate="no">sudo find / -xdev -nouser -ls</code></td></tr><tr><td>SUID e SGID</td><td><code translate="no">sudo find / -xdev -type f -perm /6000 -ls</code></td></tr><tr><td>Agire</td><td><code translate="no">-exec comando {} +</code></td></tr><tr><td>Cancellare, dopo aver elencato</td><td><code translate="no">... -delete</code></td></tr></tbody></table></div>
+<p><strong>Da consultare:</strong></p>
+<div class="tabela"><table><thead><tr><th scope="col">Voglio...</th><th scope="col">Comando</th></tr></thead><tbody><tr><td>Escludere una cartella</td><td><code translate="no">find . -path ./X -prune -o -type f -print</code></td></tr><tr><td>Scrivibile da tutti</td><td><code translate="no">find / -xdev -type f -perm -o+w</code></td></tr><tr><td>Cartelle aperte, senza sticky</td><td><code translate="no">find / -xdev -type d -perm -o+w ! -perm -1000</code></td></tr><tr><td>Per data</td><td><code translate="no">-newermt '2026-11-01'</code></td></tr><tr><td>Dimensione e nome</td><td><code translate="no">-printf '%s %p\n' | sort -n</code></td></tr><tr><td>Chiedere prima</td><td><code translate="no">-ok rm {} \;</code></td></tr></tbody></table></div>
+<p><strong>Flashcard:</strong></p>
+<ul><li>Ordine → <em>da sinistra a destra; l'azione esegue dove si trova.</em></li>
+<li><code translate="no">-mtime +30</code> → <em>almeno 31 giorni.</em></li>
+<li><code translate="no">-size -1M</code> → <em>solo i vuoti.</em></li>
+<li><code translate="no">\;</code> e <code translate="no">+</code> → <em>uno per file, o tutti insieme.</em></li>
+<li>Prima di <code translate="no">-delete</code> → <em>la stessa riga con <code translate="no">-print</code>.</em></li></ul>
+<h2 id="10-checklist-e-chiusura">10 · Checklist e chiusura</h2>
+<ul><li>[ ] Combino nome, tipo, proprietario, dimensione, data e permessi</li>
+<li>[ ] Spiego gli arrotondamenti di <code translate="no">-mtime</code> e <code translate="no">-size</code></li>
+<li>[ ] Uso le parentesi e <code translate="no">-prune</code></li>
+<li>[ ] Uso <code translate="no">-exec</code> e <code translate="no">xargs -0 -r</code> senza timore</li>
+<li>[ ] Elenco prima di cancellare</li>
+<li>[ ] Faccio l'audit di SUID e SGID</li></ul>
+<p><strong>Ultimo esercizio, senza guardare la lezione:</strong> su debian-lab, trova in <code translate="no">/etc</code> i file <code translate="no">.conf</code> modificati negli ultimi 30 giorni e mostra dimensione e nome di ciascuno, in una riga.</p>
+<p><strong>Snapshot di fine</strong> (su Proxmox):</p>
+<pre translate="no"><code class="lang-bash">qm snapshot 201 m8a2-fim
+qm snapshot 202 m8a2-fim</code></pre>
+<h2 id="11-nella-vita-reale">11 · Nella vita reale</h2>
+<p><strong>Missione, sola lettura.</strong> Su un server Linux che amministri (o con autorizzazione), lancia <strong>solo</strong>:</p>
+<pre translate="no"><code class="lang-bash">sudo find / -xdev -type f -size +1G -ls
+sudo find / -xdev -nouser -ls | head -n 20
+sudo find / -xdev -type f -perm /6000 -ls | wc -l
+sudo find / -xdev -type f -perm -o+w -ls | head -n 20
+sudo find /var/log -xdev -type f -mtime +90 -ls | head -n 20</code></pre>
+<p>Domande a cui rispondere:</p>
+<ol><li>C'è qualche file grande che non conosci?</li>
+<li>Qualche file senza proprietario? Di chi era?</li>
+<li>Quanti SUID e SGID esistono? Qualcuno fuori da <code translate="no">/usr</code>?</li>
+<li>Qualche file scrivibile da tutti?</li></ol>
+<p><strong>Diario:</strong> annota le risposte. Non cancellare né modificare nulla.</p>
+<p><strong>Domani, senza guardare:</strong> scrivi il comando che trova file <code translate="no">.bak</code> più grandi di 1 GB e più vecchi di 60 giorni, senza uscire dal disco.</p>
+<h2 id="12-approfondire-quando-vuoi">12 · Approfondire quando vuoi</h2>
+<ul><li><strong><code translate="no">man find</code>, sezione EXPRESSION:</strong> tutte le domande, le azioni e l'ordine di valutazione.</li>
+<li><strong><code translate="no">-printf</code>:</strong> date, proprietario e dimensione formattati per un report.</li>
+<li><strong><code translate="no">fd</code>:</strong> alternativa moderna, fuori dall'installazione standard.</li>
+<li><strong><code translate="no">-execdir</code>:</strong> esegue il comando nella cartella di ciascun file.</li></ul>
+<p><strong>DeepTutor</strong> (http://10.1.0.149:3782, KB "Curso Linux Sysadmin"):</p>
+<ul><li><code translate="no">!explica como o find avalia as expressões da esquerda para a direita</code></li>
+<li><code translate="no">!feynman por que -size -1M não acha arquivos de 500 KB</code></li>
+<li><code translate="no">!quiz Aula 8.2, 5 perguntas sobre find</code></li></ul>
+<h2 id="soluzioni-commentate">Soluzioni commentate</h2>
+<h3 id="riscaldamento">Riscaldamento</h3>
+<ol><li>Età maggiore di 30 giorni interi, cioè almeno 31. Un file di 30 giorni e qualche ora non rientra.</li>
+<li>Senza virgolette, la shell può espandere <code translate="no">*.log</code> prima che <code translate="no">find</code> parta.</li>
+<li>Con <code translate="no">\;</code>, il comando gira una volta per file. Con <code translate="no">+</code>, riceve più file in una volta sola.</li></ol>
+<h3 id="quiz">Quiz</h3>
+<ol><li><code translate="no">sudo find / -xdev -type f -perm /6000 -ls</code>.</li>
+<li>Perché la dimensione viene arrotondata per eccesso, nell'unità richiesta: 500 KB conta come 1M, che non è minore di 1M.</li>
+<li>Impedisce a <code translate="no">find</code> di scendere in quella cartella. Con <code translate="no">-o</code>, senza il <code translate="no">-print</code> esplicito, il risultato include la cartella potata stessa.</li>
+<li><code translate="no">-</code> richiede tutti i bit indicati. <code translate="no">/</code> ne accetta uno qualsiasi.</li>
+<li>Lanciare la riga completa con <code translate="no">-print</code>, controllare e solo allora sostituirlo con l'azione.</li>
+<li><code translate="no">sudo find / -xdev -nouser -ls</code>.</li></ol>
+</article><nav class="paginas" aria-label="Lezioni"><a class="ant" href="8.1-fhs-e-onde-cada-coisa-mora.it.html"><small>← Precedente</small>8.1 · FHS e dove sta ogni cosa</a><a class="prox" href="8.3-arquivamento-avancado.it.html"><small>Successiva →</small>8.3 · Archiviazione avanzata</a></nav></main></div>
+<footer><div class="wrap">Generato dal Markdown del corso · Immagini in <code translate="no">img/</code></div></footer>
+</body>
+</html>

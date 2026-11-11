@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light dark">
+<title>9.1 · Discos e layout · Curso Linux Sysadmin</title>
+<link rel="alternate" hreflang="pt-BR" href="9.1-discos-e-layout.html"><link rel="alternate" hreflang="it" href="9.1-discos-e-layout.it.html">
+<style>
+:root{color-scheme:light dark;--bg:#f6f1e7;--card:#fffdf8;--ink:#201c16;--muted:#5e564a;--accent:#9a3412;--accent-2:#1f5f4a;--tint:#efe6d4;--line:#ddd2bc;--code:#f1eadb;--shadow:0 1px 2px rgba(60,40,10,.08);--serif:Georgia,"Iowan Old Style","Palatino Linotype",Palatino,serif;--sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--mono:"Cascadia Code",Consolas,"DejaVu Sans Mono",monospace}
+@media (prefers-color-scheme:dark){:root{--bg:#16130f;--card:#201b15;--ink:#f1eadb;--muted:#b9ad98;--accent:#f0a070;--accent-2:#7fd0b0;--tint:#2a231a;--line:#3d3427;--code:#191510;--shadow:none}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:5.5rem}
+body{margin:0;background:var(--bg);color:var(--ink);font:1rem/1.6 var(--sans)}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--accent-2);outline-offset:2px;border-radius:4px}
+.pular{position:absolute;left:-999px;top:0;background:var(--card);padding:.5rem 1rem;z-index:20}
+.pular:focus{left:.5rem;top:.5rem}
+.wrap{width:100%;max-width:84rem;margin:0 auto;padding-inline:max(1rem,env(safe-area-inset-left))}
+.top{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10;border-top:6px solid var(--accent)}
+.top-in{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding-block:.6rem}
+.titles{min-width:0}
+.marca{margin:0;font:700 clamp(1.15rem,1rem + 1vw,1.6rem)/1.15 var(--serif);letter-spacing:-.01em}
+.marca a{text-decoration:none}
+.marca a:hover{color:var(--accent)}
+.meta{margin:.1rem 0 0;color:var(--muted);font-size:.85rem}
+.acoes{display:flex;align-items:center;gap:.9rem;flex:none}
+.acoes>a{font-size:.9rem;font-weight:600;color:var(--muted);text-decoration:none}
+.acoes>a:hover{color:var(--accent);text-decoration:underline}
+.idioma{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--tint)}
+.idioma>*{padding:.35rem .9rem;font-size:.8rem;font-weight:700;letter-spacing:.06em;text-decoration:none;color:var(--muted);min-width:2.75rem;text-align:center}
+.idioma a:hover{color:var(--accent);text-decoration:underline}
+.idioma span{background:var(--accent);color:#fff}
+@media (prefers-color-scheme:dark){.idioma span{color:#16130f}}
+code{font-family:var(--mono);font-size:.9em;background:var(--tint);padding:.1rem .35rem;border-radius:4px;overflow-wrap:anywhere}
+/* índice */
+.capa{max-width:70rem;padding-block:2rem 3rem}
+.stats{border-left:4px solid var(--accent-2);background:var(--card);border-radius:0 10px 10px 0;padding:1rem 1.25rem;margin:0 0 2.5rem;box-shadow:var(--shadow);color:var(--muted)}
+.stats strong{color:var(--ink)}
+.modulo{display:grid;grid-template-columns:15rem minmax(0,1fr);gap:1rem 2rem;padding:1.75rem 0;border-top:1px solid var(--line)}
+.modulo h2{margin:0;font:700 1.25rem/1.25 var(--serif);align-self:start;position:sticky;top:6rem}
+.mn{display:block;font:700 .8rem var(--mono);letter-spacing:.12em;color:var(--accent);margin-bottom:.25rem}
+.sep{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.modulo ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,17rem),1fr));gap:.75rem}
+.modulo li{margin:0}
+.modulo a{display:flex;gap:.45rem;align-items:baseline;height:100%;padding:.85rem 1rem;background:var(--card);border:1px solid var(--line);border-radius:10px;text-decoration:none;font-weight:600;line-height:1.35;box-shadow:var(--shadow);transition:border-color .15s,transform .15s}
+.modulo a:hover{border-color:var(--accent);color:var(--accent)}
+.num{font:700 .85rem var(--mono);color:var(--accent);white-space:nowrap}
+/* aula */
+.doc{display:grid;grid-template-columns:17rem minmax(0,1fr);gap:2.5rem;align-items:start;padding-block:2rem 3rem}
+.lateral{position:sticky;top:5.5rem;max-height:calc(100vh - 6.5rem);overflow:auto;font-size:.875rem;padding-right:.5rem}
+.lateral h2{margin:0 0 .25rem;font:700 .95rem var(--serif);color:var(--muted)}
+.lateral h3{margin:1rem 0 .25rem;font:700 .75rem var(--mono);letter-spacing:.06em;color:var(--accent)}
+.lateral ul{list-style:none;margin:0;padding:0}
+.lateral a{display:flex;gap:.45rem;padding:.25rem .5rem;border-radius:6px;text-decoration:none;color:var(--muted);line-height:1.3}
+.lateral a:hover{background:var(--tint);color:var(--ink)}
+.lateral a[aria-current]{background:var(--tint);color:var(--ink);font-weight:700;box-shadow:inset 3px 0 0 var(--accent)}
+.lateral .num{font-size:.75rem}
+.aula{min-width:0;max-width:56rem;overflow-wrap:break-word;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:clamp(1.25rem,1rem + 2vw,2.75rem);box-shadow:var(--shadow)}
+.aula h1{margin:0 0 1.5rem;font:700 clamp(1.75rem,1.4rem + 1.6vw,2.5rem)/1.15 var(--serif);letter-spacing:-.015em;color:var(--ink)}
+.aula h2{margin:2.5rem 0 .75rem;padding-top:1.25rem;border-top:1px solid var(--line);font:700 1.5rem/1.25 var(--serif)}
+.aula h3{margin:2rem 0 .5rem;font:700 1.15rem/1.3 var(--serif);color:var(--accent)}
+.aula h4,.aula h5,.aula h6{margin:1.5rem 0 .5rem;font-size:1rem}
+.aula p,.aula ul,.aula ol{margin:1rem 0}
+.aula ul,.aula ol{padding-left:1.5rem}
+.aula li{margin:.35rem 0}
+.aula li>ul,.aula li>ol{margin:.35rem 0}
+.aula a{color:var(--accent);text-underline-offset:2px}
+.aula hr{border:0;border-top:1px solid var(--line);margin:2rem 0}
+.tabela{overflow-x:auto;margin:1.25rem 0;border:1px solid var(--line);border-radius:10px}
+.aula table{width:100%;border-collapse:collapse;font-size:.9rem}
+.aula th,.aula td{padding:.55rem .75rem;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+.aula tr:last-child td{border-bottom:0}
+.aula th{background:var(--tint);font-weight:700}
+.aula pre{background:var(--code);border:1px solid var(--line);border-radius:10px;padding:.9rem 1rem;overflow-x:auto;font:.85rem/1.5 var(--mono);margin:1rem 0;tab-size:4}
+.aula pre code{background:none;padding:0;font-size:inherit;overflow-wrap:normal}
+.aula blockquote{margin:1.25rem 0;padding:.75rem 1.25rem;border-left:4px solid var(--accent-2);background:var(--tint);border-radius:0 10px 10px 0}
+.aula blockquote>:first-child{margin-top:0}
+.aula blockquote>:last-child{margin-bottom:0}
+.aula figure{margin:1.75rem 0;text-align:center}
+.aula figure img{display:block;margin:0 auto;max-width:100%;height:auto;border:1px solid var(--line);border-radius:10px;background:#fff}
+.aula figcaption{margin-top:.5rem;color:var(--muted);font-size:.9rem;font-style:italic}
+.paginas{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:2.5rem;padding-top:1.5rem;border-top:1px solid var(--line)}
+.paginas a{display:block;padding:.75rem 1rem;border:1px solid var(--line);border-radius:10px;text-decoration:none;color:var(--ink);font-weight:600;line-height:1.3}
+.paginas a:hover{border-color:var(--accent);color:var(--accent)}
+.paginas small{display:block;color:var(--muted);font-weight:400}
+.paginas .prox{grid-column:2;text-align:right}
+footer{border-top:1px solid var(--line);padding-block:1.5rem;color:var(--muted);font-size:.85rem;text-align:center}
+@media (hover:hover) and (prefers-reduced-motion:no-preference){.modulo a:hover{transform:translateY(-2px)}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+@media (max-width:980px){.doc{grid-template-columns:minmax(0,1fr);padding-top:1rem}.lateral{position:static;max-height:none;order:2}.aula{max-width:none}}
+@media (max-width:860px){.modulo{grid-template-columns:minmax(0,1fr)}.modulo h2{position:static}.mn{display:inline;margin-right:.5rem}}
+@media (max-width:420px){.meta{display:none}.top-in{gap:.5rem}.acoes{gap:.6rem}.capa{padding-top:1.25rem}.paginas{grid-template-columns:minmax(0,1fr)}.paginas .prox{grid-column:1}}
+@media print{.top,.lateral,.paginas{display:none}.aula{border:0;box-shadow:none;padding:0;max-width:none}.doc{display:block}}
+</style>
+</head>
+<body>
+<a class="pular" href="#conteudo">Pular para o conteúdo</a>
+<header class="top"><div class="wrap top-in"><div class="titles"><p class="marca"><a href="index.html">Curso Linux Sysadmin</a></p><p class="meta">Rodrigo Antignani · Aula 9.1</p></div><div class="acoes"><a href="index.html">Índice</a><div class="idioma" role="group" aria-label="Idioma"><span aria-current="true">PT</span><a href="9.1-discos-e-layout.it.html" hreflang="it" lang="it">IT</a></div></div></div></header>
+<div class="wrap doc"><aside class="lateral" aria-label="Aulas"><h2>Aulas</h2><h3>M0 · Laboratório</h3><ul><li><a href="0.1-montar-o-laboratorio.html"><span class="num">0.1</span><span>Montar o laboratório</span></a></li><li><a href="0.2-acesso-e-protecao.html"><span class="num">0.2</span><span>Acesso e proteção</span></a></li></ul><h3>M1 · Linha de comando</h3><ul><li><a href="1.1-o-que-e-linux.html"><span class="num">1.1</span><span>O que é Linux</span></a></li><li><a href="1.2-o-shell-e-a-ajuda.html"><span class="num">1.2</span><span>O shell e a ajuda</span></a></li><li><a href="1.3-caminhos-e-navegacao.html"><span class="num">1.3</span><span>Caminhos e navegação</span></a></li><li><a href="1.4-criar-copiar-mover-e-apagar.html"><span class="num">1.4</span><span>Criar, copiar, mover e apagar</span></a></li><li><a href="1.5-ler-e-procurar-texto.html"><span class="num">1.5</span><span>Ler e procurar texto</span></a></li><li><a href="1.6-redirecionamentos-e-pipes.html"><span class="num">1.6</span><span>Redirecionamentos e pipes</span></a></li><li><a href="1.7-arquivar-e-compactar.html"><span class="num">1.7</span><span>Arquivar e compactar</span></a></li><li><a href="1.8-primeiro-script.html"><span class="num">1.8</span><span>Primeiro script</span></a></li><li><a href="1.9-decidir-e-repetir.html"><span class="num">1.9</span><span>Decidir e repetir</span></a></li><li><a href="1.10-software-livre-na-pratica.html"><span class="num">1.10</span><span>Software livre na prática</span></a></li></ul><h3>M2 · Sistema, usuários e permissões</h3><ul><li><a href="2.1-instalacao-e-provisionamento.html"><span class="num">2.1</span><span>Instalação e provisionamento</span></a></li><li><a href="2.2-hardware-e-dispositivos.html"><span class="num">2.2</span><span>Hardware e dispositivos</span></a></li><li><a href="2.3-processos-e-logs.html"><span class="num">2.3</span><span>Processos e logs</span></a></li><li><a href="2.4-rede-no-dia-a-dia.html"><span class="num">2.4</span><span>Rede no dia a dia</span></a></li><li><a href="2.5-acesso-remoto-e-privilegios.html"><span class="num">2.5</span><span>Acesso remoto e privilégios</span></a></li><li><a href="2.6-usuarios-e-grupos.html"><span class="num">2.6</span><span>Usuários e grupos</span></a></li><li><a href="2.7-permissoes-e-dono.html"><span class="num">2.7</span><span>Permissões e dono</span></a></li><li><a href="2.8-diretorios-e-arquivos-especiais.html"><span class="num">2.8</span><span>Diretórios e arquivos especiais</span></a></li></ul><h3>M3 · Texto e editor</h3><ul><li><a href="3.1-fluxos-a-fundo.html"><span class="num">3.1</span><span>Fluxos a fundo</span></a></li><li><a href="3.2-filtros-de-texto.html"><span class="num">3.2</span><span>Filtros de texto</span></a></li><li><a href="3.3-regex-e-grep.html"><span class="num">3.3</span><span>Regex e grep</span></a></li><li><a href="3.4-sed-e-awk.html"><span class="num">3.4</span><span>sed e awk</span></a></li><li><a href="3.5-vi-e-vim-de-verdade.html"><span class="num">3.5</span><span>vi e vim de verdade</span></a></li></ul><h3>M4 · systemd e boot</h3><ul><li><a href="4.1-como-o-linux-liga.html"><span class="num">4.1</span><span>Como o Linux liga</span></a></li><li><a href="4.2-systemd-servicos-e-units.html"><span class="num">4.2</span><span>systemd: serviços e units</span></a></li><li><a href="4.3-targets-desligar-e-reiniciar.html"><span class="num">4.3</span><span>Targets: desligar e reiniciar</span></a></li><li><a href="4.4-grub-e-acesso-de-emergencia.html"><span class="num">4.4</span><span>GRUB e acesso de emergência</span></a></li></ul><h3>M5 · Kernel, módulos e VM</h3><ul><li><a href="5.1-hardware-pelo-kernel.html"><span class="num">5.1</span><span>Hardware pelo kernel</span></a></li><li><a href="5.2-modulos-e-parametros.html"><span class="num">5.2</span><span>Módulos e parâmetros</span></a></li><li><a href="5.3-linux-como-convidado.html"><span class="num">5.3</span><span>Linux como convidado</span></a></li></ul><h3>M6 · Pacotes e repositórios</h3><ul><li><a href="6.1-pacotes-no-debian.html"><span class="num">6.1</span><span>Pacotes no Debian</span></a></li><li><a href="6.2-pacotes-na-rocky.html"><span class="num">6.2</span><span>Pacotes na Rocky</span></a></li><li><a href="6.3-repositorios.html"><span class="num">6.3</span><span>Repositórios</span></a></li><li><a href="6.4-flatpak.html"><span class="num">6.4</span><span>Flatpak</span></a></li><li><a href="6.5-bibliotecas-compartilhadas.html"><span class="num">6.5</span><span>Bibliotecas compartilhadas</span></a></li></ul><h3>M7 · Processos e desempenho</h3><ul><li><a href="7.1-processos-e-sinais.html"><span class="num">7.1</span><span>Processos e sinais</span></a></li><li><a href="7.2-jobs-e-sessoes.html"><span class="num">7.2</span><span>Jobs e sessões</span></a></li><li><a href="7.3-prioridade-e-perfis.html"><span class="num">7.3</span><span>Prioridade e perfis</span></a></li></ul><h3>M8 · Arquivos a fundo</h3><ul><li><a href="8.1-fhs-e-onde-cada-coisa-mora.html"><span class="num">8.1</span><span>FHS e onde cada coisa mora</span></a></li><li><a href="8.2-find-a-fundo.html"><span class="num">8.2</span><span>find a fundo</span></a></li><li><a href="8.3-arquivamento-avancado.html"><span class="num">8.3</span><span>Arquivamento avançado</span></a></li><li><a href="8.4-links.html"><span class="num">8.4</span><span>Links</span></a></li><li><a href="8.5-permissoes-avancadas.html"><span class="num">8.5</span><span>Permissões avançadas</span></a></li></ul><h3>M9 · Armazenamento</h3><ul><li><a href="9.1-discos-e-layout.html" aria-current="page"><span class="num">9.1</span><span>Discos e layout</span></a></li><li><a href="9.2-particionar.html"><span class="num">9.2</span><span>Particionar</span></a></li><li><a href="9.3-sistemas-de-arquivos.html"><span class="num">9.3</span><span>Sistemas de arquivos</span></a></li><li><a href="9.4-montar-e-persistir.html"><span class="num">9.4</span><span>Montar e persistir</span></a></li><li><a href="9.5-integridade-e-espaco.html"><span class="num">9.5</span><span>Integridade e espaço</span></a></li><li><a href="9.6-lvm.html"><span class="num">9.6</span><span>LVM</span></a></li><li><a href="9.7-crescer-sem-destruir.html"><span class="num">9.7</span><span>Crescer sem destruir</span></a></li></ul></aside><main id="conteudo" class="aula"><article><h1>Aula 9.1 · Discos e layout</h1>
+<p>No Windows, você abre o Gerenciamento de Disco, vê "Disco 1" e uma letra de unidade, e o resto parece natural. No Linux, o mesmo disco tem vários nomes, e escolher o nome errado antes de um <code translate="no">mkfs</code> apaga o disco errado. Nesta aula você faz o backup que o módulo exige, amplia o disco <code translate="no">scsi1</code> que a aula 2.2 deixou nas duas VMs, aprende a ler o layout do disco do sistema e a identificar o disco de laboratório sem erro. Nada é gravado nele.</p>
+<blockquote><p><strong>Núcleo desta aula:</strong> saber a diferença entre MBR e GPT; conhecer os nomes de um disco (<code translate="no">sdX</code>, <code translate="no">by-id</code>, <code translate="no">by-uuid</code>, <code translate="no">by-path</code>, <code translate="no">by-partuuid</code>); ler um layout com <code translate="no">lsblk -f</code>, <code translate="no">blkid</code>, <code translate="no">fdisk -l</code> e <code translate="no">parted -l</code>; e identificar o alvo pelo <code translate="no">by-id</code> antes de qualquer comando destrutivo. O resto é aprofundamento.</p></blockquote>
+<div class="tabela"><table><thead><tr><th scope="col">Ficha</th><th scope="col"></th></tr></thead><tbody><tr><td><strong>Módulo</strong></td><td>M9 · Armazenamento, aula 1 de 7</td></tr><tr><td><strong>Quando</strong></td><td>Semana 13</td></tr><tr><td><strong>Ao final</strong></td><td>Você lê o layout de qualquer disco, identifica o <code translate="no">scsi1</code> (agora com 4 GiB) com segurança e deixa o plano das partições escrito</td></tr><tr><td><strong>Pré-requisitos</strong></td><td>Aulas 0.1, 0.2, 2.2 e 8.1</td></tr><tr><td><strong>Tempo</strong></td><td>cerca de 2h</td></tr><tr><td><strong>Snapshots</strong></td><td><code translate="no">m9a1-inicio</code> e <code translate="no">m9a1-fim</code> na rocky-lab e na debian-lab</td></tr></tbody></table></div>
+<h2 id="1-aquecimento">1 · Aquecimento</h2>
+<p>Responda antes de ler.</p>
+<ol><li>Um disco aparece como <code translate="no">/dev/sdb</code>. Você pode confiar que, depois de um reboot, ele continua <code translate="no">sdb</code>?</li>
+<li>Qual é o limite de tamanho de um disco com tabela de partições MBR?</li>
+<li>O que <code translate="no">lsblk</code> mostra que <code translate="no">df -h</code> não mostra?</li></ol>
+<h2 id="2-por-que-importa">2 · Por que importa</h2>
+<div class="tabela"><table><thead><tr><th scope="col">O chamado</th><th scope="col">A resposta errada</th><th scope="col">O que ela causa</th></tr></thead><tbody><tr><td>"Adicionei um disco na VM, formate para mim"</td><td><code translate="no">mkfs</code> em <code translate="no">/dev/sdb</code>, sem conferir</td><td>Em outra máquina, o <code translate="no">sdb</code> era um disco com dados</td></tr><tr><td>"O script de backup parou de achar o disco"</td><td>Trocar <code translate="no">sdb</code> por <code translate="no">sdc</code> no script</td><td>Na próxima mudança de ordem quebra de novo</td></tr><tr><td>"O disco de 4 TB só mostra 2 TB"</td><td>Comprar outro disco</td><td>A tabela era MBR; precisava ser GPT</td></tr><tr><td>"A VM não sobe depois de mexer no disco"</td><td>Reinstalar</td><td>Faltava a partição EFI ou o fstab apontava para um nome que mudou</td></tr></tbody></table></div>
+<h2 id="3-modelo-mental">3 · Modelo mental</h2>
+<blockquote><p>Um disco é um <strong>terreno</strong>, e a tabela de partições é a <strong>planta de loteamento</strong>: ela diz onde cada lote começa e termina. O sistema de arquivos é a <strong>casa construída</strong> em cada lote (aula 9.3). O nome <code translate="no">/dev/sdb</code> é o <strong>número do terreno na fila de entrega</strong>: pode mudar de uma visita para a outra. O <code translate="no">by-id</code> é a <strong>matrícula do cartório</strong>: identifica o terreno pela vida inteira.</p></blockquote>
+<pre translate="no"><code>disco inteiro        /dev/sdb              ← by-id: scsi-0QEMU_QEMU_HARDDISK_drive-scsi1
+ └─ tabela           GPT ou MBR            ← a planta do loteamento
+     ├─ partição 1   /dev/sdb1             ← by-partuuid, e by-uuid depois do mkfs
+     ├─ partição 2   /dev/sdb2
+     └─ espaço livre                       ← sem lote, sem casa
+          └─ dentro de cada partição: sistema de arquivos, swap ou PV do LVM</code></pre>
+<h3 id="ponte-windows">Ponte Windows</h3>
+<div class="tabela"><table><thead><tr><th scope="col">No Windows</th><th scope="col">No Linux</th><th scope="col">Onde a comparação engana</th></tr></thead><tbody><tr><td>Gerenciamento de Disco</td><td><code translate="no">lsblk</code>, <code translate="no">fdisk -l</code>, <code translate="no">parted -l</code></td><td>No Linux, você lê no terminal, e o mesmo comando serve no servidor sem tela</td></tr><tr><td><code translate="no">diskpart</code>: <code translate="no">list disk</code>, <code translate="no">select disk 1</code></td><td><code translate="no">fdisk</code> ou <code translate="no">parted</code> apontando para um dispositivo</td><td>O número do disco no <code translate="no">diskpart</code> também muda; aqui o <code translate="no">by-id</code> é o seguro</td></tr><tr><td><code translate="no">convert gpt</code></td><td><code translate="no">fdisk</code>, <code translate="no">gdisk</code>, <code translate="no">parted</code> (aula 9.2)</td><td>Tabela nova apaga as partições antigas, nos dois</td></tr><tr><td>Letra de unidade (<code translate="no">D:</code>)</td><td>Ponto de montagem (<code translate="no">/srv/dados</code>)</td><td>Não existe letra: o disco entra numa pasta (aula 9.4)</td></tr></tbody></table></div>
+<h2 id="4-o-essencial">4 · O essencial</h2>
+<h3 id="gb-gib-uma-vez">GB × GiB, uma vez</h3>
+<p>O Proxmox e o <code translate="no">fdisk</code> contam em potências de 1024: 1 GiB são 1.073.741.824 bytes. O <code translate="no">parted</code> e os fabricantes contam em potências de 1000. Por isso o disco de 4 GiB aparece no <code translate="no">parted</code> como <code translate="no">4295MB</code>. Escreva <code translate="no">GiB</code> e <code translate="no">MiB</code> para ter precisão; <code translate="no">+1G</code> no <code translate="no">fdisk</code> é 1 GiB.</p>
+<h3 id="mbr-gpt">MBR × GPT</h3>
+<div class="tabela"><table><thead><tr><th scope="col"></th><th scope="col">MBR (DOS)</th><th scope="col">GPT</th></tr></thead><tbody><tr><td>Tamanho máximo do disco</td><td>2 TiB</td><td>Na prática, sem limite</td></tr><tr><td>Partições</td><td>4 primárias, ou 3 mais uma estendida com lógicas</td><td>128 por padrão</td></tr><tr><td>Cópia da tabela</td><td>Nenhuma</td><td>Cabeçalho de reserva no fim do disco</td></tr><tr><td>Identificadores</td><td>Só o número do disco</td><td>GUID do disco e de cada partição</td></tr><tr><td>Firmware</td><td>BIOS (e UEFI em modo de compatibilidade)</td><td>UEFI, e BIOS com partição <code translate="no">bios_boot</code></td></tr></tbody></table></div>
+<p>O GPT grava também um "MBR de proteção" no setor 0, para que ferramentas antigas vejam o disco como ocupado. Use GPT em disco novo. Você pratica o MBR na aula 9.2.</p>
+<p>Nas duas VMs, o disco do sistema é GPT, porque o firmware é UEFI (OVMF, aula 0.1). A primeira partição é a EFI (<code translate="no">vfat</code>, montada em <code translate="no">/boot/efi</code>): o UEFI só lê o carregador de lá.</p>
+<h3 id="os-nomes-de-um-disco">Os nomes de um disco</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Nome</th><th scope="col">Exemplo</th><th scope="col">Estável?</th><th scope="col">Use para</th></tr></thead><tbody><tr><td><code translate="no">/dev/sdX</code></td><td><code translate="no">/dev/sdb</code></td><td>Não: depende da ordem de detecção</td><td>Olhar, nunca decidir</td></tr><tr><td><code translate="no">/dev/nvmeXnY</code></td><td><code translate="no">/dev/nvme0n1p2</code></td><td>Quase</td><td>Discos NVMe (partições levam <code translate="no">p</code>)</td></tr><tr><td><code translate="no">/dev/disk/by-id/</code></td><td><code translate="no">scsi-0QEMU_QEMU_HARDDISK_drive-scsi1</code></td><td>Sim, é o disco</td><td>Identificar o disco antes de gravar</td></tr><tr><td><code translate="no">/dev/disk/by-uuid/</code></td><td><code translate="no">5f2c...</code></td><td>Sim, é o sistema de arquivos</td><td>fstab, montagens</td></tr><tr><td><code translate="no">/dev/disk/by-partuuid/</code></td><td><code translate="no">8c1e...</code></td><td>Sim, é a partição</td><td>Quando ainda não há sistema de arquivos</td></tr></tbody></table></div>
+<p>Os nomes em <code translate="no">/dev/disk/</code> são links do <code translate="no">udev</code>. Para ver o nome real: <code translate="no">readlink -f LINK</code>.</p>
+<h3 id="comandos-de-leitura">Comandos de leitura</h3>
+<p>Todos estes comandos só leem.</p>
+<pre translate="no"><code class="lang-bash">lsblk
+lsblk -f
+lsblk -d -o NAME,SIZE,MODEL,SERIAL
+sudo blkid
+sudo fdisk -l /dev/sda
+sudo parted -l
+cat /proc/partitions</code></pre>
+<ul><li><code translate="no">lsblk</code> lista discos e partições em árvore. <code translate="no">-f</code> acrescenta sistema de arquivos, rótulo, UUID e montagem. <code translate="no">-d</code> mostra só os discos, e <code translate="no">-o</code> escolhe as colunas.</li>
+<li><code translate="no">blkid</code> mostra UUID, rótulo e tipo do que tem sistema de arquivos reconhecido. Disco vazio não aparece.</li>
+<li><code translate="no">fdisk -l DISCO</code> imprime a tabela de partições. O <code translate="no">-l</code> só lista, não grava.</li>
+<li><code translate="no">parted -l</code> faz o mesmo para todos os discos, em MB. Num disco sem tabela, escreve <code translate="no">unrecognised disk label</code>: é informação, não erro.</li>
+<li><code translate="no">/proc/partitions</code> é a lista do kernel, em blocos de 1 KiB.</li></ul>
+<h3 id="o-habito-antes-de-qualquer-comando-destrutivo">O hábito antes de qualquer comando destrutivo</h3>
+<p>Antes de <code translate="no">fdisk</code> gravando, <code translate="no">mkfs</code>, <code translate="no">wipefs</code>, <code translate="no">pvcreate</code> ou <code translate="no">dd</code>, faça sempre:</p>
+<ol><li><code translate="no">lsblk</code>: confira que o alvo não tem <code translate="no">MOUNTPOINTS</code>.</li>
+<li><code translate="no">ls -l /dev/disk/by-id/</code> e ache o disco pelo número do Proxmox (<code translate="no">drive-scsiN</code>).</li>
+<li><code translate="no">readlink -f</code> do <code translate="no">by-id</code> para saber o nome <code translate="no">sdX</code> desta vez.</li></ol>
+<h3 id="rocky-debian">Rocky × Debian</h3>
+<div class="tabela"><table><thead><tr><th scope="col"></th><th scope="col">Rocky 9</th><th scope="col">Debian 13</th></tr></thead><tbody><tr><td>Layout do instalador</td><td>EFI, <code translate="no">/boot</code> (xfs), PV do grupo <code translate="no">rl</code></td><td>EFI, <code translate="no">/boot</code> (ext4), PV do grupo <code translate="no">debian-lab-vg</code></td></tr><tr><td>LVs do sistema</td><td><code translate="no">root</code> (XFS) e <code translate="no">swap</code></td><td><code translate="no">root</code> (ext4) e <code translate="no">swap_1</code></td></tr><tr><td>Dispositivo do root</td><td><code translate="no">/dev/mapper/rl-root</code></td><td><code translate="no">/dev/mapper/debian--lab--vg-root</code></td></tr><tr><td>Conferir pacote</td><td><code translate="no">rpm -q gdisk parted</code></td><td><code translate="no">dpkg -s gdisk parted</code></td></tr></tbody></table></div>
+<p>No Debian, o hífen do nome do grupo vira <code translate="no">--</code> no mapper. O <code translate="no">lsblk -f</code> mostra isso.</p>
+<h2 id="5-lab-guiado">5 · Lab guiado</h2>
+<p><strong>Passo 0 · Snapshot, backup e pacotes.</strong> No Proxmox:</p>
+<pre translate="no"><code class="lang-bash">qm snapshot 201 m9a1-inicio
+qm snapshot 202 m9a1-inicio</code></pre>
+<p>Agora o backup que o módulo exige:</p>
+<pre translate="no"><code class="lang-bash">vzdump 201 --storage PBS-LAB --mode snapshot
+vzdump 202 --storage PBS-LAB --mode snapshot
+pvesm list PBS-LAB --vmid 201
+pvesm list PBS-LAB --vmid 202</code></pre>
+<p>O <code translate="no">--mode snapshot</code> faz o backup com a VM ligada. Cada <code translate="no">vzdump</code> leva alguns minutos. O <code translate="no">pvesm list</code> mostra uma linha por backup, com <code translate="no">pbs-vm</code> e um nome como <code translate="no">PBS-LAB:backup/vm/201/2026-11-...Z</code>. Sem linha com a data de hoje, não siga: refaça o <code translate="no">vzdump</code> e leia o erro.</p>
+<p>Lembre: <strong>snapshot não é backup</strong>. O snapshot mora no mesmo Ceph da VM, e o backup mora no PBS. Nas próximas aulas do M9, este backup é a sua rede de proteção.</p>
+<p>Na rocky-lab:</p>
+<pre translate="no"><code class="lang-bash">sudo dnf install -y gdisk parted
+rpm -q gdisk parted</code></pre>
+<p>Na debian-lab:</p>
+<pre translate="no"><code class="lang-bash">sudo apt install -y gdisk parted
+dpkg -s gdisk parted | grep -E '^(Package|Status)'</code></pre>
+<p><strong>Passo 1 · Ler o disco do sistema.</strong> Na rocky-lab:</p>
+<pre translate="no"><code class="lang-bash">lsblk -f
+sudo fdisk -l /dev/sda
+sudo parted -l
+cat /proc/partitions</code></pre>
+<p>Saída esperada do <code translate="no">lsblk -f</code> (UUIDs e tamanhos variam, os números das partições também):</p>
+<pre translate="no"><code>NAME          FSTYPE      FSVER    LABEL UUID           FSAVAIL FSUSE% MOUNTPOINTS
+sda
+├─sda1        vfat        FAT32          1A2B-3C4D       588.5M     2% /boot/efi
+├─sda2        xfs                        0f3b...         812.4M    16% /boot
+└─sda3        LVM2_member LVM2 001       Xq7p...
+  ├─rl-root   xfs                        7d91...          14.3G    16% /
+  └─rl-swap   swap        1              c04e...                       [SWAP]</code></pre>
+<p>O <code translate="no">sudo fdisk -l /dev/sda</code> mostra <code translate="no">Disklabel type: gpt</code> e as mesmas três partições, com tipos <code translate="no">EFI System</code>, <code translate="no">Linux filesystem</code> e <code translate="no">Linux LVM</code>.</p>
+<p>Leia assim: tabela GPT, três partições, e a terceira é um PV do LVM, com os LVs <code translate="no">rl-root</code> e <code translate="no">rl-swap</code> dentro. Anote qual é a EFI, qual é <code translate="no">/boot</code> e qual é o PV.</p>
+<p><strong>Passo 2 · Ampliar o disco <code translate="no">scsi1</code>.</strong> A aula 2.2 ligou um <code translate="no">scsi1</code> de 2 GiB, vazio, nas duas VMs, e disse que ele era o material do M9. Confira no Proxmox:</p>
+<pre translate="no"><code class="lang-bash">qm config 201 | grep scsi1
+qm config 202 | grep scsi1</code></pre>
+<p>Saída esperada, para cada VM:</p>
+<pre translate="no"><code>scsi1: vm-hdd:vm-201-disk-2,discard=on,iothread=1,size=2G,ssd=1</code></pre>
+<p>Os números de <code translate="no">disk-N</code> variam. Com o disco de 2 GiB lá, amplie para 4 GiB:</p>
+<pre translate="no"><code class="lang-bash">qm resize 201 scsi1 4G
+qm resize 202 scsi1 4G
+qm config 201 | grep scsi1</code></pre>
+<p>O <code translate="no">4G</code> é um tamanho <strong>absoluto</strong>: o disco passa a ter 4 GiB. Com <code translate="no">+4G</code> seria relativo, e o disco ficaria com 6 GiB. O <code translate="no">qm resize</code> só cresce: não existe encolher, e o snapshot <code translate="no">m9a1-inicio</code> não é a forma de desfazer. Pense no tamanho antes.</p>
+<p>Se o <code translate="no">scsi1</code> não existir (você pulou a 2.2 ou o apagou), crie direto com 4 GiB:</p>
+<pre translate="no"><code class="lang-bash">qm set 201 --scsi1 vm-hdd:4,discard=on,iothread=1,ssd=1
+qm set 202 --scsi1 vm-hdd:4,discard=on,iothread=1,ssd=1</code></pre>
+<p><strong>Passo 3 · Identificar e conferir o disco.</strong> Na rocky-lab:</p>
+<pre translate="no"><code class="lang-bash">lsblk -d -o NAME,SIZE,MODEL,SERIAL
+ls -l /dev/disk/by-id/ | grep scsi
+readlink -f /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_drive-scsi1</code></pre>
+<p>Saída esperada:</p>
+<pre translate="no"><code>NAME   SIZE MODEL         SERIAL
+sda     20G QEMU HARDDISK drive-scsi0
+sdb      4G QEMU HARDDISK drive-scsi1
+
+lrwxrwxrwx. 1 root root  9 ... scsi-0QEMU_QEMU_HARDDISK_drive-scsi1 -&gt; ../../sdb
+
+/dev/sdb</code></pre>
+<p>A coluna <code translate="no">SERIAL</code> repete o <code translate="no">drive-scsiN</code> do Proxmox. É assim que você liga o <code translate="no">scsi1</code> do Proxmox ao <code translate="no">sdb</code> que o Linux vê. Se o <code translate="no">SIZE</code> ainda mostra <code translate="no">2G</code>, o kernel não viu o tamanho novo: veja a Quebra 3. Agora confirme que o disco está vazio:</p>
+<pre translate="no"><code class="lang-bash">lsblk -f /dev/sdb
+sudo blkid /dev/sdb
+echo $?
+sudo wipefs /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_drive-scsi1
+sudo fdisk -l /dev/sdb
+sudo parted -l</code></pre>
+<p>O <code translate="no">lsblk -f</code> não mostra sistema de arquivos no <code translate="no">sdb</code>. O <code translate="no">blkid</code> não imprime nada, e o <code translate="no">echo $?</code> mostra <code translate="no">2</code>: nada reconhecido. O <code translate="no">wipefs</code>, sem <code translate="no">-a</code>, só lista assinaturas: sem saída, o disco está limpo. Não use <code translate="no">-a</code>. O <code translate="no">fdisk -l</code> mostra <code translate="no">Disk /dev/sdb: 4 GiB</code> e nenhuma linha de <code translate="no">Disklabel type</code>. O <code translate="no">parted -l</code> mostra <code translate="no">unrecognised disk label</code> e <code translate="no">Disk /dev/sdb: 4295MB</code>.</p>
+<p><strong>Passo 4 · Os nomes estáveis.</strong> Na rocky-lab, a regra <code translate="no">/etc/udev/rules.d/99-lab.rules</code> da aula 2.2 dá ao mesmo disco o link <code translate="no">/dev/lab-dados</code>, pelo <code translate="no">ID_SERIAL</code>. É mais um nome estável do <code translate="no">scsi1</code>, feito por você:</p>
+<pre translate="no"><code class="lang-bash">ls -l /dev/lab-dados</code></pre>
+<p>Depois, os links do <code translate="no">udev</code>:</p>
+<pre translate="no"><code class="lang-bash">ls -l /dev/disk/by-uuid/
+ls -l /dev/disk/by-partuuid/</code></pre>
+<p>O <code translate="no">by-uuid</code> lista só o que tem sistema de arquivos ou swap, e o <code translate="no">sdb</code> não aparece. O <code translate="no">by-partuuid</code> lista só partições. Compare com o <code translate="no">lsblk -f</code> e ache o UUID do <code translate="no">/boot</code>.</p>
+<p><strong>Passo 5 · O caderno.</strong> Escreva no seu caderno de erros o plano do disco novo, que você executa na aula 9.2:</p>
+<div class="tabela"><table><thead><tr><th scope="col">Item</th><th scope="col">Valor</th></tr></thead><tbody><tr><td>Disco</td><td><code translate="no">scsi1</code> (o da aula 2.2, ampliado), 4 GiB, <code translate="no">/dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_drive-scsi1</code></td></tr><tr><td>Tabela</td><td>GPT</td></tr><tr><td>Partição 1</td><td>1 GiB, depois ext4, rótulo <code translate="no">DADOS</code></td></tr><tr><td>Partição 2</td><td>1 GiB, depois XFS, rótulo <code translate="no">ARQUIVO</code></td></tr><tr><td>Partição 3</td><td>512 MiB, depois VFAT, rótulo <code translate="no">TROCA</code></td></tr><tr><td>Livre</td><td>cerca de 1,5 GiB, reservado para a aula 9.7</td></tr></tbody></table></div>
+<p><strong>Passo 6 · debian-lab.</strong> Instale os pacotes do Passo 0 e repita os passos 1, 3 e 4. A regra <code translate="no">/dev/lab-dados</code> existe só na rocky-lab: na debian-lab use o <code translate="no">by-id</code>. No Passo 1, o <code translate="no">lsblk -f</code> mostra <code translate="no">debian--lab--vg-root</code> e <code translate="no">debian--lab--vg-swap_1</code>, e o <code translate="no">/boot</code> é <code translate="no">ext4</code>.</p>
+<h3 id="decida-1">Decida 1</h3>
+<p>Um disco de 6 TB, vazio, vai para dados. Qual tabela usar?</p>
+<p>A) MBR, porque é a mais compatível. B) GPT. C) MBR com uma partição estendida.</p>
+<p>Marque uma opção antes.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se você marcou</th><th scope="col">Resultado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>A</td><td>Perde 4 TB</td><td>O MBR enxerga no máximo 2 TiB</td></tr><tr><td>B</td><td>Certo</td><td>Sem limite prático, com cabeçalho de reserva</td></tr><tr><td>C</td><td>Continua limitado</td><td>A estendida não muda o limite de tamanho</td></tr></tbody></table></div>
+<p><strong>Para fixar:</strong> disco novo é GPT.</p>
+<h3 id="decida-2">Decida 2</h3>
+<p>Num servidor físico com dois discos de 1 TB iguais, um script vai rodar <code translate="no">mkfs</code> no segundo. Como identificar o alvo?</p>
+<p>A) <code translate="no">/dev/sdb</code>, porque "é sempre o segundo". B) Pelo tamanho. C) Pelo <code translate="no">/dev/disk/by-id/</code> (modelo e série), conferindo com <code translate="no">lsblk</code>.</p>
+<p>Marque uma opção antes.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se você marcou</th><th scope="col">Resultado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>A</td><td>Risco de apagar o disco errado</td><td>A ordem muda entre boots e máquinas</td></tr><tr><td>B</td><td>Não distingue</td><td>Os dois têm o mesmo tamanho</td></tr><tr><td>C</td><td>Certo</td><td>O número de série é do disco</td></tr></tbody></table></div>
+<p><strong>Para fixar:</strong> o <code translate="no">sdX</code> é para olhar, e o <code translate="no">by-id</code> é para decidir.</p>
+<h2 id="6-quebre-e-conserte">6 · Quebre e conserte</h2>
+<h3 id="quebra-1-o-tutorial-que-mandou-formatar-o-sdb">Quebra 1 · O tutorial que mandou formatar o sdb</h3>
+<p>Um tutorial diz "rode <code translate="no">mkfs.ext4 /dev/sdb</code>". Nada é gravado aqui.</p>
+<p><strong>Sintoma:</strong> você está a um Enter de formatar <code translate="no">/dev/sdb</code>.</p>
+<p><strong>Investigação:</strong> na rocky-lab:</p>
+<pre translate="no"><code class="lang-bash">lsblk -o NAME,SIZE,SERIAL,MOUNTPOINTS /dev/sdb
+readlink -f /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_drive-scsi1</code></pre>
+<p><strong>Causa:</strong> no laboratório, <code translate="no">sdb</code> e <code translate="no">scsi1</code> coincidem hoje. Numa máquina com dois discos, nada garante isso.</p>
+<p><strong>Conserto:</strong> faça disso o seu ritual. Se o <code translate="no">sdb</code> tiver <code translate="no">MOUNTPOINTS</code> ou outro <code translate="no">SERIAL</code>, pare.</p>
+<h3 id="quebra-2-o-nome-que-so-existe-numa-vm">Quebra 2 · O nome que só existe numa VM</h3>
+<p><strong>Sintoma:</strong> na debian-lab, <code translate="no">ls -l /dev/lab-dados</code> responde <code translate="no">No such file or directory</code>, e um script copiado da rocky-lab falha.</p>
+<p><strong>Investigação:</strong> na debian-lab:</p>
+<pre translate="no"><code class="lang-bash">ls /etc/udev/rules.d/
+ls -l /dev/disk/by-id/ | grep scsi1</code></pre>
+<p><strong>Causa:</strong> o <code translate="no">/dev/lab-dados</code> é uma regra do <code translate="no">udev</code> que você criou só na rocky-lab (aula 2.2). O <code translate="no">by-id</code> é criado pelo sistema em qualquer máquina.</p>
+<p><strong>Conserto:</strong> use <code translate="no">/dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_drive-scsi1</code> nas duas VMs.</p>
+<h3 id="quebra-3-o-disco-que-nao-cresceu-dentro-da-vm">Quebra 3 · O disco que não cresceu dentro da VM</h3>
+<p><strong>Sintoma:</strong> o <code translate="no">qm config</code> mostra <code translate="no">size=4G</code>, mas o <code translate="no">lsblk</code> ainda mostra o <code translate="no">sdb</code> com <code translate="no">2G</code>.</p>
+<p><strong>Investigação:</strong> na rocky-lab:</p>
+<pre translate="no"><code class="lang-bash">lsblk -d -o NAME,SIZE,SERIAL
+cat /sys/class/block/sdb/size</code></pre>
+<p>O arquivo <code translate="no">size</code> conta setores de 512 bytes: 4 GiB são <code translate="no">8388608</code>, e 2 GiB são <code translate="no">4194304</code>.</p>
+<p><strong>Causa:</strong> o Proxmox aumentou o disco virtual, mas o kernel ainda não releu a capacidade. Com virtio-scsi isso costuma ser automático; quando não for, é preciso pedir.</p>
+<p><strong>Conserto:</strong> confira o nome com o <code translate="no">by-id</code> e peça a releitura:</p>
+<pre translate="no"><code class="lang-bash">readlink -f /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_drive-scsi1
+echo 1 | sudo tee /sys/class/block/sdb/device/rescan
+lsblk -d -o NAME,SIZE</code></pre>
+<p>Troque <code translate="no">sdb</code> pelo nome do <code translate="no">readlink</code>.</p>
+<h3 id="limpeza">Limpeza</h3>
+<p>Não há nada a apagar: nada foi gravado no disco. Confira que as duas VMs têm o <code translate="no">scsi1</code> com <code translate="no">size=4G</code>.</p>
+<h2 id="7-armadilhas">7 · Armadilhas</h2>
+<div class="tabela"><table><thead><tr><th scope="col">Armadilha</th><th scope="col">O que acontece</th><th scope="col">Como evitar</th></tr></thead><tbody><tr><td>Confiar no <code translate="no">/dev/sdX</code></td><td>Alvo errado depois de um reboot</td><td><code translate="no">by-id</code> e <code translate="no">lsblk</code> antes de gravar</td></tr><tr><td><code translate="no">qm resize</code> com <code translate="no">+</code> sem pensar</td><td>Soma ao tamanho atual, e o disco não encolhe</td><td>Tamanho absoluto (<code translate="no">4G</code>), decidido antes</td></tr></tbody></table></div>
+<h2 id="8-quiz">8 · Quiz</h2>
+<p>Responda sem olhar. O gabarito está no fim da aula.</p>
+<ol><li>Por que o <code translate="no">sdb</code> de hoje pode não ser o <code translate="no">sdb</code> de amanhã?</li>
+<li>Qual nome identifica o disco, e qual identifica o sistema de arquivos?</li>
+<li>Quantas partições primárias o MBR permite?</li>
+<li>O que <code translate="no">parted -l</code> escreve para um disco sem tabela, e isso é um erro?</li>
+<li>Qual é a ligação entre <code translate="no">drive-scsi1</code> e o Proxmox?</li>
+<li>Qual a diferença entre <code translate="no">qm resize 201 scsi1 4G</code> e <code translate="no">qm resize 201 scsi1 +4G</code>, e dá para desfazer?</li></ol>
+<h2 id="9-cola">9 · Cola</h2>
+<p><strong>Para saber de cor:</strong></p>
+<div class="tabela"><table><thead><tr><th scope="col">Quero...</th><th scope="col">Comando</th></tr></thead><tbody><tr><td>Árvore de discos</td><td><code translate="no">lsblk -f</code></td></tr><tr><td>Só os discos, com série</td><td><code translate="no">lsblk -d -o NAME,SIZE,MODEL,SERIAL</code></td></tr><tr><td>Nome real de um link</td><td><code translate="no">readlink -f LINK</code></td></tr><tr><td>Tabela de um disco</td><td><code translate="no">sudo fdisk -l /dev/sdX</code></td></tr><tr><td>Identificar pelo Proxmox</td><td><code translate="no">ls -l /dev/disk/by-id/ | grep scsi</code></td></tr></tbody></table></div>
+<p><strong>Para consultar:</strong></p>
+<div class="tabela"><table><thead><tr><th scope="col">Quero...</th><th scope="col">Comando</th></tr></thead><tbody><tr><td>Disco no Proxmox</td><td><code translate="no">qm config 201 | grep scsi1</code></td></tr><tr><td>Ampliar disco</td><td><code translate="no">qm resize 201 scsi1 4G</code></td></tr><tr><td>Reler o tamanho</td><td><code translate="no">echo 1 | sudo tee /sys/class/block/sdX/device/rescan</code></td></tr></tbody></table></div>
+<p><strong>Flashcards:</strong></p>
+<ul><li><code translate="no">sdX</code> → <em>ordem de detecção, pode mudar.</em></li>
+<li><code translate="no">by-id</code> → <em>o disco, para sempre.</em></li>
+<li><code translate="no">qm resize</code> → <em>só cresce.</em></li></ul>
+<h2 id="10-checklist-e-fechamento">10 · Checklist e fechamento</h2>
+<ul><li>[ ] Fiz o backup das duas VMs no PBS e conferi com <code translate="no">pvesm list</code></li>
+<li>[ ] Ampliei o <code translate="no">scsi1</code> da aula 2.2 para 4 GiB nas duas VMs</li>
+<li>[ ] Identifiquei o <code translate="no">scsi1</code> pelo <code translate="no">by-id</code> e confirmei que está vazio</li>
+<li>[ ] Leio um layout com <code translate="no">lsblk -f</code> e <code translate="no">fdisk -l</code></li>
+<li>[ ] Sei a diferença entre MBR e GPT</li>
+<li>[ ] Escrevi no caderno o plano do disco novo</li></ul>
+<p><strong>Último exercício, sem olhar a aula:</strong> na debian-lab, descubra qual <code translate="no">sdX</code> é o disco <code translate="no">scsi1</code>, confira o tamanho, prove que ele está vazio (três comandos de leitura) e liste os nomes <code translate="no">by-id</code> das partições do disco do sistema.</p>
+<p><strong>Snapshot de fim</strong> (no Proxmox, com o <code translate="no">scsi1</code> já ampliado):</p>
+<pre translate="no"><code class="lang-bash">qm snapshot 201 m9a1-fim
+qm snapshot 202 m9a1-fim</code></pre>
+<h2 id="11-na-vida-real">11 · Na vida real</h2>
+<p><strong>Missão, só leitura.</strong> Num servidor Linux que você administre (ou com autorização), rode <strong>apenas</strong>:</p>
+<pre translate="no"><code class="lang-bash">lsblk -f
+lsblk -d -o NAME,SIZE,MODEL,SERIAL,ROTA
+sudo fdisk -l 2&gt;/dev/null | grep -E '^(Disk /dev|Disklabel)'</code></pre>
+<p>Perguntas para responder:</p>
+<ol><li>Quantos discos físicos existem, e qual o tamanho de cada um?</li>
+<li>Cada disco usa MBR ou GPT? Algum disco grande está em MBR?</li>
+<li>Há espaço sem partição, ou um disco sem uso?</li>
+<li>O fstab usa <code translate="no">UUID=</code>, <code translate="no">LABEL=</code> ou <code translate="no">/dev/sdX</code>?</li></ol>
+<p><strong>Diário:</strong> anote o que não for claro. Não altere nada.</p>
+<p><strong>Amanhã, sem olhar:</strong> escreva os três passos do hábito antes de um comando destrutivo.</p>
+<h2 id="12-aprofundar-quando-quiser">12 · Aprofundar quando quiser</h2>
+<ul><li><strong><code translate="no">man lsblk</code>, <code translate="no">man fdisk</code>, <code translate="no">man parted</code>:</strong> colunas disponíveis e opções de leitura.</li>
+<li><strong>Red Hat Enterprise Linux 9, "Managing storage devices":</strong> a visão da Red Hat para discos e partições.</li>
+<li><strong>kernel.org, documentação do <code translate="no">Documentation/admin-guide/devices.txt</code>:</strong> a origem dos nomes <code translate="no">sd</code>, <code translate="no">vd</code> e <code translate="no">nvme</code>.</li></ul>
+<p><strong>DeepTutor</strong> (http://10.1.0.149:3782, KB "Curso Linux Sysadmin"):</p>
+<ul><li><code translate="no">!explica a diferença entre MBR e GPT</code></li>
+<li><code translate="no">!quiz Aula 9.1, 5 perguntas sobre nomes de dispositivo</code></li></ul>
+<h2 id="gabarito-comentado">Gabarito comentado</h2>
+<h3 id="aquecimento">Aquecimento</h3>
+<ol><li>Não. A ordem de detecção pode mudar entre boots, e o nome muda junto.</li>
+<li>2 TiB.</li>
+<li>A estrutura de discos e partições, inclusive o que não está montado e o que não tem sistema de arquivos. O <code translate="no">df -h</code> mostra só o que está montado.</li></ol>
+<h3 id="quiz">Quiz</h3>
+<ol><li>Porque o <code translate="no">sdX</code> é dado na ordem em que o kernel detecta os discos. Hardware novo, outro controlador ou outra ordem de inicialização trocam os nomes.</li>
+<li>O <code translate="no">by-id</code> identifica o disco. O <code translate="no">by-uuid</code> identifica o sistema de arquivos (ou o swap).</li>
+<li>Quatro. Ou três primárias e uma estendida, que contém as partições lógicas.</li>
+<li><code translate="no">unrecognised disk label</code>. Não é erro: significa que ainda não há tabela de partições.</li>
+<li>O Proxmox grava o <code translate="no">scsiN</code> do disco como número de série do disco virtual. O Linux o mostra no <code translate="no">SERIAL</code> e no nome do <code translate="no">by-id</code>.</li>
+<li>O primeiro deixa o disco com 4 GiB (absoluto); o segundo soma 4 GiB ao tamanho atual. Não dá para desfazer: o <code translate="no">qm resize</code> só cresce.</li></ol>
+</article><nav class="paginas" aria-label="Aulas"><a class="ant" href="8.5-permissoes-avancadas.html"><small>← Anterior</small>8.5 · Permissões avançadas</a><a class="prox" href="9.2-particionar.html"><small>Próxima →</small>9.2 · Particionar</a></nav></main></div>
+<footer><div class="wrap">Gerado a partir do Markdown do curso · Imagens em <code translate="no">img/</code></div></footer>
+</body>
+</html>

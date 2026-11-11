@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light dark">
+<title>8.1 · FHS e onde cada coisa mora · Curso Linux Sysadmin</title>
+<link rel="alternate" hreflang="pt-BR" href="8.1-fhs-e-onde-cada-coisa-mora.html"><link rel="alternate" hreflang="it" href="8.1-fhs-e-onde-cada-coisa-mora.it.html">
+<style>
+:root{color-scheme:light dark;--bg:#f6f1e7;--card:#fffdf8;--ink:#201c16;--muted:#5e564a;--accent:#9a3412;--accent-2:#1f5f4a;--tint:#efe6d4;--line:#ddd2bc;--code:#f1eadb;--shadow:0 1px 2px rgba(60,40,10,.08);--serif:Georgia,"Iowan Old Style","Palatino Linotype",Palatino,serif;--sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--mono:"Cascadia Code",Consolas,"DejaVu Sans Mono",monospace}
+@media (prefers-color-scheme:dark){:root{--bg:#16130f;--card:#201b15;--ink:#f1eadb;--muted:#b9ad98;--accent:#f0a070;--accent-2:#7fd0b0;--tint:#2a231a;--line:#3d3427;--code:#191510;--shadow:none}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:5.5rem}
+body{margin:0;background:var(--bg);color:var(--ink);font:1rem/1.6 var(--sans)}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--accent-2);outline-offset:2px;border-radius:4px}
+.pular{position:absolute;left:-999px;top:0;background:var(--card);padding:.5rem 1rem;z-index:20}
+.pular:focus{left:.5rem;top:.5rem}
+.wrap{width:100%;max-width:84rem;margin:0 auto;padding-inline:max(1rem,env(safe-area-inset-left))}
+.top{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10;border-top:6px solid var(--accent)}
+.top-in{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding-block:.6rem}
+.titles{min-width:0}
+.marca{margin:0;font:700 clamp(1.15rem,1rem + 1vw,1.6rem)/1.15 var(--serif);letter-spacing:-.01em}
+.marca a{text-decoration:none}
+.marca a:hover{color:var(--accent)}
+.meta{margin:.1rem 0 0;color:var(--muted);font-size:.85rem}
+.acoes{display:flex;align-items:center;gap:.9rem;flex:none}
+.acoes>a{font-size:.9rem;font-weight:600;color:var(--muted);text-decoration:none}
+.acoes>a:hover{color:var(--accent);text-decoration:underline}
+.idioma{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--tint)}
+.idioma>*{padding:.35rem .9rem;font-size:.8rem;font-weight:700;letter-spacing:.06em;text-decoration:none;color:var(--muted);min-width:2.75rem;text-align:center}
+.idioma a:hover{color:var(--accent);text-decoration:underline}
+.idioma span{background:var(--accent);color:#fff}
+@media (prefers-color-scheme:dark){.idioma span{color:#16130f}}
+code{font-family:var(--mono);font-size:.9em;background:var(--tint);padding:.1rem .35rem;border-radius:4px;overflow-wrap:anywhere}
+/* índice */
+.capa{max-width:70rem;padding-block:2rem 3rem}
+.stats{border-left:4px solid var(--accent-2);background:var(--card);border-radius:0 10px 10px 0;padding:1rem 1.25rem;margin:0 0 2.5rem;box-shadow:var(--shadow);color:var(--muted)}
+.stats strong{color:var(--ink)}
+.modulo{display:grid;grid-template-columns:15rem minmax(0,1fr);gap:1rem 2rem;padding:1.75rem 0;border-top:1px solid var(--line)}
+.modulo h2{margin:0;font:700 1.25rem/1.25 var(--serif);align-self:start;position:sticky;top:6rem}
+.mn{display:block;font:700 .8rem var(--mono);letter-spacing:.12em;color:var(--accent);margin-bottom:.25rem}
+.sep{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.modulo ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,17rem),1fr));gap:.75rem}
+.modulo li{margin:0}
+.modulo a{display:flex;gap:.45rem;align-items:baseline;height:100%;padding:.85rem 1rem;background:var(--card);border:1px solid var(--line);border-radius:10px;text-decoration:none;font-weight:600;line-height:1.35;box-shadow:var(--shadow);transition:border-color .15s,transform .15s}
+.modulo a:hover{border-color:var(--accent);color:var(--accent)}
+.num{font:700 .85rem var(--mono);color:var(--accent);white-space:nowrap}
+/* aula */
+.doc{display:grid;grid-template-columns:17rem minmax(0,1fr);gap:2.5rem;align-items:start;padding-block:2rem 3rem}
+.lateral{position:sticky;top:5.5rem;max-height:calc(100vh - 6.5rem);overflow:auto;font-size:.875rem;padding-right:.5rem}
+.lateral h2{margin:0 0 .25rem;font:700 .95rem var(--serif);color:var(--muted)}
+.lateral h3{margin:1rem 0 .25rem;font:700 .75rem var(--mono);letter-spacing:.06em;color:var(--accent)}
+.lateral ul{list-style:none;margin:0;padding:0}
+.lateral a{display:flex;gap:.45rem;padding:.25rem .5rem;border-radius:6px;text-decoration:none;color:var(--muted);line-height:1.3}
+.lateral a:hover{background:var(--tint);color:var(--ink)}
+.lateral a[aria-current]{background:var(--tint);color:var(--ink);font-weight:700;box-shadow:inset 3px 0 0 var(--accent)}
+.lateral .num{font-size:.75rem}
+.aula{min-width:0;max-width:56rem;overflow-wrap:break-word;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:clamp(1.25rem,1rem + 2vw,2.75rem);box-shadow:var(--shadow)}
+.aula h1{margin:0 0 1.5rem;font:700 clamp(1.75rem,1.4rem + 1.6vw,2.5rem)/1.15 var(--serif);letter-spacing:-.015em;color:var(--ink)}
+.aula h2{margin:2.5rem 0 .75rem;padding-top:1.25rem;border-top:1px solid var(--line);font:700 1.5rem/1.25 var(--serif)}
+.aula h3{margin:2rem 0 .5rem;font:700 1.15rem/1.3 var(--serif);color:var(--accent)}
+.aula h4,.aula h5,.aula h6{margin:1.5rem 0 .5rem;font-size:1rem}
+.aula p,.aula ul,.aula ol{margin:1rem 0}
+.aula ul,.aula ol{padding-left:1.5rem}
+.aula li{margin:.35rem 0}
+.aula li>ul,.aula li>ol{margin:.35rem 0}
+.aula a{color:var(--accent);text-underline-offset:2px}
+.aula hr{border:0;border-top:1px solid var(--line);margin:2rem 0}
+.tabela{overflow-x:auto;margin:1.25rem 0;border:1px solid var(--line);border-radius:10px}
+.aula table{width:100%;border-collapse:collapse;font-size:.9rem}
+.aula th,.aula td{padding:.55rem .75rem;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+.aula tr:last-child td{border-bottom:0}
+.aula th{background:var(--tint);font-weight:700}
+.aula pre{background:var(--code);border:1px solid var(--line);border-radius:10px;padding:.9rem 1rem;overflow-x:auto;font:.85rem/1.5 var(--mono);margin:1rem 0;tab-size:4}
+.aula pre code{background:none;padding:0;font-size:inherit;overflow-wrap:normal}
+.aula blockquote{margin:1.25rem 0;padding:.75rem 1.25rem;border-left:4px solid var(--accent-2);background:var(--tint);border-radius:0 10px 10px 0}
+.aula blockquote>:first-child{margin-top:0}
+.aula blockquote>:last-child{margin-bottom:0}
+.aula figure{margin:1.75rem 0;text-align:center}
+.aula figure img{display:block;margin:0 auto;max-width:100%;height:auto;border:1px solid var(--line);border-radius:10px;background:#fff}
+.aula figcaption{margin-top:.5rem;color:var(--muted);font-size:.9rem;font-style:italic}
+.paginas{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:2.5rem;padding-top:1.5rem;border-top:1px solid var(--line)}
+.paginas a{display:block;padding:.75rem 1rem;border:1px solid var(--line);border-radius:10px;text-decoration:none;color:var(--ink);font-weight:600;line-height:1.3}
+.paginas a:hover{border-color:var(--accent);color:var(--accent)}
+.paginas small{display:block;color:var(--muted);font-weight:400}
+.paginas .prox{grid-column:2;text-align:right}
+footer{border-top:1px solid var(--line);padding-block:1.5rem;color:var(--muted);font-size:.85rem;text-align:center}
+@media (hover:hover) and (prefers-reduced-motion:no-preference){.modulo a:hover{transform:translateY(-2px)}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+@media (max-width:980px){.doc{grid-template-columns:minmax(0,1fr);padding-top:1rem}.lateral{position:static;max-height:none;order:2}.aula{max-width:none}}
+@media (max-width:860px){.modulo{grid-template-columns:minmax(0,1fr)}.modulo h2{position:static}.mn{display:inline;margin-right:.5rem}}
+@media (max-width:420px){.meta{display:none}.top-in{gap:.5rem}.acoes{gap:.6rem}.capa{padding-top:1.25rem}.paginas{grid-template-columns:minmax(0,1fr)}.paginas .prox{grid-column:1}}
+@media print{.top,.lateral,.paginas{display:none}.aula{border:0;box-shadow:none;padding:0;max-width:none}.doc{display:block}}
+</style>
+</head>
+<body>
+<a class="pular" href="#conteudo">Pular para o conteúdo</a>
+<header class="top"><div class="wrap top-in"><div class="titles"><p class="marca"><a href="index.html">Curso Linux Sysadmin</a></p><p class="meta">Rodrigo Antignani · Aula 8.1</p></div><div class="acoes"><a href="index.html">Índice</a><div class="idioma" role="group" aria-label="Idioma"><span aria-current="true">PT</span><a href="8.1-fhs-e-onde-cada-coisa-mora.it.html" hreflang="it" lang="it">IT</a></div></div></div></header>
+<div class="wrap doc"><aside class="lateral" aria-label="Aulas"><h2>Aulas</h2><h3>M0 · Laboratório</h3><ul><li><a href="0.1-montar-o-laboratorio.html"><span class="num">0.1</span><span>Montar o laboratório</span></a></li><li><a href="0.2-acesso-e-protecao.html"><span class="num">0.2</span><span>Acesso e proteção</span></a></li></ul><h3>M1 · Linha de comando</h3><ul><li><a href="1.1-o-que-e-linux.html"><span class="num">1.1</span><span>O que é Linux</span></a></li><li><a href="1.2-o-shell-e-a-ajuda.html"><span class="num">1.2</span><span>O shell e a ajuda</span></a></li><li><a href="1.3-caminhos-e-navegacao.html"><span class="num">1.3</span><span>Caminhos e navegação</span></a></li><li><a href="1.4-criar-copiar-mover-e-apagar.html"><span class="num">1.4</span><span>Criar, copiar, mover e apagar</span></a></li><li><a href="1.5-ler-e-procurar-texto.html"><span class="num">1.5</span><span>Ler e procurar texto</span></a></li><li><a href="1.6-redirecionamentos-e-pipes.html"><span class="num">1.6</span><span>Redirecionamentos e pipes</span></a></li><li><a href="1.7-arquivar-e-compactar.html"><span class="num">1.7</span><span>Arquivar e compactar</span></a></li><li><a href="1.8-primeiro-script.html"><span class="num">1.8</span><span>Primeiro script</span></a></li><li><a href="1.9-decidir-e-repetir.html"><span class="num">1.9</span><span>Decidir e repetir</span></a></li><li><a href="1.10-software-livre-na-pratica.html"><span class="num">1.10</span><span>Software livre na prática</span></a></li></ul><h3>M2 · Sistema, usuários e permissões</h3><ul><li><a href="2.1-instalacao-e-provisionamento.html"><span class="num">2.1</span><span>Instalação e provisionamento</span></a></li><li><a href="2.2-hardware-e-dispositivos.html"><span class="num">2.2</span><span>Hardware e dispositivos</span></a></li><li><a href="2.3-processos-e-logs.html"><span class="num">2.3</span><span>Processos e logs</span></a></li><li><a href="2.4-rede-no-dia-a-dia.html"><span class="num">2.4</span><span>Rede no dia a dia</span></a></li><li><a href="2.5-acesso-remoto-e-privilegios.html"><span class="num">2.5</span><span>Acesso remoto e privilégios</span></a></li><li><a href="2.6-usuarios-e-grupos.html"><span class="num">2.6</span><span>Usuários e grupos</span></a></li><li><a href="2.7-permissoes-e-dono.html"><span class="num">2.7</span><span>Permissões e dono</span></a></li><li><a href="2.8-diretorios-e-arquivos-especiais.html"><span class="num">2.8</span><span>Diretórios e arquivos especiais</span></a></li></ul><h3>M3 · Texto e editor</h3><ul><li><a href="3.1-fluxos-a-fundo.html"><span class="num">3.1</span><span>Fluxos a fundo</span></a></li><li><a href="3.2-filtros-de-texto.html"><span class="num">3.2</span><span>Filtros de texto</span></a></li><li><a href="3.3-regex-e-grep.html"><span class="num">3.3</span><span>Regex e grep</span></a></li><li><a href="3.4-sed-e-awk.html"><span class="num">3.4</span><span>sed e awk</span></a></li><li><a href="3.5-vi-e-vim-de-verdade.html"><span class="num">3.5</span><span>vi e vim de verdade</span></a></li></ul><h3>M4 · systemd e boot</h3><ul><li><a href="4.1-como-o-linux-liga.html"><span class="num">4.1</span><span>Como o Linux liga</span></a></li><li><a href="4.2-systemd-servicos-e-units.html"><span class="num">4.2</span><span>systemd: serviços e units</span></a></li><li><a href="4.3-targets-desligar-e-reiniciar.html"><span class="num">4.3</span><span>Targets: desligar e reiniciar</span></a></li><li><a href="4.4-grub-e-acesso-de-emergencia.html"><span class="num">4.4</span><span>GRUB e acesso de emergência</span></a></li></ul><h3>M5 · Kernel, módulos e VM</h3><ul><li><a href="5.1-hardware-pelo-kernel.html"><span class="num">5.1</span><span>Hardware pelo kernel</span></a></li><li><a href="5.2-modulos-e-parametros.html"><span class="num">5.2</span><span>Módulos e parâmetros</span></a></li><li><a href="5.3-linux-como-convidado.html"><span class="num">5.3</span><span>Linux como convidado</span></a></li></ul><h3>M6 · Pacotes e repositórios</h3><ul><li><a href="6.1-pacotes-no-debian.html"><span class="num">6.1</span><span>Pacotes no Debian</span></a></li><li><a href="6.2-pacotes-na-rocky.html"><span class="num">6.2</span><span>Pacotes na Rocky</span></a></li><li><a href="6.3-repositorios.html"><span class="num">6.3</span><span>Repositórios</span></a></li><li><a href="6.4-flatpak.html"><span class="num">6.4</span><span>Flatpak</span></a></li><li><a href="6.5-bibliotecas-compartilhadas.html"><span class="num">6.5</span><span>Bibliotecas compartilhadas</span></a></li></ul><h3>M7 · Processos e desempenho</h3><ul><li><a href="7.1-processos-e-sinais.html"><span class="num">7.1</span><span>Processos e sinais</span></a></li><li><a href="7.2-jobs-e-sessoes.html"><span class="num">7.2</span><span>Jobs e sessões</span></a></li><li><a href="7.3-prioridade-e-perfis.html"><span class="num">7.3</span><span>Prioridade e perfis</span></a></li></ul><h3>M8 · Arquivos a fundo</h3><ul><li><a href="8.1-fhs-e-onde-cada-coisa-mora.html" aria-current="page"><span class="num">8.1</span><span>FHS e onde cada coisa mora</span></a></li><li><a href="8.2-find-a-fundo.html"><span class="num">8.2</span><span>find a fundo</span></a></li><li><a href="8.3-arquivamento-avancado.html"><span class="num">8.3</span><span>Arquivamento avançado</span></a></li><li><a href="8.4-links.html"><span class="num">8.4</span><span>Links</span></a></li><li><a href="8.5-permissoes-avancadas.html"><span class="num">8.5</span><span>Permissões avançadas</span></a></li></ul><h3>M9 · Armazenamento</h3><ul><li><a href="9.1-discos-e-layout.html"><span class="num">9.1</span><span>Discos e layout</span></a></li><li><a href="9.2-particionar.html"><span class="num">9.2</span><span>Particionar</span></a></li><li><a href="9.3-sistemas-de-arquivos.html"><span class="num">9.3</span><span>Sistemas de arquivos</span></a></li><li><a href="9.4-montar-e-persistir.html"><span class="num">9.4</span><span>Montar e persistir</span></a></li><li><a href="9.5-integridade-e-espaco.html"><span class="num">9.5</span><span>Integridade e espaço</span></a></li><li><a href="9.6-lvm.html"><span class="num">9.6</span><span>LVM</span></a></li><li><a href="9.7-crescer-sem-destruir.html"><span class="num">9.7</span><span>Crescer sem destruir</span></a></li></ul></aside><main id="conteudo" class="aula"><article><h1>Aula 8.1 · FHS e onde cada coisa mora</h1>
+<p>Num servidor que você nunca viu, o tempo até a primeira resposta depende de saber onde olhar. O Linux tem um mapa, o FHS, e quem o conhece acha configuração, log e dado sem procurar às cegas. Nesta aula você aprende esse mapa e descobre qual programa roda de verdade quando digita um comando.</p>
+<blockquote><p><strong>Núcleo desta aula:</strong> saber o papel de <code translate="no">/etc</code>, <code translate="no">/var</code>, <code translate="no">/usr</code>, <code translate="no">/opt</code>, <code translate="no">/srv</code>, <code translate="no">/tmp</code> e <code translate="no">/run</code>; distinguir o que é disco do que é virtual; decidir onde colocar cada coisa; descobrir o dono de um arquivo; usar <code translate="no">type</code>, <code translate="no">which</code>, <code translate="no">whereis</code> e <code translate="no">locate</code> sabendo o que cada um enxerga. O resto é aprofundamento.</p></blockquote>
+<div class="tabela"><table><thead><tr><th scope="col">Ficha</th><th scope="col"></th></tr></thead><tbody><tr><td><strong>Módulo</strong></td><td>M8 · Arquivos a fundo, aula 1 de 5</td></tr><tr><td><strong>Quando</strong></td><td>Semana 12</td></tr><tr><td><strong>Ao final</strong></td><td>Você chega a um servidor desconhecido e encontra configuração, logs, dados e o dono de cada arquivo</td></tr><tr><td><strong>Pré-requisitos</strong></td><td>Aulas 1.3, 6.1 e 6.2</td></tr><tr><td><strong>Tempo</strong></td><td>cerca de 1h30</td></tr><tr><td><strong>Snapshots</strong></td><td><code translate="no">m8a1-inicio</code> e <code translate="no">m8a1-fim</code> na rocky-lab e na debian-lab</td></tr></tbody></table></div>
+<h2 id="1-aquecimento">1 · Aquecimento</h2>
+<p>Responda antes de ler.</p>
+<ol><li>Em qual pasta fica a configuração da máquina? E os dados que mudam?</li>
+<li>Um arquivo salvo em <code translate="no">/tmp</code> sobrevive ao reboot?</li>
+<li>Se o <code translate="no">which</code> não mostra um comando, ele não existe?</li></ol>
+<h2 id="2-por-que-importa">2 · Por que importa</h2>
+<div class="tabela"><table><thead><tr><th scope="col">O chamado</th><th scope="col">A resposta errada</th><th scope="col">O que ela causa</th></tr></thead><tbody><tr><td>"O disco encheu"</td><td>Apagar o que parece grande em <code translate="no">/usr</code></td><td>Quebra programas. O crescimento normal está em <code translate="no">/var</code></td></tr><tr><td>"Atualizei e a minha configuração sumiu"</td><td>Culpar o pacote</td><td>Alguém editou em <code translate="no">/usr/lib</code>, que pertence ao pacote. A alteração deveria estar em <code translate="no">/etc</code></td></tr><tr><td>"O relatório sumiu depois do reboot"</td><td>Procurar nos backups</td><td>Foi salvo em <code translate="no">/tmp</code>, que pode ser memória</td></tr><tr><td>"Rodei o comando e fez outra coisa"</td><td>Reinstalar o pacote</td><td>Um alias ou outro programa, antes no PATH, respondeu no lugar</td></tr><tr><td>"O <code translate="no">/etc/pve</code> não aparece no backup do disco"</td><td>Achar que o disco falhou</td><td>É um sistema de arquivos especial do Proxmox, não uma pasta comum</td></tr></tbody></table></div>
+<h2 id="3-modelo-mental">3 · Modelo mental</h2>
+<blockquote><p>O servidor é um <strong>prédio com andares de função fixa</strong>. <code translate="no">/etc</code> é a <strong>sala de normas</strong>: poucos papéis, todos importantes. <code translate="no">/usr</code> é o <strong>almoxarifado do fabricante</strong>, que você não reorganiza. <code translate="no">/var</code> é o <strong>arquivo do dia a dia</strong>, que cresce sem parar. <code translate="no">/tmp</code> é a <strong>mesa de rascunho</strong>, limpa de vez em quando. <code translate="no">/opt</code> é a <strong>sala alugada</strong> para terceiros. <code translate="no">/srv</code> é o <strong>depósito do que o prédio entrega</strong> a quem vem de fora. <code translate="no">/proc</code> e <code translate="no">/sys</code> são os <strong>painéis de controle</strong>: não guardam nada, só mostram o estado agora.</p></blockquote>
+<pre translate="no"><code>/                  raiz; um único tronco, sem letras de unidade
+├─ etc             configuração da máquina, em texto
+├─ usr             programas e bibliotecas do sistema; gerenciado por pacotes
+│  ├─ bin, sbin, lib   /bin e /sbin hoje são links para cá
+│  └─ local        o que você instalou à mão
+├─ var             o que muda: log, spool, cache, lib (bancos, estado)
+├─ home, root      pastas dos usuários e do root
+├─ opt             aplicações de terceiros, cada uma na sua pasta
+├─ srv             dados servidos: site, FTP, repositório
+├─ tmp, var/tmp    temporários; var/tmp dura mais
+├─ run             estado desde o boot, em memória
+├─ boot            kernel, initramfs e GRUB
+├─ mnt, media      pontos de montagem manuais e removíveis
+└─ dev, proc, sys  virtuais: dispositivos, processos, kernel</code></pre>
+<figure><a href="../img/8.1-mapa-fhs.jpg"><img src="../img/8.1-mapa-fhs.jpg" alt="O mapa do FHS" loading="lazy" decoding="async"></a><figcaption>Antes de escolher uma pasta, pergunte: isso é configuração, programa, dado que muda ou rascunho?</figcaption></figure>
+<h3 id="ponte-windows">Ponte Windows</h3>
+<div class="tabela"><table><thead><tr><th scope="col">No Windows</th><th scope="col">No Linux</th><th scope="col">Onde a comparação engana</th></tr></thead><tbody><tr><td><code translate="no">C:\</code>, <code translate="no">D:\</code></td><td>Uma única árvore, com discos montados em pastas</td><td>Não há letras: um disco inteiro pode ser <code translate="no">/var</code></td></tr><tr><td><code translate="no">C:\Windows\System32</code></td><td><code translate="no">/usr/bin</code>, <code translate="no">/usr/lib</code></td><td>Quem altera são os pacotes, não você</td></tr><tr><td>Registro, HKLM</td><td><code translate="no">/etc</code></td><td>Em texto: dá para versionar, comparar e copiar</td></tr><tr><td><code translate="no">C:\Program Files</code></td><td><code translate="no">/usr</code>, <code translate="no">/opt</code>, <code translate="no">/usr/local</code></td><td>O pacote espalha os arquivos por função, e não numa pasta por programa</td></tr><tr><td><code translate="no">C:\ProgramData</code></td><td><code translate="no">/var/lib</code>, <code translate="no">/etc</code></td><td>Configuração e estado ficam separados</td></tr><tr><td>Visualizador de Eventos</td><td><code translate="no">/var/log</code>, journal</td><td>Muitos logs são texto simples</td></tr><tr><td><code translate="no">%TEMP%</code></td><td><code translate="no">/tmp</code>, <code translate="no">/var/tmp</code></td><td>Compartilhado por todos, com sticky bit</td></tr><tr><td>Índice do Windows Search</td><td><code translate="no">locate</code></td><td>Só atualiza quando o <code translate="no">updatedb</code> roda</td></tr></tbody></table></div>
+<h2 id="4-o-essencial">4 · O essencial</h2>
+<h3 id="onde-colocar">Onde colocar</h3>
+<div class="tabela"><table><thead><tr><th scope="col">O que é</th><th scope="col">Onde vai</th></tr></thead><tbody><tr><td>Configuração da máquina</td><td><code translate="no">/etc</code></td></tr><tr><td>Programa instalado à mão, simples</td><td><code translate="no">/usr/local</code></td></tr><tr><td>Aplicação de terceiro, numa pasta só</td><td><code translate="no">/opt/NOME</code></td></tr><tr><td>Dados que um serviço entrega</td><td><code translate="no">/srv/NOME</code> ou o padrão do serviço, como <code translate="no">/var/www</code></td></tr><tr><td>Estado e bancos de dados</td><td><code translate="no">/var/lib/NOME</code></td></tr><tr><td>Logs</td><td><code translate="no">/var/log/NOME</code></td></tr><tr><td>Temporário que pode sumir</td><td><code translate="no">/tmp</code></td></tr><tr><td>Temporário que precisa aguentar reboot</td><td><code translate="no">/var/tmp</code></td></tr></tbody></table></div>
+<h3 id="quem-e-este-comando">Quem é este comando</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Quero...</th><th scope="col">Comando</th><th scope="col">Enxerga</th></tr></thead><tbody><tr><td>Saber o que o shell vai executar</td><td><code translate="no">type -a nome</code></td><td>Alias, função, builtin e PATH</td></tr><tr><td>Só o caminho, para script</td><td><code translate="no">command -v nome</code></td><td>Também alias e builtin</td></tr><tr><td>Procurar no PATH</td><td><code translate="no">which nome</code></td><td>Só programas no PATH</td></tr><tr><td>Binário, fonte e manual</td><td><code translate="no">whereis nome</code></td><td>Pastas padrão, sem olhar o PATH</td></tr><tr><td>Procurar por nome no disco</td><td><code translate="no">locate texto</code></td><td>O banco do último <code translate="no">updatedb</code></td></tr></tbody></table></div>
+<h3 id="de-quem-e-este-arquivo">De quem é este arquivo</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Quero...</th><th scope="col">Rocky</th><th scope="col">Debian</th></tr></thead><tbody><tr><td>Pacote dono do arquivo</td><td><code translate="no">rpm -qf ARQUIVO</code></td><td><code translate="no">dpkg -S ARQUIVO</code></td></tr><tr><td>O que mudou desde a instalação</td><td><code translate="no">rpm -V PACOTE</code></td><td><code translate="no">dpkg -V PACOTE</code></td></tr></tbody></table></div>
+<p>Se nenhum pacote é dono, alguém colocou o arquivo ali: um instalador, um script ou uma pessoa.</p>
+<h3 id="temporarios">Temporários</h3>
+<p>O <code translate="no">systemd-tmpfiles</code> limpa <code translate="no">/tmp</code> e <code translate="no">/var/tmp</code> por idade, em geral 10 e 30 dias. Confira com <code translate="no">systemd-tmpfiles --cat-config | grep -E ' /(var/)?tmp '</code>. Em <code translate="no">/run</code>, tudo some no desligamento.</p>
+<h3 id="rocky-debian">Rocky × Debian</h3>
+<div class="tabela"><table><thead><tr><th scope="col"></th><th scope="col">Rocky</th><th scope="col">Debian</th></tr></thead><tbody><tr><td><code translate="no">/tmp</code> numa instalação nova</td><td>Em disco</td><td>Em memória (tmpfs), a partir do Debian 13</td></tr><tr><td>Ajustes de serviços</td><td><code translate="no">/etc/sysconfig</code></td><td><code translate="no">/etc/default</code></td></tr><tr><td>Log geral em texto</td><td><code translate="no">/var/log/messages</code></td><td>Só journal, se o rsyslog não estiver instalado</td></tr><tr><td>Autenticação em texto</td><td><code translate="no">/var/log/secure</code></td><td><code translate="no">/var/log/auth.log</code>, com rsyslog</td></tr><tr><td>Apache</td><td><code translate="no">/etc/httpd</code></td><td><code translate="no">/etc/apache2</code></td></tr><tr><td><code translate="no">locate</code></td><td>Pacote <code translate="no">mlocate</code></td><td>Pacote <code translate="no">plocate</code></td></tr></tbody></table></div>
+<p><strong>Comece sempre com</strong> <code translate="no">findmnt /tmp</code>, em vez de presumir.</p>
+<h2 id="5-lab-guiado">5 · Lab guiado</h2>
+<p><strong>Passo 0 · Snapshots e preparo.</strong> No Proxmox: <code translate="no">qm snapshot 201 m8a1-inicio</code> e <code translate="no">qm snapshot 202 m8a1-inicio</code>. Na rocky-lab:</p>
+<pre translate="no"><code class="lang-bash">sudo dnf install -y mlocate which
+mkdir -p ~/lab81 &amp;&amp; cd ~/lab81</code></pre>
+<p><strong>Passo 1 · Andar pelo mapa.</strong></p>
+<pre translate="no"><code class="lang-bash">ls /
+ls -ld /bin /sbin /lib
+findmnt -no SOURCE,FSTYPE /
+findmnt /tmp
+findmnt -t proc,sysfs,tmpfs</code></pre>
+<p><code translate="no">/bin</code> é um link para <code translate="no">usr/bin</code>. Os sistemas atuais juntaram essas pastas. O <code translate="no">findmnt</code> separa o que é disco do que é virtual.</p>
+<p><strong>Passo 2 · Quem é dono e quem cresce.</strong></p>
+<pre translate="no"><code class="lang-bash">rpm -qf /etc/ssh/sshd_config /usr/sbin/sshd
+rpm -qf ~/.bashrc
+sudo rpm -V openssh-server
+sudo du -xh --max-depth=1 /var | sort -h</code></pre>
+<p>O <code translate="no">~/.bashrc</code> não tem dono: foi copiado na criação do usuário. O <code translate="no">-x</code> do <code translate="no">du</code> não atravessa para outros sistemas de arquivos, o que faz a soma valer para aquele disco.</p>
+<p><strong>Passo 3 · Quem manda na configuração.</strong></p>
+<pre translate="no"><code class="lang-bash">systemctl cat sshd | head -n 3
+ls /etc/systemd/system | head
+ls /usr/lib/systemd/system | wc -l</code></pre>
+<p>O pacote entrega em <code translate="no">/usr/lib</code>. O seu ajuste vai em <code translate="no">/etc</code>, que tem precedência. Numa atualização, o pacote substitui o que é dele, e não o que é seu.</p>
+<figure><a href="../img/8.1-quem-responde.jpg"><img src="../img/8.1-quem-responde.jpg" alt="Quem responde ao comando" loading="lazy" decoding="async"></a><figcaption>O shell procura nesta ordem, e o primeiro que acha vence.</figcaption></figure>
+<p><strong>Passo 4 · Quem responde a um comando.</strong></p>
+<pre translate="no"><code class="lang-bash">type -a ls
+type cd
+which ls
+which cd
+whereis ls
+command -v ls</code></pre>
+<p>O <code translate="no">type -a ls</code> mostra o alias e depois o programa. O <code translate="no">type cd</code> responde <code translate="no">builtin</code>. O <code translate="no">which cd</code> falha ou aponta para algo que não é o que o shell usa. Para saber o que vai rodar, o certo é <code translate="no">type</code>.</p>
+<p><strong>Passo 5 · Procurar com índice.</strong></p>
+<pre translate="no"><code class="lang-bash">touch ~/lab81/agulha-no-palheiro.txt
+locate agulha-no-palheiro
+sudo updatedb
+locate agulha-no-palheiro
+rm ~/lab81/agulha-no-palheiro.txt
+locate agulha-no-palheiro
+locate -e agulha-no-palheiro</code></pre>
+<p>Se o primeiro <code translate="no">locate</code> reclamar que não acha o banco (<code translate="no">mlocate.db</code> ou <code translate="no">plocate.db</code>), é só porque o <code translate="no">updatedb</code> ainda não rodou nesta máquina. O arquivo novo só aparece depois do <code translate="no">updatedb</code>. Depois de apagado, ele continua na lista até o próximo <code translate="no">updatedb</code>, e o <code translate="no">-e</code> confere se ainda existe.</p>
+<p><strong>Passo 6 · O virtual.</strong></p>
+<pre translate="no"><code class="lang-bash">cat /proc/uptime
+cat /proc/sys/vm/swappiness
+ls -l /proc/self
+df -h /run /dev/shm</code></pre>
+<p>Nada disso ocupa disco. O <code translate="no">/proc/self</code> aponta para o próprio processo que o lê.</p>
+<p><strong>Passo 7 · debian-lab.</strong></p>
+<pre translate="no"><code class="lang-bash">sudo apt install -y plocate
+findmnt /tmp
+ls -ld /etc/default /etc/sysconfig
+ls /var/log | head -n 20
+dpkg -S /usr/sbin/sshd
+systemctl cat ssh | head -n 3</code></pre>
+<h3 id="decida-1">Decida 1</h3>
+<p>Um fornecedor entrega um <code translate="no">.tar.gz</code> com programa, bibliotecas e tudo mais em uma pasta. Onde instalar?</p>
+<p>A) Em <code translate="no">/usr/bin</code>, para já ficar no PATH. B) Em <code translate="no">/opt/fornecedor</code>, com um link em <code translate="no">/usr/local/bin</code> para o executável. C) Em <code translate="no">/root</code>.</p>
+<p>Marque uma opção antes.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se você marcou</th><th scope="col">Resultado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>A</td><td>Risco</td><td>Mistura arquivos sem dono na área dos pacotes</td></tr><tr><td>B</td><td>Certo</td><td>Fica isolado, fácil de remover, e o comando continua no PATH</td></tr><tr><td>C</td><td>Ruim</td><td>Outros usuários e serviços não acessam, e o backup nem sempre inclui</td></tr></tbody></table></div>
+<p><strong>Para fixar:</strong> <code translate="no">/usr</code> é dos pacotes. O que você traz vai para <code translate="no">/opt</code> ou <code translate="no">/usr/local</code>.</p>
+<h3 id="decida-2">Decida 2</h3>
+<p>Um script gera um arquivo intermediário de 5 GB, e a tarefa precisa sobreviver a um reboot. A VM é Debian 13, com 2 GB de RAM. Onde gravar?</p>
+<p>A) <code translate="no">/tmp</code>. B) <code translate="no">/var/tmp</code>. C) <code translate="no">/dev/shm</code>.</p>
+<p>Marque uma opção antes.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se você marcou</th><th scope="col">Resultado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>A</td><td>Falha</td><td><code translate="no">/tmp</code> é memória aqui: não cabe e some no reboot</td></tr><tr><td>B</td><td>Certo</td><td>Fica em disco e dura mais</td></tr><tr><td>C</td><td>Pior</td><td>Sempre memória</td></tr></tbody></table></div>
+<p><strong>Para fixar:</strong> confira com <code translate="no">findmnt</code> o que está por trás da pasta.</p>
+<h2 id="6-quebre-e-conserte">6 · Quebre e conserte</h2>
+<h3 id="quebra-1-o-comando-impostor">Quebra 1 · O comando impostor</h3>
+<pre translate="no"><code class="lang-bash">mkdir -p ~/lab81/bin
+printf '#!/bin/bash\necho "eu nao sou o ls"\n' &gt; ~/lab81/bin/ls
+chmod +x ~/lab81/bin/ls
+PATH=$HOME/lab81/bin:$PATH
+hash -r
+ls /etc</code></pre>
+<p><strong>Sintoma:</strong> o <code translate="no">ls</code> responde outra coisa.</p>
+<p><strong>Diagnóstico:</strong> <code translate="no">type -a ls</code> mostra todos os candidatos, na ordem. O primeiro no PATH vence.</p>
+<p><strong>Conserto:</strong></p>
+<pre translate="no"><code class="lang-bash">PATH=${PATH#$HOME/lab81/bin:}
+hash -r
+type -a ls</code></pre>
+<p><strong>Na vida real:</strong> por isso nunca se coloca <code translate="no">.</code> no PATH do root. O <code translate="no">hash -r</code> limpa a memória do shell sobre onde cada comando estava.</p>
+<figure><a href="../img/8.1-descer-ate-achar.jpg"><img src="../img/8.1-descer-ate-achar.jpg" alt="Descer até achar" loading="lazy" decoding="async"></a><figcaption>Uma pasta de cada vez, do disco até o arquivo.</figcaption></figure>
+<h3 id="quebra-2-o-disco-que-encheu">Quebra 2 · O disco que encheu</h3>
+<pre translate="no"><code class="lang-bash">sudo dd if=/dev/zero of=/var/log/lab81-grande.log bs=1M count=200 status=none
+df -h /var</code></pre>
+<p><strong>Sintoma:</strong> o uso subiu e ninguém diz por quê.</p>
+<p><strong>Diagnóstico:</strong> vá descendo, uma pasta de cada vez.</p>
+<pre translate="no"><code class="lang-bash">sudo du -xh --max-depth=1 /var | sort -h | tail -n 4
+sudo du -xh --max-depth=1 /var/log | sort -h | tail -n 4</code></pre>
+<p><strong>Conserto:</strong> <code translate="no">sudo rm /var/log/lab81-grande.log</code>. Em produção, confirme antes de quem é o arquivo e se há processo escrevendo nele, como visto na aula 1.4.</p>
+<h3 id="quebra-3-o-arquivo-que-sumiu-debian-lab">Quebra 3 · O arquivo que sumiu (debian-lab)</h3>
+<pre translate="no"><code class="lang-bash">findmnt /tmp
+echo importante &gt; /tmp/lab81.txt
+sudo reboot</code></pre>
+<p>Reconecte e rode <code translate="no">cat /tmp/lab81.txt</code>.</p>
+<p><strong>Sintoma:</strong> <code translate="no">No such file or directory</code>.</p>
+<p><strong>Diagnóstico:</strong> se o <code translate="no">findmnt /tmp</code> mostrou <code translate="no">tmpfs</code>, o conteúdo estava em memória.</p>
+<p><strong>Conserto:</strong> o que precisa durar vai para <code translate="no">/var/tmp</code> ou para uma pasta de dados. Repita na rocky-lab e compare o resultado.</p>
+<h3 id="limpeza">Limpeza</h3>
+<pre translate="no"><code class="lang-bash">rm -r ~/lab81</code></pre>
+<h2 id="7-armadilhas">7 · Armadilhas</h2>
+<div class="tabela"><table><thead><tr><th scope="col">Armadilha</th><th scope="col">O que acontece</th><th scope="col">Como evitar</th></tr></thead><tbody><tr><td>Editar arquivo em <code translate="no">/usr/lib</code></td><td>A próxima atualização desfaz</td><td>Use <code translate="no">/etc</code> e <code translate="no">systemctl edit</code></td></tr><tr><td>Apagar o que está em <code translate="no">/var/lib</code> para ganhar espaço</td><td>Destrói banco e estado</td><td>Limpe <code translate="no">/var/log</code> e <code translate="no">/var/cache</code> com critério</td></tr><tr><td>Confiar no <code translate="no">which</code></td><td>Não vê alias nem builtin</td><td>Use <code translate="no">type -a</code></td></tr><tr><td>Esperar arquivo novo no <code translate="no">locate</code></td><td>Não aparece até o <code translate="no">updatedb</code></td><td><code translate="no">sudo updatedb</code> ou <code translate="no">find</code></td></tr><tr><td>Fazer backup de <code translate="no">/proc</code> e <code translate="no">/sys</code></td><td>Erros e tamanhos sem sentido</td><td>Exclua os virtuais ou use <code translate="no">-xdev</code></td></tr><tr><td>Presumir que <code translate="no">/tmp</code> é disco</td><td>Enche a memória ou perde dados</td><td><code translate="no">findmnt /tmp</code></td></tr><tr><td><code translate="no">du</code> sem <code translate="no">-x</code></td><td>Soma também outros discos montados</td><td><code translate="no">du -x</code></td></tr><tr><td>Backup só de <code translate="no">/home</code></td><td>Faltam <code translate="no">/etc</code> e <code translate="no">/var/lib</code></td><td>Liste o que é configuração e o que é dado</td></tr></tbody></table></div>
+<h2 id="8-quiz">8 · Quiz</h2>
+<p>Responda sem olhar. O gabarito está no fim da aula.</p>
+<ol><li>Qual a diferença entre <code translate="no">/usr/local</code> e <code translate="no">/opt</code>?</li>
+<li>Onde cresce o que costuma encher o disco?</li>
+<li>Como descobrir o pacote dono de <code translate="no">/usr/sbin/sshd</code> em cada família?</li>
+<li>Por que <code translate="no">type</code> é melhor que <code translate="no">which</code> para saber o que vai rodar?</li>
+<li>Por que <code translate="no">/proc</code> não ocupa espaço?</li>
+<li>Por que <code translate="no">/var/tmp</code> pode ser melhor que <code translate="no">/tmp</code>?</li></ol>
+<h2 id="9-cola">9 · Cola</h2>
+<p><strong>Para saber de cor:</strong></p>
+<div class="tabela"><table><thead><tr><th scope="col">Quero...</th><th scope="col">Comando</th></tr></thead><tbody><tr><td>Ver o que está montado em uma pasta</td><td><code translate="no">findmnt /tmp</code></td></tr><tr><td>Saber quem responde</td><td><code translate="no">type -a nome</code></td></tr><tr><td>Dono na Rocky</td><td><code translate="no">rpm -qf ARQUIVO</code></td></tr><tr><td>Dono no Debian</td><td><code translate="no">dpkg -S ARQUIVO</code></td></tr><tr><td>Quem ocupa espaço</td><td><code translate="no">sudo du -xh --max-depth=1 /var | sort -h</code></td></tr><tr><td>Atualizar o índice</td><td><code translate="no">sudo updatedb</code></td></tr></tbody></table></div>
+<p><strong>Para consultar:</strong></p>
+<div class="tabela"><table><thead><tr><th scope="col">Quero...</th><th scope="col">Comando</th></tr></thead><tbody><tr><td>Manual do mapa</td><td><code translate="no">man hier</code>, <code translate="no">man file-hierarchy</code></td></tr><tr><td>Procurar no índice</td><td><code translate="no">locate texto</code>, <code translate="no">locate -e texto</code></td></tr><tr><td>Conferir alterações em um pacote</td><td><code translate="no">rpm -V PACOTE</code>, <code translate="no">dpkg -V PACOTE</code></td></tr><tr><td>Regras de limpeza</td><td><code translate="no">systemd-tmpfiles --cat-config</code></td></tr><tr><td>Binário e manual</td><td><code translate="no">whereis nome</code></td></tr></tbody></table></div>
+<p><strong>Flashcards:</strong></p>
+<ul><li><code translate="no">/etc</code> → <em>configuração.</em></li>
+<li><code translate="no">/var</code> → <em>o que muda e cresce.</em></li>
+<li><code translate="no">/usr</code> → <em>dos pacotes.</em></li>
+<li><code translate="no">/opt</code> → <em>terceiros, uma pasta por aplicação.</em></li>
+<li><code translate="no">/run</code> → <em>estado em memória, desde o boot.</em></li>
+<li>Quem roda? → <em><code translate="no">type -a</code>.</em></li></ul>
+<h2 id="10-checklist-e-fechamento">10 · Checklist e fechamento</h2>
+<ul><li>[ ] Digo o papel de cada pasta principal</li>
+<li>[ ] Distingo disco de memória e de sistema virtual</li>
+<li>[ ] Decido onde instalar e onde gravar</li>
+<li>[ ] Acho o pacote dono de um arquivo nas duas famílias</li>
+<li>[ ] Uso <code translate="no">type</code>, <code translate="no">which</code>, <code translate="no">whereis</code> e <code translate="no">locate</code> sabendo o que cada um vê</li>
+<li>[ ] Desço pelo <code translate="no">du</code> até achar o que encheu</li></ul>
+<p><strong>Último exercício, sem olhar a aula:</strong> na debian-lab, descubra o arquivo de configuração principal do SSH, o pacote dono dele, o executável do serviço e onde ficam os logs de acesso.</p>
+<p><strong>Snapshot de fim</strong> (no Proxmox):</p>
+<pre translate="no"><code class="lang-bash">qm snapshot 201 m8a1-fim
+qm snapshot 202 m8a1-fim</code></pre>
+<h2 id="11-na-vida-real">11 · Na vida real</h2>
+<p><strong>Missão, só leitura.</strong> Num servidor Linux que você administre (ou com autorização), rode <strong>apenas</strong>:</p>
+<pre translate="no"><code class="lang-bash">findmnt -t xfs,ext4,zfs,nfs,nfs4
+findmnt /tmp
+df -h
+sudo du -xh --max-depth=1 /var | sort -h | tail -n 5
+ls /opt /srv /usr/local/bin</code></pre>
+<p>Perguntas para responder:</p>
+<ol><li>O que é disco separado e o que divide a raiz?</li>
+<li>Qual pasta mais ocupa <code translate="no">/var</code>?</li>
+<li>O que existe em <code translate="no">/opt</code> e em <code translate="no">/usr/local/bin</code>? Tem dono de pacote?</li>
+<li>Num Proxmox, o que <code translate="no">findmnt /etc/pve</code> mostra?</li></ol>
+<p><strong>Diário:</strong> anote o que você colocaria num backup dessa máquina, além de <code translate="no">/home</code>.</p>
+<p><strong>Amanhã, sem olhar:</strong> desenhe a árvore da raiz, com uma frase para cada pasta.</p>
+<h2 id="12-aprofundar-quando-quiser">12 · Aprofundar quando quiser</h2>
+<ul><li><strong><code translate="no">man hier</code> e <code translate="no">man file-hierarchy</code>:</strong> o mapa na descrição oficial.</li>
+<li><strong><code translate="no">/etc/updatedb.conf</code>:</strong> o que o índice ignora.</li>
+<li><strong><code translate="no">etckeeper</code>:</strong> versionar o <code translate="no">/etc</code> com git.</li>
+<li><strong><code translate="no">tmpfiles.d</code>:</strong> criar as suas regras de limpeza.</li>
+<li><strong><code translate="no">/etc/pve</code>:</strong> o sistema de arquivos em cluster do Proxmox, que você verá no M17.</li></ul>
+<p><strong>DeepTutor</strong> (http://10.1.0.149:3782, KB "Curso Linux Sysadmin"):</p>
+<ul><li><code translate="no">!explica a diferença entre /usr/local, /opt e /srv</code></li>
+<li><code translate="no">!feynman por que /proc não ocupa espaço em disco</code></li>
+<li><code translate="no">!quiz Aula 8.1, 5 perguntas sobre o FHS</code></li></ul>
+<h2 id="gabarito-comentado">Gabarito comentado</h2>
+<h3 id="aquecimento">Aquecimento</h3>
+<ol><li>Em <code translate="no">/etc</code> a configuração, e em <code translate="no">/var</code> os dados que mudam.</li>
+<li>Depende. Em disco, pode sobreviver até a limpeza por idade. Em tmpfs, some.</li>
+<li>Não. Pode ser builtin, alias ou função, ou estar fora do PATH.</li></ol>
+<h3 id="quiz">Quiz</h3>
+<ol><li><code translate="no">/usr/local</code> segue a estrutura do sistema (<code translate="no">bin</code>, <code translate="no">lib</code>) e recebe coisas pequenas instaladas à mão. <code translate="no">/opt</code> guarda cada aplicação em sua própria pasta.</li>
+<li>Em <code translate="no">/var</code>, sobretudo <code translate="no">/var/log</code>, <code translate="no">/var/lib</code> e <code translate="no">/var/cache</code>.</li>
+<li><code translate="no">rpm -qf /usr/sbin/sshd</code> e <code translate="no">dpkg -S /usr/sbin/sshd</code>.</li>
+<li>Porque o <code translate="no">type</code> é parte do shell e enxerga alias, função e builtin, que são considerados antes do PATH.</li>
+<li>Porque é gerado na hora pelo kernel e não existe em disco.</li>
+<li>Porque costuma ficar em disco, não é limpo no reboot e tem prazo maior.</li></ol>
+</article><nav class="paginas" aria-label="Aulas"><a class="ant" href="7.3-prioridade-e-perfis.html"><small>← Anterior</small>7.3 · Prioridade e perfis</a><a class="prox" href="8.2-find-a-fundo.html"><small>Próxima →</small>8.2 · find a fundo</a></nav></main></div>
+<footer><div class="wrap">Gerado a partir do Markdown do curso · Imagens em <code translate="no">img/</code></div></footer>
+</body>
+</html>

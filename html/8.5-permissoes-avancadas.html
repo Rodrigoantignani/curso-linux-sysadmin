@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light dark">
+<title>8.5 · Permissões avançadas · Curso Linux Sysadmin</title>
+<link rel="alternate" hreflang="pt-BR" href="8.5-permissoes-avancadas.html"><link rel="alternate" hreflang="it" href="8.5-permissoes-avancadas.it.html">
+<style>
+:root{color-scheme:light dark;--bg:#f6f1e7;--card:#fffdf8;--ink:#201c16;--muted:#5e564a;--accent:#9a3412;--accent-2:#1f5f4a;--tint:#efe6d4;--line:#ddd2bc;--code:#f1eadb;--shadow:0 1px 2px rgba(60,40,10,.08);--serif:Georgia,"Iowan Old Style","Palatino Linotype",Palatino,serif;--sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--mono:"Cascadia Code",Consolas,"DejaVu Sans Mono",monospace}
+@media (prefers-color-scheme:dark){:root{--bg:#16130f;--card:#201b15;--ink:#f1eadb;--muted:#b9ad98;--accent:#f0a070;--accent-2:#7fd0b0;--tint:#2a231a;--line:#3d3427;--code:#191510;--shadow:none}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:5.5rem}
+body{margin:0;background:var(--bg);color:var(--ink);font:1rem/1.6 var(--sans)}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--accent-2);outline-offset:2px;border-radius:4px}
+.pular{position:absolute;left:-999px;top:0;background:var(--card);padding:.5rem 1rem;z-index:20}
+.pular:focus{left:.5rem;top:.5rem}
+.wrap{width:100%;max-width:84rem;margin:0 auto;padding-inline:max(1rem,env(safe-area-inset-left))}
+.top{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10;border-top:6px solid var(--accent)}
+.top-in{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding-block:.6rem}
+.titles{min-width:0}
+.marca{margin:0;font:700 clamp(1.15rem,1rem + 1vw,1.6rem)/1.15 var(--serif);letter-spacing:-.01em}
+.marca a{text-decoration:none}
+.marca a:hover{color:var(--accent)}
+.meta{margin:.1rem 0 0;color:var(--muted);font-size:.85rem}
+.acoes{display:flex;align-items:center;gap:.9rem;flex:none}
+.acoes>a{font-size:.9rem;font-weight:600;color:var(--muted);text-decoration:none}
+.acoes>a:hover{color:var(--accent);text-decoration:underline}
+.idioma{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--tint)}
+.idioma>*{padding:.35rem .9rem;font-size:.8rem;font-weight:700;letter-spacing:.06em;text-decoration:none;color:var(--muted);min-width:2.75rem;text-align:center}
+.idioma a:hover{color:var(--accent);text-decoration:underline}
+.idioma span{background:var(--accent);color:#fff}
+@media (prefers-color-scheme:dark){.idioma span{color:#16130f}}
+code{font-family:var(--mono);font-size:.9em;background:var(--tint);padding:.1rem .35rem;border-radius:4px;overflow-wrap:anywhere}
+/* índice */
+.capa{max-width:70rem;padding-block:2rem 3rem}
+.stats{border-left:4px solid var(--accent-2);background:var(--card);border-radius:0 10px 10px 0;padding:1rem 1.25rem;margin:0 0 2.5rem;box-shadow:var(--shadow);color:var(--muted)}
+.stats strong{color:var(--ink)}
+.modulo{display:grid;grid-template-columns:15rem minmax(0,1fr);gap:1rem 2rem;padding:1.75rem 0;border-top:1px solid var(--line)}
+.modulo h2{margin:0;font:700 1.25rem/1.25 var(--serif);align-self:start;position:sticky;top:6rem}
+.mn{display:block;font:700 .8rem var(--mono);letter-spacing:.12em;color:var(--accent);margin-bottom:.25rem}
+.sep{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.modulo ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,17rem),1fr));gap:.75rem}
+.modulo li{margin:0}
+.modulo a{display:flex;gap:.45rem;align-items:baseline;height:100%;padding:.85rem 1rem;background:var(--card);border:1px solid var(--line);border-radius:10px;text-decoration:none;font-weight:600;line-height:1.35;box-shadow:var(--shadow);transition:border-color .15s,transform .15s}
+.modulo a:hover{border-color:var(--accent);color:var(--accent)}
+.num{font:700 .85rem var(--mono);color:var(--accent);white-space:nowrap}
+/* aula */
+.doc{display:grid;grid-template-columns:17rem minmax(0,1fr);gap:2.5rem;align-items:start;padding-block:2rem 3rem}
+.lateral{position:sticky;top:5.5rem;max-height:calc(100vh - 6.5rem);overflow:auto;font-size:.875rem;padding-right:.5rem}
+.lateral h2{margin:0 0 .25rem;font:700 .95rem var(--serif);color:var(--muted)}
+.lateral h3{margin:1rem 0 .25rem;font:700 .75rem var(--mono);letter-spacing:.06em;color:var(--accent)}
+.lateral ul{list-style:none;margin:0;padding:0}
+.lateral a{display:flex;gap:.45rem;padding:.25rem .5rem;border-radius:6px;text-decoration:none;color:var(--muted);line-height:1.3}
+.lateral a:hover{background:var(--tint);color:var(--ink)}
+.lateral a[aria-current]{background:var(--tint);color:var(--ink);font-weight:700;box-shadow:inset 3px 0 0 var(--accent)}
+.lateral .num{font-size:.75rem}
+.aula{min-width:0;max-width:56rem;overflow-wrap:break-word;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:clamp(1.25rem,1rem + 2vw,2.75rem);box-shadow:var(--shadow)}
+.aula h1{margin:0 0 1.5rem;font:700 clamp(1.75rem,1.4rem + 1.6vw,2.5rem)/1.15 var(--serif);letter-spacing:-.015em;color:var(--ink)}
+.aula h2{margin:2.5rem 0 .75rem;padding-top:1.25rem;border-top:1px solid var(--line);font:700 1.5rem/1.25 var(--serif)}
+.aula h3{margin:2rem 0 .5rem;font:700 1.15rem/1.3 var(--serif);color:var(--accent)}
+.aula h4,.aula h5,.aula h6{margin:1.5rem 0 .5rem;font-size:1rem}
+.aula p,.aula ul,.aula ol{margin:1rem 0}
+.aula ul,.aula ol{padding-left:1.5rem}
+.aula li{margin:.35rem 0}
+.aula li>ul,.aula li>ol{margin:.35rem 0}
+.aula a{color:var(--accent);text-underline-offset:2px}
+.aula hr{border:0;border-top:1px solid var(--line);margin:2rem 0}
+.tabela{overflow-x:auto;margin:1.25rem 0;border:1px solid var(--line);border-radius:10px}
+.aula table{width:100%;border-collapse:collapse;font-size:.9rem}
+.aula th,.aula td{padding:.55rem .75rem;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+.aula tr:last-child td{border-bottom:0}
+.aula th{background:var(--tint);font-weight:700}
+.aula pre{background:var(--code);border:1px solid var(--line);border-radius:10px;padding:.9rem 1rem;overflow-x:auto;font:.85rem/1.5 var(--mono);margin:1rem 0;tab-size:4}
+.aula pre code{background:none;padding:0;font-size:inherit;overflow-wrap:normal}
+.aula blockquote{margin:1.25rem 0;padding:.75rem 1.25rem;border-left:4px solid var(--accent-2);background:var(--tint);border-radius:0 10px 10px 0}
+.aula blockquote>:first-child{margin-top:0}
+.aula blockquote>:last-child{margin-bottom:0}
+.aula figure{margin:1.75rem 0;text-align:center}
+.aula figure img{display:block;margin:0 auto;max-width:100%;height:auto;border:1px solid var(--line);border-radius:10px;background:#fff}
+.aula figcaption{margin-top:.5rem;color:var(--muted);font-size:.9rem;font-style:italic}
+.paginas{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:2.5rem;padding-top:1.5rem;border-top:1px solid var(--line)}
+.paginas a{display:block;padding:.75rem 1rem;border:1px solid var(--line);border-radius:10px;text-decoration:none;color:var(--ink);font-weight:600;line-height:1.3}
+.paginas a:hover{border-color:var(--accent);color:var(--accent)}
+.paginas small{display:block;color:var(--muted);font-weight:400}
+.paginas .prox{grid-column:2;text-align:right}
+footer{border-top:1px solid var(--line);padding-block:1.5rem;color:var(--muted);font-size:.85rem;text-align:center}
+@media (hover:hover) and (prefers-reduced-motion:no-preference){.modulo a:hover{transform:translateY(-2px)}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+@media (max-width:980px){.doc{grid-template-columns:minmax(0,1fr);padding-top:1rem}.lateral{position:static;max-height:none;order:2}.aula{max-width:none}}
+@media (max-width:860px){.modulo{grid-template-columns:minmax(0,1fr)}.modulo h2{position:static}.mn{display:inline;margin-right:.5rem}}
+@media (max-width:420px){.meta{display:none}.top-in{gap:.5rem}.acoes{gap:.6rem}.capa{padding-top:1.25rem}.paginas{grid-template-columns:minmax(0,1fr)}.paginas .prox{grid-column:1}}
+@media print{.top,.lateral,.paginas{display:none}.aula{border:0;box-shadow:none;padding:0;max-width:none}.doc{display:block}}
+</style>
+</head>
+<body>
+<a class="pular" href="#conteudo">Pular para o conteúdo</a>
+<header class="top"><div class="wrap top-in"><div class="titles"><p class="marca"><a href="index.html">Curso Linux Sysadmin</a></p><p class="meta">Rodrigo Antignani · Aula 8.5</p></div><div class="acoes"><a href="index.html">Índice</a><div class="idioma" role="group" aria-label="Idioma"><span aria-current="true">PT</span><a href="8.5-permissoes-avancadas.it.html" hreflang="it" lang="it">IT</a></div></div></div></header>
+<div class="wrap doc"><aside class="lateral" aria-label="Aulas"><h2>Aulas</h2><h3>M0 · Laboratório</h3><ul><li><a href="0.1-montar-o-laboratorio.html"><span class="num">0.1</span><span>Montar o laboratório</span></a></li><li><a href="0.2-acesso-e-protecao.html"><span class="num">0.2</span><span>Acesso e proteção</span></a></li></ul><h3>M1 · Linha de comando</h3><ul><li><a href="1.1-o-que-e-linux.html"><span class="num">1.1</span><span>O que é Linux</span></a></li><li><a href="1.2-o-shell-e-a-ajuda.html"><span class="num">1.2</span><span>O shell e a ajuda</span></a></li><li><a href="1.3-caminhos-e-navegacao.html"><span class="num">1.3</span><span>Caminhos e navegação</span></a></li><li><a href="1.4-criar-copiar-mover-e-apagar.html"><span class="num">1.4</span><span>Criar, copiar, mover e apagar</span></a></li><li><a href="1.5-ler-e-procurar-texto.html"><span class="num">1.5</span><span>Ler e procurar texto</span></a></li><li><a href="1.6-redirecionamentos-e-pipes.html"><span class="num">1.6</span><span>Redirecionamentos e pipes</span></a></li><li><a href="1.7-arquivar-e-compactar.html"><span class="num">1.7</span><span>Arquivar e compactar</span></a></li><li><a href="1.8-primeiro-script.html"><span class="num">1.8</span><span>Primeiro script</span></a></li><li><a href="1.9-decidir-e-repetir.html"><span class="num">1.9</span><span>Decidir e repetir</span></a></li><li><a href="1.10-software-livre-na-pratica.html"><span class="num">1.10</span><span>Software livre na prática</span></a></li></ul><h3>M2 · Sistema, usuários e permissões</h3><ul><li><a href="2.1-instalacao-e-provisionamento.html"><span class="num">2.1</span><span>Instalação e provisionamento</span></a></li><li><a href="2.2-hardware-e-dispositivos.html"><span class="num">2.2</span><span>Hardware e dispositivos</span></a></li><li><a href="2.3-processos-e-logs.html"><span class="num">2.3</span><span>Processos e logs</span></a></li><li><a href="2.4-rede-no-dia-a-dia.html"><span class="num">2.4</span><span>Rede no dia a dia</span></a></li><li><a href="2.5-acesso-remoto-e-privilegios.html"><span class="num">2.5</span><span>Acesso remoto e privilégios</span></a></li><li><a href="2.6-usuarios-e-grupos.html"><span class="num">2.6</span><span>Usuários e grupos</span></a></li><li><a href="2.7-permissoes-e-dono.html"><span class="num">2.7</span><span>Permissões e dono</span></a></li><li><a href="2.8-diretorios-e-arquivos-especiais.html"><span class="num">2.8</span><span>Diretórios e arquivos especiais</span></a></li></ul><h3>M3 · Texto e editor</h3><ul><li><a href="3.1-fluxos-a-fundo.html"><span class="num">3.1</span><span>Fluxos a fundo</span></a></li><li><a href="3.2-filtros-de-texto.html"><span class="num">3.2</span><span>Filtros de texto</span></a></li><li><a href="3.3-regex-e-grep.html"><span class="num">3.3</span><span>Regex e grep</span></a></li><li><a href="3.4-sed-e-awk.html"><span class="num">3.4</span><span>sed e awk</span></a></li><li><a href="3.5-vi-e-vim-de-verdade.html"><span class="num">3.5</span><span>vi e vim de verdade</span></a></li></ul><h3>M4 · systemd e boot</h3><ul><li><a href="4.1-como-o-linux-liga.html"><span class="num">4.1</span><span>Como o Linux liga</span></a></li><li><a href="4.2-systemd-servicos-e-units.html"><span class="num">4.2</span><span>systemd: serviços e units</span></a></li><li><a href="4.3-targets-desligar-e-reiniciar.html"><span class="num">4.3</span><span>Targets: desligar e reiniciar</span></a></li><li><a href="4.4-grub-e-acesso-de-emergencia.html"><span class="num">4.4</span><span>GRUB e acesso de emergência</span></a></li></ul><h3>M5 · Kernel, módulos e VM</h3><ul><li><a href="5.1-hardware-pelo-kernel.html"><span class="num">5.1</span><span>Hardware pelo kernel</span></a></li><li><a href="5.2-modulos-e-parametros.html"><span class="num">5.2</span><span>Módulos e parâmetros</span></a></li><li><a href="5.3-linux-como-convidado.html"><span class="num">5.3</span><span>Linux como convidado</span></a></li></ul><h3>M6 · Pacotes e repositórios</h3><ul><li><a href="6.1-pacotes-no-debian.html"><span class="num">6.1</span><span>Pacotes no Debian</span></a></li><li><a href="6.2-pacotes-na-rocky.html"><span class="num">6.2</span><span>Pacotes na Rocky</span></a></li><li><a href="6.3-repositorios.html"><span class="num">6.3</span><span>Repositórios</span></a></li><li><a href="6.4-flatpak.html"><span class="num">6.4</span><span>Flatpak</span></a></li><li><a href="6.5-bibliotecas-compartilhadas.html"><span class="num">6.5</span><span>Bibliotecas compartilhadas</span></a></li></ul><h3>M7 · Processos e desempenho</h3><ul><li><a href="7.1-processos-e-sinais.html"><span class="num">7.1</span><span>Processos e sinais</span></a></li><li><a href="7.2-jobs-e-sessoes.html"><span class="num">7.2</span><span>Jobs e sessões</span></a></li><li><a href="7.3-prioridade-e-perfis.html"><span class="num">7.3</span><span>Prioridade e perfis</span></a></li></ul><h3>M8 · Arquivos a fundo</h3><ul><li><a href="8.1-fhs-e-onde-cada-coisa-mora.html"><span class="num">8.1</span><span>FHS e onde cada coisa mora</span></a></li><li><a href="8.2-find-a-fundo.html"><span class="num">8.2</span><span>find a fundo</span></a></li><li><a href="8.3-arquivamento-avancado.html"><span class="num">8.3</span><span>Arquivamento avançado</span></a></li><li><a href="8.4-links.html"><span class="num">8.4</span><span>Links</span></a></li><li><a href="8.5-permissoes-avancadas.html" aria-current="page"><span class="num">8.5</span><span>Permissões avançadas</span></a></li></ul><h3>M9 · Armazenamento</h3><ul><li><a href="9.1-discos-e-layout.html"><span class="num">9.1</span><span>Discos e layout</span></a></li><li><a href="9.2-particionar.html"><span class="num">9.2</span><span>Particionar</span></a></li><li><a href="9.3-sistemas-de-arquivos.html"><span class="num">9.3</span><span>Sistemas de arquivos</span></a></li><li><a href="9.4-montar-e-persistir.html"><span class="num">9.4</span><span>Montar e persistir</span></a></li><li><a href="9.5-integridade-e-espaco.html"><span class="num">9.5</span><span>Integridade e espaço</span></a></li><li><a href="9.6-lvm.html"><span class="num">9.6</span><span>LVM</span></a></li><li><a href="9.7-crescer-sem-destruir.html"><span class="num">9.7</span><span>Crescer sem destruir</span></a></li></ul></aside><main id="conteudo" class="aula"><article><h1>Aula 8.5 · Permissões avançadas</h1>
+<p>Quem vem do Windows espera herança e permissão efetiva numa aba de propriedades. No Linux, as mesmas respostas estão espalhadas por bits especiais, ACL, atributos e opções de montagem. Nesta aula você monta uma pasta compartilhada de verdade e aprende um roteiro para resolver qualquer "Permission denied". No fim, vem o Desafio do M8.</p>
+<blockquote><p><strong>Núcleo desta aula:</strong> usar SGID e sticky em pastas compartilhadas; dar acesso com ACL e ACL padrão; entender a máscara; auditar SUID; e seguir o roteiro de diagnóstico: <code translate="no">id</code>, <code translate="no">namei -l</code>, <code translate="no">getfacl</code>, <code translate="no">lsattr</code>, <code translate="no">findmnt -T</code> e SELinux. O resto é aprofundamento.</p></blockquote>
+<div class="tabela"><table><thead><tr><th scope="col">Ficha</th><th scope="col"></th></tr></thead><tbody><tr><td><strong>Módulo</strong></td><td>M8 · Arquivos a fundo, aula 5 de 5, com o Desafio do módulo</td></tr><tr><td><strong>Quando</strong></td><td>Semana 13</td></tr><tr><td><strong>Ao final</strong></td><td>Você monta acesso compartilhado com precisão e acha a causa de qualquer "Permission denied"</td></tr><tr><td><strong>Pré-requisitos</strong></td><td>Aulas 2.6, 2.7, 2.8 e 8.2</td></tr><tr><td><strong>Tempo</strong></td><td>cerca de 2h30, mais 1h para o Desafio</td></tr><tr><td><strong>Snapshots</strong></td><td><code translate="no">m8a5-inicio</code> e <code translate="no">m8a5-fim</code> na rocky-lab e na debian-lab</td></tr></tbody></table></div>
+<h2 id="1-aquecimento">1 · Aquecimento</h2>
+<p>Responda antes de ler.</p>
+<ol><li>Um arquivo tem permissão <code translate="no">644</code>, mas o usuário não consegue ler. Quais causas você imagina?</li>
+<li>O que o SGID faz em uma pasta?</li>
+<li>O que significa o <code translate="no">+</code> no final das permissões do <code translate="no">ls -l</code>?</li></ol>
+<h2 id="2-por-que-importa">2 · Por que importa</h2>
+<div class="tabela"><table><thead><tr><th scope="col">O chamado</th><th scope="col">A resposta errada</th><th scope="col">O que ela causa</th></tr></thead><tbody><tr><td>"Não consigo acessar a pasta"</td><td><code translate="no">chmod -R 777</code></td><td>Abre tudo a todos, e apaga a informação de quem deveria ter acesso</td></tr><tr><td>"O colega não abre o arquivo que eu criei"</td><td>Corrigir à mão a cada dia</td><td>Faltou SGID, ou ACL padrão</td></tr><tr><td>"Adicionei no grupo e não funciona"</td><td>Adicionar de novo</td><td>A sessão antiga não conhece o grupo</td></tr><tr><td>"Nem o root apaga esse arquivo"</td><td>Reiniciar</td><td>É o atributo imutável</td></tr><tr><td>"O script tem <code translate="no">x</code> e dá Permission denied"</td><td><code translate="no">chmod +x</code> de novo</td><td>O disco foi montado com <code translate="no">noexec</code></td></tr></tbody></table></div>
+<h2 id="3-modelo-mental">3 · Modelo mental</h2>
+<blockquote><p>Chegar a um arquivo é <strong>atravessar um prédio</strong>. Você precisa de permissão para <strong>cada porta do caminho</strong>, e não só para a última sala. O <code translate="no">x</code> na pasta é o direito de passar pela porta. Depois vêm os <strong>crachás</strong>, avaliados nesta ordem: dono, pessoas citadas em ACL, grupos e os demais. E há camadas por fora do prédio: a <strong>trava da sala</strong> (<code translate="no">chattr +i</code>), a <strong>regra do terreno</strong> (opções de montagem) e a <strong>segurança externa</strong> (SELinux). Qualquer uma delas diz não.</p></blockquote>
+<pre translate="no"><code>Permission denied ou Operation not permitted — siga na ordem:
+
+1. Quem sou?          id                       grupo novo exige login novo
+2. O caminho todo     namei -l /a/b/c.txt      falta x em alguma pasta?
+3. Modo e dono        ls -ld, ls -l
+4. ACL                getfacl                  máscara, entrada específica
+5. Atributos          lsattr                   i (imutável), a (só adicionar)
+6. Montagem           findmnt -T ARQUIVO       ro, noexec, nosuid
+7. Controle externo   getenforce, ausearch     SELinux; AppArmor no Debian</code></pre>
+<figure><a href="../img/8.5-roteiro-permission-denied.jpg"><img src="../img/8.5-roteiro-permission-denied.jpg" alt="Roteiro do Permission denied" loading="lazy" decoding="async"></a><figcaption>Vá de cima para baixo. O <code translate="no">chmod 777</code> nunca é um passo.</figcaption></figure>
+<h3 id="ponte-windows">Ponte Windows</h3>
+<div class="tabela"><table><thead><tr><th scope="col">No Windows</th><th scope="col">No Linux</th><th scope="col">Onde a comparação engana</th></tr></thead><tbody><tr><td>Aba "Acesso efetivo"</td><td><code translate="no">namei -l</code> e <code translate="no">getfacl</code></td><td>No Linux, você é quem junta as peças</td></tr><tr><td>ACE herdada</td><td>ACL padrão (<code translate="no">-d</code>)</td><td>Vale só para o que for criado depois, e nada é "propagado"</td></tr><tr><td>Grupo criador, na herança</td><td>SGID em pasta</td><td></td></tr><tr><td>Compartilhamento + NTFS</td><td>Samba + permissões</td><td>Duas camadas, como no Windows</td></tr><tr><td>ACE "Negar"</td><td>Entrada <code translate="no">u:nome:---</code></td><td>Não há "negar" explícito: funciona pela ordem de avaliação</td></tr><tr><td>Atributo somente leitura</td><td><code translate="no">chattr +i</code></td><td>O <code translate="no">+i</code> trava até o root</td></tr><tr><td>Logoff para o token atualizar</td><td>Novo login</td><td>É exatamente o mesmo problema</td></tr></tbody></table></div>
+<h2 id="4-o-essencial">4 · O essencial</h2>
+<h3 id="bits-especiais">Bits especiais</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Bit</th><th scope="col">Em arquivo</th><th scope="col">Em pasta</th><th scope="col">Exemplo</th></tr></thead><tbody><tr><td>SUID (4000)</td><td>Roda como o dono</td><td>Sem efeito</td><td><code translate="no">/usr/bin/passwd</code></td></tr><tr><td>SGID (2000)</td><td>Roda como o grupo</td><td><strong>Herda o grupo</strong> para o que for criado</td><td>Pasta de equipe</td></tr><tr><td>Sticky (1000)</td><td>Sem efeito</td><td>Só o dono apaga o que é seu</td><td><code translate="no">/tmp</code></td></tr></tbody></table></div>
+<p>Em scripts, o Linux ignora SUID. O <code translate="no">s</code> minúsculo significa que o <code translate="no">x</code> também existe, e o <code translate="no">S</code> maiúsculo significa que falta o <code translate="no">x</code>.</p>
+<h3 id="umask">umask</h3>
+<p>A umask retira bits do padrão: 666 para arquivos e 777 para pastas. Com <code translate="no">022</code>, surgem <code translate="no">644</code> e <code translate="no">755</code>. Com <code translate="no">027</code>, <code translate="no">640</code> e <code translate="no">750</code>. Ajuste por usuário no <code translate="no">~/.bashrc</code>, e por serviço com <code translate="no">UMask=</code> no unit.</p>
+<h3 id="acl">ACL</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Quero...</th><th scope="col">Comando</th></tr></thead><tbody><tr><td>Ver</td><td><code translate="no">getfacl CAMINHO</code></td></tr><tr><td>Dar acesso a um usuário</td><td><code translate="no">setfacl -m u:NOME:rx CAMINHO</code></td></tr><tr><td>A um grupo</td><td><code translate="no">setfacl -m g:NOME:rx CAMINHO</code></td></tr><tr><td>Valer para o que for criado</td><td><code translate="no">setfacl -d -m u:NOME:rx PASTA</code></td></tr><tr><td>Em tudo o que já existe</td><td><code translate="no">setfacl -R -m u:NOME:rX PASTA</code></td></tr><tr><td>Tirar uma entrada</td><td><code translate="no">setfacl -x u:NOME CAMINHO</code></td></tr><tr><td>Limpar toda a ACL</td><td><code translate="no">setfacl -b CAMINHO</code></td></tr><tr><td>Copiar a ACL</td><td><code translate="no">getfacl A | setfacl --set-file=- B</code></td></tr></tbody></table></div>
+<p><strong>A máscara</strong> é o teto das entradas de usuários citados e de grupos. Quando a linha do <code translate="no">getfacl</code> mostra <code translate="no">#effective:</code>, o acesso real é menor que o escrito. Depois de ACL, o <code translate="no">chmod g=</code> no arquivo muda a máscara, e não o grupo.</p>
+<p>O <code translate="no">X</code> maiúsculo dá <code translate="no">x</code> só a pastas e a arquivos que já são executáveis. É o certo para o <code translate="no">-R</code>.</p>
+<figure><a href="../img/8.5-mascara-acl.jpg"><img src="../img/8.5-mascara-acl.jpg" alt="A máscara é o teto" loading="lazy" decoding="async"></a><figcaption>A entrada diz r-x, a máscara permite rw-, e vale o que passa pelos dois: r--.</figcaption></figure>
+<h3 id="atributos">Atributos</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Quero...</th><th scope="col">Comando</th></tr></thead><tbody><tr><td>Ver</td><td><code translate="no">lsattr ARQUIVO</code></td></tr><tr><td>Travar</td><td><code translate="no">sudo chattr +i ARQUIVO</code></td></tr><tr><td>Só adicionar ao fim</td><td><code translate="no">sudo chattr +a ARQUIVO</code></td></tr><tr><td>Destravar</td><td><code translate="no">sudo chattr -i ARQUIVO</code></td></tr></tbody></table></div>
+<h3 id="rocky-debian">Rocky × Debian</h3>
+<div class="tabela"><table><thead><tr><th scope="col"></th><th scope="col">Rocky</th><th scope="col">Debian</th></tr></thead><tbody><tr><td><code translate="no">acl</code></td><td><code translate="no">dnf install acl</code></td><td><code translate="no">apt install acl</code></td></tr><tr><td>Controle externo</td><td>SELinux: <code translate="no">getenforce</code>, <code translate="no">ausearch</code></td><td>AppArmor: <code translate="no">sudo aa-status</code></td></tr></tbody></table></div>
+<p>Em caso de "Permission denied" com tudo certo na Rocky, olhe o SELinux, tema do M12: <code translate="no">sudo ausearch -m avc -ts recent</code>.</p>
+<h2 id="5-lab-guiado">5 · Lab guiado</h2>
+<p><strong>Passo 0 · Snapshots e usuários.</strong> No Proxmox: <code translate="no">qm snapshot 201 m8a5-inicio</code> e <code translate="no">qm snapshot 202 m8a5-inicio</code>. Na rocky-lab:</p>
+<pre translate="no"><code class="lang-bash">sudo dnf install -y acl
+sudo groupadd financas
+sudo useradd -m -G financas ana
+sudo useradd -m -G financas beto
+sudo useradd -m carla
+sudo mkdir -p /srv/lab85/financas
+sudo chown root:financas /srv/lab85/financas
+sudo chmod 770 /srv/lab85/financas</code></pre>
+<p>Os usuários não precisam de senha: você vai agir como eles com <code translate="no">sudo -u</code>.</p>
+<p><strong>Passo 1 · Sem SGID, com SGID.</strong></p>
+<pre translate="no"><code class="lang-bash">sudo -u ana touch /srv/lab85/financas/sem-sgid.txt
+sudo ls -l /srv/lab85/financas
+sudo chmod 2770 /srv/lab85/financas
+sudo -u ana touch /srv/lab85/financas/com-sgid.txt
+sudo ls -ld /srv/lab85/financas
+sudo ls -l /srv/lab85/financas</code></pre>
+<p>O primeiro fica com o grupo <code translate="no">ana</code>, e o segundo com <code translate="no">financas</code>. A pasta mostra <code translate="no">drwxrws---</code>.</p>
+<p><strong>Passo 2 · Sticky.</strong></p>
+<pre translate="no"><code class="lang-bash">sudo -u beto rm -f /srv/lab85/financas/com-sgid.txt
+sudo -u ana touch /srv/lab85/financas/da-ana.txt
+sudo chmod 3770 /srv/lab85/financas
+sudo -u beto rm -f /srv/lab85/financas/da-ana.txt
+sudo ls -l /srv/lab85/financas</code></pre>
+<p>Antes do sticky, o Beto apaga o arquivo da Ana, porque tem <code translate="no">w</code> na pasta. Depois, recebe <code translate="no">Operation not permitted</code>.</p>
+<p><strong>Passo 3 · ACL para quem não é do grupo.</strong></p>
+<pre translate="no"><code class="lang-bash">sudo -u carla ls /srv/lab85/financas
+sudo setfacl -m u:carla:rx /srv/lab85/financas
+sudo -u carla ls /srv/lab85/financas
+sudo getfacl /srv/lab85/financas
+ls -ld /srv/lab85/financas</code></pre>
+<p>O primeiro falha e o segundo funciona. Agora o <code translate="no">ls</code> mostra um <code translate="no">+</code>.</p>
+<p><strong>Passo 4 · ACL padrão.</strong></p>
+<pre translate="no"><code class="lang-bash">sudo setfacl -d -m u:carla:rx /srv/lab85/financas
+sudo -u ana bash -c 'echo saldo &gt; /srv/lab85/financas/novo.txt'
+sudo getfacl /srv/lab85/financas/novo.txt
+sudo -u carla cat /srv/lab85/financas/novo.txt
+sudo -u carla bash -c 'echo x &gt;&gt; /srv/lab85/financas/novo.txt'</code></pre>
+<p>A Carla lê e não grava. O arquivo herdou a entrada dela, e <code translate="no">user:carla:r-x #effective:r--</code> mostra que a máscara cortou o <code translate="no">x</code>.</p>
+<p><strong>Passo 5 · A máscara.</strong></p>
+<pre translate="no"><code class="lang-bash">sudo setfacl -m m::--- /srv/lab85/financas/novo.txt
+sudo getfacl /srv/lab85/financas/novo.txt
+sudo -u carla cat /srv/lab85/financas/novo.txt
+sudo setfacl -m m::rw /srv/lab85/financas/novo.txt
+sudo -u carla cat /srv/lab85/financas/novo.txt</code></pre>
+<p>A entrada dela continua escrita, mas o efetivo virou <code translate="no">---</code>, e o acesso cai.</p>
+<p><strong>Passo 6 · Auditoria de SUID.</strong></p>
+<pre translate="no"><code class="lang-bash">ls -l /usr/bin/passwd
+sudo find / -xdev -type f -perm -4000 -ls</code></pre>
+<p><strong>Passo 7 · O roteiro.</strong></p>
+<pre translate="no"><code class="lang-bash">sudo -u carla id
+sudo namei -l /srv/lab85/financas/novo.txt
+sudo getfacl /srv/lab85/financas/novo.txt
+sudo lsattr /srv/lab85/financas/novo.txt
+sudo findmnt -T /srv/lab85/financas/novo.txt
+getenforce</code></pre>
+<p><strong>Passo 8 · debian-lab.</strong> Instale <code translate="no">acl</code> e repita os passos 0, 1, 3 e 4. No lugar de <code translate="no">getenforce</code>, use <code translate="no">sudo aa-status | head</code>.</p>
+<h3 id="decida-1">Decida 1</h3>
+<p>Uma nova analista precisa ler a pasta de contratos, mas não pode entrar no grupo que também tem acesso de escrita. O que fazer?</p>
+<p>A) <code translate="no">chmod o+rx</code>, para ela poder entrar. B) Colocar no grupo. C) <code translate="no">setfacl -R -m u:NOME:rX PASTA</code> e <code translate="no">setfacl -d -m u:NOME:rX PASTA</code>.</p>
+<p>Marque uma opção antes.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se você marcou</th><th scope="col">Resultado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>A</td><td>Abre a todos</td><td>Todo usuário da máquina passa a ler</td></tr><tr><td>B</td><td>Excede o pedido</td><td>Ganha escrita</td></tr><tr><td>C</td><td>Certo</td><td>Vale para o existente e para o futuro, só para ela</td></tr></tbody></table></div>
+<p><strong>Para fixar:</strong> ACL dá uma exceção precisa, sem mexer no modelo principal.</p>
+<h3 id="decida-2">Decida 2</h3>
+<p>Um script tem <code translate="no">755</code> e responde <code translate="no">Permission denied</code> em uma pasta com tudo certo. Próximo passo?</p>
+<p>A) <code translate="no">chmod 777</code>. B) <code translate="no">findmnt -T script</code>, para ver opções como <code translate="no">noexec</code>. C) Copiar para o root.</p>
+<p>Marque uma opção antes.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se você marcou</th><th scope="col">Resultado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>A</td><td>Nada muda</td><td>O problema não está no modo</td></tr><tr><td>B</td><td>Certo</td><td>É o próximo item do roteiro</td></tr><tr><td>C</td><td>Contorna, sem entender</td><td>Foge da regra colocada de propósito</td></tr></tbody></table></div>
+<p><strong>Para fixar:</strong> quando o modo está certo, olhe as outras camadas.</p>
+<h2 id="6-quebre-e-conserte">6 · Quebre e conserte</h2>
+<h3 id="quebra-1-nem-o-root-consegue">Quebra 1 · Nem o root consegue</h3>
+<pre translate="no"><code class="lang-bash">sudo touch /srv/lab85/imutavel.conf
+sudo chattr +i /srv/lab85/imutavel.conf
+sudo rm /srv/lab85/imutavel.conf</code></pre>
+<p><strong>Sintoma:</strong> <code translate="no">Operation not permitted</code>, mesmo como root.</p>
+<p><strong>Diagnóstico:</strong> <code translate="no">lsattr /srv/lab85/imutavel.conf</code> mostra <code translate="no">i</code>.</p>
+<p><strong>Conserto:</strong> <code translate="no">sudo chattr -i /srv/lab85/imutavel.conf</code> e <code translate="no">sudo rm /srv/lab85/imutavel.conf</code>.</p>
+<p><strong>Na vida real:</strong> nem sempre é proteção de administrador. Em um servidor comprometido, atacantes usam <code translate="no">chattr +i</code> para fixar arquivos.</p>
+<h3 id="quebra-2-o-grupo-que-nao-pegou">Quebra 2 · O grupo que não pegou</h3>
+<pre translate="no"><code class="lang-bash">sudo usermod -aG financas $USER
+id
+ls /srv/lab85/financas</code></pre>
+<p><strong>Sintoma:</strong> <code translate="no">Permission denied</code>, com o usuário já no grupo.</p>
+<p><strong>Diagnóstico:</strong> o <code translate="no">id</code> não mostra <code translate="no">financas</code>, mas <code translate="no">id $USER</code> mostra. O processo atual foi criado antes da mudança.</p>
+<p><strong>Conserto:</strong> saia e entre de novo, ou use <code translate="no">sg financas -c 'ls /srv/lab85/financas'</code>. Depois, volte: <code translate="no">sudo gpasswd -d $USER financas</code>.</p>
+<figure><a href="../img/8.5-criado-ou-movido.jpg"><img src="../img/8.5-criado-ou-movido.jpg" alt="Criado ou movido" loading="lazy" decoding="async"></a><figcaption>SGID e ACL padrão valem para o que nasce na pasta; o mv no mesmo disco mantém o grupo antigo.</figcaption></figure>
+<h3 id="quebra-3-o-arquivo-que-chegou-com-outro-grupo">Quebra 3 · O arquivo que chegou com outro grupo</h3>
+<pre translate="no"><code class="lang-bash">sudo -u ana bash -c 'echo a &gt; /home/ana/mov.txt; chmod 640 /home/ana/mov.txt'
+sudo -u ana mv /home/ana/mov.txt /srv/lab85/financas/
+sudo -u beto cat /srv/lab85/financas/mov.txt
+sudo ls -l /srv/lab85/financas/mov.txt</code></pre>
+<p><strong>Sintoma:</strong> <code translate="no">Permission denied</code>, em uma pasta com SGID.</p>
+<p><strong>Diagnóstico:</strong> o grupo é <code translate="no">ana</code>. SGID e ACL padrão só valem para o que é <strong>criado</strong> ali. O <code translate="no">mv</code> no mesmo sistema de arquivos conserva os dados do arquivo original.</p>
+<p><strong>Conserto:</strong> <code translate="no">sudo chgrp financas /srv/lab85/financas/mov.txt</code>. Na prática, crie na pasta, ou prefira <code translate="no">cp</code>.</p>
+<h3 id="limpeza">Limpeza</h3>
+<pre translate="no"><code class="lang-bash">sudo rm -r /srv/lab85
+sudo userdel -r beto
+sudo userdel -r carla
+sudo groupdel financas</code></pre>
+<p>A usuária <code translate="no">ana</code> fica para o Desafio.</p>
+<h2 id="7-armadilhas">7 · Armadilhas</h2>
+<div class="tabela"><table><thead><tr><th scope="col">Armadilha</th><th scope="col">O que acontece</th><th scope="col">Como evitar</th></tr></thead><tbody><tr><td><code translate="no">chmod -R 777</code></td><td>Destrói o modelo, e sem histórico</td><td>Siga o roteiro</td></tr><tr><td><code translate="no">chmod -R</code> com <code translate="no">x</code> em arquivos</td><td>Tudo vira executável</td><td>Use <code translate="no">X</code></td></tr><tr><td><code translate="no">usermod -G</code> sem <code translate="no">-a</code></td><td>Remove dos outros grupos</td><td><code translate="no">usermod -aG</code></td></tr><tr><td><code translate="no">chmod</code> em arquivo com ACL</td><td>Muda a máscara</td><td>Confira com <code translate="no">getfacl</code></td></tr><tr><td>Esquecer o <code translate="no">x</code> em uma pasta intermediária</td><td>Nega apesar do arquivo aberto</td><td><code translate="no">namei -l</code></td></tr><tr><td>ACL padrão esperando afetar o existente</td><td>Vale só para o novo</td><td>Use também <code translate="no">-R</code></td></tr><tr><td>Confundir <code translate="no">Permission denied</code> e <code translate="no">Operation not permitted</code></td><td>Procura no lugar errado</td><td>O segundo sugere atributo, sticky ou capacidade</td></tr><tr><td>SUID em script</td><td>É ignorado</td><td>Use <code translate="no">sudo</code> com regra</td></tr><tr><td><code translate="no">cp</code> e <code translate="no">tar</code> sem preservar</td><td>Perdem ACL</td><td><code translate="no">cp -a</code>, <code translate="no">tar --acls</code></td></tr></tbody></table></div>
+<h2 id="8-quiz">8 · Quiz</h2>
+<p>Responda sem olhar. O gabarito está no fim da aula.</p>
+<ol><li>Qual a ordem de avaliação entre dono, usuários citados, grupos e outros?</li>
+<li>O que <code translate="no">#effective:</code> indica?</li>
+<li>Qual a diferença entre <code translate="no">-m</code> e <code translate="no">-d -m</code> no <code translate="no">setfacl</code>?</li>
+<li>Por que um <code translate="no">mv</code> não herda o grupo da pasta com SGID?</li>
+<li>Qual é o comando que mostra as permissões em cada degrau de um caminho?</li>
+<li>Por que um usuário recém-adicionado a um grupo continua sem acesso?</li></ol>
+<h2 id="9-cola">9 · Cola</h2>
+<p><strong>Para saber de cor:</strong></p>
+<div class="tabela"><table><thead><tr><th scope="col">Quero...</th><th scope="col">Comando</th></tr></thead><tbody><tr><td>Caminho inteiro</td><td><code translate="no">namei -l CAMINHO</code></td></tr><tr><td>ACL</td><td><code translate="no">getfacl CAMINHO</code></td></tr><tr><td>Dar acesso</td><td><code translate="no">setfacl -m u:NOME:rx CAMINHO</code></td></tr><tr><td>Para o que vier</td><td><code translate="no">setfacl -d -m u:NOME:rx PASTA</code></td></tr><tr><td>Pasta de equipe</td><td><code translate="no">chmod 2770 PASTA</code></td></tr><tr><td>Atributos</td><td><code translate="no">lsattr ARQUIVO</code></td></tr><tr><td>Montagem</td><td><code translate="no">findmnt -T ARQUIVO</code></td></tr></tbody></table></div>
+<p><strong>Para consultar:</strong></p>
+<div class="tabela"><table><thead><tr><th scope="col">Quero...</th><th scope="col">Comando</th></tr></thead><tbody><tr><td>Tirar ACL</td><td><code translate="no">setfacl -x u:NOME C</code>, <code translate="no">setfacl -b C</code></td></tr><tr><td>Máscara</td><td><code translate="no">setfacl -m m::rx C</code></td></tr><tr><td>Grupo novo sem relogar</td><td><code translate="no">sg GRUPO -c 'comando'</code></td></tr><tr><td>SUID</td><td><code translate="no">sudo find / -xdev -type f -perm -4000 -ls</code></td></tr><tr><td>SELinux</td><td><code translate="no">getenforce</code>, <code translate="no">sudo ausearch -m avc -ts recent</code></td></tr><tr><td>AppArmor</td><td><code translate="no">sudo aa-status</code></td></tr></tbody></table></div>
+<p><strong>Flashcards:</strong></p>
+<ul><li>SGID na pasta → <em>herda o grupo.</em></li>
+<li>Sticky → <em>só o dono apaga.</em></li>
+<li><code translate="no">+</code> no <code translate="no">ls</code> → <em>tem ACL.</em></li>
+<li><code translate="no">#effective</code> → <em>a máscara cortou.</em></li>
+<li>Script <code translate="no">755</code> negado → <em><code translate="no">noexec</code>.</em></li>
+<li>Grupo novo → <em>login novo.</em></li></ul>
+<h2 id="10-checklist-e-fechamento">10 · Checklist e fechamento</h2>
+<ul><li>[ ] Monto pasta de equipe com SGID e sticky</li>
+<li>[ ] Dou acesso preciso com ACL, inclusive para o futuro</li>
+<li>[ ] Leio a máscara</li>
+<li>[ ] Sigo o roteiro de diagnóstico de cor</li>
+<li>[ ] Sei o que <code translate="no">chattr</code>, <code translate="no">noexec</code> e SELinux causam</li>
+<li>[ ] Audito SUID</li></ul>
+<p><strong>Último exercício, sem olhar a aula:</strong> na debian-lab, crie um grupo e uma pasta em que os membros escrevem, cada um só apaga o que é seu, e um usuário de fora só lê, inclusive arquivos futuros. Prove com <code translate="no">sudo -u</code>. Depois limpe.</p>
+<p><strong>Snapshot de fim</strong> (no Proxmox):</p>
+<pre translate="no"><code class="lang-bash">qm snapshot 201 m8a5-fim
+qm snapshot 202 m8a5-fim</code></pre>
+<h2 id="11-na-vida-real">11 · Na vida real</h2>
+<p><strong>Missão, só leitura.</strong> Num servidor Linux que você administre (ou com autorização), rode <strong>apenas</strong>:</p>
+<pre translate="no"><code class="lang-bash">sudo find / -xdev -type f -perm -4000 -ls
+sudo find / -xdev -type d -perm -o+w ! -perm -1000 -ls | head -n 20
+findmnt -no TARGET,OPTIONS -t xfs,ext4,tmpfs | head -n 20
+getenforce 2&gt;/dev/null
+sudo aa-status 2&gt;/dev/null | head -n 5</code></pre>
+<p>Perguntas para responder:</p>
+<ol><li>Algum SUID fora do comum?</li>
+<li>Há pastas graváveis por todos sem sticky?</li>
+<li>Quais montagens têm <code translate="no">noexec</code> ou <code translate="no">nosuid</code>?</li>
+<li>Qual o controle externo ativo?</li></ol>
+<p><strong>Diário:</strong> anote os itens que merecem atenção. Não altere nada.</p>
+<p><strong>Amanhã, sem olhar:</strong> escreva as sete etapas do roteiro.</p>
+<h2 id="12-aprofundar-quando-quiser">12 · Aprofundar quando quiser</h2>
+<ul><li><strong><code translate="no">capabilities</code>, <code translate="no">getcap</code>, <code translate="no">setcap</code>:</strong> privilégios sem SUID.</li>
+<li><strong><code translate="no">/etc/fstab</code> com <code translate="no">noexec,nosuid,nodev</code>:</strong> endurecimento.</li>
+<li><strong>Samba e permissões:</strong> voltam na parte de serviços de rede.</li>
+<li><strong>SELinux em profundidade:</strong> M12.</li>
+<li><strong><code translate="no">auditd</code>:</strong> quem alterou aquele arquivo.</li></ul>
+<p><strong>DeepTutor</strong> (http://10.1.0.149:3782, KB "Curso Linux Sysadmin"):</p>
+<ul><li><code translate="no">!explica a máscara das ACLs POSIX</code></li>
+<li><code translate="no">!feynman por que precisamos de x em uma pasta</code></li>
+<li><code translate="no">!quiz Aula 8.5, 5 perguntas sobre ACL e bits especiais</code></li></ul>
+<h2 id="desafio-do-m8-tres-portas-fechadas">Desafio do M8 · Três portas fechadas</h2>
+<blockquote><p><strong>A missão:</strong> a usuária <code translate="no">ana</code> recebe <code translate="no">Permission denied</code> em três situações diferentes, cada uma com sua causa. Ache e corrija cada uma com o mínimo de permissão possível.</p></blockquote>
+<p>Não há passo a passo. As dicas estão no Gabarito, mas tente sem elas primeiro.</p>
+<p><strong>Antes de começar:</strong> <code translate="no">qm snapshot 201 m8-desafio-inicio</code>. Depois, monte o cenário na rocky-lab, sem tentar entender:</p>
+<pre translate="no"><code class="lang-bash">mkdir -p ~/labm8
+id ana || sudo useradd -m ana
+sudo mkdir -p /srv/labm8/projetos/2026 /srv/labm8/compartilhado /srv/labm8/scripts
+echo relatorio | sudo tee /srv/labm8/projetos/2026/relatorio.txt &gt; /dev/null
+sudo chmod 644 /srv/labm8/projetos/2026/relatorio.txt
+sudo chmod 700 /srv/labm8/projetos
+echo dados | sudo tee /srv/labm8/compartilhado/dados.txt &gt; /dev/null
+sudo chmod 644 /srv/labm8/compartilhado/dados.txt
+sudo setfacl -m u:ana:--- /srv/labm8/compartilhado/dados.txt
+sudo mount -t tmpfs -o noexec,mode=755 tmpfs /srv/labm8/scripts
+printf '#!/bin/bash\necho ok\n' | sudo tee /srv/labm8/scripts/rodar.sh &gt; /dev/null
+sudo chmod 755 /srv/labm8/scripts/rodar.sh</code></pre>
+<p><strong>Os três problemas:</strong></p>
+<pre translate="no"><code class="lang-bash">sudo -u ana cat /srv/labm8/projetos/2026/relatorio.txt
+sudo -u ana cat /srv/labm8/compartilhado/dados.txt
+sudo -u ana /srv/labm8/scripts/rodar.sh</code></pre>
+<p><strong>Requisitos:</strong></p>
+<ol><li>Para cada um, escreva em <code translate="no">~/labm8/relatorio.txt</code>: a causa, o comando que a revelou e a correção.</li>
+<li>Nada de <code translate="no">chmod 777</code>. Outros usuários da máquina não podem ganhar acesso ao relatório nem aos dados.</li>
+<li>A correção não pode ser copiar os arquivos para outro lugar.</li></ol>
+<p><strong>Critérios de aceite:</strong></p>
+<ul><li>[ ] Os três comandos acima funcionam como <code translate="no">ana</code></li>
+<li>[ ] <code translate="no">sudo find /srv/labm8 -perm -o+w ! -type l</code> não mostra nada</li>
+<li>[ ] <code translate="no">sudo -u nobody cat /srv/labm8/projetos/2026/relatorio.txt</code> continua negado</li>
+<li>[ ] O relatório tem três causas diferentes, cada uma com a prova</li></ul>
+<p><strong>Ao terminar:</strong> limpe e faça o snapshot:</p>
+<pre translate="no"><code class="lang-bash">sudo umount /srv/labm8/scripts
+sudo rm -r /srv/labm8
+sudo userdel -r ana</code></pre>
+<p>No Proxmox: <code translate="no">qm snapshot 201 m8-desafio-fim</code>.</p>
+<p><strong>Você fechou o M8.</strong> Agora você sabe onde cada coisa mora, acha qualquer arquivo, copia com prova e resolve um "Permission denied" pelo roteiro. O próximo módulo está no <a href="https://github.com/Rodrigoantignani/curso-linux-sysadmin/blob/master/00-plano-do-curso.md">plano do curso</a>.</p>
+<h2 id="gabarito-comentado">Gabarito comentado</h2>
+<h3 id="aquecimento">Aquecimento</h3>
+<ol><li>Falta de <code translate="no">x</code> em uma pasta do caminho, ACL específica, atributo, opção de montagem, SELinux ou AppArmor.</li>
+<li>O que for criado nela herda o grupo da pasta.</li>
+<li>Que existe uma ACL além do modo básico.</li></ol>
+<h3 id="quiz">Quiz</h3>
+<ol><li>Dono; depois usuários citados; depois os grupos, pelo dono e por entradas de grupo; por fim, outros. Vale a primeira categoria que se aplica.</li>
+<li>Que a máscara reduziu o acesso escrito na entrada.</li>
+<li>O <code translate="no">-m</code> altera a ACL de acesso do que já existe. O <code translate="no">-d -m</code> define a ACL padrão, herdada pelo que for criado.</li>
+<li>Porque o <code translate="no">mv</code> no mesmo disco não cria um arquivo: só muda o nome de lugar, e o inode mantém o grupo.</li>
+<li><code translate="no">namei -l</code>.</li>
+<li>Porque os grupos são definidos no login, e os processos já abertos mantêm a lista anterior.</li></ol>
+<h3 id="dicas-do-desafio">Dicas do Desafio</h3>
+<p>Leia uma de cada vez, só quando travar.</p>
+<ol><li><strong>Primeiro:</strong> <code translate="no">namei -l</code> no caminho do relatório. Qual pasta não deixa a <code translate="no">ana</code> passar?</li>
+<li><strong>Correção mínima:</strong> <code translate="no">sudo setfacl -m u:ana:x /srv/labm8/projetos</code>. O <code translate="no">chmod o+x</code> também abriria a passagem para todos, e o <code translate="no">nobody</code> só continua negado com a ACL.</li>
+<li><strong>Segundo:</strong> <code translate="no">ls -l</code> mostra <code translate="no">+</code>. Rode <code translate="no">getfacl</code>. Tire a entrada com <code translate="no">sudo setfacl -x u:ana /srv/labm8/compartilhado/dados.txt</code>.</li>
+<li><strong>Terceiro:</strong> <code translate="no">findmnt -T /srv/labm8/scripts/rodar.sh</code> mostra <code translate="no">noexec</code>. Remonte com <code translate="no">sudo mount -o remount,exec /srv/labm8/scripts</code>.</li></ol>
+</article><nav class="paginas" aria-label="Aulas"><a class="ant" href="8.4-links.html"><small>← Anterior</small>8.4 · Links</a><a class="prox" href="9.1-discos-e-layout.html"><small>Próxima →</small>9.1 · Discos e layout</a></nav></main></div>
+<footer><div class="wrap">Gerado a partir do Markdown do curso · Imagens em <code translate="no">img/</code></div></footer>
+</body>
+</html>

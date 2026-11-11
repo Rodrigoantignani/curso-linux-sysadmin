@@ -4,7 +4,7 @@ Oct 30, 2026 · revisado em Nov 9, 2026 · @RODRIGO ANTIGNANI COUTINHO
 
 ## O objetivo
 
-Trabalhar com fluência em Rocky Linux, Debian e Proxmox, e operar por dentro o NethServer 8 e o NethSecurity. O curso não leva a nenhuma prova: LPI e Red Hat servem só como programa, uma lista de assuntos para não deixar buraco. O mercado pede quem resolve, e é isso que o curso treina.
+Trabalhar com fluência em Rocky Linux, Debian e Proxmox, e operar por dentro o NethServer 8 e o NethSecurity. O programa cobre de ponta a ponta o que um administrador Linux usa, sem deixar buraco. O mercado pede quem resolve, e é isso que o curso treina.
 
 | Alvo | O que fluência quer dizer aqui | Onde |
 | --- | --- | --- |
@@ -21,7 +21,7 @@ Trabalhar com fluência em Rocky Linux, Debian e Proxmox, e operar por dentro o 
 3. Conserta quando outra pessoa quebra.
 4. O resultado sobrevive ao reboot.
 
-**O que não muda:** tirar as provas do calendário não tirou nada de Linux do programa. Tudo o que um sysadmin usa continua aqui: shell, texto, boot, kernel, pacotes, armazenamento, usuários, rede, segurança, agendamento, logs, e-mail, impressão, interface gráfica, serviços, contêineres, automação, monitoramento, backup, desempenho, alta disponibilidade e troubleshooting. E toda aula, de Linux ou de produto, tem case real, lab, quebre e conserte.
+**O que o programa cobre:** tudo o que um sysadmin usa: shell, texto, boot, kernel, pacotes, armazenamento, usuários, rede, segurança, agendamento, logs, e-mail, impressão, interface gráfica, serviços, contêineres, automação, monitoramento, backup, desempenho, alta disponibilidade e troubleshooting. E toda aula, de Linux ou de produto, tem case real, lab, quebre e conserte.
 
 ## Como o curso funciona
 
@@ -45,11 +45,11 @@ As aulas ficam em [`aulas/`](aulas/), um arquivo por aula, e o [índice de aulas
 
 **Anatomia de uma aula**
 
-1. Ficha: objetivos, referência no programa, pré-requisitos e tempo.
+1. Ficha: objetivos, pré-requisitos e tempo.
 2. Aquecimento: 3 perguntas de revisão, sem consulta.
 3. Por que importa: um case real de sysadmin.
 4. Modelo mental: analogia e desenho.
-5. Conceito em camadas: o essencial, o aprofundamento e a referência no programa.
+5. Conceito em camadas: o essencial e o aprofundamento.
 6. Rocky × Debian: a tabela das diferenças.
 7. Lab guiado: snapshot antes; cada passo com previsão, comando, saída esperada e verificação.
 8. Quebre e conserte: um defeito para diagnosticar sozinho.
@@ -60,8 +60,6 @@ As aulas ficam em [`aulas/`](aulas/), um arquivo por aula, e o [índice de aulas
 13. Com o DeepTutor: prompts prontos para aprofundar.
 
 Essa anatomia vale para todas as aulas, inclusive as de Proxmox, NS8 e NethSecurity.
-
-As aulas já escritas trazem seções "O que cai na prova" e "Itens de prova". Continuam valendo como referência do programa; leia como lista de assuntos.
 
 **Quem faz o quê**
 
@@ -79,27 +77,8 @@ As aulas já escritas trazem seções "O que cai na prova" e "Itens de prova". C
 - Leia a mensagem de erro inteira antes de pesquisar. Quase sempre ela já diz a causa.
 - NS8 e NethSecurity mudam rápido. Antes de escrever cada aula desses módulos, comandos e caminhos são conferidos na documentação da versão em uso.
 
-## As provas como programa
+## Fontes oficiais
 
-Nenhuma prova faz parte do calendário. Elas continuam aqui porque cada uma publica uma lista de objetivos detalhada, útil para conferir se faltou algum assunto. As tabelas de M0 a M16 mostram esse vínculo na coluna **Programa**; de M17 em diante, a coluna **Serve para** diz onde aquilo aparece no trabalho.
-
-| Programa | Onde entra | Como o curso usa |
-| --- | --- | --- |
-| Linux Essentials 010-200 (versão 2.0) | M0 a M2 | Checklist dos fundamentos |
-| LPIC-1 101-500 e 102-500 (versão 5.0) | M3 a M15 | Cobertura completa e neutra das duas famílias, com impressão e interfaces gráficas |
-| RHCSA EX200 (RHEL 10) | M3 a M16 | Referência do que um administrador faz sozinho e faz sobreviver ao reboot |
-| EX294, RHCE em Ansible | M23 a M26 | Ansible completo, aplicado a Rocky e Debian |
-| EX342, RHCE em Enterprise Linux | M28, M30, M32 e M34 | Método de diagnóstico e lista de falhas para treinar |
-
-Se um dia você decidir fazer alguma prova, releia os objetivos oficiais 30 dias antes, porque elas mudam, e peça ao DeepTutor um `!simulado` no formato dela. Os objetivos abaixo foram conferidos em 30/10/2026.
-
-**Fontes oficiais**
-
-- [Linux Essentials](https://www.lpi.org/our-certifications/linux-essentials-overview/) e [objetivos da prova 010](https://www.lpi.org/our-certifications/exam-010-objectives/)
-- [LPIC-1](https://www.lpi.org/our-certifications/lpic-1-overview/)
-- [RHCSA, prova EX200](https://www.redhat.com/en/services/training/ex200-red-hat-certified-system-administrator-rhcsa-exam)
-- [RHCE em Ansible](https://www.redhat.com/en/services/certification/red-hat-certified-engineer-in-ansible) e [prova EX294](https://www.redhat.com/en/services/training/ex294-red-hat-certified-engineer-rhce-exam-red-hat-enterprise-linux)
-- [RHCE em Enterprise Linux](https://www.redhat.com/en/services/certification/red-hat-certified-engineer-in-enterprise-linux) e [prova EX342](https://www.redhat.com/en/services/training/ex342-red-hat-certified-specialist-linux-diagnostics-and-troubleshooting)
 - [NethServer 8, manual do administrador](https://docs.nethserver.org/docs/administrator-manual/) e [manual do desenvolvedor](https://nethserver.github.io/ns8-core/)
 - [NethSecurity, manual do administrador](https://docs.nethsecurity.org/docs/administrator-manual)
 
@@ -160,42 +139,42 @@ Meta da fase: usar o terminal com segurança e entender o que cada comando faz p
 
 **M0 · Laboratório** · 2 aulas · semana 1
 
-| Aula | O que você faz | Programa |
-| --- | --- | --- |
-| 0.1 Montar o laboratório | Cria as VMs 201 e 202 pela linha de comando do Proxmox, instala Rocky 9 e Debian 13 entendendo cada tela do instalador e confere o resultado | LE 014.1 |
-| 0.2 Acesso e proteção | SSH do Windows com chave Ed25519, sudo nas duas VMs, guest agent, snapshots e backup no PBS com teste de restauração | LE 015.1 · RHCSA SSH |
+| Aula | O que você faz |
+| --- | --- |
+| 0.1 Montar o laboratório | Cria as VMs 201 e 202 pela linha de comando do Proxmox, instala Rocky 9 e Debian 13 entendendo cada tela do instalador e confere o resultado |
+| 0.2 Acesso e proteção | SSH do Windows com chave Ed25519, sudo nas duas VMs, guest agent, snapshots e backup no PBS com teste de restauração |
 
 Desafio do módulo: quebrar uma VM de propósito e voltar pelo snapshot em menos de dois minutos.
 
 **M1 · Linha de comando** · 10 aulas · semanas 1 a 3
 
-| Aula | O que você faz | Programa |
-| --- | --- | --- |
-| 1.1 O que é Linux | Kernel, distribuição e famílias; identificar qualquer Linux em 30 segundos; Proxmox, NethServer 8 e NethSecurity no mapa | LE 011.1, 011.4 |
-| 1.2 O shell e a ajuda | Anatomia de um comando, builtin e programa, PATH, man e suas seções, apropos, info, /usr/share/doc, histórico e atalhos | LE 012.1, 012.2 · LPIC 103.1 · RHCSA ajuda |
-| 1.3 Caminhos e navegação | Árvore de diretórios, caminhos absolutos e relativos, cd, ls, curingas, arquivos ocultos | LE 012.3 |
-| 1.4 Criar, copiar, mover e apagar | mkdir, touch, cp, mv e rm com segurança; por que o terminal não tem lixeira | LE 012.4 · LPIC 103.3 · RHCSA arquivos |
-| 1.5 Ler e procurar texto | cat, less, head, tail -f, wc e grep básico; ler log sem abrir editor | LE 013.2 · RHCSA grep |
-| 1.6 Redirecionamentos e pipes | stdin, stdout e stderr; `>`, `>>`, `2>`, `2>&1`, pipe e tee; montar um comando por partes | LE 013.2 · LPIC 103.4 · RHCSA redirecionamento |
-| 1.7 Arquivar e compactar | tar com gzip, bzip2 e xz, zip; listar e testar antes de extrair | LE 013.1 · RHCSA tar |
-| 1.8 Primeiro script | Shebang, variáveis, aspas, argumentos `$1` e `$#`, permissão de execução | LE 013.3 · RHCSA scripts |
-| 1.9 Scripts que decidem e repetem | Código de saída, test e `[ ]`, if, for, while, `$(comando)` | LE 013.3 · RHCSA scripts |
-| 1.10 Software livre na prática | Licenças GPL, MIT e Apache, aplicações open source que importam, modelos de negócio, Linux na nuvem | LE 011.2, 011.3, 011.4 |
+| Aula | O que você faz |
+| --- | --- |
+| 1.1 O que é Linux | Kernel, distribuição e famílias; identificar qualquer Linux em 30 segundos; Proxmox, NethServer 8 e NethSecurity no mapa |
+| 1.2 O shell e a ajuda | Anatomia de um comando, builtin e programa, PATH, man e suas seções, apropos, info, /usr/share/doc, histórico e atalhos |
+| 1.3 Caminhos e navegação | Árvore de diretórios, caminhos absolutos e relativos, cd, ls, curingas, arquivos ocultos |
+| 1.4 Criar, copiar, mover e apagar | mkdir, touch, cp, mv e rm com segurança; por que o terminal não tem lixeira |
+| 1.5 Ler e procurar texto | cat, less, head, tail -f, wc e grep básico; ler log sem abrir editor |
+| 1.6 Redirecionamentos e pipes | stdin, stdout e stderr; `>`, `>>`, `2>`, `2>&1`, pipe e tee; montar um comando por partes |
+| 1.7 Arquivar e compactar | tar com gzip, bzip2 e xz, zip; listar e testar antes de extrair |
+| 1.8 Primeiro script | Shebang, variáveis, aspas, argumentos `$1` e `$#`, permissão de execução |
+| 1.9 Scripts que decidem e repetem | Código de saída, test e `[ ]`, if, for, while, `$(comando)` |
+| 1.10 Software livre na prática | Licenças GPL, MIT e Apache, aplicações open source que importam, modelos de negócio, Linux na nuvem |
 
 Desafio do módulo: um script `inventario.sh` que mostra nome, distro, kernel, IP, memória e disco livre, com a mesma saída nas duas VMs.
 
 **M2 · Sistema, usuários e permissões** · 8 aulas · semanas 4 e 5
 
-| Aula | O que você faz | Programa |
-| --- | --- | --- |
-| 2.1 Instalação e provisionamento | Instalação manual, imagem de nuvem com cloud-init, VM e container: quando usar cada um | LE 014.1, 011.4 |
-| 2.2 Hardware e dispositivos | /dev, lsblk, lspci, lsusb e dmesg; como o Linux enxerga disco, rede e USB | LE 014.2 |
-| 2.3 Processos e logs | ps, top, kill, systemctl status e journalctl; quem está usando a CPU e por quê | LE 014.3 · RHCSA logs |
-| 2.4 Rede no dia a dia | ip, ss, ping, getent, dig e /etc/hosts; o caminho de um pacote até a internet | LE 014.4 |
-| 2.5 Acesso remoto e privilégios | ssh, scp, sftp, su e sudo; transferir arquivos com segurança | LE 015.1 · RHCSA transferência segura |
-| 2.6 Usuários e grupos | /etc/passwd, /etc/group, id, useradd e passwd; grupo primário e suplementar | LE 015.2 · RHCSA usuários |
-| 2.7 Permissões e dono | rwx em arquivo e em diretório, chmod simbólico e octal, chown, umask | LE 015.3 · RHCSA permissões |
-| 2.8 Diretórios e arquivos especiais | /tmp e sticky bit, SUID e SGID, links simbólicos, /proc, /sys e /dev | LE 015.4 · RHCSA links |
+| Aula | O que você faz |
+| --- | --- |
+| 2.1 Instalação e provisionamento | Instalação manual, imagem de nuvem com cloud-init, VM e container: quando usar cada um |
+| 2.2 Hardware e dispositivos | /dev, lsblk, lspci, lsusb e dmesg; como o Linux enxerga disco, rede e USB |
+| 2.3 Processos e logs | ps, top, kill, systemctl status e journalctl; quem está usando a CPU e por quê |
+| 2.4 Rede no dia a dia | ip, ss, ping, getent, dig e /etc/hosts; o caminho de um pacote até a internet |
+| 2.5 Acesso remoto e privilégios | ssh, scp, sftp, su e sudo; transferir arquivos com segurança |
+| 2.6 Usuários e grupos | /etc/passwd, /etc/group, id, useradd e passwd; grupo primário e suplementar |
+| 2.7 Permissões e dono | rwx em arquivo e em diretório, chmod simbólico e octal, chown, umask |
+| 2.8 Diretórios e arquivos especiais | /tmp e sticky bit, SUID e SGID, links simbólicos, /proc, /sys e /dev |
 
 Desafio do módulo: uma pasta /srv/equipe onde dois usuários criam e editam arquivos, mas nenhum apaga o arquivo do outro, nas duas VMs.
 
@@ -205,88 +184,88 @@ Desafio do módulo: uma pasta /srv/equipe onde dois usuários criam e editam arq
 
 Semanas 7 a 22 · 63 aulas · fecha com um incidente com relógio no Rocky 10 e no Debian 13.
 
-Meta da fase: administrar sozinho um servidor Linux de ponta a ponta, nas duas famílias, com tudo sobrevivendo ao reboot. A fase tem três blocos: a base do sistema, o servidor em rede e a prova de que você absorveu. Todo lab termina com reboot e verificação.
+Meta da fase: administrar sozinho um servidor Linux de ponta a ponta, nas duas famílias, com tudo sobrevivendo ao reboot. A fase tem três blocos: a base do sistema, o servidor em rede e a hora de mostrar que absorveu. Todo lab termina com reboot e verificação.
 
 ### Bloco A · a base do sistema
 
 **M3 · Texto e editor** · 5 aulas · semanas 7 e 8
 
-| Aula | O que você faz | Programa |
-| --- | --- | --- |
-| 3.1 Fluxos a fundo | tee, xargs, here-doc, substituição de processo e /dev/null; pipelines que não escondem erro | LPIC 103.4 · RHCSA redirecionamento |
-| 3.2 Filtros de texto | cut, sort, uniq, tr, paste, nl, split, od e sha256sum; transformar log em relatório | LPIC 103.2 |
-| 3.3 Expressões regulares e grep | BRE e ERE, âncoras, classes e grupos; grep -E, -v, -o e -r | LPIC 103.7 · RHCSA grep e regex |
-| 3.4 sed e awk | Substituir, apagar e extrair linhas com sed; colunas, filtros e somas com awk | LPIC 103.2, 103.7 |
-| 3.5 vi e vim de verdade | Modos, movimentos, busca e substituição, desfazer; editar configuração sem medo | LPIC 103.8 · RHCSA editar arquivos |
+| Aula | O que você faz |
+| --- | --- |
+| 3.1 Fluxos a fundo | tee, xargs, here-doc, substituição de processo e /dev/null; pipelines que não escondem erro |
+| 3.2 Filtros de texto | cut, sort, uniq, tr, paste, nl, split, od e sha256sum; transformar log em relatório |
+| 3.3 Expressões regulares e grep | BRE e ERE, âncoras, classes e grupos; grep -E, -v, -o e -r |
+| 3.4 sed e awk | Substituir, apagar e extrair linhas com sed; colunas, filtros e somas com awk |
+| 3.5 vi e vim de verdade | Modos, movimentos, busca e substituição, desfazer; editar configuração sem medo |
 
 Desafio do módulo: os 10 IPs que mais erraram senha no SSH, numa linha de comando, nas duas VMs. A Rocky guarda isso em /var/log/secure; a Debian, só no journal.
 
 **M4 · Boot e systemd** · 4 aulas · semanas 8 e 9
 
-| Aula | O que você faz | Programa |
-| --- | --- | --- |
-| 4.1 Como o Linux liga | UEFI, GRUB 2, kernel, initramfs e systemd; ler o boot com journalctl -b e systemd-analyze | LPIC 101.2 |
-| 4.2 systemd: serviços e units | start, stop, enable e mask; dependências e overrides com systemctl edit | LPIC 101.3 · RHCSA serviços |
-| 4.3 Targets, desligar e reiniciar | multi-user e graphical, target padrão, rescue e emergency, shutdown e wall | LPIC 101.3 · RHCSA targets |
-| 4.4 GRUB e acesso de emergência | Parâmetros do kernel com grubby e update-grub; interromper o boot e recuperar a senha de root | LPIC 102.2 · RHCSA bootloader e recuperação |
+| Aula | O que você faz |
+| --- | --- |
+| 4.1 Como o Linux liga | UEFI, GRUB 2, kernel, initramfs e systemd; ler o boot com journalctl -b e systemd-analyze |
+| 4.2 systemd: serviços e units | start, stop, enable e mask; dependências e overrides com systemctl edit |
+| 4.3 Targets, desligar e reiniciar | multi-user e graphical, target padrão, rescue e emergency, shutdown e wall |
+| 4.4 GRUB e acesso de emergência | Parâmetros do kernel com grubby e update-grub; interromper o boot e recuperar a senha de root |
 
 Desafio do módulo: recuperar a senha de root das duas VMs sem rollback, incluindo o relabel do SELinux na Rocky. A aula 4.4 pede backup no PBS antes.
 
 **M5 · Hardware, kernel e virtualização** · 3 aulas · semana 9
 
-| Aula | O que você faz | Programa |
-| --- | --- | --- |
-| 5.1 Hardware pelo kernel | /proc, /sys, udev, lspci -k, lsusb, lsblk e dmesg; o que é um driver | LPIC 101.1 |
-| 5.2 Módulos e parâmetros | lsmod, modinfo, modprobe, blacklist e sysctl persistente | LPIC 101.1 · EX342 kernel |
-| 5.3 Linux como convidado | virtio, guest agent, cloud-init, clones e machine-id; VM e container lado a lado | LPIC 102.6 |
+| Aula | O que você faz |
+| --- | --- |
+| 5.1 Hardware pelo kernel | /proc, /sys, udev, lspci -k, lsusb, lsblk e dmesg; o que é um driver |
+| 5.2 Módulos e parâmetros | lsmod, modinfo, modprobe, blacklist e sysctl persistente |
+| 5.3 Linux como convidado | virtio, guest agent, cloud-init, clones e machine-id; VM e container lado a lado |
 
 Desafio do módulo: clonar a VM 202 e dar ao clone identidade própria: hostname, machine-id e chaves SSH do host.
 
 **M6 · Software** · 5 aulas · semanas 10 e 11
 
-| Aula | O que você faz | Programa |
-| --- | --- | --- |
-| 6.1 Pacotes no Debian | dpkg e apt: instalar, remover, purgar, descobrir qual pacote trouxe um arquivo; fontes no formato deb822 | LPIC 102.4 |
-| 6.2 Pacotes na Rocky | rpm e dnf: instalar, remover, consultar, histórico e desfazer | LPIC 102.5 · RHCSA pacotes |
-| 6.3 Repositórios | Arquivos .repo, chaves GPG, EPEL, repositório local a partir da ISO | LPIC 102.4, 102.5 · RHCSA repositórios |
-| 6.4 Flatpak | Remotes, instalar e remover aplicações, Flathub; quando faz sentido num servidor | RHCSA Flatpak |
-| 6.5 Bibliotecas compartilhadas | ldd, ldconfig e /etc/ld.so.conf.d; o erro "cannot open shared object file" | LPIC 102.3 · EX342 bibliotecas |
+| Aula | O que você faz |
+| --- | --- |
+| 6.1 Pacotes no Debian | dpkg e apt: instalar, remover, purgar, descobrir qual pacote trouxe um arquivo; fontes no formato deb822 |
+| 6.2 Pacotes na Rocky | rpm e dnf: instalar, remover, consultar, histórico e desfazer |
+| 6.3 Repositórios | Arquivos .repo, chaves GPG, EPEL, repositório local a partir da ISO |
+| 6.4 Flatpak | Remotes, instalar e remover aplicações, Flathub; quando faz sentido num servidor |
+| 6.5 Bibliotecas compartilhadas | ldd, ldconfig e /etc/ld.so.conf.d; o erro "cannot open shared object file" |
 
 Desafio do módulo: a VM 201 instala pacotes sem internet, só com a ISO como repositório.
 
 **M7 · Processos e desempenho** · 3 aulas · semana 11
 
-| Aula | O que você faz | Programa |
-| --- | --- | --- |
-| 7.1 Processos e sinais | ps, top, pgrep, pkill, kill e os sinais; estados e zumbis | LPIC 103.5 · RHCSA processos |
-| 7.2 Jobs e sessões | &, jobs, fg, bg, nohup e tmux; tarefa longa que sobrevive à queda do SSH | LPIC 103.5 |
-| 7.3 Prioridade e perfis | nice, renice e tuned-adm; achar e conter o processo que devora CPU ou memória | LPIC 103.6 · RHCSA prioridade e tuned |
+| Aula | O que você faz |
+| --- | --- |
+| 7.1 Processos e sinais | ps, top, pgrep, pkill, kill e os sinais; estados e zumbis |
+| 7.2 Jobs e sessões | &, jobs, fg, bg, nohup e tmux; tarefa longa que sobrevive à queda do SSH |
+| 7.3 Prioridade e perfis | nice, renice e tuned-adm; achar e conter o processo que devora CPU ou memória |
 
 Desafio do módulo: um processo misterioso devora CPU e memória. Ache, rebaixe a prioridade e encerre, sem reiniciar nada.
 
 **M8 · Arquivos a fundo** · 5 aulas · semanas 12 e 13
 
-| Aula | O que você faz | Programa |
-| --- | --- | --- |
-| 8.1 FHS e onde cada coisa mora | /etc, /var, /usr, /opt e /srv; which, type, whereis e locate | LPIC 104.7 |
-| 8.2 find a fundo | Por nome, tipo, dono, tamanho, data e permissão; -exec e xargs com segurança | LPIC 103.3, 104.7 |
-| 8.3 Arquivamento avançado | tar com seleção e exclusão, cpio e dd; imagem de disco e checksum | LPIC 103.3 · RHCSA tar |
-| 8.4 Links | Inodes, links físicos e simbólicos; o que acontece quando o original some | LPIC 104.6 · RHCSA links |
-| 8.5 Permissões avançadas | SUID, SGID, sticky, umask e ACL; diagnosticar "Permission denied" passo a passo | LPIC 104.5 · RHCSA umask e diagnóstico |
+| Aula | O que você faz |
+| --- | --- |
+| 8.1 FHS e onde cada coisa mora | /etc, /var, /usr, /opt e /srv; which, type, whereis e locate |
+| 8.2 find a fundo | Por nome, tipo, dono, tamanho, data e permissão; -exec e xargs com segurança |
+| 8.3 Arquivamento avançado | tar com seleção e exclusão, cpio e dd; imagem de disco e checksum |
+| 8.4 Links | Inodes, links físicos e simbólicos; o que acontece quando o original some |
+| 8.5 Permissões avançadas | SUID, SGID, sticky, umask e ACL; diagnosticar "Permission denied" passo a passo |
 
 Desafio do módulo: três "Permission denied" com causas diferentes; achar cada uma.
 
 **M9 · Armazenamento** · 7 aulas · semanas 13 e 14 · backup no PBS antes
 
-| Aula | O que você faz | Programa |
-| --- | --- | --- |
-| 9.1 Discos e layout | MBR e GPT, nomes de dispositivo, planejar partições e LVM | LPIC 102.1 |
-| 9.2 Particionar | fdisk, gdisk e parted em discos novos adicionados pelo Proxmox | LPIC 104.1 · RHCSA GPT |
-| 9.3 Sistemas de arquivos | ext4, XFS e VFAT: criar, rotular e comparar | LPIC 104.1 · RHCSA sistemas de arquivos |
-| 9.4 Montar e persistir | mount, /etc/fstab por UUID e LABEL, nofail, units de montagem | LPIC 104.3 · RHCSA montagem |
-| 9.5 Integridade e espaço | df, du, fsck, xfs\_repair e tune2fs; disco cheio de verdade | LPIC 104.2 |
-| 9.6 LVM | PV, VG e LV: criar, estender, reduzir e remover | RHCSA LVM |
-| 9.7 Crescer sem destruir | Nova partição, novo LV e swap sem perder dados; aumentar o disco no Proxmox até o sistema de arquivos | RHCSA armazenamento |
+| Aula | O que você faz |
+| --- | --- |
+| 9.1 Discos e layout | MBR e GPT, nomes de dispositivo, planejar partições e LVM |
+| 9.2 Particionar | fdisk, gdisk e parted em discos novos adicionados pelo Proxmox |
+| 9.3 Sistemas de arquivos | ext4, XFS e VFAT: criar, rotular e comparar |
+| 9.4 Montar e persistir | mount, /etc/fstab por UUID e LABEL, nofail, units de montagem |
+| 9.5 Integridade e espaço | df, du, fsck, xfs\_repair e tune2fs; disco cheio de verdade |
+| 9.6 LVM | PV, VG e LV: criar, estender, reduzir e remover |
+| 9.7 Crescer sem destruir | Nova partição, novo LV e swap sem perder dados; aumentar o disco no Proxmox até o sistema de arquivos |
 
 Desafio do módulo: um fstab com erro impede o boot. Conserte pelo modo de emergência.
 
@@ -296,70 +275,70 @@ Desafio do módulo: um fstab com erro impede o boot. Conserte pelo modo de emerg
 
 **M10 · Usuários e acesso privilegiado** · 4 aulas · semana 15
 
-| Aula | O que você faz | Programa |
-| --- | --- | --- |
-| 10.1 Contas | useradd, usermod e userdel; /etc/passwd, /etc/shadow e /etc/skel | LPIC 107.1 · RHCSA usuários |
-| 10.2 Senhas e validade | passwd, chage e /etc/login.defs; bloquear e expirar contas | LPIC 107.1 · RHCSA senhas |
-| 10.3 Grupos e trabalho em equipe | groupadd, gpasswd, grupos suplementares, diretório com SGID | LPIC 107.1 · RHCSA grupos |
-| 10.4 sudo de verdade | sudoers, visudo, /etc/sudoers.d e privilégio mínimo | LPIC 110.1 · RHCSA acesso privilegiado |
+| Aula | O que você faz |
+| --- | --- |
+| 10.1 Contas | useradd, usermod e userdel; /etc/passwd, /etc/shadow e /etc/skel |
+| 10.2 Senhas e validade | passwd, chage e /etc/login.defs; bloquear e expirar contas |
+| 10.3 Grupos e trabalho em equipe | groupadd, gpasswd, grupos suplementares, diretório com SGID |
+| 10.4 sudo de verdade | sudoers, visudo, /etc/sudoers.d e privilégio mínimo |
 
 Desafio do módulo: uma equipe de três usuários, senhas que vencem em 90 dias e um operador que só pode reiniciar o nginx.
 
 **M11 · Rede** · 5 aulas · semanas 16 e 17
 
-| Aula | O que você faz | Programa |
-| --- | --- | --- |
-| 11.1 TCP/IP para quem administra | IPv4 e IPv6, prefixos, portas, TCP, UDP e ICMP | LPIC 109.1 · RHCSA rede |
-| 11.2 NetworkManager e nmcli | Conexões, IP fixo, DNS e IPv6; keyfiles | LPIC 109.2 · RHCSA rede |
-| 11.3 Rede no Debian | ifupdown, comparado com NetworkManager e systemd-networkd | LPIC 109.2 |
-| 11.4 Nomes e resolução | hostnamectl, /etc/hosts, resolv.conf, nsswitch e getent | LPIC 109.4 · RHCSA resolução de nomes |
-| 11.5 Diagnóstico de rede | ping, tracepath, ss, dig, nc e tcpdump; onde o pacote some | LPIC 109.3 · EX342 rede |
+| Aula | O que você faz |
+| --- | --- |
+| 11.1 TCP/IP para quem administra | IPv4 e IPv6, prefixos, portas, TCP, UDP e ICMP |
+| 11.2 NetworkManager e nmcli | Conexões, IP fixo, DNS e IPv6; keyfiles |
+| 11.3 Rede no Debian | ifupdown, comparado com NetworkManager e systemd-networkd |
+| 11.4 Nomes e resolução | hostnamectl, /etc/hosts, resolv.conf, nsswitch e getent |
+| 11.5 Diagnóstico de rede | ping, tracepath, ss, dig, nc e tcpdump; onde o pacote some |
 
 Desafio do módulo: IP fixo com IPv6 na VM 201 que sobrevive ao reboot; depois, um DNS quebrado de propósito para consertar.
 
 **M12 · Segurança do host** · 5 aulas · semanas 17 e 18
 
-| Aula | O que você faz | Programa |
-| --- | --- | --- |
-| 12.1 SSH a fundo | Chaves, ssh-agent, \~/.ssh/config, túneis e sshd\_config seguro | LPIC 110.3 · RHCSA SSH |
-| 12.2 Firewall | firewalld com zonas, serviços e portas; nftables no Debian | RHCSA firewall |
-| 12.3 SELinux: modos e contextos | enforcing e permissive, ls -Z, ps -Z, semanage fcontext e restorecon | RHCSA SELinux |
-| 12.4 SELinux: portas e booleanos | semanage port, setsebool -P, ler um AVC; AppArmor no Debian | RHCSA SELinux |
-| 12.5 Auditoria e criptografia | SUID esquecido, portas abertas, last, who e ulimit; cifrar e assinar com GPG | LPIC 110.1, 110.2, 110.3 |
+| Aula | O que você faz |
+| --- | --- |
+| 12.1 SSH a fundo | Chaves, ssh-agent, \~/.ssh/config, túneis e sshd\_config seguro |
+| 12.2 Firewall | firewalld com zonas, serviços e portas; nftables no Debian |
+| 12.3 SELinux: modos e contextos | enforcing e permissive, ls -Z, ps -Z, semanage fcontext e restorecon |
+| 12.4 SELinux: portas e booleanos | semanage port, setsebool -P, ler um AVC; AppArmor no Debian |
+| 12.5 Auditoria e criptografia | SUID esquecido, portas abertas, last, who e ulimit; cifrar e assinar com GPG |
 
 Desafio do módulo: nginx numa porta e num diretório fora do padrão, com SELinux enforcing e firewall ativo, sem desligar nada.
 
 **M13 · Armazenamento em rede** · 3 aulas · semanas 18 e 19 · VM 203 entra
 
-| Aula | O que você faz | Programa |
-| --- | --- | --- |
-| 13.1 Servidor NFS | Criar a VM 203, exportar diretórios, firewall e SELinux do NFS | base do RHCSA NFS |
-| 13.2 Cliente NFS | Montar na mão e no fstab, `_netdev` e opções; o erro "stale file handle" | RHCSA NFS |
-| 13.3 autofs | Mapas mestre e indiretos; homes montados sob demanda | RHCSA autofs |
+| Aula | O que você faz |
+| --- | --- |
+| 13.1 Servidor NFS | Criar a VM 203, exportar diretórios, firewall e SELinux do NFS |
+| 13.2 Cliente NFS | Montar na mão e no fstab, `_netdev` e opções; o erro "stale file handle" |
+| 13.3 autofs | Mapas mestre e indiretos; homes montados sob demanda |
 
 Desafio do módulo: homes de usuários de rede montados sozinhos nas VMs 201 e 202.
 
 **M14 · Agendamento, logs e hora** · 5 aulas · semanas 19 e 20
 
-| Aula | O que você faz | Programa |
-| --- | --- | --- |
-| 14.1 cron e at | crontab de usuário e de sistema, /etc/cron.d, at e controle de acesso | LPIC 107.2 · RHCSA agendamento |
-| 14.2 Timers do systemd | Par .timer e .service, OnCalendar, Persistent e list-timers | LPIC 107.2 · RHCSA timers |
-| 14.3 journald e rsyslog | Filtrar o journal, journal persistente, rsyslog e logrotate | LPIC 108.2 · RHCSA logs e journal persistente |
-| 14.4 Hora certa | chrony como cliente, timedatectl e fusos; o que quebra quando a hora erra | LPIC 108.1 · RHCSA serviço de hora |
-| 14.5 E-mail local e impressão | MTA básico com Postfix, aliases e mail; CUPS e lp | LPIC 108.3, 108.4 |
+| Aula | O que você faz |
+| --- | --- |
+| 14.1 cron e at | crontab de usuário e de sistema, /etc/cron.d, at e controle de acesso |
+| 14.2 Timers do systemd | Par .timer e .service, OnCalendar, Persistent e list-timers |
+| 14.3 journald e rsyslog | Filtrar o journal, journal persistente, rsyslog e logrotate |
+| 14.4 Hora certa | chrony como cliente, timedatectl e fusos; o que quebra quando a hora erra |
+| 14.5 E-mail local e impressão | MTA básico com Postfix, aliases e mail; CUPS e lp |
 
 Desafio do módulo: backup diário por timer, com log no journal e aviso por e-mail local quando falhar.
 
 **M15 · Shell e ambiente** · 5 aulas · semanas 20 e 21
 
-| Aula | O que você faz | Programa |
-| --- | --- | --- |
-| 15.1 Ambiente do shell | Variáveis, export, PATH, \~/.bashrc, /etc/profile.d, aliases e funções | LPIC 105.1 |
-| 15.2 Scripts robustos | Argumentos, testes, laços, case, funções e códigos de saída | LPIC 105.2 · RHCSA scripts |
-| 15.3 Scripts de administração | Usar a saída de comandos, gerar relatório, rodar em várias VMs por SSH | LPIC 105.2 · RHCSA scripts |
-| 15.4 Interfaces gráficas | X11 e Wayland, display manager, desktops e acessibilidade; instalar num snapshot e voltar | LPIC 106.1, 106.2, 106.3 |
-| 15.5 Idioma, teclado e fuso | locale, localectl, UTF-8 e iconv; acentos que chegam quebrados | LPIC 107.3 |
+| Aula | O que você faz |
+| --- | --- |
+| 15.1 Ambiente do shell | Variáveis, export, PATH, \~/.bashrc, /etc/profile.d, aliases e funções |
+| 15.2 Scripts robustos | Argumentos, testes, laços, case, funções e códigos de saída |
+| 15.3 Scripts de administração | Usar a saída de comandos, gerar relatório, rodar em várias VMs por SSH |
+| 15.4 Interfaces gráficas | X11 e Wayland, display manager, desktops e acessibilidade; instalar num snapshot e voltar |
+| 15.5 Idioma, teclado e fuso | locale, localectl, UTF-8 e iconv; acentos que chegam quebrados |
 
 Desafio do módulo: um script de saúde (disco, memória, serviços, último backup) com código de saída que o Zabbix vai ler no M27.
 
@@ -369,12 +348,12 @@ Desafio do módulo: um script de saúde (disco, memória, serviços, último bac
 
 **M16 · Semana de incidentes no Rocky 10** · 4 aulas · semanas 21 e 22 · VM 205 entra
 
-| Aula | O que você faz | Programa |
-| --- | --- | --- |
-| 16.1 Rocky 10: o que muda | Criar a VM 205, o que muda do 9 para o 10 e o que continua igual | RHCSA |
-| 16.2 Incidentes por área | Sistemas quebrados por script, com dicas liberadas aos poucos | RHCSA |
-| 16.3 Incidente com relógio | Rocky 10 e Debian 13 quebrados, relógio ligado, só man e /usr/share/doc, reboot no fim | RHCSA |
-| 16.4 Correção e reforço | Correção por script de verificação e plano para os pontos fracos | RHCSA |
+| Aula | O que você faz |
+| --- | --- |
+| 16.1 Rocky 10: o que muda | Criar a VM 205, o que muda do 9 para o 10 e o que continua igual |
+| 16.2 Incidentes por área | Sistemas quebrados por script, com dicas liberadas aos poucos |
+| 16.3 Incidente com relógio | Rocky 10 e Debian 13 quebrados, relógio ligado, só man e /usr/share/doc, reboot no fim |
+| 16.4 Correção e reforço | Correção por script de verificação e plano para os pontos fracos |
 
 **Critério para seguir:** o 16.3 passa inteiro depois do reboot e você explica cada correção.
 
@@ -655,7 +634,7 @@ Cada aula termina com 5 a 10 flashcards. Cada cartão volta 1, 3, 7 e 21 dias de
 
 ### Dias de incidente e critério para avançar
 
-Uma vez por mês, um sistema quebrado com o relógio ligado, misturando assuntos e sem pesquisa, só com man e a documentação local. O dia de incidente substitui os antigos simulados.
+Uma vez por mês, um sistema quebrado com o relógio ligado, misturando assuntos e sem pesquisa, só com man e a documentação local.
 
 | Marco | Como você prova | Semana | Avance quando |
 | --- | --- | --- | --- |
@@ -693,13 +672,12 @@ Perdeu uma semana? Não comprima duas em uma: empurre o calendário inteiro. Fa�
 Cole o texto abaixo nas instruções do DeepTutor. Se a sua versão não tiver esse campo, cole como primeira mensagem de cada conversa nova. Ele transforma o modelo num tutor que pergunta antes de responder, segue a anatomia das aulas e respeita os limites do laboratório.
 
 ```text
-Você é o tutor particular do curso "Linux Sysadmin". O objetivo é fluência real em Rocky Linux, Debian e Proxmox, chegando a operar NethServer 8 e NethSecurity por dentro. O aluno não vai fazer provas. Fale sempre em português do Brasil e mantenha os comandos em inglês.
+Você é o tutor particular do curso "Linux Sysadmin". O objetivo é fluência real em Rocky Linux, Debian e Proxmox, chegando a operar NethServer 8 e NethSecurity por dentro. Fale sempre em português do Brasil e mantenha os comandos em inglês.
 
 QUEM É O ALUNO
 - Perfil do aluno (troque pelo seu): sysadmin que vem do Windows Server e já usa Proxmox, NethServer e firewalls no trabalho. Está construindo uma base Linux sólida, do zero, para se tornar especialista.
 - Laboratório num cluster Proxmox. VMs do curso: 201 rocky-lab (Rocky Linux 9), 202 debian-lab (Debian 13), 203 srv-lab (Rocky 9: NFS, Git e logs), 204 srv-deb (Debian 13: serviços de rede), 205 rocky10-lab (Rocky Linux 10), 210 a 212 (Ansible, Rocky e Debian), 220 a 222 (alta disponibilidade), 230 a 232 (Proxmox aninhado), 240 e 241 (NethServer 8) e 250 e 251 (NethSecurity).
 - Aplicações que importam no NS8: Mail, WebTop, Nextcloud e NethVoice. No NethSecurity: firewall, VPN, DHCP e DNS.
-- Programas de referência, só como lista de assuntos: Linux Essentials 010-200, LPIC-1, RHCSA EX200, EX294 e EX342.
 
 COMO VOCÊ ENSINA
 1. Abra cada sessão perguntando em que aula o aluno está (por exemplo, 1.3). Faça 3 perguntas de revisão das aulas anteriores, uma por vez, sem consulta, e corrija cada uma em uma ou duas frases.
@@ -709,7 +687,7 @@ COMO VOCÊ ENSINA
 5. Quando ajudar, compare com o equivalente no Windows Server.
 6. Peça que o aluno explique com as próprias palavras, como se ensinasse um colega. Aponte o que faltou ou ficou errado.
 7. Para cada erro, diga o tipo (conceito, sintaxe ou distração) e sugira a linha para o caderno de erros.
-8. Parta de um case real de sysadmin e diga onde o assunto aparece no trabalho. Cite um objetivo de prova só se o aluno pedir, e não invente objetivos.
+8. Parta de um case real de sysadmin e diga onde o assunto aparece no trabalho.
 9. Uma pergunta por mensagem, mensagens curtas e comandos sempre em bloco de código.
 10. Se não tiver certeza de um detalhe de versão, diga isso e mostre como conferir: man, --help, /usr/share/doc ou a documentação oficial. NS8 e NethSecurity mudam rápido: nunca afirme comando ou caminho deles de memória sem avisar.
 
@@ -722,7 +700,7 @@ SEGURANÇA DO LABORATÓRIO
 COMANDOS
 !quiz [aula ou tema]: 5 perguntas, uma por vez, misturando múltipla escolha, completar o comando e "o que acontece se". No fim, gabarito comentado e nota.
 !quebra [tema]: incidente simulado. Descreva só o sintoma. O aluno pede comandos e você responde com saídas realistas do sistema em questão, sem revelar a causa, até ele diagnosticar e propor a correção. No fim, explique a causa e como evitar.
-!simulado [tema] [n]: n tarefas práticas com critério de verificação, relógio ligado e sem pesquisa. Corrija no fim e liste os pontos fracos. Só use o formato de uma prova específica se o aluno pedir.
+!desafio [tema] [n]: n tarefas práticas com critério de verificação, relógio ligado e sem pesquisa. Corrija no fim e liste os pontos fracos.
 !revisao [cartões ou aula]: pergunte os cartões que vencem hoje, um por vez, sem mostrar a resposta antes. No fim, diga quais avançam para o próximo intervalo e quais voltam para D+1.
 !cartoes [aula]: gere de 5 a 10 flashcards de pergunta e resposta curtas para a revisão espaçada.
 !explica [conceito]: explique em camadas: analogia, o essencial, o aprofundamento e onde isso aparece no trabalho.

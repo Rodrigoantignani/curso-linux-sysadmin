@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light dark">
+<title>9.6 · LVM · Corso Linux Sysadmin</title>
+<link rel="alternate" hreflang="pt-BR" href="9.6-lvm.html"><link rel="alternate" hreflang="it" href="9.6-lvm.it.html">
+<style>
+:root{color-scheme:light dark;--bg:#f6f1e7;--card:#fffdf8;--ink:#201c16;--muted:#5e564a;--accent:#9a3412;--accent-2:#1f5f4a;--tint:#efe6d4;--line:#ddd2bc;--code:#f1eadb;--shadow:0 1px 2px rgba(60,40,10,.08);--serif:Georgia,"Iowan Old Style","Palatino Linotype",Palatino,serif;--sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--mono:"Cascadia Code",Consolas,"DejaVu Sans Mono",monospace}
+@media (prefers-color-scheme:dark){:root{--bg:#16130f;--card:#201b15;--ink:#f1eadb;--muted:#b9ad98;--accent:#f0a070;--accent-2:#7fd0b0;--tint:#2a231a;--line:#3d3427;--code:#191510;--shadow:none}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:5.5rem}
+body{margin:0;background:var(--bg);color:var(--ink);font:1rem/1.6 var(--sans)}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--accent-2);outline-offset:2px;border-radius:4px}
+.pular{position:absolute;left:-999px;top:0;background:var(--card);padding:.5rem 1rem;z-index:20}
+.pular:focus{left:.5rem;top:.5rem}
+.wrap{width:100%;max-width:84rem;margin:0 auto;padding-inline:max(1rem,env(safe-area-inset-left))}
+.top{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10;border-top:6px solid var(--accent)}
+.top-in{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding-block:.6rem}
+.titles{min-width:0}
+.marca{margin:0;font:700 clamp(1.15rem,1rem + 1vw,1.6rem)/1.15 var(--serif);letter-spacing:-.01em}
+.marca a{text-decoration:none}
+.marca a:hover{color:var(--accent)}
+.meta{margin:.1rem 0 0;color:var(--muted);font-size:.85rem}
+.acoes{display:flex;align-items:center;gap:.9rem;flex:none}
+.acoes>a{font-size:.9rem;font-weight:600;color:var(--muted);text-decoration:none}
+.acoes>a:hover{color:var(--accent);text-decoration:underline}
+.idioma{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--tint)}
+.idioma>*{padding:.35rem .9rem;font-size:.8rem;font-weight:700;letter-spacing:.06em;text-decoration:none;color:var(--muted);min-width:2.75rem;text-align:center}
+.idioma a:hover{color:var(--accent);text-decoration:underline}
+.idioma span{background:var(--accent);color:#fff}
+@media (prefers-color-scheme:dark){.idioma span{color:#16130f}}
+code{font-family:var(--mono);font-size:.9em;background:var(--tint);padding:.1rem .35rem;border-radius:4px;overflow-wrap:anywhere}
+/* índice */
+.capa{max-width:70rem;padding-block:2rem 3rem}
+.stats{border-left:4px solid var(--accent-2);background:var(--card);border-radius:0 10px 10px 0;padding:1rem 1.25rem;margin:0 0 2.5rem;box-shadow:var(--shadow);color:var(--muted)}
+.stats strong{color:var(--ink)}
+.modulo{display:grid;grid-template-columns:15rem minmax(0,1fr);gap:1rem 2rem;padding:1.75rem 0;border-top:1px solid var(--line)}
+.modulo h2{margin:0;font:700 1.25rem/1.25 var(--serif);align-self:start;position:sticky;top:6rem}
+.mn{display:block;font:700 .8rem var(--mono);letter-spacing:.12em;color:var(--accent);margin-bottom:.25rem}
+.sep{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.modulo ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,17rem),1fr));gap:.75rem}
+.modulo li{margin:0}
+.modulo a{display:flex;gap:.45rem;align-items:baseline;height:100%;padding:.85rem 1rem;background:var(--card);border:1px solid var(--line);border-radius:10px;text-decoration:none;font-weight:600;line-height:1.35;box-shadow:var(--shadow);transition:border-color .15s,transform .15s}
+.modulo a:hover{border-color:var(--accent);color:var(--accent)}
+.num{font:700 .85rem var(--mono);color:var(--accent);white-space:nowrap}
+/* aula */
+.doc{display:grid;grid-template-columns:17rem minmax(0,1fr);gap:2.5rem;align-items:start;padding-block:2rem 3rem}
+.lateral{position:sticky;top:5.5rem;max-height:calc(100vh - 6.5rem);overflow:auto;font-size:.875rem;padding-right:.5rem}
+.lateral h2{margin:0 0 .25rem;font:700 .95rem var(--serif);color:var(--muted)}
+.lateral h3{margin:1rem 0 .25rem;font:700 .75rem var(--mono);letter-spacing:.06em;color:var(--accent)}
+.lateral ul{list-style:none;margin:0;padding:0}
+.lateral a{display:flex;gap:.45rem;padding:.25rem .5rem;border-radius:6px;text-decoration:none;color:var(--muted);line-height:1.3}
+.lateral a:hover{background:var(--tint);color:var(--ink)}
+.lateral a[aria-current]{background:var(--tint);color:var(--ink);font-weight:700;box-shadow:inset 3px 0 0 var(--accent)}
+.lateral .num{font-size:.75rem}
+.aula{min-width:0;max-width:56rem;overflow-wrap:break-word;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:clamp(1.25rem,1rem + 2vw,2.75rem);box-shadow:var(--shadow)}
+.aula h1{margin:0 0 1.5rem;font:700 clamp(1.75rem,1.4rem + 1.6vw,2.5rem)/1.15 var(--serif);letter-spacing:-.015em;color:var(--ink)}
+.aula h2{margin:2.5rem 0 .75rem;padding-top:1.25rem;border-top:1px solid var(--line);font:700 1.5rem/1.25 var(--serif)}
+.aula h3{margin:2rem 0 .5rem;font:700 1.15rem/1.3 var(--serif);color:var(--accent)}
+.aula h4,.aula h5,.aula h6{margin:1.5rem 0 .5rem;font-size:1rem}
+.aula p,.aula ul,.aula ol{margin:1rem 0}
+.aula ul,.aula ol{padding-left:1.5rem}
+.aula li{margin:.35rem 0}
+.aula li>ul,.aula li>ol{margin:.35rem 0}
+.aula a{color:var(--accent);text-underline-offset:2px}
+.aula hr{border:0;border-top:1px solid var(--line);margin:2rem 0}
+.tabela{overflow-x:auto;margin:1.25rem 0;border:1px solid var(--line);border-radius:10px}
+.aula table{width:100%;border-collapse:collapse;font-size:.9rem}
+.aula th,.aula td{padding:.55rem .75rem;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+.aula tr:last-child td{border-bottom:0}
+.aula th{background:var(--tint);font-weight:700}
+.aula pre{background:var(--code);border:1px solid var(--line);border-radius:10px;padding:.9rem 1rem;overflow-x:auto;font:.85rem/1.5 var(--mono);margin:1rem 0;tab-size:4}
+.aula pre code{background:none;padding:0;font-size:inherit;overflow-wrap:normal}
+.aula blockquote{margin:1.25rem 0;padding:.75rem 1.25rem;border-left:4px solid var(--accent-2);background:var(--tint);border-radius:0 10px 10px 0}
+.aula blockquote>:first-child{margin-top:0}
+.aula blockquote>:last-child{margin-bottom:0}
+.aula figure{margin:1.75rem 0;text-align:center}
+.aula figure img{display:block;margin:0 auto;max-width:100%;height:auto;border:1px solid var(--line);border-radius:10px;background:#fff}
+.aula figcaption{margin-top:.5rem;color:var(--muted);font-size:.9rem;font-style:italic}
+.paginas{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:2.5rem;padding-top:1.5rem;border-top:1px solid var(--line)}
+.paginas a{display:block;padding:.75rem 1rem;border:1px solid var(--line);border-radius:10px;text-decoration:none;color:var(--ink);font-weight:600;line-height:1.3}
+.paginas a:hover{border-color:var(--accent);color:var(--accent)}
+.paginas small{display:block;color:var(--muted);font-weight:400}
+.paginas .prox{grid-column:2;text-align:right}
+footer{border-top:1px solid var(--line);padding-block:1.5rem;color:var(--muted);font-size:.85rem;text-align:center}
+@media (hover:hover) and (prefers-reduced-motion:no-preference){.modulo a:hover{transform:translateY(-2px)}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+@media (max-width:980px){.doc{grid-template-columns:minmax(0,1fr);padding-top:1rem}.lateral{position:static;max-height:none;order:2}.aula{max-width:none}}
+@media (max-width:860px){.modulo{grid-template-columns:minmax(0,1fr)}.modulo h2{position:static}.mn{display:inline;margin-right:.5rem}}
+@media (max-width:420px){.meta{display:none}.top-in{gap:.5rem}.acoes{gap:.6rem}.capa{padding-top:1.25rem}.paginas{grid-template-columns:minmax(0,1fr)}.paginas .prox{grid-column:1}}
+@media print{.top,.lateral,.paginas{display:none}.aula{border:0;box-shadow:none;padding:0;max-width:none}.doc{display:block}}
+</style>
+</head>
+<body>
+<a class="pular" href="#conteudo">Vai al contenuto</a>
+<header class="top"><div class="wrap top-in"><div class="titles"><p class="marca"><a href="index.it.html">Corso Linux Sysadmin</a></p><p class="meta">Rodrigo Antignani · Lezione 9.6</p></div><div class="acoes"><a href="index.it.html">Indice</a><div class="idioma" role="group" aria-label="Lingua"><a href="9.6-lvm.html" hreflang="pt-BR" lang="pt-BR">PT</a><span aria-current="true">IT</span></div></div></div></header>
+<div class="wrap doc"><aside class="lateral" aria-label="Lezioni"><h2>Lezioni</h2><h3>M0 · Laboratorio</h3><ul><li><a href="0.1-montar-o-laboratorio.it.html"><span class="num">0.1</span><span>Allestire il laboratorio</span></a></li><li><a href="0.2-acesso-e-protecao.it.html"><span class="num">0.2</span><span>Accesso e protezione</span></a></li></ul><h3>M1 · Riga di comando</h3><ul><li><a href="1.1-o-que-e-linux.it.html"><span class="num">1.1</span><span>Che cos'è Linux</span></a></li><li><a href="1.2-o-shell-e-a-ajuda.it.html"><span class="num">1.2</span><span>La shell e la guida</span></a></li><li><a href="1.3-caminhos-e-navegacao.it.html"><span class="num">1.3</span><span>Percorsi e navigazione</span></a></li><li><a href="1.4-criar-copiar-mover-e-apagar.it.html"><span class="num">1.4</span><span>Creare, copiare, spostare ed eliminare</span></a></li><li><a href="1.5-ler-e-procurar-texto.it.html"><span class="num">1.5</span><span>Leggere e cercare testo</span></a></li><li><a href="1.6-redirecionamentos-e-pipes.it.html"><span class="num">1.6</span><span>Reindirizzamenti e pipe</span></a></li><li><a href="1.7-arquivar-e-compactar.it.html"><span class="num">1.7</span><span>Archiviare e comprimere</span></a></li><li><a href="1.8-primeiro-script.it.html"><span class="num">1.8</span><span>Primo script</span></a></li><li><a href="1.9-decidir-e-repetir.it.html"><span class="num">1.9</span><span>Decidere e ripetere</span></a></li><li><a href="1.10-software-livre-na-pratica.it.html"><span class="num">1.10</span><span>Il software libero in pratica</span></a></li></ul><h3>M2 · Sistema, utenti e permessi</h3><ul><li><a href="2.1-instalacao-e-provisionamento.it.html"><span class="num">2.1</span><span>Installazione e provisioning</span></a></li><li><a href="2.2-hardware-e-dispositivos.it.html"><span class="num">2.2</span><span>Hardware e dispositivi</span></a></li><li><a href="2.3-processos-e-logs.it.html"><span class="num">2.3</span><span>Processi e log</span></a></li><li><a href="2.4-rede-no-dia-a-dia.it.html"><span class="num">2.4</span><span>La rete di tutti i giorni</span></a></li><li><a href="2.5-acesso-remoto-e-privilegios.it.html"><span class="num">2.5</span><span>Accesso remoto e privilegi</span></a></li><li><a href="2.6-usuarios-e-grupos.it.html"><span class="num">2.6</span><span>Utenti e gruppi</span></a></li><li><a href="2.7-permissoes-e-dono.it.html"><span class="num">2.7</span><span>Permessi e proprietario</span></a></li><li><a href="2.8-diretorios-e-arquivos-especiais.it.html"><span class="num">2.8</span><span>Directory e file speciali</span></a></li></ul><h3>M3 · Testo ed editor</h3><ul><li><a href="3.1-fluxos-a-fundo.it.html"><span class="num">3.1</span><span>I flussi in profondità</span></a></li><li><a href="3.2-filtros-de-texto.it.html"><span class="num">3.2</span><span>Filtri di testo</span></a></li><li><a href="3.3-regex-e-grep.it.html"><span class="num">3.3</span><span>Regex e grep</span></a></li><li><a href="3.4-sed-e-awk.it.html"><span class="num">3.4</span><span>sed e awk</span></a></li><li><a href="3.5-vi-e-vim-de-verdade.it.html"><span class="num">3.5</span><span>vi e vim sul serio</span></a></li></ul><h3>M4 · systemd e boot</h3><ul><li><a href="4.1-como-o-linux-liga.it.html"><span class="num">4.1</span><span>Come si avvia Linux</span></a></li><li><a href="4.2-systemd-servicos-e-units.it.html"><span class="num">4.2</span><span>systemd: servizi e unit</span></a></li><li><a href="4.3-targets-desligar-e-reiniciar.it.html"><span class="num">4.3</span><span>Target: spegnere e riavviare</span></a></li><li><a href="4.4-grub-e-acesso-de-emergencia.it.html"><span class="num">4.4</span><span>GRUB e accesso di emergenza</span></a></li></ul><h3>M5 · Kernel, moduli e VM</h3><ul><li><a href="5.1-hardware-pelo-kernel.it.html"><span class="num">5.1</span><span>L'hardware visto dal kernel</span></a></li><li><a href="5.2-modulos-e-parametros.it.html"><span class="num">5.2</span><span>Moduli e parametri</span></a></li><li><a href="5.3-linux-como-convidado.it.html"><span class="num">5.3</span><span>Linux come guest</span></a></li></ul><h3>M6 · Pacchetti e repository</h3><ul><li><a href="6.1-pacotes-no-debian.it.html"><span class="num">6.1</span><span>Pacchetti su Debian</span></a></li><li><a href="6.2-pacotes-na-rocky.it.html"><span class="num">6.2</span><span>Pacchetti su Rocky</span></a></li><li><a href="6.3-repositorios.it.html"><span class="num">6.3</span><span>Repository</span></a></li><li><a href="6.4-flatpak.it.html"><span class="num">6.4</span><span>Flatpak</span></a></li><li><a href="6.5-bibliotecas-compartilhadas.it.html"><span class="num">6.5</span><span>Librerie condivise</span></a></li></ul><h3>M7 · Processi e prestazioni</h3><ul><li><a href="7.1-processos-e-sinais.it.html"><span class="num">7.1</span><span>Processi e segnali</span></a></li><li><a href="7.2-jobs-e-sessoes.it.html"><span class="num">7.2</span><span>Job e sessioni</span></a></li><li><a href="7.3-prioridade-e-perfis.it.html"><span class="num">7.3</span><span>Priorità e profili</span></a></li></ul><h3>M8 · File a fondo</h3><ul><li><a href="8.1-fhs-e-onde-cada-coisa-mora.it.html"><span class="num">8.1</span><span>FHS e dove sta ogni cosa</span></a></li><li><a href="8.2-find-a-fundo.it.html"><span class="num">8.2</span><span>find a fondo</span></a></li><li><a href="8.3-arquivamento-avancado.it.html"><span class="num">8.3</span><span>Archiviazione avanzata</span></a></li><li><a href="8.4-links.it.html"><span class="num">8.4</span><span>Link</span></a></li><li><a href="8.5-permissoes-avancadas.it.html"><span class="num">8.5</span><span>Permessi avanzati</span></a></li></ul><h3>M9 · Storage</h3><ul><li><a href="9.1-discos-e-layout.it.html"><span class="num">9.1</span><span>Dischi e layout</span></a></li><li><a href="9.2-particionar.it.html"><span class="num">9.2</span><span>Partizionare</span></a></li><li><a href="9.3-sistemas-de-arquivos.it.html"><span class="num">9.3</span><span>File system</span></a></li><li><a href="9.4-montar-e-persistir.it.html"><span class="num">9.4</span><span>Montare e rendere persistente</span></a></li><li><a href="9.5-integridade-e-espaco.it.html"><span class="num">9.5</span><span>Integrità e spazio</span></a></li><li><a href="9.6-lvm.it.html" aria-current="page"><span class="num">9.6</span><span>LVM</span></a></li><li><a href="9.7-crescer-sem-destruir.it.html"><span class="num">9.7</span><span>Crescere senza distruggere</span></a></li></ul></aside><main id="conteudo" class="aula"><article><h1>Lezione 9.6 · LVM</h1>
+<p>In Windows passi a "Spazi di archiviazione" o al disco dinamico quando un volume deve superare la dimensione di un disco. In Linux questo livello si chiama LVM, e l'installer lo usa già nelle tue due VM. In questa lezione monti un volume group da zero con due dischi nuovi, ingrandisci e riduci un volume senza perdere dati, e sposti un disco mentre il sistema è in funzione.</p>
+<blockquote><p><strong>Il cuore di questa lezione:</strong> montare la catena PV, VG e LV (<code translate="no">pvcreate</code>, <code translate="no">vgcreate</code>, <code translate="no">lvcreate</code>); leggere lo stato con <code translate="no">pvs</code>, <code translate="no">vgs</code> e <code translate="no">lvs</code>; estendere con <code translate="no">lvextend -r</code>; ridurre solo ext4, con <code translate="no">lvreduce -r</code>; e togliere un disco dal gruppo con <code translate="no">pvmove</code>, <code translate="no">vgreduce</code> e <code translate="no">pvremove</code>. Il resto è approfondimento.</p></blockquote>
+<div class="tabela"><table><thead><tr><th scope="col">Scheda</th><th scope="col"></th></tr></thead><tbody><tr><td><strong>Modulo</strong></td><td>M9 · Storage, lezione 6 di 7</td></tr><tr><td><strong>Quando</strong></td><td>Settimana 14</td></tr><tr><td><strong>Alla fine</strong></td><td>Crei, estendi, riduci e sposti volumi logici, e sai quando LVM non aiuta</td></tr><tr><td><strong>Prerequisiti</strong></td><td>Lezioni 9.1, 9.4 e 9.5</td></tr><tr><td><strong>Durata</strong></td><td>circa 2h30</td></tr><tr><td><strong>Snapshot</strong></td><td><code translate="no">m9a6-inicio</code> e <code translate="no">m9a6-fim</code> su rocky-lab e debian-lab</td></tr></tbody></table></div>
+<h2 id="1-riscaldamento">1 · Riscaldamento</h2>
+<p>Rispondi prima di leggere.</p>
+<ol><li>Nella 9.1 hai visto il layout del disco di sistema. Dov'era LVM al suo interno?</li>
+<li>Una partizione da 2 GiB è piena. Cosa devi fare perché diventi da 3 GiB?</li>
+<li>Perché <code translate="no">/dev/mapper/debian--lab--vg-root</code> ha il trattino doppio nel nome?</li></ol>
+<h2 id="2-perche-conta">2 · Perché conta</h2>
+<div class="tabela"><table><thead><tr><th scope="col">La richiesta</th><th scope="col">La risposta sbagliata</th><th scope="col">Cosa provoca</th></tr></thead><tbody><tr><td>"<code translate="no">/var</code> si è riempito"</td><td>Cancellare log alla cieca</td><td>Risolve per una settimana e fai sparire le prove</td></tr><tr><td>"Mi serve più spazio nella cartella dei dati"</td><td>Creare un'altra cartella su un altro disco</td><td>Dati sparsi</td></tr><tr><td>"Cambiamo il disco vecchio"</td><td>Spegnere, copiare tutto, riaccendere</td><td>Finestra di fermo che <code translate="no">pvmove</code> evita</td></tr><tr><td>"Riduci questo volume XFS"</td><td>Provare <code translate="no">lvreduce</code></td><td>Non funziona: XFS non si riduce</td></tr><tr><td>"Ho ingrandito il volume, <code translate="no">df</code> non è cambiato"</td><td>Ingrandire di nuovo</td><td>Mancava l'ingrandimento del file system</td></tr></tbody></table></div>
+<h2 id="3-modello-mentale">3 · Modello mentale</h2>
+<blockquote><p>Pensa a delle <strong>cisterne d'acqua</strong>. Ogni disco che consegni a LVM è un <strong>secchio</strong> (PV). Versi tutti i secchi in <strong>una cisterna grande</strong> (VG): l'acqua diventa una cosa sola. Da lì prendi le <strong>damigiane</strong> (LV) della dimensione che ti serve. Damigiana piena? Prendi altra acqua dalla cisterna. Secchi nuovi? Versali nella cisterna. Secchio vecchio? Svuotalo dentro gli altri e toglilo. Il file system vive <strong>dentro la damigiana</strong>, e per questo va ingrandito insieme.</p></blockquote>
+<pre translate="no"><code>disco inteiro      →  PV   (pvcreate)     marca o disco para o LVM
+um ou mais PVs     →  VG   (vgcreate)     a caixa: espaço em blocos de 4 MiB (PE)
+fatias do VG       →  LV   (lvcreate)     o "disco" que você formata e monta
+LV + mkfs          →  /dev/vgdados/lvapp  →  /srv/app
+
+Nomes de um mesmo LV:
+/dev/vgdados/lvapp  =  /dev/mapper/vgdados-lvapp   (o hífen do VG ou do LV vira --)</code></pre>
+<h3 id="ponte-windows">Ponte Windows</h3>
+<div class="tabela"><table><thead><tr><th scope="col">In Windows</th><th scope="col">In Linux</th><th scope="col">Dove il paragone inganna</th></tr></thead><tbody><tr><td>Gestione disco, disco dinamico</td><td>PV</td><td>Linux marca tutto il disco, senza partizione</td></tr><tr><td>Pool di Spazi di archiviazione</td><td>VG</td><td>Il pool non ha spazio usato per impostazione predefinita: lo chiedi in volumi</td></tr><tr><td>Spazio di archiviazione (volume)</td><td>LV</td><td>Ogni LV ha un file system proprio</td></tr><tr><td>Estendere il volume (<code translate="no">diskpart extend</code>)</td><td><code translate="no">lvextend -r</code></td><td><code translate="no">-r</code> ingrandisce anche il file system</td></tr><tr><td>Ridurre il volume</td><td><code translate="no">lvreduce -r</code></td><td>Solo ext4: XFS non si riduce mai</td></tr><tr><td>Lettera di unità</td><td>Punto di montaggio</td><td>L'LV non riceve una lettera: lo monti dove vuoi</td></tr></tbody></table></div>
+<h2 id="4-l-essenziale">4 · L'essenziale</h2>
+<h3 id="leggere-lo-stato">Leggere lo stato</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Voglio vedere...</th><th scope="col">Riepilogo</th><th scope="col">Dettaglio</th></tr></thead><tbody><tr><td>Dischi marcati</td><td><code translate="no">pvs</code></td><td><code translate="no">pvdisplay</code></td></tr><tr><td>Gruppi</td><td><code translate="no">vgs</code></td><td><code translate="no">vgdisplay</code></td></tr><tr><td>Volumi</td><td><code translate="no">lvs</code></td><td><code translate="no">lvdisplay</code></td></tr></tbody></table></div>
+<p><code translate="no">lvs -o lv_name,vg_name,lv_attr,lv_size,devices</code> mostra su quali dischi si trova ogni volume. Le dimensioni con <code translate="no">g</code> minuscola sono in GiB. Anche Proxmox usa GiB: il disco da 3 di <code translate="no">qm set</code> è da 3 GiB.</p>
+<h3 id="creare-la-catena">Creare la catena</h3>
+<pre translate="no"><code class="lang-bash">sudo pvcreate DISCO              # marca il disco come PV
+sudo vgcreate vgdados DISCO...   # crea il VG con uno o più PV
+sudo lvcreate -n lvapp -L 2G vgdados
+sudo mkfs.ext4 -L APP /dev/vgdados/lvapp</code></pre>
+<p><code translate="no">-n</code> dà il nome dell'LV e <code translate="no">-L</code> la dimensione (<code translate="no">2G</code> = 2 GiB). Con <code translate="no">-l 100%FREE</code>, l'LV prende tutto lo spazio libero. <code translate="no">DISCO</code> è sempre un percorso di <code translate="no">/dev/disk/by-id/</code>, come hai imparato a controllare nella 9.1.</p>
+<h3 id="estendere-prima-il-disco-poi-il-file-system">Estendere: prima il disco, poi il file system</h3>
+<pre translate="no"><code class="lang-bash">sudo lvextend -r -L +1G /dev/vgdados/lvapp</code></pre>
+<p><code translate="no">+1G</code> somma 1 GiB alla dimensione attuale. <code translate="no">-L 3G</code>, senza il segno, sarebbe la dimensione finale. L'opzione <code translate="no">-r</code> (<code translate="no">--resizefs</code>) chiama <code translate="no">fsadm</code>, che esegue <code translate="no">resize2fs</code> su ext4 e <code translate="no">xfs_growfs</code> su XFS. Estendere funziona con il volume montato e in uso.</p>
+<h3 id="ridurre-prima-il-file-system-poi-il-disco">Ridurre: prima il file system, poi il disco</h3>
+<pre translate="no"><code class="lang-bash">sudo lvreduce -r -L 2G /dev/vgdados/lvapp</code></pre>
+<p>Qui l'ordine si inverte: se il volume si restringe prima del file system, la fine di quest'ultimo viene tagliata, e i dati se ne vanno con essa. Con <code translate="no">-r</code>, LVM fa tutto nell'ordine giusto: smonta, controlla (<code translate="no">e2fsck</code>), riduce ext4 e solo dopo l'LV. <strong>XFS non si riduce.</strong> Per ridurre un XFS, copi i dati all'esterno, ricrei l'LV più piccolo e ripristini. Fai un backup prima di qualsiasi <code translate="no">lvreduce</code>.</p>
+<h3 id="spostare-i-dati-e-togliere-un-disco">Spostare i dati e togliere un disco</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Passo</th><th scope="col">Comando</th><th scope="col">Cosa fa</th></tr></thead><tbody><tr><td>1</td><td><code translate="no">pvmove PV</code></td><td>Copia tutti gli extent del PV sugli altri PV del VG, con tutto montato</td></tr><tr><td>2</td><td><code translate="no">vgreduce VG PV</code></td><td>Toglie il PV vuoto dal gruppo</td></tr><tr><td>3</td><td><code translate="no">pvremove PV</code></td><td>Cancella il marchio di PV dal disco</td></tr></tbody></table></div>
+<p><code translate="no">pvmove</code> ha bisogno di spazio libero sugli altri PV. Se viene interrotto, <code translate="no">pvmove --abort</code> annulla, e <code translate="no">pvmove</code>, senza argomenti, riprende. Per restituire il disco: <code translate="no">pvcreate</code> e <code translate="no">vgextend VG PV</code>.</p>
+<h3 id="rocky-debian">Rocky × Debian</h3>
+<div class="tabela"><table><thead><tr><th scope="col"></th><th scope="col">Rocky</th><th scope="col">Debian</th></tr></thead><tbody><tr><td>VG di sistema</td><td><code translate="no">rl</code></td><td><code translate="no">debian-lab-vg</code></td></tr><tr><td>Pacchetto</td><td><code translate="no">lvm2</code> (già installato)</td><td><code translate="no">lvm2</code> (già installato, dall'installer guidato)</td></tr><tr><td>File dei dispositivi</td><td><code translate="no">/etc/lvm/devices/system.devices</code>, in uso</td><td>Controlla: spesso disattivato o senza il file</td></tr><tr><td>Verificare</td><td><code translate="no">sudo lvmdevices</code></td><td><code translate="no">sudo lvmconfig --typeconfig full devices/use_devicesfile</code></td></tr><tr><td>File system di <code translate="no">lvapp</code></td><td>ext4, per scelta della lezione</td><td>ext4</td></tr></tbody></table></div>
+<p>Su Rocky 9, un PV che non è nel file dei dispositivi resta <strong>invisibile</strong> a LVM. <code translate="no">pvcreate</code> e <code translate="no">vgcreate</code> aggiungono il disco al file da soli. Il problema compare quando sposti un disco da un'altra macchina: usa <code translate="no">sudo lvmdevices --adddev DISCO</code>. Su Debian, controlla: con <code translate="no">0</code>, o senza il file <code translate="no">system.devices</code>, LVM guarda tutti i dischi.</p>
+<p><strong>Non toccare mai</strong> i VG <code translate="no">rl</code> e <code translate="no">debian-lab-vg</code>: lì ci sono <code translate="no">/</code> e lo swap delle VM.</p>
+<h2 id="5-lab-guidato">5 · Lab guidato</h2>
+<p><strong>Passo 0 · Snapshot, backup e dischi.</strong> In Proxmox, fai lo snapshot <strong>prima</strong> di aggiungere i dischi: <code translate="no">qm snapshot 201 m9a6-inicio</code> e <code translate="no">qm snapshot 202 m9a6-inicio</code>. Se torni indietro con <code translate="no">qm rollback</code>, i dischi nuovi escono dalla configurazione e diventano <code translate="no">unused</code>: non vengono cancellati, ma vanno ricollegati. Il backup su PBS della 9.1 esiste: lo snapshot non è un backup. Aggiungi i due dischi:</p>
+<pre translate="no"><code class="lang-bash">qm set 201 --scsi2 vm-hdd:3,discard=on,iothread=1,ssd=1
+qm set 201 --scsi3 vm-hdd:3,discard=on,iothread=1,ssd=1
+qm set 202 --scsi2 vm-hdd:3,discard=on,iothread=1,ssd=1
+qm set 202 --scsi3 vm-hdd:3,discard=on,iothread=1,ssd=1</code></pre>
+<p>Su rocky-lab, identifica i dischi dal nome stabile, e non da <code translate="no">sdc</code> o <code translate="no">sdd</code>:</p>
+<pre translate="no"><code class="lang-bash">lsblk -o NAME,SIZE,TYPE,MOUNTPOINTS
+ls -l /dev/disk/by-id/ | grep -E 'drive-scsi[23] '
+D2=/dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_drive-scsi2
+D3=/dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_drive-scsi3
+sudo wipefs $D2 $D3</code></pre>
+<p>Le variabili <code translate="no">D2</code> e <code translate="no">D3</code> esistono solo in questo terminale: se ne apri un altro, definiscile di nuovo. <code translate="no">wipefs</code> senza opzioni <strong>elenca</strong> soltanto le firme, e non scrive nulla. Se non compare niente, i dischi sono vergini. Lo <code translate="no">scsi1</code> da 4 GB (il disco della 2.2, ampliato nella 9.1) ha un'altra dimensione ed è quello delle lezioni da 9.2 a 9.5 e della 9.7: non toccarlo. Controlla i pacchetti: <code translate="no">rpm -q lvm2</code> (Rocky) e <code translate="no">dpkg -s lvm2 | head -n 2</code> (Debian).</p>
+<p><strong>Passo 1 · PV.</strong></p>
+<pre translate="no"><code class="lang-bash">sudo pvcreate $D2 $D3
+sudo pvs
+sudo lvmdevices</code></pre>
+<p>Output atteso di <code translate="no">pvs</code> (i nomi <code translate="no">sdc</code> e <code translate="no">sdd</code> possono variare):</p>
+<pre translate="no"><code>  PV         VG Fmt  Attr PSize   PFree
+  /dev/sda3  rl lvm2 a--  &lt;18.80g     0
+  /dev/sdc      lvm2 ---    3.00g  3.00g
+  /dev/sdd      lvm2 ---    3.00g  3.00g</code></pre>
+<p><code translate="no">lvmdevices</code> elenca il file dei dispositivi, e ora i due dischi nuovi ci sono. Su Debian, controlla <code translate="no">use_devicesfile</code> e prosegui.</p>
+<p><strong>Passo 2 · Il VG.</strong></p>
+<pre translate="no"><code class="lang-bash">sudo vgcreate vgdados $D2 $D3
+sudo vgs</code></pre>
+<pre translate="no"><code>  VG      #PV #LV #SN Attr   VSize   VFree
+  rl        1   2   0 wz--n- &lt;18.80g    0
+  vgdados   2   0   0 wz--n-   5.99g 5.99g</code></pre>
+<p>I 6 GiB diventano 5,99 GiB: ogni PV conserva dei metadati.</p>
+<p><strong>Passo 3 · L'LV, ext4 e fstab.</strong></p>
+<pre translate="no"><code class="lang-bash">sudo lvcreate -n lvapp -L 2G vgdados
+sudo mkfs.ext4 -L APP /dev/vgdados/lvapp
+sudo mkdir -p /srv/app
+sudo cp -a /etc/fstab /etc/fstab.bak
+echo "UUID=$(sudo blkid -s UUID -o value /dev/vgdados/lvapp) /srv/app ext4 defaults,nofail 0 2" | sudo tee -a /etc/fstab
+sudo systemctl daemon-reload
+sudo mount -a
+sudo findmnt --verify
+findmnt /srv/app
+lvs -o lv_name,vg_name,lv_attr,lv_size,devices vgdados</code></pre>
+<p><code translate="no">blkid -s UUID -o value</code> stampa solo l'UUID, e <code translate="no">tee -a</code> aggiunge la riga in fondo al file. Usa l'UUID del <strong>file system</strong> (di <code translate="no">blkid</code>), e non quello dell'LV. Output atteso di <code translate="no">lvs</code>:</p>
+<pre translate="no"><code>  LV    VG      Attr       LSize Devices
+  lvapp vgdados -wi-ao---- 2.00g /dev/sdc(0)</code></pre>
+<p>La <code translate="no">o</code> in <code translate="no">Attr</code> indica volume aperto (montato).</p>
+<p><strong>Passo 4 · Dati di prova.</strong></p>
+<pre translate="no"><code class="lang-bash">sudo dd if=/dev/urandom of=/srv/app/prova.bin bs=1M count=200 status=none
+sudo sha256sum /srv/app/prova.bin | tee ~/prova.sha256</code></pre>
+<p>Controllerai questo hash più avanti.</p>
+<p><strong>Passo 5 · Estendere.</strong></p>
+<pre translate="no"><code class="lang-bash">sudo lvextend -r -L +1G /dev/vgdados/lvapp
+df -h /srv/app
+lvs -o lv_name,lv_size,devices vgdados</code></pre>
+<p><code translate="no">df</code> mostra circa 2,9 GiB: ext4 è cresciuto insieme, con il volume montato. Dato che il primo disco ha poco meno di 3 GiB, <code translate="no">devices</code> può mostrarli entrambi: <code translate="no">/dev/sdc(0),/dev/sdd(0)</code>.</p>
+<p><strong>Passo 6 · Ridurre.</strong></p>
+<pre translate="no"><code class="lang-bash">sudo lvreduce -r -L 2G /dev/vgdados/lvapp</code></pre>
+<p>Se il comando chiede conferma (per ridurre o per smontare), leggi e rispondi <code translate="no">y</code>. Il messaggio cambia secondo la versione di <code translate="no">lvm2</code>. Smonta, esegue <code translate="no">e2fsck</code>, riduce ext4, poi l'LV, e rimonta. Controlla:</p>
+<pre translate="no"><code class="lang-bash">df -h /srv/app
+sha256sum -c ~/prova.sha256</code></pre>
+<p>Atteso: <code translate="no">/srv/app/prova.bin: OK</code>.</p>
+<p><strong>Passo 7 · LV di prova.</strong></p>
+<pre translate="no"><code class="lang-bash">sudo lvcreate -n lvteste -L 500M vgdados
+lvs vgdados
+sudo lvremove vgdados/lvteste</code></pre>
+<p><code translate="no">lvremove</code> chiede conferma e cancella l'LV e i suoi dati. Se ci fosse un mount, smonta prima e togli la riga da fstab.</p>
+<p><strong>Passo 8 · Togliere il disco che contiene <code translate="no">lvapp</code>.</strong> Guarda dov'è il volume:</p>
+<pre translate="no"><code class="lang-bash">lvs -o lv_name,devices vgdados
+pvs -o pv_name,pv_size,pv_used</code></pre>
+<p>Se <code translate="no">lvapp</code> è su <code translate="no">sdc</code> (lo <code translate="no">scsi2</code>), sposta quel PV. Se è sull'altro, sostituisci <code translate="no">$D2</code> con <code translate="no">$D3</code> nei comandi qui sotto.</p>
+<pre translate="no"><code class="lang-bash">sudo pvmove $D2
+lvs -o lv_name,devices vgdados
+sudo vgreduce vgdados $D2
+sudo pvremove $D2
+sudo pvs
+sha256sum -c ~/prova.sha256</code></pre>
+<p><code translate="no">pvmove</code> mostra l'avanzamento (<code translate="no">Moved: 100.00%</code>), con <code translate="no">/srv/app</code> montato e in uso. Dopo, <code translate="no">lvapp</code> è solo sull'altro disco, e il disco liberato esce dal VG e smette di essere PV. Restituiscilo al gruppo, come si aspetta la 9.7:</p>
+<pre translate="no"><code class="lang-bash">sudo pvcreate $D2
+sudo vgextend vgdados $D2
+sudo vgs</code></pre>
+<p><strong>Passo 9 · debian-lab.</strong> Ripeti i passi da 0 a 8 su debian-lab. I dischi, il VG e l'LV hanno gli stessi nomi. Nel Passo 1, al posto di <code translate="no">lvmdevices</code>, lancia <code translate="no">sudo lvmconfig --typeconfig full devices/use_devicesfile</code>.</p>
+<h3 id="decidi-1">Decidi 1</h3>
+<p>Un volume XFS da 10 GiB usa solo 2 GiB, e devi liberare spazio nel VG. Cosa fai?</p>
+<p>A) <code translate="no">lvreduce -r -L 4G</code>. B) Fare un backup, creare un LV più piccolo, formattare e ripristinare. C) <code translate="no">xfs_growfs</code> con una dimensione minore.</p>
+<p>Scegli un'opzione prima di continuare.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se hai scelto</th><th scope="col">Risultato</th><th scope="col">Perché</th></tr></thead><tbody><tr><td>A</td><td>Fallisce</td><td>XFS non si riduce, e <code translate="no">-r</code> non cambia questo</td></tr><tr><td>B</td><td>Giusto</td><td>È l'unica strada per ridurre un XFS</td></tr><tr><td>C</td><td>Fallisce</td><td><code translate="no">xfs_growfs</code> può solo ingrandire</td></tr></tbody></table></div>
+<p><strong>Da ricordare:</strong> ingrandire è facile e online. Ridurre vale solo su ext4.</p>
+<h3 id="decidi-2">Decidi 2</h3>
+<p>Uno dei due dischi del VG verrà sostituito, e contiene dati. Qual è la sequenza?</p>
+<p>A) <code translate="no">vgreduce</code> diretto. B) <code translate="no">pvmove</code>, <code translate="no">vgreduce</code> e <code translate="no">pvremove</code>. C) <code translate="no">pvremove -ff</code> e ripristino dal backup.</p>
+<p>Scegli un'opzione prima di continuare.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se hai scelto</th><th scope="col">Risultato</th><th scope="col">Perché</th></tr></thead><tbody><tr><td>A</td><td>Rifiuta</td><td>Il PV ha ancora extent in uso</td></tr><tr><td>B</td><td>Giusto</td><td>Svuota, toglie dal gruppo e solo dopo cancella il marchio</td></tr><tr><td>C</td><td>Perdi i dati</td><td><code translate="no">-ff</code> ignora la protezione</td></tr></tbody></table></div>
+<p><strong>Da ricordare:</strong> svuota, poi togli.</p>
+<h2 id="6-rompi-e-ripara">6 · Rompi e ripara</h2>
+<h3 id="guasto-1-il-volume-e-cresciuto-e-df-no">Guasto 1 · Il volume è cresciuto e <code translate="no">df</code> no</h3>
+<pre translate="no"><code class="lang-bash">sudo lvextend -L +512M /dev/vgdados/lvapp
+df -h /srv/app
+lvs -o lv_name,lv_size vgdados</code></pre>
+<p><strong>Sintomo:</strong> <code translate="no">lvs</code> mostra 2,50 GiB, e <code translate="no">df</code> resta a 2 GiB.</p>
+<p><strong>Indagine:</strong> confronta i due output. Il volume è più grande del file system al suo interno. Mancava <code translate="no">-r</code>.</p>
+<p><strong>Causa:</strong> <code translate="no">lvextend</code> senza <code translate="no">-r</code> tocca solo l'LV.</p>
+<p><strong>Riparazione:</strong> <code translate="no">sudo resize2fs /dev/vgdados/lvapp</code>. Su XFS, sarebbe <code translate="no">sudo xfs_growfs /srv/app</code>. <code translate="no">df</code> ora mostra 2,5 GiB.</p>
+<h3 id="guasto-2-il-vg-non-ha-spazio">Guasto 2 · Il VG non ha spazio</h3>
+<pre translate="no"><code class="lang-bash">sudo lvcreate -n lvgrande -L 8G vgdados</code></pre>
+<p><strong>Sintomo:</strong> <code translate="no">Volume group "vgdados" has insufficient free space</code>, e il comando dice quanti extent mancano.</p>
+<p><strong>Indagine:</strong> <code translate="no">sudo vgs</code> e, se vuoi, <code translate="no">sudo vgdisplay vgdados</code>. Guarda <code translate="no">VFree</code>.</p>
+<p><strong>Causa:</strong> il gruppo ha circa 6 GiB in totale, e l'LV esistente ne occupa una parte.</p>
+<p><strong>Riparazione:</strong> chiedere meno, come <code translate="no">-l 100%FREE</code>, oppure far crescere il gruppo con un altro disco (<code translate="no">pvcreate</code> e <code translate="no">vgextend</code>). L'LV non è stato creato: non c'è nulla da pulire.</p>
+<h3 id="guasto-3-il-volume-che-non-e-attivo">Guasto 3 · Il volume che non è attivo</h3>
+<pre translate="no"><code class="lang-bash">sudo umount /srv/app
+sudo lvchange -an vgdados/lvapp
+sudo mount /srv/app</code></pre>
+<p><strong>Sintomo:</strong> <code translate="no">mount</code> termina in silenzio, perché la riga ha <code translate="no">nofail</code> (come nella 9.4). Ma <code translate="no">findmnt /srv/app</code> non mostra nulla, e <code translate="no">ls /srv/app</code> mostra la cartella vuota della root.</p>
+<p><strong>Indagine:</strong> <code translate="no">lvs -o lv_name,lv_attr vgdados</code> mostra <code translate="no">Attr</code> senza la <code translate="no">a</code> (<code translate="no">-wi-------</code>). <code translate="no">ls /dev/vgdados/</code> è senza <code translate="no">lvapp</code>. Il volume esiste, ma è disattivato.</p>
+<p><strong>Causa:</strong> senza un LV attivo, l'UUID del file system non compare in <code translate="no">/dev/disk/by-uuid/</code>. Succede, per esempio, dopo aver importato un VG da un'altra macchina.</p>
+<p><strong>Riparazione:</strong> <code translate="no">sudo lvchange -ay vgdados/lvapp</code> e <code translate="no">sudo mount /srv/app</code>.</p>
+<h3 id="pulizia">Pulizia</h3>
+<pre translate="no"><code class="lang-bash">sudo lvreduce -r -L 2G /dev/vgdados/lvapp
+sudo rm /srv/app/prova.bin ~/prova.sha256
+sudo vgs
+findmnt /srv/app</code></pre>
+<p><code translate="no">lvapp</code> torna a 2 GiB, montato e vuoto, e <code translate="no">vgdados</code> resta con <code translate="no">scsi2</code> e <code translate="no">scsi3</code>. La 9.7 parte da lì.</p>
+<h2 id="7-trappole">7 · Trappole</h2>
+<div class="tabela"><table><thead><tr><th scope="col">Trappola</th><th scope="col">Cosa succede</th><th scope="col">Come evitarla</th></tr></thead><tbody><tr><td><code translate="no">lvextend</code> senza <code translate="no">-r</code></td><td>L'LV cresce e il file system no</td><td>Sempre <code translate="no">-r</code></td></tr><tr><td><code translate="no">lvreduce</code> senza <code translate="no">-r</code></td><td>Taglia la fine del file system, e i dati se ne vanno</td><td>Sempre <code translate="no">-r</code>, e con backup</td></tr><tr><td>Provare a ridurre XFS</td><td>Errore, o perdita se si sceglie la strada sbagliata</td><td>Backup, ricreare, ripristinare</td></tr><tr><td><code translate="no">pvcreate</code> sul disco sbagliato</td><td>Cancella ciò che c'era</td><td>Controlla con <code translate="no">by-id</code>, <code translate="no">lsblk</code> e <code translate="no">wipefs</code> senza <code translate="no">-a</code></td></tr><tr><td><code translate="no">pvremove -ff</code></td><td>Ignora le protezioni</td><td>Usalo solo dopo <code translate="no">pvmove</code> e <code translate="no">vgreduce</code></td></tr><tr><td>Togliere un PV senza <code translate="no">pvmove</code></td><td>Perdi gli extent che c'erano sopra</td><td>Svuota prima</td></tr><tr><td>PV invisibile su Rocky</td><td>Manca nel file dei dispositivi</td><td><code translate="no">lvmdevices --adddev</code></td></tr></tbody></table></div>
+<h2 id="8-quiz">8 · Quiz</h2>
+<p>Rispondi senza guardare. Le soluzioni sono alla fine della lezione.</p>
+<ol><li>Qual è l'ordine dei livelli di LVM, dal disco al punto di montaggio?</li>
+<li>Cosa fa <code translate="no">-r</code> in <code translate="no">lvextend</code> e in <code translate="no">lvreduce</code>?</li>
+<li>Perché XFS non può essere ridotto?</li>
+<li>Qual è la sequenza per togliere un disco da un VG con dati?</li>
+<li>Perché in fstab si usa l'UUID di <code translate="no">blkid</code>, e non quello dell'LV?</li>
+<li>Cosa indica una colonna <code translate="no">Attr</code> con <code translate="no">a</code> in <code translate="no">lvs</code>?</li></ol>
+<h2 id="9-promemoria">9 · Promemoria</h2>
+<p><strong>Da sapere a memoria:</strong></p>
+<div class="tabela"><table><thead><tr><th scope="col">Voglio...</th><th scope="col">Comando</th></tr></thead><tbody><tr><td>Riepilogo</td><td><code translate="no">pvs</code>, <code translate="no">vgs</code>, <code translate="no">lvs</code></td></tr><tr><td>Marcare un disco</td><td><code translate="no">sudo pvcreate DISCO</code></td></tr><tr><td>Creare un gruppo</td><td><code translate="no">sudo vgcreate vgdados DISCO...</code></td></tr><tr><td>Creare un volume</td><td><code translate="no">sudo lvcreate -n NOME -L 2G VG</code></td></tr><tr><td>Estendere</td><td><code translate="no">sudo lvextend -r -L +1G /dev/VG/LV</code></td></tr><tr><td>Ridurre (ext4)</td><td><code translate="no">sudo lvreduce -r -L 2G /dev/VG/LV</code></td></tr><tr><td>Svuotare un disco</td><td><code translate="no">sudo pvmove DISCO</code></td></tr></tbody></table></div>
+<p><strong>Da consultare:</strong></p>
+<div class="tabela"><table><thead><tr><th scope="col">Voglio...</th><th scope="col">Comando</th></tr></thead><tbody><tr><td>Dov'è ogni LV</td><td><code translate="no">lvs -o lv_name,devices VG</code></td></tr><tr><td>Togliere dal gruppo</td><td><code translate="no">sudo vgreduce VG DISCO</code></td></tr><tr><td>Cancellare il marchio</td><td><code translate="no">sudo pvremove DISCO</code></td></tr><tr><td>Restituire al gruppo</td><td><code translate="no">sudo vgextend VG DISCO</code></td></tr><tr><td>Attivare o disattivare</td><td><code translate="no">sudo lvchange -ay VG/LV</code>, <code translate="no">-an</code></td></tr><tr><td>File dei dispositivi (Rocky)</td><td><code translate="no">sudo lvmdevices</code>, <code translate="no">sudo lvmdevices --adddev DISCO</code></td></tr></tbody></table></div>
+<p><strong>Flashcard:</strong></p>
+<ul><li>PV → <em>il disco marcato.</em></li>
+<li>VG → <em>la cisterna di spazio.</em></li>
+<li>LV → <em>la damigiana che formatti.</em></li>
+<li>Estendere → <em>LV, poi file system.</em></li>
+<li>Ridurre → <em>file system, poi LV.</em></li>
+<li>XFS → <em>cresce, non si riduce.</em></li></ul>
+<h2 id="10-checklist-e-chiusura">10 · Checklist e chiusura</h2>
+<ul><li>[ ] Identifico i dischi nuovi tramite <code translate="no">by-id</code> prima di scrivere</li>
+<li>[ ] Monto PV, VG e LV e leggo <code translate="no">pvs</code>, <code translate="no">vgs</code> e <code translate="no">lvs</code></li>
+<li>[ ] Estendo con <code translate="no">-r</code> e controllo con <code translate="no">df</code></li>
+<li>[ ] Riduco un ext4 in sicurezza, e so che XFS non si riduce</li>
+<li>[ ] Sposto dati con <code translate="no">pvmove</code> e tolgo un disco dal gruppo</li>
+<li>[ ] Lascio <code translate="no">vgdados</code> con <code translate="no">scsi2</code> e <code translate="no">scsi3</code>, e <code translate="no">lvapp</code> montato in <code translate="no">/srv/app</code></li></ul>
+<p><strong>Ultimo esercizio, senza guardare la lezione:</strong> su debian-lab, crea un LV <code translate="no">lvteste</code> da 300 MiB in XFS (installa <code translate="no">xfsprogs</code>), montalo in <code translate="no">/mnt/teste</code>, estendilo e spiega perché non si riduce. Poi rimuovilo.</p>
+<p><strong>Snapshot di fine</strong> (in Proxmox):</p>
+<pre translate="no"><code class="lang-bash">qm snapshot 201 m9a6-fim
+qm snapshot 202 m9a6-fim</code></pre>
+<h2 id="11-nella-vita-reale">11 · Nella vita reale</h2>
+<p><strong>Missione, sola lettura.</strong> Su un server Linux che amministri (o con autorizzazione), lancia <strong>solo</strong>:</p>
+<pre translate="no"><code class="lang-bash">sudo pvs
+sudo vgs -o vg_name,vg_size,vg_free
+sudo lvs -o lv_name,vg_name,lv_size,lv_attr,devices
+lsblk -f
+findmnt -no TARGET,SOURCE,FSTYPE -t ext4,xfs</code></pre>
+<p>Domande a cui rispondere:</p>
+<ol><li>Quali VG esistono, e quanto spazio libero ha ciascuno?</li>
+<li>Qualche LV è vicino a riempirsi, mentre il VG ha spazio in abbondanza?</li>
+<li>I volumi importanti sono in XFS o ext4? Cosa dice questo sul ridurre?</li></ol>
+<h2 id="12-approfondire-quando-vuoi">12 · Approfondire quando vuoi</h2>
+<ul><li><strong><code translate="no">man lvm</code>, <code translate="no">man lvextend</code>, <code translate="no">man lvreduce</code>, <code translate="no">man pvmove</code>:</strong> le opzioni complete.</li>
+<li><strong>Documentazione Red Hat:</strong> "Configuring and managing logical volumes", nel portale della documentazione di RHEL 9.</li>
+<li><strong>kernel.org:</strong> documentazione del device-mapper.</li></ul>
+<p><strong>DeepTutor</strong> (http://10.1.0.149:3782, KB "Curso Linux Sysadmin"):</p>
+<ul><li><code translate="no">!explica PV, VG e LV com uma metáfora</code></li>
+<li><code translate="no">!feynman por que reduzir um volume exige encolher o sistema de arquivos antes</code></li>
+<li><code translate="no">!quiz Aula 9.6, 5 perguntas sobre LVM</code></li></ul>
+<h2 id="soluzioni-commentate">Soluzioni commentate</h2>
+<h3 id="riscaldamento">Riscaldamento</h3>
+<ol><li>Il disco di sistema ha una partizione come PV del gruppo <code translate="no">rl</code> (Rocky) o <code translate="no">debian-lab-vg</code> (Debian). I volumi <code translate="no">root</code> e <code translate="no">swap</code> escono da lì.</li>
+<li>Ingrandire il volume e poi il file system. Su una partizione normale serve spazio libero accanto ad essa. Con LVM, <code translate="no">lvextend -r</code> risolve.</li>
+<li>Il trattino separa il nome del gruppo dal nome del volume. Per questo il trattino già presente nel nome diventa <code translate="no">--</code>.</li></ol>
+<h3 id="quiz">Quiz</h3>
+<ol><li>Disco, PV, VG, LV, file system e punto di montaggio.</li>
+<li>Regola anche il file system: lo ingrandisce con <code translate="no">lvextend</code>, lo riduce con <code translate="no">lvreduce</code>, nell'ordine giusto.</li>
+<li>Perché XFS non ha un'operazione di riduzione: può solo crescere.</li>
+<li><code translate="no">pvmove</code>, <code translate="no">vgreduce</code> e <code translate="no">pvremove</code>.</li>
+<li>L'LV è solo un dispositivo, e l'UUID che usa fstab appartiene al file system al suo interno.</li>
+<li>Che il volume è attivo.</li></ol>
+</article><nav class="paginas" aria-label="Lezioni"><a class="ant" href="9.5-integridade-e-espaco.it.html"><small>← Precedente</small>9.5 · Integrità e spazio</a><a class="prox" href="9.7-crescer-sem-destruir.it.html"><small>Successiva →</small>9.7 · Crescere senza distruggere</a></nav></main></div>
+<footer><div class="wrap">Generato dal Markdown del corso · Immagini in <code translate="no">img/</code></div></footer>
+</body>
+</html>
