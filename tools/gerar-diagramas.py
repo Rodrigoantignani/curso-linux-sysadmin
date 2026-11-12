@@ -337,7 +337,7 @@ add("2.3-arvore-processos", "A árvore de processos", "Todo processo é filho de
     {"term": "systemd (PID 1)", "lines": [
         "systemd (PID 1)          <- o avô de todos; adota os órfãos",
         " ├─ sshd                 <- serviço",
-        " │   └─ sshd: rodrigo    <- a sua conexão",
+        " │   └─ sshd: student    <- a sua conexão",
         " │       └─ bash         <- o seu shell",
         " │           ├─ sleep 600 &",
         " │           └─ ps -ef --forest",
@@ -363,8 +363,8 @@ add("2.5-duas-portas", "Duas portas: entrar e mandar", "O SSH decide se você en
     {"cards": [
         ("Chave privada", "Fica no seu computador e nunca sai. Assina o desafio que o servidor manda.", "seu lado"),
         ("sshd", "Confere a assinatura com a pública do authorized_keys e aplica o sshd_config.", "porta 22"),
-        ("Sessão rodrigo", "Você entrou. O journal e o /var/log/secure registram o método e a origem.", "UID comum"),
-        ("sudoers", "Uma lista separada decide quais comandos rodrigo pode rodar como root.", "visudo"),
+        ("Sessão student", "Você entrou. O journal e o /var/log/secure registram o método e a origem.", "UID comum"),
+        ("sudoers", "Uma lista separada decide quais comandos student pode rodar como root.", "visudo"),
         ("root", "Só agora o comando roda com UID 0. Cada porta grava por que disse não.", "UID 0")]},
     "As duas portas têm listas e logs próprios. Entrar não é o mesmo que mandar: um usuário pode entrar por SSH e não ter sudo nenhum.", "purple")
 
@@ -818,7 +818,7 @@ add("5.1-uuid-by-id", "Não confie em sda e sdb", "Use UUID ou /dev/disk/by-id; 
         "NAME   FSTYPE FSVER LABEL UUID                                 FSAVAIL FSUSE% MOUNTPOINTS",
         "sda                                         3f1a2b4c-...   5.2G     12% /",
         "sdb                                         7e8f9a0b-...   1.0G      0% ",
-        "sr0                                     iso9660 2026-11-05-...   0B   100% /run/media/rodrigo/ISO"],
+        "sr0                                     iso9660 2026-11-05-...   0B   100% /run/media/student/ISO"],
      "side": ("Onde olhar", [
         ("lsblk -f", "lista discos, UUID e ponto de montagem"),
         ("/dev/disk/by-id", "nomes estáveis, independente da ordem"),

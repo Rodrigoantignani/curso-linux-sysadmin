@@ -1,8 +1,8 @@
 # Aulas
 
-Índice das **52 aulas publicadas**, de M0 a M9. Cada título leva direto ao arquivo da aula; a coluna Semana segue o cronograma do [plano do curso](00-plano-do-curso.md).
+Índice das **58 aulas publicadas**, do M0 à Aula 11.2. Cada título leva direto ao arquivo da aula; a coluna Semana segue o cronograma do [plano do curso](00-plano-do-curso.md).
 
-**Cobertura atual:** 52 de 188 aulas · semanas 1 a 14 de 48.
+**Cobertura atual:** 56 de 188 aulas · semanas 1 a 15 de 48.
 
 ## Como estudar uma aula
 
@@ -60,7 +60,7 @@ Meta da fase: usar o terminal com segurança e entender o que cada comando faz p
 
 **Fechamento da fase (semana 6):** revisão espaçada de M0 a M2 e um dia de incidente nas duas VMs, sem consulta.
 
-## Fase 2 · Administrador · 32 aulas publicadas de 63 · semanas 7 a 14
+## Fase 2 · Administrador · 36 aulas publicadas de 63 · semanas 7 a 15
 
 Meta da fase: administrar sozinho um servidor Linux de ponta a ponta, nas duas famílias, com tudo sobrevivendo ao reboot. Todo lab termina com reboot e verificação.
 
@@ -147,13 +147,31 @@ Meta da fase: administrar sozinho um servidor Linux de ponta a ponta, nas duas f
 
 **Fechamento do bloco A (semana 14):** dia de incidente misturando M3 a M9 e revisão do caderno de erros.
 
+### M10 · Usuários e acesso privilegiado · 4 aulas · semana 15
+
+| Aula | Semana | O que você aprende |
+| --- | --- | --- |
+| [10.1 · Contas](aulas/10.1-contas.md) | 15 | `getent`, faixas de UID, contas de serviço, renomear e renumerar sem deixar arquivo órfão |
+| [10.2 · Senhas e validade](aulas/10.2-senhas-e-validade.md) | 15 | PAM, `pwquality`, `faillock`, `login.defs` e `chage` |
+| [10.3 · Grupos e trabalho em equipe](aulas/10.3-grupos-e-trabalho-em-equipe.md) | 15 | Grupo principal e suplementares, `gpasswd -A`, pasta com SGID, `umask` e ACL de grupo |
+| [10.4 · sudo de verdade](aulas/10.4-sudo-de-verdade.md) | 15 | `Cmnd_Alias`, argumentos exatos, `sudo -l -U`, `sudoedit`, curingas perigosos e auditoria |
+
+**Desafio do módulo:** uma equipe de três pessoas, senhas que vencem em 90 dias e uma pessoa que só pode reiniciar o nginx, tudo por um script que roda de novo sem estragar nada.
+
+### M11 · Rede · 5 aulas · semanas 16 e 17
+
+| Aula | Semana | O que você aprende |
+| --- | --- | --- |
+| [11.1 · TCP/IP para quem administra](aulas/11.1-tcp-ip-para-quem-administra.md) | 16 | IPv4 e IPv6, prefixos, rotas, portas, TCP, UDP e ICMP; `ip` e `ss`; testes locais e três quebras nas duas distros |
+| [11.2 · NetworkManager e nmcli](aulas/11.2-networkmanager-e-nmcli.md) | 16 | Dispositivos e perfis, IPv4 fixo, IPv6, DNS salvo e efetivo, keyfiles e persistência; laboratório interno nas duas distros |
+
 ## O que vem depois
 
-As 136 aulas restantes já estão planejadas no [plano do curso](00-plano-do-curso.md):
+As 130 aulas restantes já estão planejadas no [plano do curso](00-plano-do-curso.md):
 
 | Módulos | Semanas | Foco | Fecha com |
 | --- | --- | --- | --- |
-| M10 a M15 | 15 a 21 | Usuários e acesso privilegiado, rede, segurança do host, armazenamento em rede, agendamento, e-mail local, impressão, shell e interfaces gráficas | Dia de incidente |
+| M11 a M15 | 16 a 21 | Rede, segurança do host, armazenamento em rede, agendamento, e-mail local, impressão, shell e interfaces gráficas | Dia de incidente |
 | M16 | 21 e 22 | Rocky 10 e incidentes com relógio | Incidente cronometrado com reboot |
 | M17 a M21 | 22 a 31 | Proxmox, Podman, serviços de rede, proxy, NethServer 8, Mail, WebTop, Nextcloud e NethVoice | Incidente combinado no NS8 |
 | M22 a M34 | 31 a 48 | NethSecurity, Git, Ansible, monitoramento, logs, backup, desempenho, alta disponibilidade, hardening, cluster e troubleshooting | Dia inteiro de incidentes |

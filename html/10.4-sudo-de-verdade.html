@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light dark">
+<title>10.4 · sudo de verdade · Curso Linux Sysadmin</title>
+<link rel="alternate" hreflang="pt-BR" href="10.4-sudo-de-verdade.html"><link rel="alternate" hreflang="it" href="10.4-sudo-de-verdade.it.html">
+<style>
+:root{color-scheme:light dark;--bg:#f6f1e7;--card:#fffdf8;--ink:#201c16;--muted:#5e564a;--accent:#9a3412;--accent-2:#1f5f4a;--tint:#efe6d4;--line:#ddd2bc;--code:#f1eadb;--shadow:0 1px 2px rgba(60,40,10,.08);--serif:Georgia,"Iowan Old Style","Palatino Linotype",Palatino,serif;--sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--mono:"Cascadia Code",Consolas,"DejaVu Sans Mono",monospace}
+@media (prefers-color-scheme:dark){:root{--bg:#16130f;--card:#201b15;--ink:#f1eadb;--muted:#b9ad98;--accent:#f0a070;--accent-2:#7fd0b0;--tint:#2a231a;--line:#3d3427;--code:#191510;--shadow:none}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:5.5rem}
+body{margin:0;background:var(--bg);color:var(--ink);font:1rem/1.6 var(--sans)}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--accent-2);outline-offset:2px;border-radius:4px}
+.pular{position:absolute;left:-999px;top:0;background:var(--card);padding:.5rem 1rem;z-index:20}
+.pular:focus{left:.5rem;top:.5rem}
+.wrap{width:100%;max-width:84rem;margin:0 auto;padding-inline:max(1rem,env(safe-area-inset-left))}
+.top{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10;border-top:6px solid var(--accent)}
+.top-in{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding-block:.6rem}
+.titles{min-width:0}
+.marca{margin:0;font:700 clamp(1.15rem,1rem + 1vw,1.6rem)/1.15 var(--serif);letter-spacing:-.01em}
+.marca a{text-decoration:none}
+.marca a:hover{color:var(--accent)}
+.meta{margin:.1rem 0 0;color:var(--muted);font-size:.85rem}
+.acoes{display:flex;align-items:center;gap:.9rem;flex:none}
+.acoes>a{font-size:.9rem;font-weight:600;color:var(--muted);text-decoration:none}
+.acoes>a:hover{color:var(--accent);text-decoration:underline}
+.idioma{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--tint)}
+.idioma>*{padding:.35rem .9rem;font-size:.8rem;font-weight:700;letter-spacing:.06em;text-decoration:none;color:var(--muted);min-width:2.75rem;text-align:center}
+.idioma a:hover{color:var(--accent);text-decoration:underline}
+.idioma span{background:var(--accent);color:#fff}
+@media (prefers-color-scheme:dark){.idioma span{color:#16130f}}
+code{font-family:var(--mono);font-size:.9em;background:var(--tint);padding:.1rem .35rem;border-radius:4px;overflow-wrap:anywhere}
+/* índice */
+.capa{max-width:70rem;padding-block:2rem 3rem}
+.stats{border-left:4px solid var(--accent-2);background:var(--card);border-radius:0 10px 10px 0;padding:1rem 1.25rem;margin:0 0 2.5rem;box-shadow:var(--shadow);color:var(--muted)}
+.stats strong{color:var(--ink)}
+.modulo{display:grid;grid-template-columns:15rem minmax(0,1fr);gap:1rem 2rem;padding:1.75rem 0;border-top:1px solid var(--line)}
+.modulo h2{margin:0;font:700 1.25rem/1.25 var(--serif);align-self:start;position:sticky;top:6rem}
+.mn{display:block;font:700 .8rem var(--mono);letter-spacing:.12em;color:var(--accent);margin-bottom:.25rem}
+.sep{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.modulo ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,17rem),1fr));gap:.75rem}
+.modulo li{margin:0}
+.modulo a{display:flex;gap:.45rem;align-items:baseline;height:100%;padding:.85rem 1rem;background:var(--card);border:1px solid var(--line);border-radius:10px;text-decoration:none;font-weight:600;line-height:1.35;box-shadow:var(--shadow);transition:border-color .15s,transform .15s}
+.modulo a:hover{border-color:var(--accent);color:var(--accent)}
+.num{font:700 .85rem var(--mono);color:var(--accent);white-space:nowrap}
+/* aula */
+.doc{display:grid;grid-template-columns:17rem minmax(0,1fr);gap:2.5rem;align-items:start;padding-block:2rem 3rem}
+.lateral{position:sticky;top:5.5rem;max-height:calc(100vh - 6.5rem);overflow:auto;font-size:.875rem;padding-right:.5rem}
+.lateral h2{margin:0 0 .25rem;font:700 .95rem var(--serif);color:var(--muted)}
+.lateral h3{margin:1rem 0 .25rem;font:700 .75rem var(--mono);letter-spacing:.06em;color:var(--accent)}
+.lateral ul{list-style:none;margin:0;padding:0}
+.lateral a{display:flex;gap:.45rem;padding:.25rem .5rem;border-radius:6px;text-decoration:none;color:var(--muted);line-height:1.3}
+.lateral a:hover{background:var(--tint);color:var(--ink)}
+.lateral a[aria-current]{background:var(--tint);color:var(--ink);font-weight:700;box-shadow:inset 3px 0 0 var(--accent)}
+.lateral .num{font-size:.75rem}
+.aula{min-width:0;max-width:56rem;overflow-wrap:break-word;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:clamp(1.25rem,1rem + 2vw,2.75rem);box-shadow:var(--shadow)}
+.aula h1{margin:0 0 1.5rem;font:700 clamp(1.75rem,1.4rem + 1.6vw,2.5rem)/1.15 var(--serif);letter-spacing:-.015em;color:var(--ink)}
+.aula h2{margin:2.5rem 0 .75rem;padding-top:1.25rem;border-top:1px solid var(--line);font:700 1.5rem/1.25 var(--serif)}
+.aula h3{margin:2rem 0 .5rem;font:700 1.15rem/1.3 var(--serif);color:var(--accent)}
+.aula h4,.aula h5,.aula h6{margin:1.5rem 0 .5rem;font-size:1rem}
+.aula p,.aula ul,.aula ol{margin:1rem 0}
+.aula ul,.aula ol{padding-left:1.5rem}
+.aula li{margin:.35rem 0}
+.aula li>ul,.aula li>ol{margin:.35rem 0}
+.aula a{color:var(--accent);text-underline-offset:2px}
+.aula hr{border:0;border-top:1px solid var(--line);margin:2rem 0}
+.tabela{overflow-x:auto;margin:1.25rem 0;border:1px solid var(--line);border-radius:10px}
+.aula table{width:100%;border-collapse:collapse;font-size:.9rem}
+.aula th,.aula td{padding:.55rem .75rem;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+.aula tr:last-child td{border-bottom:0}
+.aula th{background:var(--tint);font-weight:700}
+.aula pre{background:var(--code);border:1px solid var(--line);border-radius:10px;padding:.9rem 1rem;overflow-x:auto;font:.85rem/1.5 var(--mono);margin:1rem 0;tab-size:4}
+.aula pre code{background:none;padding:0;font-size:inherit;overflow-wrap:normal}
+.aula blockquote{margin:1.25rem 0;padding:.75rem 1.25rem;border-left:4px solid var(--accent-2);background:var(--tint);border-radius:0 10px 10px 0}
+.aula blockquote>:first-child{margin-top:0}
+.aula blockquote>:last-child{margin-bottom:0}
+.aula figure{margin:1.75rem 0;text-align:center}
+.aula figure img{display:block;margin:0 auto;max-width:100%;height:auto;border:1px solid var(--line);border-radius:10px;background:#fff}
+.aula figcaption{margin-top:.5rem;color:var(--muted);font-size:.9rem;font-style:italic}
+.paginas{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:2.5rem;padding-top:1.5rem;border-top:1px solid var(--line)}
+.paginas a{display:block;padding:.75rem 1rem;border:1px solid var(--line);border-radius:10px;text-decoration:none;color:var(--ink);font-weight:600;line-height:1.3}
+.paginas a:hover{border-color:var(--accent);color:var(--accent)}
+.paginas small{display:block;color:var(--muted);font-weight:400}
+.paginas .prox{grid-column:2;text-align:right}
+footer{border-top:1px solid var(--line);padding-block:1.5rem;color:var(--muted);font-size:.85rem;text-align:center}
+@media (hover:hover) and (prefers-reduced-motion:no-preference){.modulo a:hover{transform:translateY(-2px)}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+@media (max-width:980px){.doc{grid-template-columns:minmax(0,1fr);padding-top:1rem}.lateral{position:static;max-height:none;order:2}.aula{max-width:none}}
+@media (max-width:860px){.modulo{grid-template-columns:minmax(0,1fr)}.modulo h2{position:static}.mn{display:inline;margin-right:.5rem}}
+@media (max-width:420px){.meta{display:none}.top-in{gap:.5rem}.acoes{gap:.6rem}.capa{padding-top:1.25rem}.paginas{grid-template-columns:minmax(0,1fr)}.paginas .prox{grid-column:1}}
+@media print{.top,.lateral,.paginas{display:none}.aula{border:0;box-shadow:none;padding:0;max-width:none}.doc{display:block}}
+</style>
+</head>
+<body>
+<a class="pular" href="#conteudo">Pular para o conteúdo</a>
+<header class="top"><div class="wrap top-in"><div class="titles"><p class="marca"><a href="index.html">Curso Linux Sysadmin</a></p><p class="meta">Rodrigo Antignani · Aula 10.4</p></div><div class="acoes"><a href="index.html">Índice</a><div class="idioma" role="group" aria-label="Idioma"><span aria-current="true">PT</span><a href="10.4-sudo-de-verdade.it.html" hreflang="it" lang="it">IT</a></div></div></div></header>
+<div class="wrap doc"><aside class="lateral" aria-label="Aulas"><h2>Aulas</h2><h3>M0 · Laboratório</h3><ul><li><a href="0.1-montar-o-laboratorio.html"><span class="num">0.1</span><span>Montar o laboratório</span></a></li><li><a href="0.2-acesso-e-protecao.html"><span class="num">0.2</span><span>Acesso e proteção</span></a></li></ul><h3>M1 · Linha de comando</h3><ul><li><a href="1.1-o-que-e-linux.html"><span class="num">1.1</span><span>O que é Linux</span></a></li><li><a href="1.2-o-shell-e-a-ajuda.html"><span class="num">1.2</span><span>O shell e a ajuda</span></a></li><li><a href="1.3-caminhos-e-navegacao.html"><span class="num">1.3</span><span>Caminhos e navegação</span></a></li><li><a href="1.4-criar-copiar-mover-e-apagar.html"><span class="num">1.4</span><span>Criar, copiar, mover e apagar</span></a></li><li><a href="1.5-ler-e-procurar-texto.html"><span class="num">1.5</span><span>Ler e procurar texto</span></a></li><li><a href="1.6-redirecionamentos-e-pipes.html"><span class="num">1.6</span><span>Redirecionamentos e pipes</span></a></li><li><a href="1.7-arquivar-e-compactar.html"><span class="num">1.7</span><span>Arquivar e compactar</span></a></li><li><a href="1.8-primeiro-script.html"><span class="num">1.8</span><span>Primeiro script</span></a></li><li><a href="1.9-decidir-e-repetir.html"><span class="num">1.9</span><span>Decidir e repetir</span></a></li><li><a href="1.10-software-livre-na-pratica.html"><span class="num">1.10</span><span>Software livre na prática</span></a></li></ul><h3>M2 · Sistema, usuários e permissões</h3><ul><li><a href="2.1-instalacao-e-provisionamento.html"><span class="num">2.1</span><span>Instalação e provisionamento</span></a></li><li><a href="2.2-hardware-e-dispositivos.html"><span class="num">2.2</span><span>Hardware e dispositivos</span></a></li><li><a href="2.3-processos-e-logs.html"><span class="num">2.3</span><span>Processos e logs</span></a></li><li><a href="2.4-rede-no-dia-a-dia.html"><span class="num">2.4</span><span>Rede no dia a dia</span></a></li><li><a href="2.5-acesso-remoto-e-privilegios.html"><span class="num">2.5</span><span>Acesso remoto e privilégios</span></a></li><li><a href="2.6-usuarios-e-grupos.html"><span class="num">2.6</span><span>Usuários e grupos</span></a></li><li><a href="2.7-permissoes-e-dono.html"><span class="num">2.7</span><span>Permissões e dono</span></a></li><li><a href="2.8-diretorios-e-arquivos-especiais.html"><span class="num">2.8</span><span>Diretórios e arquivos especiais</span></a></li></ul><h3>M3 · Texto e editor</h3><ul><li><a href="3.1-fluxos-a-fundo.html"><span class="num">3.1</span><span>Fluxos a fundo</span></a></li><li><a href="3.2-filtros-de-texto.html"><span class="num">3.2</span><span>Filtros de texto</span></a></li><li><a href="3.3-regex-e-grep.html"><span class="num">3.3</span><span>Regex e grep</span></a></li><li><a href="3.4-sed-e-awk.html"><span class="num">3.4</span><span>sed e awk</span></a></li><li><a href="3.5-vi-e-vim-de-verdade.html"><span class="num">3.5</span><span>vi e vim de verdade</span></a></li></ul><h3>M4 · systemd e boot</h3><ul><li><a href="4.1-como-o-linux-liga.html"><span class="num">4.1</span><span>Como o Linux liga</span></a></li><li><a href="4.2-systemd-servicos-e-units.html"><span class="num">4.2</span><span>systemd: serviços e units</span></a></li><li><a href="4.3-targets-desligar-e-reiniciar.html"><span class="num">4.3</span><span>Targets: desligar e reiniciar</span></a></li><li><a href="4.4-grub-e-acesso-de-emergencia.html"><span class="num">4.4</span><span>GRUB e acesso de emergência</span></a></li></ul><h3>M5 · Kernel, módulos e VM</h3><ul><li><a href="5.1-hardware-pelo-kernel.html"><span class="num">5.1</span><span>Hardware pelo kernel</span></a></li><li><a href="5.2-modulos-e-parametros.html"><span class="num">5.2</span><span>Módulos e parâmetros</span></a></li><li><a href="5.3-linux-como-convidado.html"><span class="num">5.3</span><span>Linux como convidado</span></a></li></ul><h3>M6 · Pacotes e repositórios</h3><ul><li><a href="6.1-pacotes-no-debian.html"><span class="num">6.1</span><span>Pacotes no Debian</span></a></li><li><a href="6.2-pacotes-na-rocky.html"><span class="num">6.2</span><span>Pacotes na Rocky</span></a></li><li><a href="6.3-repositorios.html"><span class="num">6.3</span><span>Repositórios</span></a></li><li><a href="6.4-flatpak.html"><span class="num">6.4</span><span>Flatpak</span></a></li><li><a href="6.5-bibliotecas-compartilhadas.html"><span class="num">6.5</span><span>Bibliotecas compartilhadas</span></a></li></ul><h3>M7 · Processos e desempenho</h3><ul><li><a href="7.1-processos-e-sinais.html"><span class="num">7.1</span><span>Processos e sinais</span></a></li><li><a href="7.2-jobs-e-sessoes.html"><span class="num">7.2</span><span>Jobs e sessões</span></a></li><li><a href="7.3-prioridade-e-perfis.html"><span class="num">7.3</span><span>Prioridade e perfis</span></a></li></ul><h3>M8 · Arquivos a fundo</h3><ul><li><a href="8.1-fhs-e-onde-cada-coisa-mora.html"><span class="num">8.1</span><span>FHS e onde cada coisa mora</span></a></li><li><a href="8.2-find-a-fundo.html"><span class="num">8.2</span><span>find a fundo</span></a></li><li><a href="8.3-arquivamento-avancado.html"><span class="num">8.3</span><span>Arquivamento avançado</span></a></li><li><a href="8.4-links.html"><span class="num">8.4</span><span>Links</span></a></li><li><a href="8.5-permissoes-avancadas.html"><span class="num">8.5</span><span>Permissões avançadas</span></a></li></ul><h3>M9 · Armazenamento</h3><ul><li><a href="9.1-discos-e-layout.html"><span class="num">9.1</span><span>Discos e layout</span></a></li><li><a href="9.2-particionar.html"><span class="num">9.2</span><span>Particionar</span></a></li><li><a href="9.3-sistemas-de-arquivos.html"><span class="num">9.3</span><span>Sistemas de arquivos</span></a></li><li><a href="9.4-montar-e-persistir.html"><span class="num">9.4</span><span>Montar e persistir</span></a></li><li><a href="9.5-integridade-e-espaco.html"><span class="num">9.5</span><span>Integridade e espaço</span></a></li><li><a href="9.6-lvm.html"><span class="num">9.6</span><span>LVM</span></a></li><li><a href="9.7-crescer-sem-destruir.html"><span class="num">9.7</span><span>Crescer sem destruir</span></a></li></ul><h3>M10 · Usuários e acesso privilegiado</h3><ul><li><a href="10.1-contas.html"><span class="num">10.1</span><span>Contas</span></a></li><li><a href="10.2-senhas-e-validade.html"><span class="num">10.2</span><span>Senhas e validade</span></a></li><li><a href="10.3-grupos-e-trabalho-em-equipe.html"><span class="num">10.3</span><span>Grupos e trabalho em equipe</span></a></li><li><a href="10.4-sudo-de-verdade.html" aria-current="page"><span class="num">10.4</span><span>sudo de verdade</span></a></li></ul><h3>M11 · Rede</h3><ul><li><a href="11.1-tcp-ip-para-quem-administra.html"><span class="num">11.1</span><span>TCP/IP para quem administra</span></a></li><li><a href="11.2-networkmanager-e-nmcli.html"><span class="num">11.2</span><span>NetworkManager e nmcli</span></a></li></ul></aside><main id="conteudo" class="aula"><article><h1>Aula 10.4 · sudo de verdade</h1>
+<p>No Windows, colocar alguém no grupo Administradores resolve na hora e entrega tudo. Para dar só uma tarefa, você monta uma delegação, ou um endpoint do JEA, com a lista exata de comandos. No Linux, o <code translate="no">wheel</code> (Rocky) e o <code translate="no">sudo</code> (Debian) são o grupo Administradores, e o <code translate="no">sudoers</code> é a delegação fina. Na Aula 2.5 você escreveu a primeira regra. Nesta aula você escreve regras que não abrem brechas: só os comandos e os argumentos certos, sem curinga perigoso, com edição segura de arquivo e com registro de tudo. No fim vem o Desafio do M10.</p>
+<blockquote><p><strong>Núcleo desta aula:</strong> ler uma regra como <code translate="no">quem onde=(como quem) o quê</code>; agrupar comandos num <code translate="no">Cmnd_Alias</code>; lembrar que os argumentos têm de bater exatamente; testar uma regra com <code translate="no">sudo -l -U</code> antes de usar; conferir um arquivo com <code translate="no">visudo -cf</code> antes de instalar; evitar o <code translate="no">*</code> nos argumentos; e saber que, entre duas regras que batem, vale a última. O resto é aprofundamento.</p></blockquote>
+<div class="tabela"><table><thead><tr><th scope="col">Ficha</th><th scope="col"></th></tr></thead><tbody><tr><td><strong>Módulo</strong></td><td>M10 · Usuários e acesso privilegiado, aula 4 de 4, com o Desafio do módulo</td></tr><tr><td><strong>Quando</strong></td><td>Semana 15</td></tr><tr><td><strong>Ao final</strong></td><td>Você dá a uma pessoa exatamente um comando como <code translate="no">root</code>, prova que nada além disso passa e acha quem tem mais acesso do que devia</td></tr><tr><td><strong>Pré-requisitos</strong></td><td>Aulas 2.5, 10.2 e 10.3</td></tr><tr><td><strong>Tempo</strong></td><td>cerca de 2h30, mais 1h para o Desafio</td></tr><tr><td><strong>Snapshots</strong></td><td><code translate="no">m10a4-inicio</code> e <code translate="no">m10a4-fim</code> na rocky-lab e na debian-lab</td></tr></tbody></table></div>
+<h2 id="1-aquecimento">1 · Aquecimento</h2>
+<p>Responda antes de ler.</p>
+<ol><li>A regra permite <code translate="no">/usr/bin/systemctl restart nginx</code>. O operador consegue rodar <code translate="no">sudo systemctl restart nginx.service</code>?</li>
+<li>Por que dar <code translate="no">sudo less /var/log/secure</code> a alguém é o mesmo que dar <code translate="no">root</code>?</li>
+<li>Dois arquivos do <code translate="no">/etc/sudoers.d/</code> falam do mesmo comando, um com <code translate="no">NOPASSWD</code> e outro sem. Qual vale?</li></ol>
+<h2 id="2-por-que-importa">2 · Por que importa</h2>
+<div class="tabela"><table><thead><tr><th scope="col">O chamado</th><th scope="col">A resposta errada</th><th scope="col">O que ela causa</th></tr></thead><tbody><tr><td>"O operador precisa reiniciar o nginx"</td><td>Colocar no <code translate="no">wheel</code></td><td>Ele pode tudo, inclusive apagar o servidor</td></tr><tr><td>"Deixe ele mexer só no nginx"</td><td><code translate="no">/usr/bin/systemctl * nginx</code></td><td>O <code translate="no">*</code> aceita <code translate="no">edit nginx</code>, que abre um editor como <code translate="no">root</code>, e <code translate="no">stop sshd nginx</code></td></tr><tr><td>"Ele precisa ler os logs"</td><td><code translate="no">sudo less /var/log/...</code></td><td>Dentro do <code translate="no">less</code>, <code translate="no">!sh</code> abre um shell de <code translate="no">root</code></td></tr><tr><td>"Ele precisa editar a config do site"</td><td><code translate="no">sudo vi /etc/nginx/...</code></td><td>Mesma coisa: o <code translate="no">vi</code> também abre shell</td></tr><tr><td>"Criei a regra e ela não funciona"</td><td>Editar o arquivo de novo, às cegas</td><td>O problema era o argumento diferente ou outra regra depois dessa</td></tr></tbody></table></div>
+<h2 id="3-modelo-mental">3 · Modelo mental</h2>
+<blockquote><p>Pense na <strong>lista do porteiro</strong>. Cada linha diz <strong>quem</strong> pode, <strong>em qual prédio</strong>, <strong>no lugar de quem</strong> e <strong>fazer o quê</strong>. O porteiro lê a lista inteira, de cima para baixo, arquivo por arquivo, e <strong>a última linha que combina com o pedido decide</strong>. E ele é literal: se a lista diz "abrir a sala 12", "abrir a sala 12 e a 13" não combina.</p></blockquote>
+<pre translate="no"><code>operador   ALL  =(root)  /usr/bin/systemctl restart nginx
+quem       onde   como     o quê, com os argumentos exatos
+
+leitura:   /etc/sudoers  →  /etc/sudoers.d/ em ordem alfabética (05-..., 20-..., 30-...)
+decisão:   a última linha que combina com quem, onde, como e o quê</code></pre>
+<figure><a href="../img/10.4-lista-do-porteiro.jpg"><img src="../img/10.4-lista-do-porteiro.jpg" alt="A lista do porteiro" loading="lazy" decoding="async"></a><figcaption>Os argumentos são comparados como texto.</figcaption></figure>
+<h3 id="ponte-windows">Ponte Windows</h3>
+<div class="tabela"><table><thead><tr><th scope="col">No Windows</th><th scope="col">No Linux</th><th scope="col">Onde a comparação engana</th></tr></thead><tbody><tr><td>Grupo Administradores</td><td><code translate="no">wheel</code> (Rocky) e <code translate="no">sudo</code> (Debian)</td><td>Quem está nele pode tudo, com a própria senha</td></tr><tr><td>"Executar como administrador" (UAC)</td><td><code translate="no">sudo comando</code></td><td>O <code translate="no">sudo</code> pede a senha <strong>de quem chama</strong>, e não a do <code translate="no">root</code></td></tr><tr><td>JEA, com a lista de comandos permitidos</td><td><code translate="no">Cmnd_Alias</code> e uma regra no <code translate="no">sudoers.d</code></td><td>Os argumentos são comparados como texto: um a mais e não passa</td></tr><tr><td>Log de segurança (4688, 4672)</td><td><code translate="no">journalctl _COMM=sudo</code> e <code translate="no">/var/log/secure</code></td><td>Cada <code translate="no">sudo</code> vira uma linha, aceito ou negado</td></tr><tr><td>Política aplicada por GPO</td><td>Arquivo no <code translate="no">/etc/sudoers.d/</code></td><td>Um erro de sintaxe pode tirar o <code translate="no">sudo</code> de todo mundo: confira antes</td></tr></tbody></table></div>
+<h2 id="4-o-essencial">4 · O essencial</h2>
+<h3 id="a-regra">A regra</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Parte</th><th scope="col">Exemplo</th><th scope="col">Significa</th></tr></thead><tbody><tr><td>Quem</td><td><code translate="no">operador</code>, <code translate="no">%web</code></td><td>Uma conta, ou um grupo com <code translate="no">%</code></td></tr><tr><td>Onde</td><td><code translate="no">ALL</code></td><td>Em qualquer máquina que use este arquivo</td></tr><tr><td>Como quem</td><td><code translate="no">(root)</code></td><td>Roda como <code translate="no">root</code>; <code translate="no">(ALL)</code> deixa escolher qualquer um</td></tr><tr><td>Opções</td><td><code translate="no">NOPASSWD:</code></td><td>Não pede senha</td></tr><tr><td>O quê</td><td><code translate="no">/usr/bin/systemctl restart nginx</code></td><td>Caminho completo e argumentos exatos</td></tr></tbody></table></div>
+<pre translate="no"><code class="lang-text">Cmnd_Alias WEB_OPER = /usr/bin/systemctl restart nginx, /usr/bin/systemctl reload nginx
+operador ALL=(root) WEB_OPER</code></pre>
+<p>Os argumentos são comparados como texto: <code translate="no">restart nginx</code> não aceita <code translate="no">restart nginx.service</code> nem <code translate="no">restart nginx sshd</code>. Um comando sem argumentos na regra aceita <strong>qualquer</strong> argumento; para proibir todos, escreva <code translate="no">""</code> depois do comando.</p>
+<p>E o <code translate="no">status</code>? Ele não precisa de <code translate="no">sudo</code>: qualquer usuário roda <code translate="no">systemctl status nginx</code>. Não dê por <code translate="no">sudo</code> o que a pessoa já pode fazer sem ele.</p>
+<h3 id="conferir-antes-de-instalar">Conferir antes de instalar</h3>
+<pre translate="no"><code class="lang-bash">sudo visudo -cf /tmp/20-web
+sudo install -m 0440 -o root -g root /tmp/20-web /etc/sudoers.d/20-web
+sudo -l -U operador
+sudo -l -U operador /usr/bin/systemctl restart nginx; echo $?</code></pre>
+<p>O <code translate="no">visudo -cf</code> confere a sintaxe de um arquivo antes que ele chegue ao <code translate="no">sudoers.d</code>. O <code translate="no">sudo -l -U</code> mostra as regras de outra pessoa; com um comando no fim, responde se aquele comando passa (código 0) ou não (código 1), sem rodar nada.</p>
+<figure><a href="../img/10.4-conferir-antes-de-instalar.jpg"><img src="../img/10.4-conferir-antes-de-instalar.jpg" alt="Conferir antes de instalar" loading="lazy" decoding="async"></a><figcaption>Um erro no sudoers.d pode tirar o sudo de todo mundo.</figcaption></figure>
+<h3 id="os-buracos-conhecidos">Os buracos conhecidos</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Dar isto</th><th scope="col">Abre</th><th scope="col">Dar isto no lugar</th></tr></thead><tbody><tr><td><code translate="no">/usr/bin/systemctl * nginx</code></td><td><code translate="no">edit nginx</code> e <code translate="no">stop sshd nginx</code></td><td>Cada ação, por extenso</td></tr><tr><td><code translate="no">/usr/bin/vi ARQUIVO</code></td><td><code translate="no">:!sh</code> como <code translate="no">root</code></td><td><code translate="no">sudoedit ARQUIVO</code></td></tr><tr><td><code translate="no">/usr/bin/less LOG</code></td><td><code translate="no">!sh</code> como <code translate="no">root</code></td><td>O grupo <code translate="no">systemd-journal</code> (ou <code translate="no">adm</code> no Debian)</td></tr><tr><td>Um script em <code translate="no">/home/operador/</code></td><td>Ele mesmo edita o script</td><td>Script do <code translate="no">root</code>, em <code translate="no">/usr/local/sbin/</code>, modo <code translate="no">0755</code></td></tr><tr><td><code translate="no">(ALL)</code> no "como quem"</td><td>Rodar como qualquer conta</td><td><code translate="no">(root)</code> ou a conta do serviço</td></tr></tbody></table></div>
+<p>O <code translate="no">sudoedit</code> copia o arquivo para uma pasta temporária, abre o editor <strong>como a própria pessoa</strong> e só grava de volta, como <code translate="no">root</code>, quando ela sai do editor. Um <code translate="no">:!sh</code> dentro dele abre um shell da pessoa, e não do <code translate="no">root</code>.</p>
+<figure><a href="../img/10.4-buracos-conhecidos.jpg"><img src="../img/10.4-buracos-conhecidos.jpg" alt="Os buracos conhecidos" loading="lazy" decoding="async"></a><figcaption>O asterisco aceita espaços, e o editor abre um shell.</figcaption></figure>
+<h3 id="opcoes-uteis">Opções úteis</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Opção</th><th scope="col">Faz</th></tr></thead><tbody><tr><td><code translate="no">Defaults:operador timestamp_timeout=5</code></td><td>A senha vale por 5 minutos para ele</td></tr><tr><td><code translate="no">Defaults logfile=/var/log/sudo.log</code></td><td>Um log só do <code translate="no">sudo</code>, além do journal</td></tr><tr><td><code translate="no">Defaults:operador log_output</code></td><td>Grava a saída de cada comando; o <code translate="no">sudoreplay</code> reproduz</td></tr><tr><td><code translate="no">NOEXEC:</code> antes do comando</td><td>Impede o comando de abrir outros programas, quando funciona</td></tr></tbody></table></div>
+<h3 id="rocky-debian">Rocky × Debian</h3>
+<div class="tabela"><table><thead><tr><th scope="col"></th><th scope="col">Rocky</th><th scope="col">Debian</th></tr></thead><tbody><tr><td>Grupo de administradores</td><td><code translate="no">wheel</code></td><td><code translate="no">sudo</code></td></tr><tr><td>Inclusão do <code translate="no">sudoers.d</code></td><td><code translate="no">#includedir /etc/sudoers.d</code></td><td><code translate="no">@includedir /etc/sudoers.d</code></td></tr><tr><td><code translate="no">systemctl</code></td><td><code translate="no">/usr/bin/systemctl</code></td><td><code translate="no">/usr/bin/systemctl</code></td></tr><tr><td><code translate="no">nginx</code></td><td><code translate="no">sudo dnf install -y nginx</code> e <code translate="no">systemctl enable --now nginx</code></td><td><code translate="no">sudo apt install -y nginx</code> (já sobe sozinho)</td></tr><tr><td>Log do <code translate="no">sudo</code></td><td><code translate="no">/var/log/secure</code> e o journal</td><td>O journal, e o <code translate="no">/var/log/auth.log</code>, se houver</td></tr><tr><td>Grupo de leitura de logs</td><td><code translate="no">systemd-journal</code></td><td><code translate="no">systemd-journal</code> e <code translate="no">adm</code></td></tr></tbody></table></div>
+<h2 id="5-lab-guiado">5 · Lab guiado</h2>
+<p><strong>Passo 0 · Snapshots e estado.</strong> No Proxmox: <code translate="no">qm snapshot 201 m10a4-inicio</code> e <code translate="no">qm snapshot 202 m10a4-inicio</code>. Na rocky-lab:</p>
+<pre translate="no"><code class="lang-bash">sudo ls -l /etc/sudoers.d/
+getent group wheel
+sudo visudo -c</code></pre>
+<p>O <code translate="no">visudo -c</code> confere todos os arquivos e termina com <code translate="no">parsed OK</code> em cada um. Anote o que já existe no <code translate="no">sudoers.d</code>: você vai deixar igual no fim.</p>
+<p><strong>Passo 1 · O nginx e a lista principal.</strong></p>
+<pre translate="no"><code class="lang-bash">sudo dnf install -y nginx
+sudo systemctl enable --now nginx
+systemctl is-active nginx
+sudo grep -vE '^\s*$|^#( |#|$)' /etc/sudoers</code></pre>
+<p>O <code translate="no">grep</code> tira os comentários e deixa o <code translate="no">#includedir</code>, que não é comentário. Sobram os <code translate="no">Defaults</code>, a linha do <code translate="no">root</code>, a do <code translate="no">%wheel</code> e o <code translate="no">#includedir /etc/sudoers.d</code>. Leia a do <code translate="no">%wheel</code> com a tabela da seção 4: quem está no grupo, em qualquer máquina, como qualquer conta, qualquer comando.</p>
+<p><strong>Passo 2 · O operador.</strong></p>
+<pre translate="no"><code class="lang-bash">sudo useradd -u 2410 -c "Operador Web" -m -s /bin/bash operador
+sudo passwd operador
+id operador</code></pre>
+<p>Dê uma senha que passe na política da Aula 10.2 e anote no caderno do lab. O operador não está no <code translate="no">wheel</code>: por enquanto, ele não tem <code translate="no">sudo</code> nenhum.</p>
+<pre translate="no"><code class="lang-bash">sudo -l -U operador</code></pre>
+<p>A resposta diz que ele não pode rodar <code translate="no">sudo</code> nesta máquina.</p>
+<p><strong>Passo 3 · A regra, conferida antes de instalar.</strong></p>
+<pre translate="no"><code class="lang-bash">cat &gt; /tmp/20-web &lt;&lt;'FIM'
+Cmnd_Alias WEB_OPER = /usr/bin/systemctl restart nginx, /usr/bin/systemctl reload nginx
+operador ALL=(root) WEB_OPER
+FIM
+sudo visudo -cf /tmp/20-web
+sudo install -m 0440 -o root -g root /tmp/20-web /etc/sudoers.d/20-web
+rm /tmp/20-web
+sudo visudo -c
+sudo -l -U operador</code></pre>
+<p>O <code translate="no">visudo -cf</code> responde <code translate="no">parsed OK</code>, e só então o arquivo entra no <code translate="no">sudoers.d</code>, já com dono e modo certos. O <code translate="no">sudo -l -U</code> agora lista os dois comandos, como <code translate="no">(root)</code>.</p>
+<p><strong>Passo 4 · Testar sem rodar.</strong></p>
+<pre translate="no"><code class="lang-bash">sudo -l -U operador /usr/bin/systemctl restart nginx; echo $?
+sudo -l -U operador /usr/bin/systemctl restart nginx.service; echo $?
+sudo -l -U operador /usr/bin/systemctl stop nginx; echo $?</code></pre>
+<p>O primeiro imprime o caminho do comando e <code translate="no">0</code>. Os outros dois terminam em <code translate="no">1</code>: <code translate="no">nginx.service</code> não é o texto da regra, e <code translate="no">stop</code> não está nela.</p>
+<p><strong>Passo 5 · Agora como o operador.</strong></p>
+<pre translate="no"><code class="lang-bash">su - operador
+sudo systemctl restart nginx
+systemctl status nginx --no-pager | head -n 5
+sudo systemctl restart nginx.service
+sudo systemctl stop nginx
+exit</code></pre>
+<p>O <code translate="no">sudo</code> pede a senha <strong>do operador</strong>, uma vez. O <code translate="no">restart</code> funciona, e o <code translate="no">status</code> roda sem <code translate="no">sudo</code>. Os dois últimos respondem algo como <code translate="no">Sorry, user operador is not allowed to execute '/usr/bin/systemctl stop nginx' as root on rocky-lab.</code></p>
+<p><strong>Passo 6 · O registro.</strong></p>
+<pre translate="no"><code class="lang-bash">sudo journalctl _COMM=sudo --since '-10min' --no-pager | grep operador</code></pre>
+<p>Cada tentativa virou uma linha, com <code translate="no">TTY</code>, <code translate="no">PWD</code>, <code translate="no">USER=root</code> e o <code translate="no">COMMAND</code>. As negadas trazem <code translate="no">command not allowed</code>. É isso que você mostra numa auditoria.</p>
+<p><strong>Passo 7 · O curinga, só olhando.</strong> Instale uma regra ruim por um instante e pergunte ao <code translate="no">sudo</code>, <strong>sem rodar</strong>:</p>
+<pre translate="no"><code class="lang-bash">echo 'operador ALL=(root) /usr/bin/systemctl * nginx' &gt; /tmp/25-curinga
+sudo visudo -cf /tmp/25-curinga
+sudo install -m 0440 -o root -g root /tmp/25-curinga /etc/sudoers.d/25-curinga
+sudo -l -U operador /usr/bin/systemctl edit nginx; echo $?
+sudo -l -U operador /usr/bin/systemctl stop sshd nginx; echo $?
+sudo rm /etc/sudoers.d/25-curinga /tmp/25-curinga</code></pre>
+<p>Os dois passam, com <code translate="no">0</code>. O <code translate="no">edit</code> abre um editor como <code translate="no">root</code>, e de lá sai um shell. O segundo derruba o <code translate="no">sshd</code>. A sintaxe estava certa; a regra é que estava errada. Não rode esses comandos.</p>
+<p><strong>Passo 8 · Editar com segurança.</strong></p>
+<pre translate="no"><code class="lang-bash">sudo install -m 0644 /dev/null /etc/nginx/conf.d/curso.conf
+echo 'operador ALL=(root) sudoedit /etc/nginx/conf.d/curso.conf, /usr/sbin/nginx -t' &gt; /tmp/21-web-conf
+sudo visudo -cf /tmp/21-web-conf
+sudo install -m 0440 -o root -g root /tmp/21-web-conf /etc/sudoers.d/21-web-conf
+rm /tmp/21-web-conf
+su - operador
+sudoedit /etc/nginx/conf.d/curso.conf</code></pre>
+<p>O editor abre um arquivo temporário. Escreva uma linha <code translate="no"># editado pelo operador</code>, grave e saia. Ainda como operador:</p>
+<pre translate="no"><code class="lang-bash">sudo /usr/sbin/nginx -t
+sudo systemctl reload nginx
+cat /etc/nginx/conf.d/curso.conf
+exit</code></pre>
+<p>O <code translate="no">nginx -t</code> responde <code translate="no">syntax is ok</code> e <code translate="no">test is successful</code>, e o arquivo tem a linha nova. O operador editou um arquivo do <code translate="no">root</code> sem nunca ter um editor rodando como <code translate="no">root</code>.</p>
+<p><strong>Passo 9 · Auditar quem pode o quê.</strong></p>
+<pre translate="no"><code class="lang-bash">getent group wheel
+for u in $(getent passwd | awk -F: '$3 &gt;= 1000 &amp;&amp; $3 &lt; 60000 {print $1}'); do
+  echo "== $u"; sudo -l -U "$u" | sed -n '/may run/,$p'
+done</code></pre>
+<p>Cada pessoa aparece com o que pode, ou sem linha nenhuma, se não pode nada. O <code translate="no">student</code> tem <code translate="no">(ALL) ALL</code>, pelo <code translate="no">wheel</code>; o operador, só os três comandos dele.</p>
+<p><strong>Passo 10 · debian-lab.</strong> Repita os passos 0 a 9. Instale com <code translate="no">sudo apt install -y nginx</code>, e no Passo 9 troque <code translate="no">wheel</code> por <code translate="no">sudo</code>.</p>
+<h3 id="decida-1">Decida 1</h3>
+<p>Pedem que o operador possa parar, iniciar, reiniciar e recarregar o nginx. Qual regra?</p>
+<p>A) <code translate="no">operador ALL=(root) /usr/bin/systemctl * nginx</code>. B) Um <code translate="no">Cmnd_Alias</code> com as quatro ações por extenso. C) <code translate="no">operador ALL=(root) /usr/bin/systemctl</code>.</p>
+<p>Marque uma opção antes.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se você marcou</th><th scope="col">Resultado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>A</td><td>Perigoso</td><td>O <code translate="no">*</code> aceita espaços: <code translate="no">edit nginx</code> e <code translate="no">stop sshd nginx</code> passam</td></tr><tr><td>B</td><td>Certo</td><td>Só as quatro linhas, com o texto exato</td></tr><tr><td>C</td><td>Muito perigoso</td><td>Sem argumentos na regra, qualquer argumento passa: o operador para o servidor inteiro</td></tr></tbody></table></div>
+<p><strong>Para fixar:</strong> escreva cada comando por extenso; o <code translate="no">*</code> nos argumentos aceita mais do que parece.</p>
+<h3 id="decida-2">Decida 2</h3>
+<p>O operador precisa ler os logs do nginx. Como?</p>
+<p>A) <code translate="no">operador ALL=(root) /usr/bin/less /var/log/nginx/error.log</code>. B) Colocar o operador no grupo que lê os logs (<code translate="no">systemd-journal</code>, e <code translate="no">adm</code> no Debian) e usar <code translate="no">journalctl -u nginx</code>. C) <code translate="no">chmod 644</code> em todos os logs.</p>
+<p>Marque uma opção antes.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se você marcou</th><th scope="col">Resultado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>A</td><td>Perigoso</td><td>Dentro do <code translate="no">less</code>, <code translate="no">!sh</code> abre um shell de <code translate="no">root</code></td></tr><tr><td>B</td><td>Certo</td><td>Ele lê sem <code translate="no">sudo</code>; nada roda como <code translate="no">root</code></td></tr><tr><td>C</td><td>Fraco</td><td>Todo mundo passa a ler, e a próxima rotação de log desfaz</td></tr></tbody></table></div>
+<p><strong>Para fixar:</strong> acesso de leitura se dá por grupo, e não por <code translate="no">sudo</code>.</p>
+<h2 id="6-quebre-e-conserte">6 · Quebre e conserte</h2>
+<h3 id="quebra-1-o-caminho-incompleto">Quebra 1 · O caminho incompleto</h3>
+<pre translate="no"><code class="lang-bash">echo 'operador ALL=(root) systemctl restart nginx' &gt; /tmp/22-ruim
+sudo visudo -cf /tmp/22-ruim; echo $?</code></pre>
+<p><strong>Sintoma:</strong> o <code translate="no">visudo</code> recusa o arquivo, com código <code translate="no">1</code> e uma mensagem de erro de sintaxe que aponta a linha e a coluna; nas versões atuais, ela diz que esperava um caminho completo.</p>
+<p><strong>Investigação:</strong> a coluna indicada é a do <code translate="no">systemctl</code>.</p>
+<p><strong>Causa:</strong> o <code translate="no">sudoers</code> exige o caminho completo do comando. Sem ele, qualquer <code translate="no">systemctl</code> que a pessoa pusesse no <code translate="no">PATH</code> serviria.</p>
+<p><strong>Conserto:</strong> <code translate="no">command -v systemctl</code> dá o caminho; corrija para <code translate="no">/usr/bin/systemctl</code>. E repare no que <strong>não</strong> aconteceu: como você conferiu antes de instalar, o <code translate="no">sudoers.d</code> nunca recebeu o arquivo ruim. Apague: <code translate="no">rm /tmp/22-ruim</code>.</p>
+<h3 id="quebra-2-o-operador-que-pode-tudo">Quebra 2 · O operador que pode tudo</h3>
+<pre translate="no"><code class="lang-bash">sudo usermod -aG wheel operador
+sudo -l -U operador | sed -n '/may run/,$p'</code></pre>
+<p>No Debian, use o grupo <code translate="no">sudo</code>.</p>
+<p><strong>Sintoma:</strong> além dos três comandos, aparece <code translate="no">(ALL) ALL</code>.</p>
+<p><strong>Investigação:</strong> <code translate="no">id operador</code> mostra o <code translate="no">wheel</code>. A regra do <code translate="no">20-web</code> continua certa: o que abriu tudo foi a linha <code translate="no">%wheel</code> do <code translate="no">/etc/sudoers</code>.</p>
+<p><strong>Causa:</strong> alguém "resolveu rápido" um chamado. É o achado mais comum em auditoria de <code translate="no">sudo</code>.</p>
+<p><strong>Conserto:</strong> <code translate="no">sudo gpasswd -d operador wheel</code> e <code translate="no">sudo -l -U operador</code> de novo. Se ele tinha uma sessão aberta, ela ainda carrega o <code translate="no">wheel</code> (Aula 10.3): encerre com <code translate="no">sudo loginctl terminate-user operador</code>.</p>
+<h3 id="quebra-3-o-nopasswd-que-nao-vale">Quebra 3 · O NOPASSWD que não vale</h3>
+<pre translate="no"><code class="lang-bash">echo 'operador ALL=(root) NOPASSWD: /usr/bin/systemctl restart nginx' &gt; /tmp/05-oper
+sudo visudo -cf /tmp/05-oper
+sudo install -m 0440 -o root -g root /tmp/05-oper /etc/sudoers.d/05-oper
+sudo -u operador sudo -k
+sudo -u operador sudo -n /usr/bin/systemctl restart nginx; echo $?</code></pre>
+<p>O <code translate="no">sudo -k</code> apaga a senha que o operador já tinha digitado, e o <code translate="no">-n</code> proíbe o <code translate="no">sudo</code> de pedir senha.</p>
+<p><strong>Sintoma:</strong> <code translate="no">sudo: a password is required</code>, com código <code translate="no">1</code>, mesmo com o <code translate="no">NOPASSWD</code>.</p>
+<p><strong>Investigação:</strong> <code translate="no">sudo -l -U operador</code> lista as duas regras: a do <code translate="no">05-oper</code>, com <code translate="no">NOPASSWD</code>, e a do <code translate="no">20-web</code>, sem.</p>
+<p><strong>Causa:</strong> os arquivos são lidos em ordem alfabética, e a última regra que combina decide. O <code translate="no">20-web</code> vem depois do <code translate="no">05-oper</code>.</p>
+<p><strong>Conserto:</strong> mude a ordem e teste de novo; agora o código é <code translate="no">0</code>:</p>
+<pre translate="no"><code class="lang-bash">sudo mv /etc/sudoers.d/05-oper /etc/sudoers.d/30-oper
+sudo -u operador sudo -n /usr/bin/systemctl restart nginx; echo $?
+sudo rm /etc/sudoers.d/30-oper /tmp/05-oper</code></pre>
+<p>O conserto que dura é outro: uma regra só por comando, num arquivo só.</p>
+<figure><a href="../img/10.4-ultima-regra-decide.jpg"><img src="../img/10.4-ultima-regra-decide.jpg" alt="A última regra decide" loading="lazy" decoding="async"></a><figcaption>Uma regra por comando, num arquivo só.</figcaption></figure>
+<h3 id="limpeza">Limpeza</h3>
+<pre translate="no"><code class="lang-bash">sudo rm /etc/sudoers.d/20-web /etc/sudoers.d/21-web-conf
+sudo rm /etc/nginx/conf.d/curso.conf
+sudo systemctl reload nginx
+sudo userdel -r operador
+sudo ls -l /etc/sudoers.d/
+sudo visudo -c</code></pre>
+<p>O <code translate="no">sudoers.d</code> volta ao que você anotou no Passo 0. O nginx fica instalado: o Desafio precisa dele.</p>
+<h2 id="7-armadilhas">7 · Armadilhas</h2>
+<div class="tabela"><table><thead><tr><th scope="col">Armadilha</th><th scope="col">O que acontece</th><th scope="col">Como evitar</th></tr></thead><tbody><tr><td>Editar o <code translate="no">sudoers.d</code> direto, sem conferir</td><td>Um erro de sintaxe tira o <code translate="no">sudo</code> de todos</td><td><code translate="no">visudo -cf</code> num arquivo temporário, depois <code translate="no">install</code></td></tr><tr><td><code translate="no">*</code> nos argumentos</td><td>Passa muito mais do que você queria</td><td>Cada comando por extenso</td></tr><tr><td>Comando sem argumentos na regra</td><td>Qualquer argumento passa</td><td>Argumentos explícitos, ou <code translate="no">""</code> para nenhum</td></tr><tr><td><code translate="no">sudo</code> para editor, <code translate="no">less</code> ou <code translate="no">more</code></td><td>Shell de <code translate="no">root</code></td><td><code translate="no">sudoedit</code> e grupos de leitura</td></tr><tr><td><code translate="no">(ALL)</code> no "como quem"</td><td>A pessoa roda como qualquer conta</td><td><code translate="no">(root)</code> ou a conta do serviço</td></tr><tr><td>Dois arquivos com regras do mesmo comando</td><td>Vale o último em ordem alfabética</td><td>Uma regra por comando</td></tr><tr><td>Pessoa no <code translate="no">wheel</code> "só por hoje"</td><td>Fica para sempre</td><td>Auditoria com <code translate="no">sudo -l -U</code></td></tr><tr><td>Testar só com a sua conta</td><td>Você tem <code translate="no">ALL</code> e tudo funciona</td><td><code translate="no">sudo -l -U NOME COMANDO</code> e um teste como a pessoa</td></tr></tbody></table></div>
+<h2 id="8-quiz">8 · Quiz</h2>
+<p>Responda sem olhar. O gabarito está no fim da aula.</p>
+<ol><li>Quais são as partes de <code translate="no">operador ALL=(root) /usr/bin/systemctl restart nginx</code>?</li>
+<li>O que o <code translate="no">sudo -l -U operador /usr/bin/systemctl stop nginx</code> responde, e por que ele é seguro?</li>
+<li>Por que <code translate="no">/usr/bin/systemctl * nginx</code> é uma regra perigosa?</li>
+<li>O que o <code translate="no">sudoedit</code> faz de diferente de <code translate="no">sudo vi</code>?</li>
+<li>Dois arquivos do <code translate="no">sudoers.d</code> dão regras diferentes para o mesmo comando. Qual vale?</li>
+<li>Por que conferir com <code translate="no">visudo -cf</code> antes de copiar o arquivo para o <code translate="no">sudoers.d</code>?</li></ol>
+<h2 id="9-cola">9 · Cola</h2>
+<p><strong>Para saber de cor:</strong></p>
+<div class="tabela"><table><thead><tr><th scope="col">Quero...</th><th scope="col">Comando</th></tr></thead><tbody><tr><td>Conferir um arquivo novo</td><td><code translate="no">sudo visudo -cf ARQUIVO</code></td></tr><tr><td>Instalar com dono e modo</td><td><code translate="no">sudo install -m 0440 -o root -g root ARQUIVO /etc/sudoers.d/NN-nome</code></td></tr><tr><td>Conferir tudo</td><td><code translate="no">sudo visudo -c</code></td></tr><tr><td>Ver as regras de alguém</td><td><code translate="no">sudo -l -U NOME</code></td></tr><tr><td>Testar um comando sem rodar</td><td><code translate="no">sudo -l -U NOME /caminho/comando args; echo $?</code></td></tr><tr><td>Ver o registro</td><td><code translate="no">sudo journalctl _COMM=sudo --since '-1h'</code></td></tr></tbody></table></div>
+<p><strong>Para consultar:</strong></p>
+<div class="tabela"><table><thead><tr><th scope="col">Quero...</th><th scope="col">Comando</th></tr></thead><tbody><tr><td>Lista principal sem comentários</td><td><code translate="no">sudo grep -vE '^\s*$|^#( |#|$)' /etc/sudoers</code></td></tr><tr><td>Agrupar comandos</td><td><code translate="no">Cmnd_Alias NOME = /cmd1 args, /cmd2 args</code></td></tr><tr><td>Editar arquivo protegido</td><td><code translate="no">NOME ALL=(root) sudoedit /caminho/arquivo</code></td></tr><tr><td>Esquecer a senha digitada</td><td><code translate="no">sudo -k</code></td></tr><tr><td>Testar sem pedir senha</td><td><code translate="no">sudo -n comando</code></td></tr><tr><td>Quem é administrador</td><td><code translate="no">getent group wheel</code> (Rocky) e <code translate="no">getent group sudo</code> (Debian)</td></tr></tbody></table></div>
+<p><strong>Flashcards:</strong></p>
+<ul><li>Regra → <em>quem, onde, como quem, o quê.</em></li>
+<li>Argumentos → <em>comparados como texto.</em></li>
+<li>Sem argumentos → <em>qualquer argumento.</em></li>
+<li><code translate="no">*</code> → <em>aceita espaços.</em></li>
+<li>Duas regras → <em>vale a última.</em></li>
+<li><code translate="no">sudoedit</code> → <em>o editor roda como você.</em></li></ul>
+<h2 id="10-checklist-e-fechamento">10 · Checklist e fechamento</h2>
+<ul><li>[ ] Leio uma regra do <code translate="no">sudoers</code> parte por parte</li>
+<li>[ ] Escrevo um <code translate="no">Cmnd_Alias</code> com argumentos exatos</li>
+<li>[ ] Confiro com <code translate="no">visudo -cf</code> e instalo com <code translate="no">install -m 0440</code></li>
+<li>[ ] Testo uma regra com <code translate="no">sudo -l -U</code> sem rodar o comando</li>
+<li>[ ] Reconheço curingas, editores e paginadores perigosos</li>
+<li>[ ] Dou edição segura com <code translate="no">sudoedit</code></li>
+<li>[ ] Audito quem tem <code translate="no">sudo</code> e o que pode</li></ul>
+<p><strong>Último exercício, sem olhar a aula:</strong> na debian-lab, dê à Ana o direito de rodar só <code translate="no">/usr/bin/systemctl reload nginx</code>, sem senha. Prove com <code translate="no">sudo -u ana sudo -n</code> que o <code translate="no">reload</code> passa e o <code translate="no">restart</code> não. Apague a regra.</p>
+<p><strong>Snapshot de fim</strong> (no Proxmox):</p>
+<pre translate="no"><code class="lang-bash">qm snapshot 201 m10a4-fim
+qm snapshot 202 m10a4-fim</code></pre>
+<h2 id="11-na-vida-real">11 · Na vida real</h2>
+<p><strong>Missão, só leitura.</strong> Num servidor Linux que você administre (ou com autorização), rode <strong>apenas</strong>:</p>
+<pre translate="no"><code class="lang-bash">getent group wheel sudo
+sudo ls -l /etc/sudoers.d/
+sudo grep -rhvE '^\s*$|^#( |#|$)' /etc/sudoers /etc/sudoers.d/
+sudo journalctl _COMM=sudo --since '-7d' --no-pager | grep -c 'command not allowed'</code></pre>
+<p>Perguntas para responder:</p>
+<ol><li>Quantas pessoas estão no grupo de administradores? Todas precisam?</li>
+<li>Alguma regra tem <code translate="no">*</code> nos argumentos, um editor, um paginador ou <code translate="no">NOPASSWD: ALL</code>?</li>
+<li>Quantas negações houve na última semana? De quem?</li></ol>
+<h2 id="12-aprofundar-quando-quiser">12 · Aprofundar quando quiser</h2>
+<ul><li><strong><code translate="no">man sudoers</code>:</strong> a gramática completa, os curingas, <code translate="no">Defaults</code>, <code translate="no">NOEXEC</code> e a ordem das regras.</li>
+<li><strong><code translate="no">man sudoreplay</code>:</strong> reproduzir uma sessão gravada com <code translate="no">log_output</code>.</li>
+<li><strong><code translate="no">man sudoedit</code>:</strong> como a edição segura funciona e as pastas que ela recusa.</li>
+<li><strong>GTFOBins:</strong> uma lista pública de programas que abrem shell quando rodam por <code translate="no">sudo</code>. Consulte antes de liberar qualquer programa.</li></ul>
+<p><strong>DeepTutor</strong> (http://10.1.0.149:3782, KB "Curso Linux Sysadmin"):</p>
+<ul><li><code translate="no">!explica uma regra do sudoers com a metáfora da lista do porteiro</code></li>
+<li><code translate="no">!feynman por que um curinga nos argumentos do sudo é perigoso</code></li>
+<li><code translate="no">!quiz Aula 10.4, 5 perguntas sobre sudoers, sudoedit e auditoria</code></li></ul>
+<h2 id="desafio-do-m10-a-equipe-de-plantao">Desafio do M10 · A equipe de plantão</h2>
+<blockquote><p><strong>A missão:</strong> na rocky-lab, monte a equipe de plantão: três pessoas, uma pasta comum, uma política de senha e uma pessoa que só pode reiniciar o nginx. Tudo por um script que pode rodar de novo sem estragar nada.</p></blockquote>
+<p>Sem passo a passo. As dicas estão no Gabarito.</p>
+<p><strong>Antes de começar:</strong> no Proxmox, <code translate="no">qm snapshot 201 m10-desafio-inicio</code>.</p>
+<p><strong>Requisitos:</strong></p>
+<ol><li>Grupo <code translate="no">plantao</code> com GID 2400. Contas <code translate="no">dora</code> (2401), <code translate="no">edu</code> (2402) e <code translate="no">fabi</code> (2403), com grupo pessoal como principal, <code translate="no">plantao</code> como suplementar, pasta pessoal e Bash.</li>
+<li>Pasta <code translate="no">/srv/plantao</code>, do grupo <code translate="no">plantao</code>, em que os três criam e editam os arquivos uns dos outros, e mais ninguém entra.</li>
+<li>A Dora administra o grupo <code translate="no">plantao</code>, sem <code translate="no">sudo</code>.</li>
+<li>As senhas dos três vencem em 90 dias, com 1 dia mínimo entre trocas e aviso 14 dias antes. Cada um recebe uma senha provisória e tem de trocá-la no primeiro acesso.</li>
+<li>A Fabi pode rodar como <code translate="no">root</code> só <code translate="no">/usr/bin/systemctl restart nginx</code>, com a própria senha. A Dora e o Edu não têm <code translate="no">sudo</code>.</li>
+<li>Os requisitos 1, 2, 3, 5 e a validade do requisito 4 saem de um script <code translate="no">~/m10-desafio.sh</code>, que roda como <code translate="no">root</code>, pode rodar duas vezes seguidas sem erro e não duplica nada.</li></ol>
+<p><strong>Critérios de aceite:</strong></p>
+<ul><li>[ ] <code translate="no">sudo bash ~/m10-desafio.sh</code> roda duas vezes seguidas sem erro</li>
+<li>[ ] <code translate="no">getent group plantao</code> mostra os três, e <code translate="no">sudo getent gshadow plantao</code> mostra a Dora como administradora</li>
+<li>[ ] <code translate="no">sudo chage -l edu</code> mostra 90, 1 e 14, e <code translate="no">password must be changed</code></li>
+<li>[ ] <code translate="no">sudo -u dora bash -c 'umask 002; echo escala &gt; /srv/plantao/escala.txt'</code> e <code translate="no">sudo -u edu bash -c 'echo troca &gt;&gt; /srv/plantao/escala.txt'</code> funcionam</li>
+<li>[ ] <code translate="no">sudo -l -U fabi</code> mostra só o <code translate="no">restart</code> do nginx; <code translate="no">sudo -l -U fabi /usr/bin/systemctl stop nginx; echo $?</code> dá <code translate="no">1</code></li>
+<li>[ ] <code translate="no">sudo -l -U dora</code> e <code translate="no">sudo -l -U edu</code> dizem que eles não podem usar <code translate="no">sudo</code></li>
+<li>[ ] <code translate="no">sudo visudo -c</code> não mostra erro</li></ul>
+<p><strong>Ao terminar:</strong></p>
+<pre translate="no"><code class="lang-bash">sudo rm /etc/sudoers.d/30-plantao
+for u in dora edu fabi; do sudo userdel -r "$u"; done
+sudo rm -r /srv/plantao
+sudo groupdel plantao</code></pre>
+<p>No Proxmox: <code translate="no">qm snapshot 201 m10-desafio-fim</code>.</p>
+<p><strong>Você fechou o M10.</strong> Agora você gerencia contas de pessoas e de serviços, muda nomes e números sem deixar arquivo órfão, define e aplica política de senha, organiza grupos com delegação e dá acesso privilegiado na medida exata, com registro. O próximo módulo está no <a href="https://github.com/Rodrigoantignani/curso-linux-sysadmin/blob/master/00-plano-do-curso.md">plano do curso</a>.</p>
+<h2 id="gabarito-comentado">Gabarito comentado</h2>
+<h3 id="aquecimento">Aquecimento</h3>
+<ol><li>Não. Os argumentos são comparados como texto, e <code translate="no">nginx.service</code> não é <code translate="no">nginx</code>.</li>
+<li>Porque o <code translate="no">less</code> roda como <code translate="no">root</code> e aceita <code translate="no">!sh</code>, que abre um shell com o mesmo usuário: <code translate="no">root</code>.</li>
+<li>O que vier por último em ordem alfabética: a última regra que combina decide.</li></ol>
+<h3 id="quiz">Quiz</h3>
+<ol><li><code translate="no">operador</code> é quem; <code translate="no">ALL</code> é onde; <code translate="no">(root)</code> é como quem; <code translate="no">/usr/bin/systemctl restart nginx</code> é o quê, com os argumentos exatos.</li>
+<li>Responde se o comando passa (imprime o caminho, código 0) ou não (código 1). É seguro porque só consulta a política: nada roda.</li>
+<li>Porque o <code translate="no">*</code> aceita qualquer texto, inclusive espaços: passam <code translate="no">edit nginx</code>, que abre um editor como <code translate="no">root</code>, e <code translate="no">stop sshd nginx</code>.</li>
+<li>O <code translate="no">sudoedit</code> abre o editor como a própria pessoa, numa cópia, e só grava o arquivo como <code translate="no">root</code> no fim. Com <code translate="no">sudo vi</code>, o editor inteiro roda como <code translate="no">root</code>, e um <code translate="no">:!sh</code> vira shell de <code translate="no">root</code>.</li>
+<li>O que é lido por último, em ordem alfabética, porque a última regra que combina decide.</li>
+<li>Porque um erro de sintaxe num arquivo do <code translate="no">sudoers.d</code> pode fazer o <code translate="no">sudo</code> recusar tudo, inclusive para você. Conferindo antes, o arquivo ruim nunca chega lá.</li></ol>
+<h3 id="dicas-do-desafio">Dicas do Desafio</h3>
+<p>Leia uma de cada vez.</p>
+<ol><li><strong>Rodar de novo sem erro:</strong> antes de criar, pergunte se já existe: <code translate="no">getent group plantao &gt;/dev/null || groupadd -g 2400 plantao</code>, e o mesmo com <code translate="no">getent passwd</code> antes de cada <code translate="no">useradd</code>. O <code translate="no">install -d</code>, o <code translate="no">chage -M</code> e o <code translate="no">gpasswd -A</code> podem rodar de novo sem problema.</li>
+<li><strong>A pasta:</strong> <code translate="no">install -d -m 2770 -o root -g plantao /srv/plantao</code>. O <code translate="no">umask 002</code> do critério de aceite faz o papel do login (Aula 2.8).</li>
+<li><strong>A regra:</strong> escreva num arquivo temporário (<code translate="no">mktemp</code>), confira com <code translate="no">visudo -cf</code> e instale com <code translate="no">install -m 0440</code> como <code translate="no">/etc/sudoers.d/30-plantao</code>. Se o <code translate="no">visudo</code> recusar, o <code translate="no">set -e</code> para o script antes de instalar.</li>
+<li><strong>A ordem das senhas:</strong> primeiro <code translate="no">passwd</code> para cada um, depois <code translate="no">chage -d 0</code>. Ao contrário, o <code translate="no">passwd</code> grava a data de hoje como última troca e desfaz o <code translate="no">chage -d 0</code>. Por isso as senhas provisórias ficam fora do script.</li>
+<li><strong>Um script possível:</strong></li></ol>
+<pre translate="no"><code class="lang-bash">#!/bin/bash
+set -euo pipefail
+getent group plantao &gt;/dev/null || groupadd -g 2400 plantao
+for linha in dora:2401 edu:2402 fabi:2403; do
+  nome=${linha%%:*}
+  uid=${linha##*:}
+  getent passwd "$nome" &gt;/dev/null || useradd -u "$uid" -m -s /bin/bash -G plantao "$nome"
+  chage -M 90 -m 1 -W 14 "$nome"
+done
+install -d -m 2770 -o root -g plantao /srv/plantao
+gpasswd -A dora plantao
+regra=$(mktemp)
+echo 'fabi ALL=(root) /usr/bin/systemctl restart nginx' &gt; "$regra"
+visudo -cf "$regra" &gt;/dev/null
+install -m 0440 -o root -g root "$regra" /etc/sudoers.d/30-plantao
+rm -f "$regra"</code></pre>
+<p>Depois do script: <code translate="no">sudo passwd dora</code> e <code translate="no">sudo chage -d 0 dora</code>, e o mesmo para o Edu e a Fabi.</p>
+</article><nav class="paginas" aria-label="Aulas"><a class="ant" href="10.3-grupos-e-trabalho-em-equipe.html"><small>← Anterior</small>10.3 · Grupos e trabalho em equipe</a><a class="prox" href="11.1-tcp-ip-para-quem-administra.html"><small>Próxima →</small>11.1 · TCP/IP para quem administra</a></nav></main></div>
+<footer><div class="wrap">Gerado a partir do Markdown do curso · Imagens em <code translate="no">img/</code></div></footer>
+</body>
+</html>

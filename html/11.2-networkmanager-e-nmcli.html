@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light dark">
+<title>11.2 · NetworkManager e nmcli · Curso Linux Sysadmin</title>
+<link rel="alternate" hreflang="pt-BR" href="11.2-networkmanager-e-nmcli.html"><link rel="alternate" hreflang="it" href="11.2-networkmanager-e-nmcli.it.html">
+<style>
+:root{color-scheme:light dark;--bg:#f6f1e7;--card:#fffdf8;--ink:#201c16;--muted:#5e564a;--accent:#9a3412;--accent-2:#1f5f4a;--tint:#efe6d4;--line:#ddd2bc;--code:#f1eadb;--shadow:0 1px 2px rgba(60,40,10,.08);--serif:Georgia,"Iowan Old Style","Palatino Linotype",Palatino,serif;--sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--mono:"Cascadia Code",Consolas,"DejaVu Sans Mono",monospace}
+@media (prefers-color-scheme:dark){:root{--bg:#16130f;--card:#201b15;--ink:#f1eadb;--muted:#b9ad98;--accent:#f0a070;--accent-2:#7fd0b0;--tint:#2a231a;--line:#3d3427;--code:#191510;--shadow:none}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:5.5rem}
+body{margin:0;background:var(--bg);color:var(--ink);font:1rem/1.6 var(--sans)}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--accent-2);outline-offset:2px;border-radius:4px}
+.pular{position:absolute;left:-999px;top:0;background:var(--card);padding:.5rem 1rem;z-index:20}
+.pular:focus{left:.5rem;top:.5rem}
+.wrap{width:100%;max-width:84rem;margin:0 auto;padding-inline:max(1rem,env(safe-area-inset-left))}
+.top{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10;border-top:6px solid var(--accent)}
+.top-in{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding-block:.6rem}
+.titles{min-width:0}
+.marca{margin:0;font:700 clamp(1.15rem,1rem + 1vw,1.6rem)/1.15 var(--serif);letter-spacing:-.01em}
+.marca a{text-decoration:none}
+.marca a:hover{color:var(--accent)}
+.meta{margin:.1rem 0 0;color:var(--muted);font-size:.85rem}
+.acoes{display:flex;align-items:center;gap:.9rem;flex:none}
+.acoes>a{font-size:.9rem;font-weight:600;color:var(--muted);text-decoration:none}
+.acoes>a:hover{color:var(--accent);text-decoration:underline}
+.idioma{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--tint)}
+.idioma>*{padding:.35rem .9rem;font-size:.8rem;font-weight:700;letter-spacing:.06em;text-decoration:none;color:var(--muted);min-width:2.75rem;text-align:center}
+.idioma a:hover{color:var(--accent);text-decoration:underline}
+.idioma span{background:var(--accent);color:#fff}
+@media (prefers-color-scheme:dark){.idioma span{color:#16130f}}
+code{font-family:var(--mono);font-size:.9em;background:var(--tint);padding:.1rem .35rem;border-radius:4px;overflow-wrap:anywhere}
+/* índice */
+.capa{max-width:70rem;padding-block:2rem 3rem}
+.stats{border-left:4px solid var(--accent-2);background:var(--card);border-radius:0 10px 10px 0;padding:1rem 1.25rem;margin:0 0 2.5rem;box-shadow:var(--shadow);color:var(--muted)}
+.stats strong{color:var(--ink)}
+.modulo{display:grid;grid-template-columns:15rem minmax(0,1fr);gap:1rem 2rem;padding:1.75rem 0;border-top:1px solid var(--line)}
+.modulo h2{margin:0;font:700 1.25rem/1.25 var(--serif);align-self:start;position:sticky;top:6rem}
+.mn{display:block;font:700 .8rem var(--mono);letter-spacing:.12em;color:var(--accent);margin-bottom:.25rem}
+.sep{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.modulo ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,17rem),1fr));gap:.75rem}
+.modulo li{margin:0}
+.modulo a{display:flex;gap:.45rem;align-items:baseline;height:100%;padding:.85rem 1rem;background:var(--card);border:1px solid var(--line);border-radius:10px;text-decoration:none;font-weight:600;line-height:1.35;box-shadow:var(--shadow);transition:border-color .15s,transform .15s}
+.modulo a:hover{border-color:var(--accent);color:var(--accent)}
+.num{font:700 .85rem var(--mono);color:var(--accent);white-space:nowrap}
+/* aula */
+.doc{display:grid;grid-template-columns:17rem minmax(0,1fr);gap:2.5rem;align-items:start;padding-block:2rem 3rem}
+.lateral{position:sticky;top:5.5rem;max-height:calc(100vh - 6.5rem);overflow:auto;font-size:.875rem;padding-right:.5rem}
+.lateral h2{margin:0 0 .25rem;font:700 .95rem var(--serif);color:var(--muted)}
+.lateral h3{margin:1rem 0 .25rem;font:700 .75rem var(--mono);letter-spacing:.06em;color:var(--accent)}
+.lateral ul{list-style:none;margin:0;padding:0}
+.lateral a{display:flex;gap:.45rem;padding:.25rem .5rem;border-radius:6px;text-decoration:none;color:var(--muted);line-height:1.3}
+.lateral a:hover{background:var(--tint);color:var(--ink)}
+.lateral a[aria-current]{background:var(--tint);color:var(--ink);font-weight:700;box-shadow:inset 3px 0 0 var(--accent)}
+.lateral .num{font-size:.75rem}
+.aula{min-width:0;max-width:56rem;overflow-wrap:break-word;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:clamp(1.25rem,1rem + 2vw,2.75rem);box-shadow:var(--shadow)}
+.aula h1{margin:0 0 1.5rem;font:700 clamp(1.75rem,1.4rem + 1.6vw,2.5rem)/1.15 var(--serif);letter-spacing:-.015em;color:var(--ink)}
+.aula h2{margin:2.5rem 0 .75rem;padding-top:1.25rem;border-top:1px solid var(--line);font:700 1.5rem/1.25 var(--serif)}
+.aula h3{margin:2rem 0 .5rem;font:700 1.15rem/1.3 var(--serif);color:var(--accent)}
+.aula h4,.aula h5,.aula h6{margin:1.5rem 0 .5rem;font-size:1rem}
+.aula p,.aula ul,.aula ol{margin:1rem 0}
+.aula ul,.aula ol{padding-left:1.5rem}
+.aula li{margin:.35rem 0}
+.aula li>ul,.aula li>ol{margin:.35rem 0}
+.aula a{color:var(--accent);text-underline-offset:2px}
+.aula hr{border:0;border-top:1px solid var(--line);margin:2rem 0}
+.tabela{overflow-x:auto;margin:1.25rem 0;border:1px solid var(--line);border-radius:10px}
+.aula table{width:100%;border-collapse:collapse;font-size:.9rem}
+.aula th,.aula td{padding:.55rem .75rem;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+.aula tr:last-child td{border-bottom:0}
+.aula th{background:var(--tint);font-weight:700}
+.aula pre{background:var(--code);border:1px solid var(--line);border-radius:10px;padding:.9rem 1rem;overflow-x:auto;font:.85rem/1.5 var(--mono);margin:1rem 0;tab-size:4}
+.aula pre code{background:none;padding:0;font-size:inherit;overflow-wrap:normal}
+.aula blockquote{margin:1.25rem 0;padding:.75rem 1.25rem;border-left:4px solid var(--accent-2);background:var(--tint);border-radius:0 10px 10px 0}
+.aula blockquote>:first-child{margin-top:0}
+.aula blockquote>:last-child{margin-bottom:0}
+.aula figure{margin:1.75rem 0;text-align:center}
+.aula figure img{display:block;margin:0 auto;max-width:100%;height:auto;border:1px solid var(--line);border-radius:10px;background:#fff}
+.aula figcaption{margin-top:.5rem;color:var(--muted);font-size:.9rem;font-style:italic}
+.paginas{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:2.5rem;padding-top:1.5rem;border-top:1px solid var(--line)}
+.paginas a{display:block;padding:.75rem 1rem;border:1px solid var(--line);border-radius:10px;text-decoration:none;color:var(--ink);font-weight:600;line-height:1.3}
+.paginas a:hover{border-color:var(--accent);color:var(--accent)}
+.paginas small{display:block;color:var(--muted);font-weight:400}
+.paginas .prox{grid-column:2;text-align:right}
+footer{border-top:1px solid var(--line);padding-block:1.5rem;color:var(--muted);font-size:.85rem;text-align:center}
+@media (hover:hover) and (prefers-reduced-motion:no-preference){.modulo a:hover{transform:translateY(-2px)}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+@media (max-width:980px){.doc{grid-template-columns:minmax(0,1fr);padding-top:1rem}.lateral{position:static;max-height:none;order:2}.aula{max-width:none}}
+@media (max-width:860px){.modulo{grid-template-columns:minmax(0,1fr)}.modulo h2{position:static}.mn{display:inline;margin-right:.5rem}}
+@media (max-width:420px){.meta{display:none}.top-in{gap:.5rem}.acoes{gap:.6rem}.capa{padding-top:1.25rem}.paginas{grid-template-columns:minmax(0,1fr)}.paginas .prox{grid-column:1}}
+@media print{.top,.lateral,.paginas{display:none}.aula{border:0;box-shadow:none;padding:0;max-width:none}.doc{display:block}}
+</style>
+</head>
+<body>
+<a class="pular" href="#conteudo">Pular para o conteúdo</a>
+<header class="top"><div class="wrap top-in"><div class="titles"><p class="marca"><a href="index.html">Curso Linux Sysadmin</a></p><p class="meta">Rodrigo Antignani · Aula 11.2</p></div><div class="acoes"><a href="index.html">Índice</a><div class="idioma" role="group" aria-label="Idioma"><span aria-current="true">PT</span><a href="11.2-networkmanager-e-nmcli.it.html" hreflang="it" lang="it">IT</a></div></div></div></header>
+<div class="wrap doc"><aside class="lateral" aria-label="Aulas"><h2>Aulas</h2><h3>M0 · Laboratório</h3><ul><li><a href="0.1-montar-o-laboratorio.html"><span class="num">0.1</span><span>Montar o laboratório</span></a></li><li><a href="0.2-acesso-e-protecao.html"><span class="num">0.2</span><span>Acesso e proteção</span></a></li></ul><h3>M1 · Linha de comando</h3><ul><li><a href="1.1-o-que-e-linux.html"><span class="num">1.1</span><span>O que é Linux</span></a></li><li><a href="1.2-o-shell-e-a-ajuda.html"><span class="num">1.2</span><span>O shell e a ajuda</span></a></li><li><a href="1.3-caminhos-e-navegacao.html"><span class="num">1.3</span><span>Caminhos e navegação</span></a></li><li><a href="1.4-criar-copiar-mover-e-apagar.html"><span class="num">1.4</span><span>Criar, copiar, mover e apagar</span></a></li><li><a href="1.5-ler-e-procurar-texto.html"><span class="num">1.5</span><span>Ler e procurar texto</span></a></li><li><a href="1.6-redirecionamentos-e-pipes.html"><span class="num">1.6</span><span>Redirecionamentos e pipes</span></a></li><li><a href="1.7-arquivar-e-compactar.html"><span class="num">1.7</span><span>Arquivar e compactar</span></a></li><li><a href="1.8-primeiro-script.html"><span class="num">1.8</span><span>Primeiro script</span></a></li><li><a href="1.9-decidir-e-repetir.html"><span class="num">1.9</span><span>Decidir e repetir</span></a></li><li><a href="1.10-software-livre-na-pratica.html"><span class="num">1.10</span><span>Software livre na prática</span></a></li></ul><h3>M2 · Sistema, usuários e permissões</h3><ul><li><a href="2.1-instalacao-e-provisionamento.html"><span class="num">2.1</span><span>Instalação e provisionamento</span></a></li><li><a href="2.2-hardware-e-dispositivos.html"><span class="num">2.2</span><span>Hardware e dispositivos</span></a></li><li><a href="2.3-processos-e-logs.html"><span class="num">2.3</span><span>Processos e logs</span></a></li><li><a href="2.4-rede-no-dia-a-dia.html"><span class="num">2.4</span><span>Rede no dia a dia</span></a></li><li><a href="2.5-acesso-remoto-e-privilegios.html"><span class="num">2.5</span><span>Acesso remoto e privilégios</span></a></li><li><a href="2.6-usuarios-e-grupos.html"><span class="num">2.6</span><span>Usuários e grupos</span></a></li><li><a href="2.7-permissoes-e-dono.html"><span class="num">2.7</span><span>Permissões e dono</span></a></li><li><a href="2.8-diretorios-e-arquivos-especiais.html"><span class="num">2.8</span><span>Diretórios e arquivos especiais</span></a></li></ul><h3>M3 · Texto e editor</h3><ul><li><a href="3.1-fluxos-a-fundo.html"><span class="num">3.1</span><span>Fluxos a fundo</span></a></li><li><a href="3.2-filtros-de-texto.html"><span class="num">3.2</span><span>Filtros de texto</span></a></li><li><a href="3.3-regex-e-grep.html"><span class="num">3.3</span><span>Regex e grep</span></a></li><li><a href="3.4-sed-e-awk.html"><span class="num">3.4</span><span>sed e awk</span></a></li><li><a href="3.5-vi-e-vim-de-verdade.html"><span class="num">3.5</span><span>vi e vim de verdade</span></a></li></ul><h3>M4 · systemd e boot</h3><ul><li><a href="4.1-como-o-linux-liga.html"><span class="num">4.1</span><span>Como o Linux liga</span></a></li><li><a href="4.2-systemd-servicos-e-units.html"><span class="num">4.2</span><span>systemd: serviços e units</span></a></li><li><a href="4.3-targets-desligar-e-reiniciar.html"><span class="num">4.3</span><span>Targets: desligar e reiniciar</span></a></li><li><a href="4.4-grub-e-acesso-de-emergencia.html"><span class="num">4.4</span><span>GRUB e acesso de emergência</span></a></li></ul><h3>M5 · Kernel, módulos e VM</h3><ul><li><a href="5.1-hardware-pelo-kernel.html"><span class="num">5.1</span><span>Hardware pelo kernel</span></a></li><li><a href="5.2-modulos-e-parametros.html"><span class="num">5.2</span><span>Módulos e parâmetros</span></a></li><li><a href="5.3-linux-como-convidado.html"><span class="num">5.3</span><span>Linux como convidado</span></a></li></ul><h3>M6 · Pacotes e repositórios</h3><ul><li><a href="6.1-pacotes-no-debian.html"><span class="num">6.1</span><span>Pacotes no Debian</span></a></li><li><a href="6.2-pacotes-na-rocky.html"><span class="num">6.2</span><span>Pacotes na Rocky</span></a></li><li><a href="6.3-repositorios.html"><span class="num">6.3</span><span>Repositórios</span></a></li><li><a href="6.4-flatpak.html"><span class="num">6.4</span><span>Flatpak</span></a></li><li><a href="6.5-bibliotecas-compartilhadas.html"><span class="num">6.5</span><span>Bibliotecas compartilhadas</span></a></li></ul><h3>M7 · Processos e desempenho</h3><ul><li><a href="7.1-processos-e-sinais.html"><span class="num">7.1</span><span>Processos e sinais</span></a></li><li><a href="7.2-jobs-e-sessoes.html"><span class="num">7.2</span><span>Jobs e sessões</span></a></li><li><a href="7.3-prioridade-e-perfis.html"><span class="num">7.3</span><span>Prioridade e perfis</span></a></li></ul><h3>M8 · Arquivos a fundo</h3><ul><li><a href="8.1-fhs-e-onde-cada-coisa-mora.html"><span class="num">8.1</span><span>FHS e onde cada coisa mora</span></a></li><li><a href="8.2-find-a-fundo.html"><span class="num">8.2</span><span>find a fundo</span></a></li><li><a href="8.3-arquivamento-avancado.html"><span class="num">8.3</span><span>Arquivamento avançado</span></a></li><li><a href="8.4-links.html"><span class="num">8.4</span><span>Links</span></a></li><li><a href="8.5-permissoes-avancadas.html"><span class="num">8.5</span><span>Permissões avançadas</span></a></li></ul><h3>M9 · Armazenamento</h3><ul><li><a href="9.1-discos-e-layout.html"><span class="num">9.1</span><span>Discos e layout</span></a></li><li><a href="9.2-particionar.html"><span class="num">9.2</span><span>Particionar</span></a></li><li><a href="9.3-sistemas-de-arquivos.html"><span class="num">9.3</span><span>Sistemas de arquivos</span></a></li><li><a href="9.4-montar-e-persistir.html"><span class="num">9.4</span><span>Montar e persistir</span></a></li><li><a href="9.5-integridade-e-espaco.html"><span class="num">9.5</span><span>Integridade e espaço</span></a></li><li><a href="9.6-lvm.html"><span class="num">9.6</span><span>LVM</span></a></li><li><a href="9.7-crescer-sem-destruir.html"><span class="num">9.7</span><span>Crescer sem destruir</span></a></li></ul><h3>M10 · Usuários e acesso privilegiado</h3><ul><li><a href="10.1-contas.html"><span class="num">10.1</span><span>Contas</span></a></li><li><a href="10.2-senhas-e-validade.html"><span class="num">10.2</span><span>Senhas e validade</span></a></li><li><a href="10.3-grupos-e-trabalho-em-equipe.html"><span class="num">10.3</span><span>Grupos e trabalho em equipe</span></a></li><li><a href="10.4-sudo-de-verdade.html"><span class="num">10.4</span><span>sudo de verdade</span></a></li></ul><h3>M11 · Rede</h3><ul><li><a href="11.1-tcp-ip-para-quem-administra.html"><span class="num">11.1</span><span>TCP/IP para quem administra</span></a></li><li><a href="11.2-networkmanager-e-nmcli.html" aria-current="page"><span class="num">11.2</span><span>NetworkManager e nmcli</span></a></li></ul></aside><main id="conteudo" class="aula"><article><h1>Aula 11.2 · NetworkManager e nmcli</h1>
+<p>No Windows Server, você distingue a placa da configuração aplicada a ela. No Linux com NetworkManager, essa distinção aparece como dispositivo e perfil de conexão. Na Aula 11.1 você leu endereços, prefixos e rotas; agora vai salvar uma configuração, ativá-la e comprovar o que sobrevive ao reboot. Você fará o mesmo exercício na Rocky e no Debian, sem migrar a interface usada pelo SSH.</p>
+<blockquote><p><strong>Núcleo desta aula:</strong> dispositivo é a interface; perfil é a configuração salva; ativar aplica o perfil ao dispositivo. Salvar, carregar e aplicar são operações diferentes. O resto é aprofundamento.</p></blockquote>
+<div class="tabela"><table><thead><tr><th scope="col">Ficha</th><th scope="col"></th></tr></thead><tbody><tr><td><strong>Módulo</strong></td><td>M11 · Rede, aula 2 de 5</td></tr><tr><td><strong>Quando</strong></td><td>Semana 16</td></tr><tr><td><strong>Ao final</strong></td><td>Você cria um perfil persistente, configura IPv4 e IPv6, distingue DNS salvo de DNS em uso e reconhece um keyfile</td></tr><tr><td><strong>Pré-requisitos</strong></td><td>Aula 11.1; acesso SSH, <code translate="no">sudo</code> e console noVNC das VMs 201 e 202</td></tr><tr><td><strong>Tempo</strong></td><td>Cerca de 90 minutos, mais 30 minutos para repetir sem consultar</td></tr><tr><td><strong>Snapshots</strong></td><td><code translate="no">m11a2-inicio</code> e <code translate="no">m11a2-fim</code> nas duas VMs</td></tr></tbody></table></div>
+<h2 id="1-aquecimento">1 · Aquecimento</h2>
+<p>Responda antes de abrir o terminal. Confira o gabarito no fim.</p>
+<ol><li>O que o <code translate="no">/26</code> informa em um endereço IPv4?</li>
+<li><code translate="no">ip route get</code> testa a entrega de um pacote ou consulta uma decisão local?</li>
+<li>Um serviço em <code translate="no">127.0.0.1</code> fica disponível para outras máquinas só porque a VM tem IP na rede?</li></ol>
+<h2 id="2-por-que-importa">2 · Por que importa</h2>
+<p>Você recebe um servidor que funcionava ontem. Alguém adicionou um endereço com <code translate="no">ip address add</code>; depois do reboot, ele sumiu. Outra pessoa editou um arquivo de conexão e esperou que a interface mudasse imediatamente. Nos dois casos, faltou distinguir o estado atual da configuração persistente.</p>
+<div class="tabela"><table><thead><tr><th scope="col">O que você observa</th><th scope="col">Onde conferir</th><th scope="col">O que isso demonstra</th></tr></thead><tbody><tr><td>Endereço atual</td><td><code translate="no">ip address</code></td><td>O que o kernel usa agora</td></tr><tr><td>Perfil salvo</td><td><code translate="no">nmcli connection show</code></td><td>A configuração conhecida pelo NetworkManager</td></tr><tr><td>Perfil ativo</td><td><code translate="no">nmcli connection show --active</code></td><td>Qual configuração está aplicada</td></tr><tr><td>Arquivo persistente</td><td>Keyfile em disco</td><td>O que o serviço poderá carregar de novo</td></tr></tbody></table></div>
+<p>Seu trabalho termina quando a configuração esperada está em uso e volta depois do reboot. A presença de um arquivo, sozinha, não fecha essa verificação.</p>
+<h2 id="3-modelo-mental">3 · Modelo mental</h2>
+<p>Pense em uma sala com uma ficha de instalação. A sala é o dispositivo. A ficha diz qual endereço, quais rotas e quais servidores DNS usar. Guardar uma ficha no arquivo não muda a sala; alguém precisa executar a instalação descrita nela.</p>
+<pre translate="no"><code class="lang-text">keyfile no disco → perfil carregado → ativação → dispositivo → estado no kernel
+      salvar          carregar         aplicar                conferir com ip</code></pre>
+<p>Você pode guardar vários perfis para uma interface. No exercício, haverá um perfil ativo e outro apenas para planejamento. O nome do perfil serve para você reconhecê-lo; o UUID identifica aquela configuração sem depender do nome.</p>
+<figure><a href="../img/11.2-ficha-e-interface.jpg"><img src="../img/11.2-ficha-e-interface.jpg" alt="A ficha e a interface" loading="lazy" decoding="async"></a><figcaption>Salvar a ficha não aplica a configuração à interface.</figcaption></figure>
+<h3 id="ponte-windows">Ponte Windows</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Windows Server</th><th scope="col">NetworkManager</th><th scope="col">Ideia que você reaproveita</th></tr></thead><tbody><tr><td>Adaptador de rede</td><td>Dispositivo em <code translate="no">nmcli device</code></td><td>A interface que recebe a configuração</td></tr><tr><td>Configuração de IP do adaptador</td><td>Perfil em <code translate="no">nmcli connection</code></td><td>Endereço, rotas e DNS como conjunto</td></tr><tr><td>Consultar IP atual</td><td><code translate="no">ip -br address</code></td><td>Conferir o estado efetivo</td></tr><tr><td>Configuração persistente</td><td>Perfil salvo em disco</td><td>Reaplicar depois do boot</td></tr><tr><td>Servidores DNS do adaptador</td><td>Propriedades <code translate="no">ipv4.dns</code> e <code translate="no">ipv6.dns</code></td><td>Resolução é uma configuração própria</td></tr></tbody></table></div>
+<p>O perfil de conexão do NetworkManager não é o perfil de firewall Público ou Privado do Windows. Aqui ele descreve como configurar a interface.</p>
+<h2 id="4-o-essencial">4 · O essencial</h2>
+<h3 id="dispositivo-e-conexao-nao-sao-sinonimos">Dispositivo e conexão não são sinônimos</h3>
+<p><code translate="no">nmcli device status</code> lista interfaces e o estado de gerenciamento. <code translate="no">nmcli connection show</code> lista perfis. Um perfil pode existir sem estar ativo; uma interface pode existir sem ser gerenciada pelo NetworkManager.</p>
+<pre translate="no"><code class="lang-bash">nmcli device status
+nmcli connection show
+nmcli connection show --active</code></pre>
+<p>Na Rocky, NetworkManager é o gerenciador esperado. No Debian, descubra primeiro quem administra a interface real. A Aula 11.3 trata de <code translate="no">ifupdown</code>, NetworkManager e <code translate="no">systemd-networkd</code>; instalar outro gerenciador não significa entregar a placa a ele.</p>
+<h3 id="salvar-carregar-e-aplicar">Salvar, carregar e aplicar</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Operação</th><th scope="col">Comando</th><th scope="col">Efeito</th></tr></thead><tbody><tr><td>Criar perfil</td><td><code translate="no">nmcli connection add</code></td><td>Salva uma nova configuração</td></tr><tr><td>Alterar perfil</td><td><code translate="no">nmcli connection modify</code></td><td>Atualiza as propriedades salvas</td></tr><tr><td>Recarregar arquivos</td><td><code translate="no">nmcli connection reload</code></td><td>Relê perfis do disco</td></tr><tr><td>Carregar um arquivo</td><td><code translate="no">nmcli connection load ARQUIVO</code></td><td>Lê aquele keyfile</td></tr><tr><td>Ativar perfil</td><td><code translate="no">nmcli connection up PERFIL</code></td><td>Aplica a configuração</td></tr><tr><td>Reaplicar mudanças compatíveis</td><td><code translate="no">nmcli device reapply INTERFACE</code></td><td>Atualiza a conexão já ativa</td></tr></tbody></table></div>
+<p><code translate="no">modify</code> não equivale a <code translate="no">up</code>. Depois de editar um perfil ativo, confira o estado efetivo; para este lab, reative somente o perfil da interface interna. A reativação da placa do SSH pode interromper seu acesso.</p>
+<h3 id="ipv4-fixo-e-endereco-com-prefixo">IPv4 fixo é endereço com prefixo</h3>
+<p><code translate="no">ipv4.method manual</code> usa os endereços informados em <code translate="no">ipv4.addresses</code>. <code translate="no">ipv4.method auto</code> solicita configuração automática, normalmente por DHCP em Ethernet. Nunca use <code translate="no">shared</code> neste exercício: esse modo compartilha conectividade e não representa um cliente DHCP comum.</p>
+<p>Um perfil interno não precisa de gateway. Configure <code translate="no">ipv4.never-default yes</code> para que ele não se torne candidato à rota padrão IPv4. A mesma separação existe para IPv6.</p>
+<h3 id="ipv6-tem-configuracao-propria">IPv6 tem configuração própria</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Propriedade</th><th scope="col">Ideia</th></tr></thead><tbody><tr><td><code translate="no">ipv6.method auto</code></td><td>Configuração automática IPv6</td></tr><tr><td><code translate="no">ipv6.method manual</code></td><td>Endereços IPv6 informados no perfil</td></tr><tr><td><code translate="no">ipv6.addresses</code></td><td>Endereço com prefixo IPv6</td></tr><tr><td><code translate="no">ipv6.gateway</code></td><td>Próximo salto padrão IPv6</td></tr><tr><td><code translate="no">ipv6.never-default yes</code></td><td>Impede rota padrão por esse perfil</td></tr></tbody></table></div>
+<p>Na interface interna, você usará <code translate="no">2001:db8:11::10/64</code>. Esse prefixo é de documentação e ficará somente dentro da VM, sem bridge, cabo ou anúncio para a rede do curso. Não o instale na interface Ethernet real.</p>
+<h3 id="dns-salvo-nao-e-consulta-bem-sucedida">DNS salvo não é consulta bem-sucedida</h3>
+<p><code translate="no">ipv4.dns</code> e <code translate="no">ipv6.dns</code> armazenam endereços de servidores DNS. Com método automático, <code translate="no">ignore-auto-dns yes</code> descarta os servidores recebidos automaticamente daquela família. Isso não cria um servidor DNS nem comprova que ele responde.</p>
+<p>O sistema reúne as informações DNS das conexões ativas segundo sua configuração. Para observar os dados da interface, use <code translate="no">nmcli device show</code>. A integração com <code translate="no">resolv.conf</code> será detalhada na Aula 11.4.</p>
+<p>No lab, você gravará DNS em um perfil inativo. Não o ativará: os endereços de exemplo não atendem consultas e não devem entrar na resolução usada pelo sistema.</p>
+<figure><a href="../img/11.2-tres-conferencias.jpg"><img src="../img/11.2-tres-conferencias.jpg" alt="Três conferências da configuração" loading="lazy" decoding="async"></a><figcaption>Confira o perfil salvo, a conexão ativa e o estado no kernel.</figcaption></figure>
+<h3 id="keyfiles-e-permissoes">Keyfiles e permissões</h3>
+<p>Os perfis no formato keyfile usam seções como <code translate="no">[connection]</code>, <code translate="no">[ipv4]</code> e <code translate="no">[ipv6]</code>. O diretório de configuração persistente é <code translate="no">/etc/NetworkManager/system-connections/</code>; arquivos em <code translate="no">/run/NetworkManager/system-connections/</code> são temporários.</p>
+<p>Um keyfile pode conter segredos. Use dono <code translate="no">root:root</code> e modo <code translate="no">600</code>. O NetworkManager recusa arquivos com acesso indevido a outros usuários. Prefira <code translate="no">nmcli</code> para alterações comuns; depois de editar um arquivo diretamente, carregue-o e ative o perfil quando for o momento de aplicar.</p>
+<h3 id="rocky-debian">Rocky × Debian</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Item</th><th scope="col">Rocky 9, VM 201</th><th scope="col">Debian 13, VM 202</th></tr></thead><tbody><tr><td>Nome e acesso</td><td><code translate="no">rocky-lab</code>, <code translate="no">ssh rocky-lab</code></td><td><code translate="no">debian-lab</code>, <code translate="no">ssh debian-lab</code></td></tr><tr><td>IP real do curso</td><td><code translate="no">10.1.0.51</code></td><td><code translate="no">10.1.0.52</code></td></tr><tr><td>Pacote</td><td><code translate="no">NetworkManager</code></td><td><code translate="no">network-manager</code></td></tr><tr><td>Unidade</td><td><code translate="no">NetworkManager.service</code></td><td><code translate="no">NetworkManager.service</code></td></tr><tr><td>Interface real</td><td>Normalmente gerenciada por NetworkManager</td><td>Identifique o gerenciador antes de mudar</td></tr><tr><td>Exercício desta aula</td><td>Perfil <code translate="no">dummy</code> interno</td><td>Mesmo perfil, com preparação isolada se necessário</td></tr><tr><td>Keyfile persistente</td><td><code translate="no">/etc/NetworkManager/system-connections/</code></td><td>Mesmo diretório</td></tr></tbody></table></div>
+<h2 id="5-lab-guiado">5 · Lab guiado</h2>
+<p>Repita a sequência na Rocky e no Debian como <code translate="no">student</code>. Use uma sessão Bash por VM para manter as variáveis do exercício. Os perfis começam com <code translate="no">m11a2-</code>; a única interface alterada será <code translate="no">m11dummy0</code>, que não tem ligação com a rede externa.</p>
+<p><strong>Antes de mudar qualquer configuração de rede:</strong> abra o console noVNC e confira que consegue entrar como <code translate="no">student</code> e usar <code translate="no">sudo</code>. Mudanças na placa usada pelo SSH exigem esse console ou um plano de retorno testado. Este lab não altera o IP, o gateway ou o perfil da placa real.</p>
+<p><strong>Passo 0 · Guardar o ponto de volta.</strong> No nó Proxmox que hospeda cada VM:</p>
+<p><strong>Palpite:</strong> um snapshot no mesmo storage protege você contra a perda desse storage?</p>
+<pre translate="no"><code class="lang-bash">qm snapshot 201 m11a2-inicio
+qm snapshot 202 m11a2-inicio
+qm listsnapshot 201
+qm listsnapshot 202</code></pre>
+<p><strong>Saída esperada:</strong> as listas contêm <code translate="no">m11a2-inicio</code>.</p>
+<p><strong>Verifique:</strong> confirme as duas VMs antes de continuar. Snapshot é ponto de retorno do lab, não substituto do backup.</p>
+<p><strong>Passo 1 · Registrar a rede e o gerenciador.</strong> Dentro de cada VM:</p>
+<p><strong>Palpite:</strong> instalar <code translate="no">nmcli</code> prova que o NetworkManager já administra sua placa?</p>
+<pre translate="no"><code class="lang-bash">test ! -e "$HOME/m11a2" &amp;&amp; mkdir -m 0700 "$HOME/m11a2"
+ip -br address | tee "$HOME/m11a2/enderecos-inicio.txt"
+ip -4 route | tee "$HOME/m11a2/rotas-inicio.txt"
+systemctl is-active NetworkManager.service
+systemctl is-enabled NetworkManager.service
+systemctl is-active networking.service systemd-networkd.service</code></pre>
+<p><strong>Saída esperada:</strong> a rede real e o estado das unidades. Uma unidade ausente pode aparecer como <code translate="no">not-found</code>; um serviço inativo não significa falha da rede inteira.</p>
+<p><strong>Verifique:</strong> se a pasta já existir, pare para não misturar tentativas. Registre quem mantém a placa do curso. Não pare esse gerenciador.</p>
+<p><strong>Passo 2 · Preparar NetworkManager sem entregar a placa real.</strong> Na Rocky, o serviço deve estar ativo; confira <code translate="no">nmcli --version</code> e siga ao Passo 3. No Debian com serviço já ativo, também siga ao Passo 3.</p>
+<p><strong>Palpite:</strong> dois gerenciadores tentando configurar a mesma placa tornam o diagnóstico mais simples ou mais difícil?</p>
+<p>No Debian sem NetworkManager ativo, use a preparação abaixo somente se ele estiver ausente ou desabilitado. Se estiver mascarado, falhando ou habilitado mas parado, investigue essa condição antes de continuar.</p>
+<pre translate="no"><code class="lang-bash">if test -e /etc/NetworkManager/conf.d/99-m11a2-isolado.conf; then
+  printf 'Existing lab configuration; stop here.\n'
+else
+sudo install -d -m 0755 /etc/NetworkManager/conf.d
+sudo tee /etc/NetworkManager/conf.d/99-m11a2-isolado.conf &gt; /dev/null &lt;&lt;'EOF'
+[main]
+dns=none
+[keyfile]
+unmanaged-devices=*,except:interface-name:m11dummy0
+EOF
+sudo apt update
+sudo apt install -y network-manager
+sudo systemctl start NetworkManager.service
+printf 'debian-isolado\n' &gt; "$HOME/m11a2/preparacao"
+fi</code></pre>
+<p><strong>Saída esperada:</strong> NetworkManager inicia com todas as interfaces fora do seu gerenciamento, exceto <code translate="no">m11dummy0</code>; <code translate="no">dns=none</code> impede que ele altere a resolução do sistema nessa preparação.</p>
+<p><strong>Verifique:</strong> pare se o teste inicial indicar que o arquivo já existe. Confira <code translate="no">nmcli device status</code>, <code translate="no">ip -br address</code> e <code translate="no">ip -4 route</code>: a placa real mantém sua configuração e aparece como não gerenciada pelo NetworkManager nesta preparação. Você não migrou <code translate="no">ifupdown</code> nem <code translate="no">systemd-networkd</code>.</p>
+<p><strong>Passo 3 · Identificar as duas listas.</strong> Nas duas VMs, com NetworkManager ativo:</p>
+<p><strong>Palpite:</strong> um perfil sem dispositivo na lista deixou de existir?</p>
+<pre translate="no"><code class="lang-bash">nmcli --version
+nmcli device status
+nmcli -f NAME,UUID,TYPE,DEVICE connection show
+nmcli connection show --active
+ip link show m11dummy0</code></pre>
+<p><strong>Saída esperada:</strong> perfis e dispositivos reais; o último comando informa que <code translate="no">m11dummy0</code> ainda não existe.</p>
+<p><strong>Verifique:</strong> confirme que não existe perfil com nome <code translate="no">m11a2-interno</code> ou <code translate="no">m11a2-plano</code>. Se algum desses recursos já existir, pare e identifique a tentativa anterior.</p>
+<p><strong>Passo 4 · Criar IPv4 e IPv6 fixos na interface interna.</strong></p>
+<p><strong>Palpite:</strong> sem gateway no perfil, os dois endereços locais deixarão de existir?</p>
+<pre translate="no"><code class="lang-bash">sudo nmcli connection add type dummy ifname m11dummy0 \
+  con-name m11a2-interno connection.autoconnect no \
+  ipv4.method manual ipv4.addresses 192.0.2.10/24 \
+  ipv4.never-default yes ipv6.method manual \
+  ipv6.addresses 2001:db8:11::10/64 ipv6.never-default yes
+nmcli -f connection.id,connection.interface-name,connection.autoconnect,ipv4,ipv6 \
+  connection show m11a2-interno
+sudo nmcli connection up m11a2-interno</code></pre>
+<p><strong>Saída esperada:</strong> o perfil é salvo e ativado; NetworkManager cria a interface <code translate="no">dummy</code> com os endereços informados.</p>
+<p><strong>Verifique:</strong> <code translate="no">ip -br address show dev m11dummy0</code> mostra IPv4 e IPv6. Se IPv6 estiver desativado no kernel, registre a condição e ajuste o pré-requisito do lab antes de prosseguir; não altere a política da VM por tentativa.</p>
+<p><strong>Passo 5 · Conferir o estado que realmente entrou.</strong></p>
+<p><strong>Palpite:</strong> uma rota conectada da interface interna substitui a rota padrão da placa real?</p>
+<pre translate="no"><code class="lang-bash">nmcli connection show --active
+nmcli -f GENERAL,IP4,IP6 device show m11dummy0
+ip -4 route show dev m11dummy0
+ip -6 route show dev m11dummy0
+ip -4 route show default
+ping -4 -c 2 -W 2 192.0.2.10
+ping -6 -c 2 -W 2 2001:db8:11::10</code></pre>
+<p><strong>Saída esperada:</strong> perfil ativo, endereços e rotas internas. Os pings recebem respostas da própria VM.</p>
+<p><strong>Verifique:</strong> a rota padrão IPv4 continua pela interface original. Esses pings comprovam endereços locais; não comprovam comunicação com outro computador.</p>
+<p><strong>Passo 6 · Planejar DNS sem publicar DNS de exemplo.</strong></p>
+<p><strong>Palpite:</strong> preencher <code translate="no">ipv4.dns</code> em um perfil inativo já muda as consultas do sistema?</p>
+<pre translate="no"><code class="lang-bash">sudo nmcli connection clone m11a2-interno m11a2-plano
+sudo nmcli connection modify m11a2-plano connection.autoconnect no \
+  ipv4.dns 192.0.2.53 ipv4.ignore-auto-dns yes \
+  ipv6.dns 2001:db8:11::53 ipv6.ignore-auto-dns yes
+nmcli -f connection.id,connection.autoconnect,ipv4.dns,ipv4.ignore-auto-dns,ipv6.dns \
+  connection show m11a2-plano
+nmcli connection show --active</code></pre>
+<p><strong>Saída esperada:</strong> DNS de exemplo salvo em <code translate="no">m11a2-plano</code>; somente <code translate="no">m11a2-interno</code> continua ativo nessa interface.</p>
+<p><strong>Verifique:</strong> não ative <code translate="no">m11a2-plano</code>. O clone tem outro UUID, mas herdou os endereços e a interface do original. Uma clonagem exige revisar as propriedades herdadas antes de usar.</p>
+<p><strong>Passo 7 · Ler o keyfile criado.</strong> Localize pelo UUID, sem presumir o nome do arquivo:</p>
+<p><strong>Palpite:</strong> renomear o perfil obriga o UUID a mudar?</p>
+<pre translate="no"><code class="lang-bash">PLANO_UUID=$(nmcli -g connection.uuid connection show m11a2-plano)
+PLANO_FILE=$(sudo grep -rlF --include='*.nmconnection' "uuid=$PLANO_UUID" /etc/NetworkManager/system-connections/)
+printf '%s\n' "$PLANO_FILE"
+sudo stat -c '%U:%G %a %n' "$PLANO_FILE"
+sudo sed -n '/^\[connection\]/,/^\[/p' "$PLANO_FILE"</code></pre>
+<p><strong>Saída esperada:</strong> exatamente um caminho, dono <code translate="no">root:root</code> e modo <code translate="no">600</code>. O trecho mostra a seção de conexão do perfil.</p>
+<p><strong>Verifique:</strong> antes de usar o caminho nas quebras, confirme que ele é um único arquivo do perfil <code translate="no">m11a2-plano</code> dentro do diretório indicado. Não mostre arquivos de outras conexões: eles podem conter segredos.</p>
+<p><strong>Passo 8 · Preparar a persistência.</strong></p>
+<p><strong>Palpite:</strong> <code translate="no">connection.autoconnect no</code> impede até uma ativação manual?</p>
+<pre translate="no"><code class="lang-bash">sudo nmcli connection modify m11a2-interno connection.autoconnect yes
+sudo systemctl enable NetworkManager.service
+nmcli -g connection.autoconnect connection show m11a2-interno
+nmcli -g connection.autoconnect connection show m11a2-plano</code></pre>
+<p><strong>Saída esperada:</strong> <code translate="no">yes</code> para o perfil interno e <code translate="no">no</code> para o plano.</p>
+<p><strong>Verifique:</strong> serviço no boot e autoconexão do perfil são duas condições distintas. O reboot será feito depois das quebras; você ainda não comprovou persistência.</p>
+<h3 id="decida-1">Decida 1</h3>
+<p>Você alterou <code translate="no">ipv4.addresses</code> no perfil, mas <code translate="no">ip address</code> ainda mostra o endereço anterior. O que faz primeiro?</p>
+<p>A) Reinicia a VM inteira. B) Confere perfil e dispositivo, depois aplica a mudança à interface correta. C) Apaga a rota padrão.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se você marcou</th><th scope="col">Resultado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>A</td><td>Prematuro</td><td>Você pode aplicar e verificar a mudança localmente</td></tr><tr><td>B</td><td>Certo</td><td>Salvar e aplicar são etapas diferentes</td></tr><tr><td>C</td><td>Sem relação</td><td>O endereço salvo não foi aplicado ao dispositivo</td></tr></tbody></table></div>
+<h3 id="decida-2">Decida 2</h3>
+<p>Um Debian usa <code translate="no">ifupdown</code> na placa do SSH. Instalar NetworkManager autoriza ativar outro perfil nessa placa?</p>
+<p>A) Sim, a última instalação decide. B) Sim, se o nome do perfil for diferente. C) Não; primeiro é preciso planejar quem gerencia a interface e como voltar.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se você marcou</th><th scope="col">Resultado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>A</td><td>Incorreto</td><td>Instalação não é migração planejada</td></tr><tr><td>B</td><td>Incorreto</td><td>Nomes diferentes não isolam o mesmo dispositivo</td></tr><tr><td>C</td><td>Certo</td><td>A posse da interface e o retorno precisam estar claros</td></tr></tbody></table></div>
+<h2 id="6-quebre-e-conserte">6 · Quebre e conserte</h2>
+<p>Faça as quebras somente em <code translate="no">m11dummy0</code> e nos dois perfis da aula. A interface real permanece sob o gerenciador original. Se você abriu outra sessão Bash, recalcule <code translate="no">PLANO_UUID</code> e <code translate="no">PLANO_FILE</code> pelo Passo 7.</p>
+<h3 id="quebra-1-mudou-a-ficha-nao-a-interface">Quebra 1 · Mudou a ficha, não a interface</h3>
+<p><strong>Palpite:</strong> o endereço antigo desaparece só porque você editou o perfil?</p>
+<pre translate="no"><code class="lang-bash">sudo nmcli connection modify m11a2-interno ipv4.addresses 192.0.2.20/24
+nmcli -g ipv4.addresses connection show m11a2-interno
+ip -4 address show dev m11dummy0</code></pre>
+<p><strong>Sintoma:</strong> o perfil salvo mostra <code translate="no">192.0.2.20/24</code>; a interface ainda usa <code translate="no">192.0.2.10/24</code>.</p>
+<p><strong>Investigação:</strong> compare a propriedade do perfil com a saída de <code translate="no">ip</code>. Você consultou duas camadas diferentes.</p>
+<p><strong>Causa:</strong> <code translate="no">connection modify</code> salvou a mudança sem reativar a conexão em uso.</p>
+<p><strong>Conserto:</strong> aplique somente o perfil interno e depois restaure seu endereço inicial:</p>
+<pre translate="no"><code class="lang-bash">sudo nmcli connection up m11a2-interno
+ip -4 address show dev m11dummy0
+sudo nmcli connection modify m11a2-interno ipv4.addresses 192.0.2.10/24
+sudo nmcli connection up m11a2-interno</code></pre>
+<p><strong>Verifique:</strong> a primeira ativação coloca <code translate="no">.20</code>; a segunda devolve <code translate="no">.10</code>. IPv6 permanece configurado.</p>
+<p><strong>Prevenção:</strong> ao registrar uma mudança, anote o perfil salvo e a conferência do estado aplicado.</p>
+<h3 id="quebra-2-funciona-na-mao-nao-volta-sozinho">Quebra 2 · Funciona na mão, não volta sozinho</h3>
+<p><strong>Palpite:</strong> um perfil com autoconexão desligada pode funcionar quando você pede <code translate="no">up</code>?</p>
+<pre translate="no"><code class="lang-bash">sudo nmcli connection modify m11a2-interno connection.autoconnect no
+sudo nmcli connection down m11a2-interno
+nmcli connection show --active
+sudo nmcli connection up m11a2-interno
+nmcli -g connection.autoconnect connection show m11a2-interno</code></pre>
+<p><strong>Sintoma:</strong> a ativação manual funciona, mas a propriedade continua <code translate="no">no</code>.</p>
+<p><strong>Investigação:</strong> confira conexão ativa e <code translate="no">connection.autoconnect</code>. Estar ativo agora não prova ativação automática no próximo boot.</p>
+<p><strong>Causa:</strong> você autorizou a ativação manual sem autorizar a autoconexão do perfil.</p>
+<p><strong>Conserto:</strong> <code translate="no">sudo nmcli connection modify m11a2-interno connection.autoconnect yes</code>.</p>
+<p><strong>Verifique:</strong> a propriedade volta a <code translate="no">yes</code>; no fechamento, o reboot confirmará o resultado.</p>
+<p><strong>Prevenção:</strong> confira a unidade habilitada e a autoconexão do perfil antes do teste de persistência.</p>
+<h3 id="quebra-3-o-arquivo-existe-mas-e-recusado">Quebra 3 · O arquivo existe, mas é recusado</h3>
+<p><strong>Palpite:</strong> um keyfile legível por qualquer usuário é aceito por estar no diretório certo?</p>
+<pre translate="no"><code class="lang-bash">sudo chmod 0644 "$PLANO_FILE"
+sudo nmcli connection load "$PLANO_FILE"
+sudo stat -c '%U:%G %a %n' "$PLANO_FILE"
+sudo journalctl -u NetworkManager.service -n 20 --no-pager</code></pre>
+<p><strong>Sintoma:</strong> o carregamento explícito falha; o arquivo mostra modo <code translate="no">644</code>. A mensagem informa a recusa do arquivo, com detalhes nas mensagens do serviço.</p>
+<p><strong>Investigação:</strong> confira o caminho, o dono e as permissões. O perfil já carregado pode continuar listado; isso não demonstra que a nova leitura foi aceita.</p>
+<p><strong>Causa:</strong> outros usuários conseguem ler o keyfile, contrariando a proteção exigida pelo NetworkManager.</p>
+<p><strong>Conserto:</strong> restaure as permissões do perfil de planejamento e carregue-o:</p>
+<pre translate="no"><code class="lang-bash">sudo chown root:root "$PLANO_FILE"
+sudo chmod 0600 "$PLANO_FILE"
+sudo nmcli connection load "$PLANO_FILE"</code></pre>
+<p><strong>Verifique:</strong> o carregamento termina sem erro e <code translate="no">stat</code> mostra <code translate="no">root:root 600</code>. O perfil continua inativo.</p>
+<p><strong>Prevenção:</strong> crie perfis com <code translate="no">nmcli</code>; ao copiar um keyfile, confira dono e modo antes de carregar.</p>
+<figure><a href="../img/11.2-salvar-carregar-aplicar.jpg"><img src="../img/11.2-salvar-carregar-aplicar.jpg" alt="As três ações do perfil" loading="lazy" decoding="async"></a><figcaption>Salvar, carregar e aplicar são ações diferentes.</figcaption></figure>
+<h3 id="limpeza">Limpeza</h3>
+<p><strong>Palpite:</strong> apagar o perfil de planejamento exige desligar a placa usada pelo SSH?</p>
+<pre translate="no"><code class="lang-bash">sudo nmcli connection delete m11a2-plano
+nmcli connection show --active
+nmcli -g connection.autoconnect connection show m11a2-interno</code></pre>
+<p><strong>Saída esperada:</strong> o plano é removido; o interno permanece ativo com autoconexão <code translate="no">yes</code>.</p>
+<p><strong>Verifique:</strong> guarde o perfil interno até o reboot de conferência. A remoção final e o retorno do Debian preparado nesta aula vêm logo depois desse teste.</p>
+<h2 id="7-armadilhas">7 · Armadilhas</h2>
+<div class="tabela"><table><thead><tr><th scope="col">Erro comum</th><th scope="col">O que fazer</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>Confundir perfil e dispositivo</td><td>Comparar <code translate="no">connection show</code> e <code translate="no">device status</code></td><td>São objetos diferentes</td></tr><tr><td>Salvar e presumir aplicação</td><td>Conferir com <code translate="no">ip</code> depois de ativar</td><td>Estado salvo não é estado efetivo</td></tr><tr><td>Editar a placa do SSH sem retorno</td><td>Abrir noVNC antes</td><td>A mudança pode cortar o acesso</td></tr><tr><td>Instalar outro gerenciador e ativar tudo</td><td>Definir quem controla cada interface</td><td>Dois gerenciadores podem disputar a configuração</td></tr><tr><td>Usar <code translate="no">shared</code> no lugar de <code translate="no">auto</code></td><td>Escolher o método pelo objetivo</td><td>Compartilhamento não é cliente DHCP comum</td></tr><tr><td>Clonar sem revisar</td><td>Conferir interface, endereços, DNS e autoconexão</td><td>O clone herda propriedades</td></tr><tr><td>Ativar DNS de exemplo</td><td>Manter o plano inativo</td><td>Endereço salvo não significa servidor acessível</td></tr><tr><td>Usar <code translate="no">reload</code> para aplicar IP</td><td>Carregar e depois ativar quando necessário</td><td>Relê arquivo, não reativa a interface</td></tr><tr><td>Deixar keyfile com modo <code translate="no">644</code></td><td>Usar <code translate="no">root:root 600</code></td><td>Perfis podem conter segredos</td></tr></tbody></table></div>
+<h2 id="8-quiz">8 · Quiz</h2>
+<p>Responda sem consultar o laboratório.</p>
+<ol><li>Qual diferença existe entre dispositivo, perfil salvo e conexão ativa?</li>
+<li>Você editou um keyfile. O que <code translate="no">connection load</code> faz e o que ainda falta para aplicar?</li>
+<li>Um endereço adicionado só com <code translate="no">ip address add</code> comprova persistência?</li>
+<li>Para que servem <code translate="no">ipv4.never-default</code> e <code translate="no">ipv6.never-default</code> no exercício?</li>
+<li>Um perfil tem DNS configurado e está inativo. Isso comprova que o sistema usa aquele DNS?</li>
+<li>Por que um <code translate="no">up</code> bem-sucedido não comprova que a conexão voltará no próximo boot?</li></ol>
+<h2 id="9-cola">9 · Cola</h2>
+<div class="tabela"><table><thead><tr><th scope="col">Quero...</th><th scope="col">Comando</th></tr></thead><tbody><tr><td>Listar dispositivos</td><td><code translate="no">nmcli device status</code></td></tr><tr><td>Listar perfis</td><td><code translate="no">nmcli connection show</code></td></tr><tr><td>Ver perfis ativos</td><td><code translate="no">nmcli connection show --active</code></td></tr><tr><td>Inspecionar perfil</td><td><code translate="no">nmcli connection show m11a2-interno</code></td></tr><tr><td>Inspecionar estado da interface</td><td><code translate="no">nmcli device show m11dummy0</code></td></tr><tr><td>Ativar perfil interno</td><td><code translate="no">sudo nmcli connection up m11a2-interno</code></td></tr><tr><td>Permitir autoconexão</td><td><code translate="no">sudo nmcli connection modify m11a2-interno connection.autoconnect yes</code></td></tr><tr><td>Recarregar arquivos</td><td><code translate="no">sudo nmcli connection reload</code></td></tr><tr><td>Carregar um keyfile</td><td><code translate="no">sudo nmcli connection load "$PLANO_FILE"</code></td></tr><tr><td>Conferir o kernel</td><td><code translate="no">ip -br address show dev m11dummy0</code></td></tr></tbody></table></div>
+<p><strong>Flashcards:</strong> dispositivo → <em>interface</em>; perfil → <em>configuração salva</em>; <code translate="no">up</code> → <em>ativar</em>; <code translate="no">reload</code> → <em>reler arquivos</em>; autoconexão → <em>ativação automática permitida</em>; keyfile → <em>perfil em disco</em>.</p>
+<p>Revise em D+1, D+3, D+7 e D+21. Refaça a primeira quebra sem consultar e explique onde cada comando buscou sua informação.</p>
+<h2 id="10-checklist-e-fechamento">10 · Checklist e fechamento</h2>
+<ul><li>[ ] Distingo dispositivo, perfil e conexão ativa</li>
+<li>[ ] Identifico o gerenciador antes de alterar a interface real</li>
+<li>[ ] Configurei IPv4 e IPv6 fixos na interface interna nas duas distros</li>
+<li>[ ] Mantive gateway e DNS da rede real fora do exercício</li>
+<li>[ ] Comparei configuração salva com estado no kernel</li>
+<li>[ ] Consertei as três quebras sem alterar a placa do SSH</li>
+<li>[ ] Reconheço dono e permissões de um keyfile</li></ul>
+<p><strong>Último exercício:</strong> antes do reboot, confirme <code translate="no">.10</code>, IPv6 e autoconexão <code translate="no">yes</code> no perfil interno. Explique por que isso ainda precisa do teste abaixo.</p>
+<p><strong>Reboot de conferência:</strong> em cada VM, rode <code translate="no">sudo systemctl reboot</code>, acompanhe pelo noVNC e reconecte pelo alias. Depois:</p>
+<pre translate="no"><code class="lang-bash">nmcli connection show --active
+ip -br address show dev m11dummy0
+ip -4 route show default</code></pre>
+<p><strong>Saída esperada:</strong> o perfil interno voltou, com <code translate="no">192.0.2.10/24</code> e <code translate="no">2001:db8:11::10/64</code>; a rota padrão continua na placa original.</p>
+<p><strong>Verifique:</strong> compare com o inventário inicial da interface real. Você comprovou persistência do perfil interno, não migrou a configuração da Ethernet.</p>
+<p><strong>Retorno ao estado de rede inicial:</strong> remova o perfil do exercício nas duas VMs:</p>
+<pre translate="no"><code class="lang-bash">sudo nmcli connection delete m11a2-interno
+ip -br address
+ip -4 route</code></pre>
+<p>No Debian que recebeu a preparação isolada, confirme o arquivo <code translate="no">~/m11a2/preparacao</code> antes de executar o retorno abaixo. Não execute esse bloco onde NetworkManager já estava ativo antes da aula.</p>
+<pre translate="no"><code class="lang-bash">cat "$HOME/m11a2/preparacao"
+sudo systemctl disable --now NetworkManager.service
+sudo rm -- /etc/NetworkManager/conf.d/99-m11a2-isolado.conf
+systemctl is-active NetworkManager.service
+systemctl is-enabled NetworkManager.service</code></pre>
+<p>O serviço fica inativo e desabilitado, como na preparação inicial; o pacote permanece instalado para a Aula 11.3. Não execute <code translate="no">nmcli</code> nesse Debian após o retorno, pois o cliente pode solicitar a ativação do serviço por D-Bus.</p>
+<p><strong>Verifique:</strong> nas duas VMs, confira o endereço real e a rota padrão com <code translate="no">ip</code>; guarde os registros em <code translate="no">~/m11a2</code> no diário do laboratório. Se o dispositivo interno ainda existir após apagar o perfil, remova somente ele com <code translate="no">sudo ip link delete m11dummy0</code>.</p>
+<p><strong>Snapshot de fim:</strong> no nó Proxmox, depois do retorno:</p>
+<pre translate="no"><code class="lang-bash">qm snapshot 201 m11a2-fim
+qm snapshot 202 m11a2-fim</code></pre>
+<h2 id="11-na-vida-real">11 · Na vida real</h2>
+<p><strong>Missão, só leitura.</strong> Em um servidor que você administre ou tenha autorização para observar, consulte primeiro o serviço e os endereços:</p>
+<pre translate="no"><code class="lang-bash">systemctl is-active NetworkManager.service
+ip -br address
+ip -4 route
+ip -6 route</code></pre>
+<p>Somente se NetworkManager já estiver ativo, consulte também <code translate="no">nmcli device status</code>, <code translate="no">nmcli connection show --active</code> e as propriedades sem segredos de um perfil conhecido. Não inicie um gerenciador parado para fazer esta missão.</p>
+<ol><li>Qual interface atende a rede de serviço e quem a gerencia?</li>
+<li>O nome do perfil corresponde ao nome da interface ou você estava presumindo isso?</li>
+<li>O que está salvo e o que está aplicado? Quais evidências sustentam sua resposta?</li>
+<li>Existe comprovação de persistência no registro de mudança, ou apenas uma captura antes do reboot?</li></ol>
+<h2 id="12-aprofundar-quando-quiser">12 · Aprofundar quando quiser</h2>
+<ul><li><a href="https://networkmanager.pages.freedesktop.org/NetworkManager/NetworkManager/nmcli.html"><code translate="no">man nmcli</code></a>: objetos, filtros e operações de conexão.</li>
+<li><a href="https://networkmanager.pages.freedesktop.org/NetworkManager/NetworkManager/nm-settings-nmcli.html"><code translate="no">man nm-settings-nmcli</code></a>: métodos IP, DNS e autoconexão.</li>
+<li><a href="https://networkmanager.pages.freedesktop.org/NetworkManager/NetworkManager/nm-settings-keyfile.html"><code translate="no">man nm-settings-keyfile</code></a>: seções, diretórios e proteção dos arquivos.</li>
+<li><a href="https://networkmanager.pages.freedesktop.org/NetworkManager/NetworkManager/NetworkManager.conf.html"><code translate="no">man NetworkManager.conf</code></a>: <code translate="no">dns=none</code> e seleção de dispositivos não gerenciados.</li>
+<li><a href="https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/9/html/configuring_and_managing_networking/configuring-an-ethernet-connection_configuring-and-managing-networking">Ethernet com NetworkManager na família RHEL 9</a>: aplicação dos métodos de endereço.</li>
+<li><a href="https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/9/html/configuring_and_managing_networking/assembly_networkmanager-connection-profiles-in-keyfile-format_configuring-and-managing-networking">Keyfiles na família RHEL 9</a>: armazenamento persistente dos perfis.</li>
+<li><a href="https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/9/html/configuring_and_managing_networking/creating-a-dummy-interface_configuring-and-managing-networking">Interface interna com IPv4 e IPv6 na família RHEL 9</a>: uso de <code translate="no">dummy</code> para testes locais.</li></ul>
+<p><strong>DeepTutor</strong> (http://10.1.0.149:3782, KB "Curso Linux Sysadmin"):</p>
+<ul><li><code translate="no">!explica dispositivo, perfil salvo e conexão ativa com a metáfora da ficha de instalação</code></li>
+<li><code translate="no">!feynman alterei o perfil, mas ip address não mudou: critique meu diagnóstico e minha ordem de aplicação</code></li>
+<li><code translate="no">!quiz Aula 11.2, 6 perguntas sobre nmcli, persistência, DNS, IPv6 e keyfiles, uma por vez</code></li></ul>
+<h2 id="gabarito-comentado">Gabarito comentado</h2>
+<h3 id="aquecimento">Aquecimento</h3>
+<ol><li>O comprimento do prefixo de rede, em bits. Ele permite calcular a sub-rede; não representa uma porta nem o número do host.</li>
+<li>Consulta a decisão local de roteamento. Não transmite um pacote para comprovar entrega.</li>
+<li>Não. Loopback atende a própria máquina; publicar em outro endereço exige um bind apropriado e um caminho permitido.</li></ol>
+<h3 id="quiz">Quiz</h3>
+<ol><li>Dispositivo é a interface; perfil é o conjunto de propriedades salvo; conexão ativa é a aplicação de um perfil ao dispositivo. Consulte <code translate="no">device status</code>, o perfil e a lista de conexões ativas.</li>
+<li>Carrega aquele arquivo no NetworkManager. Depois, uma ativação aplica o perfil; <code translate="no">ip</code> confere o resultado no kernel.</li>
+<li>Não. A adição altera o estado atual; a persistência depende da configuração mantida pelo gerenciador e deve ser conferida após o reboot.</li>
+<li>Impedem que o perfil interno forneça a rota padrão de cada família. As rotas conectadas dos seus prefixos continuam existindo.</li>
+<li>Não. O valor está salvo no perfil; ele precisa estar ativo e participar da configuração de resolução para ser usado. Mesmo isso não comprova resposta do servidor DNS.</li>
+<li><code translate="no">up</code> é um pedido manual. A volta automática depende do serviço, da autoconexão e da disponibilidade do dispositivo. O teste de reboot confere o conjunto.</li></ol>
+<p><a href="11.1-tcp-ip-para-quem-administra.html">← Aula 11.1 · TCP/IP para quem administra</a> · <a href="index.html">Índice de aulas</a> · <a href="https://github.com/Rodrigoantignani/curso-linux-sysadmin/blob/master/00-plano-do-curso.md">Plano do curso: 11.3 em diante →</a></p>
+</article><nav class="paginas" aria-label="Aulas"><a class="ant" href="11.1-tcp-ip-para-quem-administra.html"><small>← Anterior</small>11.1 · TCP/IP para quem administra</a></nav></main></div>
+<footer><div class="wrap">Gerado a partir do Markdown do curso · Imagens em <code translate="no">img/</code></div></footer>
+</body>
+</html>

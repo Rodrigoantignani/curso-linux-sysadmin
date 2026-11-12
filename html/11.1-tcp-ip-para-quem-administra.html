@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light dark">
+<title>11.1 · TCP/IP para quem administra · Curso Linux Sysadmin</title>
+<link rel="alternate" hreflang="pt-BR" href="11.1-tcp-ip-para-quem-administra.html"><link rel="alternate" hreflang="it" href="11.1-tcp-ip-para-quem-administra.it.html">
+<style>
+:root{color-scheme:light dark;--bg:#f6f1e7;--card:#fffdf8;--ink:#201c16;--muted:#5e564a;--accent:#9a3412;--accent-2:#1f5f4a;--tint:#efe6d4;--line:#ddd2bc;--code:#f1eadb;--shadow:0 1px 2px rgba(60,40,10,.08);--serif:Georgia,"Iowan Old Style","Palatino Linotype",Palatino,serif;--sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--mono:"Cascadia Code",Consolas,"DejaVu Sans Mono",monospace}
+@media (prefers-color-scheme:dark){:root{--bg:#16130f;--card:#201b15;--ink:#f1eadb;--muted:#b9ad98;--accent:#f0a070;--accent-2:#7fd0b0;--tint:#2a231a;--line:#3d3427;--code:#191510;--shadow:none}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:5.5rem}
+body{margin:0;background:var(--bg);color:var(--ink);font:1rem/1.6 var(--sans)}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--accent-2);outline-offset:2px;border-radius:4px}
+.pular{position:absolute;left:-999px;top:0;background:var(--card);padding:.5rem 1rem;z-index:20}
+.pular:focus{left:.5rem;top:.5rem}
+.wrap{width:100%;max-width:84rem;margin:0 auto;padding-inline:max(1rem,env(safe-area-inset-left))}
+.top{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10;border-top:6px solid var(--accent)}
+.top-in{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding-block:.6rem}
+.titles{min-width:0}
+.marca{margin:0;font:700 clamp(1.15rem,1rem + 1vw,1.6rem)/1.15 var(--serif);letter-spacing:-.01em}
+.marca a{text-decoration:none}
+.marca a:hover{color:var(--accent)}
+.meta{margin:.1rem 0 0;color:var(--muted);font-size:.85rem}
+.acoes{display:flex;align-items:center;gap:.9rem;flex:none}
+.acoes>a{font-size:.9rem;font-weight:600;color:var(--muted);text-decoration:none}
+.acoes>a:hover{color:var(--accent);text-decoration:underline}
+.idioma{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--tint)}
+.idioma>*{padding:.35rem .9rem;font-size:.8rem;font-weight:700;letter-spacing:.06em;text-decoration:none;color:var(--muted);min-width:2.75rem;text-align:center}
+.idioma a:hover{color:var(--accent);text-decoration:underline}
+.idioma span{background:var(--accent);color:#fff}
+@media (prefers-color-scheme:dark){.idioma span{color:#16130f}}
+code{font-family:var(--mono);font-size:.9em;background:var(--tint);padding:.1rem .35rem;border-radius:4px;overflow-wrap:anywhere}
+/* índice */
+.capa{max-width:70rem;padding-block:2rem 3rem}
+.stats{border-left:4px solid var(--accent-2);background:var(--card);border-radius:0 10px 10px 0;padding:1rem 1.25rem;margin:0 0 2.5rem;box-shadow:var(--shadow);color:var(--muted)}
+.stats strong{color:var(--ink)}
+.modulo{display:grid;grid-template-columns:15rem minmax(0,1fr);gap:1rem 2rem;padding:1.75rem 0;border-top:1px solid var(--line)}
+.modulo h2{margin:0;font:700 1.25rem/1.25 var(--serif);align-self:start;position:sticky;top:6rem}
+.mn{display:block;font:700 .8rem var(--mono);letter-spacing:.12em;color:var(--accent);margin-bottom:.25rem}
+.sep{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.modulo ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,17rem),1fr));gap:.75rem}
+.modulo li{margin:0}
+.modulo a{display:flex;gap:.45rem;align-items:baseline;height:100%;padding:.85rem 1rem;background:var(--card);border:1px solid var(--line);border-radius:10px;text-decoration:none;font-weight:600;line-height:1.35;box-shadow:var(--shadow);transition:border-color .15s,transform .15s}
+.modulo a:hover{border-color:var(--accent);color:var(--accent)}
+.num{font:700 .85rem var(--mono);color:var(--accent);white-space:nowrap}
+/* aula */
+.doc{display:grid;grid-template-columns:17rem minmax(0,1fr);gap:2.5rem;align-items:start;padding-block:2rem 3rem}
+.lateral{position:sticky;top:5.5rem;max-height:calc(100vh - 6.5rem);overflow:auto;font-size:.875rem;padding-right:.5rem}
+.lateral h2{margin:0 0 .25rem;font:700 .95rem var(--serif);color:var(--muted)}
+.lateral h3{margin:1rem 0 .25rem;font:700 .75rem var(--mono);letter-spacing:.06em;color:var(--accent)}
+.lateral ul{list-style:none;margin:0;padding:0}
+.lateral a{display:flex;gap:.45rem;padding:.25rem .5rem;border-radius:6px;text-decoration:none;color:var(--muted);line-height:1.3}
+.lateral a:hover{background:var(--tint);color:var(--ink)}
+.lateral a[aria-current]{background:var(--tint);color:var(--ink);font-weight:700;box-shadow:inset 3px 0 0 var(--accent)}
+.lateral .num{font-size:.75rem}
+.aula{min-width:0;max-width:56rem;overflow-wrap:break-word;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:clamp(1.25rem,1rem + 2vw,2.75rem);box-shadow:var(--shadow)}
+.aula h1{margin:0 0 1.5rem;font:700 clamp(1.75rem,1.4rem + 1.6vw,2.5rem)/1.15 var(--serif);letter-spacing:-.015em;color:var(--ink)}
+.aula h2{margin:2.5rem 0 .75rem;padding-top:1.25rem;border-top:1px solid var(--line);font:700 1.5rem/1.25 var(--serif)}
+.aula h3{margin:2rem 0 .5rem;font:700 1.15rem/1.3 var(--serif);color:var(--accent)}
+.aula h4,.aula h5,.aula h6{margin:1.5rem 0 .5rem;font-size:1rem}
+.aula p,.aula ul,.aula ol{margin:1rem 0}
+.aula ul,.aula ol{padding-left:1.5rem}
+.aula li{margin:.35rem 0}
+.aula li>ul,.aula li>ol{margin:.35rem 0}
+.aula a{color:var(--accent);text-underline-offset:2px}
+.aula hr{border:0;border-top:1px solid var(--line);margin:2rem 0}
+.tabela{overflow-x:auto;margin:1.25rem 0;border:1px solid var(--line);border-radius:10px}
+.aula table{width:100%;border-collapse:collapse;font-size:.9rem}
+.aula th,.aula td{padding:.55rem .75rem;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+.aula tr:last-child td{border-bottom:0}
+.aula th{background:var(--tint);font-weight:700}
+.aula pre{background:var(--code);border:1px solid var(--line);border-radius:10px;padding:.9rem 1rem;overflow-x:auto;font:.85rem/1.5 var(--mono);margin:1rem 0;tab-size:4}
+.aula pre code{background:none;padding:0;font-size:inherit;overflow-wrap:normal}
+.aula blockquote{margin:1.25rem 0;padding:.75rem 1.25rem;border-left:4px solid var(--accent-2);background:var(--tint);border-radius:0 10px 10px 0}
+.aula blockquote>:first-child{margin-top:0}
+.aula blockquote>:last-child{margin-bottom:0}
+.aula figure{margin:1.75rem 0;text-align:center}
+.aula figure img{display:block;margin:0 auto;max-width:100%;height:auto;border:1px solid var(--line);border-radius:10px;background:#fff}
+.aula figcaption{margin-top:.5rem;color:var(--muted);font-size:.9rem;font-style:italic}
+.paginas{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:2.5rem;padding-top:1.5rem;border-top:1px solid var(--line)}
+.paginas a{display:block;padding:.75rem 1rem;border:1px solid var(--line);border-radius:10px;text-decoration:none;color:var(--ink);font-weight:600;line-height:1.3}
+.paginas a:hover{border-color:var(--accent);color:var(--accent)}
+.paginas small{display:block;color:var(--muted);font-weight:400}
+.paginas .prox{grid-column:2;text-align:right}
+footer{border-top:1px solid var(--line);padding-block:1.5rem;color:var(--muted);font-size:.85rem;text-align:center}
+@media (hover:hover) and (prefers-reduced-motion:no-preference){.modulo a:hover{transform:translateY(-2px)}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+@media (max-width:980px){.doc{grid-template-columns:minmax(0,1fr);padding-top:1rem}.lateral{position:static;max-height:none;order:2}.aula{max-width:none}}
+@media (max-width:860px){.modulo{grid-template-columns:minmax(0,1fr)}.modulo h2{position:static}.mn{display:inline;margin-right:.5rem}}
+@media (max-width:420px){.meta{display:none}.top-in{gap:.5rem}.acoes{gap:.6rem}.capa{padding-top:1.25rem}.paginas{grid-template-columns:minmax(0,1fr)}.paginas .prox{grid-column:1}}
+@media print{.top,.lateral,.paginas{display:none}.aula{border:0;box-shadow:none;padding:0;max-width:none}.doc{display:block}}
+</style>
+</head>
+<body>
+<a class="pular" href="#conteudo">Pular para o conteúdo</a>
+<header class="top"><div class="wrap top-in"><div class="titles"><p class="marca"><a href="index.html">Curso Linux Sysadmin</a></p><p class="meta">Rodrigo Antignani · Aula 11.1</p></div><div class="acoes"><a href="index.html">Índice</a><div class="idioma" role="group" aria-label="Idioma"><span aria-current="true">PT</span><a href="11.1-tcp-ip-para-quem-administra.it.html" hreflang="it" lang="it">IT</a></div></div></div></header>
+<div class="wrap doc"><aside class="lateral" aria-label="Aulas"><h2>Aulas</h2><h3>M0 · Laboratório</h3><ul><li><a href="0.1-montar-o-laboratorio.html"><span class="num">0.1</span><span>Montar o laboratório</span></a></li><li><a href="0.2-acesso-e-protecao.html"><span class="num">0.2</span><span>Acesso e proteção</span></a></li></ul><h3>M1 · Linha de comando</h3><ul><li><a href="1.1-o-que-e-linux.html"><span class="num">1.1</span><span>O que é Linux</span></a></li><li><a href="1.2-o-shell-e-a-ajuda.html"><span class="num">1.2</span><span>O shell e a ajuda</span></a></li><li><a href="1.3-caminhos-e-navegacao.html"><span class="num">1.3</span><span>Caminhos e navegação</span></a></li><li><a href="1.4-criar-copiar-mover-e-apagar.html"><span class="num">1.4</span><span>Criar, copiar, mover e apagar</span></a></li><li><a href="1.5-ler-e-procurar-texto.html"><span class="num">1.5</span><span>Ler e procurar texto</span></a></li><li><a href="1.6-redirecionamentos-e-pipes.html"><span class="num">1.6</span><span>Redirecionamentos e pipes</span></a></li><li><a href="1.7-arquivar-e-compactar.html"><span class="num">1.7</span><span>Arquivar e compactar</span></a></li><li><a href="1.8-primeiro-script.html"><span class="num">1.8</span><span>Primeiro script</span></a></li><li><a href="1.9-decidir-e-repetir.html"><span class="num">1.9</span><span>Decidir e repetir</span></a></li><li><a href="1.10-software-livre-na-pratica.html"><span class="num">1.10</span><span>Software livre na prática</span></a></li></ul><h3>M2 · Sistema, usuários e permissões</h3><ul><li><a href="2.1-instalacao-e-provisionamento.html"><span class="num">2.1</span><span>Instalação e provisionamento</span></a></li><li><a href="2.2-hardware-e-dispositivos.html"><span class="num">2.2</span><span>Hardware e dispositivos</span></a></li><li><a href="2.3-processos-e-logs.html"><span class="num">2.3</span><span>Processos e logs</span></a></li><li><a href="2.4-rede-no-dia-a-dia.html"><span class="num">2.4</span><span>Rede no dia a dia</span></a></li><li><a href="2.5-acesso-remoto-e-privilegios.html"><span class="num">2.5</span><span>Acesso remoto e privilégios</span></a></li><li><a href="2.6-usuarios-e-grupos.html"><span class="num">2.6</span><span>Usuários e grupos</span></a></li><li><a href="2.7-permissoes-e-dono.html"><span class="num">2.7</span><span>Permissões e dono</span></a></li><li><a href="2.8-diretorios-e-arquivos-especiais.html"><span class="num">2.8</span><span>Diretórios e arquivos especiais</span></a></li></ul><h3>M3 · Texto e editor</h3><ul><li><a href="3.1-fluxos-a-fundo.html"><span class="num">3.1</span><span>Fluxos a fundo</span></a></li><li><a href="3.2-filtros-de-texto.html"><span class="num">3.2</span><span>Filtros de texto</span></a></li><li><a href="3.3-regex-e-grep.html"><span class="num">3.3</span><span>Regex e grep</span></a></li><li><a href="3.4-sed-e-awk.html"><span class="num">3.4</span><span>sed e awk</span></a></li><li><a href="3.5-vi-e-vim-de-verdade.html"><span class="num">3.5</span><span>vi e vim de verdade</span></a></li></ul><h3>M4 · systemd e boot</h3><ul><li><a href="4.1-como-o-linux-liga.html"><span class="num">4.1</span><span>Como o Linux liga</span></a></li><li><a href="4.2-systemd-servicos-e-units.html"><span class="num">4.2</span><span>systemd: serviços e units</span></a></li><li><a href="4.3-targets-desligar-e-reiniciar.html"><span class="num">4.3</span><span>Targets: desligar e reiniciar</span></a></li><li><a href="4.4-grub-e-acesso-de-emergencia.html"><span class="num">4.4</span><span>GRUB e acesso de emergência</span></a></li></ul><h3>M5 · Kernel, módulos e VM</h3><ul><li><a href="5.1-hardware-pelo-kernel.html"><span class="num">5.1</span><span>Hardware pelo kernel</span></a></li><li><a href="5.2-modulos-e-parametros.html"><span class="num">5.2</span><span>Módulos e parâmetros</span></a></li><li><a href="5.3-linux-como-convidado.html"><span class="num">5.3</span><span>Linux como convidado</span></a></li></ul><h3>M6 · Pacotes e repositórios</h3><ul><li><a href="6.1-pacotes-no-debian.html"><span class="num">6.1</span><span>Pacotes no Debian</span></a></li><li><a href="6.2-pacotes-na-rocky.html"><span class="num">6.2</span><span>Pacotes na Rocky</span></a></li><li><a href="6.3-repositorios.html"><span class="num">6.3</span><span>Repositórios</span></a></li><li><a href="6.4-flatpak.html"><span class="num">6.4</span><span>Flatpak</span></a></li><li><a href="6.5-bibliotecas-compartilhadas.html"><span class="num">6.5</span><span>Bibliotecas compartilhadas</span></a></li></ul><h3>M7 · Processos e desempenho</h3><ul><li><a href="7.1-processos-e-sinais.html"><span class="num">7.1</span><span>Processos e sinais</span></a></li><li><a href="7.2-jobs-e-sessoes.html"><span class="num">7.2</span><span>Jobs e sessões</span></a></li><li><a href="7.3-prioridade-e-perfis.html"><span class="num">7.3</span><span>Prioridade e perfis</span></a></li></ul><h3>M8 · Arquivos a fundo</h3><ul><li><a href="8.1-fhs-e-onde-cada-coisa-mora.html"><span class="num">8.1</span><span>FHS e onde cada coisa mora</span></a></li><li><a href="8.2-find-a-fundo.html"><span class="num">8.2</span><span>find a fundo</span></a></li><li><a href="8.3-arquivamento-avancado.html"><span class="num">8.3</span><span>Arquivamento avançado</span></a></li><li><a href="8.4-links.html"><span class="num">8.4</span><span>Links</span></a></li><li><a href="8.5-permissoes-avancadas.html"><span class="num">8.5</span><span>Permissões avançadas</span></a></li></ul><h3>M9 · Armazenamento</h3><ul><li><a href="9.1-discos-e-layout.html"><span class="num">9.1</span><span>Discos e layout</span></a></li><li><a href="9.2-particionar.html"><span class="num">9.2</span><span>Particionar</span></a></li><li><a href="9.3-sistemas-de-arquivos.html"><span class="num">9.3</span><span>Sistemas de arquivos</span></a></li><li><a href="9.4-montar-e-persistir.html"><span class="num">9.4</span><span>Montar e persistir</span></a></li><li><a href="9.5-integridade-e-espaco.html"><span class="num">9.5</span><span>Integridade e espaço</span></a></li><li><a href="9.6-lvm.html"><span class="num">9.6</span><span>LVM</span></a></li><li><a href="9.7-crescer-sem-destruir.html"><span class="num">9.7</span><span>Crescer sem destruir</span></a></li></ul><h3>M10 · Usuários e acesso privilegiado</h3><ul><li><a href="10.1-contas.html"><span class="num">10.1</span><span>Contas</span></a></li><li><a href="10.2-senhas-e-validade.html"><span class="num">10.2</span><span>Senhas e validade</span></a></li><li><a href="10.3-grupos-e-trabalho-em-equipe.html"><span class="num">10.3</span><span>Grupos e trabalho em equipe</span></a></li><li><a href="10.4-sudo-de-verdade.html"><span class="num">10.4</span><span>sudo de verdade</span></a></li></ul><h3>M11 · Rede</h3><ul><li><a href="11.1-tcp-ip-para-quem-administra.html" aria-current="page"><span class="num">11.1</span><span>TCP/IP para quem administra</span></a></li><li><a href="11.2-networkmanager-e-nmcli.html"><span class="num">11.2</span><span>NetworkManager e nmcli</span></a></li></ul></aside><main id="conteudo" class="aula"><article><h1>Aula 11.1 · TCP/IP para quem administra</h1>
+<p>No Windows Server, você separa endereço, máscara, gateway e porta antes de culpar o serviço. No Linux, o raciocínio continua. Na Aula 2.4 você usou ferramentas de rede; agora vai explicar o que elas mostram. Você vai ler IPv4 e IPv6, calcular um prefixo e distinguir ICMP, TCP e UDP com testes nas duas VMs. Configuração persistente fica para as Aulas 11.2 e 11.3.</p>
+<blockquote><p><strong>Núcleo desta aula:</strong> endereço identifica uma interface; prefixo descreve uma rede; a tabela de rotas escolhe o caminho; protocolo e porta identificam o atendimento. Um <code translate="no">ping</code> que responde não confirma um serviço. O resto é aprofundamento.</p></blockquote>
+<div class="tabela"><table><thead><tr><th scope="col">Ficha</th><th scope="col"></th></tr></thead><tbody><tr><td><strong>Módulo</strong></td><td>M11 · Rede, aula 1 de 5</td></tr><tr><td><strong>Quando</strong></td><td>Semana 16</td></tr><tr><td><strong>Ao final</strong></td><td>Você explica o caminho escolhido para um destino e comprova endereço, família, protocolo e porta de um serviço</td></tr><tr><td><strong>Pré-requisitos</strong></td><td>Aulas 2.4, 2.5, 3.1 e 10.4; SSH por chave e <code translate="no">sudo</code> nas duas VMs</td></tr><tr><td><strong>Tempo</strong></td><td>Cerca de 90 minutos, mais 30 minutos para repetir sem consultar</td></tr><tr><td><strong>Snapshots</strong></td><td><code translate="no">m11a1-inicio</code> e <code translate="no">m11a1-fim</code> nas VMs 201 e 202</td></tr></tbody></table></div>
+<h2 id="1-aquecimento">1 · Aquecimento</h2>
+<p>Responda sem consultar. O gabarito fica no fim.</p>
+<ol><li>Qual comando mostra os endereços das interfaces sem mudar a configuração?</li>
+<li>Um processo atende só em <code translate="no">127.0.0.1</code>. Outra máquina alcança esse atendimento pelo IP da VM?</li>
+<li>Para descobrir quem abriu uma porta, basta saber que o serviço está ativo no <code translate="no">systemd</code>?</li></ol>
+<h2 id="2-por-que-importa">2 · Por que importa</h2>
+<p>O chamado diz: "O servidor responde ao ping, mas a aplicação não abre". Uma pessoa troca o gateway. Outra reinicia o serviço. A terceira abre portas ao acaso. Você começa por quatro dados: destino, família de endereço, protocolo e porta.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Evidência</th><th scope="col">O que permite afirmar</th><th scope="col">O que ainda falta</th></tr></thead><tbody><tr><td><code translate="no">ping</code> recebe respostas</td><td>Houve resposta ICMP daquele destino</td><td>A aplicação pode continuar parada</td></tr><tr><td><code translate="no">ss</code> mostra um socket TCP em <code translate="no">LISTEN</code></td><td>Existe atendimento local naquele endereço e porta</td><td>O caminho remoto e a aplicação podem falhar</td></tr><tr><td>Uma conexão TCP completa</td><td>O estabelecimento TCP funcionou nesse teste</td><td>Autenticação e operação da aplicação ainda podem falhar</td></tr><tr><td>A aplicação responde ao pedido esperado</td><td>A operação testada funcionou</td><td>Outras operações podem ter outro resultado</td></tr></tbody></table></div>
+<p>O objetivo é reduzir a dúvida com um teste por vez. Não troque uma configuração que a evidência ainda não apontou.</p>
+<h2 id="3-modelo-mental">3 · Modelo mental</h2>
+<p>Pense na entrega de uma encomenda a um prédio. O endereço IP indica onde entregar. A rota escolhe a saída. A porta identifica o balcão do serviço. O protocolo define como a conversa acontece. O prefixo ajuda a descrever quais endereços pertencem à mesma rede.</p>
+<pre translate="no"><code class="lang-text">aplicação → protocolo + porta → IP de destino → consulta às rotas
+                                                   |
+                           saída direta ou próximo roteador
+
+destino local: outro processo na própria máquina
+destino no enlace: entrega ao vizinho
+destino por gateway: entrega ao próximo roteador</code></pre>
+<p>A metáfora termina aí: uma porta TCP é um número de atendimento, não uma porta física da placa. Na Ethernet, a entrega ao próximo salto usa um quadro e um endereço MAC. IPv4 normalmente descobre o MAC do vizinho com ARP; IPv6 usa Neighbor Discovery. Você não precisa decorar esses pacotes hoje. Precisa separar próximo salto e destino final.</p>
+<figure><a href="../img/11.1-endereco-caminho-balcao.jpg"><img src="../img/11.1-endereco-caminho-balcao.jpg" alt="Endereço, caminho e balcão" loading="lazy" decoding="async"></a><figcaption>IP indica o destino; a rota escolhe a saída; protocolo e porta indicam o atendimento.</figcaption></figure>
+<h3 id="ponte-windows">Ponte Windows</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Windows Server</th><th scope="col">Linux</th><th scope="col">O que comparar</th></tr></thead><tbody><tr><td><code translate="no">Get-NetIPAddress</code></td><td><code translate="no">ip -br address</code></td><td>Endereço e prefixo por interface</td></tr><tr><td><code translate="no">Get-NetRoute</code></td><td><code translate="no">ip route</code> e <code translate="no">ip -6 route</code></td><td>Rotas IPv4 e IPv6, separadamente</td></tr><tr><td><code translate="no">Get-NetTCPConnection</code></td><td><code translate="no">ss -tn</code> e <code translate="no">ss -ltn</code></td><td>Conexões e atendimentos TCP</td></tr><tr><td><code translate="no">Get-NetUDPEndpoint</code></td><td><code translate="no">ss -uan</code></td><td>Sockets UDP; não há o estabelecimento do TCP</td></tr><tr><td><code translate="no">Test-NetConnection -Port</code></td><td>Cliente do protocolo, como <code translate="no">curl</code> para HTTP</td><td>Conectar à porta é diferente de concluir a operação</td></tr><tr><td><code translate="no">ping -4</code> e <code translate="no">ping -6</code></td><td><code translate="no">ping -4</code> e <code translate="no">ping -6</code></td><td>Escolher a família explicitamente</td></tr></tbody></table></div>
+<h2 id="4-o-essencial">4 · O essencial</h2>
+<h3 id="ipv4-endereco-e-prefixo-sao-duas-informacoes">IPv4: endereço e prefixo são duas informações</h3>
+<p>Um IPv4 tem 32 bits. O <code translate="no">/24</code> informa quantos bits formam o prefixo. No exemplo <strong>didático</strong> <code translate="no">10.1.0.51/24</code>, os primeiros 24 bits identificam <code translate="no">10.1.0.0/24</code>. Isso equivale à máscara <code translate="no">255.255.255.0</code>. O endereço continua sendo <code translate="no">10.1.0.51</code>.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Exemplo</th><th scope="col">Rede</th><th scope="col">Intervalo da sub-rede</th></tr></thead><tbody><tr><td><code translate="no">10.1.0.51/24</code></td><td><code translate="no">10.1.0.0/24</code></td><td><code translate="no">10.1.0.0</code> a <code translate="no">10.1.0.255</code></td></tr><tr><td><code translate="no">10.1.0.51/26</code></td><td><code translate="no">10.1.0.0/26</code></td><td><code translate="no">10.1.0.0</code> a <code translate="no">10.1.0.63</code></td></tr><tr><td><code translate="no">10.1.0.100/26</code></td><td><code translate="no">10.1.0.64/26</code></td><td><code translate="no">10.1.0.64</code> a <code translate="no">10.1.0.127</code></td></tr></tbody></table></div>
+<p>No <code translate="no">/26</code> tradicional, <code translate="no">.0</code> é a rede e <code translate="no">.63</code> é o broadcast da primeira sub-rede. Restam 62 endereços usuais de host. A conta é diferente para <code translate="no">/31</code> e <code translate="no">/32</code>, usados em situações específicas. As VMs usam <code translate="no">.51</code> e <code translate="no">.52</code>, mas o prefixo real deve ser lido nelas. Não presuma <code translate="no">/24</code> só pelo endereço.</p>
+<figure><a href="../img/11.1-prefixo-muda-bairro.jpg"><img src="../img/11.1-prefixo-muda-bairro.jpg" alt="O prefixo muda o bairro" loading="lazy" decoding="async"></a><figcaption>O mesmo endereço com outro prefixo pode passar a considerar um vizinho como remoto.</figcaption></figure>
+<h3 id="a-rota-escolhe-o-proximo-salto">A rota escolhe o próximo salto</h3>
+<p>No roteamento comum deste lab, o kernel compara o destino com a tabela e prefere a rota de prefixo mais específico. Rotas com o mesmo prefixo são diferenciadas pela preferência e pela métrica. O endereço com prefixo cria normalmente uma rota conectada. Uma rota mais específica muda o próximo salto escolhido. Por isso, calcule a sub-rede e depois confira a decisão real com <code translate="no">ip route get</code>.</p>
+<pre translate="no"><code class="lang-bash">ip -4 route
+ip -6 route
+ip -4 route get 192.0.2.1</code></pre>
+<p>O último comando consulta a decisão local; não envia um pacote ao destino. Leia <code translate="no">dev</code> como interface de saída e <code translate="no">src</code> como origem escolhida. Quando houver <code translate="no">via</code>, ele indica o próximo roteador. Sem uma rota aplicável, a consulta informa que não há caminho. <code translate="no">192.0.2.1</code> é apenas um destino de documentação para essa consulta. Não o configure na placa.</p>
+<h3 id="endereco-privado-nao-e-uma-politica-de-acesso">Endereço privado não é uma política de acesso</h3>
+<p>As faixas privadas IPv4 são <code translate="no">10.0.0.0/8</code>, <code translate="no">172.16.0.0/12</code> e <code translate="no">192.168.0.0/16</code>. Elas não são endereços públicos globais. Isso não impede que outra máquina da rede alcance um serviço. NAT, quando usado, traduz endereços; firewall decide tráfego segundo regras. São tarefas diferentes.</p>
+<h3 id="ipv6-outro-formato-a-mesma-necessidade-de-conferir-o-caminho">IPv6: outro formato, a mesma necessidade de conferir o caminho</h3>
+<p>IPv6 tem 128 bits e usa grupos hexadecimais. Zeros iniciais podem ser omitidos. Uma sequência de grupos zerados pode ser comprimida com <code translate="no">::</code>, uma vez no endereço. <code translate="no">2001:db8:11::51/64</code> é um exemplo de documentação, não um endereço para instalar no lab.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Endereço ou prefixo</th><th scope="col">Significado prático</th></tr></thead><tbody><tr><td><code translate="no">::1</code></td><td>Loopback IPv6, a própria máquina</td></tr><tr><td><code translate="no">fe80::/10</code></td><td>Endereços link-local; o alcance é o enlace</td></tr><tr><td><code translate="no">fc00::/7</code></td><td>Faixa de endereços locais únicos, ULA</td></tr><tr><td><code translate="no">::</code> em um bind de servidor</td><td>Endereço não especificado, usado para atender em endereços locais IPv6</td></tr><tr><td><code translate="no">/64</code></td><td>Comprimento de sub-rede comum em redes IPv6; não é uma regra para todo tipo de enlace</td></tr></tbody></table></div>
+<p>Um endereço link-local pode exigir a indicação da interface, como <code translate="no">%enp6s18</code>, porque o mesmo escopo existe em enlaces diferentes. Ter IPv6 link-local não demonstra que existe rota IPv6 para a internet. Confira IPv4 e IPv6 separadamente: um bind em <code translate="no">::</code> não comprova atendimento IPv4.</p>
+<h3 id="porta-protocolo-e-endereco-de-escuta">Porta, protocolo e endereço de escuta</h3>
+<p>Um número de porta tem 16 bits. TCP e UDP mantêm espaços de portas distintos. <code translate="no">18080/TCP</code> e <code translate="no">18080/UDP</code> não são o mesmo atendimento. O cliente normalmente usa uma porta temporária. O servidor costuma manter uma porta conhecida. Uma conexão TCP é distinguida pelos endereços e pelas portas de origem e destino, dentro do protocolo.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Escuta</th><th scope="col">Quem pode tentar alcançar</th></tr></thead><tbody><tr><td><code translate="no">127.0.0.1:18080</code></td><td>Processos da própria máquina por IPv4</td></tr><tr><td><code translate="no">[::1]:18080</code></td><td>Processos da própria máquina por IPv6</td></tr><tr><td><code translate="no">0.0.0.0:18080</code></td><td>Endereços locais IPv4; o acesso externo ainda depende do caminho e das políticas</td></tr><tr><td><code translate="no">[::]:18080</code></td><td>Endereços locais IPv6; confira separadamente o comportamento IPv4</td></tr></tbody></table></div>
+<p><code translate="no">0.0.0.0</code> é útil para explicar o bind, mas não é o endereço que você entrega ao cliente remoto. No lab, o serviço ficará no loopback. Você não vai publicar uma porta na rede compartilhada.</p>
+<h3 id="tcp-udp-e-icmp-respondem-perguntas-diferentes">TCP, UDP e ICMP respondem perguntas diferentes</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Protocolo</th><th scope="col">O que oferece</th><th scope="col">O que não promete</th></tr></thead><tbody><tr><td>TCP</td><td>Fluxo de bytes ordenado, com estabelecimento e mecanismos de retransmissão</td><td>Que a aplicação concluiu a operação; criptografia automática</td></tr><tr><td>UDP</td><td>Datagramas, sem estabelecimento obrigatório nem garantia própria de entrega ou ordem</td><td>Que um envio aceito pelo sistema chegou ao servidor</td></tr><tr><td>ICMP e ICMPv6</td><td>Controle, mensagens de erro e testes como Echo</td><td>Que uma porta TCP ou UDP atende</td></tr></tbody></table></div>
+<p>O estabelecimento TCP começa com <code translate="no">SYN</code>, <code translate="no">SYN-ACK</code> e <code translate="no">ACK</code> no caso usual. Um reconhecimento TCP não confirma que a aplicação gravou um arquivo ou aceitou um login. UDP não significa aplicação sem confiabilidade: a aplicação pode implementar confirmações e retransmissões. ICMP não usa portas TCP/UDP. Bloquear todo ICMPv6 também pode quebrar funções básicas do IPv6.</p>
+<figure><a href="../img/11.1-tres-protocolos.jpg"><img src="../img/11.1-tres-protocolos.jpg" alt="Três protocolos, três perguntas" loading="lazy" decoding="async"></a><figcaption>Ping, conexão TCP e resposta da aplicação são evidências diferentes.</figcaption></figure>
+<h3 id="rocky-debian">Rocky × Debian</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Item</th><th scope="col">Rocky 9, VM 201</th><th scope="col">Debian 13, VM 202</th></tr></thead><tbody><tr><td>Acesso do curso</td><td><code translate="no">ssh rocky-lab</code>, IP <code translate="no">10.1.0.51</code></td><td><code translate="no">ssh debian-lab</code>, IP <code translate="no">10.1.0.52</code></td></tr><tr><td>Pacote de <code translate="no">ip</code> e <code translate="no">ss</code></td><td><code translate="no">iproute</code></td><td><code translate="no">iproute2</code></td></tr><tr><td>Pacote de <code translate="no">ping</code></td><td><code translate="no">iputils</code></td><td><code translate="no">iputils-ping</code></td></tr><tr><td>Ferramentas do teste local</td><td><code translate="no">python3</code> e <code translate="no">curl</code></td><td><code translate="no">python3</code> e <code translate="no">curl</code></td></tr><tr><td>Gerência persistente</td><td>NetworkManager, Aula 11.2</td><td>Confira o gerenciador instalado; Aula 11.3</td></tr><tr><td>Nome da placa</td><td>Confira com <code translate="no">ip -br link</code>; costuma ser <code translate="no">enp6s18</code></td><td>Confira do mesmo modo; não copie o nome às cegas</td></tr><tr><td><code translate="no">ip</code> e <code translate="no">ss</code> neste lab</td><td>Mesma sintaxe</td><td>Mesma sintaxe</td></tr></tbody></table></div>
+<h2 id="5-lab-guiado">5 · Lab guiado</h2>
+<p>Faça a sequência inteira primeiro na <code translate="no">rocky-lab</code> e depois na <code translate="no">debian-lab</code>, como <code translate="no">student</code>. Abra três sessões para a VM em teste: A para o servidor TCP, B para os clientes e C para o servidor UDP. Não misture a janela A de uma VM com a B da outra: loopback sempre aponta para a máquina onde você está.</p>
+<p><strong>Antes de qualquer alteração futura de IP:</strong> use o console noVNC do Proxmox ou um plano de volta testado. Trocar o endereço usado pelo SSH pode derrubar a sessão. Hoje você só lê a placa real e cria serviços locais temporários. Não altere firewall, SELinux, gateway ou DHCP. Não crie um servidor DHCP na <code translate="no">vmbr0</code>.</p>
+<p><strong>Passo 0 · Guardar o ponto de volta.</strong> No console do nó Proxmox que hospeda cada VM:</p>
+<p><strong>Palpite:</strong> estes comandos guardam também a memória da VM ligada, ou apenas discos e configuração?</p>
+<pre translate="no"><code class="lang-bash">qm snapshot 201 m11a1-inicio
+qm snapshot 202 m11a1-inicio
+qm listsnapshot 201
+qm listsnapshot 202</code></pre>
+<p><strong>Saída esperada:</strong> a criação termina sem erro e a lista contém <code translate="no">m11a1-inicio</code>. Sem <code translate="no">--vmstate</code>, estes comandos não guardam a memória da VM ligada.</p>
+<p><strong>Verifique:</strong> se qualquer snapshot falhar, pare e resolva isso antes do lab. Não rode <code translate="no">qm</code> dentro das VMs.</p>
+<p><strong>Passo 1 · Preparar as ferramentas.</strong> Entre pela chave com <code translate="no">ssh rocky-lab</code> ou <code translate="no">ssh debian-lab</code>.</p>
+<p><strong>Palpite:</strong> mudar o nome do pacote entre as distros muda também a função de <code translate="no">ip</code> e <code translate="no">ss</code>?</p>
+<pre translate="no"><code class="lang-bash"># Rocky 9 only
+sudo dnf install -y iproute iputils python3 curl
+# Debian 13 only
+sudo apt update
+sudo apt install -y iproute2 iputils-ping python3 curl</code></pre>
+<p><strong>Saída esperada:</strong> instalação concluída ou pacotes já presentes. Execute só as linhas da sua distro.</p>
+<p><strong>Verifique:</strong> <code translate="no">command -v ip ss ping python3 curl</code> deve localizar os cinco programas; <code translate="no">id -un</code> deve mostrar <code translate="no">student</code>. Essas instalações precisam de repositórios acessíveis. Se falharem, registre a mensagem e não avance sem as ferramentas.</p>
+<p><strong>Passo 2 · Fazer o inventário de endereço e rota.</strong> Na janela B:</p>
+<p><strong>Palpite:</strong> qual é o endereço da VM, seu prefixo e a interface de saída?</p>
+<pre translate="no"><code class="lang-bash">hostname
+ip -br link
+ip -br address
+ip -4 route
+ip -6 route
+ip -4 route get 192.0.2.1</code></pre>
+<p><strong>Saída esperada:</strong> seu hostname, interfaces e rotas reais. A consulta final mostra uma rota aplicável ou informa que não há caminho.</p>
+<p><strong>Verifique:</strong> registre endereço, prefixo, interface, próximo salto e origem escolhida, sem preencher dados por suposição. Na Rocky, consulte também <code translate="no">ip -4 route get 10.1.0.52</code>; no Debian, <code translate="no">ip -4 route get 10.1.0.51</code>. Compare a saída direta com uma saída que usa <code translate="no">via</code>, se existir.</p>
+<p><strong>Passo 3 · Calcular sem mudar a placa.</strong> Ainda na janela B:</p>
+<p><strong>Palpite:</strong> <code translate="no">10.1.0.52</code> pertence à rede de <code translate="no">10.1.0.51/26</code>? E <code translate="no">10.1.0.100</code>?</p>
+<pre translate="no"><code class="lang-bash">python3 - &lt;&lt;'PY'
+import ipaddress
+net = ipaddress.ip_network('10.1.0.51/26', strict=False)
+print(net, net.netmask, net.broadcast_address)
+for value in ('10.1.0.52', '10.1.0.100'):
+    print(value, ipaddress.ip_address(value) in net)
+PY</code></pre>
+<p><strong>Saída esperada:</strong> <code translate="no">10.1.0.0/26 255.255.255.192 10.1.0.63</code>, depois <code translate="no">.52</code> com <code translate="no">True</code> e <code translate="no">.100</code> com <code translate="no">False</code>.</p>
+<p><strong>Verifique:</strong> faça a conta em blocos de 64 endereços e compare. Esse programa calcula exemplos; não configura nenhum endereço.</p>
+<p><strong>Passo 4 · Separar loopback e ICMP.</strong> Na janela B:</p>
+<p><strong>Palpite:</strong> o teste precisa da placa virtual, do gateway ou da internet?</p>
+<pre translate="no"><code class="lang-bash">ip -4 address show dev lo
+ip -6 address show dev lo
+ping -4 -c 2 -W 2 127.0.0.1
+ping -6 -c 2 -W 2 ::1</code></pre>
+<p><strong>Saída esperada:</strong> os endereços de loopback e respostas locais. Tempos e identificadores variam; não compare números com uma captura pronta.</p>
+<p><strong>Verifique:</strong> explique por que isso não comprova a saída da VM. Se <code translate="no">::1</code> não existir ou IPv6 estiver indisponível, registre essa condição e pule o Passo 7 e a Quebra 2; não mude <code translate="no">sysctl</code> para esconder a diferença.</p>
+<p><strong>Passo 5 · Abrir um atendimento TCP restrito.</strong> Na janela B, confira antes as portas usadas pelo lab e pelas quebras:</p>
+<p><strong>Palpite:</strong> um serviço ligado a <code translate="no">127.0.0.1</code> vai aparecer em <code translate="no">0.0.0.0</code>?</p>
+<pre translate="no"><code class="lang-bash">ss -ltn 'sport = :18080'
+ss -ltn 'sport = :18082'
+ss -lun 'sport = :18080'
+ss -lun 'sport = :18081'
+mkdir -m 0700 "$HOME/m11a1" &amp;&amp; printf 'TCP ok\n' &gt; "$HOME/m11a1/index.html"</code></pre>
+<p><strong>Saída esperada:</strong> só o cabeçalho dos filtros, pasta criada e arquivo gravado. Se houver uma linha de socket ou a pasta já existir, pare e investigue antes de usar esses recursos.</p>
+<p><strong>Verifique:</strong> <code translate="no">cat "$HOME/m11a1/index.html"</code> mostra <code translate="no">TCP ok</code>. Na janela A da mesma VM, deixe o comando abaixo em primeiro plano:</p>
+<pre translate="no"><code class="lang-bash">python3 -m http.server 18080 --bind 127.0.0.1 --directory "$HOME/m11a1"</code></pre>
+<p><strong>Saída esperada:</strong> algo como <code translate="no">Serving HTTP on 127.0.0.1 port 18080</code>. Se houver <code translate="no">Address already in use</code>, não mate o processo desconhecido.</p>
+<p><strong>Verifique:</strong> na B, <code translate="no">ss -ltnp 'sport = :18080'</code> deve mostrar <code translate="no">LISTEN</code> em <code translate="no">127.0.0.1:18080</code> e o processo, quando visível. A janela A fica ocupada pelo servidor; não digite o cliente nela.</p>
+<p><strong>Passo 6 · Pedir e receber pela aplicação.</strong> Na janela B:</p>
+<p><strong>Palpite:</strong> qual protocolo, endereço e porta o cliente vai usar? Qual texto deve receber?</p>
+<pre translate="no"><code class="lang-bash">curl --noproxy '*' --connect-timeout 2 --max-time 4 -fsS http://127.0.0.1:18080/
+echo $?
+ss -tn state established</code></pre>
+<p><strong>Saída esperada:</strong> <code translate="no">TCP ok</code> e código <code translate="no">0</code>. A conexão HTTP pode já ter terminado quando você roda <code translate="no">ss</code>; não precisa aparecer em <code translate="no">ESTAB</code>.</p>
+<p><strong>Verifique:</strong> a janela A registra o pedido. <code translate="no">--noproxy '*'</code> evita que um proxy do ambiente desvie esse teste local. Você comprovou uma resposta HTTP, além do atendimento TCP.</p>
+<p><strong>Passo 7 · Repetir por IPv6.</strong> Só se <code translate="no">::1</code> funcionou. Na janela A, pressione <code translate="no">Ctrl+C</code> para encerrar o servidor IPv4.</p>
+<p><strong>Palpite:</strong> mudar o endereço do bind altera o prefixo ou o gateway da placa real?</p>
+<pre translate="no"><code class="lang-bash">python3 -m http.server 18080 --bind ::1 --directory "$HOME/m11a1"</code></pre>
+<p><strong>Saída esperada:</strong> o servidor atende em <code translate="no">::1</code>. Na janela B:</p>
+<pre translate="no"><code class="lang-bash">ss -6 -ltn 'sport = :18080'
+curl --noproxy '*' --connect-timeout 2 --max-time 4 -gfsS 'http://[::1]:18080/'</code></pre>
+<p><strong>Verifique:</strong> o socket IPv6 e o texto <code translate="no">TCP ok</code>. Os colchetes separam o endereço IPv6 da porta na URL. Depois, na A, encerre com <code translate="no">Ctrl+C</code> e rode novamente o comando do Passo 5, com <code translate="no">--bind 127.0.0.1</code>; confirme o bind na B antes de continuar.</p>
+<p><strong>Passo 8 · Fazer uma pergunta UDP de verdade.</strong> Na janela B, crie um pequeno respondedor de laboratório:</p>
+<p><strong>Palpite:</strong> um envio UDP bem-sucedido basta para afirmar que houve resposta?</p>
+<pre translate="no"><code class="lang-bash">cat &gt; "$HOME/m11a1/udp_echo.py" &lt;&lt;'PY'
+import socket
+with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as server:
+    server.bind(('127.0.0.1', 18081))
+    print('UDP ready', flush=True)
+    while True:
+        data, peer = server.recvfrom(1024)
+        if data == b'PING':
+            server.sendto(b'PONG', peer)
+PY</code></pre>
+<p><strong>Saída esperada:</strong> nenhuma mensagem ao gravar o arquivo. Na janela C, execute <code translate="no">python3 "$HOME/m11a1/udp_echo.py"</code>; deve aparecer <code translate="no">UDP ready</code>. Deixe esse processo em primeiro plano.</p>
+<p><strong>Verifique:</strong> na B, <code translate="no">ss -lunp 'sport = :18081'</code> mostra o socket UDP local, normalmente em <code translate="no">UNCONN</code>, sem o <code translate="no">LISTEN</code> do TCP. Então rode:</p>
+<pre translate="no"><code class="lang-bash">python3 - &lt;&lt;'PY'
+import socket
+with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as client:
+    client.settimeout(2)
+    client.sendto(b'PING', ('127.0.0.1', 18081))
+    print(client.recvfrom(1024)[0].decode())
+PY</code></pre>
+<p><strong>Saída esperada:</strong> <code translate="no">PONG</code>.</p>
+<p><strong>Verifique:</strong> você esperou uma resposta da aplicação; o programa não declarou sucesso só por enviar. O código serve apenas como ferramenta local; a aula não exige aprender Python.</p>
+<h3 id="decida-1">Decida 1</h3>
+<p>O ping responde, mas a aplicação não abre. Qual próximo teste traz evidência útil?</p>
+<p>A) Trocar o gateway. B) Conferir endereço, protocolo e porta com <code translate="no">ss</code> e um cliente da aplicação. C) Desligar o firewall.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se você marcou</th><th scope="col">Resultado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>A</td><td>Sem justificativa</td><td>O ping não apontou um erro no gateway</td></tr><tr><td>B</td><td>Certo</td><td>Você confere o atendimento e testa a operação</td></tr><tr><td>C</td><td>Perigoso</td><td>Você muda a política antes de localizar a falha</td></tr></tbody></table></div>
+<h3 id="decida-2">Decida 2</h3>
+<p>O serviço está em <code translate="no">127.0.0.1:18080</code>. Você quer acessá-lo de outra máquina. O que explica a falha inicial?</p>
+<p>A) O bind é local à própria VM. B) Falta liberar ICMP. C) Toda porta acima de <code translate="no">1024</code> só funciona localmente.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se você marcou</th><th scope="col">Resultado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>A</td><td>Certo</td><td>Loopback não publica o serviço na placa da VM</td></tr><tr><td>B</td><td>Incorreto</td><td>Resposta ICMP não muda o endereço de escuta TCP</td></tr><tr><td>C</td><td>Incorreto</td><td>A restrição deste teste vem do bind, não desse intervalo de portas</td></tr></tbody></table></div>
+<h2 id="6-quebre-e-conserte">6 · Quebre e conserte</h2>
+<p>Faça as três quebras nas duas VMs. Mantenha A atendendo em <code translate="no">127.0.0.1:18080</code> por TCP e C em <code translate="no">127.0.0.1:18081</code> por UDP. Cada erro abaixo está no pedido do cliente, sem derrubar sua conexão SSH.</p>
+<h3 id="quebra-1-o-numero-da-porta-esta-errado">Quebra 1 · O número da porta está errado</h3>
+<p><strong>Palpite:</strong> o ping vai mudar quando você errar a porta do HTTP?</p>
+<pre translate="no"><code class="lang-bash">ping -4 -c 1 -W 2 127.0.0.1
+curl --noproxy '*' --connect-timeout 2 --max-time 4 -fsS http://127.0.0.1:18082/
+echo $?
+ss -ltn 'sport = :18080'
+ss -ltn 'sport = :18082'</code></pre>
+<p><strong>Sintoma:</strong> o ping responde, mas o pedido HTTP à porta <code translate="no">18082</code> falha com código <code translate="no">7</code>. A mensagem do <code translate="no">curl</code> informa que não conseguiu conectar.</p>
+<p><strong>Investigação:</strong> compare as duas consultas de <code translate="no">ss</code>: há um atendimento em <code translate="no">18080</code> e nenhum em <code translate="no">18082</code>.</p>
+<p><strong>Causa:</strong> o cliente pediu a porta errada. O ICMP do ping não verifica portas TCP.</p>
+<p><strong>Conserto:</strong> repita o <code translate="no">curl</code> do Passo 6, com <code translate="no">18080</code>.</p>
+<p><strong>Verifique:</strong> <code translate="no">TCP ok</code> e código <code translate="no">0</code>.</p>
+<p><strong>Prevenção:</strong> registre destino, protocolo e porta junto com a configuração da aplicação. Não aceite "o servidor responde" como diagnóstico completo.</p>
+<h3 id="quebra-2-a-familia-esta-errada">Quebra 2 · A família está errada</h3>
+<p><strong>Palpite:</strong> a presença de <code translate="no">::1</code> obriga um servidor ligado a <code translate="no">127.0.0.1</code> a responder em IPv6?</p>
+<pre translate="no"><code class="lang-bash">curl --noproxy '*' --connect-timeout 2 --max-time 4 -gfsS 'http://[::1]:18080/'
+ss -4 -ltn 'sport = :18080'
+ss -6 -ltn 'sport = :18080'</code></pre>
+<p><strong>Sintoma:</strong> o pedido IPv6 falha. Execute esta quebra com o servidor restaurado para IPv4 após o Passo 7.</p>
+<p><strong>Investigação:</strong> a consulta <code translate="no">ss -4</code> mostra o atendimento; a consulta <code translate="no">ss -6</code> não mostra nenhum.</p>
+<p><strong>Causa:</strong> o cliente pediu <code translate="no">::1</code>, mas o processo atende em <code translate="no">127.0.0.1</code>. São famílias diferentes.</p>
+<p><strong>Conserto:</strong> use a URL IPv4 do Passo 6.</p>
+<p><strong>Verifique:</strong> a resposta volta sem alterar rota ou firewall.</p>
+<p><strong>Prevenção:</strong> teste IPv4 e IPv6 separadamente quando ambos fizerem parte do requisito. Se IPv6 estava indisponível no Passo 4, registre essa condição em vez de executar esta quebra.</p>
+<h3 id="quebra-3-o-numero-coincide-o-protocolo-nao">Quebra 3 · O número coincide, o protocolo não</h3>
+<p><strong>Palpite:</strong> o servidor HTTP responde a um datagrama UDP só porque a porta é <code translate="no">18080</code>?</p>
+<pre translate="no"><code class="lang-bash">python3 - &lt;&lt;'PY'
+import socket
+with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as client:
+    client.settimeout(2)
+    client.connect(('127.0.0.1', 18080))
+    client.send(b'PING')
+    try:
+        print(client.recv(1024).decode())
+    except OSError as error:
+        print(type(error).__name__)
+PY
+ss -ltn 'sport = :18080'
+ss -lun 'sport = :18080'
+ss -lun 'sport = :18081'</code></pre>
+<p><strong>Sintoma:</strong> o cliente imprime <code translate="no">ConnectionRefusedError</code>. Sem ouvinte UDP em <code translate="no">127.0.0.1:18080</code>, o kernel devolve ICMP de porta inalcançável; não há <code translate="no">PONG</code>.</p>
+<p><strong>Investigação:</strong> <code translate="no">ss</code> mostra TCP em <code translate="no">18080</code>, nenhum UDP em <code translate="no">18080</code> e UDP em <code translate="no">18081</code>.</p>
+<p><strong>Causa:</strong> o cliente enviou um datagrama ao número usado pelo HTTP/TCP. O <code translate="no">connect</code> do socket UDP só define o destino; não faz o estabelecimento do TCP.</p>
+<p><strong>Conserto:</strong> repita o cliente UDP do Passo 8, direcionado a <code translate="no">18081</code>.</p>
+<p><strong>Verifique:</strong> <code translate="no">PONG</code> comprova a resposta do respondedor.</p>
+<p><strong>Prevenção:</strong> escreva <code translate="no">18080/TCP</code> ou <code translate="no">18081/UDP</code>, nunca apenas "porta aberta".</p>
+<figure><a href="../img/11.1-mesmo-numero-outro-protocolo.jpg"><img src="../img/11.1-mesmo-numero-outro-protocolo.jpg" alt="Mesmo número, outro atendimento" loading="lazy" decoding="async"></a><figcaption>Uma porta TCP não atende um pedido UDP só porque o número coincide.</figcaption></figure>
+<h3 id="limpeza">Limpeza</h3>
+<p><strong>Palpite:</strong> encerrar os dois processos apaga os endereços da placa da VM?</p>
+<p>Na janela A e na C, pressione <code translate="no">Ctrl+C</code>. Não use um <code translate="no">kill</code> por nome que possa encerrar outro serviço. Na janela B, confira e apague apenas os arquivos que esta aula criou:</p>
+<pre translate="no"><code class="lang-bash">ss -ltn 'sport = :18080'
+ss -lun 'sport = :18081'
+rm -- "$HOME/m11a1/index.html" "$HOME/m11a1/udp_echo.py"
+rmdir -- "$HOME/m11a1"
+ip -br address</code></pre>
+<p><strong>Saída esperada:</strong> nenhum atendimento nas portas do lab; arquivos e pasta removidos.</p>
+<p><strong>Verifique:</strong> os endereços reais continuam iguais ao inventário. Se <code translate="no">rmdir</code> recusar por haver outro arquivo, inspecione a pasta; não apague recursivamente.</p>
+<h2 id="7-armadilhas">7 · Armadilhas</h2>
+<div class="tabela"><table><thead><tr><th scope="col">Erro comum</th><th scope="col">O que fazer</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>Chamar <code translate="no">/24</code> de parte do endereço do host</td><td>Separar endereço e prefixo</td><td>O prefixo descreve a rede</td></tr><tr><td>Deduzir o prefixo pelos três primeiros números</td><td>Ler a configuração real</td><td>A sub-rede pode ser <code translate="no">/26</code>, <code translate="no">/23</code> ou outra</td></tr><tr><td>Usar ping como teste de aplicação</td><td>Fazer um pedido do protocolo esperado</td><td>ICMP não verifica uma porta TCP/UDP</td></tr><tr><td>Chamar <code translate="no">UNCONN</code> de falha no UDP</td><td>Ler protocolo e bind</td><td>Não existe o estabelecimento obrigatório do TCP</td></tr><tr><td>Declarar a porta livre sem olhar</td><td>Consultar <code translate="no">ss</code> antes do bind</td><td>Outro processo pode ser o dono</td></tr><tr><td>Testar IPv6 e conferir só IPv4</td><td>Usar <code translate="no">ss -4</code> e <code translate="no">ss -6</code></td><td>Você pode estar olhando outro atendimento</td></tr><tr><td>Usar <code translate="no">http.server</code> para publicar dados</td><td>Manter só o diretório de teste e o bind local</td><td>É uma ferramenta simples de laboratório, não um servidor de produção</td></tr><tr><td>Trocar IP pela sessão SSH sem volta</td><td>Usar noVNC ou um plano testado</td><td>A sessão depende do endereço e do caminho que você altera</td></tr></tbody></table></div>
+<h2 id="8-quiz">8 · Quiz</h2>
+<p>Responda sem abrir a cola. Justifique cada resposta com uma evidência.</p>
+<ol><li>Qual é a rede de <code translate="no">10.1.0.100/26</code>? <code translate="no">10.1.0.51</code> pertence a ela?</li>
+<li>O que o <code translate="no">ip route get</code> mostra? Ele envia um pacote ao destino?</li>
+<li>Por que <code translate="no">ping 127.0.0.1</code> pode funcionar com a placa virtual desconectada?</li>
+<li>O que muda entre <code translate="no">127.0.0.1:18080</code> e <code translate="no">[::1]:18080</code>?</li>
+<li>Um <code translate="no">sendto</code> UDP terminou sem erro. Você pode afirmar que a aplicação respondeu?</li>
+<li>O HTTP respondeu <code translate="no">TCP ok</code>. O que esse teste comprovou além de existir um socket em <code translate="no">LISTEN</code>?</li></ol>
+<h2 id="9-cola">9 · Cola</h2>
+<div class="tabela"><table><thead><tr><th scope="col">Tarefa</th><th scope="col">Comando</th></tr></thead><tbody><tr><td>Resumir endereços</td><td><code translate="no">ip -br address</code></td></tr><tr><td>Ver rotas IPv4</td><td><code translate="no">ip -4 route</code></td></tr><tr><td>Ver rotas IPv6</td><td><code translate="no">ip -6 route</code></td></tr><tr><td>Consultar caminho, sem transmitir</td><td><code translate="no">ip -4 route get 192.0.2.1</code></td></tr><tr><td>Ver atendimentos TCP numéricos</td><td><code translate="no">ss -ltn</code></td></tr><tr><td>Ver sockets UDP locais</td><td><code translate="no">ss -lun</code></td></tr><tr><td>Filtrar uma porta TCP</td><td><code translate="no">ss -ltnp 'sport = :18080'</code></td></tr><tr><td>Separar famílias</td><td><code translate="no">ss -4 -ltn</code> e <code translate="no">ss -6 -ltn</code></td></tr><tr><td>Ver conexões TCP</td><td><code translate="no">ss -tn state established</code></td></tr><tr><td>Testar ICMP local</td><td><code translate="no">ping -4 -c 2 127.0.0.1</code> e <code translate="no">ping -6 -c 2 ::1</code></td></tr><tr><td>Ver detalhes da interface real</td><td><code translate="no">ip address show dev enp6s18</code>, se esse for o nome observado</td></tr></tbody></table></div>
+<p><strong>Flashcards:</strong> endereço → <em>destino</em>; prefixo → <em>rede</em>; rota → <em>caminho</em>; porta e protocolo → <em>atendimento</em>; loopback → <em>esta máquina</em>; ping → <em>ICMP, não aplicação</em>. Revise em D+1, D+3, D+7 e D+21. Refaça uma quebra sem consultar e explique qual hipótese cada comando elimina.</p>
+<h2 id="10-checklist-e-fechamento">10 · Checklist e fechamento</h2>
+<ul><li>[ ] Leio endereço e prefixo sem confundir as duas informações</li>
+<li>[ ] Calculo os exemplos <code translate="no">/24</code> e <code translate="no">/26</code> e confiro no cálculo local</li>
+<li>[ ] Distingo destino final, próximo salto e interface de saída</li>
+<li>[ ] Reconheço <code translate="no">127.0.0.1</code>, <code translate="no">::1</code> e link-local IPv6</li>
+<li>[ ] Confiro família, endereço, protocolo e porta antes de mudar uma configuração</li>
+<li>[ ] Distingo <code translate="no">LISTEN</code>, envio UDP e resposta da aplicação</li>
+<li>[ ] Fiz as três quebras nas duas distros, ou registrei a indisponibilidade de IPv6</li>
+<li>[ ] Encerrei os dois servidores temporários e removi os arquivos do lab</li></ul>
+<p><strong>Último exercício:</strong> sem consultar, explique por que o ping da Quebra 1 respondeu, o HTTP falhou e o UDP da Quebra 3 não recebeu <code translate="no">PONG</code>. Anote um teste que distinguiria cada causa.</p>
+<p><strong>Reboot de conferência:</strong> a limpeza já deve ter terminado. Em cada VM, rode <code translate="no">sudo systemctl reboot</code>; a sessão SSH vai cair. Acompanhe pelo noVNC, reconecte pelo alias e confira <code translate="no">ip -br address</code>, <code translate="no">ss -ltn 'sport = :18080'</code> e <code translate="no">ss -lun 'sport = :18081'</code>. Nenhum serviço do exercício deve voltar sozinho.</p>
+<p><strong>Snapshot de fim</strong>, no nó Proxmox de cada VM, depois de conferir o retorno:</p>
+<pre translate="no"><code class="lang-bash">qm snapshot 201 m11a1-fim
+qm snapshot 202 m11a1-fim</code></pre>
+<p>Na Aula 11.2 você passa da leitura para a configuração persistente com NetworkManager. O Desafio do M11 fica na última aula do módulo.</p>
+<h2 id="11-na-vida-real">11 · Na vida real</h2>
+<p><strong>Missão, só leitura.</strong> Em um servidor que você administre ou tenha autorização para observar, rode apenas os comandos abaixo. Não abra servidores de teste, não instale pacotes e não mude configuração nessa missão.</p>
+<pre translate="no"><code class="lang-bash">ip -br link
+ip -br address
+ip -4 route
+ip -6 route
+ss -ltn
+ss -lun</code></pre>
+<ol><li>Quais endereços e prefixos existem na interface de serviço?</li>
+<li>Quais atendimentos estão limitados ao loopback e quais usam outros endereços locais?</li>
+<li>Existe rota padrão IPv4? E IPv6? O que a ausência de uma delas permite concluir?</li>
+<li>Escolha um atendimento conhecido e registre família, endereço, protocolo e porta. Você tem evidência do funcionamento da aplicação, ou só do socket?</li></ol>
+<p>Não copie saídas com endereços e nomes internos para um serviço externo. Registre apenas o necessário no diário autorizado.</p>
+<h2 id="12-aprofundar-quando-quiser">12 · Aprofundar quando quiser</h2>
+<ul><li><a href="https://manpages.debian.org/trixie/iproute2/ip-address.8.en.html"><code translate="no">man ip-address</code></a>: endereços, prefixos e escopos.</li>
+<li><a href="https://manpages.debian.org/trixie/iproute2/ip-route.8.en.html"><code translate="no">man ip-route</code></a>: rotas e consulta com <code translate="no">get</code>.</li>
+<li><a href="https://manpages.debian.org/trixie/iproute2/ss.8.en.html"><code translate="no">man ss</code></a>: filtros, famílias e estados de sockets.</li>
+<li><a href="https://manpages.debian.org/trixie/iputils-ping/ping.8.en.html"><code translate="no">man ping</code></a>: ICMP e escolha de IPv4 ou IPv6.</li>
+<li><a href="https://man7.org/linux/man-pages/man7/udp.7.html"><code translate="no">man udp</code></a>: datagramas, destino do socket e recusa quando não há ouvinte.</li>
+<li><a href="https://docs.python.org/3.9/library/http.server.html">Documentação de <code translate="no">http.server</code></a>: opções <code translate="no">--bind</code> e <code translate="no">--directory</code>; uso restrito ao lab.</li>
+<li><a href="https://curl.se/docs/manpage.html">Manual do <code translate="no">curl</code></a>: <code translate="no">--noproxy</code>, limites de tempo e URLs IPv6.</li></ul>
+<p><strong>DeepTutor</strong> (http://10.1.0.149:3782, KB "Curso Linux Sysadmin"):</p>
+<ul><li><code translate="no">!explica endereço, prefixo, rota, protocolo e porta com a metáfora da entrega ao prédio</code></li>
+<li><code translate="no">!feynman respondi ao ping, mas o HTTP falhou: critique minha explicação separando ICMP, TCP e aplicação</code></li>
+<li><code translate="no">!quiz Aula 11.1, 6 perguntas sobre IPv4, IPv6, prefixos, TCP, UDP e ICMP, uma por vez</code></li></ul>
+<h2 id="gabarito-comentado">Gabarito comentado</h2>
+<h3 id="aquecimento">Aquecimento</h3>
+<ol><li><code translate="no">ip -br address</code>. Ele resume a configuração; não troca endereços. Leia também o prefixo, não apenas o IP.</li>
+<li>Não por aquele bind. <code translate="no">127.0.0.1</code> é loopback; outra máquina precisa de um atendimento em endereço alcançável e de um caminho permitido.</li>
+<li>Não. O estado da unidade não informa sozinho o bind. Consulte <code translate="no">ss</code> e associe endereço, protocolo, porta e processo quando disponível.</li></ol>
+<h3 id="quiz">Quiz</h3>
+<ol><li><code translate="no">10.1.0.64/26</code>. O intervalo termina em <code translate="no">.127</code>; <code translate="no">.51</code> está na sub-rede anterior. Isso é cálculo de sub-rede, não uma leitura das rotas instaladas.</li>
+<li>Mostra a decisão de roteamento local para o destino, considerando os parâmetros fornecidos. A consulta não transmite um pacote para testar o caminho.</li>
+<li>O destino está na própria máquina. O teste usa loopback, sem precisar sair pela placa ou passar pelo gateway.</li>
+<li>A família e o endereço de destino: IPv4 em um caso, IPv6 no outro. O mesmo número de porta não cria automaticamente um atendimento nas duas famílias.</li>
+<li>Não. O sistema aceitou o envio; isso não confirma entrega, processamento nem resposta. No lab, só o recebimento de <code translate="no">PONG</code> demonstrou a resposta do respondedor.</li>
+<li>Houve uma conexão TCP e uma operação HTTP que devolveu o conteúdo esperado naquele endereço e porta. Isso não demonstra acesso remoto, autenticação de outro serviço ou funcionamento geral da rede.</li></ol>
+<p><a href="10.4-sudo-de-verdade.html">← Aula 10.4 · sudo de verdade</a> · <a href="index.html">Índice de aulas</a> · <a href="11.2-networkmanager-e-nmcli.html">Aula 11.2 · NetworkManager e nmcli →</a></p>
+</article><nav class="paginas" aria-label="Aulas"><a class="ant" href="10.4-sudo-de-verdade.html"><small>← Anterior</small>10.4 · sudo de verdade</a><a class="prox" href="11.2-networkmanager-e-nmcli.html"><small>Próxima →</small>11.2 · NetworkManager e nmcli</a></nav></main></div>
+<footer><div class="wrap">Gerado a partir do Markdown do curso · Imagens em <code translate="no">img/</code></div></footer>
+</body>
+</html>

@@ -94,6 +94,16 @@ CATALOGO = [
         ("9.6-lvm", "LVM", "LVM"),
         ("9.7-crescer-sem-destruir", "Crescer sem destruir", "Crescere senza distruggere"),
     ]),
+    ("M10", "Usuários e acesso privilegiado", "Utenti e accesso privilegiato", [
+        ("10.1-contas", "Contas", "Account"),
+        ("10.2-senhas-e-validade", "Senhas e validade", "Password e scadenza"),
+        ("10.3-grupos-e-trabalho-em-equipe", "Grupos e trabalho em equipe", "Gruppi e lavoro di squadra"),
+        ("10.4-sudo-de-verdade", "sudo de verdade", "sudo sul serio"),
+    ]),
+    ("M11", "Rede", "Rete", [
+        ("11.1-tcp-ip-para-quem-administra", "TCP/IP para quem administra", "TCP/IP per chi amministra"),
+        ("11.2-networkmanager-e-nmcli", "NetworkManager e nmcli", "NetworkManager e nmcli"),
+    ]),
 ]
 
 TEXTOS = {
