@@ -103,6 +103,7 @@ CATALOGO = [
     ("M11", "Rede", "Rete", [
         ("11.1-tcp-ip-para-quem-administra", "TCP/IP para quem administra", "TCP/IP per chi amministra"),
         ("11.2-networkmanager-e-nmcli", "NetworkManager e nmcli", "NetworkManager e nmcli"),
+        ("11.3-rede-no-debian", "Rede no Debian", "Rete su Debian"),
     ]),
 ]
 

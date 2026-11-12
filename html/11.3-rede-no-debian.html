@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light dark">
+<title>11.3 · Rede no Debian · Curso Linux Sysadmin</title>
+<link rel="alternate" hreflang="pt-BR" href="11.3-rede-no-debian.html"><link rel="alternate" hreflang="it" href="11.3-rede-no-debian.it.html">
+<style>
+:root{color-scheme:light dark;--bg:#f6f1e7;--card:#fffdf8;--ink:#201c16;--muted:#5e564a;--accent:#9a3412;--accent-2:#1f5f4a;--tint:#efe6d4;--line:#ddd2bc;--code:#f1eadb;--shadow:0 1px 2px rgba(60,40,10,.08);--serif:Georgia,"Iowan Old Style","Palatino Linotype",Palatino,serif;--sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--mono:"Cascadia Code",Consolas,"DejaVu Sans Mono",monospace}
+@media (prefers-color-scheme:dark){:root{--bg:#16130f;--card:#201b15;--ink:#f1eadb;--muted:#b9ad98;--accent:#f0a070;--accent-2:#7fd0b0;--tint:#2a231a;--line:#3d3427;--code:#191510;--shadow:none}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:5.5rem}
+body{margin:0;background:var(--bg);color:var(--ink);font:1rem/1.6 var(--sans)}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--accent-2);outline-offset:2px;border-radius:4px}
+.pular{position:absolute;left:-999px;top:0;background:var(--card);padding:.5rem 1rem;z-index:20}
+.pular:focus{left:.5rem;top:.5rem}
+.wrap{width:100%;max-width:84rem;margin:0 auto;padding-inline:max(1rem,env(safe-area-inset-left))}
+.top{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10;border-top:6px solid var(--accent)}
+.top-in{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding-block:.6rem}
+.titles{min-width:0}
+.marca{margin:0;font:700 clamp(1.15rem,1rem + 1vw,1.6rem)/1.15 var(--serif);letter-spacing:-.01em}
+.marca a{text-decoration:none}
+.marca a:hover{color:var(--accent)}
+.meta{margin:.1rem 0 0;color:var(--muted);font-size:.85rem}
+.acoes{display:flex;align-items:center;gap:.9rem;flex:none}
+.acoes>a{font-size:.9rem;font-weight:600;color:var(--muted);text-decoration:none}
+.acoes>a:hover{color:var(--accent);text-decoration:underline}
+.idioma{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--tint)}
+.idioma>*{padding:.35rem .9rem;font-size:.8rem;font-weight:700;letter-spacing:.06em;text-decoration:none;color:var(--muted);min-width:2.75rem;text-align:center}
+.idioma a:hover{color:var(--accent);text-decoration:underline}
+.idioma span{background:var(--accent);color:#fff}
+@media (prefers-color-scheme:dark){.idioma span{color:#16130f}}
+code{font-family:var(--mono);font-size:.9em;background:var(--tint);padding:.1rem .35rem;border-radius:4px;overflow-wrap:anywhere}
+/* índice */
+.capa{max-width:70rem;padding-block:2rem 3rem}
+.stats{border-left:4px solid var(--accent-2);background:var(--card);border-radius:0 10px 10px 0;padding:1rem 1.25rem;margin:0 0 2.5rem;box-shadow:var(--shadow);color:var(--muted)}
+.stats strong{color:var(--ink)}
+.modulo{display:grid;grid-template-columns:15rem minmax(0,1fr);gap:1rem 2rem;padding:1.75rem 0;border-top:1px solid var(--line)}
+.modulo h2{margin:0;font:700 1.25rem/1.25 var(--serif);align-self:start;position:sticky;top:6rem}
+.mn{display:block;font:700 .8rem var(--mono);letter-spacing:.12em;color:var(--accent);margin-bottom:.25rem}
+.sep{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.modulo ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,17rem),1fr));gap:.75rem}
+.modulo li{margin:0}
+.modulo a{display:flex;gap:.45rem;align-items:baseline;height:100%;padding:.85rem 1rem;background:var(--card);border:1px solid var(--line);border-radius:10px;text-decoration:none;font-weight:600;line-height:1.35;box-shadow:var(--shadow);transition:border-color .15s,transform .15s}
+.modulo a:hover{border-color:var(--accent);color:var(--accent)}
+.num{font:700 .85rem var(--mono);color:var(--accent);white-space:nowrap}
+/* aula */
+.doc{display:grid;grid-template-columns:17rem minmax(0,1fr);gap:2.5rem;align-items:start;padding-block:2rem 3rem}
+.lateral{position:sticky;top:5.5rem;max-height:calc(100vh - 6.5rem);overflow:auto;font-size:.875rem;padding-right:.5rem}
+.lateral h2{margin:0 0 .25rem;font:700 .95rem var(--serif);color:var(--muted)}
+.lateral h3{margin:1rem 0 .25rem;font:700 .75rem var(--mono);letter-spacing:.06em;color:var(--accent)}
+.lateral ul{list-style:none;margin:0;padding:0}
+.lateral a{display:flex;gap:.45rem;padding:.25rem .5rem;border-radius:6px;text-decoration:none;color:var(--muted);line-height:1.3}
+.lateral a:hover{background:var(--tint);color:var(--ink)}
+.lateral a[aria-current]{background:var(--tint);color:var(--ink);font-weight:700;box-shadow:inset 3px 0 0 var(--accent)}
+.lateral .num{font-size:.75rem}
+.aula{min-width:0;max-width:56rem;overflow-wrap:break-word;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:clamp(1.25rem,1rem + 2vw,2.75rem);box-shadow:var(--shadow)}
+.aula h1{margin:0 0 1.5rem;font:700 clamp(1.75rem,1.4rem + 1.6vw,2.5rem)/1.15 var(--serif);letter-spacing:-.015em;color:var(--ink)}
+.aula h2{margin:2.5rem 0 .75rem;padding-top:1.25rem;border-top:1px solid var(--line);font:700 1.5rem/1.25 var(--serif)}
+.aula h3{margin:2rem 0 .5rem;font:700 1.15rem/1.3 var(--serif);color:var(--accent)}
+.aula h4,.aula h5,.aula h6{margin:1.5rem 0 .5rem;font-size:1rem}
+.aula p,.aula ul,.aula ol{margin:1rem 0}
+.aula ul,.aula ol{padding-left:1.5rem}
+.aula li{margin:.35rem 0}
+.aula li>ul,.aula li>ol{margin:.35rem 0}
+.aula a{color:var(--accent);text-underline-offset:2px}
+.aula hr{border:0;border-top:1px solid var(--line);margin:2rem 0}
+.tabela{overflow-x:auto;margin:1.25rem 0;border:1px solid var(--line);border-radius:10px}
+.aula table{width:100%;border-collapse:collapse;font-size:.9rem}
+.aula th,.aula td{padding:.55rem .75rem;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+.aula tr:last-child td{border-bottom:0}
+.aula th{background:var(--tint);font-weight:700}
+.aula pre{background:var(--code);border:1px solid var(--line);border-radius:10px;padding:.9rem 1rem;overflow-x:auto;font:.85rem/1.5 var(--mono);margin:1rem 0;tab-size:4}
+.aula pre code{background:none;padding:0;font-size:inherit;overflow-wrap:normal}
+.aula blockquote{margin:1.25rem 0;padding:.75rem 1.25rem;border-left:4px solid var(--accent-2);background:var(--tint);border-radius:0 10px 10px 0}
+.aula blockquote>:first-child{margin-top:0}
+.aula blockquote>:last-child{margin-bottom:0}
+.aula figure{margin:1.75rem 0;text-align:center}
+.aula figure img{display:block;margin:0 auto;max-width:100%;height:auto;border:1px solid var(--line);border-radius:10px;background:#fff}
+.aula figcaption{margin-top:.5rem;color:var(--muted);font-size:.9rem;font-style:italic}
+.paginas{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:2.5rem;padding-top:1.5rem;border-top:1px solid var(--line)}
+.paginas a{display:block;padding:.75rem 1rem;border:1px solid var(--line);border-radius:10px;text-decoration:none;color:var(--ink);font-weight:600;line-height:1.3}
+.paginas a:hover{border-color:var(--accent);color:var(--accent)}
+.paginas small{display:block;color:var(--muted);font-weight:400}
+.paginas .prox{grid-column:2;text-align:right}
+footer{border-top:1px solid var(--line);padding-block:1.5rem;color:var(--muted);font-size:.85rem;text-align:center}
+@media (hover:hover) and (prefers-reduced-motion:no-preference){.modulo a:hover{transform:translateY(-2px)}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+@media (max-width:980px){.doc{grid-template-columns:minmax(0,1fr);padding-top:1rem}.lateral{position:static;max-height:none;order:2}.aula{max-width:none}}
+@media (max-width:860px){.modulo{grid-template-columns:minmax(0,1fr)}.modulo h2{position:static}.mn{display:inline;margin-right:.5rem}}
+@media (max-width:420px){.meta{display:none}.top-in{gap:.5rem}.acoes{gap:.6rem}.capa{padding-top:1.25rem}.paginas{grid-template-columns:minmax(0,1fr)}.paginas .prox{grid-column:1}}
+@media print{.top,.lateral,.paginas{display:none}.aula{border:0;box-shadow:none;padding:0;max-width:none}.doc{display:block}}
+</style>
+</head>
+<body>
+<a class="pular" href="#conteudo">Pular para o conteúdo</a>
+<header class="top"><div class="wrap top-in"><div class="titles"><p class="marca"><a href="index.html">Curso Linux Sysadmin</a></p><p class="meta">Rodrigo Antignani · Aula 11.3</p></div><div class="acoes"><a href="index.html">Índice</a><div class="idioma" role="group" aria-label="Idioma"><span aria-current="true">PT</span><a href="11.3-rede-no-debian.it.html" hreflang="it" lang="it">IT</a></div></div></div></header>
+<div class="wrap doc"><aside class="lateral" aria-label="Aulas"><h2>Aulas</h2><h3>M0 · Laboratório</h3><ul><li><a href="0.1-montar-o-laboratorio.html"><span class="num">0.1</span><span>Montar o laboratório</span></a></li><li><a href="0.2-acesso-e-protecao.html"><span class="num">0.2</span><span>Acesso e proteção</span></a></li></ul><h3>M1 · Linha de comando</h3><ul><li><a href="1.1-o-que-e-linux.html"><span class="num">1.1</span><span>O que é Linux</span></a></li><li><a href="1.2-o-shell-e-a-ajuda.html"><span class="num">1.2</span><span>O shell e a ajuda</span></a></li><li><a href="1.3-caminhos-e-navegacao.html"><span class="num">1.3</span><span>Caminhos e navegação</span></a></li><li><a href="1.4-criar-copiar-mover-e-apagar.html"><span class="num">1.4</span><span>Criar, copiar, mover e apagar</span></a></li><li><a href="1.5-ler-e-procurar-texto.html"><span class="num">1.5</span><span>Ler e procurar texto</span></a></li><li><a href="1.6-redirecionamentos-e-pipes.html"><span class="num">1.6</span><span>Redirecionamentos e pipes</span></a></li><li><a href="1.7-arquivar-e-compactar.html"><span class="num">1.7</span><span>Arquivar e compactar</span></a></li><li><a href="1.8-primeiro-script.html"><span class="num">1.8</span><span>Primeiro script</span></a></li><li><a href="1.9-decidir-e-repetir.html"><span class="num">1.9</span><span>Decidir e repetir</span></a></li><li><a href="1.10-software-livre-na-pratica.html"><span class="num">1.10</span><span>Software livre na prática</span></a></li></ul><h3>M2 · Sistema, usuários e permissões</h3><ul><li><a href="2.1-instalacao-e-provisionamento.html"><span class="num">2.1</span><span>Instalação e provisionamento</span></a></li><li><a href="2.2-hardware-e-dispositivos.html"><span class="num">2.2</span><span>Hardware e dispositivos</span></a></li><li><a href="2.3-processos-e-logs.html"><span class="num">2.3</span><span>Processos e logs</span></a></li><li><a href="2.4-rede-no-dia-a-dia.html"><span class="num">2.4</span><span>Rede no dia a dia</span></a></li><li><a href="2.5-acesso-remoto-e-privilegios.html"><span class="num">2.5</span><span>Acesso remoto e privilégios</span></a></li><li><a href="2.6-usuarios-e-grupos.html"><span class="num">2.6</span><span>Usuários e grupos</span></a></li><li><a href="2.7-permissoes-e-dono.html"><span class="num">2.7</span><span>Permissões e dono</span></a></li><li><a href="2.8-diretorios-e-arquivos-especiais.html"><span class="num">2.8</span><span>Diretórios e arquivos especiais</span></a></li></ul><h3>M3 · Texto e editor</h3><ul><li><a href="3.1-fluxos-a-fundo.html"><span class="num">3.1</span><span>Fluxos a fundo</span></a></li><li><a href="3.2-filtros-de-texto.html"><span class="num">3.2</span><span>Filtros de texto</span></a></li><li><a href="3.3-regex-e-grep.html"><span class="num">3.3</span><span>Regex e grep</span></a></li><li><a href="3.4-sed-e-awk.html"><span class="num">3.4</span><span>sed e awk</span></a></li><li><a href="3.5-vi-e-vim-de-verdade.html"><span class="num">3.5</span><span>vi e vim de verdade</span></a></li></ul><h3>M4 · systemd e boot</h3><ul><li><a href="4.1-como-o-linux-liga.html"><span class="num">4.1</span><span>Como o Linux liga</span></a></li><li><a href="4.2-systemd-servicos-e-units.html"><span class="num">4.2</span><span>systemd: serviços e units</span></a></li><li><a href="4.3-targets-desligar-e-reiniciar.html"><span class="num">4.3</span><span>Targets: desligar e reiniciar</span></a></li><li><a href="4.4-grub-e-acesso-de-emergencia.html"><span class="num">4.4</span><span>GRUB e acesso de emergência</span></a></li></ul><h3>M5 · Kernel, módulos e VM</h3><ul><li><a href="5.1-hardware-pelo-kernel.html"><span class="num">5.1</span><span>Hardware pelo kernel</span></a></li><li><a href="5.2-modulos-e-parametros.html"><span class="num">5.2</span><span>Módulos e parâmetros</span></a></li><li><a href="5.3-linux-como-convidado.html"><span class="num">5.3</span><span>Linux como convidado</span></a></li></ul><h3>M6 · Pacotes e repositórios</h3><ul><li><a href="6.1-pacotes-no-debian.html"><span class="num">6.1</span><span>Pacotes no Debian</span></a></li><li><a href="6.2-pacotes-na-rocky.html"><span class="num">6.2</span><span>Pacotes na Rocky</span></a></li><li><a href="6.3-repositorios.html"><span class="num">6.3</span><span>Repositórios</span></a></li><li><a href="6.4-flatpak.html"><span class="num">6.4</span><span>Flatpak</span></a></li><li><a href="6.5-bibliotecas-compartilhadas.html"><span class="num">6.5</span><span>Bibliotecas compartilhadas</span></a></li></ul><h3>M7 · Processos e desempenho</h3><ul><li><a href="7.1-processos-e-sinais.html"><span class="num">7.1</span><span>Processos e sinais</span></a></li><li><a href="7.2-jobs-e-sessoes.html"><span class="num">7.2</span><span>Jobs e sessões</span></a></li><li><a href="7.3-prioridade-e-perfis.html"><span class="num">7.3</span><span>Prioridade e perfis</span></a></li></ul><h3>M8 · Arquivos a fundo</h3><ul><li><a href="8.1-fhs-e-onde-cada-coisa-mora.html"><span class="num">8.1</span><span>FHS e onde cada coisa mora</span></a></li><li><a href="8.2-find-a-fundo.html"><span class="num">8.2</span><span>find a fundo</span></a></li><li><a href="8.3-arquivamento-avancado.html"><span class="num">8.3</span><span>Arquivamento avançado</span></a></li><li><a href="8.4-links.html"><span class="num">8.4</span><span>Links</span></a></li><li><a href="8.5-permissoes-avancadas.html"><span class="num">8.5</span><span>Permissões avançadas</span></a></li></ul><h3>M9 · Armazenamento</h3><ul><li><a href="9.1-discos-e-layout.html"><span class="num">9.1</span><span>Discos e layout</span></a></li><li><a href="9.2-particionar.html"><span class="num">9.2</span><span>Particionar</span></a></li><li><a href="9.3-sistemas-de-arquivos.html"><span class="num">9.3</span><span>Sistemas de arquivos</span></a></li><li><a href="9.4-montar-e-persistir.html"><span class="num">9.4</span><span>Montar e persistir</span></a></li><li><a href="9.5-integridade-e-espaco.html"><span class="num">9.5</span><span>Integridade e espaço</span></a></li><li><a href="9.6-lvm.html"><span class="num">9.6</span><span>LVM</span></a></li><li><a href="9.7-crescer-sem-destruir.html"><span class="num">9.7</span><span>Crescer sem destruir</span></a></li></ul><h3>M10 · Usuários e acesso privilegiado</h3><ul><li><a href="10.1-contas.html"><span class="num">10.1</span><span>Contas</span></a></li><li><a href="10.2-senhas-e-validade.html"><span class="num">10.2</span><span>Senhas e validade</span></a></li><li><a href="10.3-grupos-e-trabalho-em-equipe.html"><span class="num">10.3</span><span>Grupos e trabalho em equipe</span></a></li><li><a href="10.4-sudo-de-verdade.html"><span class="num">10.4</span><span>sudo de verdade</span></a></li></ul><h3>M11 · Rede</h3><ul><li><a href="11.1-tcp-ip-para-quem-administra.html"><span class="num">11.1</span><span>TCP/IP para quem administra</span></a></li><li><a href="11.2-networkmanager-e-nmcli.html"><span class="num">11.2</span><span>NetworkManager e nmcli</span></a></li><li><a href="11.3-rede-no-debian.html" aria-current="page"><span class="num">11.3</span><span>Rede no Debian</span></a></li></ul></aside><main id="conteudo" class="aula"><article><h1>Aula 11.3 · Rede no Debian</h1>
+<p>No Windows Server, você procura a configuração que realmente administra a placa antes de alterar um endereço. No Debian, essa pergunta vem antes do nome do comando: quem cuida desta interface? Na Aula 11.2 você trabalhou com perfis do NetworkManager; agora vai ler e aplicar uma configuração de <code translate="no">ifupdown</code>, comparar os dois modelos e reconhecer arquivos do <code translate="no">systemd-networkd</code>.</p>
+<blockquote><p><strong>Núcleo desta aula:</strong> descubra o responsável pela interface, encontre o arquivo que ele lê e confira o estado aplicado no kernel. Um arquivo correto no lugar errado não configura a rede. O resto é aprofundamento.</p></blockquote>
+<div class="tabela"><table><thead><tr><th scope="col">Ficha</th><th scope="col"></th></tr></thead><tbody><tr><td><strong>Módulo</strong></td><td>M11 · Rede, aula 3 de 5</td></tr><tr><td><strong>Quando</strong></td><td>Semana 16</td></tr><tr><td><strong>Ao final</strong></td><td>Você identifica o gerenciador, interpreta <code translate="no">interfaces</code>, aplica uma interface interna e compara com NetworkManager e networkd</td></tr><tr><td><strong>Pré-requisitos</strong></td><td>Aulas 11.1 e 11.2; SSH, <code translate="no">sudo</code>, noVNC; Debian com <code translate="no">ifupdown</code> e Rocky com NetworkManager</td></tr><tr><td><strong>Tempo</strong></td><td>Cerca de 90 minutos, mais 30 minutos para repetir sem consultar</td></tr><tr><td><strong>Snapshots</strong></td><td><code translate="no">m11a3-inicio</code> e <code translate="no">m11a3-fim</code> nas VMs 201 e 202</td></tr></tbody></table></div>
+<h2 id="1-aquecimento">1 · Aquecimento</h2>
+<p>Responda sem consultar. O gabarito fica no fim.</p>
+<ol><li>Qual é a diferença entre perfil salvo e conexão ativa no NetworkManager?</li>
+<li>Um endereço adicionado com <code translate="no">ip address add</code> comprova persistência depois do reboot?</li>
+<li>Antes de mudar a placa usada pelo SSH, qual acesso ou plano de retorno precisa estar disponível?</li></ol>
+<h2 id="2-por-que-importa">2 · Por que importa</h2>
+<p>Você edita um perfil de NetworkManager, mas o Debian continua usando outro endereço. O arquivo parece certo, o comando existe e a rede funciona. O problema é que aquela interface está sob <code translate="no">ifupdown</code>; você alterou uma configuração que não participa do caminho de ativação.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Pergunta</th><th scope="col">Evidência útil</th></tr></thead><tbody><tr><td>Quem está instalado?</td><td>Pacotes e comandos disponíveis</td></tr><tr><td>Quem está em execução?</td><td>Unidades e processos do gerenciador</td></tr><tr><td>Quem administra esta interface?</td><td>Configuração, seleção e estado do dispositivo</td></tr><tr><td>Qual endereço entrou?</td><td><code translate="no">ip address</code></td></tr><tr><td>O que volta no boot?</td><td>Configuração persistente e teste de reboot</td></tr></tbody></table></div>
+<p>O nome da distribuição não responde sozinho às cinco perguntas. Uma instalação mínima e uma instalação com ambiente gráfico podem usar modelos diferentes.</p>
+<h2 id="3-modelo-mental">3 · Modelo mental</h2>
+<p>Pense em três equipes que podem receber a ficha de uma mesma instalação. Cada equipe lê uma linguagem própria. Você precisa escolher quem executa a ficha e impedir que outra equipe tente configurar a mesma interface ao mesmo tempo.</p>
+<pre translate="no"><code class="lang-text">ifupdown            → interfaces → ifup       → interface → ip address
+NetworkManager      → perfil     → nmcli      → interface → ip address
+systemd-networkd    → .network   → networkctl → interface → ip address</code></pre>
+<p>O kernel mantém o estado atual da rede. Os gerenciadores organizam como esse estado é criado e mantido. Ter dois serviços instalados não é automaticamente um conflito; o conflito aparece quando as responsabilidades pela mesma interface se sobrepõem.</p>
+<figure><a href="../img/11.3-quem-cuida-da-interface.jpg"><img src="../img/11.3-quem-cuida-da-interface.jpg" alt="Quem cuida da interface" loading="lazy" decoding="async"></a><figcaption>Uma interface precisa de um responsável definido.</figcaption></figure>
+<h3 id="ponte-windows">Ponte Windows</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Windows Server</th><th scope="col">Debian e Rocky</th><th scope="col">O que você compara</th></tr></thead><tbody><tr><td>Descobrir a origem da configuração</td><td>Identificar o gerenciador da interface</td><td>Quem aplica a configuração</td></tr><tr><td>Configuração estática da placa</td><td><code translate="no">iface ... inet static</code> ou perfil manual</td><td>Endereço e prefixo persistentes</td></tr><tr><td>Configuração obtida automaticamente</td><td>Método <code translate="no">dhcp</code> ou <code translate="no">auto</code>, conforme a ferramenta</td><td>Solicitar dados ao mecanismo correto</td></tr><tr><td>Consultar o endereço atual</td><td><code translate="no">ip -br address</code></td><td>Estado efetivo, independente do gerenciador</td></tr><tr><td>Conferir depois do reinício</td><td>Reboot e nova consulta</td><td>Persistência demonstrada</td></tr></tbody></table></div>
+<h2 id="4-o-essencial">4 · O essencial</h2>
+<h3 id="ifupdown-arquivo-e-acao">ifupdown: arquivo e ação</h3>
+<p><code translate="no">ifupdown</code> lê <code translate="no">/etc/network/interfaces</code> e os arquivos incluídos por ele. <code translate="no">ifup</code> configura uma interface; <code translate="no">ifdown</code> desfaz a configuração; <code translate="no">ifquery</code> interpreta as definições e consulta o estado registrado pela ferramenta.</p>
+<pre translate="no"><code class="lang-bash">sudo ifquery --list
+sudo ifquery m11dummy1</code></pre>
+<p>O primeiro comando lista interfaces definidas. O segundo só encontra <code translate="no">m11dummy1</code> depois que você instalar a configuração do lab. Uma definição lida por <code translate="no">ifquery</code> não comprova endereço aplicado nem comunicação.</p>
+<h3 id="as-linhas-que-voce-precisa-reconhecer">As linhas que você precisa reconhecer</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Trecho</th><th scope="col">Significado</th></tr></thead><tbody><tr><td><code translate="no">auto m11dummy1</code></td><td>Inclui a interface na ativação com <code translate="no">ifup -a</code>, usada no boot</td></tr><tr><td><code translate="no">allow-hotplug enp6s18</code></td><td>Permite ativação associada à detecção do dispositivo</td></tr><tr><td><code translate="no">iface m11dummy1 inet static</code></td><td>Define IPv4 estático</td></tr><tr><td><code translate="no">iface m11dummy1 inet6 static</code></td><td>Define IPv6 estático</td></tr><tr><td><code translate="no">address 198.51.100.10/24</code></td><td>Endereço IPv4 e prefixo</td></tr><tr><td><code translate="no">gateway ...</code></td><td>Define o próximo salto padrão dessa família</td></tr><tr><td><code translate="no">source ...</code></td><td>Inclui outros arquivos de configuração</td></tr></tbody></table></div>
+<p><code translate="no">allow-hotplug</code> acompanha a detecção do dispositivo, não a conexão de um cabo Ethernet. <code translate="no">auto</code> não significa DHCP: ele escolhe quando ativar; o método na linha <code translate="no">iface</code> escolhe como configurar.</p>
+<h3 id="o-diretorio-so-participa-se-for-incluido">O diretório só participa se for incluído</h3>
+<p>Um arquivo em <code translate="no">/etc/network/interfaces.d/</code> precisa ser alcançado por uma diretiva do arquivo principal. Com <code translate="no">source /etc/network/interfaces.d/*</code>, o padrão seleciona arquivos daquele diretório. Com <code translate="no">source-directory</code>, há regras próprias para os nomes aceitos, incluindo apenas letras, números, hífen e sublinhado.</p>
+<p>No lab, o arquivo se chama <code translate="no">m11a3</code>, sem extensão, e você confirma sua leitura com <code translate="no">ifquery</code>. Um rascunho em <code translate="no">~/m11a3</code> não participa da configuração padrão.</p>
+<p>Ao pesquisar diretórios protegidos, deixe a seleção de arquivos para o comando executado sob <code translate="no">sudo</code>, por exemplo <code translate="no">sudo grep -r --include='*.network' ... DIRETORIO</code>. Um glob aberto pelo shell do <code translate="no">student</code> é expandido antes de <code translate="no">sudo</code>.</p>
+<h3 id="networking-service-nao-e-um-daemon-de-enderecamento">networking.service não é um daemon de endereçamento</h3>
+<p>Com <code translate="no">ifupdown</code>, <code translate="no">networking.service</code> executa tarefas de configuração e pode ficar como <code translate="no">active (exited)</code>. Isso indica que a unidade terminou sua ação e mantém o estado ativo. Não é motivo, sozinho, para reiniciar a rede.</p>
+<p>Leia a configuração, o registro de <code translate="no">ifupdown</code> e o estado no kernel. Evite <code translate="no">ifdown -a</code> e reiniciar <code translate="no">networking</code> para corrigir uma única interface: essas ações têm alcance maior que o defeito investigado.</p>
+<h3 id="networkmanager-outra-origem-mesma-conferencia">NetworkManager: outra origem, mesma conferência</h3>
+<p>Na Rocky, você compara o perfil salvo com a conexão ativa, como na 11.2. No Debian, o plugin <code translate="no">ifupdown</code> do NetworkManager normalmente deixa de gerenciar interfaces declaradas em <code translate="no">interfaces</code> quando <code translate="no">managed=false</code> está configurado.</p>
+<p>Essa regra depende da configuração carregada; não a presuma só pelo pacote instalado. Nesta aula, o Debian do lab mantém NetworkManager e networkd inativos, e a Rocky mantém NetworkManager como responsável.</p>
+<h3 id="systemd-networkd-selecionar-antes-de-aplicar">systemd-networkd: selecionar antes de aplicar</h3>
+<p>Um arquivo <code translate="no">.network</code> tem uma seção <code translate="no">[Match]</code> para selecionar interfaces e uma seção <code translate="no">[Network]</code> para sua configuração. Um arquivo <code translate="no">.netdev</code> descreve a criação de um dispositivo virtual; <code translate="no">.network</code> não é o arquivo de criação de uma interface <code translate="no">dummy</code>.</p>
+<p>Os arquivos são considerados em ordem alfanumérica. O primeiro <code translate="no">.network</code> que corresponde à interface é usado; os posteriores que também correspondem não são somados. Arquivos com o mesmo nome obedecem à prioridade dos diretórios, com <code translate="no">/etc</code> acima de <code translate="no">/run</code> e dos diretórios do sistema.</p>
+<p><code translate="no">networkctl reload</code> relê arquivos e pode reconfigurar interfaces afetadas. <code translate="no">networkctl reconfigure INTERFACE</code> pede a reconfiguração de uma interface, sem reler sozinho arquivos editados. Nenhum dos dois entra como tentativa nesta aula: você apenas escreve um exemplo fora dos diretórios do serviço.</p>
+<figure><a href="../img/11.3-arquivo-selecao-estado.jpg"><img src="../img/11.3-arquivo-selecao-estado.jpg" alt="Arquivo, seleção e estado" loading="lazy" decoding="async"></a><figcaption>Um arquivo só vale quando é lido pelo gerenciador certo.</figcaption></figure>
+<h3 id="rocky-debian">Rocky × Debian</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Item</th><th scope="col">Rocky 9, VM 201</th><th scope="col">Debian 13, VM 202</th></tr></thead><tbody><tr><td>Acesso e IP real</td><td><code translate="no">ssh rocky-lab</code>, <code translate="no">10.1.0.51</code></td><td><code translate="no">ssh debian-lab</code>, <code translate="no">10.1.0.52</code></td></tr><tr><td>Responsável esperado no lab</td><td>NetworkManager ativo</td><td><code translate="no">ifupdown</code>, com <code translate="no">networking.service</code></td></tr><tr><td>Configuração aplicada</td><td>Perfil <code translate="no">m11a3-interno</code></td><td><code translate="no">/etc/network/interfaces.d/m11a3</code></td></tr><tr><td>Aplicar somente o recurso do lab</td><td><code translate="no">nmcli connection up m11a3-interno</code></td><td><code translate="no">ifup m11dummy1</code></td></tr><tr><td>Consultar definição</td><td><code translate="no">nmcli connection show m11a3-interno</code></td><td><code translate="no">ifquery m11dummy1</code></td></tr><tr><td>Conferir endereço</td><td><code translate="no">ip -br address show dev m11dummy1</code></td><td>Mesmo comando</td></tr><tr><td>Pacote específico</td><td><code translate="no">NetworkManager</code></td><td><code translate="no">ifupdown</code></td></tr></tbody></table></div>
+<h2 id="5-lab-guiado">5 · Lab guiado</h2>
+<p>Você criará a interface interna <code translate="no">m11dummy1</code> nas duas VMs, com IPv4 <code translate="no">198.51.100.10/24</code> e IPv6 <code translate="no">2001:db8:13::10/64</code>. São endereços de documentação, usados somente dentro de cada VM. Não haverá bridge, servidor DHCP, gateway novo nem mudança no DNS.</p>
+<p><strong>Antes de qualquer alteração:</strong> abra o noVNC das duas VMs e confirme acesso como <code translate="no">student</code> com <code translate="no">sudo</code>. A placa de SSH permanece intacta. Não execute estes passos no nó Proxmox: os comandos de rede do lab são para as VMs 201 e 202.</p>
+<p><strong>Passo 0 · Guardar o ponto de volta.</strong> No nó Proxmox de cada VM:</p>
+<p><strong>Palpite:</strong> o snapshot substitui uma verificação de retorno pelo console?</p>
+<pre translate="no"><code class="lang-bash">qm snapshot 201 m11a3-inicio
+qm snapshot 202 m11a3-inicio
+qm listsnapshot 201
+qm listsnapshot 202</code></pre>
+<p><strong>Saída esperada:</strong> <code translate="no">m11a3-inicio</code> aparece nas duas listas.</p>
+<p><strong>Verifique:</strong> confirme os snapshots e o acesso noVNC antes de continuar.</p>
+<p><strong>Passo 1 · Identificar o responsável.</strong> Dentro das duas VMs:</p>
+<p><strong>Palpite:</strong> encontrar o executável <code translate="no">nmcli</code> prova que ele administra a placa?</p>
+<pre translate="no"><code class="lang-bash">cat /etc/os-release
+systemctl is-active NetworkManager.service
+systemctl is-active networking.service
+systemctl is-active systemd-networkd.service
+ip -br address
+ip -4 route</code></pre>
+<p><strong>Saída esperada:</strong> Rocky com NetworkManager ativo; Debian com <code translate="no">networking.service</code> ativo e NetworkManager e networkd inativos. Unidades ausentes também podem aparecer na consulta.</p>
+<p><strong>Verifique:</strong> no Debian, confira <code translate="no">systemctl status networking.service --no-pager</code>; <code translate="no">active (exited)</code> é normal neste modelo. Se o inventário identificar outro responsável, pare a aplicação do lab e registre a diferença; não migre a placa para forçar o roteiro.</p>
+<p><strong>Passo 2 · Ler a origem da configuração.</strong> No Debian:</p>
+<p><strong>Palpite:</strong> um arquivo dentro de <code translate="no">interfaces.d</code> é lido mesmo sem uma inclusão no principal?</p>
+<pre translate="no"><code class="lang-bash">dpkg-query -W ifupdown
+command -v ifup ifdown ifquery
+sudo cat /etc/network/interfaces
+sudo grep -r -n -E '^[[:space:]]*(auto|allow-hotplug|iface|source)' \
+  /etc/network/interfaces.d/
+sudo ifquery --list</code></pre>
+<p><strong>Saída esperada:</strong> pacote e comandos presentes; o principal inclui <code translate="no">interfaces.d</code> por <code translate="no">source</code> ou <code translate="no">source-directory</code>. O <code translate="no">grep</code> pode terminar sem correspondências se o diretório estiver vazio.</p>
+<p><strong>Verifique:</strong> anote a definição da placa real e a inclusão do diretório. Se <code translate="no">ifupdown</code> não estiver instalado ou o diretório não estiver incluído, não instale outro gerenciador nem altere o principal às cegas; resolva esse pré-requisito pelo console antes do lab.</p>
+<p>Na Rocky, use <code translate="no">nmcli device status</code> e <code translate="no">nmcli connection show --active</code> para registrar quem mantém a interface real. Não execute <code translate="no">nmcli</code> no Debian com o serviço parado.</p>
+<p><strong>Passo 3 · Reservar os recursos do exercício.</strong> Nas duas VMs:</p>
+<p><strong>Palpite:</strong> endereços iguais em duas interfaces internas isoladas criam disputa na rede física?</p>
+<pre translate="no"><code class="lang-bash">mkdir -m 0700 "$HOME/m11a3"
+ip -br address | tee "$HOME/m11a3/enderecos-inicio.txt"
+ip -4 route | tee "$HOME/m11a3/rotas-inicio.txt"
+ip link show m11dummy1</code></pre>
+<p><strong>Saída esperada:</strong> pasta criada, inventário registrado e dispositivo ainda inexistente.</p>
+<p><strong>Verifique:</strong> pare se a pasta ou o dispositivo já existir. Na Rocky, confira também que não existem perfis <code translate="no">m11a3-interno</code> e <code translate="no">m11a3-rascunho</code>; no Debian, confirme com <code translate="no">sudo test ! -e /etc/network/interfaces.d/m11a3</code> que o arquivo está livre.</p>
+<p><strong>Passo 4 · Preparar a definição do Debian.</strong> Grave o rascunho somente na <code translate="no">debian-lab</code>:</p>
+<p><strong>Palpite:</strong> a linha <code translate="no">auto</code> escolhe o método estático ou o momento da ativação?</p>
+<pre translate="no"><code class="lang-bash">cat &gt; "$HOME/m11a3/interfaces" &lt;&lt;'EOF'
+auto m11dummy1
+iface m11dummy1 inet static
+    address 198.51.100.10/24
+    pre-up test -d /sys/class/net/m11dummy1 || ip link add m11dummy1 type dummy
+iface m11dummy1 inet6 static
+    address 2001:db8:13::10/64
+EOF
+ifquery --interfaces="$HOME/m11a3/interfaces" m11dummy1
+sudo ifup --no-act --interfaces="$HOME/m11a3/interfaces" m11dummy1</code></pre>
+<p><strong>Saída esperada:</strong> a definição é interpretada; a simulação mostra as ações previstas sem criar a interface.</p>
+<p><strong>Verifique:</strong> <code translate="no">ip link show m11dummy1</code> ainda informa dispositivo inexistente. <code translate="no">pre-up</code> criará a interface interna antes dos endereços; o teste evita recriá-la se já existir no momento da ativação.</p>
+<p><strong>Passo 5 · Instalar e aplicar.</strong> No Debian:</p>
+<p><strong>Palpite:</strong> ler o arquivo e conseguir ativar uma interface são a mesma evidência?</p>
+<pre translate="no"><code class="lang-bash">sudo install -m 0644 -o root -g root "$HOME/m11a3/interfaces" /etc/network/interfaces.d/m11a3
+sudo ifquery m11dummy1
+sudo ifup m11dummy1</code></pre>
+<p><strong>Saída esperada:</strong> a consulta padrão encontra a definição instalada; a ativação cria a interface e aplica os dois endereços. Se <code translate="no">ifquery</code> falhar, pare antes de executar <code translate="no">ifup</code> e investigue a inclusão.</p>
+<p>Na Rocky, aplique a configuração equivalente com o gerenciador que já está ativo:</p>
+<pre translate="no"><code class="lang-bash">sudo nmcli connection add type dummy ifname m11dummy1 \
+  con-name m11a3-interno connection.autoconnect yes \
+  ipv4.method manual ipv4.addresses 198.51.100.10/24 ipv4.never-default yes \
+  ipv6.method manual ipv6.addresses 2001:db8:13::10/64 ipv6.never-default yes
+sudo nmcli connection up m11a3-interno</code></pre>
+<p><strong>Verifique:</strong> nas duas VMs, <code translate="no">ip -br address show dev m11dummy1</code> deve mostrar os mesmos endereços internos. O formato persistente é diferente, mas o kernel recebe configuração equivalente.</p>
+<p><strong>Passo 6 · Comparar definição, registro e kernel.</strong> Nas duas VMs:</p>
+<p><strong>Palpite:</strong> o registro de uma ferramenta substitui a consulta do endereço real?</p>
+<pre translate="no"><code class="lang-bash">ip -br address show dev m11dummy1
+ip -4 route show dev m11dummy1
+ip -6 route show dev m11dummy1
+ip -4 route show default
+ping -4 -c 2 -W 2 198.51.100.10
+ping -6 -c 2 -W 2 2001:db8:13::10</code></pre>
+<p><strong>Saída esperada:</strong> endereços e rotas internas, respostas locais e a rota padrão original.</p>
+<p><strong>Verifique:</strong> no Debian, compare <code translate="no">sudo ifquery m11dummy1</code> e <code translate="no">sudo ifquery --state m11dummy1</code>; na Rocky, compare o perfil salvo e <code translate="no">nmcli connection show --active</code>. O registro de ativação não mede a resposta de uma aplicação.</p>
+<p><strong>Passo 7 · Reconhecer networkd sem trocar de responsável.</strong> Nas duas VMs, grave somente um exemplo no diretório pessoal:</p>
+<p><strong>Palpite:</strong> um <code translate="no">.network</code> cria sozinho uma interface <code translate="no">dummy</code> inexistente?</p>
+<pre translate="no"><code class="lang-bash">cat &gt; "$HOME/m11a3/30-m11dummy1.netdev" &lt;&lt;'EOF'
+[NetDev]
+Name=m11dummy1
+Kind=dummy
+EOF
+cat &gt; "$HOME/m11a3/30-m11dummy1.network" &lt;&lt;'EOF'
+[Match]
+Name=m11dummy1
+[Network]
+Address=198.51.100.10/24
+Address=2001:db8:13::10/64
+IPv6AcceptRA=no
+EOF
+cat "$HOME/m11a3/30-m11dummy1.network"</code></pre>
+<p><strong>Saída esperada:</strong> dois arquivos de estudo; a leitura mostra seleção por nome e dois endereços.</p>
+<p><strong>Verifique:</strong> os arquivos continuam em <code translate="no">~/m11a3</code>, não em <code translate="no">/etc/systemd/network/</code>. Não habilite networkd, não execute <code translate="no">networkctl reload</code> e não copie o exemplo para o diretório do serviço. Compare intenção e sintaxe, sem disputar a interface.</p>
+<h3 id="decida-1">Decida 1</h3>
+<p>O Debian mostra <code translate="no">networking.service</code> como <code translate="no">active (exited)</code> e a interface tem o endereço correto. O que você conclui?</p>
+<p>A) A rede está necessariamente parada. B) A unidade pode ter concluído a configuração; você confere interface e evidências do chamado. C) Precisa instalar NetworkManager.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se você marcou</th><th scope="col">Resultado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>A</td><td>Incorreto</td><td>A unidade não precisa manter um daemon para deixar o endereço configurado</td></tr><tr><td>B</td><td>Certo</td><td>Estado da unidade e estado da interface respondem perguntas diferentes</td></tr><tr><td>C</td><td>Sem justificativa</td><td>Instalar outro gerenciador não diagnostica a falha</td></tr></tbody></table></div>
+<h3 id="decida-2">Decida 2</h3>
+<p>Você precisa corrigir somente a interface interna. Qual alcance combina com o objetivo?</p>
+<p>A) <code translate="no">ifdown -a</code>. B) Reiniciar todos os serviços de rede. C) Consultar a definição e agir somente em <code translate="no">m11dummy1</code>.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Se você marcou</th><th scope="col">Resultado</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>A</td><td>Amplo demais</td><td>Pode derrubar outras interfaces configuradas</td></tr><tr><td>B</td><td>Amplo demais</td><td>Afeta responsáveis e interfaces fora do defeito</td></tr><tr><td>C</td><td>Certo</td><td>A ação fica limitada ao recurso investigado</td></tr></tbody></table></div>
+<h2 id="6-quebre-e-conserte">6 · Quebre e conserte</h2>
+<p>Faça as três quebras nos recursos internos. Os defeitos serão na seleção automática, na origem editada e na validação. Não execute uma configuração inválida na interface real.</p>
+<h3 id="quebra-1-ativo-agora-ausente-da-selecao-automatica">Quebra 1 · Ativo agora, ausente da seleção automática</h3>
+<p><strong>Palpite:</strong> retirar <code translate="no">auto</code> de um arquivo apaga imediatamente um endereço do kernel?</p>
+<p>No Debian:</p>
+<pre translate="no"><code class="lang-bash">sudo sed -i '/^auto m11dummy1$/d' /etc/network/interfaces.d/m11a3
+sudo ifquery --list --allow=auto
+ip -br address show dev m11dummy1</code></pre>
+<p>Na Rocky:</p>
+<pre translate="no"><code class="lang-bash">sudo nmcli connection modify m11a3-interno connection.autoconnect no
+nmcli -g connection.autoconnect connection show m11a3-interno
+ip -br address show dev m11dummy1</code></pre>
+<p><strong>Sintoma:</strong> os endereços continuam aplicados; no Debian, a interface saiu da lista <code translate="no">auto</code>; na Rocky, a autoconexão ficou <code translate="no">no</code>.</p>
+<p><strong>Investigação:</strong> compare a seleção para o boot com o endereço atual. Não reinicie a VM enquanto a seleção estiver quebrada.</p>
+<p><strong>Causa:</strong> você retirou a ativação automática sem desfazer a configuração que já estava em uso.</p>
+<p><strong>Conserto:</strong> no Debian, reinstale o rascunho original com o <code translate="no">install</code> do Passo 5. Na Rocky, execute <code translate="no">sudo nmcli connection modify m11a3-interno connection.autoconnect yes</code>.</p>
+<p><strong>Verifique:</strong> <code translate="no">sudo ifquery --list --allow=auto</code> volta a incluir <code translate="no">m11dummy1</code> no Debian; a propriedade volta a <code translate="no">yes</code> na Rocky.</p>
+<p><strong>Prevenção:</strong> confira o mecanismo de ativação automática além do endereço atual.</p>
+<h3 id="quebra-2-voce-editou-a-origem-errada">Quebra 2 · Você editou a origem errada</h3>
+<p><strong>Palpite:</strong> um rascunho com outro endereço substitui sozinho a configuração em uso?</p>
+<p>No Debian, crie uma cópia fora da cadeia de inclusão:</p>
+<pre translate="no"><code class="lang-bash">cp "$HOME/m11a3/interfaces" "$HOME/m11a3/rascunho"
+sed -i 's/198.51.100.10/198.51.100.20/' "$HOME/m11a3/rascunho"
+ifquery --interfaces="$HOME/m11a3/rascunho" m11dummy1
+sudo ifquery m11dummy1</code></pre>
+<p>Na Rocky, crie um perfil diferente e mantenha-o inativo:</p>
+<pre translate="no"><code class="lang-bash">sudo nmcli connection clone m11a3-interno m11a3-rascunho
+sudo nmcli connection modify m11a3-rascunho connection.autoconnect no ipv4.addresses 198.51.100.20/24
+nmcli -g ipv4.addresses connection show m11a3-rascunho
+nmcli -g ipv4.addresses connection show m11a3-interno</code></pre>
+<p><strong>Sintoma:</strong> o rascunho tem <code translate="no">.20</code>; a origem usada pelo lab continua com <code translate="no">.10</code>.</p>
+<p><strong>Investigação:</strong> no Debian, compare consulta com <code translate="no">--interfaces</code> e consulta padrão. Na Rocky, compare o nome do perfil editado com o perfil ativo.</p>
+<p><strong>Causa:</strong> você alterou um arquivo não incluído ou um perfil que não está aplicado.</p>
+<p><strong>Conserto:</strong> descarte o rascunho com <code translate="no">rm -- "$HOME/m11a3/rascunho"</code> no Debian e <code translate="no">sudo nmcli connection delete m11a3-rascunho</code> na Rocky. Não ative os rascunhos.</p>
+<p><strong>Verifique:</strong> <code translate="no">ip -4 address show dev m11dummy1</code> continua com <code translate="no">.10</code> nas duas VMs.</p>
+<p><strong>Prevenção:</strong> identifique a origem efetivamente lida antes de editar.</p>
+<h3 id="quebra-3-metodo-invalido-validacao-antes-da-aplicacao">Quebra 3 · Método inválido, validação antes da aplicação</h3>
+<p><strong>Palpite:</strong> uma ferramenta deve aplicar um método que não reconhece?</p>
+<p>No Debian, estrague somente uma cópia:</p>
+<pre translate="no"><code class="lang-bash">cp "$HOME/m11a3/interfaces" "$HOME/m11a3/invalido"
+sed -i 's/inet static/inet statci/' "$HOME/m11a3/invalido"
+ifquery --interfaces="$HOME/m11a3/invalido" m11dummy1</code></pre>
+<p>Na Rocky:</p>
+<pre translate="no"><code class="lang-bash">sudo nmcli connection modify m11a3-interno ipv4.method statci</code></pre>
+<p><strong>Sintoma:</strong> as ferramentas recusam o método desconhecido. Não espere um texto idêntico nas duas: a evidência é a rejeição antes da aplicação.</p>
+<p><strong>Investigação:</strong> leia a linha ou a propriedade apontada e compare <code translate="no">statci</code> com o valor aceito por cada ferramenta.</p>
+<p><strong>Causa:</strong> <code translate="no">ifupdown</code> usa <code translate="no">static</code> nessa definição; NetworkManager usa <code translate="no">manual</code> na propriedade correspondente. <code translate="no">statci</code> não é válido em nenhum dos dois.</p>
+<p><strong>Conserto:</strong> no Debian, corrija a cópia com <code translate="no">sed -i 's/inet statci/inet static/' "$HOME/m11a3/invalido"</code> e repita a consulta. Na Rocky, confira que <code translate="no">nmcli -g ipv4.method connection show m11a3-interno</code> continua <code translate="no">manual</code>.</p>
+<p><strong>Verifique:</strong> a definição corrigida é interpretada e <code translate="no">ip -br address show dev m11dummy1</code> continua com os endereços originais nas duas VMs.</p>
+<p><strong>Prevenção:</strong> valide a definição antes de aplicar; não traduza valores de uma ferramenta para outra por semelhança de nome.</p>
+<figure><a href="../img/11.3-automatico-e-ativo.jpg"><img src="../img/11.3-automatico-e-ativo.jpg" alt="Automático não é o mesmo que ativo" loading="lazy" decoding="async"></a><figcaption>Estar ativo agora não comprova a volta no próximo boot.</figcaption></figure>
+<h3 id="limpeza">Limpeza</h3>
+<p><strong>Palpite:</strong> remover os exemplos pessoais exige reiniciar o gerenciador da placa real?</p>
+<p>No Debian, apague a cópia inválida já corrigida:</p>
+<pre translate="no"><code class="lang-bash">rm -- "$HOME/m11a3/invalido"
+sudo ifquery --list --allow=auto</code></pre>
+<p><strong>Saída esperada:</strong> arquivo de teste removido e interface interna novamente selecionada para o boot.</p>
+<p><strong>Verifique:</strong> mantenha a configuração interna nas duas VMs até o reboot de conferência. Os arquivos <code translate="no">.network</code> e <code translate="no">.netdev</code> ficam somente como estudo no diretório pessoal.</p>
+<h2 id="7-armadilhas">7 · Armadilhas</h2>
+<div class="tabela"><table><thead><tr><th scope="col">Erro comum</th><th scope="col">O que fazer</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>Escolher o comando só pela distro</td><td>Identificar o responsável real</td><td>Uma distro admite mais de um modelo</td></tr><tr><td>Interpretar <code translate="no">active (exited)</code> como falha</td><td>Conferir o tipo de unidade e a interface</td><td>A configuração pode ter terminado normalmente</td></tr><tr><td>Confundir <code translate="no">auto</code> com DHCP</td><td>Separar momento de ativação e método</td><td><code translate="no">auto</code> também ativa configurações estáticas</td></tr><tr><td>Ler <code translate="no">allow-hotplug</code> como cabo conectado</td><td>Pensar na detecção do dispositivo</td><td>O evento não é a presença de sinal no cabo</td></tr><tr><td>Criar arquivo sem verificar inclusão</td><td>Conferir com <code translate="no">ifquery</code> padrão</td><td>O diretório não é lido por existir</td></tr><tr><td>Usar <code translate="no">ifdown -a</code> para um defeito local</td><td>Nomear a interface exata</td><td>O alcance global pode derrubar o SSH</td></tr><tr><td>Instalar <code translate="no">.network</code> com seleção ampla</td><td>Conferir <code translate="no">[Match]</code> e a ordem</td><td>O primeiro arquivo correspondente decide</td></tr><tr><td>Expandir glob protegido antes de sudo</td><td>Usar seleção dentro do comando privilegiado</td><td>O shell do usuário pode não conseguir listar o diretório</td></tr></tbody></table></div>
+<h2 id="8-quiz">8 · Quiz</h2>
+<p>Responda sem consultar o lab e indique a evidência de cada conclusão.</p>
+<ol><li>O que distingue <code translate="no">auto</code> de <code translate="no">iface ... inet static</code>?</li>
+<li>Por que um arquivo em <code translate="no">interfaces.d</code> pode não ser usado?</li>
+<li>O que <code translate="no">ifquery</code> mostra que <code translate="no">ip address</code> não mostra, e vice-versa?</li>
+<li><code translate="no">allow-hotplug</code> detecta necessariamente a conexão do cabo Ethernet?</li>
+<li>Dois <code translate="no">.network</code> correspondem à mesma interface. Suas configurações são somadas?</li>
+<li>Por que você não iniciou networkd para experimentar os arquivos pessoais?</li></ol>
+<h2 id="9-cola">9 · Cola</h2>
+<div class="tabela"><table><thead><tr><th scope="col">Quero...</th><th scope="col">Comando</th></tr></thead><tbody><tr><td>Identificar serviço esperado</td><td><code translate="no">systemctl is-active networking.service NetworkManager.service systemd-networkd.service</code></td></tr><tr><td>Ver o arquivo principal</td><td><code translate="no">sudo cat /etc/network/interfaces</code></td></tr><tr><td>Listar definições de ifupdown</td><td><code translate="no">sudo ifquery --list</code></td></tr><tr><td>Ver seleção automática</td><td><code translate="no">sudo ifquery --list --allow=auto</code></td></tr><tr><td>Ler definição específica</td><td><code translate="no">sudo ifquery m11dummy1</code></td></tr><tr><td>Ler arquivo de estudo</td><td><code translate="no">ifquery --interfaces="$HOME/m11a3/interfaces" m11dummy1</code></td></tr><tr><td>Simular sem aplicar</td><td><code translate="no">sudo ifup --no-act --interfaces="$HOME/m11a3/interfaces" m11dummy1</code></td></tr><tr><td>Aplicar somente o recurso do lab</td><td><code translate="no">sudo ifup m11dummy1</code></td></tr><tr><td>Ver o registro da ferramenta</td><td><code translate="no">sudo ifquery --state m11dummy1</code></td></tr><tr><td>Conferir o kernel</td><td><code translate="no">ip -br address show dev m11dummy1</code></td></tr></tbody></table></div>
+<p><strong>Flashcards:</strong> responsável → <em>quem aplica</em>; arquivo → <em>origem da configuração</em>; <code translate="no">auto</code> → <em>seleção para ifup -a</em>; <code translate="no">allow-hotplug</code> → <em>detecção do dispositivo</em>; <code translate="no">ifquery</code> → <em>definição e registro</em>; <code translate="no">ip</code> → <em>estado no kernel</em>.</p>
+<p>Revise em D+1, D+3, D+7 e D+21. Explique por que editar o arquivo errado pode não produzir mensagem de erro e ainda assim não resolver o chamado.</p>
+<h2 id="10-checklist-e-fechamento">10 · Checklist e fechamento</h2>
+<ul><li>[ ] Identifico o responsável por interface antes de editar</li>
+<li>[ ] Leio a inclusão de arquivos no ifupdown</li>
+<li>[ ] Distingo seleção automática, método e estado aplicado</li>
+<li>[ ] Comparei a mesma intenção no Debian e na Rocky</li>
+<li>[ ] Reconheço <code translate="no">.netdev</code>, <code translate="no">.network</code> e seleção por <code translate="no">[Match]</code></li>
+<li>[ ] Fiz as três quebras sem alterar a placa do SSH</li>
+<li>[ ] Restaurei a seleção automática antes do reboot</li></ul>
+<p><strong>Último exercício:</strong> explique, sem consultar, a cadeia entre arquivo, responsável, ativação e endereço. Mostre onde cada quebra interrompeu essa cadeia.</p>
+<p><strong>Reboot de conferência:</strong> confirme <code translate="no">auto m11dummy1</code> no Debian e autoconexão <code translate="no">yes</code> na Rocky. Em cada VM, rode <code translate="no">sudo systemctl reboot</code>, acompanhe pelo noVNC e reconecte pelo alias.</p>
+<pre translate="no"><code class="lang-bash">ip -br address show dev m11dummy1
+ip -4 route show default</code></pre>
+<p><strong>Saída esperada:</strong> os endereços internos voltaram e a rota padrão original permanece. No Debian, a criação da interface foi executada pela ação <code translate="no">pre-up</code> da definição.</p>
+<p><strong>Verifique:</strong> confirme IPv4 e IPv6, consulte a definição do respectivo gerenciador e compare a placa real com o inventário inicial.</p>
+<p><strong>Retorno ao estado inicial:</strong> no Debian, desative a interface antes de remover sua definição:</p>
+<pre translate="no"><code class="lang-bash">sudo ifdown m11dummy1
+sudo rm -- /etc/network/interfaces.d/m11a3
+sudo ip link delete m11dummy1</code></pre>
+<p>Na Rocky:</p>
+<pre translate="no"><code class="lang-bash">sudo nmcli connection delete m11a3-interno
+ip link show m11dummy1</code></pre>
+<p>Se o dispositivo interno ainda existir na Rocky depois de apagar o perfil, remova somente ele com <code translate="no">sudo ip link delete m11dummy1</code>. Nas duas VMs, confira <code translate="no">ip -br address</code> e <code translate="no">ip -4 route</code>; mantenha <code translate="no">~/m11a3</code> como registro e exemplos, sem copiar seus arquivos para diretórios de serviços.</p>
+<p><strong>Snapshot de fim:</strong> no nó Proxmox, após o retorno:</p>
+<pre translate="no"><code class="lang-bash">qm snapshot 201 m11a3-fim
+qm snapshot 202 m11a3-fim</code></pre>
+<h2 id="11-na-vida-real">11 · Na vida real</h2>
+<p><strong>Missão, só leitura.</strong> Em um servidor que você administre ou tenha autorização para observar:</p>
+<pre translate="no"><code class="lang-bash">systemctl is-active networking.service NetworkManager.service systemd-networkd.service
+ip -br address
+ip -4 route
+ip -6 route</code></pre>
+<p>Se <code translate="no">ifupdown</code> estiver instalado, consulte as definições com <code translate="no">sudo ifquery --list</code>. Use consultas de NetworkManager ou networkd somente se o respectivo serviço já estiver ativo. Não inicie serviços, não recarregue arquivos e não reative interfaces nesta missão.</p>
+<ol><li>Quem administra cada interface de serviço? Quais evidências mostram isso?</li>
+<li>Qual arquivo ou perfil participa da ativação da interface escolhida?</li>
+<li>Há um rascunho ou arquivo antigo que alguém poderia confundir com a origem em uso?</li>
+<li>A configuração tem registro de teste após reboot ou apenas uma consulta do estado atual?</li></ol>
+<h2 id="12-aprofundar-quando-quiser">12 · Aprofundar quando quiser</h2>
+<ul><li><a href="https://manpages.debian.org/trixie/ifupdown/interfaces.5.en.html"><code translate="no">man interfaces</code></a>: definições, inclusões, <code translate="no">auto</code>, <code translate="no">allow-hotplug</code> e ações auxiliares.</li>
+<li><a href="https://manpages.debian.org/trixie/ifupdown/ifup.8.en.html"><code translate="no">man ifup</code></a>: aplicação, remoção, simulação e consulta de estado.</li>
+<li><a href="https://manpages.debian.org/trixie/ifupdown/ifquery.8.en.html"><code translate="no">man ifquery</code></a>: leitura de definições e seleção por classe.</li>
+<li><a href="https://manpages.debian.org/trixie/systemd/systemd.network.5.en.html"><code translate="no">man systemd.network</code></a>: seleção e ordem dos arquivos <code translate="no">.network</code>.</li>
+<li><a href="https://manpages.debian.org/trixie/systemd/networkctl.1.en.html"><code translate="no">man networkctl</code></a>: consultas e diferença entre recarregar e reconfigurar.</li>
+<li><a href="https://wiki.debian.org/NetworkManager">NetworkManager no Debian</a>: integração com <code translate="no">interfaces</code> e interfaces não gerenciadas.</li></ul>
+<p><strong>DeepTutor</strong> (http://10.1.0.149:3782, KB "Curso Linux Sysadmin"):</p>
+<ul><li><code translate="no">!explica ifupdown, NetworkManager e networkd como responsáveis diferentes por uma interface</code></li>
+<li><code translate="no">!feynman arquivo correto no lugar errado: critique minha explicação separando inclusão, seleção e aplicação</code></li>
+<li><code translate="no">!quiz Aula 11.3, 6 perguntas sobre interfaces, auto, allow-hotplug e comparação de gerenciadores, uma por vez</code></li></ul>
+<h2 id="gabarito-comentado">Gabarito comentado</h2>
+<h3 id="aquecimento">Aquecimento</h3>
+<ol><li>O perfil guarda propriedades; a conexão ativa representa sua aplicação ao dispositivo. Consulte ambos e confira o kernel.</li>
+<li>Não. A adição altera o estado atual; o retorno depende da configuração persistente e do mecanismo que a aplica.</li>
+<li>Console noVNC funcional ou um plano de retorno testado. O SSH depende da interface e do caminho que você pretende alterar.</li></ol>
+<h3 id="quiz">Quiz</h3>
+<ol><li><code translate="no">auto</code> seleciona a ativação com <code translate="no">ifup -a</code>; <code translate="no">inet static</code> define o método IPv4. Momento e método são informações diferentes.</li>
+<li>Porque o principal precisa incluí-lo e o nome precisa ser aceito pela forma de inclusão. A consulta padrão de <code translate="no">ifquery</code> confirma a leitura.</li>
+<li><code translate="no">ifquery</code> interpreta definições e consulta o registro de ifupdown; <code translate="no">ip address</code> mostra endereços no kernel. Nenhum deles, sozinho, comprova uma operação da aplicação.</li>
+<li>Não. Ele permite ativação associada à detecção do dispositivo; não equivale a detectar sinal no cabo.</li>
+<li>Não. O primeiro arquivo correspondente em ordem alfanumérica é usado. Para arquivos de mesmo nome, considere a prioridade dos diretórios.</li>
+<li>Porque a interface já tem um responsável. Os arquivos eram uma comparação de sintaxe; ativar outro gerenciador exigiria uma migração planejada e verificação do alcance.</li></ol>
+<p><a href="11.2-networkmanager-e-nmcli.html">← Aula 11.2 · NetworkManager e nmcli</a> · <a href="index.html">Índice de aulas</a> · <a href="https://github.com/Rodrigoantignani/curso-linux-sysadmin/blob/master/00-plano-do-curso.md">Plano do curso: 11.4 em diante →</a></p>
+</article><nav class="paginas" aria-label="Aulas"><a class="ant" href="11.2-networkmanager-e-nmcli.html"><small>← Anterior</small>11.2 · NetworkManager e nmcli</a></nav></main></div>
+<footer><div class="wrap">Gerado a partir do Markdown do curso · Imagens em <code translate="no">img/</code></div></footer>
+</body>
+</html>
