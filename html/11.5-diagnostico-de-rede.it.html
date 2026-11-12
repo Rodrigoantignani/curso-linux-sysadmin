@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light dark">
+<title>11.5 · Diagnosi di rete · Corso Linux Sysadmin</title>
+<link rel="alternate" hreflang="pt-BR" href="11.5-diagnostico-de-rede.html"><link rel="alternate" hreflang="it" href="11.5-diagnostico-de-rede.it.html">
+<style>
+:root{color-scheme:light dark;--bg:#f6f1e7;--card:#fffdf8;--ink:#201c16;--muted:#5e564a;--accent:#9a3412;--accent-2:#1f5f4a;--tint:#efe6d4;--line:#ddd2bc;--code:#f1eadb;--shadow:0 1px 2px rgba(60,40,10,.08);--serif:Georgia,"Iowan Old Style","Palatino Linotype",Palatino,serif;--sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--mono:"Cascadia Code",Consolas,"DejaVu Sans Mono",monospace}
+@media (prefers-color-scheme:dark){:root{--bg:#16130f;--card:#201b15;--ink:#f1eadb;--muted:#b9ad98;--accent:#f0a070;--accent-2:#7fd0b0;--tint:#2a231a;--line:#3d3427;--code:#191510;--shadow:none}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:5.5rem}
+body{margin:0;background:var(--bg);color:var(--ink);font:1rem/1.6 var(--sans)}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--accent-2);outline-offset:2px;border-radius:4px}
+.pular{position:absolute;left:-999px;top:0;background:var(--card);padding:.5rem 1rem;z-index:20}
+.pular:focus{left:.5rem;top:.5rem}
+.wrap{width:100%;max-width:84rem;margin:0 auto;padding-inline:max(1rem,env(safe-area-inset-left))}
+.top{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10;border-top:6px solid var(--accent)}
+.top-in{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding-block:.6rem}
+.titles{min-width:0}
+.marca{margin:0;font:700 clamp(1.15rem,1rem + 1vw,1.6rem)/1.15 var(--serif);letter-spacing:-.01em}
+.marca a{text-decoration:none}
+.marca a:hover{color:var(--accent)}
+.meta{margin:.1rem 0 0;color:var(--muted);font-size:.85rem}
+.acoes{display:flex;align-items:center;gap:.9rem;flex:none}
+.acoes>a{font-size:.9rem;font-weight:600;color:var(--muted);text-decoration:none}
+.acoes>a:hover{color:var(--accent);text-decoration:underline}
+.idioma{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--tint)}
+.idioma>*{padding:.35rem .9rem;font-size:.8rem;font-weight:700;letter-spacing:.06em;text-decoration:none;color:var(--muted);min-width:2.75rem;text-align:center}
+.idioma a:hover{color:var(--accent);text-decoration:underline}
+.idioma span{background:var(--accent);color:#fff}
+@media (prefers-color-scheme:dark){.idioma span{color:#16130f}}
+code{font-family:var(--mono);font-size:.9em;background:var(--tint);padding:.1rem .35rem;border-radius:4px;overflow-wrap:anywhere}
+/* índice */
+.capa{max-width:70rem;padding-block:2rem 3rem}
+.stats{border-left:4px solid var(--accent-2);background:var(--card);border-radius:0 10px 10px 0;padding:1rem 1.25rem;margin:0 0 2.5rem;box-shadow:var(--shadow);color:var(--muted)}
+.stats strong{color:var(--ink)}
+.modulo{display:grid;grid-template-columns:15rem minmax(0,1fr);gap:1rem 2rem;padding:1.75rem 0;border-top:1px solid var(--line)}
+.modulo h2{margin:0;font:700 1.25rem/1.25 var(--serif);align-self:start;position:sticky;top:6rem}
+.mn{display:block;font:700 .8rem var(--mono);letter-spacing:.12em;color:var(--accent);margin-bottom:.25rem}
+.sep{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.modulo ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,17rem),1fr));gap:.75rem}
+.modulo li{margin:0}
+.modulo a{display:flex;gap:.45rem;align-items:baseline;height:100%;padding:.85rem 1rem;background:var(--card);border:1px solid var(--line);border-radius:10px;text-decoration:none;font-weight:600;line-height:1.35;box-shadow:var(--shadow);transition:border-color .15s,transform .15s}
+.modulo a:hover{border-color:var(--accent);color:var(--accent)}
+.num{font:700 .85rem var(--mono);color:var(--accent);white-space:nowrap}
+/* aula */
+.doc{display:grid;grid-template-columns:17rem minmax(0,1fr);gap:2.5rem;align-items:start;padding-block:2rem 3rem}
+.lateral{position:sticky;top:5.5rem;max-height:calc(100vh - 6.5rem);overflow:auto;font-size:.875rem;padding-right:.5rem}
+.lateral h2{margin:0 0 .25rem;font:700 .95rem var(--serif);color:var(--muted)}
+.lateral h3{margin:1rem 0 .25rem;font:700 .75rem var(--mono);letter-spacing:.06em;color:var(--accent)}
+.lateral ul{list-style:none;margin:0;padding:0}
+.lateral a{display:flex;gap:.45rem;padding:.25rem .5rem;border-radius:6px;text-decoration:none;color:var(--muted);line-height:1.3}
+.lateral a:hover{background:var(--tint);color:var(--ink)}
+.lateral a[aria-current]{background:var(--tint);color:var(--ink);font-weight:700;box-shadow:inset 3px 0 0 var(--accent)}
+.lateral .num{font-size:.75rem}
+.aula{min-width:0;max-width:56rem;overflow-wrap:break-word;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:clamp(1.25rem,1rem + 2vw,2.75rem);box-shadow:var(--shadow)}
+.aula h1{margin:0 0 1.5rem;font:700 clamp(1.75rem,1.4rem + 1.6vw,2.5rem)/1.15 var(--serif);letter-spacing:-.015em;color:var(--ink)}
+.aula h2{margin:2.5rem 0 .75rem;padding-top:1.25rem;border-top:1px solid var(--line);font:700 1.5rem/1.25 var(--serif)}
+.aula h3{margin:2rem 0 .5rem;font:700 1.15rem/1.3 var(--serif);color:var(--accent)}
+.aula h4,.aula h5,.aula h6{margin:1.5rem 0 .5rem;font-size:1rem}
+.aula p,.aula ul,.aula ol{margin:1rem 0}
+.aula ul,.aula ol{padding-left:1.5rem}
+.aula li{margin:.35rem 0}
+.aula li>ul,.aula li>ol{margin:.35rem 0}
+.aula a{color:var(--accent);text-underline-offset:2px}
+.aula hr{border:0;border-top:1px solid var(--line);margin:2rem 0}
+.tabela{overflow-x:auto;margin:1.25rem 0;border:1px solid var(--line);border-radius:10px}
+.aula table{width:100%;border-collapse:collapse;font-size:.9rem}
+.aula th,.aula td{padding:.55rem .75rem;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+.aula tr:last-child td{border-bottom:0}
+.aula th{background:var(--tint);font-weight:700}
+.aula pre{background:var(--code);border:1px solid var(--line);border-radius:10px;padding:.9rem 1rem;overflow-x:auto;font:.85rem/1.5 var(--mono);margin:1rem 0;tab-size:4}
+.aula pre code{background:none;padding:0;font-size:inherit;overflow-wrap:normal}
+.aula blockquote{margin:1.25rem 0;padding:.75rem 1.25rem;border-left:4px solid var(--accent-2);background:var(--tint);border-radius:0 10px 10px 0}
+.aula blockquote>:first-child{margin-top:0}
+.aula blockquote>:last-child{margin-bottom:0}
+.aula figure{margin:1.75rem 0;text-align:center}
+.aula figure img{display:block;margin:0 auto;max-width:100%;height:auto;border:1px solid var(--line);border-radius:10px;background:#fff}
+.aula figcaption{margin-top:.5rem;color:var(--muted);font-size:.9rem;font-style:italic}
+.paginas{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:2.5rem;padding-top:1.5rem;border-top:1px solid var(--line)}
+.paginas a{display:block;padding:.75rem 1rem;border:1px solid var(--line);border-radius:10px;text-decoration:none;color:var(--ink);font-weight:600;line-height:1.3}
+.paginas a:hover{border-color:var(--accent);color:var(--accent)}
+.paginas small{display:block;color:var(--muted);font-weight:400}
+.paginas .prox{grid-column:2;text-align:right}
+footer{border-top:1px solid var(--line);padding-block:1.5rem;color:var(--muted);font-size:.85rem;text-align:center}
+@media (hover:hover) and (prefers-reduced-motion:no-preference){.modulo a:hover{transform:translateY(-2px)}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+@media (max-width:980px){.doc{grid-template-columns:minmax(0,1fr);padding-top:1rem}.lateral{position:static;max-height:none;order:2}.aula{max-width:none}}
+@media (max-width:860px){.modulo{grid-template-columns:minmax(0,1fr)}.modulo h2{position:static}.mn{display:inline;margin-right:.5rem}}
+@media (max-width:420px){.meta{display:none}.top-in{gap:.5rem}.acoes{gap:.6rem}.capa{padding-top:1.25rem}.paginas{grid-template-columns:minmax(0,1fr)}.paginas .prox{grid-column:1}}
+@media print{.top,.lateral,.paginas{display:none}.aula{border:0;box-shadow:none;padding:0;max-width:none}.doc{display:block}}
+</style>
+</head>
+<body>
+<a class="pular" href="#conteudo">Vai al contenuto</a>
+<header class="top"><div class="wrap top-in"><div class="titles"><p class="marca"><a href="index.it.html">Corso Linux Sysadmin</a></p><p class="meta">Rodrigo Antignani · Lezione 11.5</p></div><div class="acoes"><a href="index.it.html">Indice</a><div class="idioma" role="group" aria-label="Lingua"><a href="11.5-diagnostico-de-rede.html" hreflang="pt-BR" lang="pt-BR">PT</a><span aria-current="true">IT</span></div></div></div></header>
+<div class="wrap doc"><aside class="lateral" aria-label="Lezioni"><h2>Lezioni</h2><h3>M0 · Laboratorio</h3><ul><li><a href="0.1-montar-o-laboratorio.it.html"><span class="num">0.1</span><span>Allestire il laboratorio</span></a></li><li><a href="0.2-acesso-e-protecao.it.html"><span class="num">0.2</span><span>Accesso e protezione</span></a></li></ul><h3>M1 · Riga di comando</h3><ul><li><a href="1.1-o-que-e-linux.it.html"><span class="num">1.1</span><span>Che cos'è Linux</span></a></li><li><a href="1.2-o-shell-e-a-ajuda.it.html"><span class="num">1.2</span><span>La shell e la guida</span></a></li><li><a href="1.3-caminhos-e-navegacao.it.html"><span class="num">1.3</span><span>Percorsi e navigazione</span></a></li><li><a href="1.4-criar-copiar-mover-e-apagar.it.html"><span class="num">1.4</span><span>Creare, copiare, spostare ed eliminare</span></a></li><li><a href="1.5-ler-e-procurar-texto.it.html"><span class="num">1.5</span><span>Leggere e cercare testo</span></a></li><li><a href="1.6-redirecionamentos-e-pipes.it.html"><span class="num">1.6</span><span>Reindirizzamenti e pipe</span></a></li><li><a href="1.7-arquivar-e-compactar.it.html"><span class="num">1.7</span><span>Archiviare e comprimere</span></a></li><li><a href="1.8-primeiro-script.it.html"><span class="num">1.8</span><span>Primo script</span></a></li><li><a href="1.9-decidir-e-repetir.it.html"><span class="num">1.9</span><span>Decidere e ripetere</span></a></li><li><a href="1.10-software-livre-na-pratica.it.html"><span class="num">1.10</span><span>Il software libero in pratica</span></a></li></ul><h3>M2 · Sistema, utenti e permessi</h3><ul><li><a href="2.1-instalacao-e-provisionamento.it.html"><span class="num">2.1</span><span>Installazione e provisioning</span></a></li><li><a href="2.2-hardware-e-dispositivos.it.html"><span class="num">2.2</span><span>Hardware e dispositivi</span></a></li><li><a href="2.3-processos-e-logs.it.html"><span class="num">2.3</span><span>Processi e log</span></a></li><li><a href="2.4-rede-no-dia-a-dia.it.html"><span class="num">2.4</span><span>La rete di tutti i giorni</span></a></li><li><a href="2.5-acesso-remoto-e-privilegios.it.html"><span class="num">2.5</span><span>Accesso remoto e privilegi</span></a></li><li><a href="2.6-usuarios-e-grupos.it.html"><span class="num">2.6</span><span>Utenti e gruppi</span></a></li><li><a href="2.7-permissoes-e-dono.it.html"><span class="num">2.7</span><span>Permessi e proprietario</span></a></li><li><a href="2.8-diretorios-e-arquivos-especiais.it.html"><span class="num">2.8</span><span>Directory e file speciali</span></a></li></ul><h3>M3 · Testo ed editor</h3><ul><li><a href="3.1-fluxos-a-fundo.it.html"><span class="num">3.1</span><span>I flussi in profondità</span></a></li><li><a href="3.2-filtros-de-texto.it.html"><span class="num">3.2</span><span>Filtri di testo</span></a></li><li><a href="3.3-regex-e-grep.it.html"><span class="num">3.3</span><span>Regex e grep</span></a></li><li><a href="3.4-sed-e-awk.it.html"><span class="num">3.4</span><span>sed e awk</span></a></li><li><a href="3.5-vi-e-vim-de-verdade.it.html"><span class="num">3.5</span><span>vi e vim sul serio</span></a></li></ul><h3>M4 · systemd e boot</h3><ul><li><a href="4.1-como-o-linux-liga.it.html"><span class="num">4.1</span><span>Come si avvia Linux</span></a></li><li><a href="4.2-systemd-servicos-e-units.it.html"><span class="num">4.2</span><span>systemd: servizi e unit</span></a></li><li><a href="4.3-targets-desligar-e-reiniciar.it.html"><span class="num">4.3</span><span>Target: spegnere e riavviare</span></a></li><li><a href="4.4-grub-e-acesso-de-emergencia.it.html"><span class="num">4.4</span><span>GRUB e accesso di emergenza</span></a></li></ul><h3>M5 · Kernel, moduli e VM</h3><ul><li><a href="5.1-hardware-pelo-kernel.it.html"><span class="num">5.1</span><span>L'hardware visto dal kernel</span></a></li><li><a href="5.2-modulos-e-parametros.it.html"><span class="num">5.2</span><span>Moduli e parametri</span></a></li><li><a href="5.3-linux-como-convidado.it.html"><span class="num">5.3</span><span>Linux come guest</span></a></li></ul><h3>M6 · Pacchetti e repository</h3><ul><li><a href="6.1-pacotes-no-debian.it.html"><span class="num">6.1</span><span>Pacchetti su Debian</span></a></li><li><a href="6.2-pacotes-na-rocky.it.html"><span class="num">6.2</span><span>Pacchetti su Rocky</span></a></li><li><a href="6.3-repositorios.it.html"><span class="num">6.3</span><span>Repository</span></a></li><li><a href="6.4-flatpak.it.html"><span class="num">6.4</span><span>Flatpak</span></a></li><li><a href="6.5-bibliotecas-compartilhadas.it.html"><span class="num">6.5</span><span>Librerie condivise</span></a></li></ul><h3>M7 · Processi e prestazioni</h3><ul><li><a href="7.1-processos-e-sinais.it.html"><span class="num">7.1</span><span>Processi e segnali</span></a></li><li><a href="7.2-jobs-e-sessoes.it.html"><span class="num">7.2</span><span>Job e sessioni</span></a></li><li><a href="7.3-prioridade-e-perfis.it.html"><span class="num">7.3</span><span>Priorità e profili</span></a></li></ul><h3>M8 · File a fondo</h3><ul><li><a href="8.1-fhs-e-onde-cada-coisa-mora.it.html"><span class="num">8.1</span><span>FHS e dove sta ogni cosa</span></a></li><li><a href="8.2-find-a-fundo.it.html"><span class="num">8.2</span><span>find a fondo</span></a></li><li><a href="8.3-arquivamento-avancado.it.html"><span class="num">8.3</span><span>Archiviazione avanzata</span></a></li><li><a href="8.4-links.it.html"><span class="num">8.4</span><span>Link</span></a></li><li><a href="8.5-permissoes-avancadas.it.html"><span class="num">8.5</span><span>Permessi avanzati</span></a></li></ul><h3>M9 · Storage</h3><ul><li><a href="9.1-discos-e-layout.it.html"><span class="num">9.1</span><span>Dischi e layout</span></a></li><li><a href="9.2-particionar.it.html"><span class="num">9.2</span><span>Partizionare</span></a></li><li><a href="9.3-sistemas-de-arquivos.it.html"><span class="num">9.3</span><span>File system</span></a></li><li><a href="9.4-montar-e-persistir.it.html"><span class="num">9.4</span><span>Montare e rendere persistente</span></a></li><li><a href="9.5-integridade-e-espaco.it.html"><span class="num">9.5</span><span>Integrità e spazio</span></a></li><li><a href="9.6-lvm.it.html"><span class="num">9.6</span><span>LVM</span></a></li><li><a href="9.7-crescer-sem-destruir.it.html"><span class="num">9.7</span><span>Crescere senza distruggere</span></a></li></ul><h3>M10 · Utenti e accesso privilegiato</h3><ul><li><a href="10.1-contas.it.html"><span class="num">10.1</span><span>Account</span></a></li><li><a href="10.2-senhas-e-validade.it.html"><span class="num">10.2</span><span>Password e scadenza</span></a></li><li><a href="10.3-grupos-e-trabalho-em-equipe.it.html"><span class="num">10.3</span><span>Gruppi e lavoro di squadra</span></a></li><li><a href="10.4-sudo-de-verdade.it.html"><span class="num">10.4</span><span>sudo sul serio</span></a></li></ul><h3>M11 · Rete</h3><ul><li><a href="11.1-tcp-ip-para-quem-administra.it.html"><span class="num">11.1</span><span>TCP/IP per chi amministra</span></a></li><li><a href="11.2-networkmanager-e-nmcli.it.html"><span class="num">11.2</span><span>NetworkManager e nmcli</span></a></li><li><a href="11.3-rede-no-debian.it.html"><span class="num">11.3</span><span>Rete su Debian</span></a></li><li><a href="11.4-nomes-e-resolucao.it.html"><span class="num">11.4</span><span>Nomi e risoluzione</span></a></li><li><a href="11.5-diagnostico-de-rede.it.html" aria-current="page"><span class="num">11.5</span><span>Diagnosi di rete</span></a></li></ul></aside><main id="conteudo" class="aula"><article><h1>Lezione 11.5 · Diagnosi di rete</h1>
+<p>Su Windows Server separi risoluzione, percorso e porta prima di attribuire il problema a tutta la rete. Su Linux farai lo stesso con strumenti piccoli ed evidenze complementari. Questa lezione chiude il modulo: osservi una connessione, introduci guasti controllati e verifichi una configurazione persistente con IPv4 e IPv6.</p>
+<blockquote><p><strong>Il cuore di questa lezione:</strong> verifica separatamente nome, percorso, porta e applicazione. Cattura nei punti giusti e limita la conclusione a ciò che hai osservato. Il resto è approfondimento.</p></blockquote>
+<div class="tabela"><table><thead><tr><th scope="col">Scheda</th><th scope="col"></th></tr></thead><tbody><tr><td><strong>Modulo</strong></td><td>M11 · Rete, lezione 5 di 5</td></tr><tr><td><strong>Quando</strong></td><td>Settimana 17</td></tr><tr><td><strong>Alla fine</strong></td><td>Distingui un errore di risoluzione, un rifiuto TCP e l'assenza di risposta; registri le evidenze prima di intervenire</td></tr><tr><td><strong>Prerequisiti</strong></td><td>Lezioni dalla 11.1 alla 11.4; utente <code translate="no">student</code>, <code translate="no">sudo</code>, SSH e noVNC sulle due VM</td></tr><tr><td><strong>Durata</strong></td><td>Circa 90 minuti, più una sessione per la sfida</td></tr><tr><td><strong>Snapshot</strong></td><td><code translate="no">m11a5-inicio</code> e <code translate="no">m11a5-fim</code> sulle VM 201 e 202</td></tr></tbody></table></div>
+<h2 id="1-riscaldamento">1 · Riscaldamento</h2>
+<p>Rispondi senza consultare il materiale. Le risposte commentate sono in fondo.</p>
+<ol><li>Qual è la differenza tra indirizzo configurato, profilo salvato e percorso scelto?</li>
+<li>Perché <code translate="no">getent</code> e <code translate="no">dig</code> possono rispondere in modo diverso per lo stesso nome?</li>
+<li>Perché cambiare IP dalla stessa sessione SSH richiede una console o un piano di ripristino?</li></ol>
+<h2 id="2-perche-conta">2 · Perché conta</h2>
+<p>L'applicazione non si apre. Il ping risponde e qualcuno conclude che il problema sia nel browser. Controlli il socket: il processo ascolta solo sul loopback. L'indirizzo della VM risponde, ma quella porta non serve l'interfaccia di rete.</p>
+<p>Il rapporto deve indicare destinazione, famiglia IP, porta e orario del test. “La rete funziona” non descrive ciò che è stato verificato.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Osservazione</th><th scope="col">Conclusione utile</th></tr></thead><tbody><tr><td>Il nome restituisce l'IP previsto</td><td>La risoluzione usata in questo test ha risposto</td></tr><tr><td>La connessione TCP si apre</td><td>L'apertura TCP ha funzionato su quella porta</td></tr><tr><td>HTTP restituisce il contenuto previsto</td><td>L'applicazione ha risposto alla richiesta verificata</td></tr></tbody></table></div>
+<h2 id="3-modello-mentale">3 · Modello mentale</h2>
+<p>Pensa all'edificio del corso. Il catalogo indica l'indirizzo; la pianta mostra il percorso; la portineria riceve la connessione; il reparto interno offre il servizio. Trovare la strada non significa ricevere il servizio dal reparto.</p>
+<pre translate="no"><code class="lang-text">nome -&gt; indirizzo -&gt; percorso -&gt; porta TCP -&gt; risposta dell'applicazione
+          |          |          |                 |
+       getent    ip route      nc               curl
+DNS: dig                         sockets: ss
+                    osservazione dei pacchetti: tcpdump</code></pre>
+<figure><a href="../img/11.5-escada-das-evidencias.it.jpg"><img src="../img/11.5-escada-das-evidencias.it.jpg" alt="Ogni test risponde a una domanda" loading="lazy" decoding="async"></a><figcaption>Un test riuscito non dimostra il livello successivo.</figcaption></figure>
+<h3 id="ponte-windows">Ponte Windows</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Windows Server</th><th scope="col">Linux</th><th scope="col">Domanda</th></tr></thead><tbody><tr><td><code translate="no">Resolve-DnsName</code></td><td><code translate="no">dig</code></td><td>Che cosa ha risposto il server DNS?</td></tr><tr><td><code translate="no">Test-NetConnection</code></td><td><code translate="no">nc</code> e <code translate="no">ip route get</code></td><td>Porta TCP e percorso scelto</td></tr><tr><td><code translate="no">Get-NetTCPConnection</code></td><td><code translate="no">ss</code></td><td>Chi ascolta e su quale indirizzo?</td></tr><tr><td>Cattura dei pacchetti</td><td><code translate="no">tcpdump</code></td><td>Che cosa è passato in questo punto?</td></tr></tbody></table></div>
+<h2 id="4-l-essenziale">4 · L'essenziale</h2>
+<h3 id="nome-famiglia-e-percorso">Nome, famiglia e percorso</h3>
+<p>Parti dalla destinazione esatta. Forza IPv4 o IPv6 quando l'ipotesi riguarda una famiglia. Un indirizzo IPv6 locale funzionante non dimostra l'esistenza di un percorso IPv6 verso Internet.</p>
+<pre translate="no"><code class="lang-bash">getent ahostsv4 debian-lab
+ip -4 route get 10.1.0.52
+ip -6 route get ::1</code></pre>
+<p>Il primo comando usa NSS. Il secondo consulta la decisione di inoltro del kernel e non invia una sonda. Controlla destinazione, sorgente scelta e interfaccia.</p>
+<h3 id="icmp-e-percorso">ICMP e percorso</h3>
+<p><code translate="no">ping</code> verifica le risposte ICMP. <code translate="no">tracepath</code> usa sonde UDP e risposte dal percorso per mostrare i salti e le informazioni sulla MTU. Un salto silenzioso da solo non identifica dove si sia fermato il traffico dell'applicazione.</p>
+<pre translate="no"><code class="lang-bash">ping -4 -n -c 3 -W 1 10.1.0.52
+tracepath -4 -n -m 5 10.1.0.52</code></pre>
+<h3 id="la-porta-non-e-l-applicazione">La porta non è l'applicazione</h3>
+<p><code translate="no">nc -vz</code> prova a stabilire TCP senza inviare una richiesta applicativa. Un socket in ascolto compare in <code translate="no">ss -lntp</code>; l'opzione dei processi richiede privilegi per mostrare i processi di altri utenti.</p>
+<p>Un rifiuto TCP indica un rifiuto attivo, normalmente un RST. Il timeout indica che il test non ha ricevuto la risposta necessaria entro il limite. L'origine precisa del rifiuto o del silenzio richiede altre evidenze.</p>
+<figure><a href="../img/11.5-recusa-e-silencio.it.jpg"><img src="../img/11.5-recusa-e-silencio.it.jpg" alt="Rifiuto e silenzio sono indizi diversi" loading="lazy" decoding="async"></a><figcaption>Il silenzio da solo non localizza il guasto.</figcaption></figure>
+<h3 id="dns-senza-scorciatoie-nell-interpretazione">DNS senza scorciatoie nell'interpretazione</h3>
+<p><code translate="no">dig</code> interroga DNS; non usa <code translate="no">/etc/hosts</code> come fonte dei nomi. Leggi lo stato, il server interrogato e la risposta. <code translate="no">NOERROR</code> con risposta vuota è diverso da <code translate="no">NXDOMAIN</code>; nessuna delle due risposte equivale all'assenza di comunicazione con il server.</p>
+<pre translate="no"><code class="lang-bash">dig -r +time=2 +tries=1 . NS</code></pre>
+<p>Il punto rappresenta la radice DNS. Il comando usa i server configurati; <code translate="no">-r</code> ignora le impostazioni personali di <code translate="no">dig</code>. Non nascondere lo stato con una ricerca che mostri soltanto la risposta breve.</p>
+<h3 id="la-cattura-e-un-punto-di-osservazione">La cattura è un punto di osservazione</h3>
+<p>Scegli interfaccia, filtro e durata. <code translate="no">-nn</code> evita la risoluzione di nomi e porte; <code translate="no">-p</code> evita la modalità promiscua. Una cattura sul client mostra ciò che è stato osservato lì, non ciò che il server ha ricevuto.</p>
+<figure><a href="../img/11.5-dois-pontos-de-observacao.it.jpg"><img src="../img/11.5-dois-pontos-de-observacao.it.jpg" alt="Dove è stato osservato il pacchetto" loading="lazy" decoding="async"></a><figcaption>Confronta le catture sui due lati prima di indicare la causa.</figcaption></figure>
+<h3 id="rocky-debian">Rocky × Debian</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Voce</th><th scope="col">Rocky 9</th><th scope="col">Debian 13</th></tr></thead><tbody><tr><td><code translate="no">nc</code> di questa lezione</td><td>Pacchetto <code translate="no">nmap-ncat</code></td><td>Pacchetto <code translate="no">netcat-openbsd</code></td></tr><tr><td><code translate="no">dig</code></td><td><code translate="no">bind-utils</code></td><td><code translate="no">bind9-dnsutils</code></td></tr><tr><td><code translate="no">tracepath</code></td><td><code translate="no">iputils</code></td><td><code translate="no">iputils-tracepath</code></td></tr><tr><td>Cattura</td><td><code translate="no">tcpdump</code></td><td><code translate="no">tcpdump</code></td></tr><tr><td>Gestore</td><td>NetworkManager</td><td>Quello identificato nella 11.3</td></tr></tbody></table></div>
+<h2 id="5-lab-guidato">5 · Lab guidato</h2>
+<p>Esegui i test locali su entrambe le VM. Usa tre terminali identificati: A per il server temporaneo, B per i test e C per la cattura. Il servizio HTTP resta sul loopback e non richiede di aprire il firewall.</p>
+<h3 id="passo-1-preparare-e-proteggere">Passo 1 · Preparare e proteggere</h3>
+<p><strong>Ipotesi:</strong> lo snapshot installa gli strumenti o registra soltanto lo stato attuale della VM?</p>
+<p>Sull'host Proxmox, mai dentro le VM:</p>
+<pre translate="no"><code class="lang-bash">qm snapshot 201 m11a5-inicio
+qm snapshot 202 m11a5-inicio</code></pre>
+<p>Su Rocky installa gli strumenti. Su Debian usa il secondo blocco.</p>
+<pre translate="no"><code class="lang-bash">sudo dnf install -y iputils iproute bind-utils nmap-ncat tcpdump python3 curl</code></pre>
+<pre translate="no"><code class="lang-bash">sudo apt update
+sudo apt install -y iputils-ping iputils-tracepath iproute2 bind9-dnsutils netcat-openbsd tcpdump python3 curl</code></pre>
+<p><strong>Output atteso:</strong> snapshot creati e pacchetti installati senza errori.</p>
+<p><strong>Verifica:</strong> sull'host controlla <code translate="no">qm listsnapshot 201</code> e <code translate="no">qm listsnapshot 202</code>. Sulle VM controlla <code translate="no">command -v ping tracepath ss dig nc tcpdump python3 curl</code>.</p>
+<h3 id="passo-2-registrare-la-situazione-iniziale">Passo 2 · Registrare la situazione iniziale</h3>
+<p><strong>Ipotesi:</strong> vedere un percorso nella tabella dimostra che l'altra estremità ha risposto?</p>
+<p>Nel terminale B scegli l'IP dell'altra VM: su Rocky usa il primo valore; su Debian il secondo. Esegui una sola assegnazione.</p>
+<pre translate="no"><code class="lang-bash">ALVO=10.1.0.52</code></pre>
+<pre translate="no"><code class="lang-bash">ALVO=10.1.0.51</code></pre>
+<p>Prima di creare la cartella controlla che non esista. Se esiste, conserva altrove i vecchi registri e scegli una sessione pulita.</p>
+<pre translate="no"><code class="lang-bash">test ! -e "$HOME/m11a5"
+mkdir -m 700 "$HOME/m11a5"
+ip -br address | tee "$HOME/m11a5/address.inicio"
+ip -4 route get "$ALVO"
+sudo ss -lntp 'sport = :18085'
+sudo ss -lnup 'sport = :53'</code></pre>
+<p><strong>Output atteso:</strong> percorso verso l'altra VM e nessun ascolto TCP sulla porta <code translate="no">18085</code>. Annota se esiste DNS locale sulla porta <code translate="no">53</code>; il test DNS guasto richiede che <code translate="no">127.0.0.2:53</code> sia libero.</p>
+<p><strong>Verifica:</strong> se compare un ascolto su <code translate="no">18085</code>, interrompi questa preparazione e scegli un lab senza quel servizio. Anche un ascolto UDP su <code translate="no">0.0.0.0:53</code> occupa l'indirizzo riservato al guasto.</p>
+<h3 id="passo-3-confrontare-tcp-e-http">Passo 3 · Confrontare TCP e HTTP</h3>
+<p><strong>Ipotesi:</strong> una connessione TCP che si apre ha già letto il file dell'applicazione?</p>
+<p>Nel terminale A di ogni VM crea il contenuto e lascia il processo in primo piano.</p>
+<pre translate="no"><code class="lang-bash">mkdir "$HOME/m11a5/www"
+printf 'NETWORK ok\n' &gt; "$HOME/m11a5/www/index.html"
+python3 -m http.server 18085 --bind 127.0.0.1 --directory "$HOME/m11a5/www"</code></pre>
+<p>Nel terminale B:</p>
+<pre translate="no"><code class="lang-bash">sudo ss -lntp 'sport = :18085'
+nc -4 -vz -w 2 127.0.0.1 18085
+curl --noproxy '*' -4 --connect-timeout 2 --max-time 4 -fsS http://127.0.0.1:18085/</code></pre>
+<p><strong>Output atteso:</strong> ascolto su <code translate="no">127.0.0.1:18085</code>, connessione TCP accettata e contenuto <code translate="no">NETWORK ok</code> via HTTP. I messaggi di <code translate="no">nc</code> differiscono tra le distribuzioni.</p>
+<p><strong>Verifica:</strong> confronta il log del terminale A. Il test <code translate="no">nc</code> apre TCP; il test <code translate="no">curl</code> invia una richiesta HTTP e legge la risposta.</p>
+<h3 id="decidi-1">Decidi 1</h3>
+<p>Il ping risponde, ma il servizio non si apre. Quale test separa meglio porta e applicazione?</p>
+<div class="tabela"><table><thead><tr><th scope="col">Opzione</th><th scope="col">Azione</th></tr></thead><tbody><tr><td>A</td><td>Ripetere il ping altre cento volte</td></tr><tr><td>B</td><td>Verificare la porta con <code translate="no">nc</code> e poi il protocollo con <code translate="no">curl</code></td></tr><tr><td>C</td><td>Cambiare subito il gateway</td></tr></tbody></table></div>
+<p>Scegli B. L'obiettivo è ottenere una nuova evidenza senza cambiare la rete prima di localizzare il guasto.</p>
+<h3 id="passo-4-osservare-l-altra-vm">Passo 4 · Osservare l'altra VM</h3>
+<p><strong>Ipotesi:</strong> se ICMP non riceve risposta, la porta SSH sarà necessariamente indisponibile?</p>
+<p>Nel terminale B mantieni <code translate="no">ALVO</code> impostato sull'altra VM.</p>
+<pre translate="no"><code class="lang-bash">ping -4 -n -c 3 -W 1 "$ALVO"
+timeout 12 tracepath -4 -n -m 5 "$ALVO"
+nc -4 -vz -w 2 "$ALVO" 22</code></pre>
+<p><strong>Output atteso:</strong> nel lab con SSH operativo la porta <code translate="no">22</code> accetta la connessione. Registra il risultato reale di ICMP e dei salti; non inventare tempi e non interpretare un salto silenzioso come prova di blocco.</p>
+<p><strong>Verifica:</strong> apri una nuova sessione <code translate="no">ssh rocky-lab</code> o <code translate="no">ssh debian-lab</code> da Windows. Il test TCP non ha verificato autenticazione ed esecuzione dei comandi.</p>
+<h3 id="passo-5-leggere-una-risposta-dns">Passo 5 · Leggere una risposta DNS</h3>
+<p><strong>Ipotesi:</strong> una risposta DNS negativa e un server che non risponde sono lo stesso incidente?</p>
+<pre translate="no"><code class="lang-bash">cat /etc/resolv.conf
+dig -r +time=2 +tries=1 . NS
+getent ahostsv4 localhost</code></pre>
+<p><strong>Output atteso:</strong> la ricerca DNS mostra il server e il risultato reale della rete del lab. La ricerca locale trova IPv4 di loopback tramite NSS. Se DNS fallisce già, registra il guasto come condizione iniziale prima di introdurne un altro.</p>
+<p><strong>Verifica:</strong> individua nel risultato di <code translate="no">dig</code> lo stato e il server. Scrivi se hai ricevuto una risposta DNS oppure un errore di comunicazione, senza confondere i due casi.</p>
+<h3 id="passo-6-catturare-una-piccola-transazione">Passo 6 · Catturare una piccola transazione</h3>
+<p><strong>Ipotesi:</strong> il filtro per la porta HTTP catturerà tutte le sessioni SSH della VM?</p>
+<p>Nel terminale C avvia la cattura. Nel B esegui il <code translate="no">curl</code> del passo 3 mentre è attiva. La cattura esce dall'output standard; la shell di <code translate="no">student</code> apre il file privato, evitando di dipendere dai permessi dell'utente a cui il programma di cattura riduce i privilegi.</p>
+<pre translate="no"><code class="lang-bash">sudo timeout 15 tcpdump -i lo -nn -p -s 96 -c 20 -w - 'tcp port 18085' &gt; "$HOME/m11a5/http.pcap"</code></pre>
+<p>Poi, nel B:</p>
+<pre translate="no"><code class="lang-bash">sudo tcpdump -nn -r "$HOME/m11a5/http.pcap"</code></pre>
+<p><strong>Output atteso:</strong> pacchetti TCP locali con la porta <code translate="no">18085</code>. La cattura termina per limite di pacchetti o di tempo; <code translate="no">timeout</code> restituisce <code translate="no">124</code> quando interrompe allo scadere del limite.</p>
+<p><strong>Verifica:</strong> trova l'inizio con SYN e SYN/ACK, normalmente indicato da <code translate="no">[S]</code> e <code translate="no">[S.]</code>. Il limite di <code translate="no">96</code> byte serve per questa intestazione locale; non è una cattura integrale del contenuto HTTP.</p>
+<h3 id="decidi-2">Decidi 2</h3>
+<p>Nella rete tra le VM hai visto uscire SYN dal client, ma non hai osservato una risposta. Che cosa fai?</p>
+<div class="tabela"><table><thead><tr><th scope="col">Opzione</th><th scope="col">Azione</th></tr></thead><tbody><tr><td>A</td><td>Dichiarare che il firewall del server ha bloccato</td></tr><tr><td>B</td><td>Confrontare cattura sulla destinazione e socket in ascolto</td></tr><tr><td>C</td><td>Disattivare la protezione dell'host</td></tr></tbody></table></div>
+<p>Scegli B. Per ripetere il test SSH, cattura per pochi secondi su ogni VM con il filtro <code translate="no">host 10.1.0.51 and host 10.1.0.52 and tcp port 22</code>, usando l'interfaccia mostrata da <code translate="no">ip route get</code>. Cattura soltanto nel tuo lab.</p>
+<h2 id="6-rompi-e-ripara">6 · Rompi e ripara</h2>
+<h3 id="guasto-1-porta-senza-ascolto">Guasto 1 · Porta senza ascolto</h3>
+<p>Nel terminale A termina soltanto il server temporaneo con Ctrl+C.</p>
+<p><strong>Sintomo:</strong> <code translate="no">nc</code> e HTTP falliscono sullo stesso indirizzo che prima funzionava.</p>
+<p><strong>Indagine:</strong> confronta ICMP, socket e tentativo TCP nel terminale B.</p>
+<pre translate="no"><code class="lang-bash">ping -4 -n -c 1 127.0.0.1
+sudo ss -lntp 'sport = :18085'
+nc -4 -vz -w 2 127.0.0.1 18085</code></pre>
+<p><strong>Causa:</strong> l'IP locale funziona, ma il processo ha smesso di ascoltare. Sul loopback normale di questo lab, la porta chiusa riceve un rifiuto immediato.</p>
+<p><strong>Riparazione:</strong> nel terminale A esegui di nuovo il server HTTP del passo 3.</p>
+<p><strong>Verifica:</strong> ripeti il <code translate="no">curl</code> locale e ottieni <code translate="no">NETWORK ok</code>.</p>
+<p><strong>Prevenzione:</strong> monitora porta e protocollo previsto, oltre alla presenza dell'host.</p>
+<h3 id="guasto-2-famiglia-sbagliata">Guasto 2 · Famiglia sbagliata</h3>
+<p>Mantieni il server attivo soltanto su IPv4 e prova IPv6.</p>
+<p><strong>Sintomo:</strong> IPv4 restituisce la pagina, ma il tentativo verso <code translate="no">::1</code> fallisce.</p>
+<p><strong>Indagine:</strong> controlla l'indirizzo esatto del socket.</p>
+<pre translate="no"><code class="lang-bash">ping -6 -n -c 1 ::1
+sudo ss -lntp 'sport = :18085'
+nc -6 -vz -w 2 ::1 18085</code></pre>
+<p><strong>Causa:</strong> il server è stato associato a <code translate="no">127.0.0.1</code>; questo non crea un ascolto su <code translate="no">::1</code>.</p>
+<p><strong>Riparazione:</strong> termina il server con Ctrl+C nel terminale A e avvia l'ascolto IPv6 locale.</p>
+<pre translate="no"><code class="lang-bash">python3 -m http.server 18085 --bind ::1 --directory "$HOME/m11a5/www"</code></pre>
+<p><strong>Verifica:</strong> nel terminale B esegui i due test seguenti.</p>
+<pre translate="no"><code class="lang-bash">nc -6 -vz -w 2 ::1 18085
+curl --noproxy '*' -6 --connect-timeout 2 --max-time 4 -fsS 'http://[::1]:18085/'</code></pre>
+<p><strong>Prevenzione:</strong> annota famiglia, indirizzo di ascolto e porta come parte della configurazione del servizio.</p>
+<h3 id="guasto-3-interrogare-il-dns-sbagliato">Guasto 3 · Interrogare il DNS sbagliato</h3>
+<p><strong>Sintomo:</strong> la ricerca esplicita seguente fallisce, mentre la ricerca DNS del passo 5 aveva risposto. Esegui questo confronto soltanto dopo aver ottenuto la risposta normale di riferimento. Questo guasto riguarda soltanto il comando, senza modificare la configurazione globale.</p>
+<p><strong>Indagine:</strong> conferma l'assenza di ascolto su <code translate="no">127.0.0.2:53</code>, poi confronta le ricerche.</p>
+<pre translate="no"><code class="lang-bash">dig -r @127.0.0.2 +time=1 +tries=1 . NS
+dig -r +time=2 +tries=1 . NS</code></pre>
+<p><strong>Causa:</strong> la prima ricerca ha scelto un indirizzo senza server DNS. La seconda è tornata alla configurazione normale. Il messaggio esatto dell'errore varia tra le versioni.</p>
+<p><strong>Riparazione:</strong> rimuovi dal comando il server esplicito errato. Non modificare <code translate="no">/etc/hosts</code> per nascondere il guasto.</p>
+<p><strong>Verifica:</strong> la ricerca normale deve tornare al risultato di riferimento annotato nel passo 5.</p>
+<p><strong>Prevenzione:</strong> registra il server effettivamente interrogato insieme alla risposta DNS.</p>
+<h3 id="pulizia">Pulizia</h3>
+<p>Termina il server temporaneo con Ctrl+C nel terminale A. Le catture terminano già per tempo o conteggio; conserva la cartella privata come registro. Nel lab guidato non è stato modificato alcun file globale di rete.</p>
+<pre translate="no"><code class="lang-bash">sudo ss -lntp 'sport = :18085'
+ip -br address</code></pre>
+<p>Confronta gli indirizzi con <code translate="no">address.inicio</code>. La sfida seguente crea e rimuove soltanto un'interfaccia di esercizio, senza cambiare l'indirizzo usato da SSH.</p>
+<h2 id="7-trappole">7 · Trappole</h2>
+<div class="tabela"><table><thead><tr><th scope="col">Errore comune</th><th scope="col">Che cosa fare</th><th scope="col">Perché</th></tr></thead><tbody><tr><td>Il ping risponde, l'applicazione funziona</td><td>Verificare TCP e il protocollo</td><td>ICMP non verifica HTTP</td></tr><tr><td>Un salto non risponde, il guasto è lì</td><td>Confrontare il traffico reale sui due lati</td><td>Sonde e applicazione usano traffici diversi</td></tr><tr><td>Catturare tutto senza limiti</td><td>Limitare interfaccia, filtro e durata</td><td>Riduce l'esposizione e facilita l'analisi</td></tr><tr><td>Usare <code translate="no">dig</code> aspettandosi che legga hosts</td><td>Confrontare separatamente DNS e NSS</td><td>Le fonti consultate sono diverse</td></tr><tr><td>Usare un glob protetto prima di <code translate="no">sudo</code></td><td>Lasciare al programma privilegiato la selezione dei file</td><td>La shell normale espande prima il glob</td></tr></tbody></table></div>
+<h2 id="8-quiz">8 · Quiz</h2>
+<ol><li>Un <code translate="no">nc</code> TCP accettato dimostra che l'accesso SSH è stato autorizzato?</li>
+<li>Quale test mostra una decisione di percorso senza inviare una sonda?</li>
+<li>Come distingui una risposta DNS negativa dall'assenza di una risposta DNS?</li>
+<li>Un SYN osservato soltanto sul client dimostra che il server lo abbia ricevuto?</li>
+<li>Un ascolto su <code translate="no">127.0.0.1</code> serve automaticamente <code translate="no">::1</code>?</li>
+<li>Perché verificare la configurazione dopo il reboot?</li></ol>
+<h2 id="9-promemoria">9 · Promemoria</h2>
+<div class="tabela"><table><thead><tr><th scope="col">Operazione</th><th scope="col">Comando</th></tr></thead><tbody><tr><td>Consultare la risoluzione NSS</td><td><code translate="no">getent ahostsv4 localhost</code></td></tr><tr><td>Interrogare DNS</td><td><code translate="no">dig -r +time=2 +tries=1 . NS</code></td></tr><tr><td>Decisione IPv4</td><td><code translate="no">ip -4 route get 10.1.0.52</code></td></tr><tr><td>Ascolto TCP e processo</td><td><code translate="no">sudo ss -lntp</code></td></tr><tr><td>Tentativo TCP</td><td><code translate="no">nc -4 -vz -w 2 10.1.0.52 22</code></td></tr><tr><td>Leggere la cattura senza risolvere nomi</td><td><code translate="no">sudo tcpdump -nn -r "$HOME/m11a5/http.pcap"</code></td></tr></tbody></table></div>
+<p><strong>Flashcard:</strong> crea quattro schede su risoluzione, percorso, TCP e applicazione. Ripassa a D+1, D+3, D+7 e D+21.</p>
+<h2 id="10-checklist-e-chiusura">10 · Checklist e chiusura</h2>
+<ul><li>[ ] Ho eseguito il lab guidato sulle due distribuzioni.</li>
+<li>[ ] Ho separato le evidenze di ICMP, TCP, DNS e HTTP.</li>
+<li>[ ] Ho spiegato i tre guasti senza disattivare protezioni.</li>
+<li>[ ] Ho completato la sfida, ripristinato DNS e rimosso il profilo di esercizio.</li></ul>
+<p><strong>Ultimo esercizio:</strong> scrivi un rapporto con sintomo, ipotesi, test, risultato e conclusione. Individua un'affermazione che le tue evidenze non consentono ancora di fare.</p>
+<p><strong>Reboot di verifica:</strong> esegui prima la verifica di persistenza della sfida. Dopo averla pulita, riavvia entrambe le VM e conferma SSH, indirizzi originali, DNS normale e assenza del server temporaneo e dell'interfaccia di esercizio.</p>
+<pre translate="no"><code class="lang-bash">sudo systemctl reboot</code></pre>
+<p>Dopo aver completato la sfida e la pulizia, crea gli snapshot finali sull'host Proxmox.</p>
+<pre translate="no"><code class="lang-bash">qm snapshot 201 m11a5-fim
+qm snapshot 202 m11a5-fim</code></pre>
+<h2 id="11-nella-vita-reale">11 · Nella vita reale</h2>
+<p>Su un server che amministri o che sei autorizzato a ispezionare, svolgi una missione di sola lettura. Osserva indirizzi, percorsi e socket con <code translate="no">ip -br address</code>, <code translate="no">ip route</code> e <code translate="no">sudo ss -lntp</code>. Non installare strumenti, non modificare profili e non catturare traffico degli utenti in questa missione.</p>
+<p>Quale servizio ascolta soltanto sul loopback? Quale ascolta su un indirizzo di rete? Quale evidenza aggiuntiva servirebbe per confermare il funzionamento di un'applicazione per un client remoto?</p>
+<h2 id="12-approfondire-quando-vuoi">12 · Approfondire quando vuoi</h2>
+<ul><li><a href="https://man7.org/linux/man-pages/man8/ping.8.html">ping(8)</a> e <a href="https://man7.org/linux/man-pages/man8/tracepath.8.html">tracepath(8)</a>: sonde e interpretazione.</li>
+<li><a href="https://man7.org/linux/man-pages/man8/ss.8.html">ss(8)</a> e <a href="https://manpages.debian.org/trixie/netcat-openbsd/nc.1.en.html">nc(1)</a>: socket e tentativi TCP.</li>
+<li><a href="https://nmap.org/ncat/guide/ncat-usage.html">Ncat</a>, <a href="https://manpages.debian.org/trixie/bind9-dnsutils/dig.1.en.html">dig(1)</a> e <a href="https://manpages.debian.org/trixie/tcpdump/tcpdump.8.en.html">tcpdump(8)</a>: varianti e opzioni del lab.</li>
+<li><a href="https://networkmanager.pages.freedesktop.org/NetworkManager/NetworkManager/nmcli.html">nmcli</a> e <a href="https://networkmanager.pages.freedesktop.org/NetworkManager/NetworkManager/settings-ipv4.html">proprietà IPv4</a>: persistenza e priorità DNS della sfida.</li></ul>
+<p><strong>DeepTutor</strong> (http://10.1.0.149:3782, KB "Curso Linux Sysadmin"):</p>
+<ul><li><code translate="no">!explica Compare ping, nc, curl e tcpdump e limite a conclusão de cada teste.</code></li>
+<li><code translate="no">!feynman Vou explicar por que SYN sem resposta não identifica sozinho a causa. Critique minha explicação.</code></li>
+<li><code translate="no">!quiz Crie seis incidentes de resolução, rota, porta e aplicação sem sugerir desligar proteções.</code></li></ul>
+<h2 id="sfida-del-m11-indirizzo-persistente-dns-ripristinato">Sfida del M11 · Indirizzo persistente, DNS ripristinato</h2>
+<p>Sulla VM 201 realizza IPv4 e IPv6 statici che sopravvivano al reboot. Usa un'interfaccia dummy dedicata, senza cambiare l'interfaccia di accesso né annunciare DHCP in rete. Questa scelta verifica la persistenza locale; non dimostra connettività IPv6 esterna.</p>
+<p>Svolgi la fase DNS dal noVNC. Modifica temporaneamente il resolver usato dalla VM. La ricerca DNS iniziale deve funzionare e <code translate="no">127.0.0.2:53</code> deve essere libero, come nel passo 2.</p>
+<h3 id="preparazione-e-criteri">Preparazione e criteri</h3>
+<p>Questo percorso usa Rocky standard con NetworkManager che gestisce direttamente <code translate="no">/etc/resolv.conf</code>, senza un intermediario DNS locale. Controlla <code translate="no">ls -l /etc/resolv.conf</code>, <code translate="no">sudo NetworkManager --print-config</code> e l'intestazione del file prima di procedere. Se l'origine è diversa, adatta il percorso con il responsabile del lab prima di applicare il guasto globale.</p>
+<p>Conferma che non esistano il profilo <code translate="no">m11final</code> e l'interfaccia <code translate="no">m11dummy5</code>. Se esistono, non riutilizzare il lavoro precedente senza rivederlo. I prefissi di documentazione seguenti restano soltanto su questa interfaccia locale.</p>
+<pre translate="no"><code class="lang-bash">nmcli connection show
+ip link show
+dig -r +time=2 +tries=1 . NS
+sudo nmcli connection add type dummy ifname m11dummy5 con-name m11final connection.autoconnect yes ipv4.method manual ipv4.addresses 192.0.2.15/24 ipv4.never-default yes ipv6.method manual ipv6.addresses 2001:db8:15::15/64 ipv6.never-default yes
+sudo nmcli connection up m11final
+ip -br address show dev m11dummy5</code></pre>
+<p>Attendi che IPv6 non sia più <code translate="no">tentative</code> in <code translate="no">ip -6 address show dev m11dummy5</code>. Riavvia la VM 201 e conferma profilo attivo, indirizzi presenti e i due test locali:</p>
+<pre translate="no"><code class="lang-bash">nmcli connection show --active
+ip -br address show dev m11dummy5
+ping -4 -n -c 1 192.0.2.15
+ping -6 -n -c 1 2001:db8:15::15</code></pre>
+<h3 id="guasto-dns-e-ripristino">Guasto DNS e ripristino</h3>
+<p>Registra prima la ricerca DNS normale. Poi, nel noVNC, configura nel profilo di esercizio un DNS errato con priorità negativa. In questo gestore la priorità negativa più bassa esclude dalla selezione DNS i server dei profili con priorità maggiore.</p>
+<pre translate="no"><code class="lang-bash">sudo nmcli connection modify m11final ipv4.dns 127.0.0.2 ipv4.dns-priority -100
+sudo nmcli connection up m11final
+cat /etc/resolv.conf
+dig -r +time=1 +tries=1 . NS
+ping -4 -n -c 1 192.0.2.15</code></pre>
+<p>Prima di concludere, controlla che l'unico server selezionato nel file sia <code translate="no">127.0.0.2</code>. DNS deve fallire mentre l'IP locale continua a funzionare. Se esiste un altro server, non attribuire alcun successo o errore a questo guasto: rivedi origine e priorità.</p>
+<p>Rimuovi soltanto le proprietà che hai aggiunto al nuovo profilo e verifica il ritorno alla risposta DNS iniziale. Non modificare a mano il file generato.</p>
+<pre translate="no"><code class="lang-bash">sudo nmcli connection modify m11final ipv4.dns '' ipv4.dns-priority 0
+sudo nmcli connection up m11final
+cat /etc/resolv.conf
+dig -r +time=2 +tries=1 . NS</code></pre>
+<p>Consegna il confronto prima e dopo il reboot, il guasto DNS, il ripristino e una spiegazione del motivo per cui ICMP locale continuava a funzionare. Mostrare il profilo salvato non basta.</p>
+<h3 id="pulizia-della-sfida">Pulizia della sfida</h3>
+<p>Dopo aver conservato le evidenze, rimuovi il profilo e l'interfaccia creati. Conferma il ripristino DNS prima di uscire dalla console.</p>
+<pre translate="no"><code class="lang-bash">sudo nmcli connection down m11final
+sudo nmcli connection delete m11final
+sudo ip link delete m11dummy5
+dig -r +time=2 +tries=1 . NS
+ip -br address</code></pre>
+<p>Se l'interfaccia non esiste più dopo la disattivazione del profilo, il comando di eliminazione lo segnala; conferma l'assenza con <code translate="no">ip link show</code>. Gli indirizzi dell'interfaccia SSH devono restare uguali a quelli iniziali.</p>
+<h2 id="soluzioni-commentate">Soluzioni commentate</h2>
+<h3 id="riscaldamento">Riscaldamento</h3>
+<ol><li>L'indirizzo appartiene allo stato attivo; il profilo conserva l'intenzione persistente; il percorso decide l'uscita verso una destinazione. Controlla tutti e tre.</li>
+<li><code translate="no">getent</code> usa NSS; <code translate="no">dig</code> interroga DNS. Un nome locale in hosts non deve necessariamente esistere nel DNS.</li>
+<li>La sessione dipende dall'indirizzo e dal percorso che stai modificando. Il noVNC consente di intervenire senza dipendere da quell'SSH.</li></ol>
+<h3 id="quiz">Quiz</h3>
+<ol><li>No. L'apertura TCP precede l'autenticazione del servizio.</li>
+<li><code translate="no">ip route get</code> consulta la decisione del kernel per la destinazione indicata.</li>
+<li>La risposta negativa contiene uno stato DNS; l'assenza di risposta compare come errore di comunicazione o timeout. Leggi anche il server interrogato.</li>
+<li>No. Confronta la cattura della destinazione e considera il percorso di ritorno prima di indicare una causa.</li>
+<li>No. IPv4 e IPv6 sono famiglie distinte; controlla l'ascolto effettivo.</li>
+<li>Lo stato attivo potrebbe essere stato creato senza persistenza. Il reboot verifica se il gestore ricostruisce la configurazione salvata.</li></ol>
+<h3 id="suggerimenti-per-la-sfida">Suggerimenti per la sfida</h3>
+<p>Separa intenzione, stato e comportamento: profilo salvato, indirizzo attivo dopo il reboot e test di risposta locale. Per DNS confronta il file generato con la proprietà ricevuta dal gestore. La correzione deve avvenire all'origine della configurazione.</p>
+<p>Il prossimo modulo usa queste evidenze per approfondire SSH e protezione dell'host. Conserva il rapporto: vale più di un elenco di comandi senza contesto.</p>
+<p><a href="11.4-nomes-e-resolucao.it.html">← Lezione 11.4 · Nomi e risoluzione</a> · <a href="index.it.html">Indice delle lezioni</a> · <a href="https://github.com/Rodrigoantignani/curso-linux-sysadmin/blob/master/00-plano-do-curso.md">Piano del corso: dal M12 in poi →</a></p>
+</article><nav class="paginas" aria-label="Lezioni"><a class="ant" href="11.4-nomes-e-resolucao.it.html"><small>← Precedente</small>11.4 · Nomi e risoluzione</a></nav></main></div>
+<footer><div class="wrap">Generato dal Markdown del corso · Immagini in <code translate="no">img/</code></div></footer>
+</body>
+</html>

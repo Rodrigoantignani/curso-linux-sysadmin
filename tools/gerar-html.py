@@ -104,6 +104,8 @@ CATALOGO = [
         ("11.1-tcp-ip-para-quem-administra", "TCP/IP para quem administra", "TCP/IP per chi amministra"),
         ("11.2-networkmanager-e-nmcli", "NetworkManager e nmcli", "NetworkManager e nmcli"),
         ("11.3-rede-no-debian", "Rede no Debian", "Rete su Debian"),
+        ("11.4-nomes-e-resolucao", "Nomes e resolução", "Nomi e risoluzione"),
+        ("11.5-diagnostico-de-rede", "Diagnóstico de rede", "Diagnosi di rete"),
     ]),
 ]
 

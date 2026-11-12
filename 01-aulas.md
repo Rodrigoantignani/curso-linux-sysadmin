@@ -1,6 +1,6 @@
 # Aulas
 
-Índice das **59 aulas publicadas**, do M0 à Aula 11.3. Cada título leva direto ao arquivo da aula; a coluna Semana segue o cronograma do [plano do curso](00-plano-do-curso.md).
+Índice das **61 aulas publicadas**, do M0 à Aula 11.5. Cada título leva direto ao arquivo da aula; a coluna Semana segue o cronograma do [plano do curso](00-plano-do-curso.md).
 
 **Cobertura atual:** 56 de 188 aulas · semanas 1 a 15 de 48.
 
@@ -165,6 +165,10 @@ Meta da fase: administrar sozinho um servidor Linux de ponta a ponta, nas duas f
 | [11.1 · TCP/IP para quem administra](aulas/11.1-tcp-ip-para-quem-administra.md) | 16 | IPv4 e IPv6, prefixos, rotas, portas, TCP, UDP e ICMP; `ip` e `ss`; testes locais e três quebras nas duas distros |
 | [11.2 · NetworkManager e nmcli](aulas/11.2-networkmanager-e-nmcli.md) | 16 | Dispositivos e perfis, IPv4 fixo, IPv6, DNS salvo e efetivo, keyfiles e persistência; laboratório interno nas duas distros |
 | [11.3 · Rede no Debian](aulas/11.3-rede-no-debian.md) | 16 | ifupdown, interfaces e inclusões; auto e allow-hotplug; comparação com NetworkManager e systemd-networkd; aplicação interna e três quebras nas duas distros |
+| [11.4 · Nomes e resolução](aulas/11.4-nomes-e-resolucao.md) | 17 | hostnamectl, hosts, NSS e getent; origem de resolv.conf; resolução por fonte e resposta HTTP; três quebras nas duas distros |
+| [11.5 · Diagnóstico de rede](aulas/11.5-diagnostico-de-rede.md) | 17 | `ping`, `tracepath`, `ss`, `dig`, `nc` e `tcpdump`; localizar falhas com evidências |
+
+**Desafio do módulo:** IPv4 e IPv6 fixos na VM 201 após reboot, em interface de exercício; diagnosticar e recuperar um DNS quebrado.
 
 ## O que vem depois
 
