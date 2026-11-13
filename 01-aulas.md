@@ -1,8 +1,8 @@
 # Aulas
 
-Índice das **61 aulas publicadas**, do M0 à Aula 11.5. Cada título leva direto ao arquivo da aula; a coluna Semana segue o cronograma do [plano do curso](00-plano-do-curso.md).
+Índice das **66 aulas publicadas**, do M0 à Aula 12.5. Cada título leva direto ao arquivo da aula; a coluna Semana segue o cronograma do [plano do curso](00-plano-do-curso.md).
 
-**Cobertura atual:** 56 de 188 aulas · semanas 1 a 15 de 48.
+**Cobertura atual:** 66 de 188 aulas · semanas 1 a 18 de 48.
 
 ## Como estudar uma aula
 
@@ -60,7 +60,7 @@ Meta da fase: usar o terminal com segurança e entender o que cada comando faz p
 
 **Fechamento da fase (semana 6):** revisão espaçada de M0 a M2 e um dia de incidente nas duas VMs, sem consulta.
 
-## Fase 2 · Administrador · 36 aulas publicadas de 63 · semanas 7 a 15
+## Fase 2 · Administrador · 41 aulas publicadas de 63 · semanas 7 a 18
 
 Meta da fase: administrar sozinho um servidor Linux de ponta a ponta, nas duas famílias, com tudo sobrevivendo ao reboot. Todo lab termina com reboot e verificação.
 
@@ -170,13 +170,25 @@ Meta da fase: administrar sozinho um servidor Linux de ponta a ponta, nas duas f
 
 **Desafio do módulo:** IPv4 e IPv6 fixos na VM 201 após reboot, em interface de exercício; diagnosticar e recuperar um DNS quebrado.
 
+### M12 · Segurança do host · 5 aulas · semanas 17 e 18
+
+| Aula | Semana | O que você aprende |
+| --- | --- | --- |
+| [12.1 · SSH a fundo](aulas/12.1-ssh-a-fundo.md) | 17 | Chaves, agente, configuração do cliente, salto, túnel local e validação segura do servidor |
+| [12.2 · Firewall](aulas/12.2-firewall.md) | 17 | firewalld, zonas, origem e porta; nftables em tabela própria, contadores e persistência |
+| [12.3 · SELinux: modos e contextos](aulas/12.3-selinux-modos-e-contextos.md) | 18 | Modos, domínios, tipos, `semanage fcontext` e `restorecon`; distinguir contexto e permissão |
+| [12.4 · SELinux: portas e booleanos](aulas/12.4-selinux-portas-e-booleanos.md) | 18 | Tipos de porta, booleanos persistentes, AVC e perfil AppArmor nomeado |
+| [12.5 · Auditoria e criptografia](aulas/12.5-auditoria-e-criptografia.md) | 18 | Inventário de privilégios, sessões, limites e GPG; desafio integrado com nginx, SELinux e firewall |
+
+**Desafio do módulo:** nginx em porta e diretório próprios, persistente, com SELinux enforcing na Rocky e firewall ativo, comprovado a partir da outra VM e após reboot.
+
 ## O que vem depois
 
-As 130 aulas restantes já estão planejadas no [plano do curso](00-plano-do-curso.md):
+As 122 aulas restantes já estão planejadas no [plano do curso](00-plano-do-curso.md):
 
 | Módulos | Semanas | Foco | Fecha com |
 | --- | --- | --- | --- |
-| M11 a M15 | 16 a 21 | Rede, segurança do host, armazenamento em rede, agendamento, e-mail local, impressão, shell e interfaces gráficas | Dia de incidente |
+| M13 a M15 | 18 a 21 | Armazenamento em rede, agendamento, e-mail local, impressão, shell e interfaces gráficas | Dia de incidente |
 | M16 | 21 e 22 | Rocky 10 e incidentes com relógio | Incidente cronometrado com reboot |
 | M17 a M21 | 22 a 31 | Proxmox, Podman, serviços de rede, proxy, NethServer 8, Mail, WebTop, Nextcloud e NethVoice | Incidente combinado no NS8 |
 | M22 a M34 | 31 a 48 | NethSecurity, Git, Ansible, monitoramento, logs, backup, desempenho, alta disponibilidade, hardening, cluster e troubleshooting | Dia inteiro de incidentes |

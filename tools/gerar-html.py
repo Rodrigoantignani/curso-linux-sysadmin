@@ -107,6 +107,13 @@ CATALOGO = [
         ("11.4-nomes-e-resolucao", "Nomes e resolução", "Nomi e risoluzione"),
         ("11.5-diagnostico-de-rede", "Diagnóstico de rede", "Diagnosi di rete"),
     ]),
+    ("M12", "Segurança do host", "Sicurezza dell'host", [
+        ("12.1-ssh-a-fundo", "SSH a fundo", "SSH in dettaglio"),
+        ("12.2-firewall", "Firewall", "Firewall"),
+        ("12.3-selinux-modos-e-contextos", "SELinux: modos e contextos", "SELinux: modalità e contesti"),
+        ("12.4-selinux-portas-e-booleanos", "SELinux: portas e booleanos", "SELinux: porte e booleani"),
+        ("12.5-auditoria-e-criptografia", "Auditoria e criptografia", "Audit e crittografia"),
+    ]),
 ]
 
 TEXTOS = {

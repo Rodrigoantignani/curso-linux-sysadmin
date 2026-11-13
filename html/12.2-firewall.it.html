@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light dark">
+<title>12.2 · Firewall · Corso Linux Sysadmin</title>
+<link rel="alternate" hreflang="pt-BR" href="12.2-firewall.html"><link rel="alternate" hreflang="it" href="12.2-firewall.it.html">
+<style>
+:root{color-scheme:light dark;--bg:#f6f1e7;--card:#fffdf8;--ink:#201c16;--muted:#5e564a;--accent:#9a3412;--accent-2:#1f5f4a;--tint:#efe6d4;--line:#ddd2bc;--code:#f1eadb;--shadow:0 1px 2px rgba(60,40,10,.08);--serif:Georgia,"Iowan Old Style","Palatino Linotype",Palatino,serif;--sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--mono:"Cascadia Code",Consolas,"DejaVu Sans Mono",monospace}
+@media (prefers-color-scheme:dark){:root{--bg:#16130f;--card:#201b15;--ink:#f1eadb;--muted:#b9ad98;--accent:#f0a070;--accent-2:#7fd0b0;--tint:#2a231a;--line:#3d3427;--code:#191510;--shadow:none}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:5.5rem}
+body{margin:0;background:var(--bg);color:var(--ink);font:1rem/1.6 var(--sans)}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--accent-2);outline-offset:2px;border-radius:4px}
+.pular{position:absolute;left:-999px;top:0;background:var(--card);padding:.5rem 1rem;z-index:20}
+.pular:focus{left:.5rem;top:.5rem}
+.wrap{width:100%;max-width:84rem;margin:0 auto;padding-inline:max(1rem,env(safe-area-inset-left))}
+.top{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10;border-top:6px solid var(--accent)}
+.top-in{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding-block:.6rem}
+.titles{min-width:0}
+.marca{margin:0;font:700 clamp(1.15rem,1rem + 1vw,1.6rem)/1.15 var(--serif);letter-spacing:-.01em}
+.marca a{text-decoration:none}
+.marca a:hover{color:var(--accent)}
+.meta{margin:.1rem 0 0;color:var(--muted);font-size:.85rem}
+.acoes{display:flex;align-items:center;gap:.9rem;flex:none}
+.acoes>a{font-size:.9rem;font-weight:600;color:var(--muted);text-decoration:none}
+.acoes>a:hover{color:var(--accent);text-decoration:underline}
+.idioma{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--tint)}
+.idioma>*{padding:.35rem .9rem;font-size:.8rem;font-weight:700;letter-spacing:.06em;text-decoration:none;color:var(--muted);min-width:2.75rem;text-align:center}
+.idioma a:hover{color:var(--accent);text-decoration:underline}
+.idioma span{background:var(--accent);color:#fff}
+@media (prefers-color-scheme:dark){.idioma span{color:#16130f}}
+code{font-family:var(--mono);font-size:.9em;background:var(--tint);padding:.1rem .35rem;border-radius:4px;overflow-wrap:anywhere}
+/* índice */
+.capa{max-width:70rem;padding-block:2rem 3rem}
+.stats{border-left:4px solid var(--accent-2);background:var(--card);border-radius:0 10px 10px 0;padding:1rem 1.25rem;margin:0 0 2.5rem;box-shadow:var(--shadow);color:var(--muted)}
+.stats strong{color:var(--ink)}
+.modulo{display:grid;grid-template-columns:15rem minmax(0,1fr);gap:1rem 2rem;padding:1.75rem 0;border-top:1px solid var(--line)}
+.modulo h2{margin:0;font:700 1.25rem/1.25 var(--serif);align-self:start;position:sticky;top:6rem}
+.mn{display:block;font:700 .8rem var(--mono);letter-spacing:.12em;color:var(--accent);margin-bottom:.25rem}
+.sep{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.modulo ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,17rem),1fr));gap:.75rem}
+.modulo li{margin:0}
+.modulo a{display:flex;gap:.45rem;align-items:baseline;height:100%;padding:.85rem 1rem;background:var(--card);border:1px solid var(--line);border-radius:10px;text-decoration:none;font-weight:600;line-height:1.35;box-shadow:var(--shadow);transition:border-color .15s,transform .15s}
+.modulo a:hover{border-color:var(--accent);color:var(--accent)}
+.num{font:700 .85rem var(--mono);color:var(--accent);white-space:nowrap}
+/* aula */
+.doc{display:grid;grid-template-columns:17rem minmax(0,1fr);gap:2.5rem;align-items:start;padding-block:2rem 3rem}
+.lateral{position:sticky;top:5.5rem;max-height:calc(100vh - 6.5rem);overflow:auto;font-size:.875rem;padding-right:.5rem}
+.lateral h2{margin:0 0 .25rem;font:700 .95rem var(--serif);color:var(--muted)}
+.lateral h3{margin:1rem 0 .25rem;font:700 .75rem var(--mono);letter-spacing:.06em;color:var(--accent)}
+.lateral ul{list-style:none;margin:0;padding:0}
+.lateral a{display:flex;gap:.45rem;padding:.25rem .5rem;border-radius:6px;text-decoration:none;color:var(--muted);line-height:1.3}
+.lateral a:hover{background:var(--tint);color:var(--ink)}
+.lateral a[aria-current]{background:var(--tint);color:var(--ink);font-weight:700;box-shadow:inset 3px 0 0 var(--accent)}
+.lateral .num{font-size:.75rem}
+.aula{min-width:0;max-width:56rem;overflow-wrap:break-word;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:clamp(1.25rem,1rem + 2vw,2.75rem);box-shadow:var(--shadow)}
+.aula h1{margin:0 0 1.5rem;font:700 clamp(1.75rem,1.4rem + 1.6vw,2.5rem)/1.15 var(--serif);letter-spacing:-.015em;color:var(--ink)}
+.aula h2{margin:2.5rem 0 .75rem;padding-top:1.25rem;border-top:1px solid var(--line);font:700 1.5rem/1.25 var(--serif)}
+.aula h3{margin:2rem 0 .5rem;font:700 1.15rem/1.3 var(--serif);color:var(--accent)}
+.aula h4,.aula h5,.aula h6{margin:1.5rem 0 .5rem;font-size:1rem}
+.aula p,.aula ul,.aula ol{margin:1rem 0}
+.aula ul,.aula ol{padding-left:1.5rem}
+.aula li{margin:.35rem 0}
+.aula li>ul,.aula li>ol{margin:.35rem 0}
+.aula a{color:var(--accent);text-underline-offset:2px}
+.aula hr{border:0;border-top:1px solid var(--line);margin:2rem 0}
+.tabela{overflow-x:auto;margin:1.25rem 0;border:1px solid var(--line);border-radius:10px}
+.aula table{width:100%;border-collapse:collapse;font-size:.9rem}
+.aula th,.aula td{padding:.55rem .75rem;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+.aula tr:last-child td{border-bottom:0}
+.aula th{background:var(--tint);font-weight:700}
+.aula pre{background:var(--code);border:1px solid var(--line);border-radius:10px;padding:.9rem 1rem;overflow-x:auto;font:.85rem/1.5 var(--mono);margin:1rem 0;tab-size:4}
+.aula pre code{background:none;padding:0;font-size:inherit;overflow-wrap:normal}
+.aula blockquote{margin:1.25rem 0;padding:.75rem 1.25rem;border-left:4px solid var(--accent-2);background:var(--tint);border-radius:0 10px 10px 0}
+.aula blockquote>:first-child{margin-top:0}
+.aula blockquote>:last-child{margin-bottom:0}
+.aula figure{margin:1.75rem 0;text-align:center}
+.aula figure img{display:block;margin:0 auto;max-width:100%;height:auto;border:1px solid var(--line);border-radius:10px;background:#fff}
+.aula figcaption{margin-top:.5rem;color:var(--muted);font-size:.9rem;font-style:italic}
+.paginas{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:2.5rem;padding-top:1.5rem;border-top:1px solid var(--line)}
+.paginas a{display:block;padding:.75rem 1rem;border:1px solid var(--line);border-radius:10px;text-decoration:none;color:var(--ink);font-weight:600;line-height:1.3}
+.paginas a:hover{border-color:var(--accent);color:var(--accent)}
+.paginas small{display:block;color:var(--muted);font-weight:400}
+.paginas .prox{grid-column:2;text-align:right}
+footer{border-top:1px solid var(--line);padding-block:1.5rem;color:var(--muted);font-size:.85rem;text-align:center}
+@media (hover:hover) and (prefers-reduced-motion:no-preference){.modulo a:hover{transform:translateY(-2px)}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+@media (max-width:980px){.doc{grid-template-columns:minmax(0,1fr);padding-top:1rem}.lateral{position:static;max-height:none;order:2}.aula{max-width:none}}
+@media (max-width:860px){.modulo{grid-template-columns:minmax(0,1fr)}.modulo h2{position:static}.mn{display:inline;margin-right:.5rem}}
+@media (max-width:420px){.meta{display:none}.top-in{gap:.5rem}.acoes{gap:.6rem}.capa{padding-top:1.25rem}.paginas{grid-template-columns:minmax(0,1fr)}.paginas .prox{grid-column:1}}
+@media print{.top,.lateral,.paginas{display:none}.aula{border:0;box-shadow:none;padding:0;max-width:none}.doc{display:block}}
+</style>
+</head>
+<body>
+<a class="pular" href="#conteudo">Vai al contenuto</a>
+<header class="top"><div class="wrap top-in"><div class="titles"><p class="marca"><a href="index.it.html">Corso Linux Sysadmin</a></p><p class="meta">Rodrigo Antignani · Lezione 12.2</p></div><div class="acoes"><a href="index.it.html">Indice</a><div class="idioma" role="group" aria-label="Lingua"><a href="12.2-firewall.html" hreflang="pt-BR" lang="pt-BR">PT</a><span aria-current="true">IT</span></div></div></div></header>
+<div class="wrap doc"><aside class="lateral" aria-label="Lezioni"><h2>Lezioni</h2><h3>M0 · Laboratorio</h3><ul><li><a href="0.1-montar-o-laboratorio.it.html"><span class="num">0.1</span><span>Allestire il laboratorio</span></a></li><li><a href="0.2-acesso-e-protecao.it.html"><span class="num">0.2</span><span>Accesso e protezione</span></a></li></ul><h3>M1 · Riga di comando</h3><ul><li><a href="1.1-o-que-e-linux.it.html"><span class="num">1.1</span><span>Che cos'è Linux</span></a></li><li><a href="1.2-o-shell-e-a-ajuda.it.html"><span class="num">1.2</span><span>La shell e la guida</span></a></li><li><a href="1.3-caminhos-e-navegacao.it.html"><span class="num">1.3</span><span>Percorsi e navigazione</span></a></li><li><a href="1.4-criar-copiar-mover-e-apagar.it.html"><span class="num">1.4</span><span>Creare, copiare, spostare ed eliminare</span></a></li><li><a href="1.5-ler-e-procurar-texto.it.html"><span class="num">1.5</span><span>Leggere e cercare testo</span></a></li><li><a href="1.6-redirecionamentos-e-pipes.it.html"><span class="num">1.6</span><span>Reindirizzamenti e pipe</span></a></li><li><a href="1.7-arquivar-e-compactar.it.html"><span class="num">1.7</span><span>Archiviare e comprimere</span></a></li><li><a href="1.8-primeiro-script.it.html"><span class="num">1.8</span><span>Primo script</span></a></li><li><a href="1.9-decidir-e-repetir.it.html"><span class="num">1.9</span><span>Decidere e ripetere</span></a></li><li><a href="1.10-software-livre-na-pratica.it.html"><span class="num">1.10</span><span>Il software libero in pratica</span></a></li></ul><h3>M2 · Sistema, utenti e permessi</h3><ul><li><a href="2.1-instalacao-e-provisionamento.it.html"><span class="num">2.1</span><span>Installazione e provisioning</span></a></li><li><a href="2.2-hardware-e-dispositivos.it.html"><span class="num">2.2</span><span>Hardware e dispositivi</span></a></li><li><a href="2.3-processos-e-logs.it.html"><span class="num">2.3</span><span>Processi e log</span></a></li><li><a href="2.4-rede-no-dia-a-dia.it.html"><span class="num">2.4</span><span>La rete di tutti i giorni</span></a></li><li><a href="2.5-acesso-remoto-e-privilegios.it.html"><span class="num">2.5</span><span>Accesso remoto e privilegi</span></a></li><li><a href="2.6-usuarios-e-grupos.it.html"><span class="num">2.6</span><span>Utenti e gruppi</span></a></li><li><a href="2.7-permissoes-e-dono.it.html"><span class="num">2.7</span><span>Permessi e proprietario</span></a></li><li><a href="2.8-diretorios-e-arquivos-especiais.it.html"><span class="num">2.8</span><span>Directory e file speciali</span></a></li></ul><h3>M3 · Testo ed editor</h3><ul><li><a href="3.1-fluxos-a-fundo.it.html"><span class="num">3.1</span><span>I flussi in profondità</span></a></li><li><a href="3.2-filtros-de-texto.it.html"><span class="num">3.2</span><span>Filtri di testo</span></a></li><li><a href="3.3-regex-e-grep.it.html"><span class="num">3.3</span><span>Regex e grep</span></a></li><li><a href="3.4-sed-e-awk.it.html"><span class="num">3.4</span><span>sed e awk</span></a></li><li><a href="3.5-vi-e-vim-de-verdade.it.html"><span class="num">3.5</span><span>vi e vim sul serio</span></a></li></ul><h3>M4 · systemd e boot</h3><ul><li><a href="4.1-como-o-linux-liga.it.html"><span class="num">4.1</span><span>Come si avvia Linux</span></a></li><li><a href="4.2-systemd-servicos-e-units.it.html"><span class="num">4.2</span><span>systemd: servizi e unit</span></a></li><li><a href="4.3-targets-desligar-e-reiniciar.it.html"><span class="num">4.3</span><span>Target: spegnere e riavviare</span></a></li><li><a href="4.4-grub-e-acesso-de-emergencia.it.html"><span class="num">4.4</span><span>GRUB e accesso di emergenza</span></a></li></ul><h3>M5 · Kernel, moduli e VM</h3><ul><li><a href="5.1-hardware-pelo-kernel.it.html"><span class="num">5.1</span><span>L'hardware visto dal kernel</span></a></li><li><a href="5.2-modulos-e-parametros.it.html"><span class="num">5.2</span><span>Moduli e parametri</span></a></li><li><a href="5.3-linux-como-convidado.it.html"><span class="num">5.3</span><span>Linux come guest</span></a></li></ul><h3>M6 · Pacchetti e repository</h3><ul><li><a href="6.1-pacotes-no-debian.it.html"><span class="num">6.1</span><span>Pacchetti su Debian</span></a></li><li><a href="6.2-pacotes-na-rocky.it.html"><span class="num">6.2</span><span>Pacchetti su Rocky</span></a></li><li><a href="6.3-repositorios.it.html"><span class="num">6.3</span><span>Repository</span></a></li><li><a href="6.4-flatpak.it.html"><span class="num">6.4</span><span>Flatpak</span></a></li><li><a href="6.5-bibliotecas-compartilhadas.it.html"><span class="num">6.5</span><span>Librerie condivise</span></a></li></ul><h3>M7 · Processi e prestazioni</h3><ul><li><a href="7.1-processos-e-sinais.it.html"><span class="num">7.1</span><span>Processi e segnali</span></a></li><li><a href="7.2-jobs-e-sessoes.it.html"><span class="num">7.2</span><span>Job e sessioni</span></a></li><li><a href="7.3-prioridade-e-perfis.it.html"><span class="num">7.3</span><span>Priorità e profili</span></a></li></ul><h3>M8 · File a fondo</h3><ul><li><a href="8.1-fhs-e-onde-cada-coisa-mora.it.html"><span class="num">8.1</span><span>FHS e dove sta ogni cosa</span></a></li><li><a href="8.2-find-a-fundo.it.html"><span class="num">8.2</span><span>find a fondo</span></a></li><li><a href="8.3-arquivamento-avancado.it.html"><span class="num">8.3</span><span>Archiviazione avanzata</span></a></li><li><a href="8.4-links.it.html"><span class="num">8.4</span><span>Link</span></a></li><li><a href="8.5-permissoes-avancadas.it.html"><span class="num">8.5</span><span>Permessi avanzati</span></a></li></ul><h3>M9 · Storage</h3><ul><li><a href="9.1-discos-e-layout.it.html"><span class="num">9.1</span><span>Dischi e layout</span></a></li><li><a href="9.2-particionar.it.html"><span class="num">9.2</span><span>Partizionare</span></a></li><li><a href="9.3-sistemas-de-arquivos.it.html"><span class="num">9.3</span><span>File system</span></a></li><li><a href="9.4-montar-e-persistir.it.html"><span class="num">9.4</span><span>Montare e rendere persistente</span></a></li><li><a href="9.5-integridade-e-espaco.it.html"><span class="num">9.5</span><span>Integrità e spazio</span></a></li><li><a href="9.6-lvm.it.html"><span class="num">9.6</span><span>LVM</span></a></li><li><a href="9.7-crescer-sem-destruir.it.html"><span class="num">9.7</span><span>Crescere senza distruggere</span></a></li></ul><h3>M10 · Utenti e accesso privilegiato</h3><ul><li><a href="10.1-contas.it.html"><span class="num">10.1</span><span>Account</span></a></li><li><a href="10.2-senhas-e-validade.it.html"><span class="num">10.2</span><span>Password e scadenza</span></a></li><li><a href="10.3-grupos-e-trabalho-em-equipe.it.html"><span class="num">10.3</span><span>Gruppi e lavoro di squadra</span></a></li><li><a href="10.4-sudo-de-verdade.it.html"><span class="num">10.4</span><span>sudo sul serio</span></a></li></ul><h3>M11 · Rete</h3><ul><li><a href="11.1-tcp-ip-para-quem-administra.it.html"><span class="num">11.1</span><span>TCP/IP per chi amministra</span></a></li><li><a href="11.2-networkmanager-e-nmcli.it.html"><span class="num">11.2</span><span>NetworkManager e nmcli</span></a></li><li><a href="11.3-rede-no-debian.it.html"><span class="num">11.3</span><span>Rete su Debian</span></a></li><li><a href="11.4-nomes-e-resolucao.it.html"><span class="num">11.4</span><span>Nomi e risoluzione</span></a></li><li><a href="11.5-diagnostico-de-rede.it.html"><span class="num">11.5</span><span>Diagnosi di rete</span></a></li></ul><h3>M12 · Sicurezza dell'host</h3><ul><li><a href="12.1-ssh-a-fundo.it.html"><span class="num">12.1</span><span>SSH in dettaglio</span></a></li><li><a href="12.2-firewall.it.html" aria-current="page"><span class="num">12.2</span><span>Firewall</span></a></li><li><a href="12.3-selinux-modos-e-contextos.it.html"><span class="num">12.3</span><span>SELinux: modalità e contesti</span></a></li><li><a href="12.4-selinux-portas-e-booleanos.it.html"><span class="num">12.4</span><span>SELinux: porte e booleani</span></a></li><li><a href="12.5-auditoria-e-criptografia.it.html"><span class="num">12.5</span><span>Audit e crittografia</span></a></li></ul></aside><main id="conteudo" class="aula"><article><h1>Lezione 12.2 · Firewall</h1>
+<p>Su Windows Server separi profilo di rete, regola di ingresso e servizio in ascolto. Su Linux questa distinzione resta valida. Dopo aver protetto l'accesso SSH nella 12.1, aprirai una porta soltanto per l'altra VM, osserverai il blocco e verificherai ciò che resta dopo il reboot.</p>
+<blockquote><p><strong>Il cuore di questa lezione:</strong> identifica la zona o catena corretta, limita sorgente e porta, verifica regole attive e persistenti ed esegui il test da un altro host. Il resto è approfondimento.</p></blockquote>
+<div class="tabela"><table><thead><tr><th scope="col">Scheda</th><th scope="col"></th></tr></thead><tbody><tr><td><strong>Modulo</strong></td><td>M12 · Sicurezza dell'host, lezione 2 di 5</td></tr><tr><td><strong>Quando</strong></td><td>Settimana 17</td></tr><tr><td><strong>Alla fine</strong></td><td>Filtri una porta HTTP con firewalld e nftables senza modificare la regola SSH</td></tr><tr><td><strong>Prerequisiti</strong></td><td>Lezioni 11.5 e 12.1; <code translate="no">student</code>, <code translate="no">sudo</code>, SSH funzionante e noVNC sulle VM 201 e 202</td></tr><tr><td><strong>Durata</strong></td><td>Circa 90 minuti, più la ripetizione senza consultare il materiale</td></tr><tr><td><strong>Snapshot</strong></td><td><code translate="no">m12a2-inicio</code> e <code translate="no">m12a2-fim</code> su entrambe le VM</td></tr></tbody></table></div>
+<h2 id="1-riscaldamento">1 · Riscaldamento</h2>
+<p>Rispondi senza consultare il materiale. Le soluzioni sono in fondo.</p>
+<ol><li>Qual è la differenza tra una porta TCP raggiungibile e un'applicazione che risponde correttamente?</li>
+<li>Perché mantieni una sessione aperta quando modifichi la configurazione SSH?</li>
+<li>Quale comando identifica il processo e l'indirizzo di un ascolto TCP?</li></ol>
+<h2 id="2-perche-conta">2 · Perché conta</h2>
+<p>Un servizio funziona all'interno del server, ma l'altro host non riceve risposta. Trovi una porta aperta in una zona che non gestisce quel traffico. La regola esiste, ma è nel posto sbagliato.</p>
+<p>La segnalazione si chiude soltanto quando il client previsto accede alla porta prevista e la configurazione resta corretta dopo il riavvio. Disattivare la protezione dell'host cancellerebbe l'indizio e amplierebbe l'accesso.</p>
+<h2 id="3-modello-mentale">3 · Modello mentale</h2>
+<p>Il firewall è la portineria dell'edificio. La regola confronta il badge della sorgente e la porta di destinazione prima di decidere. Nella stanza interna deve comunque esserci qualcuno: un permesso nel firewall non crea un socket.</p>
+<pre translate="no"><code class="lang-text">sorgente -&gt; condizioni della regola -&gt; azione -&gt; servizio in ascolto
+             sorgente + porta     accept / drop</code></pre>
+<figure><a href="../img/12.2-origem-porta-e-acao.it.jpg"><img src="../img/12.2-origem-porta-e-acao.it.jpg" alt="Una regola ha condizioni e azione" loading="lazy" decoding="async"></a><figcaption>Apri soltanto la porta necessaria per la sorgente prevista.</figcaption></figure>
+<h3 id="ponte-windows">Ponte Windows</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Windows Server</th><th scope="col">Linux</th><th scope="col">Idea comune</th></tr></thead><tbody><tr><td>Profilo di rete</td><td>Zona di firewalld</td><td>Scegliere dove vale la politica</td></tr><tr><td>Regola di ingresso</td><td>Regola nel percorso di ingresso</td><td>Confrontare sorgente, protocollo e porta</td></tr><tr><td>Configurazione salvata</td><td>Configurazione permanente</td><td>Ricostruire la politica al boot</td></tr><tr><td>Servizio in ascolto</td><td>Socket visto da <code translate="no">ss</code></td><td>Avere un'applicazione che risponde</td></tr></tbody></table></div>
+<h2 id="4-l-essenziale">4 · L'essenziale</h2>
+<h3 id="firewalld-zona-servizio-e-porta">firewalld: zona, servizio e porta</h3>
+<p>Su Rocky usa <code translate="no">firewall-cmd</code> per comunicare con firewalld. Una zona raccoglie la politica applicata a interfacce o sorgenti. Controlla le zone attive prima di aggiungere una regola.</p>
+<pre translate="no"><code class="lang-bash">sudo firewall-cmd --get-active-zones
+sudo firewall-cmd --get-default-zone
+sudo firewall-cmd --info-service=ssh</code></pre>
+<p>Un servizio di firewalld è una definizione di porte e protocolli, come <code translate="no">ssh</code> o <code translate="no">http</code>. È diverso dall'unità di systemd. La definizione <code translate="no">http</code> normalmente comprende TCP <code translate="no">80</code>; il processo del lab userà TCP <code translate="no">18088</code>.</p>
+<h3 id="attivo-e-permanente">Attivo e permanente</h3>
+<p>Senza <code translate="no">--permanent</code>, il comando modifica la configurazione attiva. Con questa opzione modifica ciò che è salvato. All'avvio del servizio la configurazione permanente viene caricata nello stato attivo.</p>
+<p>In questo lab modifichi esplicitamente ogni regola in entrambi gli stati. Non copi globalmente lo stato attivo e non ricarichi politiche estranee per salvare una regola di esercizio.</p>
+<figure><a href="../img/12.2-memoria-e-disco.it.jpg"><img src="../img/12.2-memoria-e-disco.it.jpg" alt="Regola attiva e regola salvata" loading="lazy" decoding="async"></a><figcaption>Verifica lo stato attivo e ciò che tornerà dopo il reboot.</figcaption></figure>
+<h3 id="nftables-tabella-catena-e-regola">nftables: tabella, catena e regola</h3>
+<p>Su Debian in questo lab usi <code translate="no">nft</code> in una tabella dedicata. La catena di ingresso confronta i pacchetti destinati all'host. L'ordine conta: prima permette la sorgente prevista per la porta di esercizio; poi scarta le altre sorgenti per quella stessa porta.</p>
+<p>La politica della catena sarà <code translate="no">accept</code> per gli altri pacchetti. Non sostituisce la protezione già presente. Un'accettazione in questa catena può ancora incontrare un rifiuto in un'altra catena successiva.</p>
+<h3 id="validazione-e-osservazione">Validazione e osservazione</h3>
+<p><code translate="no">nft -c -f</code> verifica il file senza applicare la modifica. <code translate="no">nft -f</code> applica il gruppo di istruzioni. Un contatore aiuta a mostrare quale regola ha ricevuto pacchetti. Un contatore fermo richiede di controllare interfaccia, indirizzo, famiglia e sorgente del test.</p>
+<figure><a href="../img/12.2-servico-socket-e-firewall.it.jpg"><img src="../img/12.2-servico-socket-e-firewall.it.jpg" alt="Tre verifiche prima di accusare il firewall" loading="lazy" decoding="async"></a><figcaption>Processo, indirizzo di ascolto e regola devono corrispondere.</figcaption></figure>
+<h3 id="rocky-debian">Rocky × Debian</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Voce</th><th scope="col">Rocky 9</th><th scope="col">Debian 13</th></tr></thead><tbody><tr><td>Gestore del lab</td><td>firewalld già attivo</td><td><code translate="no">nft</code> senza firewalld attivo</td></tr><tr><td>Ambito della modifica</td><td>Due rich rule nella zona corretta</td><td>Tabella <code translate="no">inet m12a2</code></td></tr><tr><td>Persistenza</td><td>Regole permanenti di firewalld</td><td>Unità dedicata che carica soltanto la tabella del lab</td></tr><tr><td>Verifica</td><td>Consultare attivo e permanente</td><td>Validare il file, elencare la tabella ed eseguire il test</td></tr></tbody></table></div>
+<h2 id="5-lab-guidato">5 · Lab guidato</h2>
+<p>Mantieni disponibile noVNC e una sessione SSH già aperta su entrambe le VM. Le regole di questa lezione selezionano soltanto TCP <code translate="no">18088</code>; la porta del tuo SSH non rientra nel filtro. Lavora con terminali separati per server HTTP e client.</p>
+<h3 id="passo-1-proteggere-e-identificare">Passo 1 · Proteggere e identificare</h3>
+<p><strong>Ipotesi:</strong> una regola che seleziona soltanto TCP <code translate="no">18088</code> dovrebbe decidere l'accesso SSH su TCP <code translate="no">22</code>?</p>
+<p>Sull'host Proxmox crea gli snapshot prima del lab.</p>
+<pre translate="no"><code class="lang-bash">qm snapshot 201 m12a2-inicio
+qm snapshot 202 m12a2-inicio</code></pre>
+<p>Su Rocky controlla il servizio. Su Debian controlla le regole esistenti. Se Debian usa firewalld, non aggiungere un secondo gestore: torna alla base di questo lab prima di continuare.</p>
+<pre translate="no"><code class="lang-bash">sudo firewall-cmd --state
+sudo firewall-cmd --get-active-zones</code></pre>
+<pre translate="no"><code class="lang-bash">systemctl is-active firewalld
+sudo nft list ruleset</code></pre>
+<p><strong>Output atteso:</strong> firewalld attivo su Rocky; su Debian <code translate="no">nft</code> disponibile e nessuna tabella <code translate="no">inet m12a2</code>. Non procedere se regole esistenti bloccano già la porta di esercizio e non sai chi le gestisce.</p>
+<p><strong>Verifica:</strong> conferma una nuova sessione SSH da Windows e noVNC funzionante. Servono <code translate="no">python3</code> e <code translate="no">curl</code> su entrambe le VM; installa i pacchetti mancanti con il procedimento del M6 prima di continuare.</p>
+<h3 id="passo-2-preparare-il-servizio-di-riferimento">Passo 2 · Preparare il servizio di riferimento</h3>
+<p><strong>Ipotesi:</strong> il test eseguito sul server stesso attraversa necessariamente la stessa zona di un client remoto?</p>
+<p>Su entrambe le VM conferma che la cartella del lab non esista e che la porta sia libera prima di crearle. Se esiste un lavoro precedente, rivedilo invece di sovrascriverlo.</p>
+<pre translate="no"><code class="lang-bash">test ! -e "$HOME/m12a2"
+sudo ss -lntp 'sport = :18088'
+mkdir -m 700 "$HOME/m12a2"
+mkdir "$HOME/m12a2/www"
+printf 'FIREWALL ok\n' &gt; "$HOME/m12a2/www/index.html"
+ip -br address &gt; "$HOME/m12a2/address.inicio"</code></pre>
+<p>Su Rocky esegui soltanto la prima assegnazione. Su Debian soltanto la seconda.</p>
+<pre translate="no"><code class="lang-bash">HOST_IP=10.1.0.51</code></pre>
+<pre translate="no"><code class="lang-bash">HOST_IP=10.1.0.52</code></pre>
+<p>Poi, su ogni VM:</p>
+<pre translate="no"><code class="lang-bash">printf '%s\n' "$HOST_IP" &gt; "$HOME/m12a2/ip"
+python3 -m http.server 18088 --bind "$HOST_IP" --directory "$HOME/m12a2/www"</code></pre>
+<p><strong>Output atteso:</strong> server HTTP in primo piano, associato all'IP della VM e alla porta <code translate="no">18088</code>.</p>
+<p><strong>Verifica:</strong> in un altro terminale della stessa VM controlla <code translate="no">sudo ss -lntp 'sport = :18088'</code>. Esegui il test remoto tra le VM con <code translate="no">curl --noproxy '*' --connect-timeout 2 --max-time 4 http://10.1.0.51:18088/</code> e sostituisci la destinazione con <code translate="no">10.1.0.52</code> nel senso opposto. Annota la situazione iniziale.</p>
+<h3 id="passo-3-filtrare-su-rocky">Passo 3 · Filtrare su Rocky</h3>
+<p><strong>Ipotesi:</strong> consentire la sorgente prevista prima di scartare le altre permette un client senza aprire la porta a tutti?</p>
+<p>Su Rocky leggi le zone attive. Inserisci la zona che riceve il traffico della VM 202; controlla le associazioni di sorgente e interfaccia. Non copiare un nome di zona senza verificarlo.</p>
+<pre translate="no"><code class="lang-bash">sudo firewall-cmd --get-active-zones
+read -r -p 'ZONE: ' ZONE
+sudo firewall-cmd --zone="$ZONE" --list-all
+printf '%s\n' "$ZONE" &gt; "$HOME/m12a2/zone"
+ALLOW='rule priority="-20" family="ipv4" source address="10.1.0.52/32" port port="18088" protocol="tcp" accept'
+DROP='rule priority="-10" family="ipv4" port port="18088" protocol="tcp" drop'
+printf '%s\n' "$ALLOW" &gt; "$HOME/m12a2/allow"
+printf '%s\n' "$DROP" &gt; "$HOME/m12a2/drop"</code></pre>
+<p>Conferma con <code translate="no">--list-rich-rules</code> che queste due regole esatte non esistessero. Le priorità negative eseguono questi confronti prima dei permessi comuni della zona. La sorgente consentita viene esaminata prima dello scarto.</p>
+<pre translate="no"><code class="lang-bash">sudo firewall-cmd --zone="$ZONE" --add-rich-rule="$DROP"</code></pre>
+<p>Su Debian prova il <code translate="no">curl</code> verso Rocky: deve raggiungere il limite di tempo. Poi, su Rocky:</p>
+<pre translate="no"><code class="lang-bash">sudo firewall-cmd --zone="$ZONE" --add-rich-rule="$ALLOW"
+sudo firewall-cmd --zone="$ZONE" --list-rich-rules</code></pre>
+<p><strong>Output atteso:</strong> da Debian la pagina di Rocky torna a restituire <code translate="no">FIREWALL ok</code>. La modifica riguarda soltanto la configurazione attiva.</p>
+<p><strong>Verifica:</strong> ripeti il test remoto e apri una nuova sessione SSH. La regola di scarto esiste ancora, ma la sorgente consentita incontra prima l'accettazione.</p>
+<h3 id="decidi-1">Decidi 1</h3>
+<p>Il processo usa <code translate="no">18088</code>, ma qualcuno ha aperto il servizio <code translate="no">http</code>. Qual è la prossima azione?</p>
+<div class="tabela"><table><thead><tr><th scope="col">Opzione</th><th scope="col">Azione</th></tr></thead><tbody><tr><td>A</td><td>Disattivare il firewall</td></tr><tr><td>B</td><td>Controllare la definizione del servizio e usare la porta reale con sorgente limitata</td></tr><tr><td>C</td><td>Aprire tutte le porte alte</td></tr></tbody></table></div>
+<p>Scegli B. Nome del servizio e porta effettiva devono corrispondere al processo.</p>
+<h3 id="passo-4-filtrare-su-debian">Passo 4 · Filtrare su Debian</h3>
+<p><strong>Ipotesi:</strong> una tabella dedicata può selezionare soltanto la porta di esercizio e lasciare che gli altri pacchetti proseguano verso la politica esistente?</p>
+<p>Su Debian conserva l'insieme iniziale come evidenza. Il file non verrà usato per sostituire l'intero insieme.</p>
+<pre translate="no"><code class="lang-bash">sudo nft list ruleset &gt; "$HOME/m12a2/ruleset.inicio"
+cat &gt; "$HOME/m12a2/m12a2.nft" &lt;&lt;'EOF'
+table inet m12a2 {}
+flush table inet m12a2
+table inet m12a2 {
+    chain input {
+        type filter hook input priority -10; policy accept;
+        ip saddr 10.1.0.51 ip daddr 10.1.0.52 tcp dport 18088 counter accept
+        ip daddr 10.1.0.52 tcp dport 18088 counter drop
+    }
+}
+EOF
+sudo nft -c -f "$HOME/m12a2/m12a2.nft"
+sudo nft -f "$HOME/m12a2/m12a2.nft"
+sudo nft list table inet m12a2</code></pre>
+<p>La prima dichiarazione garantisce la tabella. Lo svuotamento seguente riguarda soltanto questa tabella di esercizio, per riapplicare il file senza duplicare regole. Le regole selezionano l'IPv4 di Debian; il loopback resta fuori da questo scarto.</p>
+<p><strong>Output atteso:</strong> validazione senza errori e tabella con due regole. Da Rocky, l'HTTP di Debian restituisce <code translate="no">FIREWALL ok</code> e il contatore della regola di accettazione aumenta.</p>
+<p><strong>Verifica:</strong> conferma i contatori con un nuovo elenco e mantieni funzionante una nuova sessione SSH. Un blocco di un'altra politica resta valido: questa tabella non lo annulla.</p>
+<h3 id="passo-5-salvare-senza-sostituire-altre-politiche">Passo 5 · Salvare senza sostituire altre politiche</h3>
+<p><strong>Ipotesi:</strong> scrivere la regola sul disco dimostra che il kernel la stia già usando?</p>
+<p>Su Rocky salva esattamente le due regole verificate.</p>
+<pre translate="no"><code class="lang-bash">sudo firewall-cmd --permanent --zone="$ZONE" --add-rich-rule="$DROP"
+sudo firewall-cmd --permanent --zone="$ZONE" --add-rich-rule="$ALLOW"
+sudo firewall-cmd --check-config
+sudo firewall-cmd --permanent --zone="$ZONE" --list-rich-rules</code></pre>
+<p>Su Debian conferma che i due file globali seguenti non esistano ancora. Se esistono, interrompi questa installazione e rivedine l'origine. Non sostituire i file di un altro esercizio.</p>
+<pre translate="no"><code class="lang-bash">sudo test ! -e /etc/nftables.d/m12a2.nft
+sudo test ! -e /etc/systemd/system/m12a2-firewall.service
+sudo install -d -m 0755 /etc/nftables.d
+sudo install -m 0644 "$HOME/m12a2/m12a2.nft" /etc/nftables.d/m12a2.nft
+cat &gt; "$HOME/m12a2/m12a2-firewall.service" &lt;&lt;'EOF'
+[Unit]
+Description=Course M12A2 firewall table
+DefaultDependencies=no
+Wants=network-pre.target
+Before=network-pre.target shutdown.target
+After=local-fs.target nftables.service
+Conflicts=shutdown.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/sbin/nft -f /etc/nftables.d/m12a2.nft
+ExecStop=/usr/sbin/nft delete table inet m12a2
+
+[Install]
+WantedBy=multi-user.target
+EOF
+sudo nft -c -f /etc/nftables.d/m12a2.nft
+sudo install -m 0644 "$HOME/m12a2/m12a2-firewall.service" /etc/systemd/system/m12a2-firewall.service
+sudo systemd-analyze verify /etc/systemd/system/m12a2-firewall.service
+sudo systemctl daemon-reload
+sudo systemctl enable --now m12a2-firewall.service</code></pre>
+<p><strong>Output atteso:</strong> regole permanenti su Rocky e unità di esercizio attiva su Debian. Carica soltanto il file della tabella dedicata; <code translate="no">/etc/nftables.conf</code> resta intatto.</p>
+<p><strong>Verifica:</strong> su Debian consulta <code translate="no">systemctl status m12a2-firewall.service</code> e <code translate="no">sudo nft list table inet m12a2</code>. Su Rocky confronta l'elenco attivo con quello permanente.</p>
+<h3 id="decidi-2">Decidi 2</h3>
+<p>Vuoi correggere soltanto la tabella di esercizio su Debian. Che cosa conserva le politiche che non ti appartengono?</p>
+<div class="tabela"><table><thead><tr><th scope="col">Opzione</th><th scope="col">Azione</th></tr></thead><tbody><tr><td>A</td><td>Eliminare l'insieme globale delle regole</td></tr><tr><td>B</td><td>Riapplicare soltanto il file validato della tabella <code translate="no">m12a2</code></td></tr><tr><td>C</td><td>Sostituire la configurazione di tutti i servizi</td></tr></tbody></table></div>
+<p>Scegli B. L'ambito della modifica deve essere piccolo quanto il problema.</p>
+<h3 id="passo-6-verificare-dopo-il-reboot">Passo 6 · Verificare dopo il reboot</h3>
+<p><strong>Ipotesi:</strong> il server Python avviato nel terminale riparte da solo soltanto perché le regole sono state salvate?</p>
+<p>Riavvia entrambe le VM, una alla volta. Usa noVNC per controllare eventuali errori prima di tentare un'altra modifica.</p>
+<pre translate="no"><code class="lang-bash">sudo systemctl reboot</code></pre>
+<p>Su Rocky recupera le variabili dai registri locali; su Debian controlla l'unità.</p>
+<pre translate="no"><code class="lang-bash">ZONE=$(cat "$HOME/m12a2/zone")
+ALLOW=$(cat "$HOME/m12a2/allow")
+DROP=$(cat "$HOME/m12a2/drop")
+sudo firewall-cmd --zone="$ZONE" --query-rich-rule="$ALLOW"
+sudo firewall-cmd --permanent --zone="$ZONE" --query-rich-rule="$ALLOW"</code></pre>
+<pre translate="no"><code class="lang-bash">systemctl is-active m12a2-firewall.service
+sudo nft list table inet m12a2</code></pre>
+<p>Su ogni VM avvia di nuovo il server temporaneo in un terminale dedicato.</p>
+<pre translate="no"><code class="lang-bash">HOST_IP=$(cat "$HOME/m12a2/ip")
+python3 -m http.server 18088 --bind "$HOST_IP" --directory "$HOME/m12a2/www"</code></pre>
+<p><strong>Output atteso:</strong> le regole ritornano; HTTP torna disponibile soltanto dopo l'avvio del processo. Il client autorizzato continua a ricevere <code translate="no">FIREWALL ok</code>.</p>
+<p><strong>Verifica:</strong> verifica HTTP nei due sensi tra le VM, una nuova sessione SSH e gli indirizzi originali. Conserva le evidenze prima dei guasti.</p>
+<h2 id="6-rompi-e-ripara">6 · Rompi e ripara</h2>
+<h3 id="guasto-1-salvato-non-significa-attivo">Guasto 1 · Salvato non significa attivo</h3>
+<p>Su Rocky rimuovi soltanto l'accettazione attiva; mantieni la copia permanente e lo scarto.</p>
+<pre translate="no"><code class="lang-bash">sudo firewall-cmd --zone="$ZONE" --remove-rich-rule="$ALLOW"</code></pre>
+<p><strong>Sintomo:</strong> da Debian l'HTTP di Rocky raggiunge il limite di tempo.</p>
+<p><strong>Indagine:</strong> confronta le ricerche della stessa regola nei due stati.</p>
+<pre translate="no"><code class="lang-bash">sudo firewall-cmd --zone="$ZONE" --query-rich-rule="$ALLOW"
+sudo firewall-cmd --permanent --zone="$ZONE" --query-rich-rule="$ALLOW"
+sudo ss -lntp 'sport = :18088'</code></pre>
+<p><strong>Causa:</strong> l'accettazione è salvata, ma è stata rimossa dallo stato attivo. Il processo ascolta ancora e la regola di scarto resta attiva.</p>
+<p><strong>Riparazione:</strong> applica nuovamente l'accettazione attiva.</p>
+<pre translate="no"><code class="lang-bash">sudo firewall-cmd --zone="$ZONE" --add-rich-rule="$ALLOW"</code></pre>
+<p><strong>Verifica:</strong> il client autorizzato riceve di nuovo la pagina.</p>
+<p><strong>Prevenzione:</strong> registra separatamente attivo e permanente, anche nella revisione delle modifiche.</p>
+<h3 id="guasto-2-sorgente-errata">Guasto 2 · Sorgente errata</h3>
+<p>Su Debian conserva la configurazione valida prima di cambiare la sorgente consentita.</p>
+<pre translate="no"><code class="lang-bash">cp "$HOME/m12a2/m12a2.nft" "$HOME/m12a2/m12a2.valid.nft"
+sed -i 's/10\.1\.0\.51/10.1.0.99/' "$HOME/m12a2/m12a2.nft"
+sudo nft -c -f "$HOME/m12a2/m12a2.nft"
+sudo nft -f "$HOME/m12a2/m12a2.nft"</code></pre>
+<p><strong>Sintomo:</strong> da Rocky la pagina di Debian smette di rispondere.</p>
+<p><strong>Indagine:</strong> esegui un tentativo remoto e leggi i contatori su Debian.</p>
+<pre translate="no"><code class="lang-bash">sudo nft list table inet m12a2</code></pre>
+<p><strong>Causa:</strong> la regola è sintatticamente valida, ma descrive un'altra sorgente. Il traffico della VM 201 incontra la regola di scarto.</p>
+<p><strong>Riparazione:</strong> ripristina il file locale valido e riapplica soltanto la tabella di esercizio.</p>
+<pre translate="no"><code class="lang-bash">cp "$HOME/m12a2/m12a2.valid.nft" "$HOME/m12a2/m12a2.nft"
+sudo nft -c -f "$HOME/m12a2/m12a2.nft"
+sudo nft -f "$HOME/m12a2/m12a2.nft"</code></pre>
+<p><strong>Verifica:</strong> un nuovo tentativo da Rocky riceve <code translate="no">FIREWALL ok</code> e aumenta il contatore di accettazione.</p>
+<p><strong>Prevenzione:</strong> verifica sia la sintassi sia il significato di sorgente, protocollo e porta.</p>
+<h3 id="guasto-3-processo-sull-indirizzo-sbagliato">Guasto 3 · Processo sull'indirizzo sbagliato</h3>
+<p>Su Debian arresta il server temporaneo con Ctrl+C e riavvialo soltanto sul loopback.</p>
+<pre translate="no"><code class="lang-bash">python3 -m http.server 18088 --bind 127.0.0.1 --directory "$HOME/m12a2/www"</code></pre>
+<p><strong>Sintomo:</strong> la pagina si apre dal loopback su Debian, ma il client Rocky fallisce.</p>
+<p><strong>Indagine:</strong> controlla l'indirizzo di ascolto e la regola prima di ampliare qualsiasi permesso.</p>
+<pre translate="no"><code class="lang-bash">sudo ss -lntp 'sport = :18088'
+sudo nft list table inet m12a2
+curl --noproxy '*' --max-time 4 http://127.0.0.1:18088/</code></pre>
+<p><strong>Causa:</strong> il processo non serve più l'IP di rete. L'accettazione del firewall non fa ascoltare il processo su un altro indirizzo.</p>
+<p><strong>Riparazione:</strong> arresta l'istanza di loopback con Ctrl+C e usa di nuovo il comando del passo 6 con l'IP registrato.</p>
+<p><strong>Verifica:</strong> Rocky torna a ricevere il contenuto tramite l'IP di Debian.</p>
+<p><strong>Prevenzione:</strong> controlla processo, socket e firewall come tre evidenze diverse.</p>
+<h3 id="pulizia">Pulizia</h3>
+<p>Arresta soltanto i due server Python con Ctrl+C nei terminali in cui sono in esecuzione. Su Rocky rimuovi le due regole del lab in entrambi gli stati. Non arrestare firewalld.</p>
+<pre translate="no"><code class="lang-bash">sudo firewall-cmd --zone="$ZONE" --remove-rich-rule="$ALLOW"
+sudo firewall-cmd --zone="$ZONE" --remove-rich-rule="$DROP"
+sudo firewall-cmd --permanent --zone="$ZONE" --remove-rich-rule="$ALLOW"
+sudo firewall-cmd --permanent --zone="$ZONE" --remove-rich-rule="$DROP"</code></pre>
+<p>Su Debian disattiva l'unità dedicata. L'arresto rimuove soltanto <code translate="no">inet m12a2</code>. Poi rimuovi i due file creati da questa lezione.</p>
+<pre translate="no"><code class="lang-bash">sudo systemctl disable --now m12a2-firewall.service
+sudo rm -- /etc/systemd/system/m12a2-firewall.service /etc/nftables.d/m12a2.nft
+sudo systemctl daemon-reload
+sudo nft list ruleset</code></pre>
+<p>Conserva i registri nella cartella privata. Verifica che non resti alcun ascolto su <code translate="no">18088</code>, che gli indirizzi originali siano ancora presenti e che una nuova sessione SSH funzioni. Nessuna operazione di pulizia rimuove le regole di altri servizi.</p>
+<h2 id="7-trappole">7 · Trappole</h2>
+<div class="tabela"><table><thead><tr><th scope="col">Errore comune</th><th scope="col">Che cosa fare</th><th scope="col">Perché</th></tr></thead><tbody><tr><td>Verificare soltanto dal server</td><td>Verificare dall'altra VM</td><td>Il percorso locale è diverso da quello remoto</td></tr><tr><td>Aprire <code translate="no">http</code> per una porta diversa</td><td>Leggere definizione e socket</td><td>Il nome del servizio non indovina la porta</td></tr><tr><td>Salvare senza controllare l'attivo</td><td>Consultare entrambi gli stati</td><td>Disco e memoria sono distinti</td></tr><tr><td>Eliminare l'intero insieme nftables</td><td>Modificare soltanto la tabella dedicata</td><td>Le altre politiche restano necessarie</td></tr><tr><td>Usare firewalld e nft come proprietari della stessa politica</td><td>Identificare il gestore</td><td>Evita due fonti di configurazione</td></tr></tbody></table></div>
+<h2 id="8-quiz">8 · Quiz</h2>
+<ol><li>Qual è la differenza tra servizio di firewalld e unità di systemd?</li>
+<li>Aggiungere una regola permanente modifica automaticamente quella attiva?</li>
+<li>Perché l'accettazione della sorgente precede lo scarto della porta in questo lab?</li>
+<li>Che cosa verifica <code translate="no">nft -c -f</code> e che cosa richiede ancora un test?</li>
+<li>Una regola di accettazione può correggere un processo che ascolta soltanto sul loopback?</li>
+<li>Perché non ripristinare ciecamente l'intero insieme registrato all'inizio?</li></ol>
+<h2 id="9-promemoria">9 · Promemoria</h2>
+<div class="tabela"><table><thead><tr><th scope="col">Operazione</th><th scope="col">Comando</th></tr></thead><tbody><tr><td>Zone attive</td><td><code translate="no">sudo firewall-cmd --get-active-zones</code></td></tr><tr><td>Definizione del servizio</td><td><code translate="no">sudo firewall-cmd --info-service=http</code></td></tr><tr><td>Regole attive della zona</td><td><code translate="no">sudo firewall-cmd --zone="$ZONE" --list-rich-rules</code></td></tr><tr><td>Regole permanenti</td><td><code translate="no">sudo firewall-cmd --permanent --zone="$ZONE" --list-rich-rules</code></td></tr><tr><td>Validare il file del lab</td><td><code translate="no">sudo nft -c -f "$HOME/m12a2/m12a2.nft"</code></td></tr><tr><td>Contatori del lab</td><td><code translate="no">sudo nft list table inet m12a2</code></td></tr></tbody></table></div>
+<p><strong>Flashcard:</strong> crea cinque schede su zona, sorgente, porta, stato attivo e persistenza. Ripassa a D+1, D+3, D+7 e D+21.</p>
+<h2 id="10-checklist-e-chiusura">10 · Checklist e chiusura</h2>
+<ul><li>[ ] So quale zona riceve il traffico su Rocky.</li>
+<li>[ ] Ho verificato HTTP da remoto in entrambi i sensi.</li>
+<li>[ ] Ho controllato le regole dopo il reboot senza confondere processo e firewall.</li>
+<li>[ ] Ho corretto i tre guasti e rimosso soltanto le mie regole.</li></ul>
+<p><strong>Ultimo esercizio:</strong> spiega perché una sintassi valida con sorgente errata resta una politica sbagliata. Includi il test che lo ha rivelato.</p>
+<p><strong>Reboot di verifica:</strong> dopo la pulizia riavvia entrambe le VM, una alla volta. Conferma SSH, assenza del servizio temporaneo e assenza della tabella di esercizio. Su Rocky le due regole del lab non devono tornare.</p>
+<p>Sull'host Proxmox crea gli snapshot finali soltanto dopo questa verifica.</p>
+<pre translate="no"><code class="lang-bash">qm snapshot 201 m12a2-fim
+qm snapshot 202 m12a2-fim</code></pre>
+<h2 id="11-nella-vita-reale">11 · Nella vita reale</h2>
+<p>Su un host che amministri o che sei autorizzato a ispezionare, esegui soltanto operazioni di lettura. Identifica il gestore e osserva le regole con i comandi di elenco di questa lezione. Non installare pacchetti e non modificare zone, regole o servizi.</p>
+<p>Quale regola è più ampia del necessario? Quale porta in ascolto non ha uno scopo documentato? Dove viene mantenuta la politica persistente? Registra le domande per il responsabile prima di proporre modifiche.</p>
+<h2 id="12-approfondire-quando-vuoi">12 · Approfondire quando vuoi</h2>
+<ul><li><a href="https://firewalld.org/documentation/man-pages/firewall-cmd.html">firewall-cmd</a>: ricerche, servizi e regole.</li>
+<li><a href="https://firewalld.org/documentation/configuration/runtime-versus-permanent.html">Runtime versus Permanent</a>: distinzione degli stati.</li>
+<li><a href="https://firewalld.org/documentation/man-pages/firewalld.richlanguage.html">Rich Language</a>: condizioni e priorità.</li>
+<li><a href="https://www.netfilter.org/projects/nftables/manpage.html">nftables</a> e <a href="https://wiki.nftables.org/wiki-nftables/index.php/Configuring_chains">catene</a>: gruppi di istruzioni, validazione, priorità e verdetti.</li>
+<li><a href="https://manpages.debian.org/trixie/systemd/systemd.service.5.en.html">systemd.service</a>: dipendenze predefinite e unità di avvio anticipato.</li></ul>
+<p><strong>DeepTutor</strong> (http://10.1.0.149:3782, KB "Curso Linux Sysadmin"):</p>
+<ul><li><code translate="no">!explica Compare zona, serviço do firewalld, porta e unidade do systemd com a portaria de um prédio.</code></li>
+<li><code translate="no">!feynman Vou explicar por que uma regra salva pode não estar ativa. Aponte as lacunas.</code></li>
+<li><code translate="no">!quiz Crie seis casos de origem, porta e persistência sem sugerir desligar o firewall.</code></li></ul>
+<h2 id="soluzioni-commentate">Soluzioni commentate</h2>
+<h3 id="riscaldamento">Riscaldamento</h3>
+<ol><li>TCP aperto dimostra l'apertura della connessione; la risposta dell'applicazione dipende dal protocollo e dal contenuto richiesto.</li>
+<li>La vecchia sessione aiuta a correggere prima di dipendere dalla nuova configurazione. Il noVNC mantiene un accesso fuori dal percorso SSH.</li>
+<li><code translate="no">sudo ss -lntp</code> mostra ascolti TCP, indirizzi e processi quando hai i permessi.</li></ol>
+<h3 id="quiz">Quiz</h3>
+<ol><li>Il primo descrive il traffico consentito; la seconda gestisce un processo o un'attività del sistema.</li>
+<li>No. Devi controllare o modificare separatamente lo stato attivo.</li>
+<li>Affinché la sorgente autorizzata venga accettata prima di raggiungere lo scarto della stessa porta.</li>
+<li>Verifica se il gruppo di istruzioni può essere accettato senza applicare la modifica; sorgente reale, percorso, applicazione e persistenza richiedono test.</li>
+<li>No. L'applicazione deve ascoltare sull'indirizzo usato dal client.</li>
+<li>Potresti eliminare modifiche legittime o politiche di altri servizi. La pulizia della lezione ha un ambito dedicato e conosciuto.</li></ol>
+<p><a href="12.1-ssh-a-fundo.it.html">← Lezione 12.1 · SSH in dettaglio</a> · <a href="index.it.html">Indice delle lezioni</a> · <a href="12.3-selinux-modos-e-contextos.it.html">Lezione 12.3 · SELinux: modalità e contesti →</a></p>
+</article><nav class="paginas" aria-label="Lezioni"><a class="ant" href="12.1-ssh-a-fundo.it.html"><small>← Precedente</small>12.1 · SSH in dettaglio</a><a class="prox" href="12.3-selinux-modos-e-contextos.it.html"><small>Successiva →</small>12.3 · SELinux: modalità e contesti</a></nav></main></div>
+<footer><div class="wrap">Generato dal Markdown del corso · Immagini in <code translate="no">img/</code></div></footer>
+</body>
+</html>

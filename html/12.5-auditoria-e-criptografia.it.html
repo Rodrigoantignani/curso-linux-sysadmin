@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light dark">
+<title>12.5 · Audit e crittografia · Corso Linux Sysadmin</title>
+<link rel="alternate" hreflang="pt-BR" href="12.5-auditoria-e-criptografia.html"><link rel="alternate" hreflang="it" href="12.5-auditoria-e-criptografia.it.html">
+<style>
+:root{color-scheme:light dark;--bg:#f6f1e7;--card:#fffdf8;--ink:#201c16;--muted:#5e564a;--accent:#9a3412;--accent-2:#1f5f4a;--tint:#efe6d4;--line:#ddd2bc;--code:#f1eadb;--shadow:0 1px 2px rgba(60,40,10,.08);--serif:Georgia,"Iowan Old Style","Palatino Linotype",Palatino,serif;--sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--mono:"Cascadia Code",Consolas,"DejaVu Sans Mono",monospace}
+@media (prefers-color-scheme:dark){:root{--bg:#16130f;--card:#201b15;--ink:#f1eadb;--muted:#b9ad98;--accent:#f0a070;--accent-2:#7fd0b0;--tint:#2a231a;--line:#3d3427;--code:#191510;--shadow:none}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:5.5rem}
+body{margin:0;background:var(--bg);color:var(--ink);font:1rem/1.6 var(--sans)}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--accent-2);outline-offset:2px;border-radius:4px}
+.pular{position:absolute;left:-999px;top:0;background:var(--card);padding:.5rem 1rem;z-index:20}
+.pular:focus{left:.5rem;top:.5rem}
+.wrap{width:100%;max-width:84rem;margin:0 auto;padding-inline:max(1rem,env(safe-area-inset-left))}
+.top{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10;border-top:6px solid var(--accent)}
+.top-in{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding-block:.6rem}
+.titles{min-width:0}
+.marca{margin:0;font:700 clamp(1.15rem,1rem + 1vw,1.6rem)/1.15 var(--serif);letter-spacing:-.01em}
+.marca a{text-decoration:none}
+.marca a:hover{color:var(--accent)}
+.meta{margin:.1rem 0 0;color:var(--muted);font-size:.85rem}
+.acoes{display:flex;align-items:center;gap:.9rem;flex:none}
+.acoes>a{font-size:.9rem;font-weight:600;color:var(--muted);text-decoration:none}
+.acoes>a:hover{color:var(--accent);text-decoration:underline}
+.idioma{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--tint)}
+.idioma>*{padding:.35rem .9rem;font-size:.8rem;font-weight:700;letter-spacing:.06em;text-decoration:none;color:var(--muted);min-width:2.75rem;text-align:center}
+.idioma a:hover{color:var(--accent);text-decoration:underline}
+.idioma span{background:var(--accent);color:#fff}
+@media (prefers-color-scheme:dark){.idioma span{color:#16130f}}
+code{font-family:var(--mono);font-size:.9em;background:var(--tint);padding:.1rem .35rem;border-radius:4px;overflow-wrap:anywhere}
+/* índice */
+.capa{max-width:70rem;padding-block:2rem 3rem}
+.stats{border-left:4px solid var(--accent-2);background:var(--card);border-radius:0 10px 10px 0;padding:1rem 1.25rem;margin:0 0 2.5rem;box-shadow:var(--shadow);color:var(--muted)}
+.stats strong{color:var(--ink)}
+.modulo{display:grid;grid-template-columns:15rem minmax(0,1fr);gap:1rem 2rem;padding:1.75rem 0;border-top:1px solid var(--line)}
+.modulo h2{margin:0;font:700 1.25rem/1.25 var(--serif);align-self:start;position:sticky;top:6rem}
+.mn{display:block;font:700 .8rem var(--mono);letter-spacing:.12em;color:var(--accent);margin-bottom:.25rem}
+.sep{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.modulo ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,17rem),1fr));gap:.75rem}
+.modulo li{margin:0}
+.modulo a{display:flex;gap:.45rem;align-items:baseline;height:100%;padding:.85rem 1rem;background:var(--card);border:1px solid var(--line);border-radius:10px;text-decoration:none;font-weight:600;line-height:1.35;box-shadow:var(--shadow);transition:border-color .15s,transform .15s}
+.modulo a:hover{border-color:var(--accent);color:var(--accent)}
+.num{font:700 .85rem var(--mono);color:var(--accent);white-space:nowrap}
+/* aula */
+.doc{display:grid;grid-template-columns:17rem minmax(0,1fr);gap:2.5rem;align-items:start;padding-block:2rem 3rem}
+.lateral{position:sticky;top:5.5rem;max-height:calc(100vh - 6.5rem);overflow:auto;font-size:.875rem;padding-right:.5rem}
+.lateral h2{margin:0 0 .25rem;font:700 .95rem var(--serif);color:var(--muted)}
+.lateral h3{margin:1rem 0 .25rem;font:700 .75rem var(--mono);letter-spacing:.06em;color:var(--accent)}
+.lateral ul{list-style:none;margin:0;padding:0}
+.lateral a{display:flex;gap:.45rem;padding:.25rem .5rem;border-radius:6px;text-decoration:none;color:var(--muted);line-height:1.3}
+.lateral a:hover{background:var(--tint);color:var(--ink)}
+.lateral a[aria-current]{background:var(--tint);color:var(--ink);font-weight:700;box-shadow:inset 3px 0 0 var(--accent)}
+.lateral .num{font-size:.75rem}
+.aula{min-width:0;max-width:56rem;overflow-wrap:break-word;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:clamp(1.25rem,1rem + 2vw,2.75rem);box-shadow:var(--shadow)}
+.aula h1{margin:0 0 1.5rem;font:700 clamp(1.75rem,1.4rem + 1.6vw,2.5rem)/1.15 var(--serif);letter-spacing:-.015em;color:var(--ink)}
+.aula h2{margin:2.5rem 0 .75rem;padding-top:1.25rem;border-top:1px solid var(--line);font:700 1.5rem/1.25 var(--serif)}
+.aula h3{margin:2rem 0 .5rem;font:700 1.15rem/1.3 var(--serif);color:var(--accent)}
+.aula h4,.aula h5,.aula h6{margin:1.5rem 0 .5rem;font-size:1rem}
+.aula p,.aula ul,.aula ol{margin:1rem 0}
+.aula ul,.aula ol{padding-left:1.5rem}
+.aula li{margin:.35rem 0}
+.aula li>ul,.aula li>ol{margin:.35rem 0}
+.aula a{color:var(--accent);text-underline-offset:2px}
+.aula hr{border:0;border-top:1px solid var(--line);margin:2rem 0}
+.tabela{overflow-x:auto;margin:1.25rem 0;border:1px solid var(--line);border-radius:10px}
+.aula table{width:100%;border-collapse:collapse;font-size:.9rem}
+.aula th,.aula td{padding:.55rem .75rem;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+.aula tr:last-child td{border-bottom:0}
+.aula th{background:var(--tint);font-weight:700}
+.aula pre{background:var(--code);border:1px solid var(--line);border-radius:10px;padding:.9rem 1rem;overflow-x:auto;font:.85rem/1.5 var(--mono);margin:1rem 0;tab-size:4}
+.aula pre code{background:none;padding:0;font-size:inherit;overflow-wrap:normal}
+.aula blockquote{margin:1.25rem 0;padding:.75rem 1.25rem;border-left:4px solid var(--accent-2);background:var(--tint);border-radius:0 10px 10px 0}
+.aula blockquote>:first-child{margin-top:0}
+.aula blockquote>:last-child{margin-bottom:0}
+.aula figure{margin:1.75rem 0;text-align:center}
+.aula figure img{display:block;margin:0 auto;max-width:100%;height:auto;border:1px solid var(--line);border-radius:10px;background:#fff}
+.aula figcaption{margin-top:.5rem;color:var(--muted);font-size:.9rem;font-style:italic}
+.paginas{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:2.5rem;padding-top:1.5rem;border-top:1px solid var(--line)}
+.paginas a{display:block;padding:.75rem 1rem;border:1px solid var(--line);border-radius:10px;text-decoration:none;color:var(--ink);font-weight:600;line-height:1.3}
+.paginas a:hover{border-color:var(--accent);color:var(--accent)}
+.paginas small{display:block;color:var(--muted);font-weight:400}
+.paginas .prox{grid-column:2;text-align:right}
+footer{border-top:1px solid var(--line);padding-block:1.5rem;color:var(--muted);font-size:.85rem;text-align:center}
+@media (hover:hover) and (prefers-reduced-motion:no-preference){.modulo a:hover{transform:translateY(-2px)}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+@media (max-width:980px){.doc{grid-template-columns:minmax(0,1fr);padding-top:1rem}.lateral{position:static;max-height:none;order:2}.aula{max-width:none}}
+@media (max-width:860px){.modulo{grid-template-columns:minmax(0,1fr)}.modulo h2{position:static}.mn{display:inline;margin-right:.5rem}}
+@media (max-width:420px){.meta{display:none}.top-in{gap:.5rem}.acoes{gap:.6rem}.capa{padding-top:1.25rem}.paginas{grid-template-columns:minmax(0,1fr)}.paginas .prox{grid-column:1}}
+@media print{.top,.lateral,.paginas{display:none}.aula{border:0;box-shadow:none;padding:0;max-width:none}.doc{display:block}}
+</style>
+</head>
+<body>
+<a class="pular" href="#conteudo">Vai al contenuto</a>
+<header class="top"><div class="wrap top-in"><div class="titles"><p class="marca"><a href="index.it.html">Corso Linux Sysadmin</a></p><p class="meta">Rodrigo Antignani · Lezione 12.5</p></div><div class="acoes"><a href="index.it.html">Indice</a><div class="idioma" role="group" aria-label="Lingua"><a href="12.5-auditoria-e-criptografia.html" hreflang="pt-BR" lang="pt-BR">PT</a><span aria-current="true">IT</span></div></div></div></header>
+<div class="wrap doc"><aside class="lateral" aria-label="Lezioni"><h2>Lezioni</h2><h3>M0 · Laboratorio</h3><ul><li><a href="0.1-montar-o-laboratorio.it.html"><span class="num">0.1</span><span>Allestire il laboratorio</span></a></li><li><a href="0.2-acesso-e-protecao.it.html"><span class="num">0.2</span><span>Accesso e protezione</span></a></li></ul><h3>M1 · Riga di comando</h3><ul><li><a href="1.1-o-que-e-linux.it.html"><span class="num">1.1</span><span>Che cos'è Linux</span></a></li><li><a href="1.2-o-shell-e-a-ajuda.it.html"><span class="num">1.2</span><span>La shell e la guida</span></a></li><li><a href="1.3-caminhos-e-navegacao.it.html"><span class="num">1.3</span><span>Percorsi e navigazione</span></a></li><li><a href="1.4-criar-copiar-mover-e-apagar.it.html"><span class="num">1.4</span><span>Creare, copiare, spostare ed eliminare</span></a></li><li><a href="1.5-ler-e-procurar-texto.it.html"><span class="num">1.5</span><span>Leggere e cercare testo</span></a></li><li><a href="1.6-redirecionamentos-e-pipes.it.html"><span class="num">1.6</span><span>Reindirizzamenti e pipe</span></a></li><li><a href="1.7-arquivar-e-compactar.it.html"><span class="num">1.7</span><span>Archiviare e comprimere</span></a></li><li><a href="1.8-primeiro-script.it.html"><span class="num">1.8</span><span>Primo script</span></a></li><li><a href="1.9-decidir-e-repetir.it.html"><span class="num">1.9</span><span>Decidere e ripetere</span></a></li><li><a href="1.10-software-livre-na-pratica.it.html"><span class="num">1.10</span><span>Il software libero in pratica</span></a></li></ul><h3>M2 · Sistema, utenti e permessi</h3><ul><li><a href="2.1-instalacao-e-provisionamento.it.html"><span class="num">2.1</span><span>Installazione e provisioning</span></a></li><li><a href="2.2-hardware-e-dispositivos.it.html"><span class="num">2.2</span><span>Hardware e dispositivi</span></a></li><li><a href="2.3-processos-e-logs.it.html"><span class="num">2.3</span><span>Processi e log</span></a></li><li><a href="2.4-rede-no-dia-a-dia.it.html"><span class="num">2.4</span><span>La rete di tutti i giorni</span></a></li><li><a href="2.5-acesso-remoto-e-privilegios.it.html"><span class="num">2.5</span><span>Accesso remoto e privilegi</span></a></li><li><a href="2.6-usuarios-e-grupos.it.html"><span class="num">2.6</span><span>Utenti e gruppi</span></a></li><li><a href="2.7-permissoes-e-dono.it.html"><span class="num">2.7</span><span>Permessi e proprietario</span></a></li><li><a href="2.8-diretorios-e-arquivos-especiais.it.html"><span class="num">2.8</span><span>Directory e file speciali</span></a></li></ul><h3>M3 · Testo ed editor</h3><ul><li><a href="3.1-fluxos-a-fundo.it.html"><span class="num">3.1</span><span>I flussi in profondità</span></a></li><li><a href="3.2-filtros-de-texto.it.html"><span class="num">3.2</span><span>Filtri di testo</span></a></li><li><a href="3.3-regex-e-grep.it.html"><span class="num">3.3</span><span>Regex e grep</span></a></li><li><a href="3.4-sed-e-awk.it.html"><span class="num">3.4</span><span>sed e awk</span></a></li><li><a href="3.5-vi-e-vim-de-verdade.it.html"><span class="num">3.5</span><span>vi e vim sul serio</span></a></li></ul><h3>M4 · systemd e boot</h3><ul><li><a href="4.1-como-o-linux-liga.it.html"><span class="num">4.1</span><span>Come si avvia Linux</span></a></li><li><a href="4.2-systemd-servicos-e-units.it.html"><span class="num">4.2</span><span>systemd: servizi e unit</span></a></li><li><a href="4.3-targets-desligar-e-reiniciar.it.html"><span class="num">4.3</span><span>Target: spegnere e riavviare</span></a></li><li><a href="4.4-grub-e-acesso-de-emergencia.it.html"><span class="num">4.4</span><span>GRUB e accesso di emergenza</span></a></li></ul><h3>M5 · Kernel, moduli e VM</h3><ul><li><a href="5.1-hardware-pelo-kernel.it.html"><span class="num">5.1</span><span>L'hardware visto dal kernel</span></a></li><li><a href="5.2-modulos-e-parametros.it.html"><span class="num">5.2</span><span>Moduli e parametri</span></a></li><li><a href="5.3-linux-como-convidado.it.html"><span class="num">5.3</span><span>Linux come guest</span></a></li></ul><h3>M6 · Pacchetti e repository</h3><ul><li><a href="6.1-pacotes-no-debian.it.html"><span class="num">6.1</span><span>Pacchetti su Debian</span></a></li><li><a href="6.2-pacotes-na-rocky.it.html"><span class="num">6.2</span><span>Pacchetti su Rocky</span></a></li><li><a href="6.3-repositorios.it.html"><span class="num">6.3</span><span>Repository</span></a></li><li><a href="6.4-flatpak.it.html"><span class="num">6.4</span><span>Flatpak</span></a></li><li><a href="6.5-bibliotecas-compartilhadas.it.html"><span class="num">6.5</span><span>Librerie condivise</span></a></li></ul><h3>M7 · Processi e prestazioni</h3><ul><li><a href="7.1-processos-e-sinais.it.html"><span class="num">7.1</span><span>Processi e segnali</span></a></li><li><a href="7.2-jobs-e-sessoes.it.html"><span class="num">7.2</span><span>Job e sessioni</span></a></li><li><a href="7.3-prioridade-e-perfis.it.html"><span class="num">7.3</span><span>Priorità e profili</span></a></li></ul><h3>M8 · File a fondo</h3><ul><li><a href="8.1-fhs-e-onde-cada-coisa-mora.it.html"><span class="num">8.1</span><span>FHS e dove sta ogni cosa</span></a></li><li><a href="8.2-find-a-fundo.it.html"><span class="num">8.2</span><span>find a fondo</span></a></li><li><a href="8.3-arquivamento-avancado.it.html"><span class="num">8.3</span><span>Archiviazione avanzata</span></a></li><li><a href="8.4-links.it.html"><span class="num">8.4</span><span>Link</span></a></li><li><a href="8.5-permissoes-avancadas.it.html"><span class="num">8.5</span><span>Permessi avanzati</span></a></li></ul><h3>M9 · Storage</h3><ul><li><a href="9.1-discos-e-layout.it.html"><span class="num">9.1</span><span>Dischi e layout</span></a></li><li><a href="9.2-particionar.it.html"><span class="num">9.2</span><span>Partizionare</span></a></li><li><a href="9.3-sistemas-de-arquivos.it.html"><span class="num">9.3</span><span>File system</span></a></li><li><a href="9.4-montar-e-persistir.it.html"><span class="num">9.4</span><span>Montare e rendere persistente</span></a></li><li><a href="9.5-integridade-e-espaco.it.html"><span class="num">9.5</span><span>Integrità e spazio</span></a></li><li><a href="9.6-lvm.it.html"><span class="num">9.6</span><span>LVM</span></a></li><li><a href="9.7-crescer-sem-destruir.it.html"><span class="num">9.7</span><span>Crescere senza distruggere</span></a></li></ul><h3>M10 · Utenti e accesso privilegiato</h3><ul><li><a href="10.1-contas.it.html"><span class="num">10.1</span><span>Account</span></a></li><li><a href="10.2-senhas-e-validade.it.html"><span class="num">10.2</span><span>Password e scadenza</span></a></li><li><a href="10.3-grupos-e-trabalho-em-equipe.it.html"><span class="num">10.3</span><span>Gruppi e lavoro di squadra</span></a></li><li><a href="10.4-sudo-de-verdade.it.html"><span class="num">10.4</span><span>sudo sul serio</span></a></li></ul><h3>M11 · Rete</h3><ul><li><a href="11.1-tcp-ip-para-quem-administra.it.html"><span class="num">11.1</span><span>TCP/IP per chi amministra</span></a></li><li><a href="11.2-networkmanager-e-nmcli.it.html"><span class="num">11.2</span><span>NetworkManager e nmcli</span></a></li><li><a href="11.3-rede-no-debian.it.html"><span class="num">11.3</span><span>Rete su Debian</span></a></li><li><a href="11.4-nomes-e-resolucao.it.html"><span class="num">11.4</span><span>Nomi e risoluzione</span></a></li><li><a href="11.5-diagnostico-de-rede.it.html"><span class="num">11.5</span><span>Diagnosi di rete</span></a></li></ul><h3>M12 · Sicurezza dell'host</h3><ul><li><a href="12.1-ssh-a-fundo.it.html"><span class="num">12.1</span><span>SSH in dettaglio</span></a></li><li><a href="12.2-firewall.it.html"><span class="num">12.2</span><span>Firewall</span></a></li><li><a href="12.3-selinux-modos-e-contextos.it.html"><span class="num">12.3</span><span>SELinux: modalità e contesti</span></a></li><li><a href="12.4-selinux-portas-e-booleanos.it.html"><span class="num">12.4</span><span>SELinux: porte e booleani</span></a></li><li><a href="12.5-auditoria-e-criptografia.it.html" aria-current="page"><span class="num">12.5</span><span>Audit e crittografia</span></a></li></ul></aside><main id="conteudo" class="aula"><article><h1>Lezione 12.5 · Audit e crittografia</h1>
+<p>Su Windows Server colleghi già account, permessi, sessioni e servizi. Su Linux costruirai questo inventario senza rimuovere privilegi d'impulso. Poi cifrerai e firmerai un file con una chiave dedicata al lab. La sfida finale riunisce firewall, SELinux e servizio persistente.</p>
+<blockquote><p><strong>Il cuore di questa lezione:</strong> un privilegio richiede uno scopo; lo storico dipende dalla raccolta; cifrare protegge il contenuto e firmare permette di verificare contenuto e chiave. Il resto è approfondimento.</p></blockquote>
+<div class="tabela"><table><thead><tr><th scope="col">Scheda</th><th scope="col"></th></tr></thead><tbody><tr><td><strong>Modulo</strong></td><td>M12 · Sicurezza dell'host, lezione 5 di 5</td></tr><tr><td><strong>Quando</strong></td><td>Settimana 18</td></tr><tr><td><strong>Alla fine</strong></td><td>Analizzi privilegi, distingui sessione attuale e storico e verifichi cifratura e firma</td></tr><tr><td><strong>Prerequisiti</strong></td><td>Lezioni dalla 12.1 alla 12.4, GnuPG e strumenti di audit; nginx e strumenti SELinux già usati nel modulo</td></tr><tr><td><strong>Durata</strong></td><td>Circa 90 minuti, più una sessione per la sfida</td></tr><tr><td><strong>Snapshot</strong></td><td><code translate="no">m12a5-inicio</code> e <code translate="no">m12a5-fim</code> sulle VM 201 e 202</td></tr></tbody></table></div>
+<h2 id="1-riscaldamento">1 · Riscaldamento</h2>
+<ol><li>Una porta aperta nel firewall crea un servizio in ascolto?</li>
+<li>Qual è la differenza tra registrare un contesto con <code translate="no">semanage fcontext</code> e applicarlo con <code translate="no">restorecon</code>?</li>
+<li>Perché la correzione di un AVC parte dall'operazione negata e non dall'autorizzazione di tutto?</li></ol>
+<h2 id="2-perche-conta">2 · Perché conta</h2>
+<p>Una revisione trova un file con SUID, una porta senza scopo documentato e una firma valida. Sono tre domande diverse. SUID può essere legittimo; la porta richiede un responsabile; la firma corrisponde a una chiave, la cui identità deve essere verificata con un altro mezzo.</p>
+<p>Fare audit significa trasformare queste osservazioni in decisioni motivate. Registri ciò che esiste, lo confronti con l'intenzione e modifichi soltanto ciò che hai compreso.</p>
+<h2 id="3-modello-mentale">3 · Modello mentale</h2>
+<p>L'inventario è l'elenco delle chiavi e delle stanze dell'edificio. La cifratura è una scatola che soltanto la chiave del destinatario può aprire. La firma è un sigillo verificabile sul documento; il nome scritto sul sigillo non dimostra da solo l'identità di chi lo ha creato.</p>
+<pre translate="no"><code class="lang-text">inventario -&gt; scopo -&gt; decisione registrata
+cifrare: contenuto leggibile -&gt; contenuto protetto
+firmare: contenuto + chiave privata -&gt; firma verificabile</code></pre>
+<figure><a href="../img/12.5-privilegio-com-motivo.it.jpg"><img src="../img/12.5-privilegio-com-motivo.it.jpg" alt="Il privilegio richiede un motivo" loading="lazy" decoding="async"></a><figcaption>Prima di rimuovere un privilegio, scopri chi ne ha bisogno.</figcaption></figure>
+<h3 id="ponte-windows">Ponte Windows</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Windows Server</th><th scope="col">Linux</th><th scope="col">Domanda</th></tr></thead><tbody><tr><td>Token e permessi di esecuzione</td><td>Proprietario, modi, SUID e politica MAC</td><td>Chi ottiene quale accesso?</td></tr><tr><td>Sessioni e registri di accesso</td><td><code translate="no">who</code>, storico e journal</td><td>Che cosa sta accadendo e che cosa è stato registrato?</td></tr><tr><td>Firma e cifratura</td><td>Operazioni OpenPGP di GnuPG</td><td>Voglio riservatezza, integrità o entrambe?</td></tr></tbody></table></div>
+<h2 id="4-l-essenziale">4 · L'essenziale</h2>
+<h3 id="il-privilegio-non-e-una-diagnosi">Il privilegio non è una diagnosi</h3>
+<p>Il bit SUID richiede un'indagine, non una rimozione automatica. Controlla tipo di file, proprietario, pacchetto e scopo. L'inventario di questa lezione cerca in <code translate="no">/usr</code> senza attraversare altri filesystem; non rimuove bit dai programmi della distribuzione.</p>
+<h3 id="sessione-attuale-e-storico">Sessione attuale e storico</h3>
+<p><code translate="no">who</code> legge il registro delle sessioni attuali. Lo storico richiede che il meccanismo di raccolta fosse già funzionante. Un elenco vuoto non dimostra che nessuno sia entrato nella macchina.</p>
+<p>Su Debian 13 il sostituto previsto del <code translate="no">last</code> tradizionale è <code translate="no">wtmpdb last</code>, con raccolta tramite <code translate="no">libpam-wtmpdb</code>. Installare oggi il raccoglitore non ricostruisce i registri precedenti. Su Rocky 9 usi <code translate="no">last</code>.</p>
+<h3 id="il-limite-ha-un-ambito">Il limite ha un ambito</h3>
+<p><code translate="no">ulimit</code> mostra o modifica i limiti della shell e dei processi che avvia. Non modifica tutti i servizi dell'host. L'esercizio modifica soltanto un limite soft dentro una subshell, che termina insieme al test.</p>
+<h3 id="due-operazioni-crittografiche">Due operazioni crittografiche</h3>
+<p>Cifri per la chiave pubblica del destinatario; la chiave privata corrispondente decifra. Firmi con la tua chiave privata; la chiave pubblica permette di verificare la firma. Una firma valida richiede comunque di verificare l'impronta della chiave tramite un canale affidabile.</p>
+<figure><a href="../img/12.5-sigilo-e-assinatura.it.jpg"><img src="../img/12.5-sigilo-e-assinatura.it.jpg" alt="Cifrare e firmare risolvono domande diverse" loading="lazy" decoding="async"></a><figcaption>La firma verifica la chiave e il contenuto, non l'identità da sola.</figcaption></figure>
+<h3 id="rocky-debian">Rocky × Debian</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Voce</th><th scope="col">Rocky 9</th><th scope="col">Debian 13</th></tr></thead><tbody><tr><td>Storico tradizionale del lab</td><td><code translate="no">last</code></td><td><code translate="no">wtmpdb last</code> con raccolta configurata</td></tr><tr><td>Pacchetto GnuPG</td><td><code translate="no">gnupg2</code></td><td><code translate="no">gnupg</code>, con pinentry disponibile</td></tr><tr><td>Controllare il pacchetto di un file</td><td><code translate="no">rpm -qf</code></td><td><code translate="no">dpkg-query -S</code></td></tr><tr><td>Protezione nella sfida</td><td>SELinux enforcing e firewalld</td><td>nftables e ispezione di AppArmor</td></tr></tbody></table></div>
+<h2 id="5-lab-guidato">5 · Lab guidato</h2>
+<p>Ripeti il lab su entrambe le VM. Le chiavi restano in una directory nuova e privata; non usare la tua chiave personale e non inviare la chiave privata a un'altra macchina.</p>
+<h3 id="passo-1-proteggere-e-preparare">Passo 1 · Proteggere e preparare</h3>
+<p><strong>Ipotesi:</strong> creare un'altra directory GnuPG dovrebbe modificare le identità del tuo portachiavi personale?</p>
+<p>Sull'host Proxmox:</p>
+<pre translate="no"><code class="lang-bash">qm snapshot 201 m12a5-inicio
+qm snapshot 202 m12a5-inicio</code></pre>
+<p>Sulle VM controlla che la cartella sia assente prima di crearla. Se esiste, rivedi i registri precedenti invece di sovrascriverli.</p>
+<pre translate="no"><code class="lang-bash">test ! -e "$HOME/m12a5"
+command -v gpg who ss python3 curl
+mkdir -m 700 "$HOME/m12a5"
+mkdir -m 700 "$HOME/m12a5/gnupg"
+printf 'M12 audit record\n' &gt; "$HOME/m12a5/registro.txt"</code></pre>
+<p><strong>Output atteso:</strong> nuova directory privata e strumenti disponibili. Installa i pacchetti mancanti con il procedimento del M6 prima di continuare. Su Debian 13 minimale, <code translate="no">gpg</code> e <code translate="no">gpgconf</code> arrivano dal pacchetto <code translate="no">gnupg</code>; non configurare un raccoglitore storico fingendo che fosse già attivo.</p>
+<p><strong>Verifica:</strong> controlla <code translate="no">stat -c '%a %U %n' "$HOME/m12a5/gnupg"</code>. Il modo deve essere <code translate="no">700</code> e il proprietario <code translate="no">student</code>.</p>
+<h3 id="passo-2-inventariare-senza-correggere-d-impulso">Passo 2 · Inventariare senza correggere d'impulso</h3>
+<p><strong>Ipotesi:</strong> trovare SUID identifica da solo un file dannoso?</p>
+<pre translate="no"><code class="lang-bash">sudo find /usr -xdev -type f -perm -4000 -printf '%m %u %p\n' &gt; "$HOME/m12a5/suid.txt"
+sudo ss -lntup &gt; "$HOME/m12a5/sockets.txt"
+who &gt; "$HOME/m12a5/who.txt"
+ulimit -Sn
+ulimit -Hn</code></pre>
+<p>Scegli un percorso reale trovato e consulta il suo pacchetto: su Rocky <code translate="no">rpm -qf CAMINHO</code>; su Debian <code translate="no">dpkg-query -S CAMINHO</code>. Sostituisci l'argomento con il percorso osservato, senza rimuovere il bit.</p>
+<p><strong>Output atteso:</strong> inventario reale, senza un numero prestabilito di file o sessioni.</p>
+<p><strong>Verifica:</strong> per una porta in ascolto associa processo e scopo. Per un file SUID registra proprietario, pacchetto e motivo prima di proporre una modifica.</p>
+<h3 id="decidi-1">Decidi 1</h3>
+<p>Hai trovato SUID in un programma installato dalla distribuzione. Che cosa fai prima?</p>
+<div class="tabela"><table><thead><tr><th scope="col">Opzione</th><th scope="col">Azione</th></tr></thead><tbody><tr><td>A</td><td>Rimuovere SUID da tutto</td></tr><tr><td>B</td><td>Controllare pacchetto, proprietario e scopo</td></tr><tr><td>C</td><td>Eseguirlo come root per vedere che cosa succede</td></tr></tbody></table></div>
+<p>Scegli B. L'inventario diventa una decisione quando comprendi l'uso del privilegio.</p>
+<h3 id="passo-3-leggere-lo-storico-esistente">Passo 3 · Leggere lo storico esistente</h3>
+<p><strong>Ipotesi:</strong> installare uno strumento storico può recuperare sessioni che non sono mai state registrate?</p>
+<p>Su Rocky usa il primo blocco. Su Debian 13 con la raccolta di <code translate="no">wtmpdb</code> configurata usa il secondo. Se la raccolta non esiste, registra questa assenza come risultato dell'inventario.</p>
+<pre translate="no"><code class="lang-bash">last -n 5</code></pre>
+<pre translate="no"><code class="lang-bash">wtmpdb last -n 5</code></pre>
+<p><strong>Output atteso:</strong> sessioni effettivamente registrate oppure l'indicazione che la base dati non è disponibile. Non inventare nomi, orari o accessi.</p>
+<p><strong>Verifica:</strong> confronta una sessione attuale con <code translate="no">who</code>. Scrivi quale fonte è stata consultata e quali limiti di copertura presenta.</p>
+<h3 id="passo-4-creare-un-identita-soltanto-per-il-lab">Passo 4 · Creare un'identità soltanto per il lab</h3>
+<p><strong>Ipotesi:</strong> il nome scritto nell'identità della chiave dimostra chi sia il suo proprietario fuori dal lab?</p>
+<pre translate="no"><code class="lang-bash">export GPG_TTY=$(tty)
+gpg --homedir "$HOME/m12a5/gnupg" --full-generate-key
+gpg --homedir "$HOME/m12a5/gnupg" --list-keys --fingerprint</code></pre>
+<p>Nella generazione interattiva scegli RSA con sottochiave di cifratura, <code translate="no">3072</code> bit, validità di un giorno, nome fittizio <code translate="no">Lab M12</code> e indirizzo <code translate="no">lab-m12@example.invalid</code>. Digita una passphrase soltanto nella finestra interattiva. Non scriverla negli argomenti, nei file del corso o nel diario.</p>
+<p><strong>Output atteso:</strong> una nuova chiave in questa directory, con un'impronta propria. La chiave di ogni VM sarà diversa, anche con lo stesso nome fittizio.</p>
+<p><strong>Verifica:</strong> registra soltanto l'impronta pubblica. Un'identità creata nel lab non deve essere presentata come identità verificata di una persona reale.</p>
+<h3 id="passo-5-cifrare-e-recuperare">Passo 5 · Cifrare e recuperare</h3>
+<p><strong>Ipotesi:</strong> quale parte della chiave permette di decifrare il file cifrato per questo destinatario?</p>
+<pre translate="no"><code class="lang-bash">gpg --homedir "$HOME/m12a5/gnupg" --recipient lab-m12@example.invalid --output "$HOME/m12a5/registro.gpg" --encrypt "$HOME/m12a5/registro.txt"
+gpg --homedir "$HOME/m12a5/gnupg" --output "$HOME/m12a5/recuperado.txt" --decrypt "$HOME/m12a5/registro.gpg"
+cmp "$HOME/m12a5/registro.txt" "$HOME/m12a5/recuperado.txt"</code></pre>
+<p><strong>Output atteso:</strong> file cifrato, recupero tramite il portachiavi del lab e confronto senza differenze. La passphrase può essere nella cache dell'agente e non essere richiesta a ogni operazione.</p>
+<p><strong>Verifica:</strong> conferma il codice <code translate="no">0</code> di <code translate="no">cmp</code> immediatamente con <code translate="no">echo $?</code>. Il testo originale esiste ancora; cifrare non lo elimina.</p>
+<h3 id="passo-6-firmare-e-verificare">Passo 6 · Firmare e verificare</h3>
+<p><strong>Ipotesi:</strong> una firma separata cifra il file originale?</p>
+<pre translate="no"><code class="lang-bash">gpg --homedir "$HOME/m12a5/gnupg" --armor --output "$HOME/m12a5/registro.txt.asc" --detach-sign "$HOME/m12a5/registro.txt"
+gpg --homedir "$HOME/m12a5/gnupg" --verify "$HOME/m12a5/registro.txt.asc" "$HOME/m12a5/registro.txt"</code></pre>
+<p><strong>Output atteso:</strong> verifica crittografica valida per la chiave e i byte originali. Il documento resta leggibile senza decifrarlo.</p>
+<p><strong>Verifica:</strong> confronta l'impronta usata nella firma con quella registrata nel passo 4. Identifica la chiave di esercizio, non dimostra un'identità esterna.</p>
+<h3 id="decidi-2">Decidi 2</h3>
+<p>Vuoi impedire la lettura del contenuto e rilevare una modifica. Quale decisione soddisfa entrambe le esigenze?</p>
+<div class="tabela"><table><thead><tr><th scope="col">Opzione</th><th scope="col">Azione</th></tr></thead><tbody><tr><td>A</td><td>Rinominare soltanto il file</td></tr><tr><td>B</td><td>Firmare soltanto e lasciare pubblico il contenuto</td></tr><tr><td>C</td><td>Cifrare per il destinatario e verificare una firma con chiave controllata</td></tr></tbody></table></div>
+<p>Scegli C. Riservatezza e verifica dell'autenticità sono obiettivi diversi.</p>
+<h2 id="6-rompi-e-ripara">6 · Rompi e ripara</h2>
+<h3 id="guasto-1-suid-senza-scopo">Guasto 1 · SUID senza scopo</h3>
+<p>Crea soltanto un file di dati inerte, senza permesso di esecuzione. Conferma che la directory seguente non esistesse prima; se esiste, non riutilizzarla.</p>
+<pre translate="no"><code class="lang-bash">sudo test ! -e /srv/m12a5-audit
+sudo install -d -m 0755 /srv/m12a5-audit
+sudo install -m 4644 "$HOME/m12a5/registro.txt" /srv/m12a5-audit/inert.txt</code></pre>
+<p><strong>Sintomo:</strong> l'inventario trova SUID in un file che non deve eseguire nulla.</p>
+<p><strong>Indagine:</strong> leggi modo, proprietario e tipo senza eseguire il file.</p>
+<pre translate="no"><code class="lang-bash">stat -c '%A %a %U %n' /srv/m12a5-audit/inert.txt
+file /srv/m12a5-audit/inert.txt</code></pre>
+<p><strong>Causa:</strong> il bit è stato aggiunto senza uno scopo. In questo file di dati senza esecuzione non crea un programma privilegiato.</p>
+<p><strong>Riparazione:</strong> rimuovi soltanto il bit non necessario dal file del lab.</p>
+<pre translate="no"><code class="lang-bash">sudo chmod u-s /srv/m12a5-audit/inert.txt</code></pre>
+<p><strong>Verifica:</strong> il modo torna a <code translate="no">644</code>; nessun binario della distribuzione è stato modificato.</p>
+<p><strong>Prevenzione:</strong> registra lo scopo dei privilegi e confronta l'inventario con la situazione nota.</p>
+<h3 id="guasto-2-documento-modificato">Guasto 2 · Documento modificato</h3>
+<p>Modifica soltanto una copia, conservando originale e firma.</p>
+<pre translate="no"><code class="lang-bash">cp "$HOME/m12a5/registro.txt" "$HOME/m12a5/adulterado.txt"
+printf 'changed\n' &gt;&gt; "$HOME/m12a5/adulterado.txt"
+gpg --homedir "$HOME/m12a5/gnupg" --verify "$HOME/m12a5/registro.txt.asc" "$HOME/m12a5/adulterado.txt"</code></pre>
+<p><strong>Sintomo:</strong> la verifica fallisce per la copia.</p>
+<p><strong>Indagine:</strong> confronta i byte e verifica l'originale con la stessa firma.</p>
+<p><strong>Causa:</strong> la firma è stata creata per un altro contenuto. Copiare il nome o il file della firma non autorizza nuovi byte.</p>
+<p><strong>Riparazione:</strong> usa l'originale conservato; non firmare nuovamente per nascondere la modifica.</p>
+<p><strong>Verifica:</strong> il comando del passo 6 resta valido sull'originale.</p>
+<p><strong>Prevenzione:</strong> distribuisci contenuto e firma identificati e verifica l'impronta del mittente tramite un altro canale.</p>
+<h3 id="guasto-3-limite-del-processo">Guasto 3 · Limite del processo</h3>
+<p>Controlla che il limite hard dei file aperti sia almeno <code translate="no">32</code>. Il test seguente apre al massimo <code translate="no">64</code> descrittori in un processo figlio e li chiude alla fine.</p>
+<pre translate="no"><code class="lang-bash">(
+ulimit -Sn 32
+python3 - &lt;&lt;'PY'
+import os
+from contextlib import ExitStack
+with ExitStack() as stack:
+    try:
+        for _ in range(64):
+            stack.enter_context(open(os.devnull))
+    except OSError as exc:
+        print("errno=", exc.errno)
+PY
+)</code></pre>
+<p><strong>Sintomo:</strong> il processo figlio raggiunge il limite dei descrittori e segnala l'errore <code translate="no">24</code>.</p>
+<p><strong>Indagine:</strong> confronta <code translate="no">ulimit -Sn</code> fuori dalla subshell con il valore imposto al suo interno.</p>
+<p><strong>Causa:</strong> il limite appartiene al processo e alla sua eredità, non a tutti i servizi della VM.</p>
+<p><strong>Riparazione:</strong> termina il test; la subshell è già terminata e non ha modificato la shell principale.</p>
+<p><strong>Verifica:</strong> il limite del terminale principale resta uguale a quello annotato nel passo 2.</p>
+<p><strong>Prevenzione:</strong> analizza il limite del processo interessato prima di modificare una configurazione globale.</p>
+<h3 id="pulizia">Pulizia</h3>
+<p>Rimuovi soltanto il file inerte e la sua directory ora vuota. Conserva i registri privati e i file crittografici per la verifica dopo il reboot. Non esportare la chiave privata.</p>
+<pre translate="no"><code class="lang-bash">sudo rm -- /srv/m12a5-audit/inert.txt
+sudo rmdir /srv/m12a5-audit
+gpgconf --homedir "$HOME/m12a5/gnupg" --kill gpg-agent</code></pre>
+<h2 id="7-trappole">7 · Trappole</h2>
+<div class="tabela"><table><thead><tr><th scope="col">Errore comune</th><th scope="col">Che cosa fare</th><th scope="col">Perché</th></tr></thead><tbody><tr><td>Rimuovere SUID in massa</td><td>Collegare pacchetto e scopo</td><td>Può interrompere un accesso legittimo</td></tr><tr><td>Storico vuoto significa nessun accesso</td><td>Controllare raccolta e copertura</td><td>Dati assenti non dimostrano assenza di uso</td></tr><tr><td>Firma valida dimostra un nome reale</td><td>Verificare l'impronta tramite un altro canale</td><td>L'identità scritta può essere autocreata</td></tr><tr><td>Cifrare elimina l'originale</td><td>Controllare i file esistenti</td><td>Il testo leggibile resta sul disco</td></tr></tbody></table></div>
+<h2 id="8-quiz">8 · Quiz</h2>
+<ol><li>Perché un file SUID richiede un'indagine prima di una modifica?</li>
+<li>Qual è la differenza tra <code translate="no">who</code> e lo storico delle sessioni?</li>
+<li>Quale sostituto di <code translate="no">last</code> è previsto su Debian 13 e che cosa non recupera?</li>
+<li>Quale chiave cifra per il destinatario e quale decifra?</li>
+<li>Perché una firma separata lascia leggibile il contenuto?</li>
+<li>Modificare <code translate="no">ulimit</code> nel tuo terminale modifica il limite di un servizio già avviato?</li></ol>
+<h2 id="9-promemoria">9 · Promemoria</h2>
+<div class="tabela"><table><thead><tr><th scope="col">Operazione</th><th scope="col">Comando</th></tr></thead><tbody><tr><td>Sessioni attuali</td><td><code translate="no">who</code></td></tr><tr><td>Storico Rocky</td><td><code translate="no">last -n 5</code></td></tr><tr><td>Storico Debian</td><td><code translate="no">wtmpdb last -n 5</code></td></tr><tr><td>Limite soft della shell</td><td><code translate="no">ulimit -Sn</code></td></tr><tr><td>Impronta del lab</td><td><code translate="no">gpg --homedir "$HOME/m12a5/gnupg" --list-keys --fingerprint</code></td></tr></tbody></table></div>
+<p><strong>Flashcard:</strong> crea cinque schede su privilegio, storico, limite, cifratura e firma. Ripassa a D+1, D+3, D+7 e D+21.</p>
+<h2 id="10-checklist-e-chiusura">10 · Checklist e chiusura</h2>
+<ul><li>[ ] Ho fatto l'inventario su entrambe le VM senza rimuovere privilegi della distribuzione.</li>
+<li>[ ] Ho cifrato, recuperato, firmato e rilevato la modifica di una copia.</li>
+<li>[ ] Ho spiegato l'ambito dello storico e del limite del processo.</li>
+<li>[ ] Ho completato la sfida seguente e la pulizia mirata.</li></ul>
+<p><strong>Ultimo esercizio:</strong> scrivi un rapporto con tre risultati, fonte dell'evidenza, scopo e decisione. Separa osservazione e ipotesi.</p>
+<p><strong>Reboot di verifica:</strong> verifica prima la persistenza richiesta dalla sfida. Dopo averla pulita, riavvia entrambe le VM e conferma accesso, politica originale e firma del file originale. La passphrase del lab deve essere richiesta quando necessaria.</p>
+<p>Sull'host Proxmox gli snapshot finali vengono creati soltanto dopo la sfida e la pulizia.</p>
+<pre translate="no"><code class="lang-bash">qm snapshot 201 m12a5-fim
+qm snapshot 202 m12a5-fim</code></pre>
+<h2 id="11-nella-vita-reale">11 · Nella vita reale</h2>
+<p>Su un host che amministri o che sei autorizzato a ispezionare, esegui soltanto operazioni di lettura: porte, sessioni attuali e limiti del processo di un servizio. Non eseguire un file sospetto, non rimuovere bit e non configurare un nuovo raccoglitore in questa missione.</p>
+<p>Quale privilegio ha una giustificazione documentata? Quale storico esiste realmente? Quale impronta dovresti confermare prima di fidarti di un documento firmato?</p>
+<h2 id="12-approfondire-quando-vuoi">12 · Approfondire quando vuoi</h2>
+<ul><li><a href="https://www.debian.org/releases/trixie/release-notes/issues.html">Debian 13: registri di accesso</a> e <a href="https://manpages.debian.org/trixie/wtmpdb/wtmpdb.8.en.html">wtmpdb</a>.</li>
+<li><a href="https://gnupg.org/documentation/manuals/gnupg/OpenPGP-Key-Management.html">GnuPG: gestione delle chiavi</a> e <a href="https://gnupg.org/documentation/manuals/gnupg/Operational-GPG-Commands.html">operazioni</a>.</li>
+<li><a href="https://nginx.org/en/docs/switches.html">nginx: parametri</a>, <a href="https://manpages.debian.org/trixie/systemd/systemd.service.5.en.html">systemd.service</a> e <a href="https://www.netfilter.org/projects/nftables/manpage.html">nftables</a>.</li>
+<li><a href="https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/9/html/using_selinux/index">SELinux su RHEL 9</a> e <a href="https://firewalld.org/documentation/man-pages/firewall-cmd.html">firewalld</a>.</li></ul>
+<p><strong>DeepTutor</strong> (http://10.1.0.149:3782, KB "Curso Linux Sysadmin"):</p>
+<ul><li><code translate="no">!explica Compare inventário de privilégios, sigilo e assinatura sem misturar suas finalidades.</code></li>
+<li><code translate="no">!feynman Vou explicar por que uma assinatura válida não comprova sozinha uma identidade real. Critique.</code></li>
+<li><code translate="no">!quiz Crie seis situações de auditoria, histórico e criptografia com os limites de cada evidência.</code></li></ul>
+<h2 id="sfida-del-m12-servizio-protetto-dal-client-al-file">Sfida del M12 · Servizio protetto dal client al file</h2>
+<p>Realizza nginx persistente su TCP <code translate="no">18095</code>, con contenuto dedicato in <code translate="no">/srv/m12a5-web</code>. Su Rocky SELinux deve restare <code translate="no">Enforcing</code> e firewalld attivo. Su Debian usa una tabella nftables dedicata. Esegui il test dall'altra VM e dopo il reboot.</p>
+<figure><a href="../img/12.5-servico-protegido.it.jpg"><img src="../img/12.5-servico-protegido.it.jpg" alt="Ogni controllo deve consentire il servizio" loading="lazy" decoding="async"></a><figcaption>Esegui il test da un altro host e ricontrolla tutto dopo il reboot.</figcaption></figure>
+<h3 id="preparazione-della-sfida">Preparazione della sfida</h3>
+<p>Usa noVNC e una sessione SSH aperta. Le lezioni precedenti devono essere state pulite; i pacchetti nginx e SELinux restano installati. Non riutilizzare le vecchie unità. Verifica che <code translate="no">nginx.service</code> originale sia inattivo e disabilitato e non modificarlo.</p>
+<p>Prima di creare, controlla l'assenza di <code translate="no">/srv/m12a5-web</code>, <code translate="no">/etc/nginx/m12a5.conf</code>, <code translate="no">/etc/systemd/system/m12a5-nginx.service</code>, <code translate="no">/etc/nftables.d/m12a5.nft</code>, <code translate="no">/etc/systemd/system/m12a5-firewall.service</code>, <code translate="no">/run/nginx-m12a5</code> e dei log <code translate="no">m12a5-access.log</code> e <code translate="no">m12a5-error.log</code> in <code translate="no">/var/log/nginx</code>. Verifica che la porta <code translate="no">18095</code> non abbia ascolti né un'associazione locale precedente in SELinux, anche negli intervalli di porte.</p>
+<p>Su Rocky leggi <code translate="no">sudo semanage fcontext -l -C</code> prima di registrare i due modelli seguenti. Se esistono già, interrompi e rivedine l'origine. Su Debian controlla <code translate="no">sudo nft list ruleset</code>: la tabella <code translate="no">inet m12a5</code> non deve esistere e altre politiche non devono bloccare la porta senza che tu ne comprenda l'origine.</p>
+<h3 id="istanza-nginx-dedicata">Istanza nginx dedicata</h3>
+<p>Su Rocky imposta <code translate="no">WEB_USER=nginx</code>; su Debian <code translate="no">WEB_USER=www-data</code>. Poi, su entrambe le VM, crea contenuto e configurazione dedicati.</p>
+<pre translate="no"><code class="lang-bash">sudo install -d -m 0755 /srv/m12a5-web
+printf 'M12 PROTECTED ok\n' | sudo tee /srv/m12a5-web/index.html &gt; /dev/null
+sudo chmod 0644 /srv/m12a5-web/index.html
+cat &gt; "$HOME/m12a5/m12a5.conf" &lt;&lt;EOF
+user $WEB_USER;
+worker_processes 1;
+pid /run/nginx-m12a5/nginx.pid;
+error_log /var/log/nginx/m12a5-error.log;
+events { worker_connections 32; }
+http {
+    access_log /var/log/nginx/m12a5-access.log;
+    server {
+        listen 18095;
+        root /srv/m12a5-web; index index.html;
+        location / { try_files \$uri \$uri/ =404; }
+    }
+}
+EOF
+sudo install -m 0644 "$HOME/m12a5/m12a5.conf" /etc/nginx/m12a5.conf</code></pre>
+<p>Crea l'unità seguente nella cartella privata e installala nel percorso già verificato. Non carica la configurazione nginx originale.</p>
+<pre translate="no"><code class="lang-bash">cat &gt; "$HOME/m12a5/m12a5-nginx.service" &lt;&lt;'EOF'
+[Unit]
+Description=Course M12A5 nginx
+After=network.target firewalld.service m12a5-firewall.service
+[Service]
+Type=simple
+RuntimeDirectory=nginx-m12a5
+ExecStartPre=/usr/sbin/nginx -t -c /etc/nginx/m12a5.conf
+ExecStart=/usr/sbin/nginx -c /etc/nginx/m12a5.conf -g "daemon off;"
+[Install]
+WantedBy=multi-user.target
+EOF
+sudo install -m 0644 "$HOME/m12a5/m12a5-nginx.service" /etc/systemd/system/m12a5-nginx.service</code></pre>
+<h3 id="autorizzazioni-selinux-su-rocky">Autorizzazioni SELinux su Rocky</h3>
+<p>Registra i tipi soltanto su Rocky. Il modello di runtime deve essere applicato a ogni creazione della directory al boot. Aggiungi la preparazione del contesto all'unità dedicata senza modificare l'unità originale.</p>
+<pre translate="no"><code class="lang-bash">getenforce
+sudo semanage fcontext -a -t httpd_sys_content_t '/srv/m12a5-web(/.*)?'
+sudo semanage fcontext -a -t httpd_var_run_t '/var/run/nginx-m12a5(/.*)?'
+sudo restorecon -RFv /srv/m12a5-web /etc/nginx/m12a5.conf
+sudo semanage port -a -t http_port_t -p tcp 18095
+sudo sed -i '/^ExecStartPre=/i ExecStartPre=/usr/sbin/restorecon -RF /run/nginx-m12a5' /etc/systemd/system/m12a5-nginx.service</code></pre>
+<p>Su Debian osserva <code translate="no">aa-status</code> e il confinamento effettivo di nginx; non inventare SELinux enforcing e non disattivare AppArmor. Se un profilo esistente impedisce i percorsi dedicati, adatta il lab con la politica responsabile prima di procedere.</p>
+<h3 id="firewall-con-ambito-limitato">Firewall con ambito limitato</h3>
+<p>Su Rocky identifica la zona effettiva come nella 12.2. Conserva zona e regole in file privati per rimuoverle esattamente in seguito. Le due regole seguenti sono nuove e non devono esistere prima della sfida.</p>
+<pre translate="no"><code class="lang-bash">read -r -p 'ZONE: ' ZONE
+ALLOW='rule priority="-20" family="ipv4" source address="10.1.0.52/32" port port="18095" protocol="tcp" accept'
+DROP='rule priority="-10" family="ipv4" port port="18095" protocol="tcp" drop'
+printf '%s\n' "$ZONE" &gt; "$HOME/m12a5/zone"
+printf '%s\n' "$ALLOW" &gt; "$HOME/m12a5/allow"
+printf '%s\n' "$DROP" &gt; "$HOME/m12a5/drop"
+sudo firewall-cmd --zone="$ZONE" --add-rich-rule="$DROP"
+sudo firewall-cmd --zone="$ZONE" --add-rich-rule="$ALLOW"
+sudo firewall-cmd --permanent --zone="$ZONE" --add-rich-rule="$DROP"
+sudo firewall-cmd --permanent --zone="$ZONE" --add-rich-rule="$ALLOW"</code></pre>
+<p>Su Debian crea il file seguente e installalo nel percorso dedicato. La tabella permette la sorgente Rocky e scarta le altre sorgenti soltanto per IPv4 <code translate="no">10.1.0.52</code>, TCP <code translate="no">18095</code>. Non modifica altre tabelle.</p>
+<pre translate="no"><code class="lang-bash">cat &gt; "$HOME/m12a5/m12a5.nft" &lt;&lt;'EOF'
+table inet m12a5 {}
+flush table inet m12a5
+table inet m12a5 {
+    chain input {
+        type filter hook input priority -10; policy accept;
+        ip saddr 10.1.0.51 ip daddr 10.1.0.52 tcp dport 18095 counter accept
+        ip daddr 10.1.0.52 tcp dport 18095 counter drop
+    }
+}
+EOF
+sudo install -d -m 0755 /etc/nftables.d
+sudo install -m 0644 "$HOME/m12a5/m12a5.nft" /etc/nftables.d/m12a5.nft
+sudo nft -c -f /etc/nftables.d/m12a5.nft</code></pre>
+<p>Su Debian crea l'unità dedicata e abilita soltanto questa. L'ordine di boot conserva il caricamento delle altre politiche prima della tabella della sfida.</p>
+<pre translate="no"><code class="lang-bash">cat &gt; "$HOME/m12a5/m12a5-firewall.service" &lt;&lt;'EOF'
+[Unit]
+Description=Course M12A5 firewall table
+DefaultDependencies=no
+Wants=network-pre.target
+Before=network-pre.target shutdown.target
+After=local-fs.target nftables.service
+Conflicts=shutdown.target
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/sbin/nft -f /etc/nftables.d/m12a5.nft
+ExecStop=/usr/sbin/nft delete table inet m12a5
+[Install]
+WantedBy=multi-user.target
+EOF
+sudo install -m 0644 "$HOME/m12a5/m12a5-firewall.service" /etc/systemd/system/m12a5-firewall.service
+sudo systemd-analyze verify /etc/systemd/system/m12a5-firewall.service
+sudo systemctl daemon-reload
+sudo systemctl enable --now m12a5-firewall.service</code></pre>
+<h3 id="evidenze-per-concludere">Evidenze per concludere</h3>
+<p>Su entrambe le VM valida l'unità nginx, ricarica il catalogo delle unità e abilita l'istanza dedicata. Su Debian l'unità del firewall deve essere già stata abilitata.</p>
+<pre translate="no"><code class="lang-bash">sudo systemd-analyze verify /etc/systemd/system/m12a5-nginx.service
+sudo systemctl daemon-reload
+sudo systemctl enable --now m12a5-nginx.service
+sudo ss -lntp 'sport = :18095'</code></pre>
+<p>Verifica <code translate="no">http://10.1.0.51:18095/</code> da Debian e <code translate="no">http://10.1.0.52:18095/</code> da Rocky con <code translate="no">curl --noproxy '*' --connect-timeout 2 --max-time 4</code>. Il contenuto previsto è <code translate="no">M12 PROTECTED ok</code>. Su Rocky registra anche <code translate="no">getenforce</code>, <code translate="no">ps -eZ</code>, <code translate="no">ls -Zd /srv/m12a5-web</code> e l'associazione della porta.</p>
+<p>Riavvia una VM alla volta e ripeti tutto. Nginx su Rocky deve essere nel dominio <code translate="no">httpd_t</code>, SELinux in <code translate="no">Enforcing</code> e firewalld attivo. Se l'unità si avvia senza il dominio previsto, la sfida non ha ancora dimostrato la protezione richiesta.</p>
+<h3 id="pulizia-della-sfida">Pulizia della sfida</h3>
+<p>Arresta e disabilita l'istanza dedicata su entrambe le VM. Su Debian arresta e disabilita anche <code translate="no">m12a5-firewall.service</code>; il suo arresto rimuove soltanto la tabella della sfida.</p>
+<pre translate="no"><code class="lang-bash">sudo systemctl disable --now m12a5-nginx.service</code></pre>
+<p>Su Rocky rimuovi soltanto le due regole registrate, in entrambi gli stati.</p>
+<pre translate="no"><code class="lang-bash">ZONE=$(cat "$HOME/m12a5/zone")
+ALLOW=$(cat "$HOME/m12a5/allow")
+DROP=$(cat "$HOME/m12a5/drop")
+sudo firewall-cmd --zone="$ZONE" --remove-rich-rule="$ALLOW"
+sudo firewall-cmd --zone="$ZONE" --remove-rich-rule="$DROP"
+sudo firewall-cmd --permanent --zone="$ZONE" --remove-rich-rule="$ALLOW"
+sudo firewall-cmd --permanent --zone="$ZONE" --remove-rich-rule="$DROP"</code></pre>
+<p>Su Rocky rimuovi soltanto le tre autorizzazioni locali create dalla sfida.</p>
+<pre translate="no"><code class="lang-bash">sudo semanage port -d -p tcp 18095
+sudo semanage fcontext -d '/srv/m12a5-web(/.*)?'
+sudo semanage fcontext -d '/var/run/nginx-m12a5(/.*)?'
+sudo restorecon -RFv /srv/m12a5-web</code></pre>
+<p>Su Debian rimuovi l'unità del firewall e il file dedicato dopo aver arrestato l'unità.</p>
+<pre translate="no"><code class="lang-bash">sudo systemctl disable --now m12a5-firewall.service
+sudo rm -- /etc/systemd/system/m12a5-firewall.service /etc/nftables.d/m12a5.nft</code></pre>
+<p>Su entrambe le VM rimuovi i file dedicati seguenti e la directory ora vuota. Non rimuovere i file originali di nginx.</p>
+<pre translate="no"><code class="lang-bash">sudo rm -- /etc/systemd/system/m12a5-nginx.service /etc/nginx/m12a5.conf /srv/m12a5-web/index.html
+sudo rmdir /srv/m12a5-web
+sudo systemctl daemon-reload</code></pre>
+<p>Conserva i log dedicati come evidenza e conferma che nessuna unità della sfida ritorni dopo il reboot. Conferma SSH, nginx originale nello stato iniziale e politica originale conservata prima dello snapshot finale.</p>
+<h2 id="soluzioni-commentate">Soluzioni commentate</h2>
+<h3 id="riscaldamento">Riscaldamento</h3>
+<ol><li>No. Il processo deve esistere e ascoltare sull'indirizzo usato dal client.</li>
+<li>Il primo registra l'associazione persistente; il secondo applica il contesto ai file esistenti.</li>
+<li>Il rifiuto identifica l'operazione e la destinazione; autorizzare tutto nasconderebbe una configurazione errata.</li></ol>
+<h3 id="quiz">Quiz</h3>
+<ol><li>Il privilegio può essere necessario al programma; confrontalo con pacchetto e scopo.</li>
+<li><code translate="no">who</code> descrive le sessioni attuali registrate; lo storico dipende dalla raccolta precedente.</li>
+<li><code translate="no">wtmpdb last</code>, con raccolta appropriata; non recupera registri mai esistiti.</li>
+<li>Cifri con la pubblica del destinatario; decifri con la privata corrispondente.</li>
+<li>Aggiunge una firma separata; non trasforma il documento in contenuto cifrato.</li>
+<li>No. Il limite della shell riguarda lei e i nuovi discendenti, non un servizio indipendente già avviato.</li></ol>
+<h3 id="suggerimenti-per-la-sfida">Suggerimenti per la sfida</h3>
+<p>Esegui una verifica per livello: processo attivo, socket, tipo del file, tipo della porta e sorgente autorizzata. Usa i log dell'istanza dedicata e l'AVC prima di modificare un'autorizzazione. Il reboot deve ricostruire servizio e politica senza il tuo intervento.</p>
+<p><a href="12.4-selinux-portas-e-booleanos.it.html">← Lezione 12.4 · SELinux: porte e booleani</a> · <a href="index.it.html">Indice delle lezioni</a> · <a href="https://github.com/Rodrigoantignani/curso-linux-sysadmin/blob/master/00-plano-do-curso.md">Piano del corso: dal M13 in poi →</a></p>
+</article><nav class="paginas" aria-label="Lezioni"><a class="ant" href="12.4-selinux-portas-e-booleanos.it.html"><small>← Precedente</small>12.4 · SELinux: porte e booleani</a></nav></main></div>
+<footer><div class="wrap">Generato dal Markdown del corso · Immagini in <code translate="no">img/</code></div></footer>
+</body>
+</html>

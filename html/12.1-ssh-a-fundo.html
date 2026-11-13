@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light dark">
+<title>12.1 · SSH a fundo · Curso Linux Sysadmin</title>
+<link rel="alternate" hreflang="pt-BR" href="12.1-ssh-a-fundo.html"><link rel="alternate" hreflang="it" href="12.1-ssh-a-fundo.it.html">
+<style>
+:root{color-scheme:light dark;--bg:#f6f1e7;--card:#fffdf8;--ink:#201c16;--muted:#5e564a;--accent:#9a3412;--accent-2:#1f5f4a;--tint:#efe6d4;--line:#ddd2bc;--code:#f1eadb;--shadow:0 1px 2px rgba(60,40,10,.08);--serif:Georgia,"Iowan Old Style","Palatino Linotype",Palatino,serif;--sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--mono:"Cascadia Code",Consolas,"DejaVu Sans Mono",monospace}
+@media (prefers-color-scheme:dark){:root{--bg:#16130f;--card:#201b15;--ink:#f1eadb;--muted:#b9ad98;--accent:#f0a070;--accent-2:#7fd0b0;--tint:#2a231a;--line:#3d3427;--code:#191510;--shadow:none}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:5.5rem}
+body{margin:0;background:var(--bg);color:var(--ink);font:1rem/1.6 var(--sans)}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--accent-2);outline-offset:2px;border-radius:4px}
+.pular{position:absolute;left:-999px;top:0;background:var(--card);padding:.5rem 1rem;z-index:20}
+.pular:focus{left:.5rem;top:.5rem}
+.wrap{width:100%;max-width:84rem;margin:0 auto;padding-inline:max(1rem,env(safe-area-inset-left))}
+.top{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10;border-top:6px solid var(--accent)}
+.top-in{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding-block:.6rem}
+.titles{min-width:0}
+.marca{margin:0;font:700 clamp(1.15rem,1rem + 1vw,1.6rem)/1.15 var(--serif);letter-spacing:-.01em}
+.marca a{text-decoration:none}
+.marca a:hover{color:var(--accent)}
+.meta{margin:.1rem 0 0;color:var(--muted);font-size:.85rem}
+.acoes{display:flex;align-items:center;gap:.9rem;flex:none}
+.acoes>a{font-size:.9rem;font-weight:600;color:var(--muted);text-decoration:none}
+.acoes>a:hover{color:var(--accent);text-decoration:underline}
+.idioma{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--tint)}
+.idioma>*{padding:.35rem .9rem;font-size:.8rem;font-weight:700;letter-spacing:.06em;text-decoration:none;color:var(--muted);min-width:2.75rem;text-align:center}
+.idioma a:hover{color:var(--accent);text-decoration:underline}
+.idioma span{background:var(--accent);color:#fff}
+@media (prefers-color-scheme:dark){.idioma span{color:#16130f}}
+code{font-family:var(--mono);font-size:.9em;background:var(--tint);padding:.1rem .35rem;border-radius:4px;overflow-wrap:anywhere}
+/* índice */
+.capa{max-width:70rem;padding-block:2rem 3rem}
+.stats{border-left:4px solid var(--accent-2);background:var(--card);border-radius:0 10px 10px 0;padding:1rem 1.25rem;margin:0 0 2.5rem;box-shadow:var(--shadow);color:var(--muted)}
+.stats strong{color:var(--ink)}
+.modulo{display:grid;grid-template-columns:15rem minmax(0,1fr);gap:1rem 2rem;padding:1.75rem 0;border-top:1px solid var(--line)}
+.modulo h2{margin:0;font:700 1.25rem/1.25 var(--serif);align-self:start;position:sticky;top:6rem}
+.mn{display:block;font:700 .8rem var(--mono);letter-spacing:.12em;color:var(--accent);margin-bottom:.25rem}
+.sep{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.modulo ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,17rem),1fr));gap:.75rem}
+.modulo li{margin:0}
+.modulo a{display:flex;gap:.45rem;align-items:baseline;height:100%;padding:.85rem 1rem;background:var(--card);border:1px solid var(--line);border-radius:10px;text-decoration:none;font-weight:600;line-height:1.35;box-shadow:var(--shadow);transition:border-color .15s,transform .15s}
+.modulo a:hover{border-color:var(--accent);color:var(--accent)}
+.num{font:700 .85rem var(--mono);color:var(--accent);white-space:nowrap}
+/* aula */
+.doc{display:grid;grid-template-columns:17rem minmax(0,1fr);gap:2.5rem;align-items:start;padding-block:2rem 3rem}
+.lateral{position:sticky;top:5.5rem;max-height:calc(100vh - 6.5rem);overflow:auto;font-size:.875rem;padding-right:.5rem}
+.lateral h2{margin:0 0 .25rem;font:700 .95rem var(--serif);color:var(--muted)}
+.lateral h3{margin:1rem 0 .25rem;font:700 .75rem var(--mono);letter-spacing:.06em;color:var(--accent)}
+.lateral ul{list-style:none;margin:0;padding:0}
+.lateral a{display:flex;gap:.45rem;padding:.25rem .5rem;border-radius:6px;text-decoration:none;color:var(--muted);line-height:1.3}
+.lateral a:hover{background:var(--tint);color:var(--ink)}
+.lateral a[aria-current]{background:var(--tint);color:var(--ink);font-weight:700;box-shadow:inset 3px 0 0 var(--accent)}
+.lateral .num{font-size:.75rem}
+.aula{min-width:0;max-width:56rem;overflow-wrap:break-word;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:clamp(1.25rem,1rem + 2vw,2.75rem);box-shadow:var(--shadow)}
+.aula h1{margin:0 0 1.5rem;font:700 clamp(1.75rem,1.4rem + 1.6vw,2.5rem)/1.15 var(--serif);letter-spacing:-.015em;color:var(--ink)}
+.aula h2{margin:2.5rem 0 .75rem;padding-top:1.25rem;border-top:1px solid var(--line);font:700 1.5rem/1.25 var(--serif)}
+.aula h3{margin:2rem 0 .5rem;font:700 1.15rem/1.3 var(--serif);color:var(--accent)}
+.aula h4,.aula h5,.aula h6{margin:1.5rem 0 .5rem;font-size:1rem}
+.aula p,.aula ul,.aula ol{margin:1rem 0}
+.aula ul,.aula ol{padding-left:1.5rem}
+.aula li{margin:.35rem 0}
+.aula li>ul,.aula li>ol{margin:.35rem 0}
+.aula a{color:var(--accent);text-underline-offset:2px}
+.aula hr{border:0;border-top:1px solid var(--line);margin:2rem 0}
+.tabela{overflow-x:auto;margin:1.25rem 0;border:1px solid var(--line);border-radius:10px}
+.aula table{width:100%;border-collapse:collapse;font-size:.9rem}
+.aula th,.aula td{padding:.55rem .75rem;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+.aula tr:last-child td{border-bottom:0}
+.aula th{background:var(--tint);font-weight:700}
+.aula pre{background:var(--code);border:1px solid var(--line);border-radius:10px;padding:.9rem 1rem;overflow-x:auto;font:.85rem/1.5 var(--mono);margin:1rem 0;tab-size:4}
+.aula pre code{background:none;padding:0;font-size:inherit;overflow-wrap:normal}
+.aula blockquote{margin:1.25rem 0;padding:.75rem 1.25rem;border-left:4px solid var(--accent-2);background:var(--tint);border-radius:0 10px 10px 0}
+.aula blockquote>:first-child{margin-top:0}
+.aula blockquote>:last-child{margin-bottom:0}
+.aula figure{margin:1.75rem 0;text-align:center}
+.aula figure img{display:block;margin:0 auto;max-width:100%;height:auto;border:1px solid var(--line);border-radius:10px;background:#fff}
+.aula figcaption{margin-top:.5rem;color:var(--muted);font-size:.9rem;font-style:italic}
+.paginas{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:2.5rem;padding-top:1.5rem;border-top:1px solid var(--line)}
+.paginas a{display:block;padding:.75rem 1rem;border:1px solid var(--line);border-radius:10px;text-decoration:none;color:var(--ink);font-weight:600;line-height:1.3}
+.paginas a:hover{border-color:var(--accent);color:var(--accent)}
+.paginas small{display:block;color:var(--muted);font-weight:400}
+.paginas .prox{grid-column:2;text-align:right}
+footer{border-top:1px solid var(--line);padding-block:1.5rem;color:var(--muted);font-size:.85rem;text-align:center}
+@media (hover:hover) and (prefers-reduced-motion:no-preference){.modulo a:hover{transform:translateY(-2px)}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+@media (max-width:980px){.doc{grid-template-columns:minmax(0,1fr);padding-top:1rem}.lateral{position:static;max-height:none;order:2}.aula{max-width:none}}
+@media (max-width:860px){.modulo{grid-template-columns:minmax(0,1fr)}.modulo h2{position:static}.mn{display:inline;margin-right:.5rem}}
+@media (max-width:420px){.meta{display:none}.top-in{gap:.5rem}.acoes{gap:.6rem}.capa{padding-top:1.25rem}.paginas{grid-template-columns:minmax(0,1fr)}.paginas .prox{grid-column:1}}
+@media print{.top,.lateral,.paginas{display:none}.aula{border:0;box-shadow:none;padding:0;max-width:none}.doc{display:block}}
+</style>
+</head>
+<body>
+<a class="pular" href="#conteudo">Pular para o conteúdo</a>
+<header class="top"><div class="wrap top-in"><div class="titles"><p class="marca"><a href="index.html">Curso Linux Sysadmin</a></p><p class="meta">Rodrigo Antignani · Aula 12.1</p></div><div class="acoes"><a href="index.html">Índice</a><div class="idioma" role="group" aria-label="Idioma"><span aria-current="true">PT</span><a href="12.1-ssh-a-fundo.it.html" hreflang="it" lang="it">IT</a></div></div></div></header>
+<div class="wrap doc"><aside class="lateral" aria-label="Aulas"><h2>Aulas</h2><h3>M0 · Laboratório</h3><ul><li><a href="0.1-montar-o-laboratorio.html"><span class="num">0.1</span><span>Montar o laboratório</span></a></li><li><a href="0.2-acesso-e-protecao.html"><span class="num">0.2</span><span>Acesso e proteção</span></a></li></ul><h3>M1 · Linha de comando</h3><ul><li><a href="1.1-o-que-e-linux.html"><span class="num">1.1</span><span>O que é Linux</span></a></li><li><a href="1.2-o-shell-e-a-ajuda.html"><span class="num">1.2</span><span>O shell e a ajuda</span></a></li><li><a href="1.3-caminhos-e-navegacao.html"><span class="num">1.3</span><span>Caminhos e navegação</span></a></li><li><a href="1.4-criar-copiar-mover-e-apagar.html"><span class="num">1.4</span><span>Criar, copiar, mover e apagar</span></a></li><li><a href="1.5-ler-e-procurar-texto.html"><span class="num">1.5</span><span>Ler e procurar texto</span></a></li><li><a href="1.6-redirecionamentos-e-pipes.html"><span class="num">1.6</span><span>Redirecionamentos e pipes</span></a></li><li><a href="1.7-arquivar-e-compactar.html"><span class="num">1.7</span><span>Arquivar e compactar</span></a></li><li><a href="1.8-primeiro-script.html"><span class="num">1.8</span><span>Primeiro script</span></a></li><li><a href="1.9-decidir-e-repetir.html"><span class="num">1.9</span><span>Decidir e repetir</span></a></li><li><a href="1.10-software-livre-na-pratica.html"><span class="num">1.10</span><span>Software livre na prática</span></a></li></ul><h3>M2 · Sistema, usuários e permissões</h3><ul><li><a href="2.1-instalacao-e-provisionamento.html"><span class="num">2.1</span><span>Instalação e provisionamento</span></a></li><li><a href="2.2-hardware-e-dispositivos.html"><span class="num">2.2</span><span>Hardware e dispositivos</span></a></li><li><a href="2.3-processos-e-logs.html"><span class="num">2.3</span><span>Processos e logs</span></a></li><li><a href="2.4-rede-no-dia-a-dia.html"><span class="num">2.4</span><span>Rede no dia a dia</span></a></li><li><a href="2.5-acesso-remoto-e-privilegios.html"><span class="num">2.5</span><span>Acesso remoto e privilégios</span></a></li><li><a href="2.6-usuarios-e-grupos.html"><span class="num">2.6</span><span>Usuários e grupos</span></a></li><li><a href="2.7-permissoes-e-dono.html"><span class="num">2.7</span><span>Permissões e dono</span></a></li><li><a href="2.8-diretorios-e-arquivos-especiais.html"><span class="num">2.8</span><span>Diretórios e arquivos especiais</span></a></li></ul><h3>M3 · Texto e editor</h3><ul><li><a href="3.1-fluxos-a-fundo.html"><span class="num">3.1</span><span>Fluxos a fundo</span></a></li><li><a href="3.2-filtros-de-texto.html"><span class="num">3.2</span><span>Filtros de texto</span></a></li><li><a href="3.3-regex-e-grep.html"><span class="num">3.3</span><span>Regex e grep</span></a></li><li><a href="3.4-sed-e-awk.html"><span class="num">3.4</span><span>sed e awk</span></a></li><li><a href="3.5-vi-e-vim-de-verdade.html"><span class="num">3.5</span><span>vi e vim de verdade</span></a></li></ul><h3>M4 · systemd e boot</h3><ul><li><a href="4.1-como-o-linux-liga.html"><span class="num">4.1</span><span>Como o Linux liga</span></a></li><li><a href="4.2-systemd-servicos-e-units.html"><span class="num">4.2</span><span>systemd: serviços e units</span></a></li><li><a href="4.3-targets-desligar-e-reiniciar.html"><span class="num">4.3</span><span>Targets: desligar e reiniciar</span></a></li><li><a href="4.4-grub-e-acesso-de-emergencia.html"><span class="num">4.4</span><span>GRUB e acesso de emergência</span></a></li></ul><h3>M5 · Kernel, módulos e VM</h3><ul><li><a href="5.1-hardware-pelo-kernel.html"><span class="num">5.1</span><span>Hardware pelo kernel</span></a></li><li><a href="5.2-modulos-e-parametros.html"><span class="num">5.2</span><span>Módulos e parâmetros</span></a></li><li><a href="5.3-linux-como-convidado.html"><span class="num">5.3</span><span>Linux como convidado</span></a></li></ul><h3>M6 · Pacotes e repositórios</h3><ul><li><a href="6.1-pacotes-no-debian.html"><span class="num">6.1</span><span>Pacotes no Debian</span></a></li><li><a href="6.2-pacotes-na-rocky.html"><span class="num">6.2</span><span>Pacotes na Rocky</span></a></li><li><a href="6.3-repositorios.html"><span class="num">6.3</span><span>Repositórios</span></a></li><li><a href="6.4-flatpak.html"><span class="num">6.4</span><span>Flatpak</span></a></li><li><a href="6.5-bibliotecas-compartilhadas.html"><span class="num">6.5</span><span>Bibliotecas compartilhadas</span></a></li></ul><h3>M7 · Processos e desempenho</h3><ul><li><a href="7.1-processos-e-sinais.html"><span class="num">7.1</span><span>Processos e sinais</span></a></li><li><a href="7.2-jobs-e-sessoes.html"><span class="num">7.2</span><span>Jobs e sessões</span></a></li><li><a href="7.3-prioridade-e-perfis.html"><span class="num">7.3</span><span>Prioridade e perfis</span></a></li></ul><h3>M8 · Arquivos a fundo</h3><ul><li><a href="8.1-fhs-e-onde-cada-coisa-mora.html"><span class="num">8.1</span><span>FHS e onde cada coisa mora</span></a></li><li><a href="8.2-find-a-fundo.html"><span class="num">8.2</span><span>find a fundo</span></a></li><li><a href="8.3-arquivamento-avancado.html"><span class="num">8.3</span><span>Arquivamento avançado</span></a></li><li><a href="8.4-links.html"><span class="num">8.4</span><span>Links</span></a></li><li><a href="8.5-permissoes-avancadas.html"><span class="num">8.5</span><span>Permissões avançadas</span></a></li></ul><h3>M9 · Armazenamento</h3><ul><li><a href="9.1-discos-e-layout.html"><span class="num">9.1</span><span>Discos e layout</span></a></li><li><a href="9.2-particionar.html"><span class="num">9.2</span><span>Particionar</span></a></li><li><a href="9.3-sistemas-de-arquivos.html"><span class="num">9.3</span><span>Sistemas de arquivos</span></a></li><li><a href="9.4-montar-e-persistir.html"><span class="num">9.4</span><span>Montar e persistir</span></a></li><li><a href="9.5-integridade-e-espaco.html"><span class="num">9.5</span><span>Integridade e espaço</span></a></li><li><a href="9.6-lvm.html"><span class="num">9.6</span><span>LVM</span></a></li><li><a href="9.7-crescer-sem-destruir.html"><span class="num">9.7</span><span>Crescer sem destruir</span></a></li></ul><h3>M10 · Usuários e acesso privilegiado</h3><ul><li><a href="10.1-contas.html"><span class="num">10.1</span><span>Contas</span></a></li><li><a href="10.2-senhas-e-validade.html"><span class="num">10.2</span><span>Senhas e validade</span></a></li><li><a href="10.3-grupos-e-trabalho-em-equipe.html"><span class="num">10.3</span><span>Grupos e trabalho em equipe</span></a></li><li><a href="10.4-sudo-de-verdade.html"><span class="num">10.4</span><span>sudo de verdade</span></a></li></ul><h3>M11 · Rede</h3><ul><li><a href="11.1-tcp-ip-para-quem-administra.html"><span class="num">11.1</span><span>TCP/IP para quem administra</span></a></li><li><a href="11.2-networkmanager-e-nmcli.html"><span class="num">11.2</span><span>NetworkManager e nmcli</span></a></li><li><a href="11.3-rede-no-debian.html"><span class="num">11.3</span><span>Rede no Debian</span></a></li><li><a href="11.4-nomes-e-resolucao.html"><span class="num">11.4</span><span>Nomes e resolução</span></a></li><li><a href="11.5-diagnostico-de-rede.html"><span class="num">11.5</span><span>Diagnóstico de rede</span></a></li></ul><h3>M12 · Segurança do host</h3><ul><li><a href="12.1-ssh-a-fundo.html" aria-current="page"><span class="num">12.1</span><span>SSH a fundo</span></a></li><li><a href="12.2-firewall.html"><span class="num">12.2</span><span>Firewall</span></a></li><li><a href="12.3-selinux-modos-e-contextos.html"><span class="num">12.3</span><span>SELinux: modos e contextos</span></a></li><li><a href="12.4-selinux-portas-e-booleanos.html"><span class="num">12.4</span><span>SELinux: portas e booleanos</span></a></li><li><a href="12.5-auditoria-e-criptografia.html"><span class="num">12.5</span><span>Auditoria e criptografia</span></a></li></ul></aside><main id="conteudo" class="aula"><article><h1>Aula 12.1 · SSH a fundo</h1>
+<p>No Windows Server, você já separa identidade, credencial e destino. No SSH, essa separação aparece na chave do usuário, na chave do host e na configuração do cliente. Depois do diagnóstico de rede do M11, você vai organizar conexões, usar um agente e abrir um túnel que só atende localmente.</p>
+<blockquote><p><strong>Núcleo desta aula:</strong> o cliente decide como chegar; o servidor decide o que permite; a chave do host identifica o destino. Valide a configuração antes de aplicar e preserve uma sessão de recuperação. O resto é aprofundamento.</p></blockquote>
+<div class="tabela"><table><thead><tr><th scope="col">Ficha</th><th scope="col"></th></tr></thead><tbody><tr><td><strong>Módulo</strong></td><td>M12 · Segurança do host, aula 1 de 5</td></tr><tr><td><strong>Quando</strong></td><td>Semana 17</td></tr><tr><td><strong>Ao final</strong></td><td>Você confere identidades, organiza o cliente, usa agente e túnel local e valida regras de servidor sem perder acesso</td></tr><tr><td><strong>Pré-requisitos</strong></td><td>Aulas 0.2 e 11.5; <code translate="no">student</code>, SSH por chave nas duas VMs, <code translate="no">sudo</code>, <code translate="no">python3</code>, <code translate="no">curl</code> e noVNC</td></tr><tr><td><strong>Tempo</strong></td><td>Cerca de 90 minutos</td></tr><tr><td><strong>Snapshots</strong></td><td><code translate="no">m12a1-inicio</code> e <code translate="no">m12a1-fim</code> nas VMs 201 e 202</td></tr></tbody></table></div>
+<h2 id="1-aquecimento">1 · Aquecimento</h2>
+<p>Responda sem consultar. O gabarito fica no fim.</p>
+<ol><li>Conectar à porta <code translate="no">22</code> com <code translate="no">nc</code> comprova que sua chave foi aceita?</li>
+<li>Por que uma escuta em <code translate="no">127.0.0.1</code> não atende diretamente outra máquina?</li>
+<li>Que diferença existe entre uma configuração salva e o comportamento efetivo?</li></ol>
+<h2 id="2-por-que-importa">2 · Por que importa</h2>
+<p>Você recebe um alerta de chave do host alterada. Apagar a entrada e tentar de novo faz a mensagem sumir, mas não explica quem está do outro lado. O caminho profissional é conferir a impressão digital pelo console confiável antes de aceitar a nova identidade.</p>
+<p>Outro chamado diz que uma página interna não abre. O serviço escuta apenas no loopback do servidor. Um encaminhamento local permite chegar a essa porta pelo SSH sem publicar o HTTP na rede.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Peça</th><th scope="col">Pergunta</th></tr></thead><tbody><tr><td>Chave do host</td><td>Estou falando com o servidor esperado?</td></tr><tr><td>Chave do usuário</td><td>Este usuário controla a credencial autorizada?</td></tr><tr><td>Regra do servidor</td><td>Esta operação é permitida para esta conexão?</td></tr></tbody></table></div>
+<h2 id="3-modelo-mental">3 · Modelo mental</h2>
+<p>O cliente guarda uma agenda de prédios. O servidor mantém sua portaria e uma lista de chaves públicas autorizadas. O agente é um balcão local que realiza assinaturas com uma chave carregada; ele não entrega a chave privada ao prédio.</p>
+<pre translate="no"><code class="lang-text">cliente: destino + identidade -&gt; canal SSH -&gt; servidor: regras + autorização
+           |                                      |
+      ~/.ssh/config                       /etc/ssh/sshd_config
+           |                                      |
+        ssh -G                                 sshd -T</code></pre>
+<figure><a href="../img/12.1-cliente-e-servidor.jpg"><img src="../img/12.1-cliente-e-servidor.jpg" alt="Dois lados, duas configurações" loading="lazy" decoding="async"></a><figcaption>O cliente escolhe como conectar; o servidor decide o que aceita.</figcaption></figure>
+<h3 id="ponte-windows">Ponte Windows</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Conceito</th><th scope="col">Windows com OpenSSH</th><th scope="col">Linux</th></tr></thead><tbody><tr><td>Configuração do usuário</td><td><code translate="no">$HOME\.ssh\config</code></td><td><code translate="no">~/.ssh/config</code></td></tr><tr><td>Agente</td><td>Serviço <code translate="no">ssh-agent</code></td><td>Processo e socket do agente</td></tr><tr><td>Carregar chave</td><td><code translate="no">ssh-add</code></td><td><code translate="no">ssh-add</code></td></tr><tr><td>Inspecionar destino</td><td><code translate="no">ssh -G</code></td><td><code translate="no">ssh -G</code></td></tr></tbody></table></div>
+<p>No Windows, o agente é um serviço: seu preparo pode exigir PowerShell elevado. O lab do agente abaixo acontece no Linux e usa um processo temporário, sem alterar o serviço do Windows.</p>
+<h2 id="4-o-essencial">4 · O essencial</h2>
+<h3 id="duas-chaves-com-funcoes-diferentes">Duas chaves com funções diferentes</h3>
+<p>A pública do usuário entra em <code translate="no">authorized_keys</code> no servidor. A privada fica protegida no cliente. As chaves do host identificam o servidor; a pública correspondente fica registrada em <code translate="no">known_hosts</code> no cliente após a conferência.</p>
+<p>Use uma frase secreta na chave privada. O agente reduz a repetição da digitação, mas uma sessão local comprometida ainda pode usar as operações de assinatura oferecidas por ele.</p>
+<figure><a href="../img/12.1-chave-e-agente.jpg"><img src="../img/12.1-chave-e-agente.jpg" alt="O agente assina por você" loading="lazy" decoding="async"></a><figcaption>A chave privada não é enviada ao servidor.</figcaption></figure>
+<h3 id="configuracao-do-cliente">Configuração do cliente</h3>
+<p><code translate="no">ssh -G</code> mostra a configuração calculada sem abrir a conexão. Em geral, o primeiro valor encontrado para uma opção prevalece; coloque destinos específicos antes das regras gerais. <code translate="no">-F</code> permite testar uma agenda separada sem mexer na existente.</p>
+<p><code translate="no">IdentitiesOnly yes</code> limita as identidades oferecidas às configuradas. Não use <code translate="no">StrictHostKeyChecking no</code> como solução para uma identidade de servidor desconhecida.</p>
+<h3 id="tunel-local-e-salto">Túnel local e salto</h3>
+<p>Em <code translate="no">-L 127.0.0.1:18086:127.0.0.1:18085</code>, o primeiro endereço é a entrada no cliente. O segundo é o destino alcançado pelo servidor SSH. Os dois loopbacks pertencem a lados diferentes da conexão.</p>
+<p><code translate="no">-N</code> dispensa o comando remoto. <code translate="no">ExitOnForwardFailure yes</code> detecta falha ao criar a escuta local, mas não comprova que o serviço de destino esteja funcionando.</p>
+<figure><a href="../img/12.1-tunel-local.jpg"><img src="../img/12.1-tunel-local.jpg" alt="Um túnel com entrada local" loading="lazy" decoding="async"></a><figcaption>O destino do encaminhamento é alcançado a partir do servidor SSH.</figcaption></figure>
+<p><code translate="no">ProxyJump</code> usa um servidor intermediário para transportar a conexão até o destino. A autenticação do destino continua no cliente; não é preciso copiar a chave privada para o intermediário nem encaminhar o agente.</p>
+<h3 id="servidor-seguro-mudanca-verificavel">Servidor seguro, mudança verificável</h3>
+<p><code translate="no">sshd -t</code> verifica sintaxe e condições de configuração; <code translate="no">sshd -T</code> mostra valores efetivos. Com <code translate="no">-C</code>, você informa os dados de uma conexão para avaliar regras <code translate="no">Match</code>. Nenhum desses testes substitui uma nova conexão real.</p>
+<p>Antes de aplicar regras: tenha noVNC, preserve a sessão atual, valide, recarregue e teste uma segunda sessão com a chave. Só depois encerre a primeira. Nesta aula você valida uma configuração candidata fora de <code translate="no">/etc</code>; não recarrega o serviço ativo.</p>
+<h3 id="rocky-debian">Rocky × Debian</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Item</th><th scope="col">Rocky 9</th><th scope="col">Debian 13</th></tr></thead><tbody><tr><td>Cliente</td><td><code translate="no">openssh-clients</code></td><td><code translate="no">openssh-client</code></td></tr><tr><td>Servidor</td><td><code translate="no">openssh-server</code></td><td><code translate="no">openssh-server</code></td></tr><tr><td>Unidade de serviço</td><td><code translate="no">sshd.service</code></td><td><code translate="no">ssh.service</code></td></tr><tr><td>Validador</td><td><code translate="no">/usr/sbin/sshd</code></td><td><code translate="no">/usr/sbin/sshd</code></td></tr><tr><td>Política adicional</td><td>SELinux e política criptográfica</td><td>Configuração e políticas locais</td></tr></tbody></table></div>
+<h2 id="5-lab-guiado">5 · Lab guiado</h2>
+<p>Repita os testes locais nas duas VMs como <code translate="no">student</code>. Você cria uma chave exclusiva de exercício e usa SSH de cada VM para ela mesma. Isso isola o aprendizado sem substituir a chave que já dá acesso pelo Windows.</p>
+<h3 id="passo-1-proteger-e-conferir">Passo 1 · Proteger e conferir</h3>
+<p><strong>Palpite:</strong> um snapshot substitui a verificação da chave do host?</p>
+<p>No host Proxmox:</p>
+<pre translate="no"><code class="lang-bash">qm snapshot 201 m12a1-inicio
+qm snapshot 202 m12a1-inicio</code></pre>
+<p>No terminal B de cada VM, confirme o usuário e os pré-requisitos. A pasta de exercício precisa estar ausente antes de criar uma nova.</p>
+<pre translate="no"><code class="lang-bash">id -un
+command -v ssh ssh-keygen ssh-agent ssh-add python3 curl
+test ! -e "$HOME/m12a1"
+mkdir -m 700 "$HOME/m12a1"
+sudo ss -lntp 'sport = :22'
+sudo ss -lntp 'sport = :18085 or sport = :18086'</code></pre>
+<p><strong>Saída esperada:</strong> usuário <code translate="no">student</code>, ferramentas encontradas, SSH em escuta e portas <code translate="no">18085</code> e <code translate="no">18086</code> livres. Se alguma verificação falhar, ajuste o preparo antes de prosseguir.</p>
+<p><strong>Verifique:</strong> mantenha a sessão do Windows aberta e confirme que o console noVNC da VM está disponível.</p>
+<h3 id="passo-2-criar-identidade-e-agenda-de-exercicio">Passo 2 · Criar identidade e agenda de exercício</h3>
+<p><strong>Palpite:</strong> o servidor precisa receber a chave privada para autorizar a pública?</p>
+<p>Crie a chave com uma frase secreta. Não deixe o campo vazio. Os caminhos abaixo são exclusivos desta aula.</p>
+<pre translate="no"><code class="lang-bash">ssh-keygen -t ed25519 -f "$HOME/m12a1/id_ed25519" -C m12a1-lab
+chmod 700 "$HOME/.ssh"
+cp -a "$HOME/.ssh/authorized_keys" "$HOME/m12a1/authorized_keys.inicio"
+printf '\n' &gt;&gt; "$HOME/.ssh/authorized_keys"
+cat "$HOME/m12a1/id_ed25519.pub" &gt;&gt; "$HOME/.ssh/authorized_keys"
+chmod 600 "$HOME/.ssh/authorized_keys"
+cat &gt; "$HOME/m12a1/config" &lt;&lt;'EOF'
+Host m12-local
+    HostName 127.0.0.1
+    User student
+    Port 22
+    IdentityFile ~/m12a1/id_ed25519
+    IdentitiesOnly yes
+    UserKnownHostsFile ~/m12a1/known_hosts
+    HostKeyAlgorithms ssh-ed25519
+    ForwardAgent no
+    ExitOnForwardFailure yes
+    ServerAliveInterval 30
+    ServerAliveCountMax 3
+EOF
+chmod 600 "$HOME/m12a1/config"
+ssh -F "$HOME/m12a1/config" -G m12-local | grep -E '^(hostname|user|port|identityfile|forwardagent) '</code></pre>
+<p><strong>Saída esperada:</strong> par de chaves criado, apenas a pública adicionada à autorização e configuração calculada apontando para o loopback. O arquivo <code translate="no">authorized_keys</code> já existia pelo acesso por chave da aula 0.2.</p>
+<p><strong>Verifique:</strong> <code translate="no">ssh -G</code> não abriu uma sessão nem confirmou a aceitação da chave. Confira usuário, destino e arquivo de identidade antes da tentativa real.</p>
+<h3 id="passo-3-conferir-o-host-e-autenticar">Passo 3 · Conferir o host e autenticar</h3>
+<p><strong>Palpite:</strong> a impressão digital pedida no primeiro acesso pertence à sua chave de usuário ou ao servidor?</p>
+<p>No console confiável da VM, veja a impressão digital da chave pública do host. No B, abra o acesso de exercício e compare antes de aceitar.</p>
+<pre translate="no"><code class="lang-bash">sudo ssh-keygen -lf /etc/ssh/ssh_host_ed25519_key.pub
+ssh -F "$HOME/m12a1/config" m12-local 'id -un; hostname'</code></pre>
+<p><strong>Saída esperada:</strong> o primeiro acesso usa a agenda separada, pede confirmação da identidade ainda não registrada e solicita a frase secreta da chave. O comando remoto mostra <code translate="no">student</code> e o hostname da própria VM.</p>
+<p><strong>Verifique:</strong> a impressão exibida no acesso precisa coincidir com a obtida no console. Se não coincidir, pare e investigue.</p>
+<h3 id="decida-1">Decida 1</h3>
+<p>O SSH avisa que a chave do host mudou. O que vem primeiro?</p>
+<div class="tabela"><table><thead><tr><th scope="col">Opção</th><th scope="col">Ação</th></tr></thead><tbody><tr><td>A</td><td>Apagar todas as entradas de <code translate="no">known_hosts</code></td></tr><tr><td>B</td><td>Conferir a identidade pelo console confiável</td></tr><tr><td>C</td><td>Desativar a verificação de host</td></tr></tbody></table></div>
+<p>Escolha B. Uma reinstalação pode explicar a mudança, mas a confirmação vem de uma fonte independente da conexão em dúvida.</p>
+<h3 id="passo-4-usar-um-agente-temporario">Passo 4 · Usar um agente temporário</h3>
+<p><strong>Palpite:</strong> carregar a chave no agente apaga o arquivo privado do disco?</p>
+<p>No B, abra uma shell filha sob um agente próprio. Os comandos seguintes são executados dentro dela.</p>
+<pre translate="no"><code class="lang-bash">ssh-agent bash
+ssh-add -t 600 "$HOME/m12a1/id_ed25519"
+ssh-add -l
+ssh -F "$HOME/m12a1/config" -o BatchMode=yes m12-local 'id -un'</code></pre>
+<p><strong>Saída esperada:</strong> uma identidade carregada por até dez minutos e acesso sem nova pergunta de frase secreta. O agente pode assinar usando a chave em memória; o arquivo privado continua existindo.</p>
+<p><strong>Verifique:</strong> o comando com <code translate="no">BatchMode=yes</code> não pode recorrer a uma pergunta interativa. Se falhar depois de dez minutos, recarregue apenas a chave de exercício com <code translate="no">ssh-add</code>.</p>
+<h3 id="passo-5-abrir-um-encaminhamento-local">Passo 5 · Abrir um encaminhamento local</h3>
+<p><strong>Palpite:</strong> abrir o túnel publica o HTTP em todas as interfaces do cliente?</p>
+<p>No terminal A da mesma VM, inicie HTTP só no loopback.</p>
+<pre translate="no"><code class="lang-bash">mkdir "$HOME/m12a1/www"
+printf 'SSH TUNNEL ok\n' &gt; "$HOME/m12a1/www/index.html"
+python3 -m http.server 18085 --bind 127.0.0.1 --directory "$HOME/m12a1/www"</code></pre>
+<p>No B, dentro da shell do agente, deixe o túnel em primeiro plano. No C, faça os testes do segundo bloco.</p>
+<pre translate="no"><code class="lang-bash">ssh -F "$HOME/m12a1/config" -N -L 127.0.0.1:18086:127.0.0.1:18085 m12-local</code></pre>
+<pre translate="no"><code class="lang-bash">ss -lnt 'sport = :18086'
+curl --noproxy '*' --connect-timeout 2 --max-time 4 -fsS http://127.0.0.1:18086/</code></pre>
+<p><strong>Saída esperada:</strong> entrada em <code translate="no">127.0.0.1:18086</code> e resposta <code translate="no">SSH TUNNEL ok</code>. O SSH transporta a conexão até a porta HTTP do lado servidor.</p>
+<p><strong>Verifique:</strong> <code translate="no">ss</code> deve mostrar loopback, não <code translate="no">0.0.0.0</code> nem <code translate="no">[::]</code>. Neste exercício os dois lados estão na mesma VM, mas continuam sendo papéis diferentes; em uso remoto, o último loopback pertence à VM de destino.</p>
+<h3 id="decida-2">Decida 2</h3>
+<p>O túnel abriu, mas o HTTP falha. O que deve ser verificado antes de culpar a criptografia?</p>
+<div class="tabela"><table><thead><tr><th scope="col">Opção</th><th scope="col">Ação</th></tr></thead><tbody><tr><td>A</td><td>O endereço e a porta do serviço no lado servidor</td></tr><tr><td>B</td><td>Apagar a chave privada</td></tr><tr><td>C</td><td>Abrir o HTTP para a rede inteira</td></tr></tbody></table></div>
+<p>Escolha A. A escuta local pode existir enquanto o destino do encaminhamento está errado ou sem serviço.</p>
+<h3 id="passo-6-salto-e-configuracao-candidata">Passo 6 · Salto e configuração candidata</h3>
+<p><strong>Palpite:</strong> passar por um intermediário exige deixar a chave privada nele?</p>
+<p>Do terminal do Windows já preparado na 0.2, faça o salto pela Rocky até a Debian. Os aliases existentes conservam usuário e arquivo de chave de cada destino. O cliente local precisa conseguir autenticar nas duas VMs com suas chaves existentes. Confira qualquer nova identidade pelo console.</p>
+<pre translate="no"><code class="lang-bash">ssh -o ForwardAgent=no -J rocky-lab debian-lab hostname</code></pre>
+<p>Nas duas VMs, inspecione as regras atuais sem mudá-las e escreva uma candidata separada. Essa porta candidata não será aberta.</p>
+<pre translate="no"><code class="lang-bash">sudo /usr/sbin/sshd -t
+sudo /usr/sbin/sshd -T -C user=student,host=localhost,addr=127.0.0.1 | grep -E '^(permitrootlogin|pubkeyauthentication|passwordauthentication|kbdinteractiveauthentication|allowtcpforwarding|allowagentforwarding) '
+cat &gt; "$HOME/m12a1/sshd.candidate" &lt;&lt;'EOF'
+Port 22285
+ListenAddress 127.0.0.1
+HostKey /etc/ssh/ssh_host_ed25519_key
+PidFile /run/sshd-m12a1.pid
+AuthorizedKeysFile .ssh/authorized_keys
+PermitRootLogin no
+PubkeyAuthentication yes
+PasswordAuthentication no
+KbdInteractiveAuthentication no
+UsePAM yes
+AllowAgentForwarding no
+AllowTcpForwarding local
+X11Forwarding no
+EOF
+sudo /usr/sbin/sshd -t -f "$HOME/m12a1/sshd.candidate"
+sudo /usr/sbin/sshd -T -f "$HOME/m12a1/sshd.candidate" -C user=student,host=localhost,addr=127.0.0.1 | grep -E '^(permitrootlogin|pubkeyauthentication|passwordauthentication|kbdinteractiveauthentication|allowtcpforwarding|allowagentforwarding) '</code></pre>
+<p><strong>Saída esperada:</strong> o salto retorna o hostname da Debian. A candidata passa na sintaxe e mostra login de root e autenticações interativas desativados, chave pública ativa, encaminhamento de agente desativado e encaminhamento TCP local permitido.</p>
+<p><strong>Verifique:</strong> a candidata não contém <code translate="no">Include</code>, portanto não herda os arquivos ativos neste teste. Nenhuma dessas opções foi aplicada ao serviço: a porta <code translate="no">22</code> e o acesso normal precisam continuar funcionando.</p>
+<h2 id="6-quebre-e-conserte">6 · Quebre e conserte</h2>
+<h3 id="quebra-1-destino-de-cliente-errado">Quebra 1 · Destino de cliente errado</h3>
+<p><strong>Sintoma:</strong> a tentativa abaixo falha, mas a sessão já aberta continua funcionando.</p>
+<p><strong>Investigação:</strong> compare a porta calculada com a porta em escuta.</p>
+<pre translate="no"><code class="lang-bash">ssh -F "$HOME/m12a1/config" -p 22286 -G m12-local | grep '^port '
+ssh -F "$HOME/m12a1/config" -p 22286 -o ConnectTimeout=3 m12-local hostname
+sudo ss -lntp 'sport = :22 or sport = :22286'</code></pre>
+<p><strong>Causa:</strong> a opção da linha de comando substituiu a porta da agenda. A falha acontece antes da autenticação.</p>
+<p><strong>Conserto:</strong> retire <code translate="no">-p 22286</code> da tentativa e use a agenda validada.</p>
+<p><strong>Verifique:</strong> <code translate="no">ssh -F "$HOME/m12a1/config" m12-local hostname</code> volta a responder.</p>
+<p><strong>Prevenção:</strong> consulte <code translate="no">ssh -G</code> antes de mudar o servidor para compensar um erro do cliente.</p>
+<h3 id="quebra-2-tunel-aberto-destino-fechado">Quebra 2 · Túnel aberto, destino fechado</h3>
+<p>Encerre o túnel no B com Ctrl+C. Confirme que <code translate="no">18087</code> não está em escuta e use essa porta incorreta como destino.</p>
+<p><strong>Sintoma:</strong> a entrada local existe, mas o HTTP não entrega o conteúdo.</p>
+<p><strong>Investigação:</strong> no B, abra o túnel abaixo; no C, repita o <code translate="no">curl</code> da entrada.</p>
+<pre translate="no"><code class="lang-bash">ss -lnt 'sport = :18087'
+ssh -F "$HOME/m12a1/config" -N -L 127.0.0.1:18086:127.0.0.1:18087 m12-local</code></pre>
+<p><strong>Causa:</strong> a entrada foi criada, mas o servidor SSH não encontra serviço no destino escolhido. O terminal do túnel informa a falha de abertura do canal.</p>
+<p><strong>Conserto:</strong> encerre esse túnel e reabra o comando do passo 5 com destino <code translate="no">18085</code>.</p>
+<p><strong>Verifique:</strong> o mesmo <code translate="no">curl</code> volta a mostrar <code translate="no">SSH TUNNEL ok</code>.</p>
+<p><strong>Prevenção:</strong> registre os dois lados do encaminhamento; testar a escuta local não testa a aplicação remota.</p>
+<h3 id="quebra-3-regra-invalida-antes-de-aplicar">Quebra 3 · Regra inválida antes de aplicar</h3>
+<p><strong>Sintoma:</strong> a candidata deixa de passar na validação, mas o SSH ativo continua disponível.</p>
+<p><strong>Investigação:</strong> acrescente uma diretiva inexistente apenas na cópia de exercício.</p>
+<pre translate="no"><code class="lang-bash">printf '\nInvalidOption yes\n' &gt;&gt; "$HOME/m12a1/sshd.candidate"
+sudo /usr/sbin/sshd -t -f "$HOME/m12a1/sshd.candidate"</code></pre>
+<p><strong>Causa:</strong> a diretiva não existe. O validador informa o arquivo e a linha problemática sem precisar reiniciar o serviço.</p>
+<p><strong>Conserto:</strong> remova apenas a linha plantada na candidata.</p>
+<pre translate="no"><code class="lang-bash">sed -i '/^InvalidOption yes$/d' "$HOME/m12a1/sshd.candidate"
+sudo /usr/sbin/sshd -t -f "$HOME/m12a1/sshd.candidate"</code></pre>
+<p><strong>Verifique:</strong> a candidata volta a passar; abra uma nova sessão normal do Windows para comprovar que o serviço real continua acessível.</p>
+<p><strong>Prevenção:</strong> valide sintaxe e valores efetivos antes de recarregar. Depois da aplicação, teste uma segunda sessão antes de fechar a primeira.</p>
+<h3 id="limpeza">Limpeza</h3>
+<p>Encerre o túnel com Ctrl+C no B e o HTTP com Ctrl+C no A. No B, remova apenas a chave de exercício do agente e saia da shell filha. Não use a opção que remove todas as identidades de um agente compartilhado.</p>
+<pre translate="no"><code class="lang-bash">ssh-add -d "$HOME/m12a1/id_ed25519"
+exit</code></pre>
+<p>Agora na shell original, retire apenas a linha da pública adicionada. O filtro preserva outras chaves; uma saída vazia do filtro não é autorização para restaurar cegamente o backup inteiro. O separador em branco acrescentado no preparo pode permanecer.</p>
+<pre translate="no"><code class="lang-bash">grep -vxF -f "$HOME/m12a1/id_ed25519.pub" "$HOME/.ssh/authorized_keys" &gt; "$HOME/m12a1/authorized_keys.clean"
+diff -u "$HOME/.ssh/authorized_keys" "$HOME/m12a1/authorized_keys.clean"</code></pre>
+<p>Confira no <code translate="no">diff</code> que só a linha <code translate="no">m12a1-lab</code> foi removida. Apenas depois dessa conferência, grave o resultado.</p>
+<pre translate="no"><code class="lang-bash">cat "$HOME/m12a1/authorized_keys.clean" &gt; "$HOME/.ssh/authorized_keys"
+chmod 600 "$HOME/.ssh/authorized_keys"
+sudo ss -lntp 'sport = :18085 or sport = :18086'</code></pre>
+<p>Guarde os arquivos de exercício em sua pasta privada; a chave já não está autorizada. Não altere a chave do Windows nem sua autorização original.</p>
+<h2 id="7-armadilhas">7 · Armadilhas</h2>
+<div class="tabela"><table><thead><tr><th scope="col">Erro comum</th><th scope="col">O que fazer</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>Copiar a privada para o salto</td><td>Usar <code translate="no">ProxyJump</code></td><td>O cliente autentica no destino</td></tr><tr><td>Abrir o túnel em todas as interfaces</td><td>Vincular a entrada a <code translate="no">127.0.0.1</code></td><td>Mantém a entrada local</td></tr><tr><td>Confundir <code translate="no">ssh_config</code> com <code translate="no">sshd_config</code></td><td>Identificar cliente e servidor</td><td>Cada lado decide coisas diferentes</td></tr><tr><td>Desligar senha antes de testar a chave</td><td>Validar nova sessão e manter console</td><td>Evita perder acesso</td></tr><tr><td>Remover toda a confiança do cliente</td><td>Conferir a identidade e corrigir a entrada específica</td><td>Preserva os outros destinos</td></tr></tbody></table></div>
+<h2 id="8-quiz">8 · Quiz</h2>
+<ol><li>Qual chave identifica o servidor e onde sua confiança é registrada pelo cliente?</li>
+<li><code translate="no">ssh -G</code> comprova autenticação?</li>
+<li>O que <code translate="no">IdentitiesOnly yes</code> limita?</li>
+<li>Em um túnel local, de qual máquina é o último <code translate="no">127.0.0.1</code>?</li>
+<li>Por que o salto não exige encaminhar o agente?</li>
+<li>Que sequência evita perder acesso ao endurecer o servidor?</li></ol>
+<h2 id="9-cola">9 · Cola</h2>
+<div class="tabela"><table><thead><tr><th scope="col">Tarefa</th><th scope="col">Comando</th></tr></thead><tbody><tr><td>Configuração calculada do cliente</td><td><code translate="no">ssh -G rocky-lab</code></td></tr><tr><td>Digitais das identidades do agente</td><td><code translate="no">ssh-add -l</code></td></tr><tr><td>Sintaxe do servidor ativo</td><td><code translate="no">sudo /usr/sbin/sshd -t</code></td></tr><tr><td>Valores efetivos para uma conexão</td><td><code translate="no">sudo /usr/sbin/sshd -T -C user=student,host=localhost,addr=127.0.0.1</code></td></tr><tr><td>Depurar uma tentativa</td><td><code translate="no">ssh -vv rocky-lab</code></td></tr></tbody></table></div>
+<p><strong>Flashcards:</strong> crie cartões sobre chave do host, chave do usuário, agente, precedência do cliente e lados do túnel. Revise em D+1, D+3, D+7 e D+21.</p>
+<h2 id="10-checklist-e-fechamento">10 · Checklist e fechamento</h2>
+<ul><li>[ ] Repeti chave, agente e túnel nas duas VMs.</li>
+<li>[ ] Conferi a impressão digital por uma fonte confiável.</li>
+<li>[ ] Validei a candidata sem aplicar regras ao servidor ativo.</li>
+<li>[ ] Retirei a autorização de exercício e mantive a chave original.</li>
+<li>[ ] Encerrei HTTP, túnel e agente temporário.</li></ul>
+<p><strong>Último exercício:</strong> desenhe o túnel, identifique os dois loopbacks e explique qual configuração controla cada lado.</p>
+<p><strong>Reboot de conferência:</strong> reinicie uma VM por vez e abra uma nova sessão pelo Windows usando a chave original. Confirme que as portas do exercício não voltaram; o serviço SSH normal precisa continuar disponível.</p>
+<pre translate="no"><code class="lang-bash">sudo systemctl reboot</code></pre>
+<p>No host Proxmox, depois de conferir as duas VMs:</p>
+<pre translate="no"><code class="lang-bash">qm snapshot 201 m12a1-fim
+qm snapshot 202 m12a1-fim</code></pre>
+<h2 id="11-na-vida-real">11 · Na vida real</h2>
+<p>Em um host que você administre ou tenha autorização para inspecionar, faça somente leitura. Veja a configuração calculada de um destino já autorizado com <code translate="no">ssh -G</code> e, no servidor, leia <code translate="no">sudo /usr/sbin/sshd -T</code>. Não altere permissões, chaves, autorização ou serviço nesta missão.</p>
+<p>Qual identidade o cliente oferece? Qual verificação de host está ativa? O servidor permite encaminhamento de agente? Seu relatório deve citar a configuração observada, sem publicar chaves privadas nem dados internos.</p>
+<h2 id="12-aprofundar-quando-quiser">12 · Aprofundar quando quiser</h2>
+<ul><li><a href="https://man.openbsd.org/ssh">ssh(1)</a> e <a href="https://man.openbsd.org/ssh_config">ssh_config(5)</a>: cliente, salto e encaminhamentos.</li>
+<li><a href="https://man.openbsd.org/ssh-agent">ssh-agent(1)</a> e <a href="https://man.openbsd.org/ssh-add">ssh-add(1)</a>: agente e identidades carregadas.</li>
+<li><a href="https://man.openbsd.org/sshd">sshd(8)</a> e <a href="https://man.openbsd.org/sshd_config">sshd_config(5)</a>: validação e regras efetivas.</li>
+<li><a href="https://learn.microsoft.com/en-us/windows-server/administration/openssh/openssh_keymanagement">Agente e chaves no Windows</a>: diferenças do serviço local.</li></ul>
+<p>Confira também <code translate="no">man ssh</code>, <code translate="no">man ssh_config</code> e <code translate="no">man sshd_config</code> nas VMs: a documentação instalada corresponde à versão disponível nelas.</p>
+<p><strong>DeepTutor</strong> (http://10.1.0.149:3782, KB "Curso Linux Sysadmin"):</p>
+<ul><li><code translate="no">!explica Separe chave do host, chave do usuário e ssh-agent com uma analogia de portaria.</code></li>
+<li><code translate="no">!feynman Vou explicar de qual lado ficam os dois endereços de um túnel local. Critique minha explicação.</code></li>
+<li><code translate="no">!quiz Crie seis situações de SSH que exijam distinguir cliente, servidor, identidade e encaminhamento.</code></li></ul>
+<h2 id="gabarito-comentado">Gabarito comentado</h2>
+<h3 id="aquecimento">Aquecimento</h3>
+<ol><li>Não. Abrir TCP só verifica a conexão; a autenticação SSH vem depois.</li>
+<li>Loopback pertence à própria máquina. Outra máquina não chega diretamente a essa escuta pela interface de rede.</li>
+<li>Um arquivo salvo pode não estar carregado ou pode perder precedência. Compare o valor calculado e uma tentativa real.</li></ol>
+<h3 id="quiz">Quiz</h3>
+<ol><li>A chave do host identifica o servidor; sua pública fica associada ao destino em <code translate="no">known_hosts</code> após a verificação.</li>
+<li>Não. Ele calcula opções do cliente sem conectar.</li>
+<li>Limita as identidades oferecidas às explicitamente configuradas; não autoriza a chave no servidor.</li>
+<li>Do lado servidor SSH, que abre a conexão até o destino do encaminhamento.</li>
+<li>O cliente local continua responsável pela autenticação no destino, usando o canal transportado pelo intermediário.</li>
+<li>Console e sessão preservada, validação de sintaxe e valores, aplicação controlada e teste de segunda sessão com a chave.</li></ol>
+<p><a href="11.5-diagnostico-de-rede.html">← Aula 11.5 · Diagnóstico de rede</a> · <a href="index.html">Índice de aulas</a> · <a href="12.2-firewall.html">Aula 12.2 · Firewall →</a></p>
+</article><nav class="paginas" aria-label="Aulas"><a class="ant" href="11.5-diagnostico-de-rede.html"><small>← Anterior</small>11.5 · Diagnóstico de rede</a><a class="prox" href="12.2-firewall.html"><small>Próxima →</small>12.2 · Firewall</a></nav></main></div>
+<footer><div class="wrap">Gerado a partir do Markdown do curso · Imagens em <code translate="no">img/</code></div></footer>
+</body>
+</html>

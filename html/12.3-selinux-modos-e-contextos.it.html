@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light dark">
+<title>12.3 · SELinux: modalità e contesti · Corso Linux Sysadmin</title>
+<link rel="alternate" hreflang="pt-BR" href="12.3-selinux-modos-e-contextos.html"><link rel="alternate" hreflang="it" href="12.3-selinux-modos-e-contextos.it.html">
+<style>
+:root{color-scheme:light dark;--bg:#f6f1e7;--card:#fffdf8;--ink:#201c16;--muted:#5e564a;--accent:#9a3412;--accent-2:#1f5f4a;--tint:#efe6d4;--line:#ddd2bc;--code:#f1eadb;--shadow:0 1px 2px rgba(60,40,10,.08);--serif:Georgia,"Iowan Old Style","Palatino Linotype",Palatino,serif;--sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--mono:"Cascadia Code",Consolas,"DejaVu Sans Mono",monospace}
+@media (prefers-color-scheme:dark){:root{--bg:#16130f;--card:#201b15;--ink:#f1eadb;--muted:#b9ad98;--accent:#f0a070;--accent-2:#7fd0b0;--tint:#2a231a;--line:#3d3427;--code:#191510;--shadow:none}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:5.5rem}
+body{margin:0;background:var(--bg);color:var(--ink);font:1rem/1.6 var(--sans)}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--accent-2);outline-offset:2px;border-radius:4px}
+.pular{position:absolute;left:-999px;top:0;background:var(--card);padding:.5rem 1rem;z-index:20}
+.pular:focus{left:.5rem;top:.5rem}
+.wrap{width:100%;max-width:84rem;margin:0 auto;padding-inline:max(1rem,env(safe-area-inset-left))}
+.top{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10;border-top:6px solid var(--accent)}
+.top-in{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding-block:.6rem}
+.titles{min-width:0}
+.marca{margin:0;font:700 clamp(1.15rem,1rem + 1vw,1.6rem)/1.15 var(--serif);letter-spacing:-.01em}
+.marca a{text-decoration:none}
+.marca a:hover{color:var(--accent)}
+.meta{margin:.1rem 0 0;color:var(--muted);font-size:.85rem}
+.acoes{display:flex;align-items:center;gap:.9rem;flex:none}
+.acoes>a{font-size:.9rem;font-weight:600;color:var(--muted);text-decoration:none}
+.acoes>a:hover{color:var(--accent);text-decoration:underline}
+.idioma{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--tint)}
+.idioma>*{padding:.35rem .9rem;font-size:.8rem;font-weight:700;letter-spacing:.06em;text-decoration:none;color:var(--muted);min-width:2.75rem;text-align:center}
+.idioma a:hover{color:var(--accent);text-decoration:underline}
+.idioma span{background:var(--accent);color:#fff}
+@media (prefers-color-scheme:dark){.idioma span{color:#16130f}}
+code{font-family:var(--mono);font-size:.9em;background:var(--tint);padding:.1rem .35rem;border-radius:4px;overflow-wrap:anywhere}
+/* índice */
+.capa{max-width:70rem;padding-block:2rem 3rem}
+.stats{border-left:4px solid var(--accent-2);background:var(--card);border-radius:0 10px 10px 0;padding:1rem 1.25rem;margin:0 0 2.5rem;box-shadow:var(--shadow);color:var(--muted)}
+.stats strong{color:var(--ink)}
+.modulo{display:grid;grid-template-columns:15rem minmax(0,1fr);gap:1rem 2rem;padding:1.75rem 0;border-top:1px solid var(--line)}
+.modulo h2{margin:0;font:700 1.25rem/1.25 var(--serif);align-self:start;position:sticky;top:6rem}
+.mn{display:block;font:700 .8rem var(--mono);letter-spacing:.12em;color:var(--accent);margin-bottom:.25rem}
+.sep{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.modulo ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,17rem),1fr));gap:.75rem}
+.modulo li{margin:0}
+.modulo a{display:flex;gap:.45rem;align-items:baseline;height:100%;padding:.85rem 1rem;background:var(--card);border:1px solid var(--line);border-radius:10px;text-decoration:none;font-weight:600;line-height:1.35;box-shadow:var(--shadow);transition:border-color .15s,transform .15s}
+.modulo a:hover{border-color:var(--accent);color:var(--accent)}
+.num{font:700 .85rem var(--mono);color:var(--accent);white-space:nowrap}
+/* aula */
+.doc{display:grid;grid-template-columns:17rem minmax(0,1fr);gap:2.5rem;align-items:start;padding-block:2rem 3rem}
+.lateral{position:sticky;top:5.5rem;max-height:calc(100vh - 6.5rem);overflow:auto;font-size:.875rem;padding-right:.5rem}
+.lateral h2{margin:0 0 .25rem;font:700 .95rem var(--serif);color:var(--muted)}
+.lateral h3{margin:1rem 0 .25rem;font:700 .75rem var(--mono);letter-spacing:.06em;color:var(--accent)}
+.lateral ul{list-style:none;margin:0;padding:0}
+.lateral a{display:flex;gap:.45rem;padding:.25rem .5rem;border-radius:6px;text-decoration:none;color:var(--muted);line-height:1.3}
+.lateral a:hover{background:var(--tint);color:var(--ink)}
+.lateral a[aria-current]{background:var(--tint);color:var(--ink);font-weight:700;box-shadow:inset 3px 0 0 var(--accent)}
+.lateral .num{font-size:.75rem}
+.aula{min-width:0;max-width:56rem;overflow-wrap:break-word;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:clamp(1.25rem,1rem + 2vw,2.75rem);box-shadow:var(--shadow)}
+.aula h1{margin:0 0 1.5rem;font:700 clamp(1.75rem,1.4rem + 1.6vw,2.5rem)/1.15 var(--serif);letter-spacing:-.015em;color:var(--ink)}
+.aula h2{margin:2.5rem 0 .75rem;padding-top:1.25rem;border-top:1px solid var(--line);font:700 1.5rem/1.25 var(--serif)}
+.aula h3{margin:2rem 0 .5rem;font:700 1.15rem/1.3 var(--serif);color:var(--accent)}
+.aula h4,.aula h5,.aula h6{margin:1.5rem 0 .5rem;font-size:1rem}
+.aula p,.aula ul,.aula ol{margin:1rem 0}
+.aula ul,.aula ol{padding-left:1.5rem}
+.aula li{margin:.35rem 0}
+.aula li>ul,.aula li>ol{margin:.35rem 0}
+.aula a{color:var(--accent);text-underline-offset:2px}
+.aula hr{border:0;border-top:1px solid var(--line);margin:2rem 0}
+.tabela{overflow-x:auto;margin:1.25rem 0;border:1px solid var(--line);border-radius:10px}
+.aula table{width:100%;border-collapse:collapse;font-size:.9rem}
+.aula th,.aula td{padding:.55rem .75rem;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+.aula tr:last-child td{border-bottom:0}
+.aula th{background:var(--tint);font-weight:700}
+.aula pre{background:var(--code);border:1px solid var(--line);border-radius:10px;padding:.9rem 1rem;overflow-x:auto;font:.85rem/1.5 var(--mono);margin:1rem 0;tab-size:4}
+.aula pre code{background:none;padding:0;font-size:inherit;overflow-wrap:normal}
+.aula blockquote{margin:1.25rem 0;padding:.75rem 1.25rem;border-left:4px solid var(--accent-2);background:var(--tint);border-radius:0 10px 10px 0}
+.aula blockquote>:first-child{margin-top:0}
+.aula blockquote>:last-child{margin-bottom:0}
+.aula figure{margin:1.75rem 0;text-align:center}
+.aula figure img{display:block;margin:0 auto;max-width:100%;height:auto;border:1px solid var(--line);border-radius:10px;background:#fff}
+.aula figcaption{margin-top:.5rem;color:var(--muted);font-size:.9rem;font-style:italic}
+.paginas{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:2.5rem;padding-top:1.5rem;border-top:1px solid var(--line)}
+.paginas a{display:block;padding:.75rem 1rem;border:1px solid var(--line);border-radius:10px;text-decoration:none;color:var(--ink);font-weight:600;line-height:1.3}
+.paginas a:hover{border-color:var(--accent);color:var(--accent)}
+.paginas small{display:block;color:var(--muted);font-weight:400}
+.paginas .prox{grid-column:2;text-align:right}
+footer{border-top:1px solid var(--line);padding-block:1.5rem;color:var(--muted);font-size:.85rem;text-align:center}
+@media (hover:hover) and (prefers-reduced-motion:no-preference){.modulo a:hover{transform:translateY(-2px)}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+@media (max-width:980px){.doc{grid-template-columns:minmax(0,1fr);padding-top:1rem}.lateral{position:static;max-height:none;order:2}.aula{max-width:none}}
+@media (max-width:860px){.modulo{grid-template-columns:minmax(0,1fr)}.modulo h2{position:static}.mn{display:inline;margin-right:.5rem}}
+@media (max-width:420px){.meta{display:none}.top-in{gap:.5rem}.acoes{gap:.6rem}.capa{padding-top:1.25rem}.paginas{grid-template-columns:minmax(0,1fr)}.paginas .prox{grid-column:1}}
+@media print{.top,.lateral,.paginas{display:none}.aula{border:0;box-shadow:none;padding:0;max-width:none}.doc{display:block}}
+</style>
+</head>
+<body>
+<a class="pular" href="#conteudo">Vai al contenuto</a>
+<header class="top"><div class="wrap top-in"><div class="titles"><p class="marca"><a href="index.it.html">Corso Linux Sysadmin</a></p><p class="meta">Rodrigo Antignani · Lezione 12.3</p></div><div class="acoes"><a href="index.it.html">Indice</a><div class="idioma" role="group" aria-label="Lingua"><a href="12.3-selinux-modos-e-contextos.html" hreflang="pt-BR" lang="pt-BR">PT</a><span aria-current="true">IT</span></div></div></div></header>
+<div class="wrap doc"><aside class="lateral" aria-label="Lezioni"><h2>Lezioni</h2><h3>M0 · Laboratorio</h3><ul><li><a href="0.1-montar-o-laboratorio.it.html"><span class="num">0.1</span><span>Allestire il laboratorio</span></a></li><li><a href="0.2-acesso-e-protecao.it.html"><span class="num">0.2</span><span>Accesso e protezione</span></a></li></ul><h3>M1 · Riga di comando</h3><ul><li><a href="1.1-o-que-e-linux.it.html"><span class="num">1.1</span><span>Che cos'è Linux</span></a></li><li><a href="1.2-o-shell-e-a-ajuda.it.html"><span class="num">1.2</span><span>La shell e la guida</span></a></li><li><a href="1.3-caminhos-e-navegacao.it.html"><span class="num">1.3</span><span>Percorsi e navigazione</span></a></li><li><a href="1.4-criar-copiar-mover-e-apagar.it.html"><span class="num">1.4</span><span>Creare, copiare, spostare ed eliminare</span></a></li><li><a href="1.5-ler-e-procurar-texto.it.html"><span class="num">1.5</span><span>Leggere e cercare testo</span></a></li><li><a href="1.6-redirecionamentos-e-pipes.it.html"><span class="num">1.6</span><span>Reindirizzamenti e pipe</span></a></li><li><a href="1.7-arquivar-e-compactar.it.html"><span class="num">1.7</span><span>Archiviare e comprimere</span></a></li><li><a href="1.8-primeiro-script.it.html"><span class="num">1.8</span><span>Primo script</span></a></li><li><a href="1.9-decidir-e-repetir.it.html"><span class="num">1.9</span><span>Decidere e ripetere</span></a></li><li><a href="1.10-software-livre-na-pratica.it.html"><span class="num">1.10</span><span>Il software libero in pratica</span></a></li></ul><h3>M2 · Sistema, utenti e permessi</h3><ul><li><a href="2.1-instalacao-e-provisionamento.it.html"><span class="num">2.1</span><span>Installazione e provisioning</span></a></li><li><a href="2.2-hardware-e-dispositivos.it.html"><span class="num">2.2</span><span>Hardware e dispositivi</span></a></li><li><a href="2.3-processos-e-logs.it.html"><span class="num">2.3</span><span>Processi e log</span></a></li><li><a href="2.4-rede-no-dia-a-dia.it.html"><span class="num">2.4</span><span>La rete di tutti i giorni</span></a></li><li><a href="2.5-acesso-remoto-e-privilegios.it.html"><span class="num">2.5</span><span>Accesso remoto e privilegi</span></a></li><li><a href="2.6-usuarios-e-grupos.it.html"><span class="num">2.6</span><span>Utenti e gruppi</span></a></li><li><a href="2.7-permissoes-e-dono.it.html"><span class="num">2.7</span><span>Permessi e proprietario</span></a></li><li><a href="2.8-diretorios-e-arquivos-especiais.it.html"><span class="num">2.8</span><span>Directory e file speciali</span></a></li></ul><h3>M3 · Testo ed editor</h3><ul><li><a href="3.1-fluxos-a-fundo.it.html"><span class="num">3.1</span><span>I flussi in profondità</span></a></li><li><a href="3.2-filtros-de-texto.it.html"><span class="num">3.2</span><span>Filtri di testo</span></a></li><li><a href="3.3-regex-e-grep.it.html"><span class="num">3.3</span><span>Regex e grep</span></a></li><li><a href="3.4-sed-e-awk.it.html"><span class="num">3.4</span><span>sed e awk</span></a></li><li><a href="3.5-vi-e-vim-de-verdade.it.html"><span class="num">3.5</span><span>vi e vim sul serio</span></a></li></ul><h3>M4 · systemd e boot</h3><ul><li><a href="4.1-como-o-linux-liga.it.html"><span class="num">4.1</span><span>Come si avvia Linux</span></a></li><li><a href="4.2-systemd-servicos-e-units.it.html"><span class="num">4.2</span><span>systemd: servizi e unit</span></a></li><li><a href="4.3-targets-desligar-e-reiniciar.it.html"><span class="num">4.3</span><span>Target: spegnere e riavviare</span></a></li><li><a href="4.4-grub-e-acesso-de-emergencia.it.html"><span class="num">4.4</span><span>GRUB e accesso di emergenza</span></a></li></ul><h3>M5 · Kernel, moduli e VM</h3><ul><li><a href="5.1-hardware-pelo-kernel.it.html"><span class="num">5.1</span><span>L'hardware visto dal kernel</span></a></li><li><a href="5.2-modulos-e-parametros.it.html"><span class="num">5.2</span><span>Moduli e parametri</span></a></li><li><a href="5.3-linux-como-convidado.it.html"><span class="num">5.3</span><span>Linux come guest</span></a></li></ul><h3>M6 · Pacchetti e repository</h3><ul><li><a href="6.1-pacotes-no-debian.it.html"><span class="num">6.1</span><span>Pacchetti su Debian</span></a></li><li><a href="6.2-pacotes-na-rocky.it.html"><span class="num">6.2</span><span>Pacchetti su Rocky</span></a></li><li><a href="6.3-repositorios.it.html"><span class="num">6.3</span><span>Repository</span></a></li><li><a href="6.4-flatpak.it.html"><span class="num">6.4</span><span>Flatpak</span></a></li><li><a href="6.5-bibliotecas-compartilhadas.it.html"><span class="num">6.5</span><span>Librerie condivise</span></a></li></ul><h3>M7 · Processi e prestazioni</h3><ul><li><a href="7.1-processos-e-sinais.it.html"><span class="num">7.1</span><span>Processi e segnali</span></a></li><li><a href="7.2-jobs-e-sessoes.it.html"><span class="num">7.2</span><span>Job e sessioni</span></a></li><li><a href="7.3-prioridade-e-perfis.it.html"><span class="num">7.3</span><span>Priorità e profili</span></a></li></ul><h3>M8 · File a fondo</h3><ul><li><a href="8.1-fhs-e-onde-cada-coisa-mora.it.html"><span class="num">8.1</span><span>FHS e dove sta ogni cosa</span></a></li><li><a href="8.2-find-a-fundo.it.html"><span class="num">8.2</span><span>find a fondo</span></a></li><li><a href="8.3-arquivamento-avancado.it.html"><span class="num">8.3</span><span>Archiviazione avanzata</span></a></li><li><a href="8.4-links.it.html"><span class="num">8.4</span><span>Link</span></a></li><li><a href="8.5-permissoes-avancadas.it.html"><span class="num">8.5</span><span>Permessi avanzati</span></a></li></ul><h3>M9 · Storage</h3><ul><li><a href="9.1-discos-e-layout.it.html"><span class="num">9.1</span><span>Dischi e layout</span></a></li><li><a href="9.2-particionar.it.html"><span class="num">9.2</span><span>Partizionare</span></a></li><li><a href="9.3-sistemas-de-arquivos.it.html"><span class="num">9.3</span><span>File system</span></a></li><li><a href="9.4-montar-e-persistir.it.html"><span class="num">9.4</span><span>Montare e rendere persistente</span></a></li><li><a href="9.5-integridade-e-espaco.it.html"><span class="num">9.5</span><span>Integrità e spazio</span></a></li><li><a href="9.6-lvm.it.html"><span class="num">9.6</span><span>LVM</span></a></li><li><a href="9.7-crescer-sem-destruir.it.html"><span class="num">9.7</span><span>Crescere senza distruggere</span></a></li></ul><h3>M10 · Utenti e accesso privilegiato</h3><ul><li><a href="10.1-contas.it.html"><span class="num">10.1</span><span>Account</span></a></li><li><a href="10.2-senhas-e-validade.it.html"><span class="num">10.2</span><span>Password e scadenza</span></a></li><li><a href="10.3-grupos-e-trabalho-em-equipe.it.html"><span class="num">10.3</span><span>Gruppi e lavoro di squadra</span></a></li><li><a href="10.4-sudo-de-verdade.it.html"><span class="num">10.4</span><span>sudo sul serio</span></a></li></ul><h3>M11 · Rete</h3><ul><li><a href="11.1-tcp-ip-para-quem-administra.it.html"><span class="num">11.1</span><span>TCP/IP per chi amministra</span></a></li><li><a href="11.2-networkmanager-e-nmcli.it.html"><span class="num">11.2</span><span>NetworkManager e nmcli</span></a></li><li><a href="11.3-rede-no-debian.it.html"><span class="num">11.3</span><span>Rete su Debian</span></a></li><li><a href="11.4-nomes-e-resolucao.it.html"><span class="num">11.4</span><span>Nomi e risoluzione</span></a></li><li><a href="11.5-diagnostico-de-rede.it.html"><span class="num">11.5</span><span>Diagnosi di rete</span></a></li></ul><h3>M12 · Sicurezza dell'host</h3><ul><li><a href="12.1-ssh-a-fundo.it.html"><span class="num">12.1</span><span>SSH in dettaglio</span></a></li><li><a href="12.2-firewall.it.html"><span class="num">12.2</span><span>Firewall</span></a></li><li><a href="12.3-selinux-modos-e-contextos.it.html" aria-current="page"><span class="num">12.3</span><span>SELinux: modalità e contesti</span></a></li><li><a href="12.4-selinux-portas-e-booleanos.it.html"><span class="num">12.4</span><span>SELinux: porte e booleani</span></a></li><li><a href="12.5-auditoria-e-criptografia.it.html"><span class="num">12.5</span><span>Audit e crittografia</span></a></li></ul></aside><main id="conteudo" class="aula"><article><h1>Lezione 12.3 · SELinux: modalità e contesti</h1>
+<p>Su Windows Server i permessi dei file e le regole di esecuzione non sono lo stesso livello. Anche su Linux proprietario e permessi non spiegano ogni rifiuto. Osserverai il dominio di un servizio e il tipo di un file, correggerai il contesto all'origine e verificherai il risultato senza disattivare la protezione.</p>
+<blockquote><p><strong>Il cuore di questa lezione:</strong> su Rocky con SELinux enforcing, proprietario e permessi corretti devono comunque rispettare la politica. <code translate="no">semanage fcontext</code> registra la regola; <code translate="no">restorecon</code> applica il contesto. Il resto è approfondimento.</p></blockquote>
+<div class="tabela"><table><thead><tr><th scope="col">Scheda</th><th scope="col"></th></tr></thead><tbody><tr><td><strong>Modulo</strong></td><td>M12 · Sicurezza dell'host, lezione 3 di 5</td></tr><tr><td><strong>Quando</strong></td><td>Settimana 18</td></tr><tr><td><strong>Alla fine</strong></td><td>Distingui DAC e SELinux, identifichi dominio e tipo e correggi un contesto persistente</td></tr><tr><td><strong>Prerequisiti</strong></td><td>Lezioni 12.1 e 12.2; <code translate="no">student</code>, <code translate="no">sudo</code>, SSH e noVNC; porta TCP <code translate="no">80</code> libera sulle due VM</td></tr><tr><td><strong>Durata</strong></td><td>Circa 90 minuti</td></tr><tr><td><strong>Snapshot</strong></td><td><code translate="no">m12a3-inicio</code> e <code translate="no">m12a3-fim</code> sulle VM 201 e 202</td></tr></tbody></table></div>
+<h2 id="1-riscaldamento">1 · Riscaldamento</h2>
+<p>Rispondi prima di consultare il materiale. Le soluzioni sono in fondo.</p>
+<ol><li>Una porta consentita dal firewall dimostra che esista un processo in ascolto?</li>
+<li>Perché una directory richiede il permesso di attraversamento per raggiungere un file al suo interno?</li>
+<li>Dopo una modifica alla configurazione, perché verificare una nuova connessione prima di chiudere la sessione precedente?</li></ol>
+<h2 id="2-perche-conta">2 · Perché conta</h2>
+<p>Una pagina funziona nella directory predefinita. Sposti lo stesso contenuto in un nuovo albero, controlli lettura e attraversamento, ma il server restituisce un rifiuto. Consentire tutto nei permessi nasconde il ragionamento e non corregge la politica mancante.</p>
+<p>Devi distinguere “l'utente del servizio riesce a leggere” da “il dominio del servizio è autorizzato a leggere”. Questa differenza evita una modifica pericolosa per risolvere un file etichettato male.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Domanda</th><th scope="col">Evidenza</th></tr></thead><tbody><tr><td>Chi è il proprietario e quali sono i permessi?</td><td><code translate="no">ls -l</code> e <code translate="no">namei -l</code></td></tr><tr><td>Qual è il contesto del file?</td><td><code translate="no">ls -Z</code></td></tr><tr><td>In quale dominio gira il servizio?</td><td><code translate="no">ps -eZ</code></td></tr><tr><td>Quale contesto prevede la regola del percorso?</td><td><code translate="no">matchpathcon</code></td></tr></tbody></table></div>
+<h2 id="3-modello-mentale">3 · Modello mentale</h2>
+<p>Nella portineria dell'edificio il badge del processo e l'etichetta della stanza hanno funzioni diverse. La politica decide se quel badge possa eseguire quell'operazione nella stanza. I permessi del file continuano a esistere: superare un controllo non sostituisce l'altro.</p>
+<pre translate="no"><code class="lang-text">processo -&gt; proprietario e permessi -&gt; politica SELinux -&gt; file
+   |                            |                |
+httpd_t                   operazione richiesta   httpd_sys_content_t</code></pre>
+<p>Il disegno è un modello didattico di controlli che si combinano, non un ordine universale di tutte le verifiche del kernel.</p>
+<figure><a href="../img/12.3-duas-conferencias.it.jpg"><img src="../img/12.3-duas-conferencias.it.jpg" alt="Due controlli per il file" loading="lazy" decoding="async"></a><figcaption>I permessi dei file e la politica di sicurezza sono controlli diversi.</figcaption></figure>
+<h3 id="ponte-windows">Ponte Windows</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Riferimento Windows</th><th scope="col">Che cosa confrontare su Linux</th></tr></thead><tbody><tr><td>Identità che esegue un servizio</td><td>Utente del processo e, su Rocky, dominio SELinux</td></tr><tr><td>Permessi dell'oggetto</td><td>Proprietario, gruppo, permessi e ACL</td></tr><tr><td>Politica aggiuntiva di protezione</td><td>Controllo MAC, con meccanismi diversi tra distribuzioni</td></tr><tr><td>Controllare la configurazione effettiva</td><td>Confrontare contesto attuale e regola prevista</td></tr></tbody></table></div>
+<h2 id="4-l-essenziale">4 · L'essenziale</h2>
+<h3 id="le-modalita-sono-stati-della-protezione">Le modalità sono stati della protezione</h3>
+<p>In <code translate="no">Enforcing</code>, SELinux applica le decisioni della politica. In <code translate="no">Permissive</code> registra i rifiuti che verrebbero applicati, ma non li impone. In <code translate="no">Disabled</code> questo meccanismo non è attivo. In questa lezione Rocky rimane sempre in <code translate="no">Enforcing</code>.</p>
+<pre translate="no"><code class="lang-bash">getenforce
+sestatus</code></pre>
+<p>Leggi lo stato attuale e quello configurato per il prossimo avvio. Non usare un cambio di modalità per correggere contenuti etichettati male.</p>
+<h3 id="in-questa-lezione-conta-il-tipo">In questa lezione conta il tipo</h3>
+<p>Un contesto SELinux contiene campi separati da due punti. In questa lezione concentrati sul tipo del file e sul dominio del processo. Per contenuti web statici la regola di esercizio usa <code translate="no">httpd_sys_content_t</code>; nginx avviato dal servizio deve comparire in <code translate="no">httpd_t</code> su Rocky.</p>
+<figure><a href="../img/12.3-processo-e-tipo.it.jpg"><img src="../img/12.3-processo-e-tipo.it.jpg" alt="Chi accede a cosa" loading="lazy" decoding="async"></a><figcaption>Il dominio del processo incontra il tipo del file nella politica.</figcaption></figure>
+<h3 id="attuale-e-previsto-non-sono-la-stessa-cosa">Attuale e previsto non sono la stessa cosa</h3>
+<p><code translate="no">ls -Z</code> mostra il contesto applicato. <code translate="no">matchpathcon</code> consulta il contesto previsto dalle regole del percorso. <code translate="no">semanage fcontext</code> conserva una regola locale persistente; <code translate="no">restorecon</code> applica queste regole ai file esistenti.</p>
+<p>Una modifica con <code translate="no">chcon</code> cambia l'etichetta attuale senza registrare la regola del percorso. La useremo soltanto per introdurre un guasto controllato in un file di esercizio.</p>
+<figure><a href="../img/12.3-registrar-e-aplicar.it.jpg"><img src="../img/12.3-registrar-e-aplicar.it.jpg" alt="Registrare e applicare il contesto" loading="lazy" decoding="async"></a><figcaption>semanage fcontext registra la regola; restorecon applica il contesto.</figcaption></figure>
+<h3 id="rocky-debian">Rocky × Debian</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Voce</th><th scope="col">Rocky 9</th><th scope="col">Debian 13</th></tr></thead><tbody><tr><td>Controllo comune dei file</td><td>Proprietario, permessi e ACL</td><td>Proprietario, permessi e ACL</td></tr><tr><td>MAC di questo lab</td><td>SELinux enforcing</td><td>Ispezione di AppArmor installato</td></tr><tr><td>Strumento per il contesto</td><td><code translate="no">semanage</code>, <code translate="no">restorecon</code>, <code translate="no">ls -Z</code></td><td>Non eseguire i passi SELinux</td></tr><tr><td>Utente web del pacchetto</td><td><code translate="no">nginx</code></td><td><code translate="no">www-data</code></td></tr><tr><td>Server di esercizio</td><td>Unità dedicata, nginx sul loopback</td><td>La stessa unità, nginx sul loopback</td></tr></tbody></table></div>
+<p>AppArmor attivo non significa che tutti i programmi siano confinati. Su Debian confronti DAC e osservi i profili reali; la creazione di un profilo è nella 12.4.</p>
+<h2 id="5-lab-guidato">5 · Lab guidato</h2>
+<p>Esegui il lab su entrambe le VM. Esegui i blocchi indicati Rocky soltanto sulla 201. Nginx di esercizio usa configurazione e unità dedicate; non sostituisce la configurazione del pacchetto. Non procedere se nginx è già attivo oppure esiste un servizio sulla porta <code translate="no">80</code>.</p>
+<h3 id="passo-1-proteggere-e-controllare">Passo 1 · Proteggere e controllare</h3>
+<p><strong>Ipotesi:</strong> il fatto che nginx sia installato significa che la sua unità sia in esecuzione?</p>
+<p>Sull'host Proxmox:</p>
+<pre translate="no"><code class="lang-bash">qm snapshot 201 m12a3-inicio
+qm snapshot 202 m12a3-inicio</code></pre>
+<p>Sulle VM, prima di installare qualsiasi pacchetto:</p>
+<pre translate="no"><code class="lang-bash">sudo ss -lntp 'sport = :80'
+systemctl is-active nginx.service
+systemctl is-enabled nginx.service
+test ! -e "$HOME/m12a3"
+test ! -e /srv/m12a3-web
+test ! -e /etc/nginx/m12a3.conf
+test ! -e /etc/nginx/m12a3.conf.bak
+test ! -e /etc/systemd/system/m12a3-nginx.service
+test ! -e /run/nginx-m12a3</code></pre>
+<p><strong>Output atteso:</strong> nessun ascolto su <code translate="no">80</code>; nginx inattivo e disabilitato, oppure assente; tutti i percorsi di esercizio assenti. Un risultato diverso da zero di <code translate="no">is-active</code> è normale per un servizio inattivo.</p>
+<p><strong>Verifica:</strong> procedi soltanto se queste condizioni sono vere. Un nginx già abilitato può contendere la porta al reboot, anche se ora è inattivo. Non modificare quell'installazione precedente per fare spazio al lab.</p>
+<h3 id="passo-2-preparare-gli-strumenti">Passo 2 · Preparare gli strumenti</h3>
+<p><strong>Ipotesi:</strong> installare un pacchetto su Debian può avviare il servizio prima che tu crei la tua configurazione?</p>
+<p>Crea il registro privato e annota se il pacchetto esisteva già.</p>
+<pre translate="no"><code class="lang-bash">mkdir -m 700 "$HOME/m12a3"
+systemctl is-enabled nginx.service &gt; "$HOME/m12a3/nginx.enabled.inicio" 2&gt;&amp;1
+systemctl is-active nginx.service &gt; "$HOME/m12a3/nginx.active.inicio" 2&gt;&amp;1</code></pre>
+<p>Su Rocky:</p>
+<pre translate="no"><code class="lang-bash">rpm -q nginx &gt; "$HOME/m12a3/nginx.package.inicio" 2&gt;&amp;1
+sudo dnf install -y nginx curl policycoreutils-python-utils audit
+getenforce</code></pre>
+<p>Su Debian:</p>
+<pre translate="no"><code class="lang-bash">dpkg-query -W -f='${db:Status-Status}\n' nginx &gt; "$HOME/m12a3/nginx.package.inicio" 2&gt;&amp;1
+sudo apt update
+sudo apt install -y nginx curl apparmor-utils</code></pre>
+<p>Se nginx è appena stato installato e si è avviato automaticamente, ferma soltanto questa nuova istanza del pacchetto. Il controllo iniziale ha già verificato che nessun nginx precedente fosse attivo.</p>
+<pre translate="no"><code class="lang-bash">sudo systemctl stop nginx.service
+sudo systemctl disable nginx.service
+sudo ss -lntp 'sport = :80'</code></pre>
+<p><strong>Output atteso:</strong> porta libera sulle due VM; <code translate="no">Enforcing</code> su Rocky. Se Rocky è in un'altra modalità, ripristina una base enforcing prima di questa lezione.</p>
+<p><strong>Verifica:</strong> mantieni intatta la configurazione originale. Su Debian registra <code translate="no">sudo aa-status</code>; l'elenco osservato non consente di affermare che nginx sia confinato.</p>
+<h3 id="passo-3-creare-contenuto-e-configurazione-dedicati">Passo 3 · Creare contenuto e configurazione dedicati</h3>
+<p><strong>Ipotesi:</strong> un contenuto leggibile da qualunque utente sarà necessariamente leggibile da un servizio confinato?</p>
+<p>Imposta l'utente web secondo la distribuzione. Esegui soltanto il blocco corrispondente.</p>
+<pre translate="no"><code class="lang-bash">WEBUSER=nginx
+SELINUX_PRE='ExecStartPre=/usr/sbin/restorecon -R /run/nginx-m12a3'</code></pre>
+<pre translate="no"><code class="lang-bash">WEBUSER=www-data
+SELINUX_PRE=''</code></pre>
+<p>Sulle due VM:</p>
+<pre translate="no"><code class="lang-bash">getent passwd "$WEBUSER"
+sudo install -d -m 0755 /srv/m12a3-web
+printf 'CONTEXT ok\n' | sudo tee /srv/m12a3-web/index.html &gt; /dev/null
+sudo chmod 0644 /srv/m12a3-web/index.html
+sudo tee /etc/nginx/m12a3.conf &gt; /dev/null &lt;&lt;EOF
+user $WEBUSER;
+worker_processes 1;
+pid /run/nginx-m12a3/nginx.pid;
+error_log stderr;
+events { worker_connections 64; }
+http {
+    access_log off;
+    server {
+        listen 127.0.0.1:80;
+        server_name _;
+        root /srv/m12a3-web;
+        index index.html;
+    }
+}
+EOF
+sudo chmod 0644 /etc/nginx/m12a3.conf
+sudo tee /etc/systemd/system/m12a3-nginx.service &gt; /dev/null &lt;&lt;EOF
+[Unit]
+Description=M12A3 nginx lab
+After=network.target
+[Service]
+Type=simple
+RuntimeDirectory=nginx-m12a3
+RuntimeDirectoryMode=0755
+$SELINUX_PRE
+ExecStartPre=/usr/sbin/nginx -t -c /etc/nginx/m12a3.conf
+ExecStart=/usr/sbin/nginx -c /etc/nginx/m12a3.conf -g 'daemon off;'
+ExecReload=/usr/sbin/nginx -t -c /etc/nginx/m12a3.conf
+ExecReload=/bin/kill -HUP \$MAINPID
+KillSignal=SIGQUIT
+[Install]
+WantedBy=multi-user.target
+EOF
+sudo systemctl daemon-reload
+sudo install -d -m 0755 /run/nginx-m12a3
+sudo nginx -t -c /etc/nginx/m12a3.conf
+namei -l /srv/m12a3-web/index.html</code></pre>
+<p>Il test sintattico apre i file di configurazione; non dimostra che un worker confinato riesca a servire la pagina. Il blocco usa un PID esclusivo e avvia il binario tramite systemd per osservare il dominio reale del servizio.</p>
+<p><strong>Output atteso:</strong> sintassi valida e albero con attraversamento e lettura. La directory di esecuzione è esclusiva dell'esercizio; su Rocky l'unità applica il contesto previsto prima di avviare il server.</p>
+<p><strong>Verifica:</strong> nessun <code translate="no">include</code> carica la configurazione globale del pacchetto in questa istanza. Il bind è soltanto <code translate="no">127.0.0.1:80</code>; non aprire una porta nel firewall per questo test locale.</p>
+<h3 id="decidi-1">Decidi 1</h3>
+<p>Il test sintattico è riuscito, ma la pagina è stata negata. Qual è il passo successivo?</p>
+<div class="tabela"><table><thead><tr><th scope="col">Opzione</th><th scope="col">Azione</th></tr></thead><tbody><tr><td>A</td><td>Disattivare SELinux</td></tr><tr><td>B</td><td>Controllare dominio, contesto, DAC e registro del servizio</td></tr><tr><td>C</td><td>Consentire tutti i permessi sul file</td></tr></tbody></table></div>
+<p>Scegli B. La sintassi e l'accesso al contenuto sono verifiche diverse.</p>
+<h3 id="passo-4-osservare-il-servizio-confinato">Passo 4 · Osservare il servizio confinato</h3>
+<p><strong>Ipotesi:</strong> il processo avviato da systemd compare necessariamente nello stesso dominio di un programma avviato nella tua shell?</p>
+<p>Su Rocky registra una regola esclusiva per la directory PID di esercizio. Le politiche trattano <code translate="no">/run</code> come equivalente a <code translate="no">/var/run</code>, perciò la regola usa il percorso canonico seguente. Se esiste già una regola locale per questo albero, non sostituirla.</p>
+<pre translate="no"><code class="lang-bash">sudo semanage fcontext -l -C | grep -F '/var/run/nginx-m12a3'
+sudo semanage fcontext -a -t httpd_var_run_t '/var/run/nginx-m12a3(/.*)?'
+matchpathcon /etc/nginx/m12a3.conf /run/nginx-m12a3
+sudo restorecon -Rv /run/nginx-m12a3
+sudo restorecon -v /etc/nginx/m12a3.conf
+sudo restorecon -v /etc/systemd/system/m12a3-nginx.service
+ls -Zd /srv/m12a3-web /srv/m12a3-web/index.html</code></pre>
+<p>Sulle due VM:</p>
+<pre translate="no"><code class="lang-bash">sudo systemctl start m12a3-nginx.service
+systemctl is-active m12a3-nginx.service
+sudo ss -lntp 'sport = :80'
+ps -eZ | grep '[n]ginx'
+curl --noproxy '*' --connect-timeout 2 --max-time 4 -sS -o /dev/null -w '%{http_code}\n' http://127.0.0.1/
+sudo journalctl -u m12a3-nginx.service -n 15 --no-pager</code></pre>
+<p><strong>Output atteso:</strong> servizio attivo e bind locale. Su Rocky conferma <code translate="no">httpd_t</code>; un contenuto privo di tipo web deve essere negato. Su Debian la pagina deve rispondere se DAC e il profilo effettivamente applicato lo consentono. Non inventare un AVC SELinux su Debian.</p>
+<p><strong>Verifica:</strong> se nginx su Rocky non compare in <code translate="no">httpd_t</code>, interrompi la dimostrazione del rifiuto SELinux e indaga la transizione. Un processo non confinato non dimostra il comportamento che stai studiando.</p>
+<h3 id="passo-5-registrare-e-applicare-la-regola">Passo 5 · Registrare e applicare la regola</h3>
+<p><strong>Ipotesi:</strong> registrare la regola del percorso cambia già il contesto dei file esistenti?</p>
+<p>Soltanto su Rocky. Conferma prima che non esista una regola locale precedente per l'albero riservato. Se esiste, non sostituirla.</p>
+<pre translate="no"><code class="lang-bash">sudo semanage fcontext -l -C | grep -F '/srv/m12a3-web'
+sudo semanage fcontext -a -t httpd_sys_content_t '/srv/m12a3-web(/.*)?'
+ls -Zd /srv/m12a3-web /srv/m12a3-web/index.html
+sudo restorecon -Rv /srv/m12a3-web
+matchpathcon -V /srv/m12a3-web/index.html</code></pre>
+<p>Sulle due VM controlla il risultato tramite il protocollo applicativo.</p>
+<pre translate="no"><code class="lang-bash">curl --noproxy '*' --connect-timeout 2 --max-time 4 -fsS http://127.0.0.1/</code></pre>
+<p><strong>Output atteso:</strong> <code translate="no">CONTEXT ok</code>. Su Rocky la regola locale prevede il tipo web e <code translate="no">restorecon</code> lo applica. Su Debian il contenuto funziona senza eseguire comandi SELinux.</p>
+<p><strong>Verifica:</strong> confronta l'output di <code translate="no">ls -Z</code> prima e dopo <code translate="no">restorecon</code>. Non considerare l'elenco delle regole una prova del contesto applicato.</p>
+<h3 id="decidi-2">Decidi 2</h3>
+<p>Il contesto attuale è stato cambiato per errore, ma la regola corretta è ancora registrata. Qual è la correzione?</p>
+<div class="tabela"><table><thead><tr><th scope="col">Opzione</th><th scope="col">Azione</th></tr></thead><tbody><tr><td>A</td><td>Creare un'altra regola per lo stesso percorso</td></tr><tr><td>B</td><td>Controllare la regola e applicare <code translate="no">restorecon</code> al file</td></tr><tr><td>C</td><td>Impostare l'host permissive</td></tr></tbody></table></div>
+<p>Scegli B. Correggi lo stato del file usando la regola persistente già esistente.</p>
+<h3 id="passo-6-verificare-la-persistenza">Passo 6 · Verificare la persistenza</h3>
+<p><strong>Ipotesi:</strong> un servizio avviato manualmente verrà ricostruito al prossimo avvio senza essere abilitato?</p>
+<p>Sulle due VM abilita soltanto l'unità di esercizio. Mantieni disponibile noVNC e riconnettiti tramite SSH dopo il reboot.</p>
+<pre translate="no"><code class="lang-bash">sudo systemctl enable m12a3-nginx.service
+sudo systemctl reboot</code></pre>
+<p>Dopo il riavvio:</p>
+<pre translate="no"><code class="lang-bash">systemctl is-active m12a3-nginx.service
+curl --noproxy '*' --connect-timeout 2 --max-time 4 -fsS http://127.0.0.1/</code></pre>
+<p><strong>Output atteso:</strong> servizio attivo e <code translate="no">CONTEXT ok</code>. Su Rocky conferma anche <code translate="no">getenforce</code> e <code translate="no">matchpathcon -V /srv/m12a3-web/index.html</code>.</p>
+<p><strong>Verifica:</strong> la stessa regola, lo stesso contenuto e lo stesso dominio devono restare coerenti dopo l'avvio. Il servizio del pacchetto resta fuori da questo esercizio.</p>
+<h2 id="6-rompi-e-ripara">6 · Rompi e ripara</h2>
+<h3 id="guasto-1-lettura-negata-dai-permessi">Guasto 1 · Lettura negata dai permessi</h3>
+<p>Sulle due VM:</p>
+<pre translate="no"><code class="lang-bash">sudo chmod 0000 /srv/m12a3-web/index.html</code></pre>
+<p><strong>Sintomo:</strong> HTTP smette di restituire <code translate="no">CONTEXT ok</code>, mentre il servizio resta attivo.</p>
+<p><strong>Indagine:</strong> confronta proprietario, permessi, percorso e registro del servizio.</p>
+<pre translate="no"><code class="lang-bash">namei -l /srv/m12a3-web/index.html
+sudo journalctl -u m12a3-nginx.service -n 10 --no-pager</code></pre>
+<p><strong>Causa:</strong> il worker non ha il permesso di lettura nel controllo DAC. Un contesto corretto non sostituisce questo permesso.</p>
+<p><strong>Riparazione:</strong> ripristina soltanto i permessi previsti sul file di esercizio.</p>
+<pre translate="no"><code class="lang-bash">sudo chmod 0644 /srv/m12a3-web/index.html</code></pre>
+<p><strong>Verifica:</strong> ripeti il <code translate="no">curl</code> e ottieni <code translate="no">CONTEXT ok</code>.</p>
+<p><strong>Prevenzione:</strong> registra proprietario, gruppo e permessi insieme alla configurazione dei contenuti del servizio.</p>
+<h3 id="guasto-2-etichetta-attuale-errata">Guasto 2 · Etichetta attuale errata</h3>
+<p>Soltanto su Rocky modifica il tipo del file di esercizio. Su Debian osserva il confronto senza provare a eseguire questo comando.</p>
+<pre translate="no"><code class="lang-bash">sudo chcon -t user_home_t /srv/m12a3-web/index.html</code></pre>
+<p><strong>Sintomo:</strong> DAC resta corretto, ma il servizio confinato perde l'accesso al contenuto.</p>
+<p><strong>Indagine:</strong> confronta contesto attuale e previsto.</p>
+<pre translate="no"><code class="lang-bash">ls -lZ /srv/m12a3-web/index.html
+matchpathcon -V /srv/m12a3-web/index.html
+sudo journalctl -u m12a3-nginx.service -n 10 --no-pager</code></pre>
+<p><strong>Causa:</strong> <code translate="no">chcon</code> ha cambiato il tipo applicato, ma la regola persistente continua a prevedere <code translate="no">httpd_sys_content_t</code>.</p>
+<p><strong>Riparazione:</strong> applica al file la regola esistente.</p>
+<pre translate="no"><code class="lang-bash">sudo restorecon -v /srv/m12a3-web/index.html</code></pre>
+<p><strong>Verifica:</strong> <code translate="no">matchpathcon -V</code> conferma il contesto e HTTP torna a restituire <code translate="no">CONTEXT ok</code>. La lettura dettagliata di AVC è nella 12.4.</p>
+<p><strong>Prevenzione:</strong> configura la regola del percorso anziché dipendere da una modifica manuale dell'etichetta attuale.</p>
+<h3 id="guasto-3-percorso-errato-nella-configurazione">Guasto 3 · Percorso errato nella configurazione</h3>
+<p>Sulle due VM conserva la configurazione dedicata e introduci l'errore soltanto in quella.</p>
+<pre translate="no"><code class="lang-bash">sudo cp -a /etc/nginx/m12a3.conf /etc/nginx/m12a3.conf.bak
+sudo sed -i 's|root /srv/m12a3-web;|root /srv/m12a3-inexistente;|' /etc/nginx/m12a3.conf
+sudo nginx -t -c /etc/nginx/m12a3.conf
+sudo systemctl reload m12a3-nginx.service</code></pre>
+<p><strong>Sintomo:</strong> la sintassi è valida, il servizio risponde, ma il contenuto previsto non si trova nel percorso configurato.</p>
+<p><strong>Indagine:</strong> leggi la radice configurata e il registro della richiesta.</p>
+<pre translate="no"><code class="lang-bash">grep -n 'root ' /etc/nginx/m12a3.conf
+curl --noproxy '*' --connect-timeout 2 --max-time 4 -sS -o /dev/null -w '%{http_code}\n' http://127.0.0.1/
+sudo journalctl -u m12a3-nginx.service -n 10 --no-pager</code></pre>
+<p><strong>Causa:</strong> il servizio cerca la pagina in un'altra directory. Non occorre cambiare contesto, firewall o modalità di protezione.</p>
+<p><strong>Riparazione:</strong> ripristina la copia della configurazione di esercizio e valida prima di ricaricare.</p>
+<pre translate="no"><code class="lang-bash">sudo cp -a /etc/nginx/m12a3.conf.bak /etc/nginx/m12a3.conf
+sudo nginx -t -c /etc/nginx/m12a3.conf
+sudo systemctl reload m12a3-nginx.service</code></pre>
+<p><strong>Verifica:</strong> HTTP torna a <code translate="no">CONTEXT ok</code>. Su Rocky conferma che SELinux sia ancora enforcing.</p>
+<p><strong>Prevenzione:</strong> controlla percorso e risposta applicativa oltre al test sintattico.</p>
+<h3 id="pulizia">Pulizia</h3>
+<p>Sulle due VM termina e disabilita soltanto l'unità creata dalla lezione.</p>
+<pre translate="no"><code class="lang-bash">sudo systemctl disable --now m12a3-nginx.service
+sudo rm -f /etc/systemd/system/m12a3-nginx.service
+sudo systemctl daemon-reload
+sudo rm -f /etc/nginx/m12a3.conf /etc/nginx/m12a3.conf.bak</code></pre>
+<p>Soltanto su Rocky rimuovi la regola locale creata. Non usare un'eliminazione generica di tutte le regole locali.</p>
+<pre translate="no"><code class="lang-bash">sudo semanage fcontext -d '/srv/m12a3-web(/.*)?'
+sudo semanage fcontext -d '/var/run/nginx-m12a3(/.*)?'
+sudo restorecon -Rv /srv/m12a3-web</code></pre>
+<p>Sulle due VM rimuovi soltanto il file noto e poi la directory vuota. Conserva i registri privati.</p>
+<pre translate="no"><code class="lang-bash">sudo rm -f /srv/m12a3-web/index.html
+sudo rmdir /srv/m12a3-web
+sudo ss -lntp 'sport = :80'</code></pre>
+<p>Nginx del pacchetto era assente oppure inattivo e disabilitato nel controllo iniziale. Un'abilitazione creata dalla nuova installazione è stata rimossa nel passo 2; controlla <code translate="no">nginx.enabled.inicio</code> e mantieni l'unità del pacchetto disabilitata in questo lab. I pacchetti installati restano disponibili per la lezione successiva.</p>
+<h2 id="7-trappole">7 · Trappole</h2>
+<div class="tabela"><table><thead><tr><th scope="col">Errore comune</th><th scope="col">Che cosa fare</th><th scope="col">Perché</th></tr></thead><tbody><tr><td>Trattare ogni rifiuto come SELinux</td><td>Controllare percorso, DAC, dominio e contesto</td><td>Ogni livello spiega un'evidenza</td></tr><tr><td>Fidarsi soltanto di <code translate="no">ls -Z</code></td><td>Confrontare con <code translate="no">matchpathcon</code></td><td>Attuale e previsto sono diversi</td></tr><tr><td>Registrare la regola senza applicarla</td><td>Eseguire <code translate="no">restorecon</code> sul file corretto</td><td>La regola non rietichetta da sola</td></tr><tr><td>Avviare il demone dalla shell per provare il dominio</td><td>Avviare tramite unità e osservare il dominio reale</td><td>La transizione dipende dal modo di esecuzione</td></tr><tr><td>Trattare Debian come Rocky</td><td>Ispezionare il meccanismo realmente attivo</td><td>AppArmor non usa lo stesso modello di tipi</td></tr></tbody></table></div>
+<h2 id="8-quiz">8 · Quiz</h2>
+<ol><li><code translate="no">Permissive</code> applica gli stessi rifiuti di <code translate="no">Enforcing</code>?</li>
+<li>Quale strumento confronta il contesto applicato con quello previsto dal percorso?</li>
+<li>Una regola <code translate="no">semanage fcontext</code> cambia immediatamente i contesti dei file esistenti?</li>
+<li>Perché osservare il dominio di nginx fa parte della dimostrazione?</li>
+<li>Un file senza lettura DAC diventa accessibile soltanto perché ha il tipo web corretto?</li>
+<li>AppArmor attivo dimostra che nginx sia confinato su Debian?</li></ol>
+<h2 id="9-promemoria">9 · Promemoria</h2>
+<div class="tabela"><table><thead><tr><th scope="col">Operazione su Rocky</th><th scope="col">Comando</th></tr></thead><tbody><tr><td>Stato attuale</td><td><code translate="no">getenforce</code></td></tr><tr><td>Contesto del file</td><td><code translate="no">ls -lZ /srv/m12a3-web/index.html</code></td></tr><tr><td>Domini</td><td><code translate="no">ps -eZ</code></td></tr><tr><td>Confrontare con la regola</td><td><code translate="no">matchpathcon -V /srv/m12a3-web/index.html</code></td></tr><tr><td>Applicare i contesti previsti</td><td><code translate="no">sudo restorecon -Rv /srv/m12a3-web</code></td></tr><tr><td>Vedere le regole locali</td><td><code translate="no">sudo semanage fcontext -l -C</code></td></tr></tbody></table></div>
+<p><strong>Flashcard:</strong> crea schede per modalità, dominio, tipo, regola persistente e contesto applicato. Ripassa a D+1, D+3, D+7 e D+21.</p>
+<h2 id="10-checklist-e-chiusura">10 · Checklist e chiusura</h2>
+<ul><li>[ ] Ho mantenuto SELinux enforcing su Rocky durante tutto il lab.</li>
+<li>[ ] Ho confermato il dominio reale del processo.</li>
+<li>[ ] Ho distinto rifiuto DAC, contesto errato e percorso sbagliato.</li>
+<li>[ ] Ho registrato e applicato una regola persistente senza sostituire la configurazione originale.</li>
+<li>[ ] Ho rimosso soltanto file e regole di esercizio.</li></ul>
+<p><strong>Ultimo esercizio:</strong> spiega perché sintassi valida, file leggibile e servizio attivo non siano la stessa verifica. Usa un risultato di ogni guasto.</p>
+<p><strong>Reboot di verifica:</strong> la persistenza è stata verificata nel passo 6. Dopo la pulizia riavvia di nuovo e conferma SSH normale, assenza dell'unità di esercizio e stato iniziale di nginx del pacchetto.</p>
+<p>Sull'host Proxmox, dopo la verifica:</p>
+<pre translate="no"><code class="lang-bash">qm snapshot 201 m12a3-fim
+qm snapshot 202 m12a3-fim</code></pre>
+<h2 id="11-nella-vita-reale">11 · Nella vita reale</h2>
+<p>Su un host che amministri o che sei autorizzato a ispezionare, esegui soltanto letture. Su Rocky osserva modalità, dominio di un servizio e contesto di un file che usa. Su Debian controlla quali profili AppArmor siano realmente caricati. Non modificare etichette, permessi o profili in questa missione.</p>
+<p>Quale evidenza dimostra il confinamento? Il contesto attuale coincide con la regola prevista? Che cosa dovresti osservare prima di proporre una modifica?</p>
+<h2 id="12-approfondire-quando-vuoi">12 · Approfondire quando vuoi</h2>
+<ul><li><a href="https://docs.redhat.com/en-us/documentation/red_hat_enterprise_linux/9/pdf/using_selinux/Red_Hat_Enterprise_Linux-9-Using_SELinux-en-US.pdf">Using SELinux, RHEL 9</a>: modalità, domini e contesti persistenti.</li>
+<li><a href="https://man7.org/linux/man-pages/man8/semanage-fcontext.8.html">semanage-fcontext(8)</a>, <a href="https://man7.org/linux/man-pages/man8/restorecon.8.html">restorecon(8)</a> e <a href="https://man7.org/linux/man-pages/man8/matchpathcon.8.html">matchpathcon(8)</a>: regola, applicazione e confronto; sul sistema consulta anche <code translate="no">man httpd_selinux</code>, quando disponibile.</li>
+<li><a href="https://docs.nginx.com/nginx/admin-guide/basic-functionality/managing-configuration-files/">Configurazione nginx</a>: file dedicato e validazione sintattica.</li>
+<li><a href="https://wiki.debian.org/AppArmor/HowToUse">AppArmor su Debian</a>: osservare il meccanismo della distribuzione senza presumere che copra tutti i processi.</li></ul>
+<p><strong>DeepTutor</strong> (http://10.1.0.149:3782, KB "Curso Linux Sysadmin"):</p>
+<ul><li><code translate="no">!explica Compare dono, modo, domínio e tipo em uma negativa de leitura do nginx.</code></li>
+<li><code translate="no">!feynman Vou explicar por que semanage fcontext e restorecon são etapas diferentes. Critique minha explicação.</code></li>
+<li><code translate="no">!quiz Crie seis casos de caminho, DAC e contexto sem sugerir desligar SELinux.</code></li></ul>
+<h2 id="soluzioni-commentate">Soluzioni commentate</h2>
+<h3 id="riscaldamento">Riscaldamento</h3>
+<ol><li>No. Il firewall filtra il traffico; il processo deve avere un ascolto effettivo sull'indirizzo e sulla porta.</li>
+<li>L'attraversamento consente di raggiungere la voce tramite il percorso. La lettura del file non sostituisce l'attraversamento delle directory.</li>
+<li>Una sessione precedente può continuare mentre una nuova fallisce già. La seconda connessione verifica il comportamento attuale senza perdere il primo accesso di ripristino.</li></ol>
+<h3 id="quiz">Quiz</h3>
+<ol><li>No. Registra decisioni che verrebbero negate; enforcing le applica.</li>
+<li><code translate="no">matchpathcon -V</code>. Il solo elenco del contesto attuale non esegue questo confronto.</li>
+<li>No. La regola viene registrata; <code translate="no">restorecon</code> applica ai file il contesto previsto.</li>
+<li>Perché un processo non confinato non dimostra il rifiuto previsto per <code translate="no">httpd_t</code>.</li>
+<li>No. I controlli si combinano; il tipo non concede una lettura DAC assente.</li>
+<li>No. Occorre controllare il profilo applicato al processo osservato.</li></ol>
+<p><a href="12.2-firewall.it.html">← Lezione 12.2 · Firewall</a> · <a href="index.it.html">Indice delle lezioni</a> · <a href="12.4-selinux-portas-e-booleanos.it.html">Lezione 12.4 · SELinux: porte e booleani →</a></p>
+</article><nav class="paginas" aria-label="Lezioni"><a class="ant" href="12.2-firewall.it.html"><small>← Precedente</small>12.2 · Firewall</a><a class="prox" href="12.4-selinux-portas-e-booleanos.it.html"><small>Successiva →</small>12.4 · SELinux: porte e booleani</a></nav></main></div>
+<footer><div class="wrap">Generato dal Markdown del corso · Immagini in <code translate="no">img/</code></div></footer>
+</body>
+</html>

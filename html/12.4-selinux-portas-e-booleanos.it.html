@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light dark">
+<title>12.4 · SELinux: porte e booleani · Corso Linux Sysadmin</title>
+<link rel="alternate" hreflang="pt-BR" href="12.4-selinux-portas-e-booleanos.html"><link rel="alternate" hreflang="it" href="12.4-selinux-portas-e-booleanos.it.html">
+<style>
+:root{color-scheme:light dark;--bg:#f6f1e7;--card:#fffdf8;--ink:#201c16;--muted:#5e564a;--accent:#9a3412;--accent-2:#1f5f4a;--tint:#efe6d4;--line:#ddd2bc;--code:#f1eadb;--shadow:0 1px 2px rgba(60,40,10,.08);--serif:Georgia,"Iowan Old Style","Palatino Linotype",Palatino,serif;--sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--mono:"Cascadia Code",Consolas,"DejaVu Sans Mono",monospace}
+@media (prefers-color-scheme:dark){:root{--bg:#16130f;--card:#201b15;--ink:#f1eadb;--muted:#b9ad98;--accent:#f0a070;--accent-2:#7fd0b0;--tint:#2a231a;--line:#3d3427;--code:#191510;--shadow:none}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:5.5rem}
+body{margin:0;background:var(--bg);color:var(--ink);font:1rem/1.6 var(--sans)}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--accent-2);outline-offset:2px;border-radius:4px}
+.pular{position:absolute;left:-999px;top:0;background:var(--card);padding:.5rem 1rem;z-index:20}
+.pular:focus{left:.5rem;top:.5rem}
+.wrap{width:100%;max-width:84rem;margin:0 auto;padding-inline:max(1rem,env(safe-area-inset-left))}
+.top{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10;border-top:6px solid var(--accent)}
+.top-in{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding-block:.6rem}
+.titles{min-width:0}
+.marca{margin:0;font:700 clamp(1.15rem,1rem + 1vw,1.6rem)/1.15 var(--serif);letter-spacing:-.01em}
+.marca a{text-decoration:none}
+.marca a:hover{color:var(--accent)}
+.meta{margin:.1rem 0 0;color:var(--muted);font-size:.85rem}
+.acoes{display:flex;align-items:center;gap:.9rem;flex:none}
+.acoes>a{font-size:.9rem;font-weight:600;color:var(--muted);text-decoration:none}
+.acoes>a:hover{color:var(--accent);text-decoration:underline}
+.idioma{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--tint)}
+.idioma>*{padding:.35rem .9rem;font-size:.8rem;font-weight:700;letter-spacing:.06em;text-decoration:none;color:var(--muted);min-width:2.75rem;text-align:center}
+.idioma a:hover{color:var(--accent);text-decoration:underline}
+.idioma span{background:var(--accent);color:#fff}
+@media (prefers-color-scheme:dark){.idioma span{color:#16130f}}
+code{font-family:var(--mono);font-size:.9em;background:var(--tint);padding:.1rem .35rem;border-radius:4px;overflow-wrap:anywhere}
+/* índice */
+.capa{max-width:70rem;padding-block:2rem 3rem}
+.stats{border-left:4px solid var(--accent-2);background:var(--card);border-radius:0 10px 10px 0;padding:1rem 1.25rem;margin:0 0 2.5rem;box-shadow:var(--shadow);color:var(--muted)}
+.stats strong{color:var(--ink)}
+.modulo{display:grid;grid-template-columns:15rem minmax(0,1fr);gap:1rem 2rem;padding:1.75rem 0;border-top:1px solid var(--line)}
+.modulo h2{margin:0;font:700 1.25rem/1.25 var(--serif);align-self:start;position:sticky;top:6rem}
+.mn{display:block;font:700 .8rem var(--mono);letter-spacing:.12em;color:var(--accent);margin-bottom:.25rem}
+.sep{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.modulo ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,17rem),1fr));gap:.75rem}
+.modulo li{margin:0}
+.modulo a{display:flex;gap:.45rem;align-items:baseline;height:100%;padding:.85rem 1rem;background:var(--card);border:1px solid var(--line);border-radius:10px;text-decoration:none;font-weight:600;line-height:1.35;box-shadow:var(--shadow);transition:border-color .15s,transform .15s}
+.modulo a:hover{border-color:var(--accent);color:var(--accent)}
+.num{font:700 .85rem var(--mono);color:var(--accent);white-space:nowrap}
+/* aula */
+.doc{display:grid;grid-template-columns:17rem minmax(0,1fr);gap:2.5rem;align-items:start;padding-block:2rem 3rem}
+.lateral{position:sticky;top:5.5rem;max-height:calc(100vh - 6.5rem);overflow:auto;font-size:.875rem;padding-right:.5rem}
+.lateral h2{margin:0 0 .25rem;font:700 .95rem var(--serif);color:var(--muted)}
+.lateral h3{margin:1rem 0 .25rem;font:700 .75rem var(--mono);letter-spacing:.06em;color:var(--accent)}
+.lateral ul{list-style:none;margin:0;padding:0}
+.lateral a{display:flex;gap:.45rem;padding:.25rem .5rem;border-radius:6px;text-decoration:none;color:var(--muted);line-height:1.3}
+.lateral a:hover{background:var(--tint);color:var(--ink)}
+.lateral a[aria-current]{background:var(--tint);color:var(--ink);font-weight:700;box-shadow:inset 3px 0 0 var(--accent)}
+.lateral .num{font-size:.75rem}
+.aula{min-width:0;max-width:56rem;overflow-wrap:break-word;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:clamp(1.25rem,1rem + 2vw,2.75rem);box-shadow:var(--shadow)}
+.aula h1{margin:0 0 1.5rem;font:700 clamp(1.75rem,1.4rem + 1.6vw,2.5rem)/1.15 var(--serif);letter-spacing:-.015em;color:var(--ink)}
+.aula h2{margin:2.5rem 0 .75rem;padding-top:1.25rem;border-top:1px solid var(--line);font:700 1.5rem/1.25 var(--serif)}
+.aula h3{margin:2rem 0 .5rem;font:700 1.15rem/1.3 var(--serif);color:var(--accent)}
+.aula h4,.aula h5,.aula h6{margin:1.5rem 0 .5rem;font-size:1rem}
+.aula p,.aula ul,.aula ol{margin:1rem 0}
+.aula ul,.aula ol{padding-left:1.5rem}
+.aula li{margin:.35rem 0}
+.aula li>ul,.aula li>ol{margin:.35rem 0}
+.aula a{color:var(--accent);text-underline-offset:2px}
+.aula hr{border:0;border-top:1px solid var(--line);margin:2rem 0}
+.tabela{overflow-x:auto;margin:1.25rem 0;border:1px solid var(--line);border-radius:10px}
+.aula table{width:100%;border-collapse:collapse;font-size:.9rem}
+.aula th,.aula td{padding:.55rem .75rem;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+.aula tr:last-child td{border-bottom:0}
+.aula th{background:var(--tint);font-weight:700}
+.aula pre{background:var(--code);border:1px solid var(--line);border-radius:10px;padding:.9rem 1rem;overflow-x:auto;font:.85rem/1.5 var(--mono);margin:1rem 0;tab-size:4}
+.aula pre code{background:none;padding:0;font-size:inherit;overflow-wrap:normal}
+.aula blockquote{margin:1.25rem 0;padding:.75rem 1.25rem;border-left:4px solid var(--accent-2);background:var(--tint);border-radius:0 10px 10px 0}
+.aula blockquote>:first-child{margin-top:0}
+.aula blockquote>:last-child{margin-bottom:0}
+.aula figure{margin:1.75rem 0;text-align:center}
+.aula figure img{display:block;margin:0 auto;max-width:100%;height:auto;border:1px solid var(--line);border-radius:10px;background:#fff}
+.aula figcaption{margin-top:.5rem;color:var(--muted);font-size:.9rem;font-style:italic}
+.paginas{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:2.5rem;padding-top:1.5rem;border-top:1px solid var(--line)}
+.paginas a{display:block;padding:.75rem 1rem;border:1px solid var(--line);border-radius:10px;text-decoration:none;color:var(--ink);font-weight:600;line-height:1.3}
+.paginas a:hover{border-color:var(--accent);color:var(--accent)}
+.paginas small{display:block;color:var(--muted);font-weight:400}
+.paginas .prox{grid-column:2;text-align:right}
+footer{border-top:1px solid var(--line);padding-block:1.5rem;color:var(--muted);font-size:.85rem;text-align:center}
+@media (hover:hover) and (prefers-reduced-motion:no-preference){.modulo a:hover{transform:translateY(-2px)}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+@media (max-width:980px){.doc{grid-template-columns:minmax(0,1fr);padding-top:1rem}.lateral{position:static;max-height:none;order:2}.aula{max-width:none}}
+@media (max-width:860px){.modulo{grid-template-columns:minmax(0,1fr)}.modulo h2{position:static}.mn{display:inline;margin-right:.5rem}}
+@media (max-width:420px){.meta{display:none}.top-in{gap:.5rem}.acoes{gap:.6rem}.capa{padding-top:1.25rem}.paginas{grid-template-columns:minmax(0,1fr)}.paginas .prox{grid-column:1}}
+@media print{.top,.lateral,.paginas{display:none}.aula{border:0;box-shadow:none;padding:0;max-width:none}.doc{display:block}}
+</style>
+</head>
+<body>
+<a class="pular" href="#conteudo">Vai al contenuto</a>
+<header class="top"><div class="wrap top-in"><div class="titles"><p class="marca"><a href="index.it.html">Corso Linux Sysadmin</a></p><p class="meta">Rodrigo Antignani · Lezione 12.4</p></div><div class="acoes"><a href="index.it.html">Indice</a><div class="idioma" role="group" aria-label="Lingua"><a href="12.4-selinux-portas-e-booleanos.html" hreflang="pt-BR" lang="pt-BR">PT</a><span aria-current="true">IT</span></div></div></div></header>
+<div class="wrap doc"><aside class="lateral" aria-label="Lezioni"><h2>Lezioni</h2><h3>M0 · Laboratorio</h3><ul><li><a href="0.1-montar-o-laboratorio.it.html"><span class="num">0.1</span><span>Allestire il laboratorio</span></a></li><li><a href="0.2-acesso-e-protecao.it.html"><span class="num">0.2</span><span>Accesso e protezione</span></a></li></ul><h3>M1 · Riga di comando</h3><ul><li><a href="1.1-o-que-e-linux.it.html"><span class="num">1.1</span><span>Che cos'è Linux</span></a></li><li><a href="1.2-o-shell-e-a-ajuda.it.html"><span class="num">1.2</span><span>La shell e la guida</span></a></li><li><a href="1.3-caminhos-e-navegacao.it.html"><span class="num">1.3</span><span>Percorsi e navigazione</span></a></li><li><a href="1.4-criar-copiar-mover-e-apagar.it.html"><span class="num">1.4</span><span>Creare, copiare, spostare ed eliminare</span></a></li><li><a href="1.5-ler-e-procurar-texto.it.html"><span class="num">1.5</span><span>Leggere e cercare testo</span></a></li><li><a href="1.6-redirecionamentos-e-pipes.it.html"><span class="num">1.6</span><span>Reindirizzamenti e pipe</span></a></li><li><a href="1.7-arquivar-e-compactar.it.html"><span class="num">1.7</span><span>Archiviare e comprimere</span></a></li><li><a href="1.8-primeiro-script.it.html"><span class="num">1.8</span><span>Primo script</span></a></li><li><a href="1.9-decidir-e-repetir.it.html"><span class="num">1.9</span><span>Decidere e ripetere</span></a></li><li><a href="1.10-software-livre-na-pratica.it.html"><span class="num">1.10</span><span>Il software libero in pratica</span></a></li></ul><h3>M2 · Sistema, utenti e permessi</h3><ul><li><a href="2.1-instalacao-e-provisionamento.it.html"><span class="num">2.1</span><span>Installazione e provisioning</span></a></li><li><a href="2.2-hardware-e-dispositivos.it.html"><span class="num">2.2</span><span>Hardware e dispositivi</span></a></li><li><a href="2.3-processos-e-logs.it.html"><span class="num">2.3</span><span>Processi e log</span></a></li><li><a href="2.4-rede-no-dia-a-dia.it.html"><span class="num">2.4</span><span>La rete di tutti i giorni</span></a></li><li><a href="2.5-acesso-remoto-e-privilegios.it.html"><span class="num">2.5</span><span>Accesso remoto e privilegi</span></a></li><li><a href="2.6-usuarios-e-grupos.it.html"><span class="num">2.6</span><span>Utenti e gruppi</span></a></li><li><a href="2.7-permissoes-e-dono.it.html"><span class="num">2.7</span><span>Permessi e proprietario</span></a></li><li><a href="2.8-diretorios-e-arquivos-especiais.it.html"><span class="num">2.8</span><span>Directory e file speciali</span></a></li></ul><h3>M3 · Testo ed editor</h3><ul><li><a href="3.1-fluxos-a-fundo.it.html"><span class="num">3.1</span><span>I flussi in profondità</span></a></li><li><a href="3.2-filtros-de-texto.it.html"><span class="num">3.2</span><span>Filtri di testo</span></a></li><li><a href="3.3-regex-e-grep.it.html"><span class="num">3.3</span><span>Regex e grep</span></a></li><li><a href="3.4-sed-e-awk.it.html"><span class="num">3.4</span><span>sed e awk</span></a></li><li><a href="3.5-vi-e-vim-de-verdade.it.html"><span class="num">3.5</span><span>vi e vim sul serio</span></a></li></ul><h3>M4 · systemd e boot</h3><ul><li><a href="4.1-como-o-linux-liga.it.html"><span class="num">4.1</span><span>Come si avvia Linux</span></a></li><li><a href="4.2-systemd-servicos-e-units.it.html"><span class="num">4.2</span><span>systemd: servizi e unit</span></a></li><li><a href="4.3-targets-desligar-e-reiniciar.it.html"><span class="num">4.3</span><span>Target: spegnere e riavviare</span></a></li><li><a href="4.4-grub-e-acesso-de-emergencia.it.html"><span class="num">4.4</span><span>GRUB e accesso di emergenza</span></a></li></ul><h3>M5 · Kernel, moduli e VM</h3><ul><li><a href="5.1-hardware-pelo-kernel.it.html"><span class="num">5.1</span><span>L'hardware visto dal kernel</span></a></li><li><a href="5.2-modulos-e-parametros.it.html"><span class="num">5.2</span><span>Moduli e parametri</span></a></li><li><a href="5.3-linux-como-convidado.it.html"><span class="num">5.3</span><span>Linux come guest</span></a></li></ul><h3>M6 · Pacchetti e repository</h3><ul><li><a href="6.1-pacotes-no-debian.it.html"><span class="num">6.1</span><span>Pacchetti su Debian</span></a></li><li><a href="6.2-pacotes-na-rocky.it.html"><span class="num">6.2</span><span>Pacchetti su Rocky</span></a></li><li><a href="6.3-repositorios.it.html"><span class="num">6.3</span><span>Repository</span></a></li><li><a href="6.4-flatpak.it.html"><span class="num">6.4</span><span>Flatpak</span></a></li><li><a href="6.5-bibliotecas-compartilhadas.it.html"><span class="num">6.5</span><span>Librerie condivise</span></a></li></ul><h3>M7 · Processi e prestazioni</h3><ul><li><a href="7.1-processos-e-sinais.it.html"><span class="num">7.1</span><span>Processi e segnali</span></a></li><li><a href="7.2-jobs-e-sessoes.it.html"><span class="num">7.2</span><span>Job e sessioni</span></a></li><li><a href="7.3-prioridade-e-perfis.it.html"><span class="num">7.3</span><span>Priorità e profili</span></a></li></ul><h3>M8 · File a fondo</h3><ul><li><a href="8.1-fhs-e-onde-cada-coisa-mora.it.html"><span class="num">8.1</span><span>FHS e dove sta ogni cosa</span></a></li><li><a href="8.2-find-a-fundo.it.html"><span class="num">8.2</span><span>find a fondo</span></a></li><li><a href="8.3-arquivamento-avancado.it.html"><span class="num">8.3</span><span>Archiviazione avanzata</span></a></li><li><a href="8.4-links.it.html"><span class="num">8.4</span><span>Link</span></a></li><li><a href="8.5-permissoes-avancadas.it.html"><span class="num">8.5</span><span>Permessi avanzati</span></a></li></ul><h3>M9 · Storage</h3><ul><li><a href="9.1-discos-e-layout.it.html"><span class="num">9.1</span><span>Dischi e layout</span></a></li><li><a href="9.2-particionar.it.html"><span class="num">9.2</span><span>Partizionare</span></a></li><li><a href="9.3-sistemas-de-arquivos.it.html"><span class="num">9.3</span><span>File system</span></a></li><li><a href="9.4-montar-e-persistir.it.html"><span class="num">9.4</span><span>Montare e rendere persistente</span></a></li><li><a href="9.5-integridade-e-espaco.it.html"><span class="num">9.5</span><span>Integrità e spazio</span></a></li><li><a href="9.6-lvm.it.html"><span class="num">9.6</span><span>LVM</span></a></li><li><a href="9.7-crescer-sem-destruir.it.html"><span class="num">9.7</span><span>Crescere senza distruggere</span></a></li></ul><h3>M10 · Utenti e accesso privilegiato</h3><ul><li><a href="10.1-contas.it.html"><span class="num">10.1</span><span>Account</span></a></li><li><a href="10.2-senhas-e-validade.it.html"><span class="num">10.2</span><span>Password e scadenza</span></a></li><li><a href="10.3-grupos-e-trabalho-em-equipe.it.html"><span class="num">10.3</span><span>Gruppi e lavoro di squadra</span></a></li><li><a href="10.4-sudo-de-verdade.it.html"><span class="num">10.4</span><span>sudo sul serio</span></a></li></ul><h3>M11 · Rete</h3><ul><li><a href="11.1-tcp-ip-para-quem-administra.it.html"><span class="num">11.1</span><span>TCP/IP per chi amministra</span></a></li><li><a href="11.2-networkmanager-e-nmcli.it.html"><span class="num">11.2</span><span>NetworkManager e nmcli</span></a></li><li><a href="11.3-rede-no-debian.it.html"><span class="num">11.3</span><span>Rete su Debian</span></a></li><li><a href="11.4-nomes-e-resolucao.it.html"><span class="num">11.4</span><span>Nomi e risoluzione</span></a></li><li><a href="11.5-diagnostico-de-rede.it.html"><span class="num">11.5</span><span>Diagnosi di rete</span></a></li></ul><h3>M12 · Sicurezza dell'host</h3><ul><li><a href="12.1-ssh-a-fundo.it.html"><span class="num">12.1</span><span>SSH in dettaglio</span></a></li><li><a href="12.2-firewall.it.html"><span class="num">12.2</span><span>Firewall</span></a></li><li><a href="12.3-selinux-modos-e-contextos.it.html"><span class="num">12.3</span><span>SELinux: modalità e contesti</span></a></li><li><a href="12.4-selinux-portas-e-booleanos.it.html" aria-current="page"><span class="num">12.4</span><span>SELinux: porte e booleani</span></a></li><li><a href="12.5-auditoria-e-criptografia.it.html"><span class="num">12.5</span><span>Audit e crittografia</span></a></li></ul></aside><main id="conteudo" class="aula"><article><h1>Lezione 12.4 · SELinux: porte e booleani</h1>
+<p>Nella lezione precedente hai corretto il tipo di un file senza allentarne i permessi. Ora separerai altre due decisioni: un servizio può ascoltare su questa porta? Può aprire una connessione in uscita? Su Debian un profilo AppArmor con nome mostra un altro modo di confinare un processo scelto.</p>
+<blockquote><p><strong>Il cuore di questa lezione:</strong> contesto del file, tipo della porta e booleano di uscita risolvono problemi diversi. Leggi il rifiuto e conferma il confinamento reale prima di autorizzare. Il resto è approfondimento.</p></blockquote>
+<div class="tabela"><table><thead><tr><th scope="col">Scheda</th><th scope="col"></th></tr></thead><tbody><tr><td><strong>Modulo</strong></td><td>M12 · Sicurezza dell'host, lezione 4 di 5</td></tr><tr><td><strong>Quando</strong></td><td>Settimana 18</td></tr><tr><td><strong>Alla fine</strong></td><td>Associ una porta dedicata, motivi un booleano e distingui un rifiuto SELinux da uno AppArmor</td></tr><tr><td><strong>Prerequisiti</strong></td><td>Lezioni 12.2 e 12.3 completate e pulite; noVNC, <code translate="no">student</code>, <code translate="no">sudo</code>, <code translate="no">curl</code> e <code translate="no">python3</code></td></tr><tr><td><strong>Durata</strong></td><td>Circa 90 minuti</td></tr><tr><td><strong>Snapshot</strong></td><td><code translate="no">m12a4-inicio</code> e <code translate="no">m12a4-fim</code> sulle VM 201 e 202</td></tr></tbody></table></div>
+<h2 id="1-riscaldamento">1 · Riscaldamento</h2>
+<p>Rispondi senza consultare il materiale. Le risposte sono in fondo.</p>
+<ol><li>Perché un file leggibile tramite DAC può ancora essere negato al processo web?</li>
+<li>Che cosa fa registrare una regola con <code translate="no">semanage fcontext</code> senza <code translate="no">restorecon</code>?</li>
+<li>Una regola firewall autorizza automaticamente il processo a eseguire bind sotto SELinux?</li></ol>
+<h2 id="2-perche-conta">2 · Perché conta</h2>
+<p>Cambi la porta di nginx e non si avvia più. Il file di configurazione supera il test, la porta è libera e il firewall non partecipa al bind locale. L'evento di audit rivela un'operazione di bind negata. Cambiare il contesto dell'HTML non correggerebbe questa causa.</p>
+<p>Poi il servizio si avvia e restituisce una risposta locale, ma il proxy restituisce un errore. Ora il rifiuto riguarda la connessione in uscita verso il backend. Il servizio ha due esigenze distinte, quindi due evidenze distinte.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Operazione</th><th scope="col">Controllo da esaminare</th></tr></thead><tbody><tr><td>Leggere il contenuto</td><td>DAC e tipo del file</td></tr><tr><td>Ascoltare TCP</td><td>Socket libero, dominio e tipo della porta</td></tr><tr><td>Collegarsi al backend</td><td>Destinazione disponibile e politica di uscita</td></tr></tbody></table></div>
+<h2 id="3-modello-mentale">3 · Modello mentale</h2>
+<p>Nell'edificio del corso il badge del processo non apre ogni stanza né permette ogni collegamento esterno. Il tipo del file identifica la risorsa; il tipo della porta identifica un uso della rete; il booleano abilita una capacità prevista dalla politica.</p>
+<pre translate="no"><code class="lang-text">httpd_t -&gt; file httpd_sys_content_t -&gt; lettura
+httpd_t -&gt; porta http_port_t          -&gt; bind
+httpd_t -&gt; destinazione di rete       -&gt; politica di uscita</code></pre>
+<figure><a href="../img/12.4-arquivo-porta-e-saida.it.jpg"><img src="../img/12.4-arquivo-porta-e-saida.it.jpg" alt="Tre autorizzazioni diverse" loading="lazy" decoding="async"></a><figcaption>Autorizzare la porta non consente ogni file o connessione in uscita.</figcaption></figure>
+<h3 id="ponte-windows">Ponte Windows</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Concetto noto</th><th scope="col">Che cosa confrontare su Linux</th></tr></thead><tbody><tr><td>Account del servizio</td><td>Dominio SELinux o profilo AppArmor del processo</td></tr><tr><td>Permesso del file</td><td>DAC più la politica MAC attiva</td></tr><tr><td>Porta autorizzata nel firewall</td><td>Non sostituisce l'autorizzazione MAC per bind</td></tr><tr><td>Evento di accesso negato</td><td>Operazione, origine e destinazione dell'evento</td></tr></tbody></table></div>
+<h2 id="4-l-essenziale">4 · L'essenziale</h2>
+<h3 id="le-porte-hanno-tipi">Le porte hanno tipi</h3>
+<p><code translate="no">semanage port -l</code> mostra le associazioni della politica. <code translate="no">-C</code> limita l'elenco alle personalizzazioni locali. Prima di aggiungere una porta esamina anche gli intervalli che la contengono; cercare soltanto il numero con <code translate="no">grep</code> può non trovare un intervallo.</p>
+<p><code translate="no">-a</code> aggiunge un'associazione; <code translate="no">-m</code> ne modifica una esistente. Non cambiare il tipo di una porta di un altro servizio per far funzionare un esempio. In questo lab la porta deve essere priva di un'associazione specifica di servizio; un tipo generico per porte non riservate è la condizione normale.</p>
+<h3 id="un-booleano-e-una-capacita-della-politica">Un booleano è una capacità della politica</h3>
+<p><code translate="no">getsebool</code> mostra il valore attivo. <code translate="no">setsebool</code> lo modifica; <code translate="no">-P</code> lo rende anche persistente per i boot successivi. Registra lo stato iniziale prima di cambiarlo. La capacità <code translate="no">httpd_can_network_connect</code> permette connessioni di rete in uscita al dominio web, quindi richiede un'esigenza motivata.</p>
+<p>Non avvia il backend, non crea un ascolto e non apre il firewall. L'effetto compare soltanto quando il processo si trova nel dominio a cui si applica la regola.</p>
+<h3 id="leggi-l-avc-prima-della-correzione">Leggi l'AVC prima della correzione</h3>
+<p>Nell'evento <code translate="no">scontext</code> identifica il contesto di origine; <code translate="no">tcontext</code> quello della destinazione. La classe e l'operazione negata mostrano il tipo di accesso tentato. Collega orario, processo e porta al test appena eseguito.</p>
+<figure><a href="../img/12.4-ler-a-negativa.it.jpg"><img src="../img/12.4-ler-a-negativa.it.jpg" alt="Leggi il rifiuto prima di autorizzare" loading="lazy" decoding="async"></a><figcaption>Collega l'evento al processo, alla destinazione e all'operazione.</figcaption></figure>
+<p>Non trasformare ogni AVC in un modulo automatico di autorizzazione. Conferma prima configurazione, contesto, porta e capacità già prevista dalla politica.</p>
+<h3 id="apparmor-profilo-realmente-caricato">AppArmor: profilo realmente caricato</h3>
+<p>AppArmor attivo non significa che ogni processo sia confinato. Il lab usa un profilo con nome, senza associazione automatica all'eseguibile: soltanto l'esecuzione richiesta con <code translate="no">aa-exec -p</code> vi entra. Lo stesso lettore fuori da quel profilo mantiene il comportamento normale.</p>
+<figure><a href="../img/12.4-rotulos-e-perfis.it.jpg"><img src="../img/12.4-rotulos-e-perfis.it.jpg" alt="Due modi di confinare" loading="lazy" decoding="async"></a><figcaption>Verifica quale meccanismo e quale politica sono attivi.</figcaption></figure>
+<h3 id="rocky-debian">Rocky × Debian</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Voce</th><th scope="col">Rocky 9</th><th scope="col">Debian 13</th></tr></thead><tbody><tr><td>Meccanismo del lab</td><td>SELinux enforcing</td><td>AppArmor già abilitato</td></tr><tr><td>Unità osservata</td><td><code translate="no">m12a4-nginx.service</code></td><td>Esecuzione esplicita di <code translate="no">cat</code></td></tr><tr><td>Evidenza</td><td><code translate="no">ausearch</code>, contesto e risposta HTTP</td><td>Profilo caricato e file consentito/negato</td></tr><tr><td>Strumenti</td><td><code translate="no">semanage</code>, <code translate="no">getsebool</code>, <code translate="no">setsebool</code></td><td><code translate="no">apparmor_parser</code>, <code translate="no">aa-status</code>, <code translate="no">aa-exec</code></td></tr></tbody></table></div>
+<h2 id="5-lab-guidato">5 · Lab guidato</h2>
+<p>Usa soltanto le VM del corso e conserva noVNC e SSH. Rocky deve essere in enforcing, senza un altro servizio nel dominio web; nginx originale deve essere inattivo. Debian deve avere AppArmor attivo nel kernel e al boot prima dell'esercizio. Non abilitare un meccanismo assente durante questo percorso.</p>
+<h3 id="passo-1-proteggere-e-registrare">Passo 1 · Proteggere e registrare</h3>
+<p><strong>Ipotesi:</strong> un programma eseguito come root resta automaticamente fuori dalla politica MAC?</p>
+<p>Sull'host Proxmox:</p>
+<pre translate="no"><code class="lang-bash">qm snapshot 201 m12a4-inicio
+qm snapshot 202 m12a4-inicio</code></pre>
+<p>Sulle due VM conferma che la cartella sia assente prima di crearla. Su Rocky installa soltanto i pacchetti mancanti dalla preparazione della 12.3.</p>
+<pre translate="no"><code class="lang-bash">test ! -e "$HOME/m12a4"
+mkdir -m 700 "$HOME/m12a4"</code></pre>
+<p>Su Rocky:</p>
+<pre translate="no"><code class="lang-bash">sudo dnf install -y nginx policycoreutils-python-utils audit curl python3
+getenforce
+systemctl is-active nginx
+systemctl is-active auditd
+ps -eZ | grep httpd_t
+sudo ss -lntp 'sport = :18094 or sport = :18095'
+getsebool httpd_can_network_connect | tee "$HOME/m12a4/boolean.inicio"
+sudo semanage boolean -l | grep '^httpd_can_network_connect ' | tee "$HOME/m12a4/boolean.persistente.inicio"
+sudo semanage port -l -n &gt; "$HOME/m12a4/ports.inicio"
+sudo semanage port -l -C &gt; "$HOME/m12a4/ports-locais.inicio"</code></pre>
+<p>Su Debian installa le utilità se necessario, senza avviare un meccanismo finora disattivato:</p>
+<pre translate="no"><code class="lang-bash">sudo apt install -y apparmor apparmor-utils
+sudo aa-status
+systemctl is-active apparmor
+systemctl is-enabled apparmor
+readlink -f /bin/cat
+sudo test ! -e /etc/apparmor.d/m12a4-leitor</code></pre>
+<p><strong>Output atteso:</strong> Rocky in enforcing, audit attivo, nginx originale inattivo, nessun processo <code translate="no">httpd_t</code> né ascolto sulle porte riservate. Su Debian AppArmor attivo e abilitato, con <code translate="no">cat</code> risolto in <code translate="no">/usr/bin/cat</code>; il profilo dedicato non esiste ancora.</p>
+<p><strong>Verifica:</strong> il valore attivo e quello persistente del booleano devono coincidere in questo lab. Conserva lo stato per il ripristino. Conferma anche che non esistano <code translate="no">/etc/nginx/m12a4.conf</code>, <code translate="no">/etc/systemd/system/m12a4-nginx.service</code> né una regola locale di contesto per l'albero runtime dell'esercizio.</p>
+<h3 id="passo-2-identificare-la-porta-e-preparare-l-istanza">Passo 2 · Identificare la porta e preparare l'istanza</h3>
+<p><strong>Ipotesi:</strong> una porta senza processo in ascolto può avere un tipo SELinux di un altro servizio?</p>
+<p>Soltanto su Rocky il lettore seguente esamina anche gli intervalli della tabella.</p>
+<pre translate="no"><code class="lang-bash">python3 - &lt;&lt;'PY'
+from pathlib import Path
+rows = Path.home().joinpath('m12a4/ports.inicio').read_text().splitlines()
+for port in (18094, 18095):
+    for row in rows:
+        fields = row.split()
+        if len(fields) &lt; 3 or fields[1] != 'tcp':
+            continue
+        for item in ''.join(fields[2:]).split(','):
+            lo, _, hi = item.partition('-')
+            if int(lo) &lt;= port &lt;= int(hi or lo):
+                print(port, fields[0], item)
+PY</code></pre>
+<p>Continua soltanto se le due porte hanno solo tipi generici, senza associazione specifica a un servizio e senza personalizzazione locale. <code translate="no">18094</code> sarà la porta web; <code translate="no">18095</code> il backend. Non usare <code translate="no">-m</code> per appropriarti di una porta già assegnata.</p>
+<p>Crea la configurazione e l'unità dedicate. Il runtime riceve una regola propria; l'equivalenza SELinux fa corrispondere <code translate="no">/run</code> a <code translate="no">/var/run</code>.</p>
+<pre translate="no"><code class="lang-bash">sudo semanage fcontext -a -t httpd_var_run_t '/var/run/nginx-m12a4(/.*)?'
+sudo tee /etc/nginx/m12a4.conf &gt; /dev/null &lt;&lt;'EOF'
+pid /run/nginx-m12a4/nginx.pid;
+error_log /var/log/nginx/m12a4-error.log notice;
+events {}
+http {
+    access_log off;
+    server {
+        listen 127.0.0.1:18094;
+        location = /health { return 200 'POLICY ok\n'; }
+        location / { proxy_pass http://127.0.0.1:18095; }
+    }
+}
+EOF
+sudo restorecon /etc/nginx/m12a4.conf
+sudo tee /etc/systemd/system/m12a4-nginx.service &gt; /dev/null &lt;&lt;'EOF'
+[Unit]
+Description=M12A4 nginx lab
+After=network.target
+[Service]
+Type=simple
+RuntimeDirectory=nginx-m12a4
+ExecStartPre=/usr/sbin/restorecon -R /run/nginx-m12a4
+ExecStartPre=/usr/sbin/nginx -t -c /etc/nginx/m12a4.conf
+ExecStart=/usr/sbin/nginx -c /etc/nginx/m12a4.conf -g "daemon off;"
+[Install]
+WantedBy=multi-user.target
+EOF
+sudo systemctl daemon-reload
+sudo systemctl start m12a4-nginx
+sudo journalctl -u m12a4-nginx -n 15 --no-pager
+sudo ausearch -m AVC -ts recent -c nginx -i</code></pre>
+<p><strong>Output atteso:</strong> l'unità fallisce nel tentativo di ascoltare sulla porta non ancora autorizzata. L'AVC del test indica un rifiuto di bind; non copiare un evento vecchio come evidenza di questo tentativo.</p>
+<p><strong>Verifica:</strong> conferma porta e dominio nell'evento. Un errore di sintassi, file o runtime richiede di correggere quella causa prima di attribuire il problema alla porta.</p>
+<h3 id="decidi-1">Decidi 1</h3>
+<p>L'AVC riguarda bind sulla porta di esercizio. Quale modifica corrisponde all'esigenza?</p>
+<div class="tabela"><table><thead><tr><th scope="col">Opzione</th><th scope="col">Azione</th></tr></thead><tbody><tr><td>A</td><td>Cambiare il contesto dell'HTML</td></tr><tr><td>B</td><td>Aggiungere la porta dedicata al tipo delle porte web</td></tr><tr><td>C</td><td>Disattivare enforcing</td></tr></tbody></table></div>
+<p>Scegli B. L'evento descrive un'operazione di rete, non la lettura di contenuto.</p>
+<h3 id="passo-3-autorizzare-bind-e-verificare-il-dominio">Passo 3 · Autorizzare bind e verificare il dominio</h3>
+<p><strong>Ipotesi:</strong> aggiungere il tipo della porta crea anche una regola firewall?</p>
+<p>Su Rocky aggiungi soltanto l'associazione già verificata.</p>
+<pre translate="no"><code class="lang-bash">sudo semanage port -a -t http_port_t -p tcp 18094
+sudo systemctl reset-failed m12a4-nginx
+sudo systemctl start m12a4-nginx
+ps -eZ | grep nginx
+sudo ss -lntp 'sport = :18094'
+curl --noproxy '*' --max-time 4 -fsS http://127.0.0.1:18094/health
+sudo semanage port -l -C
+sudo systemctl enable m12a4-nginx</code></pre>
+<p><strong>Output atteso:</strong> nginx in <code translate="no">httpd_t</code>, ascolto di loopback e risposta <code translate="no">POLICY ok</code>. L'associazione della porta è persistente e l'unità dedicata viene abilitata. Non è stata aperta alcuna porta esterna.</p>
+<p><strong>Verifica:</strong> se il processo non è in <code translate="no">httpd_t</code>, fermati: un successo senza il dominio corretto non dimostra la politica prevista.</p>
+<h3 id="passo-4-motivare-una-connessione-in-uscita">Passo 4 · Motivare una connessione in uscita</h3>
+<p><strong>Ipotesi:</strong> poter ascoltare su <code translate="no">18094</code> permette già al processo di collegarsi al backend su <code translate="no">18095</code>?</p>
+<p>Su Rocky apri il backend nel terminale A come <code translate="no">student</code>. Non è un servizio persistente.</p>
+<pre translate="no"><code class="lang-bash">mkdir "$HOME/m12a4/www"
+printf 'BACKEND ok\n' &gt; "$HOME/m12a4/www/index.html"
+python3 -m http.server 18095 --bind 127.0.0.1 --directory "$HOME/m12a4/www"</code></pre>
+<p>Nel terminale B conferma direttamente il backend e introduci lo stato chiuso soltanto nel lab senza altri processi web.</p>
+<pre translate="no"><code class="lang-bash">curl --noproxy '*' --max-time 4 -fsS http://127.0.0.1:18095/
+sudo setsebool httpd_can_network_connect off
+curl --noproxy '*' --max-time 4 -sS -o /dev/null -w '%{http_code}\n' http://127.0.0.1:18094/
+sudo ausearch -m AVC -ts recent -c nginx -i
+sudo setsebool -P httpd_can_network_connect on
+getsebool httpd_can_network_connect
+curl --noproxy '*' --max-time 4 -fsS http://127.0.0.1:18094/</code></pre>
+<p><strong>Output atteso:</strong> il backend diretto restituisce <code translate="no">BACKEND ok</code>; con la capacità chiusa il proxy fallisce e l'evento correlato mostra una connessione negata. Dopo l'autorizzazione persistente lo stesso proxy restituisce <code translate="no">BACKEND ok</code>.</p>
+<p><strong>Verifica:</strong> cerca l'operazione di connessione e la destinazione del test. Se la politica permette già questa connessione tramite un'altra regola, registralo; non inventare un rifiuto e non aggiungere permessi senza necessità.</p>
+<h3 id="decidi-2">Decidi 2</h3>
+<p>Dopo aver abilitato il booleano il proxy fallisce ancora. Quale test distingue la politica da un backend fermo?</p>
+<div class="tabela"><table><thead><tr><th scope="col">Opzione</th><th scope="col">Azione</th></tr></thead><tbody><tr><td>A</td><td>Aprire la porta nel firewall esterno</td></tr><tr><td>B</td><td>Verificare direttamente il backend e controllare socket e AVC recente</td></tr><tr><td>C</td><td>Autorizzare automaticamente tutti gli AVC</td></tr></tbody></table></div>
+<p>Scegli B. L'autorizzazione non avvia il processo che dovrebbe ricevere la connessione.</p>
+<h3 id="passo-5-confinare-un-lettore-su-debian">Passo 5 · Confinare un lettore su Debian</h3>
+<p><strong>Ipotesi:</strong> due file con gli stessi permessi DAC possono dare risultati diversi dentro un profilo AppArmor?</p>
+<p>Soltanto su Debian conferma l'assenza dell'albero prima di crearlo. Il profilo non ha un'associazione automatica a tutti gli usi di <code translate="no">cat</code>.</p>
+<pre translate="no"><code class="lang-bash">sudo test ! -e /srv/m12a4-aa
+sudo install -d -m 755 /srv/m12a4-aa
+printf 'PUBLIC ok\n' | sudo tee /srv/m12a4-aa/public.txt &gt; /dev/null
+printf 'PRIVATE lab\n' | sudo tee /srv/m12a4-aa/private.txt &gt; /dev/null
+sudo chmod 644 /srv/m12a4-aa/public.txt /srv/m12a4-aa/private.txt
+sudo tee /etc/apparmor.d/m12a4-leitor &gt; /dev/null &lt;&lt;'EOF'
+#include &lt;tunables/global&gt;
+profile m12a4-leitor {
+    #include &lt;abstractions/base&gt;
+    #include &lt;abstractions/consoles&gt;
+    /usr/bin/cat mrix,
+    /srv/m12a4-aa/public.txt r,
+}
+EOF
+sudo apparmor_parser -Q -T /etc/apparmor.d/m12a4-leitor
+sudo apparmor_parser -a -T /etc/apparmor.d/m12a4-leitor
+sudo aa-status
+cat /srv/m12a4-aa/private.txt
+sudo aa-exec -p m12a4-leitor -- /usr/bin/cat /srv/m12a4-aa/public.txt
+sudo aa-exec -p m12a4-leitor -- /usr/bin/cat /srv/m12a4-aa/private.txt</code></pre>
+<p><strong>Output atteso:</strong> il profilo compila ed entra in modalità applicativa. Fuori dal profilo il file privato di esercizio è leggibile; al suo interno soltanto il pubblico è autorizzato tra questi due file. L'ultimo comando riceve un rifiuto anche se eseguito come root.</p>
+<p><strong>Verifica:</strong> <code translate="no">aa-status</code> deve elencare <code translate="no">m12a4-leitor</code> in enforce. L'astrazione base permette il caricamento normale del programma e delle librerie; quella delle console mantiene l'output nel terminale della sessione; la regola del contenuto permette soltanto il percorso pubblico di esercizio. Non ampliare il profilo a tutto l'albero per nascondere un errore.</p>
+<h3 id="passo-6-verificare-la-persistenza">Passo 6 · Verificare la persistenza</h3>
+<p><strong>Ipotesi:</strong> il booleano persistente farà tornare anche il backend Python dopo il reboot?</p>
+<p>Termina il backend con Ctrl+C nel terminale A di Rocky e riavvia una VM alla volta.</p>
+<pre translate="no"><code class="lang-bash">sudo systemctl reboot</code></pre>
+<p>Su Rocky, dopo il ritorno tramite SSH:</p>
+<pre translate="no"><code class="lang-bash">getenforce
+getsebool httpd_can_network_connect
+systemctl is-active m12a4-nginx
+curl --noproxy '*' --max-time 4 -fsS http://127.0.0.1:18094/health
+sudo ss -lntp 'sport = :18095'</code></pre>
+<p>Su Debian:</p>
+<pre translate="no"><code class="lang-bash">sudo aa-status
+sudo aa-exec -p m12a4-leitor -- /usr/bin/cat /srv/m12a4-aa/public.txt
+sudo aa-exec -p m12a4-leitor -- /usr/bin/cat /srv/m12a4-aa/private.txt</code></pre>
+<p><strong>Output atteso:</strong> Rocky resta enforcing, booleano attivo e nginx dedicato risponde al controllo di salute. Il backend temporaneo non è tornato. Su Debian il profilo caricato al boot mantiene la differenza tra i due file.</p>
+<p><strong>Verifica:</strong> la risposta di salute usa un'operazione che non dipende dal backend. Non classificare l'assenza di Python come errore di persistenza della politica.</p>
+<h2 id="6-rompi-e-ripara">6 · Rompi e ripara</h2>
+<h3 id="guasto-1-associazione-locale-rimossa">Guasto 1 · Associazione locale rimossa</h3>
+<p>Soltanto su Rocky rimuovi l'associazione creata in questa lezione e riavvia l'unità di esercizio.</p>
+<p><strong>Sintomo:</strong> l'unità che funzionava non si avvia più sulla porta di esercizio.</p>
+<p><strong>Indagine:</strong> confronta la personalizzazione locale e gli eventi del tentativo.</p>
+<pre translate="no"><code class="lang-bash">sudo semanage port -d -p tcp 18094
+sudo systemctl restart m12a4-nginx
+sudo semanage port -l -C
+sudo ausearch -m AVC -ts recent -c nginx -i</code></pre>
+<p><strong>Causa:</strong> il numero resta nel file nginx, ma ha perso l'associazione locale al tipo appropriato.</p>
+<p><strong>Riparazione:</strong> aggiungi di nuovo soltanto questa associazione e riavvia l'unità dedicata.</p>
+<pre translate="no"><code class="lang-bash">sudo semanage port -a -t http_port_t -p tcp 18094
+sudo systemctl restart m12a4-nginx</code></pre>
+<p><strong>Verifica:</strong> la risposta di <code translate="no">/health</code> torna senza cambiare modalità SELinux o firewall.</p>
+<p><strong>Prevenzione:</strong> documenta l'associazione persistente insieme alla porta configurata nel servizio.</p>
+<h3 id="guasto-2-capacita-senza-processo-di-destinazione">Guasto 2 · Capacità senza processo di destinazione</h3>
+<p><strong>Sintomo:</strong> dopo il reboot il controllo di salute risponde, ma il proxy non restituisce il contenuto del backend.</p>
+<p><strong>Indagine:</strong> su Rocky confronta ascolto e risposta diretta del backend.</p>
+<pre translate="no"><code class="lang-bash">getsebool httpd_can_network_connect
+sudo ss -lntp 'sport = :18095'
+curl --noproxy '*' --connect-timeout 2 --max-time 4 -fsS http://127.0.0.1:18095/</code></pre>
+<p><strong>Causa:</strong> la politica continua ad autorizzare la capacità, ma il Python temporaneo è terminato al reboot. Senza processo di destinazione la connessione non può restituire contenuto.</p>
+<p><strong>Riparazione:</strong> esegui di nuovo nel terminale A il comando Python del passo 4. Non ampliare la politica.</p>
+<p><strong>Verifica:</strong> il proxy torna a restituire <code translate="no">BACKEND ok</code>.</p>
+<p><strong>Prevenzione:</strong> monitora processo e protocollo, oltre allo stato del booleano.</p>
+<h3 id="guasto-3-rifiuto-come-risultato-previsto">Guasto 3 · Rifiuto come risultato previsto</h3>
+<p><strong>Sintomo:</strong> su Debian <code translate="no">cat</code> legge il file di esercizio fuori dal profilo, ma l'esecuzione confinata lo rifiuta.</p>
+<p><strong>Indagine:</strong> confronta permessi, profilo caricato e le due esecuzioni.</p>
+<pre translate="no"><code class="lang-bash">ls -l /srv/m12a4-aa/private.txt
+cat /srv/m12a4-aa/private.txt
+sudo aa-exec -p m12a4-leitor -- /usr/bin/cat /srv/m12a4-aa/private.txt
+sudo journalctl -k --since '-5 minutes' --no-pager | grep 'm12a4-leitor'</code></pre>
+<p><strong>Causa:</strong> il profilo non autorizza quel percorso. Il rifiuto è la politica prevista; la fonte di audit può registrare l'evento nel journal oppure nel log di audit configurato.</p>
+<p><strong>Riparazione:</strong> usa il file pubblico autorizzato per questa operazione. Non modificare la modalità globale né associare il profilo a tutte le esecuzioni del lettore.</p>
+<p><strong>Verifica:</strong> il pubblico risponde dentro il profilo e il privato resta negato. L'assenza nel journal non trasforma il rifiuto osservato in un successo.</p>
+<p><strong>Prevenzione:</strong> definisci il comportamento consentito prima di scrivere la regola e verifica anche il rifiuto previsto.</p>
+<h3 id="pulizia">Pulizia</h3>
+<p>Su Rocky termina Python con Ctrl+C. Ripristina soltanto il booleano registrato e rimuovi l'istanza e le regole che hai creato.</p>
+<pre translate="no"><code class="lang-bash">ORIGINAL=$(awk '{print $3}' "$HOME/m12a4/boolean.inicio")
+case "$ORIGINAL" in on|off) sudo setsebool -P httpd_can_network_connect "$ORIGINAL" ;; *) printf 'STOP: invalid saved state\n' ;; esac
+getsebool httpd_can_network_connect
+sudo systemctl disable --now m12a4-nginx
+sudo systemctl reset-failed m12a4-nginx
+sudo rm -f /etc/systemd/system/m12a4-nginx.service /etc/nginx/m12a4.conf
+sudo systemctl daemon-reload
+sudo semanage port -d -p tcp 18094
+sudo semanage fcontext -d '/var/run/nginx-m12a4(/.*)?'
+sudo rm -f /var/log/nginx/m12a4-error.log</code></pre>
+<p>Se l'unità si è già fermata senza errori, <code translate="no">reset-failed</code> può rispondere che non è caricata; non è un errore.</p>
+<p>Su Debian rimuovi dal kernel soltanto il profilo con nome e poi i file dedicati. Non scaricare altri profili.</p>
+<pre translate="no"><code class="lang-bash">sudo apparmor_parser -R /etc/apparmor.d/m12a4-leitor
+sudo rm -f /etc/apparmor.d/m12a4-leitor
+sudo rm -f /srv/m12a4-aa/public.txt /srv/m12a4-aa/private.txt
+sudo rmdir /srv/m12a4-aa
+sudo aa-status</code></pre>
+<p>Conserva le evidenze nella cartella privata. L'unità nginx originale, il firewall e le altre politiche devono restare nello stato precedente all'esercizio.</p>
+<h2 id="7-trappole">7 · Trappole</h2>
+<div class="tabela"><table><thead><tr><th scope="col">Errore comune</th><th scope="col">Che cosa fare</th><th scope="col">Perché</th></tr></thead><tbody><tr><td>Cercare soltanto il numero nella tabella delle porte</td><td>Esaminare anche gli intervalli</td><td>La porta può appartenere a un intervallo</td></tr><tr><td>Usare <code translate="no">-m</code> senza indagare</td><td>Verificare tipo e proprietario dell'associazione</td><td>Evita di prendere la porta di un altro servizio</td></tr><tr><td>Autorizzare l'uscita perché il proxy fallisce</td><td>Verificare il backend e correlare l'AVC</td><td>Un processo fermo non è un rifiuto MAC</td></tr><tr><td>AppArmor attivo significa tutto confinato</td><td>Verificare il profilo effettivo</td><td>Meccanismo e politica sono elementi distinti</td></tr><tr><td>Ripristinare sempre a <code translate="no">off</code></td><td>Restituire il valore iniziale registrato</td><td>Lo stato precedente può essere diverso</td></tr></tbody></table></div>
+<h2 id="8-quiz">8 · Quiz</h2>
+<ol><li>Autorizzare una porta in SELinux crea l'ascolto?</li>
+<li>Quando usi <code translate="no">semanage port -a</code> invece di modificare un'associazione esistente?</li>
+<li>Che cosa distingue <code translate="no">setsebool</code> da <code translate="no">setsebool -P</code>?</li>
+<li>Quali campi di un AVC aiutano a collegare origine, destinazione e accesso?</li>
+<li>Perché la lettura come root è stata negata dal profilo AppArmor?</li>
+<li>Perché l'endpoint di salute è tornato dopo il reboot e il backend no?</li></ol>
+<h2 id="9-promemoria">9 · Promemoria</h2>
+<div class="tabela"><table><thead><tr><th scope="col">Operazione</th><th scope="col">Comando</th></tr></thead><tbody><tr><td>Vedere le personalizzazioni delle porte</td><td><code translate="no">sudo semanage port -l -C</code></td></tr><tr><td>Stato del booleano</td><td><code translate="no">getsebool httpd_can_network_connect</code></td></tr><tr><td>AVC recente di nginx</td><td><code translate="no">sudo ausearch -m AVC -ts recent -c nginx -i</code></td></tr><tr><td>Profili AppArmor caricati</td><td><code translate="no">sudo aa-status</code></td></tr><tr><td>Validare il profilo senza caricarlo</td><td><code translate="no">sudo apparmor_parser -Q -T /etc/apparmor.d/m12a4-leitor</code></td></tr></tbody></table></div>
+<p><strong>Flashcard:</strong> scrivi cinque schede su tipo della porta, intervallo, booleano persistente, AVC e profilo effettivo. Ripassa a D+1, D+3, D+7 e D+21.</p>
+<h2 id="10-checklist-e-chiusura">10 · Checklist e chiusura</h2>
+<ul><li>[ ] Ho verificato dominio e tipi prima di attribuire il rifiuto alla politica.</li>
+<li>[ ] Ho motivato la capacità di uscita con un backend controllato.</li>
+<li>[ ] Ho verificato AppArmor consentito e negato con il profilo con nome.</li>
+<li>[ ] Ho dimostrato la persistenza e ripristinato lo stato iniziale nella pulizia.</li></ul>
+<p><strong>Ultimo esercizio:</strong> spiega perché file, bind e connessione in uscita non hanno la stessa correzione. Usa le evidenze che hai realmente ottenuto.</p>
+<p><strong>Reboot di verifica:</strong> dopo la pulizia riavvia le due VM e controlla SSH, politica attiva, booleano originale, porte di esercizio assenti e profilo dedicato rimosso.</p>
+<pre translate="no"><code class="lang-bash">sudo systemctl reboot</code></pre>
+<p>Sull'host Proxmox, dopo la verifica:</p>
+<pre translate="no"><code class="lang-bash">qm snapshot 201 m12a4-fim
+qm snapshot 202 m12a4-fim</code></pre>
+<h2 id="11-nella-vita-reale">11 · Nella vita reale</h2>
+<p>Su un host autorizzato esegui soltanto letture. Su Rocky osserva <code translate="no">getenforce</code>, <code translate="no">sudo semanage port -l -C</code>, <code translate="no">getsebool httpd_can_network_connect</code> e i processi con <code translate="no">ps -eZ</code>. Su Debian osserva <code translate="no">sudo aa-status</code>. Non caricare profili né modificare booleani in questa missione.</p>
+<p>Esiste una capacità ampia di uscita attivata? Quale esigenza documentata la giustifica? Quale processo è effettivamente confinato? Registra l'evidenza, senza concludere che ogni processo sia protetto soltanto dallo stato generale del meccanismo.</p>
+<h2 id="12-approfondire-quando-vuoi">12 · Approfondire quando vuoi</h2>
+<ul><li><a href="https://man7.org/linux/man-pages/man8/semanage-port.8.html">semanage-port(8)</a>, <a href="https://man7.org/linux/man-pages/man8/setsebool.8.html">setsebool(8)</a> e <a href="https://man7.org/linux/man-pages/man8/ausearch.8.html">ausearch(8)</a>: porte, persistenza ed eventi.</li>
+<li><a href="https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/9/html/using_selinux/index">Using SELinux, RHEL 9</a> e <a href="https://www.f5.com/company/blog/nginx/using-nginx-plus-with-selinux">nginx con SELinux</a>: decisioni, porte e connessioni in uscita.</li>
+<li><a href="https://manpages.debian.org/trixie/apparmor/aa-exec.1.en.html">aa-exec(1)</a>, <a href="https://manpages.debian.org/trixie/apparmor/apparmor_parser.8.en.html">apparmor_parser(8)</a> e <a href="https://manpages.debian.org/trixie/apparmor/apparmor.d.5.en.html">apparmor.d(5)</a>: profilo con nome, sintassi e caricamento.</li></ul>
+<p><strong>DeepTutor</strong> (http://10.1.0.149:3782, KB "Curso Linux Sysadmin"):</p>
+<ul><li><code translate="no">!explica Separe tipo de arquivo, tipo de porta e booleano de saída no SELinux.</code></li>
+<li><code translate="no">!feynman Vou explicar por que um processo root pode receber negativa MAC. Critique minha explicação.</code></li>
+<li><code translate="no">!quiz Crie seis incidentes que exijam distinguir bind, backend parado, AVC e perfil AppArmor.</code></li></ul>
+<h2 id="soluzioni-commentate">Soluzioni commentate</h2>
+<h3 id="riscaldamento">Riscaldamento</h3>
+<ol><li>DAC e MAC devono autorizzare. Il processo può avere un dominio che non può leggere quel tipo.</li>
+<li>Registra l'intenzione persistente, ma non applica il nuovo contesto al file esistente.</li>
+<li>No. Il firewall tratta il traffico; anche il bind del processo passa dalla politica MAC.</li></ol>
+<h3 id="quiz">Quiz</h3>
+<ol><li>No. Il processo deve ancora avviarsi, configurare il socket e restare attivo.</li>
+<li>Quando la porta di esercizio non ha un'associazione specifica in conflitto e l'aggiunta appartiene al servizio previsto. Leggi anche intervalli e personalizzazioni locali.</li>
+<li>Senza <code translate="no">-P</code> cambia lo stato attuale; con <code translate="no">-P</code> rende persistente la modifica per i boot successivi.</li>
+<li><code translate="no">scontext</code>, <code translate="no">tcontext</code>, classe e operazione negata, collegati a processo, orario e risorsa del test.</li>
+<li>L'identità root non annulla la politica applicata al processo. Il profilo non autorizza quel percorso.</li>
+<li>L'unità nginx è stata abilitata; Python era soltanto un processo da terminale. Rendere persistente una politica non crea un servizio per il backend.</li></ol>
+<p><a href="12.3-selinux-modos-e-contextos.it.html">← Lezione 12.3 · SELinux: modalità e contesti</a> · <a href="index.it.html">Indice delle lezioni</a> · <a href="12.5-auditoria-e-criptografia.it.html">Lezione 12.5 · Audit e crittografia →</a></p>
+</article><nav class="paginas" aria-label="Lezioni"><a class="ant" href="12.3-selinux-modos-e-contextos.it.html"><small>← Precedente</small>12.3 · SELinux: modalità e contesti</a><a class="prox" href="12.5-auditoria-e-criptografia.it.html"><small>Successiva →</small>12.5 · Audit e crittografia</a></nav></main></div>
+<footer><div class="wrap">Generato dal Markdown del corso · Immagini in <code translate="no">img/</code></div></footer>
+</body>
+</html>
