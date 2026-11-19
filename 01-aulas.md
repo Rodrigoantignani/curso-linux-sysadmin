@@ -1,8 +1,8 @@
 # Aulas
 
-Índice das **66 aulas publicadas**, do M0 à Aula 12.5. Cada título leva direto ao arquivo da aula; a coluna Semana segue o cronograma do [plano do curso](00-plano-do-curso.md).
+Índice das **111 aulas publicadas**, do M0 ao M20. Cada título leva direto ao arquivo da aula; a coluna Semana segue o cronograma do [plano do curso](00-plano-do-curso.md).
 
-**Cobertura atual:** 66 de 188 aulas · semanas 1 a 18 de 48.
+**Cobertura atual:** curso completo, M0 a M20, em português e italiano.
 
 ## Como estudar uma aula
 
@@ -182,13 +182,91 @@ Meta da fase: administrar sozinho um servidor Linux de ponta a ponta, nas duas f
 
 **Desafio do módulo:** nginx em porta e diretório próprios, persistente, com SELinux enforcing na Rocky e firewall ativo, comprovado a partir da outra VM e após reboot.
 
-## O que vem depois
+### M13 · Armazenamento em rede · 3 aulas
 
-As 122 aulas restantes já estão planejadas no [plano do curso](00-plano-do-curso.md):
+| Aula | Semana | O que você aprende |
+| --- | --- | --- |
+| [13.1 · Servidor NFS](aulas/13.1-servidor-nfs.md) | 18 | Você prepara a VM 203 e exporta conteúdo NFS de leitura para as VMs 201 e 202 |
+| [13.2 · Cliente NFS](aulas/13.2-cliente-nfs.md) | 19 | Você monta NFSv4.2 em Rocky e Debian, valida fstab e distingue indisponibilidade, ocupação e referência obsoleta |
+| [13.3 · autofs](aulas/13.3-autofs.md) | 19 | Você configura um mapa indireto, diagnostica o acesso sob demanda e monta uma home NFS nas duas famílias |
 
-| Módulos | Semanas | Foco | Fecha com |
-| --- | --- | --- | --- |
-| M13 a M15 | 18 a 21 | Armazenamento em rede, agendamento, e-mail local, impressão, shell e interfaces gráficas | Dia de incidente |
-| M16 | 21 e 22 | Rocky 10 e incidentes com relógio | Incidente cronometrado com reboot |
-| M17 a M21 | 22 a 31 | Proxmox, Podman, serviços de rede, proxy, NethServer 8, Mail, WebTop, Nextcloud e NethVoice | Incidente combinado no NS8 |
-| M22 a M34 | 31 a 48 | NethSecurity, Git, Ansible, monitoramento, logs, backup, desempenho, alta disponibilidade, hardening, cluster e troubleshooting | Dia inteiro de incidentes |
+### M14 · Agendamento, logs e hora · 5 aulas
+
+| Aula | Semana | O que você aprende |
+| --- | --- | --- |
+| [14.1 · cron e at](aulas/14.1-cron-e-at.md) | 19 | Você instala agendas sem apagar trabalhos alheios e verifica a execução pelo resultado |
+| [14.2 · Timers do systemd](aulas/14.2-timers-do-systemd.md) | 19 | Você cria um par de units, verifica falhas e comprova persistência |
+| [14.3 · journald e rsyslog](aulas/14.3-journald-e-rsyslog.md) | 20 | Você filtra eventos, comprova journal persistente e gira um log próprio com estado separado |
+| [14.4 · Hora certa](aulas/14.4-hora-certa.md) | 20 | Você interpreta chrony, compara fusos e mede uma fonte sem ajustar o relógio |
+| [14.5 · E-mail local e impressão](aulas/14.5-email-local-e-impressao.md) | 20 | Você verifica entrega local, administra uma fila virtual e integra aviso de falha |
+
+### M15 · Shell e ambiente · 5 aulas
+
+| Aula | Semana | O que você aprende |
+| --- | --- | --- |
+| [15.1 · Ambiente do shell](aulas/15.1-ambiente-do-shell.md) | 20 | Você explica herança do ambiente e diagnostica procura de comando e arquivos de início |
+| [15.2 · Scripts robustos](aulas/15.2-scripts-robustos.md) | 20 | Você escreve um script de leitura com contrato de entrada e falha verificável |
+| [15.3 · Scripts de administração](aulas/15.3-scripts-de-administracao.md) | 20 | Você coleta dados dos dois hosts autorizados e preserva erros individuais |
+| [15.4 · Interfaces gráficas](aulas/15.4-interfaces-graficas.md) | 21 | Você identifica as camadas da sessão gráfica e recupera a base do servidor |
+| [15.5 · Idioma, teclado e fuso](aulas/15.5-idioma-teclado-e-fuso.md) | 21 | Você converte texto conhecido e produz um coletor com critérios explícitos |
+
+### M16 · Semana de incidentes no Rocky 10 · 4 aulas
+
+| Aula | Semana | O que você aprende |
+| --- | --- | --- |
+| [16.1 · Rocky 10: o que muda](aulas/16.1-rocky-10-o-que-muda.md) | 21 | Você valida a CPU completa, instala a VM 205 e confirma identidade, rede e acesso após o boot |
+| [16.2 · Incidentes por área](aulas/16.2-incidentes-por-area.md) | 21 | Você isola falhas de caminho, leitura e arquivo compactado e comprova cada reparo após o boot |
+| [16.3 · Incidente com relógio](aulas/16.3-incidente-com-relogio.md) | 22 | Você investiga uma cadeia de falhas nas duas VMs, registra tentativas e comprova a correção após o boot |
+| [16.4 · Correção e reforço](aulas/16.4-correcao-e-reforco.md) | 22 | Você revisa evidências, fecha os critérios das duas VMs e escolhe reforços para as lacunas observadas |
+
+### M17 · Proxmox na prática · 7 aulas
+
+| Aula | Semana | O que você aprende |
+| --- | --- | --- |
+| [17.1 · Proxmox por dentro](aulas/17.1-proxmox-por-dentro.md) | 22 | Relacionar host, API, configuração, storage e tarefa |
+| [17.2 · VM pela linha de comando](aulas/17.2-vm-pela-linha-de-comando.md) | 22 | Criar template 210 e clone completo 211 com rede, chave e console conferidos |
+| [17.3 · Contêiner LXC](aulas/17.3-conteiner-lxc.md) | 23 | Você cria um CT não privilegiado, lê sua configuração e demonstra o kernel compartilhado |
+| [17.4 · Storage: capacidade, crescimento e movimento](aulas/17.4-storage.md) | 23 | Criar um disco de dados, ampliar o ext4 e conferir um movimento entre storages |
+| [17.5 · Rede: bridge, VLAN, bond e SDN](aulas/17.5-rede.md) | 23 | Criar uma bridge isolada, conectar duas interfaces e localizar a camada de uma falha |
+| [17.6 · Backup e restauração com PBS](aulas/17.6-backup-e-restauracao.md) | 23 | Recuperar um arquivo e uma VM isolada a partir de uma cópia identificada |
+| [17.7 · Migração e quorum](aulas/17.7-migracao-e-quorum.md) | 24 | Avaliar migração e quorum e provar recuperação da bancada |
+
+### M18 · Podman · 5 aulas
+
+| Aula | Semana | O que você aprende |
+| --- | --- | --- |
+| [18.1 · Contêiner não é VM](aulas/18.1-conteiner-nao-e-vm.md) | 24 | Inspecionar imagem, camadas e digest sem confundir contêiner com VM |
+| [18.2 · Rodar e persistir](aulas/18.2-rodar-e-persistir.md) | 24 | Executar nginx rootless e demonstrar persistência fora da instância |
+| [18.3 · Contêiner como serviço](aulas/18.3-conteiner-como-servico.md) | 25 | Criar e conferir um serviço rootless persistente após boot sem login do dono |
+| [18.4 · Diagnosticar contêiner rootless](aulas/18.4-diagnosticar-conteiner-rootless.md) | 25 | Localizar a camada de três falhas sem ampliar privilégios |
+| [18.5 · Construir imagens](aulas/18.5-construir-imagens.md) | 25 | Construir, testar, publicar localmente e provar o serviço após reboot sem sessão do dono |
+
+### M19 · Serviços de rede · 9 aulas
+
+| Aula | Semana | O que você aprende |
+| --- | --- | --- |
+| [19.1 · DNS autoritativo](aulas/19.1-dns-autoritativo.md) | 25 | construa a VM 204 e prove respostas A, MX e PTR na rede isolada. |
+| [19.2 · DNS recursivo e diagnóstico](aulas/19.2-dns-recursivo-e-diagnostico.md) | 25 | distinga autoridade, recursão e cache sem abrir um resolvedor para qualquer origem. |
+| [19.3 · DHCP](aulas/19.3-dhcp.md) | 25 | entregue concessões Kea somente na rede isolada e prove endereço, DNS e restauração do cliente. |
+| [19.4 · Servidor web: nome, arquivo e resposta](aulas/19.4-servidor-web.md) | 26 | separar escuta, seleção de site e acesso ao arquivo antes de corrigir uma resposta HTTP. |
+| [19.5 · TLS e proxy reverso: identidade antes do cadeado](aulas/19.5-tls-e-proxy-reverso.md) | 26 | validar nome, cadeia e validade, preservando a chave privada e a separação entre proxy e backend. |
+| [19.6 · Samba: a ponte com o cliente Windows](aulas/19.6-samba-a-ponte-windows.md) | 26 | separar autenticação Samba, autorização do share e permissão Unix ao testar um arquivo compartilhado. |
+| [19.7 · Postfix e correio local](aulas/19.7-postfix-e-correio-local.md) | 27 | Entregar correio local e provar a recusa de relay não autorizado |
+| [19.8 · Dovecot e leitura por IMAPS](aulas/19.8-dovecot-e-imaps.md) | 27 | Ler por IMAPS a mensagem entregue pelo Postfix |
+| [19.9 · Squid e desafio integrado](aulas/19.9-squid-e-desafio-integrado.md) | 27 | Controlar proxy explícito e encadear DHCP, DNS, HTTPS e IMAPS num cliente novo |
+
+### M20 · NethServer 8 por dentro · 7 aulas
+
+| Aula | Semana | O que você aprende |
+| --- | --- | --- |
+| [20.1 · Instalar em uma VM limpa](aulas/20.1-instalar-nethserver-8.md) | 27 | criar a VM 240, preparar seus pré-requisitos e abrir um cluster NS8 identificado. |
+| [20.2 · Cluster, nó e módulo](aulas/20.2-cluster-no-e-modulo.md) | 27 | localizar uma instância real e distinguir controle, execução e identidade. |
+| [20.3 · Um módulo por dentro](aulas/20.3-modulo-por-dentro.md) | 28 | encontrar dono, serviço, contêiner, dados e logs da mesma instância. |
+| [20.4 · Proxy e certificados](aulas/20.4-proxy-e-certificados.md) | 28 | separar resolução, rota, identidade TLS e alcance do backend. |
+| [20.5 · Domínios de usuário: identidade com fronteiras](aulas/20.5-dominios-de-usuario.md) | 28 | criar um domínio de teste e separar identidade, autenticação e permissão. |
+| [20.6 · Backup e restauração: provar o retorno](aulas/20.6-backup-e-restauracao.md) | 28 | restaurar a Wiki de teste com conteúdo, identidade e destino conferidos. |
+| [20.7 · Atualizar, mover e falhar com prova](aulas/20.7-atualizar-mover-e-falhar.md) | 29 | mover a Wiki entre nós e recuperar uma falha controlada sem prometer HA automática. |
+
+## Situação
+
+O curso está completo: 111 aulas, do M0 ao M20, em português e italiano.
