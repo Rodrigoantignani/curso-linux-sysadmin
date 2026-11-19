@@ -83,6 +83,8 @@ Copia il MAC di `net1` e conserva la cartella dei riscontri fuori dalla VM. La n
 
 Dentro la VM scelta, entra come `student`. Controlla hostname, indirizzo di gestione e rotta predefinita prima di modificare la nuova scheda. L’interfaccia si identifica tramite il MAC, mai dalla posizione in un elenco.
 
+I blocchi usano `nmcli` nelle VM 201 e 202. La Debian 202 usa ifupdown: se `nmcli` non esiste, crea uno snapshot e installa `sudo apt install network-manager`. Le interfacce già dichiarate in `/etc/network/interfaces`, come la gestione, restano `unmanaged` e fuori da NetworkManager; verificalo con `nmcli device` prima di continuare. Per le query DNS delle lezioni, installa anche `dnsutils` sulla 202 e `bind-utils` sulla 201.
+
 ```bash
 test "$(id -un)" = student || exit 1
 case "$(hostname -s)" in rocky-lab) LAB_ADDR=192.0.2.201/24 ;; debian-lab) LAB_ADDR=192.0.2.202/24 ;; *) exit 1 ;; esac
