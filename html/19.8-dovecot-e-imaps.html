@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light dark">
+<title>19.8 · Dovecot e leitura por IMAPS · Curso Linux Sysadmin</title>
+<link rel="alternate" hreflang="pt-BR" href="19.8-dovecot-e-imaps.html"><link rel="alternate" hreflang="it" href="19.8-dovecot-e-imaps.it.html">
+<style>
+:root{color-scheme:light dark;--bg:#f6f1e7;--card:#fffdf8;--ink:#201c16;--muted:#5e564a;--accent:#9a3412;--accent-2:#1f5f4a;--tint:#efe6d4;--line:#ddd2bc;--code:#f1eadb;--shadow:0 1px 2px rgba(60,40,10,.08);--serif:Georgia,"Iowan Old Style","Palatino Linotype",Palatino,serif;--sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--mono:"Cascadia Code",Consolas,"DejaVu Sans Mono",monospace}
+@media (prefers-color-scheme:dark){:root{--bg:#16130f;--card:#201b15;--ink:#f1eadb;--muted:#b9ad98;--accent:#f0a070;--accent-2:#7fd0b0;--tint:#2a231a;--line:#3d3427;--code:#191510;--shadow:none}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:5.5rem}
+body{margin:0;background:var(--bg);color:var(--ink);font:1rem/1.6 var(--sans)}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--accent-2);outline-offset:2px;border-radius:4px}
+.pular{position:absolute;left:-999px;top:0;background:var(--card);padding:.5rem 1rem;z-index:20}
+.pular:focus{left:.5rem;top:.5rem}
+.wrap{width:100%;max-width:84rem;margin:0 auto;padding-inline:max(1rem,env(safe-area-inset-left))}
+.top{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10;border-top:6px solid var(--accent)}
+.top-in{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding-block:.6rem}
+.titles{min-width:0}
+.marca{margin:0;font:700 clamp(1.15rem,1rem + 1vw,1.6rem)/1.15 var(--serif);letter-spacing:-.01em}
+.marca a{text-decoration:none}
+.marca a:hover{color:var(--accent)}
+.meta{margin:.1rem 0 0;color:var(--muted);font-size:.85rem}
+.acoes{display:flex;align-items:center;gap:.9rem;flex:none}
+.acoes>a{font-size:.9rem;font-weight:600;color:var(--muted);text-decoration:none}
+.acoes>a:hover{color:var(--accent);text-decoration:underline}
+.idioma{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--tint)}
+.idioma>*{padding:.35rem .9rem;font-size:.8rem;font-weight:700;letter-spacing:.06em;text-decoration:none;color:var(--muted);min-width:2.75rem;text-align:center}
+.idioma a:hover{color:var(--accent);text-decoration:underline}
+.idioma span{background:var(--accent);color:#fff}
+@media (prefers-color-scheme:dark){.idioma span{color:#16130f}}
+code{font-family:var(--mono);font-size:.9em;background:var(--tint);padding:.1rem .35rem;border-radius:4px;overflow-wrap:anywhere}
+/* índice */
+.capa{max-width:70rem;padding-block:2rem 3rem}
+.stats{border-left:4px solid var(--accent-2);background:var(--card);border-radius:0 10px 10px 0;padding:1rem 1.25rem;margin:0 0 2.5rem;box-shadow:var(--shadow);color:var(--muted)}
+.stats strong{color:var(--ink)}
+.modulo{display:grid;grid-template-columns:15rem minmax(0,1fr);gap:1rem 2rem;padding:1.75rem 0;border-top:1px solid var(--line)}
+.modulo h2{margin:0;font:700 1.25rem/1.25 var(--serif);align-self:start;position:sticky;top:6rem}
+.mn{display:block;font:700 .8rem var(--mono);letter-spacing:.12em;color:var(--accent);margin-bottom:.25rem}
+.sep{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.modulo ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,17rem),1fr));gap:.75rem}
+.modulo li{margin:0}
+.modulo a{display:flex;gap:.45rem;align-items:baseline;height:100%;padding:.85rem 1rem;background:var(--card);border:1px solid var(--line);border-radius:10px;text-decoration:none;font-weight:600;line-height:1.35;box-shadow:var(--shadow);transition:border-color .15s,transform .15s}
+.modulo a:hover{border-color:var(--accent);color:var(--accent)}
+.num{font:700 .85rem var(--mono);color:var(--accent);white-space:nowrap}
+/* aula */
+.doc{display:grid;grid-template-columns:17rem minmax(0,1fr);gap:2.5rem;align-items:start;padding-block:2rem 3rem}
+.lateral{position:sticky;top:5.5rem;max-height:calc(100vh - 6.5rem);overflow:auto;font-size:.875rem;padding-right:.5rem}
+.lateral h2{margin:0 0 .25rem;font:700 .95rem var(--serif);color:var(--muted)}
+.lateral h3{margin:1rem 0 .25rem;font:700 .75rem var(--mono);letter-spacing:.06em;color:var(--accent)}
+.lateral ul{list-style:none;margin:0;padding:0}
+.lateral a{display:flex;gap:.45rem;padding:.25rem .5rem;border-radius:6px;text-decoration:none;color:var(--muted);line-height:1.3}
+.lateral a:hover{background:var(--tint);color:var(--ink)}
+.lateral a[aria-current]{background:var(--tint);color:var(--ink);font-weight:700;box-shadow:inset 3px 0 0 var(--accent)}
+.lateral .num{font-size:.75rem}
+.aula{min-width:0;max-width:56rem;overflow-wrap:break-word;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:clamp(1.25rem,1rem + 2vw,2.75rem);box-shadow:var(--shadow)}
+.aula h1{margin:0 0 1.5rem;font:700 clamp(1.75rem,1.4rem + 1.6vw,2.5rem)/1.15 var(--serif);letter-spacing:-.015em;color:var(--ink)}
+.aula h2{margin:2.5rem 0 .75rem;padding-top:1.25rem;border-top:1px solid var(--line);font:700 1.5rem/1.25 var(--serif)}
+.aula h3{margin:2rem 0 .5rem;font:700 1.15rem/1.3 var(--serif);color:var(--accent)}
+.aula h4,.aula h5,.aula h6{margin:1.5rem 0 .5rem;font-size:1rem}
+.aula p,.aula ul,.aula ol{margin:1rem 0}
+.aula ul,.aula ol{padding-left:1.5rem}
+.aula li{margin:.35rem 0}
+.aula li>ul,.aula li>ol{margin:.35rem 0}
+.aula a{color:var(--accent);text-underline-offset:2px}
+.aula hr{border:0;border-top:1px solid var(--line);margin:2rem 0}
+.tabela{overflow-x:auto;margin:1.25rem 0;border:1px solid var(--line);border-radius:10px}
+.aula table{width:100%;border-collapse:collapse;font-size:.9rem}
+.aula th,.aula td{padding:.55rem .75rem;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+.aula tr:last-child td{border-bottom:0}
+.aula th{background:var(--tint);font-weight:700}
+.aula pre{background:var(--code);border:1px solid var(--line);border-radius:10px;padding:.9rem 1rem;overflow-x:auto;font:.85rem/1.5 var(--mono);margin:1rem 0;tab-size:4}
+.aula pre code{background:none;padding:0;font-size:inherit;overflow-wrap:normal}
+.aula blockquote{margin:1.25rem 0;padding:.75rem 1.25rem;border-left:4px solid var(--accent-2);background:var(--tint);border-radius:0 10px 10px 0}
+.aula blockquote>:first-child{margin-top:0}
+.aula blockquote>:last-child{margin-bottom:0}
+.aula figure{margin:1.75rem 0;text-align:center}
+.aula figure img{display:block;margin:0 auto;max-width:100%;height:auto;border:1px solid var(--line);border-radius:10px;background:#fff}
+.aula figcaption{margin-top:.5rem;color:var(--muted);font-size:.9rem;font-style:italic}
+.paginas{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:2.5rem;padding-top:1.5rem;border-top:1px solid var(--line)}
+.paginas a{display:block;padding:.75rem 1rem;border:1px solid var(--line);border-radius:10px;text-decoration:none;color:var(--ink);font-weight:600;line-height:1.3}
+.paginas a:hover{border-color:var(--accent);color:var(--accent)}
+.paginas small{display:block;color:var(--muted);font-weight:400}
+.paginas .prox{grid-column:2;text-align:right}
+footer{border-top:1px solid var(--line);padding-block:1.5rem;color:var(--muted);font-size:.85rem;text-align:center}
+@media (hover:hover) and (prefers-reduced-motion:no-preference){.modulo a:hover{transform:translateY(-2px)}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+@media (max-width:980px){.doc{grid-template-columns:minmax(0,1fr);padding-top:1rem}.lateral{position:static;max-height:none;order:2}.aula{max-width:none}}
+@media (max-width:860px){.modulo{grid-template-columns:minmax(0,1fr)}.modulo h2{position:static}.mn{display:inline;margin-right:.5rem}}
+@media (max-width:420px){.meta{display:none}.top-in{gap:.5rem}.acoes{gap:.6rem}.capa{padding-top:1.25rem}.paginas{grid-template-columns:minmax(0,1fr)}.paginas .prox{grid-column:1}}
+@media print{.top,.lateral,.paginas{display:none}.aula{border:0;box-shadow:none;padding:0;max-width:none}.doc{display:block}}
+</style>
+</head>
+<body>
+<a class="pular" href="#conteudo">Pular para o conteúdo</a>
+<header class="top"><div class="wrap top-in"><div class="titles"><p class="marca"><a href="index.html">Curso Linux Sysadmin</a></p><p class="meta">Rodrigo Antignani · Aula 19.8</p></div><div class="acoes"><a href="index.html">Índice</a><div class="idioma" role="group" aria-label="Idioma"><span aria-current="true">PT</span><a href="19.8-dovecot-e-imaps.it.html" hreflang="it" lang="it">IT</a></div></div></div></header>
+<div class="wrap doc"><aside class="lateral" aria-label="Aulas"><h2>Aulas</h2><h3>M0 · Laboratório</h3><ul><li><a href="0.1-montar-o-laboratorio.html"><span class="num">0.1</span><span>Montar o laboratório</span></a></li><li><a href="0.2-acesso-e-protecao.html"><span class="num">0.2</span><span>Acesso e proteção</span></a></li></ul><h3>M1 · Linha de comando</h3><ul><li><a href="1.1-o-que-e-linux.html"><span class="num">1.1</span><span>O que é Linux</span></a></li><li><a href="1.2-o-shell-e-a-ajuda.html"><span class="num">1.2</span><span>O shell e a ajuda</span></a></li><li><a href="1.3-caminhos-e-navegacao.html"><span class="num">1.3</span><span>Caminhos e navegação</span></a></li><li><a href="1.4-criar-copiar-mover-e-apagar.html"><span class="num">1.4</span><span>Criar, copiar, mover e apagar</span></a></li><li><a href="1.5-ler-e-procurar-texto.html"><span class="num">1.5</span><span>Ler e procurar texto</span></a></li><li><a href="1.6-redirecionamentos-e-pipes.html"><span class="num">1.6</span><span>Redirecionamentos e pipes</span></a></li><li><a href="1.7-arquivar-e-compactar.html"><span class="num">1.7</span><span>Arquivar e compactar</span></a></li><li><a href="1.8-primeiro-script.html"><span class="num">1.8</span><span>Primeiro script</span></a></li><li><a href="1.9-decidir-e-repetir.html"><span class="num">1.9</span><span>Decidir e repetir</span></a></li><li><a href="1.10-software-livre-na-pratica.html"><span class="num">1.10</span><span>Software livre na prática</span></a></li></ul><h3>M2 · Sistema, usuários e permissões</h3><ul><li><a href="2.1-instalacao-e-provisionamento.html"><span class="num">2.1</span><span>Instalação e provisionamento</span></a></li><li><a href="2.2-hardware-e-dispositivos.html"><span class="num">2.2</span><span>Hardware e dispositivos</span></a></li><li><a href="2.3-processos-e-logs.html"><span class="num">2.3</span><span>Processos e logs</span></a></li><li><a href="2.4-rede-no-dia-a-dia.html"><span class="num">2.4</span><span>Rede no dia a dia</span></a></li><li><a href="2.5-acesso-remoto-e-privilegios.html"><span class="num">2.5</span><span>Acesso remoto e privilégios</span></a></li><li><a href="2.6-usuarios-e-grupos.html"><span class="num">2.6</span><span>Usuários e grupos</span></a></li><li><a href="2.7-permissoes-e-dono.html"><span class="num">2.7</span><span>Permissões e dono</span></a></li><li><a href="2.8-diretorios-e-arquivos-especiais.html"><span class="num">2.8</span><span>Diretórios e arquivos especiais</span></a></li></ul><h3>M3 · Texto e editor</h3><ul><li><a href="3.1-fluxos-a-fundo.html"><span class="num">3.1</span><span>Fluxos a fundo</span></a></li><li><a href="3.2-filtros-de-texto.html"><span class="num">3.2</span><span>Filtros de texto</span></a></li><li><a href="3.3-regex-e-grep.html"><span class="num">3.3</span><span>Regex e grep</span></a></li><li><a href="3.4-sed-e-awk.html"><span class="num">3.4</span><span>sed e awk</span></a></li><li><a href="3.5-vi-e-vim-de-verdade.html"><span class="num">3.5</span><span>vi e vim de verdade</span></a></li></ul><h3>M4 · systemd e boot</h3><ul><li><a href="4.1-como-o-linux-liga.html"><span class="num">4.1</span><span>Como o Linux liga</span></a></li><li><a href="4.2-systemd-servicos-e-units.html"><span class="num">4.2</span><span>systemd: serviços e units</span></a></li><li><a href="4.3-targets-desligar-e-reiniciar.html"><span class="num">4.3</span><span>Targets: desligar e reiniciar</span></a></li><li><a href="4.4-grub-e-acesso-de-emergencia.html"><span class="num">4.4</span><span>GRUB e acesso de emergência</span></a></li></ul><h3>M5 · Kernel, módulos e VM</h3><ul><li><a href="5.1-hardware-pelo-kernel.html"><span class="num">5.1</span><span>Hardware pelo kernel</span></a></li><li><a href="5.2-modulos-e-parametros.html"><span class="num">5.2</span><span>Módulos e parâmetros</span></a></li><li><a href="5.3-linux-como-convidado.html"><span class="num">5.3</span><span>Linux como convidado</span></a></li></ul><h3>M6 · Pacotes e repositórios</h3><ul><li><a href="6.1-pacotes-no-debian.html"><span class="num">6.1</span><span>Pacotes no Debian</span></a></li><li><a href="6.2-pacotes-na-rocky.html"><span class="num">6.2</span><span>Pacotes na Rocky</span></a></li><li><a href="6.3-repositorios.html"><span class="num">6.3</span><span>Repositórios</span></a></li><li><a href="6.4-flatpak.html"><span class="num">6.4</span><span>Flatpak</span></a></li><li><a href="6.5-bibliotecas-compartilhadas.html"><span class="num">6.5</span><span>Bibliotecas compartilhadas</span></a></li></ul><h3>M7 · Processos e desempenho</h3><ul><li><a href="7.1-processos-e-sinais.html"><span class="num">7.1</span><span>Processos e sinais</span></a></li><li><a href="7.2-jobs-e-sessoes.html"><span class="num">7.2</span><span>Jobs e sessões</span></a></li><li><a href="7.3-prioridade-e-perfis.html"><span class="num">7.3</span><span>Prioridade e perfis</span></a></li></ul><h3>M8 · Arquivos a fundo</h3><ul><li><a href="8.1-fhs-e-onde-cada-coisa-mora.html"><span class="num">8.1</span><span>FHS e onde cada coisa mora</span></a></li><li><a href="8.2-find-a-fundo.html"><span class="num">8.2</span><span>find a fundo</span></a></li><li><a href="8.3-arquivamento-avancado.html"><span class="num">8.3</span><span>Arquivamento avançado</span></a></li><li><a href="8.4-links.html"><span class="num">8.4</span><span>Links</span></a></li><li><a href="8.5-permissoes-avancadas.html"><span class="num">8.5</span><span>Permissões avançadas</span></a></li></ul><h3>M9 · Armazenamento</h3><ul><li><a href="9.1-discos-e-layout.html"><span class="num">9.1</span><span>Discos e layout</span></a></li><li><a href="9.2-particionar.html"><span class="num">9.2</span><span>Particionar</span></a></li><li><a href="9.3-sistemas-de-arquivos.html"><span class="num">9.3</span><span>Sistemas de arquivos</span></a></li><li><a href="9.4-montar-e-persistir.html"><span class="num">9.4</span><span>Montar e persistir</span></a></li><li><a href="9.5-integridade-e-espaco.html"><span class="num">9.5</span><span>Integridade e espaço</span></a></li><li><a href="9.6-lvm.html"><span class="num">9.6</span><span>LVM</span></a></li><li><a href="9.7-crescer-sem-destruir.html"><span class="num">9.7</span><span>Crescer sem destruir</span></a></li></ul><h3>M10 · Usuários e acesso privilegiado</h3><ul><li><a href="10.1-contas.html"><span class="num">10.1</span><span>Contas</span></a></li><li><a href="10.2-senhas-e-validade.html"><span class="num">10.2</span><span>Senhas e validade</span></a></li><li><a href="10.3-grupos-e-trabalho-em-equipe.html"><span class="num">10.3</span><span>Grupos e trabalho em equipe</span></a></li><li><a href="10.4-sudo-de-verdade.html"><span class="num">10.4</span><span>sudo de verdade</span></a></li></ul><h3>M11 · Rede</h3><ul><li><a href="11.1-tcp-ip-para-quem-administra.html"><span class="num">11.1</span><span>TCP/IP para quem administra</span></a></li><li><a href="11.2-networkmanager-e-nmcli.html"><span class="num">11.2</span><span>NetworkManager e nmcli</span></a></li><li><a href="11.3-rede-no-debian.html"><span class="num">11.3</span><span>Rede no Debian</span></a></li><li><a href="11.4-nomes-e-resolucao.html"><span class="num">11.4</span><span>Nomes e resolução</span></a></li><li><a href="11.5-diagnostico-de-rede.html"><span class="num">11.5</span><span>Diagnóstico de rede</span></a></li></ul><h3>M12 · Segurança do host</h3><ul><li><a href="12.1-ssh-a-fundo.html"><span class="num">12.1</span><span>SSH a fundo</span></a></li><li><a href="12.2-firewall.html"><span class="num">12.2</span><span>Firewall</span></a></li><li><a href="12.3-selinux-modos-e-contextos.html"><span class="num">12.3</span><span>SELinux: modos e contextos</span></a></li><li><a href="12.4-selinux-portas-e-booleanos.html"><span class="num">12.4</span><span>SELinux: portas e booleanos</span></a></li><li><a href="12.5-auditoria-e-criptografia.html"><span class="num">12.5</span><span>Auditoria e criptografia</span></a></li></ul><h3>M13 · Armazenamento em rede</h3><ul><li><a href="13.1-servidor-nfs.html"><span class="num">13.1</span><span>Servidor NFS</span></a></li><li><a href="13.2-cliente-nfs.html"><span class="num">13.2</span><span>Cliente NFS</span></a></li><li><a href="13.3-autofs.html"><span class="num">13.3</span><span>autofs</span></a></li></ul><h3>M14 · Agendamento</h3><ul><li><a href="14.1-cron-e-at.html"><span class="num">14.1</span><span>cron e at</span></a></li><li><a href="14.2-timers-do-systemd.html"><span class="num">14.2</span><span>Timers do systemd</span></a></li><li><a href="14.3-journald-e-rsyslog.html"><span class="num">14.3</span><span>journald e rsyslog</span></a></li><li><a href="14.4-hora-certa.html"><span class="num">14.4</span><span>Hora certa</span></a></li><li><a href="14.5-email-local-e-impressao.html"><span class="num">14.5</span><span>E-mail local e impressão</span></a></li></ul><h3>M15 · Shell e ambiente</h3><ul><li><a href="15.1-ambiente-do-shell.html"><span class="num">15.1</span><span>Ambiente do shell</span></a></li><li><a href="15.2-scripts-robustos.html"><span class="num">15.2</span><span>Scripts robustos</span></a></li><li><a href="15.3-scripts-de-administracao.html"><span class="num">15.3</span><span>Scripts de administração</span></a></li><li><a href="15.4-interfaces-graficas.html"><span class="num">15.4</span><span>Interfaces gráficas</span></a></li><li><a href="15.5-idioma-teclado-e-fuso.html"><span class="num">15.5</span><span>Idioma, teclado e fuso</span></a></li></ul><h3>M16 · Semana de incidentes no Rocky 10</h3><ul><li><a href="16.1-rocky-10-o-que-muda.html"><span class="num">16.1</span><span>Rocky 10: o que muda</span></a></li><li><a href="16.2-incidentes-por-area.html"><span class="num">16.2</span><span>Incidentes por área</span></a></li><li><a href="16.3-incidente-com-relogio.html"><span class="num">16.3</span><span>Incidente com relógio</span></a></li><li><a href="16.4-correcao-e-reforco.html"><span class="num">16.4</span><span>Correção e reforço</span></a></li></ul><h3>M17 · Proxmox na prática</h3><ul><li><a href="17.1-proxmox-por-dentro.html"><span class="num">17.1</span><span>Proxmox por dentro</span></a></li><li><a href="17.2-vm-pela-linha-de-comando.html"><span class="num">17.2</span><span>VM pela linha de comando</span></a></li><li><a href="17.3-conteiner-lxc.html"><span class="num">17.3</span><span>Contêiner LXC</span></a></li><li><a href="17.4-storage.html"><span class="num">17.4</span><span>Storage: capacidade, crescimento e movimento</span></a></li><li><a href="17.5-rede.html"><span class="num">17.5</span><span>Rede: bridge, VLAN, bond e SDN</span></a></li><li><a href="17.6-backup-e-restauracao.html"><span class="num">17.6</span><span>Backup e restauração com PBS</span></a></li><li><a href="17.7-migracao-e-quorum.html"><span class="num">17.7</span><span>Migração e quorum</span></a></li></ul><h3>M18 · Podman</h3><ul><li><a href="18.1-conteiner-nao-e-vm.html"><span class="num">18.1</span><span>Contêiner não é VM</span></a></li><li><a href="18.2-rodar-e-persistir.html"><span class="num">18.2</span><span>Rodar e persistir</span></a></li><li><a href="18.3-conteiner-como-servico.html"><span class="num">18.3</span><span>Contêiner como serviço</span></a></li><li><a href="18.4-diagnosticar-conteiner-rootless.html"><span class="num">18.4</span><span>Diagnosticar contêiner rootless</span></a></li><li><a href="18.5-construir-imagens.html"><span class="num">18.5</span><span>Construir imagens</span></a></li></ul><h3>M19 · Serviços de rede</h3><ul><li><a href="19.1-dns-autoritativo.html"><span class="num">19.1</span><span>DNS autoritativo</span></a></li><li><a href="19.2-dns-recursivo-e-diagnostico.html"><span class="num">19.2</span><span>DNS recursivo e diagnóstico</span></a></li><li><a href="19.3-dhcp.html"><span class="num">19.3</span><span>DHCP</span></a></li><li><a href="19.4-servidor-web.html"><span class="num">19.4</span><span>Servidor web: nome, arquivo e resposta</span></a></li><li><a href="19.5-tls-e-proxy-reverso.html"><span class="num">19.5</span><span>TLS e proxy reverso: identidade antes do cadeado</span></a></li><li><a href="19.6-samba-a-ponte-windows.html"><span class="num">19.6</span><span>Samba: a ponte com o cliente Windows</span></a></li><li><a href="19.7-postfix-e-correio-local.html"><span class="num">19.7</span><span>Postfix e correio local</span></a></li><li><a href="19.8-dovecot-e-imaps.html" aria-current="page"><span class="num">19.8</span><span>Dovecot e leitura por IMAPS</span></a></li><li><a href="19.9-squid-e-desafio-integrado.html"><span class="num">19.9</span><span>Squid e desafio integrado</span></a></li></ul><h3>M20 · NethServer 8 por dentro</h3><ul><li><a href="20.1-instalar-nethserver-8.html"><span class="num">20.1</span><span>Instalar em uma VM limpa</span></a></li><li><a href="20.2-cluster-no-e-modulo.html"><span class="num">20.2</span><span>Cluster, nó e módulo</span></a></li><li><a href="20.3-modulo-por-dentro.html"><span class="num">20.3</span><span>Um módulo por dentro</span></a></li><li><a href="20.4-proxy-e-certificados.html"><span class="num">20.4</span><span>Proxy e certificados</span></a></li><li><a href="20.5-dominios-de-usuario.html"><span class="num">20.5</span><span>Domínios de usuário: identidade com fronteiras</span></a></li><li><a href="20.6-backup-e-restauracao.html"><span class="num">20.6</span><span>Backup e restauração: provar o retorno</span></a></li><li><a href="20.7-atualizar-mover-e-falhar.html"><span class="num">20.7</span><span>Atualizar, mover e falhar com prova</span></a></li></ul></aside><main id="conteudo" class="aula"><article><h1>Aula 19.8 · Dovecot e leitura por IMAPS</h1>
+<blockquote><p><strong>O coração desta aula:</strong> a mesma mensagem só fecha a cadeia quando nome, confiança TLS, login e conteúdo são conferidos.</p></blockquote>
+<div class="tabela"><table><thead><tr><th scope="col">Ficha</th><th scope="col">Plano de trabalho</th></tr></thead><tbody><tr><td>Módulo</td><td>M19 · Serviços de rede, aula 8 de 9</td></tr><tr><td>Quando</td><td>Semana 27</td></tr><tr><td>Ao final</td><td>Ler por IMAPS a mensagem entregue pelo Postfix</td></tr><tr><td>Pré-requisitos</td><td>19.5 e 19.7; CA do lab e conta <code translate="no">aluno-mail</code></td></tr><tr><td>Duração</td><td>100–140 minutos, além das instalações</td></tr><tr><td>Snapshot</td><td><code translate="no">m19a8-inicio</code> e <code translate="no">m19a8-fim</code>, VM 204</td></tr></tbody></table></div>
+<p>Execute no convidado indicado, como <code translate="no">student</code> com <code translate="no">sudo</code>. O host Proxmox aparece somente no desafio explicitamente identificado. Não adapte os exemplos para um servidor de produção.</p>
+<p>Confira o <a href="https://github.com/Rodrigoantignani/curso-linux-sysadmin/blob/master/GUIA_BANCADA_M19_PT.md">guia comum da bancada</a> antes de mudar serviços; ele fixa rede, firewall e material de confiança.</p>
+<p>Nomes canônicos do módulo: o nome da VM no Proxmox e o hostname do sistema operacional devem corresponder ao papel antes de executar as guardas. Um nome DNS de serviço não muda o hostname. Se o inventário divergir, reconcilie-o pelo console antes de seguir; não ignore as guardas.</p>
+<div class="tabela"><table><thead><tr><th scope="col">VM</th><th scope="col">Hostname curto</th><th scope="col">Endereço isolado</th></tr></thead><tbody><tr><td>201</td><td><code translate="no">rocky-lab</code></td><td><code translate="no">192.0.2.201</code></td></tr><tr><td>202</td><td><code translate="no">debian-lab</code></td><td><code translate="no">192.0.2.202</code></td></tr><tr><td>204</td><td><code translate="no">srv-deb</code></td><td><code translate="no">192.0.2.204</code></td></tr><tr><td>212</td><td><code translate="no">m19-client</code></td><td>DHCP; somente desafio 19.9</td></tr></tbody></table></div>
+<h2 id="1-aquecimento">1 · Aquecimento</h2>
+<ol><li>Quem deposita a mensagem na caixa: Postfix ou Dovecot?</li>
+<li>Uma conexão TLS válida prova que a senha está correta?</li>
+<li>Por que o nome usado pelo cliente precisa estar no SAN?</li></ol>
+<h2 id="2-por-que-importa">2 · Por que importa</h2>
+<p>Você encontra uma mensagem no disco, mas o cliente mostra uma caixa vazia. A mensagem pode estar em outra casa, noutro formato ou sob uma identidade diferente.</p>
+<p>O Dovecot fornece acesso à caixa; ele não substitui a decisão de entrega já feita pelo Postfix. A prova atravessa ambos sem misturar suas responsabilidades.</p>
+<p>O cliente deve confiar na CA privada do laboratório e conferir o nome. Desabilitar a verificação TLS transforma um sintoma de configuração em perda de identidade.</p>
+<h2 id="3-modelo-mental">3 · Modelo mental</h2>
+<figure><a href="../img/19.8-entregar-e-ler.jpg"><img src="../img/19.8-entregar-e-ler.jpg" alt="Entregar e ler são trabalhos diferentes" loading="lazy" decoding="async"></a><figcaption>O Postfix entrega; o Dovecot permite ler a caixa.</figcaption></figure>
+<div class="tabela"><table><thead><tr><th scope="col">Peça</th><th scope="col">O que prova</th></tr></thead><tbody><tr><td>Postfix</td><td>Entrega a carta na caixa local</td></tr><tr><td>Maildir</td><td>Armazena cada mensagem num arquivo</td></tr><tr><td>Dovecot</td><td>Abre a caixa conforme a identidade</td></tr><tr><td>IMAPS</td><td>IMAP dentro de TLS desde a conexão</td></tr><tr><td>SAN</td><td>Autoriza o nome apresentado pelo cliente</td></tr><tr><td>CA</td><td>Estabelece a cadeia de confiança</td></tr></tbody></table></div>
+<h3 id="ponte-windows">Ponte Windows</h3>
+<p>Num cliente gráfico, servidor de leitura, porta, segurança e usuário são campos distintos. Use o nome do certificado, IMAPS e a conta local; o endereço de correio do alias não é automaticamente o nome de login.</p>
+<h2 id="4-o-essencial">4 · O essencial</h2>
+<p>Esta aula exige Dovecot 2.4 no Debian 13. A configuração 2.3 usa nomes diferentes; não cole exemplos antigos de outra distribuição sem conferir a versão e a sintaxe.</p>
+<p>O certificado vem da 19.5: <code translate="no">mail.lab.test</code> no SAN, CA em <code translate="no">/etc/ssl/m19/ca.crt</code>, certificado em <code translate="no">/etc/ssl/m19/server.crt</code> e chave em <code translate="no">/etc/ssl/private/m19-server.key</code>. A chave privada nunca vai ao cliente.</p>
+<p>A única porta de leitura publicada é 993 no endereço isolado. A porta 143 fica desativada. O exemplo não habilita POP3, submission nem autenticação SMTP.</p>
+<p>O mecanismo de autenticação pode chamar-se PLAIN e ainda estar protegido por TLS. O que esta bancada proíbe é transmitir a senha fora do túnel validado.</p>
+<p>A senha será digitada em prompt interativo. Não a coloque numa URL, variável de ambiente, argumento de comando, captura de tela ou arquivo de evidência.</p>
+<h3 id="rocky-debian">Rocky × Debian</h3>
+<p>No Debian 13, confira explicitamente a série 2.4. Ela usa <code translate="no">mail_driver</code>, <code translate="no">mail_path</code>, <code translate="no">ssl_server_cert_file</code>, <code translate="no">ssl_server_key_file</code> e <code translate="no">auth_allow_cleartext</code>.</p>
+<p>Uma Rocky com Dovecot 2.3 precisa de uma configuração própria dessa série. A aula não muda a VM 201 nem tenta tornar a mesma configuração compatível com as duas versões.</p>
+<h2 id="5-lab-guiado">5 · Lab guiado</h2>
+<p>A rede do laboratório é <code translate="no">192.0.2.0/24</code>, isolada em <code translate="no">vmbr17</code>, sem gateway, NAT ou porta física. A VM 204 usa <code translate="no">192.0.2.204</code> nessa rede. A interface de gestão conserva seu endereço real e sua rota.</p>
+<h3 id="passo-1-conferir-caixa-certificado-e-versao-pretendida">Passo 1 · Conferir caixa, certificado e versão pretendida</h3>
+<p><strong>Palpite:</strong> Um arquivo de certificado existente prova nome e validade?</p>
+<pre translate="no"><code class="lang-bash">test "$(hostname -s)" = srv-deb || exit 1
+test ! -L /etc/m19-lab.env || exit 1
+test "$(stat -c %u:%g:%a /etc/m19-lab.env)" = 0:0:644 || exit 1
+cat /etc/m19-lab.env
+. /etc/m19-lab.env
+test "$LAB_IP" = 192.0.2.204 || exit 1
+ip -4 address show dev "$LAB_IF"
+getent passwd aluno-mail
+sudo find /home/aluno-mail/Maildir -maxdepth 2 -type f -printf '%P
+'
+sudo postconf home_mailbox
+openssl x509 -in /etc/ssl/m19/server.crt -noout -dates -ext subjectAltName
+openssl verify -CAfile /etc/ssl/m19/ca.crt   -verify_hostname mail.lab.test /etc/ssl/m19/server.crt
+sudo stat -c '%U %G %a %n' /etc/ssl/private/m19-server.key
+sudo ss -ltnp '( sport = :143 or sport = :993 )'
+apt-cache policy dovecot-core dovecot-imapd
+systemctl list-unit-files 'dovecot*'</code></pre>
+<p><strong>Saída esperada:</strong> Uma mensagem do teste anterior, chave restrita a root, nome aceito e portas ainda livres. A versão candidata pertence à série exigida.</p>
+<p><strong>Verifique:</strong> Se a caixa não existe, volte à entrega local. Se o nome falha, corrija o certificado na 19.5; não omita a verificação do nome.</p>
+<pre translate="no"><code class="lang-bash">mkdir -p "$HOME/m19-lab"
+EVID=$(mktemp -d "$HOME/m19-lab/evidence-19-8.XXXXXX") || exit 1
+ip -4 route &gt; "$EVID/routes-before.txt"
+openssl x509 -in /etc/ssl/m19/server.crt -noout -fingerprint -sha256   &gt; "$EVID/server-fingerprint.txt"</code></pre>
+<h3 id="passo-2-preparar-conta-e-pacote-sem-escuta-automatica">Passo 2 · Preparar conta e pacote sem escuta automática</h3>
+<p><strong>Palpite:</strong> A senha do alias precisa ser criada separadamente?</p>
+<p>A conta foi criada na 19.7. Defina agora uma senha exclusiva para ela, digitada duas vezes no prompt. Não altere a conta de gestão. Se já houver Dovecot configurado, pare antes da instalação.</p>
+<pre translate="no"><code class="lang-bash">sudo passwd aluno-mail
+sudo systemctl mask dovecot.service
+sudo apt install dovecot-imapd
+dovecot --version
+case "$(dovecot --version)" in 2.4.*) ;; *) exit 1 ;; esac
+systemctl is-enabled dovecot.service
+sudo ss -ltnp '( sport = :143 or sport = :993 )'
+sudo test ! -e /root/m19-backup-19-8 || exit 1
+sudo install -d -m 0700 /root/m19-backup-19-8
+sudo cp -a /etc/dovecot /root/m19-backup-19-8/dovecot
+sudo cat /etc/pam.d/dovecot
+sudo passwd -S aluno-mail
+getent passwd aluno-mail</code></pre>
+<p><strong>Saída esperada:</strong> Senha definida sem aparecer na tela, unidade mascarada e versão 2.4 confirmada. A conta mantém a casa da entrega local.</p>
+<p><strong>Verifique:</strong> O arquivo PAM do pacote precisa existir e usar a autenticação local prevista. Não crie uma política PAM permissiva para resolver um login que ainda nem foi testado.</p>
+<h3 id="passo-3-escrever-uma-configuracao-minima-da-serie-2-4">Passo 3 · Escrever uma configuração mínima da série 2.4</h3>
+<p><strong>Palpite:</strong> Copiar os nomes de parâmetros da série 2.3 será aceito silenciosamente?</p>
+<p>Este servidor ainda não possui configuração Dovecot de trabalho. Guarde o diretório original e substitua apenas o arquivo principal por um exemplo mínimo completo; ele não inclui os fragmentos antigos do pacote.</p>
+<pre translate="no"><code class="lang-bash">cat &gt; "$EVID/dovecot.conf" &lt;&lt;'EOF'
+dovecot_config_version = 2.4.0
+dovecot_storage_version = 2.4.0
+protocols {
+  imap = yes
+}
+listen = 127.0.0.1, 192.0.2.204
+mail_driver = maildir
+mail_path = ~/Maildir
+first_valid_uid = 1000
+auth_mechanisms = plain login
+auth_allow_cleartext = no
+ssl = required
+ssl_min_protocol = TLSv1.2
+ssl_server_cert_file = /etc/ssl/m19/server.crt
+ssl_server_key_file = /etc/ssl/private/m19-server.key
+passdb pam {
+}
+userdb passwd {
+}
+namespace inbox {
+  inbox = yes
+}
+service imap-login {
+  inet_listener imap {
+    port = 0
+  }
+  inet_listener imaps {
+    listen = 192.0.2.204
+    port = 993
+    ssl = yes
+  }
+}
+EOF
+sudo doveconf -c "$EVID/dovecot.conf" -n &gt; /dev/null || exit 1
+sudo install -o root -g root -m 0644 "$EVID/dovecot.conf" /etc/dovecot/dovecot.conf
+sudo doveconf -n</code></pre>
+<p><strong>Saída esperada:</strong> O parser aceita a sintaxe e mostra Maildir, TLS obrigatório, provedores locais e listener IMAPS isolado.</p>
+<p><strong>Verifique:</strong> Se qualquer validação falhar, não desmascare o serviço. Restaure o arquivo principal do backup e investigue a versão; não troque nomes de parâmetros por tentativa.</p>
+<p>A conta local fornece UID, GID e casa. O exemplo não usa usuário virtual único nem define um dono global para todas as caixas.</p>
+<figure><a href="../img/19.8-nome-confianca-login.jpg"><img src="../img/19.8-nome-confianca-login.jpg" alt="Nome, confiança e login" loading="lazy" decoding="async"></a><figcaption>TLS valida o servidor; o login identifica quem abre a caixa.</figcaption></figure>
+<h3 id="passo-4-iniciar-e-provar-o-tunel-antes-do-login">Passo 4 · Iniciar e provar o túnel antes do login</h3>
+<p><strong>Palpite:</strong> Uma porta aberta prova a identidade do servidor?</p>
+<pre translate="no"><code class="lang-bash">sudo doveconf -n &gt; "$EVID/doveconf-final.txt" || exit 1
+sudo systemctl unmask dovecot.service
+sudo systemctl enable --now dovecot.service
+sudo systemctl status dovecot.service --no-pager
+sudo ss -ltnp '( sport = :143 or sport = :993 )'
+sudo journalctl -u dovecot.service --since '-5 min' --no-pager
+openssl s_client -connect 192.0.2.204:993 -servername mail.lab.test   -verify_hostname mail.lab.test -verify_return_error   -CAfile /etc/ssl/m19/ca.crt &lt; /dev/null</code></pre>
+<p><strong>Saída esperada:</strong> Somente 993 no endereço isolado, cadeia confiável e nome correto. O fechamento sem login é suficiente para esta prova TLS.</p>
+<p><strong>Verifique:</strong> Um banner IMAP não substitui o resultado da verificação. Não digite comandos de login em uma sessão TLS que apresentou erro.</p>
+<p>Se o serviço não iniciar, recoloque a máscara antes de restaurar. Leia o erro do parser e o diário; a chave deve continuar restrita, sem permissão universal.</p>
+<h3 id="passo-5-ler-a-mensagem-sem-expor-a-senha">Passo 5 · Ler a mensagem sem expor a senha</h3>
+<p><strong>Palpite:</strong> O usuário de login é o alias do destinatário?</p>
+<p>Na VM 202, a CA pública foi transferida e conferida na 19.5 em <code translate="no">/etc/ssl/m19/ca.crt</code>. Não transfira a chave do servidor. Confira o suporte IMAPS do cliente antes de autenticar.</p>
+<pre translate="no"><code class="lang-bash">test "$(hostname -s)" = debian-lab || exit 1
+dig @192.0.2.204 mail.lab.test A +short
+curl --version
+openssl s_client -connect mail.lab.test:993 -servername mail.lab.test   -verify_hostname mail.lab.test -verify_return_error   -CAfile /etc/ssl/m19/ca.crt &lt; /dev/null
+MID=$(cat "$HOME/m19-message-id.txt") || exit 1
+printf '%s
+' "$MID"
+curl --cacert /etc/ssl/m19/ca.crt --user aluno-mail   --url 'imaps://mail.lab.test/INBOX'   --request "UID SEARCH HEADER Message-ID &lt;$MID&gt;"</code></pre>
+<p><strong>Saída esperada:</strong> O cliente pede a senha interativamente e retorna o UID real da mensagem procurada. O login usa <code translate="no">aluno-mail</code>, não o alias.</p>
+<p><strong>Verifique:</strong> Escolha o UID retornado pela busca, sem presumir que será 1. Uma caixa pode ter mensagens anteriores e números que não são consecutivos.</p>
+<pre translate="no"><code class="lang-bash">read -r -p 'UID observado: ' MAIL_UID
+case "$MAIL_UID" in ''|*[!0-9]*) exit 1 ;; esac
+curl --cacert /etc/ssl/m19/ca.crt --user aluno-mail   --url "imaps://mail.lab.test/INBOX/;UID=$MAIL_UID"
+# A senha e digitada no prompt, nunca acrescentada ao nome do usuario.</code></pre>
+<h3 id="passo-6-fechar-a-correlacao-de-ponta-a-ponta">Passo 6 · Fechar a correlação de ponta a ponta</h3>
+<p><strong>Palpite:</strong> Um login bem-sucedido prova que a mensagem desejada foi lida?</p>
+<p>Volte à VM 204, na sessão original que mantém a pasta de evidências. Compare o cabeçalho e o corpo lidos com a carta enviada. Maildir pode mover uma mensagem de nova para já vista durante a leitura.</p>
+<pre translate="no"><code class="lang-bash">test "$(hostname -s)" = srv-deb || exit 1
+read -r -p 'Message-ID observado: ' MID
+sudo journalctl --since '-30 min' --no-pager | grep -F "$MID"
+sudo journalctl -u dovecot.service --since '-15 min' --no-pager
+sudo grep -rlF -- "$MID"   /home/aluno-mail/Maildir/new/ /home/aluno-mail/Maildir/cur/
+sudo doveadm user aluno-mail
+sudo postqueue -p
+sudo ss -ltnp &gt; "$EVID/listeners-final.txt"
+ip -4 route &gt; "$EVID/routes-after.txt"
+diff -u "$EVID/routes-before.txt" "$EVID/routes-after.txt"</code></pre>
+<p><strong>Saída esperada:</strong> A carta aceita e entregue corresponde ao conteúdo recuperado pelo cliente, com sessão IMAPS registrada e rotas de gestão preservadas.</p>
+<p><strong>Verifique:</strong> O diário pode não registrar o cabeçalho no evento de leitura. Use o UID e o conteúdo no cliente para essa etapa e o marcador no Postfix para a entrega; não invente um log único que contenha tudo.</p>
+<h3 id="decida-1-o-certificado-nao-e-confiavel">Decida 1 · O certificado não é confiável</h3>
+<p>A. Ignorar TLS para testar a senha. B. Trocar a senha imediatamente. C. Conferir CA, nome e validade antes de autenticar.</p>
+<h3 id="decida-2-o-login-funciona-e-a-caixa-esta-vazia">Decida 2 · O login funciona e a caixa está vazia</h3>
+<p>A. Conferir usuário, casa, formato e entrega. B. Reinstalar os dois serviços. C. Apagar os índices de todas as caixas.</p>
+<h2 id="6-quebre-e-conserte">6 · Quebre e conserte</h2>
+<p>Faça uma falha por vez e restaure antes da próxima. Mantenha a sessão de gestão aberta. Os defeitos abaixo não exigem apagar mensagens, usuários nem arquivos de outros serviços.</p>
+<h3 id="quebra-1-nome-errado-no-cliente">Quebra 1 · Nome errado no cliente</h3>
+<p><strong>Sintoma:</strong> A conexão por IP falha na conferência de nome.</p>
+<p><strong>Investigação:</strong> Compare o nome solicitado com o SAN; não envie senha nessa conexão.</p>
+<p><strong>Causa:</strong> O certificado autoriza o nome DNS, não qualquer nome ou IP da máquina.</p>
+<p><strong>Conserto:</strong> Volte ao nome do SAN e confira sua resolução na rede isolada.</p>
+<p><strong>Prevenção:</strong> Registre nome e porta junto com a cadeia de confiança do cliente.</p>
+<p><strong>Verifique:</strong> A verificação do nome termina com sucesso antes de qualquer login.</p>
+<pre translate="no"><code class="lang-bash">openssl x509 -in /etc/ssl/m19/server.crt -noout -ext subjectAltName
+dig @192.0.2.204 mail.lab.test A +short</code></pre>
+<h3 id="quebra-2-alias-usado-como-login">Quebra 2 · Alias usado como login</h3>
+<p><strong>Sintoma:</strong> A carta chega ao alias, mas o login com esse nome não autentica.</p>
+<p><strong>Investigação:</strong> Compare o mapa de aliases, a conta Unix e o usuário informado pelo cliente.</p>
+<p><strong>Causa:</strong> O alias do Postfix não cria uma conta autenticável no Dovecot.</p>
+<p><strong>Conserto:</strong> Use a conta local criada, com sua senha exclusiva. Não crie contas duplicadas para encobrir o erro.</p>
+<p><strong>Prevenção:</strong> Documente endereço de correio e nome de login em campos diferentes.</p>
+<p><strong>Verifique:</strong> O login da conta local abre a caixa que recebe o alias.</p>
+<pre translate="no"><code class="lang-bash">sudo postalias -q suporte hash:/etc/aliases
+getent passwd aluno-mail
+sudo doveadm user aluno-mail</code></pre>
+<h3 id="quebra-3-formato-de-caixa-divergente">Quebra 3 · Formato de caixa divergente</h3>
+<p><strong>Sintoma:</strong> O arquivo existe na casa, mas a caixa aberta não corresponde a ele.</p>
+<p><strong>Investigação:</strong> Confira caminho efetivo, casa e formato dos dois serviços.</p>
+<p><strong>Causa:</strong> Uma alteração de exercício fez o leitor procurar outro formato ou caminho.</p>
+<p><strong>Conserto:</strong> Restaure os dois parâmetros Maildir do passo 3, valide e recarregue. Não converta nem apague mensagens.</p>
+<p><strong>Prevenção:</strong> Mantenha um contrato único entre entrega e leitura.</p>
+<p><strong>Verifique:</strong> O conteúdo da mensagem original pode ser recuperado novamente pelo cliente.</p>
+<pre translate="no"><code class="lang-bash">sudo postconf home_mailbox
+sudo doveconf -n mail_driver mail_path
+sudo doveadm user aluno-mail
+sudo doveconf -n &amp;&amp; sudo systemctl reload dovecot.service</code></pre>
+<h2 id="7-armadilhas">7 · Armadilhas</h2>
+<figure><a href="../img/19.8-correlacao-imaps.jpg"><img src="../img/19.8-correlacao-imaps.jpg" alt="Uma mensagem, várias provas" loading="lazy" decoding="async"></a><figcaption>A leitura da mensagem completa fecha a prova de ponta a ponta.</figcaption></figure>
+<ol><li>Certificado válido sem nome correspondente continua sendo erro de identidade.</li>
+<li>A senha do cliente não deve aparecer no histórico do shell.</li>
+<li>Não confunda UID IMAP, UID Unix e identificador de fila.</li>
+<li>A caixa pode mover mensagens entre novas e já vistas.</li>
+<li>Dovecot 2.4 não aceita automaticamente uma configuração 2.3.</li>
+<li>A chave do servidor permanece no servidor; somente a CA pública vai ao cliente.</li></ol>
+<h2 id="8-quiz">8 · Quiz</h2>
+<ol><li>Que duas provas TLS são feitas antes da autenticação?</li>
+<li>Por que o alias não é automaticamente usuário IMAP?</li>
+<li>Qual formato os dois serviços precisam compartilhar nesta aula?</li>
+<li>Por que buscar pelo cabeçalho antes de escolher o UID?</li>
+<li>O que um login bem-sucedido ainda não prova?</li></ol>
+<h2 id="9-folha-de-bolso">9 · Folha de bolso</h2>
+<pre translate="no"><code class="lang-bash">dovecot --version
+sudo doveconf -n
+sudo doveadm user aluno-mail
+sudo ss -ltnp '( sport = :143 or sport = :993 )'
+sudo journalctl -u dovecot.service --since '-15 min' --no-pager
+openssl verify -CAfile /etc/ssl/m19/ca.crt   -verify_hostname mail.lab.test /etc/ssl/m19/server.crt</code></pre>
+<p><strong>Flashcards:</strong> TLS → identidade do servidor e proteção do transporte.</p>
+<p><strong>Flashcards:</strong> Login → identidade que recebe acesso à caixa.</p>
+<p><strong>Flashcards:</strong> Leitura → conteúdo recuperado, correlacionado ao envio.</p>
+<h2 id="10-checklist-e-fechamento">10 · Checklist e fechamento</h2>
+<ul><li>[ ] Série 2.4 e parser confirmados.</li>
+<li>[ ] Porta 143 fechada e 993 somente na rede isolada.</li>
+<li>[ ] CA, SAN e validade conferidos antes da senha.</li>
+<li>[ ] Conta local e Maildir correspondem à entrega.</li>
+<li>[ ] Senha digitada sem argumento nem URL.</li>
+<li>[ ] Mensagem original recuperada por UID observado.</li>
+<li>[ ] Evidências sem segredos e serviços preservados.</li></ul>
+<p><strong>Reboot de conferência:</strong> agende somente a VM 204 quando a bancada permitir. Após o retorno, verifique endereço isolado, listeners, política e o teste funcional completo; um serviço ativo sozinho não fecha a prova.</p>
+<p>Na janela combinada, reinicie pelo convidado; depois reconecte pela gestão e execute as verificações seguintes.</p>
+<pre translate="no"><code class="lang-bash">sudo systemctl reboot</code></pre>
+<pre translate="no"><code class="lang-bash">sudo systemctl is-active dovecot.service
+sudo ss -ltnp '( sport = :143 or sport = :993 )'
+sudo doveadm user aluno-mail
+sudo postfix status</code></pre>
+<p><strong>Último exercício:</strong> Envie uma segunda carta com marcador novo e repita a leitura por busca, sem assumir um UID fixo.</p>
+<h2 id="11-na-vida-real">11 · Na vida real</h2>
+<p>Antes de alterar um servidor existente, inventarie autenticação, casas, quotas, retenção, cópias e clientes. Uma migração de formato ou autenticação exige plano próprio e restauração ensaiada.</p>
+<p>O usuário relata caixa vazia; a investigação começa pelo contrato efetivo e pela correlação, sem eliminar índices nem conceder leitura global das casas.</p>
+<h2 id="12-aprofunde-quando-quiser">12 · Aprofunde quando quiser</h2>
+<p><a href="https://doc.dovecot.org/2.4.2/core/config/quick.html">Dovecot 2.4 · configuração inicial</a> documenta a sintaxe e os provedores locais usados.</p>
+<p><a href="https://doc.dovecot.org/2.4.0/core/config/ssl.html">Dovecot 2.4 · TLS</a> separa certificado, chave e exigência de transporte seguro.</p>
+<p><a href="https://curl.se/docs/url-syntax.html">curl · URLs IMAP</a> explica busca e seleção de UID.</p>
+<p>As referências sustentam a leitura documental. Os comandos e resultados desta aula precisam ser executados na sua bancada; esta entrega não registra testes em VMs.</p>
+<p>!explica Diferencie entrega SMTP, autenticacao IMAP e leitura do conteudo.</p>
+<p>!feynman Explique por que confiar na CA nao dispensa conferir o nome.</p>
+<p>!quiz Proponha tres falhas de IMAPS e peca a primeira evidencia de cada uma.</p>
+<h3 id="gabarito-comentado">Gabarito comentado</h3>
+<p>Aquecimento: Postfix entrega; TLS não prova senha; SAN vincula o nome à identidade do servidor.</p>
+<p>Decida 1: C. Autenticar só depois de conferir a identidade evita entregar a senha a um destino não validado.</p>
+<p>Decida 2: A. Login e localização da caixa são contratos distintos.</p>
+<p>Quiz 1: cadeia até uma CA confiável e correspondência do nome ao SAN, além da validade temporal.</p>
+<p>Quiz 2: aliases pertencem ao roteamento local do Postfix; PAM autentica contas locais.</p>
+<p>Quiz 3: Maildir na casa da mesma conta.</p>
+<p>Quiz 4: UID é atribuído à mensagem dentro da caixa e precisa ser observado.</p>
+<p>Quiz 5: não prova a presença nem a leitura da mensagem desejada; ainda é preciso recuperar seu conteúdo.</p>
+<p>Guarde as evidências fora da VM antes de encerrar. Preserve os serviços do M19 para as aulas seguintes e não reverta o snapshot sobre trabalho posterior.</p>
+<p><a href="19.7-postfix-e-correio-local.html">← Aula 19.7 · Postfix</a> · <a href="index.html">Índice das aulas</a> · <a href="19.9-squid-e-desafio-integrado.html">Aula 19.9 · Squid →</a></p>
+</article><nav class="paginas" aria-label="Aulas"><a class="ant" href="19.7-postfix-e-correio-local.html"><small>← Anterior</small>19.7 · Postfix e correio local</a><a class="prox" href="19.9-squid-e-desafio-integrado.html"><small>Próxima →</small>19.9 · Squid e desafio integrado</a></nav></main></div>
+<footer><div class="wrap">Gerado a partir do Markdown do curso · Imagens em <code translate="no">img/</code></div></footer>
+</body>
+</html>

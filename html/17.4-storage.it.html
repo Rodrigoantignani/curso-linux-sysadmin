@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light dark">
+<title>17.4 · Storage: capacità, ampliamento e spostamento · Corso Linux Sysadmin</title>
+<link rel="alternate" hreflang="pt-BR" href="17.4-storage.html"><link rel="alternate" hreflang="it" href="17.4-storage.it.html">
+<style>
+:root{color-scheme:light dark;--bg:#f6f1e7;--card:#fffdf8;--ink:#201c16;--muted:#5e564a;--accent:#9a3412;--accent-2:#1f5f4a;--tint:#efe6d4;--line:#ddd2bc;--code:#f1eadb;--shadow:0 1px 2px rgba(60,40,10,.08);--serif:Georgia,"Iowan Old Style","Palatino Linotype",Palatino,serif;--sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--mono:"Cascadia Code",Consolas,"DejaVu Sans Mono",monospace}
+@media (prefers-color-scheme:dark){:root{--bg:#16130f;--card:#201b15;--ink:#f1eadb;--muted:#b9ad98;--accent:#f0a070;--accent-2:#7fd0b0;--tint:#2a231a;--line:#3d3427;--code:#191510;--shadow:none}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:5.5rem}
+body{margin:0;background:var(--bg);color:var(--ink);font:1rem/1.6 var(--sans)}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--accent-2);outline-offset:2px;border-radius:4px}
+.pular{position:absolute;left:-999px;top:0;background:var(--card);padding:.5rem 1rem;z-index:20}
+.pular:focus{left:.5rem;top:.5rem}
+.wrap{width:100%;max-width:84rem;margin:0 auto;padding-inline:max(1rem,env(safe-area-inset-left))}
+.top{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10;border-top:6px solid var(--accent)}
+.top-in{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding-block:.6rem}
+.titles{min-width:0}
+.marca{margin:0;font:700 clamp(1.15rem,1rem + 1vw,1.6rem)/1.15 var(--serif);letter-spacing:-.01em}
+.marca a{text-decoration:none}
+.marca a:hover{color:var(--accent)}
+.meta{margin:.1rem 0 0;color:var(--muted);font-size:.85rem}
+.acoes{display:flex;align-items:center;gap:.9rem;flex:none}
+.acoes>a{font-size:.9rem;font-weight:600;color:var(--muted);text-decoration:none}
+.acoes>a:hover{color:var(--accent);text-decoration:underline}
+.idioma{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--tint)}
+.idioma>*{padding:.35rem .9rem;font-size:.8rem;font-weight:700;letter-spacing:.06em;text-decoration:none;color:var(--muted);min-width:2.75rem;text-align:center}
+.idioma a:hover{color:var(--accent);text-decoration:underline}
+.idioma span{background:var(--accent);color:#fff}
+@media (prefers-color-scheme:dark){.idioma span{color:#16130f}}
+code{font-family:var(--mono);font-size:.9em;background:var(--tint);padding:.1rem .35rem;border-radius:4px;overflow-wrap:anywhere}
+/* índice */
+.capa{max-width:70rem;padding-block:2rem 3rem}
+.stats{border-left:4px solid var(--accent-2);background:var(--card);border-radius:0 10px 10px 0;padding:1rem 1.25rem;margin:0 0 2.5rem;box-shadow:var(--shadow);color:var(--muted)}
+.stats strong{color:var(--ink)}
+.modulo{display:grid;grid-template-columns:15rem minmax(0,1fr);gap:1rem 2rem;padding:1.75rem 0;border-top:1px solid var(--line)}
+.modulo h2{margin:0;font:700 1.25rem/1.25 var(--serif);align-self:start;position:sticky;top:6rem}
+.mn{display:block;font:700 .8rem var(--mono);letter-spacing:.12em;color:var(--accent);margin-bottom:.25rem}
+.sep{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.modulo ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,17rem),1fr));gap:.75rem}
+.modulo li{margin:0}
+.modulo a{display:flex;gap:.45rem;align-items:baseline;height:100%;padding:.85rem 1rem;background:var(--card);border:1px solid var(--line);border-radius:10px;text-decoration:none;font-weight:600;line-height:1.35;box-shadow:var(--shadow);transition:border-color .15s,transform .15s}
+.modulo a:hover{border-color:var(--accent);color:var(--accent)}
+.num{font:700 .85rem var(--mono);color:var(--accent);white-space:nowrap}
+/* aula */
+.doc{display:grid;grid-template-columns:17rem minmax(0,1fr);gap:2.5rem;align-items:start;padding-block:2rem 3rem}
+.lateral{position:sticky;top:5.5rem;max-height:calc(100vh - 6.5rem);overflow:auto;font-size:.875rem;padding-right:.5rem}
+.lateral h2{margin:0 0 .25rem;font:700 .95rem var(--serif);color:var(--muted)}
+.lateral h3{margin:1rem 0 .25rem;font:700 .75rem var(--mono);letter-spacing:.06em;color:var(--accent)}
+.lateral ul{list-style:none;margin:0;padding:0}
+.lateral a{display:flex;gap:.45rem;padding:.25rem .5rem;border-radius:6px;text-decoration:none;color:var(--muted);line-height:1.3}
+.lateral a:hover{background:var(--tint);color:var(--ink)}
+.lateral a[aria-current]{background:var(--tint);color:var(--ink);font-weight:700;box-shadow:inset 3px 0 0 var(--accent)}
+.lateral .num{font-size:.75rem}
+.aula{min-width:0;max-width:56rem;overflow-wrap:break-word;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:clamp(1.25rem,1rem + 2vw,2.75rem);box-shadow:var(--shadow)}
+.aula h1{margin:0 0 1.5rem;font:700 clamp(1.75rem,1.4rem + 1.6vw,2.5rem)/1.15 var(--serif);letter-spacing:-.015em;color:var(--ink)}
+.aula h2{margin:2.5rem 0 .75rem;padding-top:1.25rem;border-top:1px solid var(--line);font:700 1.5rem/1.25 var(--serif)}
+.aula h3{margin:2rem 0 .5rem;font:700 1.15rem/1.3 var(--serif);color:var(--accent)}
+.aula h4,.aula h5,.aula h6{margin:1.5rem 0 .5rem;font-size:1rem}
+.aula p,.aula ul,.aula ol{margin:1rem 0}
+.aula ul,.aula ol{padding-left:1.5rem}
+.aula li{margin:.35rem 0}
+.aula li>ul,.aula li>ol{margin:.35rem 0}
+.aula a{color:var(--accent);text-underline-offset:2px}
+.aula hr{border:0;border-top:1px solid var(--line);margin:2rem 0}
+.tabela{overflow-x:auto;margin:1.25rem 0;border:1px solid var(--line);border-radius:10px}
+.aula table{width:100%;border-collapse:collapse;font-size:.9rem}
+.aula th,.aula td{padding:.55rem .75rem;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+.aula tr:last-child td{border-bottom:0}
+.aula th{background:var(--tint);font-weight:700}
+.aula pre{background:var(--code);border:1px solid var(--line);border-radius:10px;padding:.9rem 1rem;overflow-x:auto;font:.85rem/1.5 var(--mono);margin:1rem 0;tab-size:4}
+.aula pre code{background:none;padding:0;font-size:inherit;overflow-wrap:normal}
+.aula blockquote{margin:1.25rem 0;padding:.75rem 1.25rem;border-left:4px solid var(--accent-2);background:var(--tint);border-radius:0 10px 10px 0}
+.aula blockquote>:first-child{margin-top:0}
+.aula blockquote>:last-child{margin-bottom:0}
+.aula figure{margin:1.75rem 0;text-align:center}
+.aula figure img{display:block;margin:0 auto;max-width:100%;height:auto;border:1px solid var(--line);border-radius:10px;background:#fff}
+.aula figcaption{margin-top:.5rem;color:var(--muted);font-size:.9rem;font-style:italic}
+.paginas{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:2.5rem;padding-top:1.5rem;border-top:1px solid var(--line)}
+.paginas a{display:block;padding:.75rem 1rem;border:1px solid var(--line);border-radius:10px;text-decoration:none;color:var(--ink);font-weight:600;line-height:1.3}
+.paginas a:hover{border-color:var(--accent);color:var(--accent)}
+.paginas small{display:block;color:var(--muted);font-weight:400}
+.paginas .prox{grid-column:2;text-align:right}
+footer{border-top:1px solid var(--line);padding-block:1.5rem;color:var(--muted);font-size:.85rem;text-align:center}
+@media (hover:hover) and (prefers-reduced-motion:no-preference){.modulo a:hover{transform:translateY(-2px)}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+@media (max-width:980px){.doc{grid-template-columns:minmax(0,1fr);padding-top:1rem}.lateral{position:static;max-height:none;order:2}.aula{max-width:none}}
+@media (max-width:860px){.modulo{grid-template-columns:minmax(0,1fr)}.modulo h2{position:static}.mn{display:inline;margin-right:.5rem}}
+@media (max-width:420px){.meta{display:none}.top-in{gap:.5rem}.acoes{gap:.6rem}.capa{padding-top:1.25rem}.paginas{grid-template-columns:minmax(0,1fr)}.paginas .prox{grid-column:1}}
+@media print{.top,.lateral,.paginas{display:none}.aula{border:0;box-shadow:none;padding:0;max-width:none}.doc{display:block}}
+</style>
+</head>
+<body>
+<a class="pular" href="#conteudo">Vai al contenuto</a>
+<header class="top"><div class="wrap top-in"><div class="titles"><p class="marca"><a href="index.it.html">Corso Linux Sysadmin</a></p><p class="meta">Rodrigo Antignani · Lezione 17.4</p></div><div class="acoes"><a href="index.it.html">Indice</a><div class="idioma" role="group" aria-label="Lingua"><a href="17.4-storage.html" hreflang="pt-BR" lang="pt-BR">PT</a><span aria-current="true">IT</span></div></div></div></header>
+<div class="wrap doc"><aside class="lateral" aria-label="Lezioni"><h2>Lezioni</h2><h3>M0 · Laboratorio</h3><ul><li><a href="0.1-montar-o-laboratorio.it.html"><span class="num">0.1</span><span>Allestire il laboratorio</span></a></li><li><a href="0.2-acesso-e-protecao.it.html"><span class="num">0.2</span><span>Accesso e protezione</span></a></li></ul><h3>M1 · Riga di comando</h3><ul><li><a href="1.1-o-que-e-linux.it.html"><span class="num">1.1</span><span>Che cos'è Linux</span></a></li><li><a href="1.2-o-shell-e-a-ajuda.it.html"><span class="num">1.2</span><span>La shell e la guida</span></a></li><li><a href="1.3-caminhos-e-navegacao.it.html"><span class="num">1.3</span><span>Percorsi e navigazione</span></a></li><li><a href="1.4-criar-copiar-mover-e-apagar.it.html"><span class="num">1.4</span><span>Creare, copiare, spostare ed eliminare</span></a></li><li><a href="1.5-ler-e-procurar-texto.it.html"><span class="num">1.5</span><span>Leggere e cercare testo</span></a></li><li><a href="1.6-redirecionamentos-e-pipes.it.html"><span class="num">1.6</span><span>Reindirizzamenti e pipe</span></a></li><li><a href="1.7-arquivar-e-compactar.it.html"><span class="num">1.7</span><span>Archiviare e comprimere</span></a></li><li><a href="1.8-primeiro-script.it.html"><span class="num">1.8</span><span>Primo script</span></a></li><li><a href="1.9-decidir-e-repetir.it.html"><span class="num">1.9</span><span>Decidere e ripetere</span></a></li><li><a href="1.10-software-livre-na-pratica.it.html"><span class="num">1.10</span><span>Il software libero in pratica</span></a></li></ul><h3>M2 · Sistema, utenti e permessi</h3><ul><li><a href="2.1-instalacao-e-provisionamento.it.html"><span class="num">2.1</span><span>Installazione e provisioning</span></a></li><li><a href="2.2-hardware-e-dispositivos.it.html"><span class="num">2.2</span><span>Hardware e dispositivi</span></a></li><li><a href="2.3-processos-e-logs.it.html"><span class="num">2.3</span><span>Processi e log</span></a></li><li><a href="2.4-rede-no-dia-a-dia.it.html"><span class="num">2.4</span><span>La rete di tutti i giorni</span></a></li><li><a href="2.5-acesso-remoto-e-privilegios.it.html"><span class="num">2.5</span><span>Accesso remoto e privilegi</span></a></li><li><a href="2.6-usuarios-e-grupos.it.html"><span class="num">2.6</span><span>Utenti e gruppi</span></a></li><li><a href="2.7-permissoes-e-dono.it.html"><span class="num">2.7</span><span>Permessi e proprietario</span></a></li><li><a href="2.8-diretorios-e-arquivos-especiais.it.html"><span class="num">2.8</span><span>Directory e file speciali</span></a></li></ul><h3>M3 · Testo ed editor</h3><ul><li><a href="3.1-fluxos-a-fundo.it.html"><span class="num">3.1</span><span>I flussi in profondità</span></a></li><li><a href="3.2-filtros-de-texto.it.html"><span class="num">3.2</span><span>Filtri di testo</span></a></li><li><a href="3.3-regex-e-grep.it.html"><span class="num">3.3</span><span>Regex e grep</span></a></li><li><a href="3.4-sed-e-awk.it.html"><span class="num">3.4</span><span>sed e awk</span></a></li><li><a href="3.5-vi-e-vim-de-verdade.it.html"><span class="num">3.5</span><span>vi e vim sul serio</span></a></li></ul><h3>M4 · systemd e boot</h3><ul><li><a href="4.1-como-o-linux-liga.it.html"><span class="num">4.1</span><span>Come si avvia Linux</span></a></li><li><a href="4.2-systemd-servicos-e-units.it.html"><span class="num">4.2</span><span>systemd: servizi e unit</span></a></li><li><a href="4.3-targets-desligar-e-reiniciar.it.html"><span class="num">4.3</span><span>Target: spegnere e riavviare</span></a></li><li><a href="4.4-grub-e-acesso-de-emergencia.it.html"><span class="num">4.4</span><span>GRUB e accesso di emergenza</span></a></li></ul><h3>M5 · Kernel, moduli e VM</h3><ul><li><a href="5.1-hardware-pelo-kernel.it.html"><span class="num">5.1</span><span>L'hardware visto dal kernel</span></a></li><li><a href="5.2-modulos-e-parametros.it.html"><span class="num">5.2</span><span>Moduli e parametri</span></a></li><li><a href="5.3-linux-como-convidado.it.html"><span class="num">5.3</span><span>Linux come guest</span></a></li></ul><h3>M6 · Pacchetti e repository</h3><ul><li><a href="6.1-pacotes-no-debian.it.html"><span class="num">6.1</span><span>Pacchetti su Debian</span></a></li><li><a href="6.2-pacotes-na-rocky.it.html"><span class="num">6.2</span><span>Pacchetti su Rocky</span></a></li><li><a href="6.3-repositorios.it.html"><span class="num">6.3</span><span>Repository</span></a></li><li><a href="6.4-flatpak.it.html"><span class="num">6.4</span><span>Flatpak</span></a></li><li><a href="6.5-bibliotecas-compartilhadas.it.html"><span class="num">6.5</span><span>Librerie condivise</span></a></li></ul><h3>M7 · Processi e prestazioni</h3><ul><li><a href="7.1-processos-e-sinais.it.html"><span class="num">7.1</span><span>Processi e segnali</span></a></li><li><a href="7.2-jobs-e-sessoes.it.html"><span class="num">7.2</span><span>Job e sessioni</span></a></li><li><a href="7.3-prioridade-e-perfis.it.html"><span class="num">7.3</span><span>Priorità e profili</span></a></li></ul><h3>M8 · File a fondo</h3><ul><li><a href="8.1-fhs-e-onde-cada-coisa-mora.it.html"><span class="num">8.1</span><span>FHS e dove sta ogni cosa</span></a></li><li><a href="8.2-find-a-fundo.it.html"><span class="num">8.2</span><span>find a fondo</span></a></li><li><a href="8.3-arquivamento-avancado.it.html"><span class="num">8.3</span><span>Archiviazione avanzata</span></a></li><li><a href="8.4-links.it.html"><span class="num">8.4</span><span>Link</span></a></li><li><a href="8.5-permissoes-avancadas.it.html"><span class="num">8.5</span><span>Permessi avanzati</span></a></li></ul><h3>M9 · Storage</h3><ul><li><a href="9.1-discos-e-layout.it.html"><span class="num">9.1</span><span>Dischi e layout</span></a></li><li><a href="9.2-particionar.it.html"><span class="num">9.2</span><span>Partizionare</span></a></li><li><a href="9.3-sistemas-de-arquivos.it.html"><span class="num">9.3</span><span>File system</span></a></li><li><a href="9.4-montar-e-persistir.it.html"><span class="num">9.4</span><span>Montare e rendere persistente</span></a></li><li><a href="9.5-integridade-e-espaco.it.html"><span class="num">9.5</span><span>Integrità e spazio</span></a></li><li><a href="9.6-lvm.it.html"><span class="num">9.6</span><span>LVM</span></a></li><li><a href="9.7-crescer-sem-destruir.it.html"><span class="num">9.7</span><span>Crescere senza distruggere</span></a></li></ul><h3>M10 · Utenti e accesso privilegiato</h3><ul><li><a href="10.1-contas.it.html"><span class="num">10.1</span><span>Account</span></a></li><li><a href="10.2-senhas-e-validade.it.html"><span class="num">10.2</span><span>Password e scadenza</span></a></li><li><a href="10.3-grupos-e-trabalho-em-equipe.it.html"><span class="num">10.3</span><span>Gruppi e lavoro di squadra</span></a></li><li><a href="10.4-sudo-de-verdade.it.html"><span class="num">10.4</span><span>sudo sul serio</span></a></li></ul><h3>M11 · Rete</h3><ul><li><a href="11.1-tcp-ip-para-quem-administra.it.html"><span class="num">11.1</span><span>TCP/IP per chi amministra</span></a></li><li><a href="11.2-networkmanager-e-nmcli.it.html"><span class="num">11.2</span><span>NetworkManager e nmcli</span></a></li><li><a href="11.3-rede-no-debian.it.html"><span class="num">11.3</span><span>Rete su Debian</span></a></li><li><a href="11.4-nomes-e-resolucao.it.html"><span class="num">11.4</span><span>Nomi e risoluzione</span></a></li><li><a href="11.5-diagnostico-de-rede.it.html"><span class="num">11.5</span><span>Diagnosi di rete</span></a></li></ul><h3>M12 · Sicurezza dell'host</h3><ul><li><a href="12.1-ssh-a-fundo.it.html"><span class="num">12.1</span><span>SSH in dettaglio</span></a></li><li><a href="12.2-firewall.it.html"><span class="num">12.2</span><span>Firewall</span></a></li><li><a href="12.3-selinux-modos-e-contextos.it.html"><span class="num">12.3</span><span>SELinux: modalità e contesti</span></a></li><li><a href="12.4-selinux-portas-e-booleanos.it.html"><span class="num">12.4</span><span>SELinux: porte e booleani</span></a></li><li><a href="12.5-auditoria-e-criptografia.it.html"><span class="num">12.5</span><span>Audit e crittografia</span></a></li></ul><h3>M13 · Archiviazione in rete</h3><ul><li><a href="13.1-servidor-nfs.it.html"><span class="num">13.1</span><span>Server NFS</span></a></li><li><a href="13.2-cliente-nfs.it.html"><span class="num">13.2</span><span>Client NFS</span></a></li><li><a href="13.3-autofs.it.html"><span class="num">13.3</span><span>autofs</span></a></li></ul><h3>M14 · Pianificazione</h3><ul><li><a href="14.1-cron-e-at.it.html"><span class="num">14.1</span><span>cron e at</span></a></li><li><a href="14.2-timers-do-systemd.it.html"><span class="num">14.2</span><span>Timer di systemd</span></a></li><li><a href="14.3-journald-e-rsyslog.it.html"><span class="num">14.3</span><span>journald e rsyslog</span></a></li><li><a href="14.4-hora-certa.it.html"><span class="num">14.4</span><span>L'ora corretta</span></a></li><li><a href="14.5-email-local-e-impressao.it.html"><span class="num">14.5</span><span>E-mail locale e stampa</span></a></li></ul><h3>M15 · Shell e ambiente</h3><ul><li><a href="15.1-ambiente-do-shell.it.html"><span class="num">15.1</span><span>Ambiente della shell</span></a></li><li><a href="15.2-scripts-robustos.it.html"><span class="num">15.2</span><span>Script robusti</span></a></li><li><a href="15.3-scripts-de-administracao.it.html"><span class="num">15.3</span><span>Script di amministrazione</span></a></li><li><a href="15.4-interfaces-graficas.it.html"><span class="num">15.4</span><span>Interfacce grafiche</span></a></li><li><a href="15.5-idioma-teclado-e-fuso.it.html"><span class="num">15.5</span><span>Lingua, tastiera e fuso orario</span></a></li></ul><h3>M16 · Settimana di incidenti su Rocky 10</h3><ul><li><a href="16.1-rocky-10-o-que-muda.it.html"><span class="num">16.1</span><span>Rocky 10: cosa cambia</span></a></li><li><a href="16.2-incidentes-por-area.it.html"><span class="num">16.2</span><span>Incidenti per area</span></a></li><li><a href="16.3-incidente-com-relogio.it.html"><span class="num">16.3</span><span>Incidente con cronometro</span></a></li><li><a href="16.4-correcao-e-reforco.it.html"><span class="num">16.4</span><span>Correzione e rinforzo</span></a></li></ul><h3>M17 · Proxmox in pratica</h3><ul><li><a href="17.1-proxmox-por-dentro.it.html"><span class="num">17.1</span><span>Proxmox dall'interno</span></a></li><li><a href="17.2-vm-pela-linha-de-comando.it.html"><span class="num">17.2</span><span>VM dalla riga di comando</span></a></li><li><a href="17.3-conteiner-lxc.it.html"><span class="num">17.3</span><span>Container LXC</span></a></li><li><a href="17.4-storage.it.html" aria-current="page"><span class="num">17.4</span><span>Storage: capacità, ampliamento e spostamento</span></a></li><li><a href="17.5-rede.it.html"><span class="num">17.5</span><span>Rete: bridge, VLAN, bond e SDN</span></a></li><li><a href="17.6-backup-e-restauracao.it.html"><span class="num">17.6</span><span>Backup e ripristino con PBS</span></a></li><li><a href="17.7-migracao-e-quorum.it.html"><span class="num">17.7</span><span>Migrazione e quorum</span></a></li></ul><h3>M18 · Podman</h3><ul><li><a href="18.1-conteiner-nao-e-vm.it.html"><span class="num">18.1</span><span>Un container non è una VM</span></a></li><li><a href="18.2-rodar-e-persistir.it.html"><span class="num">18.2</span><span>Eseguire e conservare i dati</span></a></li><li><a href="18.3-conteiner-como-servico.it.html"><span class="num">18.3</span><span>Container come servizio</span></a></li><li><a href="18.4-diagnosticar-conteiner-rootless.it.html"><span class="num">18.4</span><span>Diagnosticare un container rootless</span></a></li><li><a href="18.5-construir-imagens.it.html"><span class="num">18.5</span><span>Costruire immagini</span></a></li></ul><h3>M19 · Servizi di rete</h3><ul><li><a href="19.1-dns-autoritativo.it.html"><span class="num">19.1</span><span>DNS autoritativo</span></a></li><li><a href="19.2-dns-recursivo-e-diagnostico.it.html"><span class="num">19.2</span><span>DNS ricorsivo e diagnosi</span></a></li><li><a href="19.3-dhcp.it.html"><span class="num">19.3</span><span>DHCP</span></a></li><li><a href="19.4-servidor-web.it.html"><span class="num">19.4</span><span>Server web: nome, file e risposta</span></a></li><li><a href="19.5-tls-e-proxy-reverso.it.html"><span class="num">19.5</span><span>TLS e reverse proxy: identità prima del lucchetto</span></a></li><li><a href="19.6-samba-a-ponte-windows.it.html"><span class="num">19.6</span><span>Samba: il ponte con il client Windows</span></a></li><li><a href="19.7-postfix-e-correio-local.it.html"><span class="num">19.7</span><span>Postfix e posta locale</span></a></li><li><a href="19.8-dovecot-e-imaps.it.html"><span class="num">19.8</span><span>Dovecot e lettura tramite IMAPS</span></a></li><li><a href="19.9-squid-e-desafio-integrado.it.html"><span class="num">19.9</span><span>Squid e sfida integrata</span></a></li></ul><h3>M20 · Dentro NethServer 8</h3><ul><li><a href="20.1-instalar-nethserver-8.it.html"><span class="num">20.1</span><span>Installare in una VM pulita</span></a></li><li><a href="20.2-cluster-no-e-modulo.it.html"><span class="num">20.2</span><span>Cluster, nodo e modulo</span></a></li><li><a href="20.3-modulo-por-dentro.it.html"><span class="num">20.3</span><span>Dentro un modulo</span></a></li><li><a href="20.4-proxy-e-certificados.it.html"><span class="num">20.4</span><span>Proxy e certificati</span></a></li><li><a href="20.5-dominios-de-usuario.it.html"><span class="num">20.5</span><span>Domini utente: identità con confini</span></a></li><li><a href="20.6-backup-e-restauracao.it.html"><span class="num">20.6</span><span>Backup e ripristino: verificare il ritorno</span></a></li><li><a href="20.7-atualizar-mover-e-falhar.it.html"><span class="num">20.7</span><span>Aggiornare, spostare e guastare con verifica</span></a></li></ul></aside><main id="conteudo" class="aula"><article><h1>Lezione 17.4 · Storage: capacità, ampliamento e spostamento</h1>
+<p>Il disco risulta più grande in Proxmox, ma la cartella dei dati conserva lo stesso spazio. In questa lezione separi capacità virtuale, consumo fisico e dimensione del filesystem, lavorando soltanto su un nuovo disco della VM 211.</p>
+<blockquote><p><strong>Il cuore di questa lezione:</strong> ampliare e spostare dischi richiede di verificare il riferimento sull’host e i dati dentro la VM.</p></blockquote>
+<div class="tabela"><table><thead><tr><th scope="col">Scheda</th><th scope="col"></th></tr></thead><tbody><tr><td>Modulo</td><td>M17 · Proxmox VE nella pratica, lezione 4 di 7</td></tr><tr><td>Quando</td><td>Settimana 23</td></tr><tr><td>Alla fine</td><td>Creare un disco dati, ampliare ext4 e verificare uno spostamento fra storage</td></tr><tr><td>Prerequisiti</td><td>Lezioni 17.1–17.3; VM 211 disponibile; backup autorizzato e spazio fisico</td></tr><tr><td>Durata</td><td>100–130 min; il tempo di copia dipende dall’ambiente</td></tr><tr><td>Snapshot</td><td>Punto precedente alla modifica e backup indipendente sullo storage autorizzato</td></tr></tbody></table></div>
+<h2 id="1-riscaldamento">1 · Riscaldamento</h2>
+<p>Ricevi un avviso di occupazione. Prima di ampliare, rispondi: è finito lo spazio dentro la VM, la capacità fisica del backend oppure entrambi?</p>
+<ul><li>La dimensione configurata di un disco non indica da sola quanto spazio abbia già consumato il backend.</li>
+<li>Un filesystem più piccolo può esistere dentro un dispositivo più grande.</li>
+<li>Un backup utilizzabile deve restare disponibile se lo storage di origine si guasta.</li></ul>
+<p>Riprendi la configurazione della VM 211 e individua il disco di avvio, il drive di cloud-init e l’interfaccia di gestione. Nessuno di questi verrà sostituito.</p>
+<pre translate="no"><code class="lang-bash">qm config 211
+qm status 211
+pvesm status</code></pre>
+<p>Questi comandi appartengono all’host Proxmox. I comandi del filesystem di questa lezione appartengono al terminale Linux <strong>dentro la VM 211</strong>.</p>
+<h2 id="2-perche-conta">2 · Perché conta</h2>
+<p>Lo storage può servire molte VM. Un nuovo disco di laboratorio continua a consumare risorse condivise; perciò misuri il margine prima di riservare spazio o scrivere dati.</p>
+<p>Il thin provisioning consente di presentare una capacità virtuale e allocare blocchi fisici secondo l’uso, in base al backend. Non elimina limiti, metadati, riserve né avvisi di occupazione.</p>
+<p>Se la somma delle capacità promesse supera quella reale, più VM possono contendersi l’ultimo spazio contemporaneamente. Eliminare un file nel guest non garantisce neppure la restituzione immediata dei blocchi al backend.</p>
+<figure><a href="../img/17.4-duas-medidas.it.jpg"><img src="../img/17.4-duas-medidas.it.jpg" alt="La capacità virtuale non è spazio libero" loading="lazy" decoding="async"></a><figcaption>Il thin provisioning non crea capacità fisica.</figcaption></figure>
+<h3 id="ponte-windows">Ponte Windows</h3>
+<p>Ampliare il disco nell’hypervisor ricorda l’aumento di un disco virtuale seguito dall’estensione del volume in Windows. La prima azione modifica il dispositivo; la seconda adatta la struttura che ne utilizza i blocchi.</p>
+<p>Qui il disco dati avrà ext4 direttamente sul dispositivo, senza partizione. Questo riduce i livelli dell’esercizio; non descrive automaticamente il layout del disco di avvio.</p>
+<h2 id="3-modello-mentale">3 · Modello mentale</h2>
+<p>Pensa a tre domande, poste in luoghi diversi.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Dove</th><th scope="col">Domanda</th><th scope="col">Evidenza</th></tr></thead><tbody><tr><td>Backend</td><td>Quanto spazio fisico posso ancora usare mantenendo margine?</td><td>Stato, capacità e avvisi dello storage</td></tr><tr><td>Proxmox</td><td>A quale volume punta questo slot e quale capacità presenta?</td><td>Configurazione della VM e attività completata</td></tr><tr><td>Guest</td><td>Quale dispositivo è questo e quanto contiene il filesystem?</td><td>Seriale, montaggio e dimensione di ext4</td></tr></tbody></table></div>
+<p>Il nome dello storage è un identificatore di configurazione. Non è necessariamente il percorso di una cartella, né dimostra che lo stesso contenuto possa essere salvato su un altro backend.</p>
+<p><strong>Decisione di sicurezza:</strong> identificheremo il nuovo disco tramite il seriale <code translate="no">M17DATA</code>, senza supporre quale sarà il secondo nome in ordine alfabetico.</p>
+<p>Una modifica dell’ordine dei dischi può cambiare il nome presentato dal kernel. Il seriale configurato consente di collegare l’identità nell’host all’osservazione dentro la VM.</p>
+<figure><a href="../img/17.4-tres-camadas-do-crescimento.it.jpg"><img src="../img/17.4-tres-camadas-do-crescimento.it.jpg" alt="Ampliare il disco è soltanto un livello" loading="lazy" decoding="async"></a><figcaption>Verifica ogni livello prima di considerare concluso l’ampliamento.</figcaption></figure>
+<h2 id="4-l-essenziale">4 · L'essenziale</h2>
+<h3 id="rocky-debian">Rocky × Debian</h3>
+<p>L’host Proxmox resta responsabile della creazione e dello spostamento dei volumi. Dentro la VM lo strumento dipende dal filesystem: ext4 utilizza strumenti diversi da XFS.</p>
+<p>Il nuovo disco sarà ext4, anche se il sistema Rocky della VM usa XFS all’avvio. Non applicare la procedura ext4 a un volume XFS o a un livello LVM.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Azione</th><th scope="col">Strumento o evidenza</th></tr></thead><tbody><tr><td>Vedere capacità e disponibilità del backend</td><td><code translate="no">pvesm status</code></td></tr><tr><td>Verificare slot e riferimenti</td><td><code translate="no">qm config 211</code></td></tr><tr><td>Ampliare soltanto il disco dati</td><td><code translate="no">qm disk resize 211 scsi1 +1G</code></td></tr><tr><td>Ampliare ext4 sul disco identificato</td><td><code translate="no">resize2fs</code></td></tr><tr><td>Copiare e cambiare il riferimento di storage</td><td><code translate="no">qm disk move</code></td></tr></tbody></table></div>
+<p><strong>Prima di iniziare:</strong> ottieni l’autorizzazione per 4 GiB virtuali iniziali, un ampliamento di 1 GiB e il corrispondente consumo fisico. Occorre inoltre spazio per snapshot, backup ed eventuale seconda copia.</p>
+<p>Il backend <code translate="no">vm-hdd</code> indicato nel piano deve esistere, essere attivo su questo nodo e accettare immagini di VM. Se non è disponibile, usa un altro storage reale autorizzato e annota la scelta.</p>
+<p>Non creare uno storage immaginario per completare la procedura. Un secondo backend è necessario soltanto per eseguire lo spostamento; senza di esso, il confronto resta documentale.</p>
+<h2 id="5-lab-guidato">5 · Lab guidato</h2>
+<h3 id="passo-1-inventariare-e-proteggere">Passo 1 · Inventariare e proteggere</h3>
+<p><strong>Ipotesi:</strong> quali righe distinguono il disco di avvio, cloud-init e lo slot libero?</p>
+<p>Nell’host, leggi tutto prima di creare il disco. Controlla anche le configurazioni in sospeso nell’interfaccia della VM. Lo slot <code translate="no">scsi1</code> deve essere libero sia nella configurazione attuale sia in quella in sospeso.</p>
+<pre translate="no"><code class="lang-bash">qm config 211
+qm config 211 --current 1
+qm pending 211
+pvesm status
+cat /etc/pve/storage.cfg
+qm listsnapshot 211</code></pre>
+<p><strong>Output atteso:</strong> la VM si chiama <code translate="no">m17-vm</code>; identifichi i suoi dischi esistenti e nessuno occupa <code translate="no">scsi1</code>. Sono visibili gli storage reali e i tipi di contenuto.</p>
+<p>Annota le righe complete di avvio, cloud-init e rete; le confronterai in seguito. Se esiste uno stato in sospeso sconosciuto, fermati per risolverlo con chi amministra il laboratorio.</p>
+<p>Crea uno snapshot con un nome ancora inesistente ed esegui il backup nella destinazione già autorizzata. <code translate="no">PBS-LAB</code> deve essere attivo, configurato e accessibile; non inventare credenziali o criteri di conservazione.</p>
+<pre translate="no"><code class="lang-bash">qm snapshot 211 m17-pre-storage || exit 1
+vzdump 211 --storage PBS-LAB --mode snapshot --remove 0 || exit 1</code></pre>
+<p><strong>Verifica:</strong> entrambe le attività sono terminate senza errori; annota l’identificatore reale del backup. Senza un backend capace di snapshot o un backup completato, non procedere con modifiche in questo laboratorio.</p>
+<h3 id="passo-2-aggiungere-soltanto-il-nuovo-disco">Passo 2 · Aggiungere soltanto il nuovo disco</h3>
+<p><strong>Ipotesi:</strong> che cosa deve cambiare nella configurazione quando crei un disco dati?</p>
+<p>Nell’host, scegli lo storage per immagini verificato nel passo precedente; digita il suo identificatore reale. Spegni correttamente la VM e conferma che sia ferma prima di continuare.</p>
+<pre translate="no"><code class="lang-bash">read -r DATA_STORE
+qm shutdown 211 --timeout 120
+qm status 211</code></pre>
+<p>Soltanto dopo aver confermato lo stato fermo, esegui il controllo. Rifiuta un nome errato, una variabile vuota e uno slot esistente; non sostituisce il controllo delle modifiche in sospeso.</p>
+<pre translate="no"><code class="lang-bash">test -n "$DATA_STORE" &amp;&amp;
+test "$(qm config 211 | sed -n 's/^name: //p')" = m17-vm &amp;&amp;
+test "$(qm status 211)" = 'status: stopped' &amp;&amp;
+! qm config 211 | grep -q '^scsi1:' &amp;&amp;
+qm set 211 --scsi1 "$DATA_STORE:4,serial=M17DATA,discard=on" || { printf '%s\n' 'STOP: new disk creation not performed' &gt;&amp;2; exit 1; }
+qm config 211</code></pre>
+<p><strong>Output atteso:</strong> compare una sola riga <code translate="no">scsi1</code> con il seriale <code translate="no">M17DATA</code> e una capacità iniziale di 4 GiB. Le righe annotate nel Passo 1 restano uguali.</p>
+<p><strong>Verifica:</strong> annota l’identificatore reale del volume creato. Se il controllo ha rifiutato l’operazione, indaga; non rimuovere un disco per liberare lo slot.</p>
+<pre translate="no"><code class="lang-bash">qm start 211</code></pre>
+<h3 id="passo-3-identificare-formattare-e-conservare-una-prova">Passo 3 · Identificare, formattare e conservare una prova</h3>
+<p><strong>Ipotesi:</strong> un dispositivo senza filesystem è necessariamente il disco che abbiamo appena creato?</p>
+<p>Entra nella VM 211. Controlla hostname, seriale e albero dei dispositivi. Se mancano gli strumenti per ext4, installa il pacchetto <code translate="no">e2fsprogs</code> tramite il gestore già noto della distribuzione.</p>
+<pre translate="no"><code class="lang-bash">hostname
+test "$(hostname -s)" = m17-vm || exit 1
+lsblk -o NAME,TYPE,SIZE,FSTYPE,MOUNTPOINTS,SERIAL
+ls -l /dev/disk/by-id/</code></pre>
+<p>Digita in <code translate="no">LAB_DISK</code> il percorso completo e reale del disco con seriale <code translate="no">M17DATA</code>, preferibilmente il suo collegamento persistente. Non copiare un nome da un altro terminale o da un’altra VM.</p>
+<pre translate="no"><code class="lang-bash">read -r LAB_DISK
+test -b "$LAB_DISK" || exit 1
+SIGNATURES=$(sudo wipefs -n "$LAB_DISK") || exit 1
+test ! -e /mnt/m17-data &amp;&amp;
+test -b "$LAB_DISK" &amp;&amp;
+test "$(lsblk -dnro SERIAL "$LAB_DISK")" = M17DATA &amp;&amp;
+test "$(lsblk -dnro TYPE "$LAB_DISK")" = disk &amp;&amp;
+test "$(lsblk -nrpo NAME "$LAB_DISK" | wc -l)" -eq 1 &amp;&amp;
+test -z "$SIGNATURES" &amp;&amp;
+! findmnt -rn -S "$LAB_DISK" &amp;&amp;
+printf '%s\n' 'M17DATA: blank whole disk verified' || { printf '%s\n' 'STOP: new disk checks failed' &gt;&amp;2; exit 1; }</code></pre>
+<p><strong>Output atteso:</strong> l’ultima frase compare soltanto se seriale, tipo, assenza di partizioni, firme e montaggio corrispondono. Controlla visivamente <code translate="no">lsblk</code> e <code translate="no">wipefs</code> prima di formattare.</p>
+<p>Se un qualsiasi output indica dati precedenti, fermati. Il comando seguente distrugge le strutture esistenti e riguarda soltanto il disco nuovo già identificato; non usare opzioni di forzatura.</p>
+<pre translate="no"><code class="lang-bash">sudo mkfs.ext4 -L M17DATA "$LAB_DISK" || exit 1
+sudo mkdir /mnt/m17-data || exit 1
+sudo mount "$LAB_DISK" /mnt/m17-data || exit 1
+printf '%s\n' 'm17-data: disposable evidence' | sudo tee /mnt/m17-data/evidence.txt
+sudo sha256sum /mnt/m17-data/evidence.txt | tee "$HOME/m17-data.sha256"
+findmnt /mnt/m17-data
+df -hT /mnt/m17-data</code></pre>
+<p><strong>Verifica:</strong> il filesystem è ext4 e contiene la frase fittizia. La cartella deve essere nuova ed esclusiva di questo laboratorio; se esiste già prima della creazione, fermati per controllare chi la usa.</p>
+<h3 id="passo-4-ampliare-dispositivo-ed-ext4">Passo 4 · Ampliare dispositivo ed ext4</h3>
+<p><strong>Ipotesi:</strong> dopo l’aumento del disco in Proxmox, ext4 mostrerà già più spazio?</p>
+<p>Conserva la prova e smonta nella VM. Un montaggio occupato deve essere analizzato; non forzare lo smontaggio.</p>
+<pre translate="no"><code class="lang-bash">sudo sha256sum -c "$HOME/m17-data.sha256"
+sync
+sudo umount /mnt/m17-data || exit 1</code></pre>
+<p>Nell’host, esegui un nuovo snapshot e un backup che includano il disco dati. Controlla che <code translate="no">scsi1</code> non sia escluso dal backup e che l’attività abbia incluso il suo volume reale.</p>
+<pre translate="no"><code class="lang-bash">qm snapshot 211 m17-pre-grow || exit 1
+vzdump 211 --storage PBS-LAB --mode snapshot --remove 0 || exit 1
+qm shutdown 211 --timeout 120
+qm status 211</code></pre>
+<p>Con il backup completato, la VM ferma e lo spazio fisico confermato, amplia <strong>soltanto</strong> <code translate="no">scsi1</code>. Il controllo verifica nuovamente nome e seriale della configurazione.</p>
+<pre translate="no"><code class="lang-bash">test "$(qm config 211 | sed -n 's/^name: //p')" = m17-vm &amp;&amp;
+test "$(qm status 211)" = 'status: stopped' &amp;&amp;
+qm config 211 | grep '^scsi1:' | grep -q 'serial=M17DATA' &amp;&amp;
+qm disk resize 211 scsi1 +1G || { printf '%s\n' 'STOP: disk growth not performed' &gt;&amp;2; exit 1; }
+qm config 211
+qm start 211</code></pre>
+<p>Nella VM, digita nuovamente il percorso in <code translate="no">LAB_DISK</code> e riconferma seriale, ext4 e assenza di montaggio. Le variabili non sopravvivono all’apertura di un’altra shell o al reboot.</p>
+<pre translate="no"><code class="lang-bash">read -r LAB_DISK
+lsblk -o NAME,TYPE,SIZE,FSTYPE,MOUNTPOINTS,SERIAL "$LAB_DISK"
+test "$(hostname -s)" = m17-vm || exit 1
+test -b "$LAB_DISK" || exit 1
+test "$(lsblk -dnro SERIAL "$LAB_DISK")" = M17DATA &amp;&amp;
+test "$(lsblk -dnro TYPE "$LAB_DISK")" = disk &amp;&amp;
+test "$(lsblk -dnro FSTYPE "$LAB_DISK")" = ext4 &amp;&amp;
+! findmnt -rn -S "$LAB_DISK" &amp;&amp;
+sudo e2fsck -f "$LAB_DISK"
+FSCK_RC=$?
+printf 'fsck exit: %s\n' "$FSCK_RC"</code></pre>
+<p>Se il controllo segnala errori non corretti, fermati. Il codice 0 indica integrità; 1 indica correzioni eseguite e richiede un nuovo controllo prima di proseguire. Non ignorare un errore soltanto perché il dispositivo è cresciuto.</p>
+<p>Dopo un controllo concluso con codice 0, amplia ext4 e monta nuovamente. Su questo disco non esiste una partizione intermedia.</p>
+<pre translate="no"><code class="lang-bash">test "$FSCK_RC" -eq 0 &amp;&amp; sudo resize2fs "$LAB_DISK" || { printf '%s\n' 'STOP: filesystem growth failed' &gt;&amp;2; exit 1; }
+sudo mount "$LAB_DISK" /mnt/m17-data || exit 1
+df -hT /mnt/m17-data
+sudo sha256sum -c "$HOME/m17-data.sha256"</code></pre>
+<p><strong>Output atteso:</strong> dispositivo ed ext4 presentano la capacità ampliata; la prova resta valida. Lo spazio utilizzabile differisce dalla capacità nominale a causa delle strutture e delle riserve del filesystem.</p>
+<p><strong>Verifica:</strong> annota dimensioni precedenti e successive, seriale e risultato dell’hash. Non tentare di ridurre nuovamente il disco; una riduzione richiede un altro piano e non fa parte di questo esercizio.</p>
+<h3 id="passo-5-spostare-quando-esiste-una-destinazione-reale">Passo 5 · Spostare quando esiste una destinazione reale</h3>
+<p><strong>Ipotesi:</strong> un’attività di copia riuscita dimostra che la VM usa il volume di destinazione?</p>
+<figure><a href="../img/17.4-mover-nao-e-copiar.it.jpg"><img src="../img/17.4-mover-nao-e-copiar.it.jpg" alt="Spostare richiede di verificare la copia di destinazione" loading="lazy" decoding="async"></a><figcaption>Rimuovi la vecchia origine soltanto dopo aver verificato riferimento e dati.</figcaption></figure>
+<p>Nell’host, esamina un secondo storage autorizzato che accetti immagini su questo nodo e abbia margine per la copia. Verifica anche la compatibilità degli snapshot fra i backend.</p>
+<pre translate="no"><code class="lang-bash">pvesm status
+cat /etc/pve/storage.cfg
+qm config 211
+qm help disk move</code></pre>
+<p><strong>Senza un secondo storage:</strong> annota l’origine reale, la capacità e i requisiti mancanti; spiega dove cambierebbe il riferimento. Non eseguire il blocco di spostamento e indica che la pratica non è stata eseguita.</p>
+<p><strong>Con un secondo storage:</strong> annota il volume di origine e digita in <code translate="no">TARGET_STORE</code> l’identificatore della destinazione, diverso dall’origine. Se gli snapshot impediscono l’operazione, fermati; non eliminare la protezione per forzare la copia.</p>
+<p>Nella VM, smonta la cartella; nell’host, spegni e conferma l’arresto. Esegui il blocco soltanto dopo aver verificato la destinazione e il backup del Passo 4.</p>
+<pre translate="no"><code class="lang-bash">read -r TARGET_STORE
+qm shutdown 211 --timeout 120
+qm status 211</code></pre>
+<pre translate="no"><code class="lang-bash">test -n "$TARGET_STORE" &amp;&amp;
+test "$(qm config 211 | sed -n 's/^name: //p')" = m17-vm &amp;&amp;
+test "$(qm status 211)" = 'status: stopped' &amp;&amp;
+qm config 211 | grep '^scsi1:' | grep -q 'serial=M17DATA' &amp;&amp;
+qm disk move 211 scsi1 "$TARGET_STORE" --delete 0 || { printf '%s\n' 'STOP: disk move not performed' &gt;&amp;2; exit 1; }
+qm config 211</code></pre>
+<p><strong>Output atteso:</strong> l’attività termina, <code translate="no">scsi1</code> punta alla destinazione e il seriale resta presente. L’origine conservata compare come volume inutilizzato; continua a occupare spazio.</p>
+<p><strong>Verifica:</strong> confronta i riferimenti completi, conferma i dischi protetti del Passo 1 e controlla la prova dentro la VM dopo l’avvio. Se non hai eseguito lo spostamento, annota chiaramente questa limitazione.</p>
+<p>L’origine precedente resta conservata per la revisione; questa procedura non richiede di eliminare volumi inutilizzati. Rimuoverne uno può cancellarne fisicamente i dati.</p>
+<h3 id="passo-6-reboot-e-verifica-completa">Passo 6 · Reboot e verifica completa</h3>
+<p><strong>Ipotesi:</strong> dopo il reboot, l’assenza del montaggio significa perdita dei dati?</p>
+<p>Nell’host, avvia la VM se è ferma; se è già attiva, esegui un reboot corretto. Non riavviare il nodo Proxmox.</p>
+<pre translate="no"><code class="lang-bash">qm status 211
+qm config 211</code></pre>
+<p><strong>Reboot di verifica:</strong> scegli soltanto l’azione adatta allo stato appena misurato. Attendi l’avvio ed entra nuovamente nella VM.</p>
+<pre translate="no"><code class="lang-bash">qm start 211</code></pre>
+<pre translate="no"><code class="lang-bash">qm reboot 211</code></pre>
+<p>Nella VM, identifica nuovamente il disco tramite il seriale e monta la cartella. Non abbiamo modificato la configurazione persistente del montaggio; è normale dover montare manualmente dopo il reboot.</p>
+<pre translate="no"><code class="lang-bash">lsblk -o NAME,TYPE,SIZE,FSTYPE,MOUNTPOINTS,SERIAL
+read -r LAB_DISK
+test "$(lsblk -dnro SERIAL "$LAB_DISK")" = M17DATA &amp;&amp;
+sudo mount "$LAB_DISK" /mnt/m17-data || exit 1
+findmnt /mnt/m17-data
+df -hT /mnt/m17-data
+sudo sha256sum -c "$HOME/m17-data.sha256"</code></pre>
+<p><strong>Output atteso:</strong> il disco ampliato viene montato come ext4 e l’hash conferma la stessa evidenza. Il riferimento nell’host corrisponde al backend attuale, con o senza spostamento eseguito.</p>
+<p><strong>Verifica:</strong> descrivi tre prove distinte: capacità del dispositivo, capacità del filesystem e integrità del file. Nessuna sostituisce le altre.</p>
+<h2 id="6-rompi-e-ripara">6 · Rompi e ripara</h2>
+<p>Tutti i guasti seguenti restano sul disco fittizio della VM 211. Non modificare il disco del sistema, i permessi del backend o i volumi di altre VM.</p>
+<h3 id="guasto-1-cartella-vuota-dopo-lo-smontaggio">Guasto 1 · Cartella vuota dopo lo smontaggio</h3>
+<p><strong>Sintomo:</strong> la cartella esiste, ma la prova sembra sparita. Smonta soltanto il montaggio del laboratorio e osserva la cartella.</p>
+<pre translate="no"><code class="lang-bash">sudo umount /mnt/m17-data
+ls -la /mnt/m17-data
+findmnt /mnt/m17-data</code></pre>
+<p><strong>Indagine:</strong> verifica l’assenza del montaggio e individua il disco tramite il seriale; non scrivere una nuova prova nella cartella vuota.
+<strong>Causa:</strong> stai vedendo la cartella del filesystem di avvio, senza il disco dati montato sopra.
+<strong>Riparazione:</strong> monta nuovamente il disco identificato.</p>
+<pre translate="no"><code class="lang-bash">test "$(lsblk -dnro SERIAL "$LAB_DISK")" = M17DATA &amp;&amp;
+sudo mount "$LAB_DISK" /mnt/m17-data || exit 1
+sudo sha256sum -c "$HOME/m17-data.sha256"</code></pre>
+<p><strong>Verifica:</strong> l’hash torna valido senza ripristinare o ricreare il file.
+<strong>Prevenzione:</strong> controlla il montaggio prima di interpretare una cartella vuota come perdita di dati.</p>
+<h3 id="guasto-2-dati-visibili-scrittura-rifiutata">Guasto 2 · Dati visibili, scrittura rifiutata</h3>
+<p><strong>Sintomo:</strong> la lettura funziona e la scrittura fallisce. Rimonta soltanto la cartella del laboratorio in sola lettura.</p>
+<pre translate="no"><code class="lang-bash">sudo mount -o remount,ro /mnt/m17-data
+sudo touch /mnt/m17-data/probe.txt</code></pre>
+<p><strong>Indagine:</strong> confronta le opzioni di montaggio con i permessi dei file; l’errore può trovarsi sotto il livello dei permessi dell’utente.</p>
+<pre translate="no"><code class="lang-bash">findmnt -no SOURCE,FSTYPE,OPTIONS /mnt/m17-data</code></pre>
+<p><strong>Causa:</strong> il montaggio è in sola lettura; modificare i permessi della cartella non elimina questa condizione.
+<strong>Riparazione:</strong> ripristina la modalità di lettura e scrittura soltanto su questo montaggio.</p>
+<pre translate="no"><code class="lang-bash">sudo mount -o remount,rw /mnt/m17-data
+sudo touch /mnt/m17-data/probe.txt
+sudo rm /mnt/m17-data/probe.txt
+sudo sha256sum -c "$HOME/m17-data.sha256"</code></pre>
+<p><strong>Verifica:</strong> la scrittura funziona e la prova originale conserva il suo hash.
+<strong>Prevenzione:</strong> diagnostica opzioni e stato del filesystem prima di modificare ricorsivamente i permessi.</p>
+<h3 id="guasto-3-misura-corretta-al-livello-sbagliato">Guasto 3 · Misura corretta al livello sbagliato</h3>
+<p><strong>Sintomo:</strong> qualcuno afferma che la cartella abbia la dimensione del disco di avvio. Produci la misura sbagliata e confrontala.</p>
+<pre translate="no"><code class="lang-bash">df -hT /
+df -hT /mnt/m17-data
+lsblk -o NAME,SIZE,FSTYPE,MOUNTPOINTS,SERIAL</code></pre>
+<p><strong>Indagine:</strong> associa ogni percorso al dispositivo realmente montato; controlla il seriale del disco dati.
+<strong>Causa:</strong> la misura della radice è stata usata come se rappresentasse il montaggio dei dati.
+<strong>Riparazione:</strong> correggi l’annotazione usando il percorso montato e la sua origine; non occorre modificare alcuna capacità.
+<strong>Verifica:</strong> il tuo rapporto distingue la radice da ext4 dei dati, senza inventare valori di output.
+<strong>Prevenzione:</strong> scrivi sempre quale oggetto è stato misurato e a quale livello.</p>
+<h2 id="7-trappole">7 · Trappole</h2>
+<ul><li>Confondere spazio virtuale disponibile e margine fisico del backend.</li>
+<li>Usare il nome variabile del kernel come prova dell’identità del disco.</li>
+<li>Eseguire uno strumento ext4 su XFS, oppure dimenticare un livello di partizione/LVM in un altro layout.</li>
+<li>Eliminare volumi inutilizzati prima di verificare riferimento attivo, hash e backup.</li>
+<li>Promettere che uno snapshot annulli sempre un ridimensionamento fisico. Supporto e limiti dipendono dal backend; il ripristino del backup va pianificato.</li></ul>
+<h3 id="decidi-1">Decidi 1</h3>
+<p>Il disco è cresciuto nell’host, ma ext4 resta più piccolo. Che cosa fai?</p>
+<p>A. Ripetere il comando di ampliamento del disco finché la cartella aumenta.
+B. Formattare nuovamente il disco che contiene i dati.
+C. Verificare seriale, struttura e filesystem, poi ampliare il livello ancora più piccolo.</p>
+<h3 id="decidi-2">Decidi 2</h3>
+<p>L’attività di spostamento è terminata ed è rimasto un volume inutilizzato. Qual è l’azione successiva?</p>
+<p>A. Verificare riferimento attivo e dati; trattare l’eliminazione precedente come azione separata.
+B. Sostituire il disco di avvio con la vecchia copia.
+C. Eliminare tutti i volumi inutilizzati dello storage.</p>
+<h2 id="8-quiz">8 · Quiz</h2>
+<ol><li>Perché un disco virtuale da 5 GiB non garantisce 5 GiB fisici liberi nel backend?</li>
+<li>Quale identità collega il nuovo disco configurato nell’host al dispositivo nel guest?</li>
+<li>Quale livello intermedio è stato deliberatamente omesso dal disco dati di questo laboratorio?</li>
+<li>Che cosa dimostra il risultato dell’hash dopo l’ampliamento? Che cosa non misura?</li>
+<li>Perché conservare l’origine precedente aumenta temporaneamente il consumo?</li>
+<li>Senza un secondo backend autorizzato, come annoti correttamente il Passo 5?</li></ol>
+<h2 id="9-promemoria">9 · Promemoria</h2>
+<p><strong>Flashcard:</strong> la capacità virtuale promette blocchi; la capacità fisica limita il backend; il filesystem organizza lo spazio presentato; l’hash confronta il contenuto della prova.</p>
+<pre translate="no"><code class="lang-text">!explica Por que aumentar um disco no Proxmox não amplia automaticamente todo filesystem?
+!feynman Explique capacidade virtual, espaço físico e filesystem usando o disco M17DATA.
+!quiz Faça perguntas sobre serial, resize, move e validação de dados na VM 211.</code></pre>
+<h2 id="10-checklist-e-chiusura">10 · Checklist e chiusura</h2>
+<ul><li>[ ] Ho annotato la configurazione originale e conservato avvio, cloud-init e rete.</li>
+<li>[ ] Ho identificato il nuovo disco tramite il seriale prima di formattare.</li>
+<li>[ ] Ho ampliato il dispositivo ed ext4, controllando l’hash.</li>
+<li>[ ] Ho annotato se lo spostamento è avvenuto o è rimasto documentale per mancanza di destinazione.</li>
+<li>[ ] Ho conservato l’identificatore del backup e i riferimenti attuali dei volumi.</li>
+<li>[ ] Ho confermato il reboot e ripristinato il montaggio in lettura e scrittura.</li></ul>
+<p><strong>Ultimo esercizio:</strong> scrivi una registrazione con identità della VM, seriale, origine, destinazione se usata, capacità precedenti/successive, hash e limiti. Chi la legge deve distinguere una copia pianificata da una copia eseguita.</p>
+<p>Pulizia: elimina soltanto la prova temporanea del Guasto 2, se è rimasta. Conserva disco, evidenza, hash e VM 211 per le prossime lezioni; il CT 212 resta disponibile per la 17.5.</p>
+<p>Non eliminare backup, template 210, volumi inutilizzati o snapshot per recuperare spazio senza analisi. La pulizia finale delle risorse del modulo ha un proprio punto di verifica.</p>
+<h2 id="11-nella-vita-reale">11 · Nella vita reale</h2>
+<p>Durante un intervento reale, osserva prima: identifica il montaggio interessato, il dispositivo, i suoi livelli e la politica dello storage. Una richiesta di capacità non autorizza a formattare un volume esistente.</p>
+<p>Definisci finestra operativa, responsabili, backup ripristinabile, margine e criterio di successo. Un filesystem con dati importanti può richiedere una procedura diversa, incluso l’arresto dell’applicazione.</p>
+<p>La missione di questa sezione è soltanto di lettura: disegna i livelli di un volume autorizzato e indica dove misureresti ciascuna capacità. Non eseguire il laboratorio su un server di un cliente.</p>
+<h2 id="12-approfondire-quando-vuoi">12 · Approfondire quando vuoi</h2>
+<ul><li><a href="https://pve.proxmox.com/pve-docs/chapter-pvesm.html">Storage in Proxmox VE</a>: contenuto, backend e capacità.</li>
+<li><a href="https://pve.proxmox.com/pve-docs/qm.1.html">Manuale di qm</a>: verifica la sintassi installata prima di spostare o ridimensionare.</li>
+<li><a href="https://docs.kernel.org/admin-guide/ext4.html">Documentazione del kernel su ext4</a>: struttura e caratteristiche del filesystem.</li></ul>
+<p>Leggi anche i manuali locali di <code translate="no">resize2fs</code>, <code translate="no">e2fsck</code>, <code translate="no">lsblk</code> e <code translate="no">findmnt</code>; corrispondono agli strumenti effettivamente installati.</p>
+<h2 id="soluzioni-commentate">Soluzioni commentate</h2>
+<p><strong>Decidi 1: C.</strong> La capacità del dispositivo e quella del filesystem sono misure distinte. Identificare la struttura evita di applicare lo strumento al disco sbagliato o dimenticare un livello.</p>
+<p><strong>Decidi 2: A.</strong> Completamento dell’attività e riferimento attivo devono concordare con la prova dentro la VM. La vecchia copia non va eliminata applicando una regola generica.</p>
+<ol><li>La capacità virtuale viene presentata al guest; il backend ha consumo fisico, riserve e altri carichi. Il thin provisioning può promettere più dello spazio disponibile.</li>
+<li>Il seriale <code translate="no">M17DATA</code>, verificato anche sul dispositivo da formattare. Dimensione e ordine dei nomi da soli non bastano.</li>
+<li>La partizione: ext4 è stato creato direttamente sul nuovo disco. In un’altra struttura occorrerebbe esaminare partizione ed eventuale LVM.</li>
+<li>Dimostra che il contenuto dell’evidenza coincide con l’hash registrato; non misura la capacità e non verifica tutti i file della VM.</li>
+<li>Esistono una copia nella destinazione e il volume di origine conservato; fino all’eliminazione approvata, entrambi continuano a consumare spazio.</li>
+<li>Annotare il prerequisito mancante, l’origine reale e il confronto pianificato; dichiarare che non è stato eseguito alcuno spostamento.</li></ol>
+<p>Questo materiale è stato verificato documentalmente; numeri e risultati vanno ottenuti nel tuo laboratorio. Questa consegna non dichiara l’esecuzione di tali operazioni su VM.</p>
+<p><a href="17.3-conteiner-lxc.it.html">← Lezione 17.3 · Container LXC</a> · <a href="index.it.html">Indice delle lezioni</a> · <a href="https://github.com/Rodrigoantignani/curso-linux-sysadmin/blob/master/00-plano-do-curso.md">Piano del corso: dalla 17.5 in poi →</a></p>
+</article><nav class="paginas" aria-label="Lezioni"><a class="ant" href="17.3-conteiner-lxc.it.html"><small>← Precedente</small>17.3 · Container LXC</a><a class="prox" href="17.5-rede.it.html"><small>Successiva →</small>17.5 · Rete: bridge, VLAN, bond e SDN</a></nav></main></div>
+<footer><div class="wrap">Generato dal Markdown del corso · Immagini in <code translate="no">img/</code></div></footer>
+</body>
+</html>

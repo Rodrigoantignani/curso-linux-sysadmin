@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light dark">
+<title>14.1 · cron e at · Curso Linux Sysadmin</title>
+<link rel="alternate" hreflang="pt-BR" href="14.1-cron-e-at.html"><link rel="alternate" hreflang="it" href="14.1-cron-e-at.it.html">
+<style>
+:root{color-scheme:light dark;--bg:#f6f1e7;--card:#fffdf8;--ink:#201c16;--muted:#5e564a;--accent:#9a3412;--accent-2:#1f5f4a;--tint:#efe6d4;--line:#ddd2bc;--code:#f1eadb;--shadow:0 1px 2px rgba(60,40,10,.08);--serif:Georgia,"Iowan Old Style","Palatino Linotype",Palatino,serif;--sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--mono:"Cascadia Code",Consolas,"DejaVu Sans Mono",monospace}
+@media (prefers-color-scheme:dark){:root{--bg:#16130f;--card:#201b15;--ink:#f1eadb;--muted:#b9ad98;--accent:#f0a070;--accent-2:#7fd0b0;--tint:#2a231a;--line:#3d3427;--code:#191510;--shadow:none}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:5.5rem}
+body{margin:0;background:var(--bg);color:var(--ink);font:1rem/1.6 var(--sans)}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--accent-2);outline-offset:2px;border-radius:4px}
+.pular{position:absolute;left:-999px;top:0;background:var(--card);padding:.5rem 1rem;z-index:20}
+.pular:focus{left:.5rem;top:.5rem}
+.wrap{width:100%;max-width:84rem;margin:0 auto;padding-inline:max(1rem,env(safe-area-inset-left))}
+.top{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10;border-top:6px solid var(--accent)}
+.top-in{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding-block:.6rem}
+.titles{min-width:0}
+.marca{margin:0;font:700 clamp(1.15rem,1rem + 1vw,1.6rem)/1.15 var(--serif);letter-spacing:-.01em}
+.marca a{text-decoration:none}
+.marca a:hover{color:var(--accent)}
+.meta{margin:.1rem 0 0;color:var(--muted);font-size:.85rem}
+.acoes{display:flex;align-items:center;gap:.9rem;flex:none}
+.acoes>a{font-size:.9rem;font-weight:600;color:var(--muted);text-decoration:none}
+.acoes>a:hover{color:var(--accent);text-decoration:underline}
+.idioma{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--tint)}
+.idioma>*{padding:.35rem .9rem;font-size:.8rem;font-weight:700;letter-spacing:.06em;text-decoration:none;color:var(--muted);min-width:2.75rem;text-align:center}
+.idioma a:hover{color:var(--accent);text-decoration:underline}
+.idioma span{background:var(--accent);color:#fff}
+@media (prefers-color-scheme:dark){.idioma span{color:#16130f}}
+code{font-family:var(--mono);font-size:.9em;background:var(--tint);padding:.1rem .35rem;border-radius:4px;overflow-wrap:anywhere}
+/* índice */
+.capa{max-width:70rem;padding-block:2rem 3rem}
+.stats{border-left:4px solid var(--accent-2);background:var(--card);border-radius:0 10px 10px 0;padding:1rem 1.25rem;margin:0 0 2.5rem;box-shadow:var(--shadow);color:var(--muted)}
+.stats strong{color:var(--ink)}
+.modulo{display:grid;grid-template-columns:15rem minmax(0,1fr);gap:1rem 2rem;padding:1.75rem 0;border-top:1px solid var(--line)}
+.modulo h2{margin:0;font:700 1.25rem/1.25 var(--serif);align-self:start;position:sticky;top:6rem}
+.mn{display:block;font:700 .8rem var(--mono);letter-spacing:.12em;color:var(--accent);margin-bottom:.25rem}
+.sep{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.modulo ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,17rem),1fr));gap:.75rem}
+.modulo li{margin:0}
+.modulo a{display:flex;gap:.45rem;align-items:baseline;height:100%;padding:.85rem 1rem;background:var(--card);border:1px solid var(--line);border-radius:10px;text-decoration:none;font-weight:600;line-height:1.35;box-shadow:var(--shadow);transition:border-color .15s,transform .15s}
+.modulo a:hover{border-color:var(--accent);color:var(--accent)}
+.num{font:700 .85rem var(--mono);color:var(--accent);white-space:nowrap}
+/* aula */
+.doc{display:grid;grid-template-columns:17rem minmax(0,1fr);gap:2.5rem;align-items:start;padding-block:2rem 3rem}
+.lateral{position:sticky;top:5.5rem;max-height:calc(100vh - 6.5rem);overflow:auto;font-size:.875rem;padding-right:.5rem}
+.lateral h2{margin:0 0 .25rem;font:700 .95rem var(--serif);color:var(--muted)}
+.lateral h3{margin:1rem 0 .25rem;font:700 .75rem var(--mono);letter-spacing:.06em;color:var(--accent)}
+.lateral ul{list-style:none;margin:0;padding:0}
+.lateral a{display:flex;gap:.45rem;padding:.25rem .5rem;border-radius:6px;text-decoration:none;color:var(--muted);line-height:1.3}
+.lateral a:hover{background:var(--tint);color:var(--ink)}
+.lateral a[aria-current]{background:var(--tint);color:var(--ink);font-weight:700;box-shadow:inset 3px 0 0 var(--accent)}
+.lateral .num{font-size:.75rem}
+.aula{min-width:0;max-width:56rem;overflow-wrap:break-word;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:clamp(1.25rem,1rem + 2vw,2.75rem);box-shadow:var(--shadow)}
+.aula h1{margin:0 0 1.5rem;font:700 clamp(1.75rem,1.4rem + 1.6vw,2.5rem)/1.15 var(--serif);letter-spacing:-.015em;color:var(--ink)}
+.aula h2{margin:2.5rem 0 .75rem;padding-top:1.25rem;border-top:1px solid var(--line);font:700 1.5rem/1.25 var(--serif)}
+.aula h3{margin:2rem 0 .5rem;font:700 1.15rem/1.3 var(--serif);color:var(--accent)}
+.aula h4,.aula h5,.aula h6{margin:1.5rem 0 .5rem;font-size:1rem}
+.aula p,.aula ul,.aula ol{margin:1rem 0}
+.aula ul,.aula ol{padding-left:1.5rem}
+.aula li{margin:.35rem 0}
+.aula li>ul,.aula li>ol{margin:.35rem 0}
+.aula a{color:var(--accent);text-underline-offset:2px}
+.aula hr{border:0;border-top:1px solid var(--line);margin:2rem 0}
+.tabela{overflow-x:auto;margin:1.25rem 0;border:1px solid var(--line);border-radius:10px}
+.aula table{width:100%;border-collapse:collapse;font-size:.9rem}
+.aula th,.aula td{padding:.55rem .75rem;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+.aula tr:last-child td{border-bottom:0}
+.aula th{background:var(--tint);font-weight:700}
+.aula pre{background:var(--code);border:1px solid var(--line);border-radius:10px;padding:.9rem 1rem;overflow-x:auto;font:.85rem/1.5 var(--mono);margin:1rem 0;tab-size:4}
+.aula pre code{background:none;padding:0;font-size:inherit;overflow-wrap:normal}
+.aula blockquote{margin:1.25rem 0;padding:.75rem 1.25rem;border-left:4px solid var(--accent-2);background:var(--tint);border-radius:0 10px 10px 0}
+.aula blockquote>:first-child{margin-top:0}
+.aula blockquote>:last-child{margin-bottom:0}
+.aula figure{margin:1.75rem 0;text-align:center}
+.aula figure img{display:block;margin:0 auto;max-width:100%;height:auto;border:1px solid var(--line);border-radius:10px;background:#fff}
+.aula figcaption{margin-top:.5rem;color:var(--muted);font-size:.9rem;font-style:italic}
+.paginas{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:2.5rem;padding-top:1.5rem;border-top:1px solid var(--line)}
+.paginas a{display:block;padding:.75rem 1rem;border:1px solid var(--line);border-radius:10px;text-decoration:none;color:var(--ink);font-weight:600;line-height:1.3}
+.paginas a:hover{border-color:var(--accent);color:var(--accent)}
+.paginas small{display:block;color:var(--muted);font-weight:400}
+.paginas .prox{grid-column:2;text-align:right}
+footer{border-top:1px solid var(--line);padding-block:1.5rem;color:var(--muted);font-size:.85rem;text-align:center}
+@media (hover:hover) and (prefers-reduced-motion:no-preference){.modulo a:hover{transform:translateY(-2px)}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+@media (max-width:980px){.doc{grid-template-columns:minmax(0,1fr);padding-top:1rem}.lateral{position:static;max-height:none;order:2}.aula{max-width:none}}
+@media (max-width:860px){.modulo{grid-template-columns:minmax(0,1fr)}.modulo h2{position:static}.mn{display:inline;margin-right:.5rem}}
+@media (max-width:420px){.meta{display:none}.top-in{gap:.5rem}.acoes{gap:.6rem}.capa{padding-top:1.25rem}.paginas{grid-template-columns:minmax(0,1fr)}.paginas .prox{grid-column:1}}
+@media print{.top,.lateral,.paginas{display:none}.aula{border:0;box-shadow:none;padding:0;max-width:none}.doc{display:block}}
+</style>
+</head>
+<body>
+<a class="pular" href="#conteudo">Pular para o conteúdo</a>
+<header class="top"><div class="wrap top-in"><div class="titles"><p class="marca"><a href="index.html">Curso Linux Sysadmin</a></p><p class="meta">Rodrigo Antignani · Aula 14.1</p></div><div class="acoes"><a href="index.html">Índice</a><div class="idioma" role="group" aria-label="Idioma"><span aria-current="true">PT</span><a href="14.1-cron-e-at.it.html" hreflang="it" lang="it">IT</a></div></div></div></header>
+<div class="wrap doc"><aside class="lateral" aria-label="Aulas"><h2>Aulas</h2><h3>M0 · Laboratório</h3><ul><li><a href="0.1-montar-o-laboratorio.html"><span class="num">0.1</span><span>Montar o laboratório</span></a></li><li><a href="0.2-acesso-e-protecao.html"><span class="num">0.2</span><span>Acesso e proteção</span></a></li></ul><h3>M1 · Linha de comando</h3><ul><li><a href="1.1-o-que-e-linux.html"><span class="num">1.1</span><span>O que é Linux</span></a></li><li><a href="1.2-o-shell-e-a-ajuda.html"><span class="num">1.2</span><span>O shell e a ajuda</span></a></li><li><a href="1.3-caminhos-e-navegacao.html"><span class="num">1.3</span><span>Caminhos e navegação</span></a></li><li><a href="1.4-criar-copiar-mover-e-apagar.html"><span class="num">1.4</span><span>Criar, copiar, mover e apagar</span></a></li><li><a href="1.5-ler-e-procurar-texto.html"><span class="num">1.5</span><span>Ler e procurar texto</span></a></li><li><a href="1.6-redirecionamentos-e-pipes.html"><span class="num">1.6</span><span>Redirecionamentos e pipes</span></a></li><li><a href="1.7-arquivar-e-compactar.html"><span class="num">1.7</span><span>Arquivar e compactar</span></a></li><li><a href="1.8-primeiro-script.html"><span class="num">1.8</span><span>Primeiro script</span></a></li><li><a href="1.9-decidir-e-repetir.html"><span class="num">1.9</span><span>Decidir e repetir</span></a></li><li><a href="1.10-software-livre-na-pratica.html"><span class="num">1.10</span><span>Software livre na prática</span></a></li></ul><h3>M2 · Sistema, usuários e permissões</h3><ul><li><a href="2.1-instalacao-e-provisionamento.html"><span class="num">2.1</span><span>Instalação e provisionamento</span></a></li><li><a href="2.2-hardware-e-dispositivos.html"><span class="num">2.2</span><span>Hardware e dispositivos</span></a></li><li><a href="2.3-processos-e-logs.html"><span class="num">2.3</span><span>Processos e logs</span></a></li><li><a href="2.4-rede-no-dia-a-dia.html"><span class="num">2.4</span><span>Rede no dia a dia</span></a></li><li><a href="2.5-acesso-remoto-e-privilegios.html"><span class="num">2.5</span><span>Acesso remoto e privilégios</span></a></li><li><a href="2.6-usuarios-e-grupos.html"><span class="num">2.6</span><span>Usuários e grupos</span></a></li><li><a href="2.7-permissoes-e-dono.html"><span class="num">2.7</span><span>Permissões e dono</span></a></li><li><a href="2.8-diretorios-e-arquivos-especiais.html"><span class="num">2.8</span><span>Diretórios e arquivos especiais</span></a></li></ul><h3>M3 · Texto e editor</h3><ul><li><a href="3.1-fluxos-a-fundo.html"><span class="num">3.1</span><span>Fluxos a fundo</span></a></li><li><a href="3.2-filtros-de-texto.html"><span class="num">3.2</span><span>Filtros de texto</span></a></li><li><a href="3.3-regex-e-grep.html"><span class="num">3.3</span><span>Regex e grep</span></a></li><li><a href="3.4-sed-e-awk.html"><span class="num">3.4</span><span>sed e awk</span></a></li><li><a href="3.5-vi-e-vim-de-verdade.html"><span class="num">3.5</span><span>vi e vim de verdade</span></a></li></ul><h3>M4 · systemd e boot</h3><ul><li><a href="4.1-como-o-linux-liga.html"><span class="num">4.1</span><span>Como o Linux liga</span></a></li><li><a href="4.2-systemd-servicos-e-units.html"><span class="num">4.2</span><span>systemd: serviços e units</span></a></li><li><a href="4.3-targets-desligar-e-reiniciar.html"><span class="num">4.3</span><span>Targets: desligar e reiniciar</span></a></li><li><a href="4.4-grub-e-acesso-de-emergencia.html"><span class="num">4.4</span><span>GRUB e acesso de emergência</span></a></li></ul><h3>M5 · Kernel, módulos e VM</h3><ul><li><a href="5.1-hardware-pelo-kernel.html"><span class="num">5.1</span><span>Hardware pelo kernel</span></a></li><li><a href="5.2-modulos-e-parametros.html"><span class="num">5.2</span><span>Módulos e parâmetros</span></a></li><li><a href="5.3-linux-como-convidado.html"><span class="num">5.3</span><span>Linux como convidado</span></a></li></ul><h3>M6 · Pacotes e repositórios</h3><ul><li><a href="6.1-pacotes-no-debian.html"><span class="num">6.1</span><span>Pacotes no Debian</span></a></li><li><a href="6.2-pacotes-na-rocky.html"><span class="num">6.2</span><span>Pacotes na Rocky</span></a></li><li><a href="6.3-repositorios.html"><span class="num">6.3</span><span>Repositórios</span></a></li><li><a href="6.4-flatpak.html"><span class="num">6.4</span><span>Flatpak</span></a></li><li><a href="6.5-bibliotecas-compartilhadas.html"><span class="num">6.5</span><span>Bibliotecas compartilhadas</span></a></li></ul><h3>M7 · Processos e desempenho</h3><ul><li><a href="7.1-processos-e-sinais.html"><span class="num">7.1</span><span>Processos e sinais</span></a></li><li><a href="7.2-jobs-e-sessoes.html"><span class="num">7.2</span><span>Jobs e sessões</span></a></li><li><a href="7.3-prioridade-e-perfis.html"><span class="num">7.3</span><span>Prioridade e perfis</span></a></li></ul><h3>M8 · Arquivos a fundo</h3><ul><li><a href="8.1-fhs-e-onde-cada-coisa-mora.html"><span class="num">8.1</span><span>FHS e onde cada coisa mora</span></a></li><li><a href="8.2-find-a-fundo.html"><span class="num">8.2</span><span>find a fundo</span></a></li><li><a href="8.3-arquivamento-avancado.html"><span class="num">8.3</span><span>Arquivamento avançado</span></a></li><li><a href="8.4-links.html"><span class="num">8.4</span><span>Links</span></a></li><li><a href="8.5-permissoes-avancadas.html"><span class="num">8.5</span><span>Permissões avançadas</span></a></li></ul><h3>M9 · Armazenamento</h3><ul><li><a href="9.1-discos-e-layout.html"><span class="num">9.1</span><span>Discos e layout</span></a></li><li><a href="9.2-particionar.html"><span class="num">9.2</span><span>Particionar</span></a></li><li><a href="9.3-sistemas-de-arquivos.html"><span class="num">9.3</span><span>Sistemas de arquivos</span></a></li><li><a href="9.4-montar-e-persistir.html"><span class="num">9.4</span><span>Montar e persistir</span></a></li><li><a href="9.5-integridade-e-espaco.html"><span class="num">9.5</span><span>Integridade e espaço</span></a></li><li><a href="9.6-lvm.html"><span class="num">9.6</span><span>LVM</span></a></li><li><a href="9.7-crescer-sem-destruir.html"><span class="num">9.7</span><span>Crescer sem destruir</span></a></li></ul><h3>M10 · Usuários e acesso privilegiado</h3><ul><li><a href="10.1-contas.html"><span class="num">10.1</span><span>Contas</span></a></li><li><a href="10.2-senhas-e-validade.html"><span class="num">10.2</span><span>Senhas e validade</span></a></li><li><a href="10.3-grupos-e-trabalho-em-equipe.html"><span class="num">10.3</span><span>Grupos e trabalho em equipe</span></a></li><li><a href="10.4-sudo-de-verdade.html"><span class="num">10.4</span><span>sudo de verdade</span></a></li></ul><h3>M11 · Rede</h3><ul><li><a href="11.1-tcp-ip-para-quem-administra.html"><span class="num">11.1</span><span>TCP/IP para quem administra</span></a></li><li><a href="11.2-networkmanager-e-nmcli.html"><span class="num">11.2</span><span>NetworkManager e nmcli</span></a></li><li><a href="11.3-rede-no-debian.html"><span class="num">11.3</span><span>Rede no Debian</span></a></li><li><a href="11.4-nomes-e-resolucao.html"><span class="num">11.4</span><span>Nomes e resolução</span></a></li><li><a href="11.5-diagnostico-de-rede.html"><span class="num">11.5</span><span>Diagnóstico de rede</span></a></li></ul><h3>M12 · Segurança do host</h3><ul><li><a href="12.1-ssh-a-fundo.html"><span class="num">12.1</span><span>SSH a fundo</span></a></li><li><a href="12.2-firewall.html"><span class="num">12.2</span><span>Firewall</span></a></li><li><a href="12.3-selinux-modos-e-contextos.html"><span class="num">12.3</span><span>SELinux: modos e contextos</span></a></li><li><a href="12.4-selinux-portas-e-booleanos.html"><span class="num">12.4</span><span>SELinux: portas e booleanos</span></a></li><li><a href="12.5-auditoria-e-criptografia.html"><span class="num">12.5</span><span>Auditoria e criptografia</span></a></li></ul><h3>M13 · Armazenamento em rede</h3><ul><li><a href="13.1-servidor-nfs.html"><span class="num">13.1</span><span>Servidor NFS</span></a></li><li><a href="13.2-cliente-nfs.html"><span class="num">13.2</span><span>Cliente NFS</span></a></li><li><a href="13.3-autofs.html"><span class="num">13.3</span><span>autofs</span></a></li></ul><h3>M14 · Agendamento</h3><ul><li><a href="14.1-cron-e-at.html" aria-current="page"><span class="num">14.1</span><span>cron e at</span></a></li><li><a href="14.2-timers-do-systemd.html"><span class="num">14.2</span><span>Timers do systemd</span></a></li><li><a href="14.3-journald-e-rsyslog.html"><span class="num">14.3</span><span>journald e rsyslog</span></a></li><li><a href="14.4-hora-certa.html"><span class="num">14.4</span><span>Hora certa</span></a></li><li><a href="14.5-email-local-e-impressao.html"><span class="num">14.5</span><span>E-mail local e impressão</span></a></li></ul><h3>M15 · Shell e ambiente</h3><ul><li><a href="15.1-ambiente-do-shell.html"><span class="num">15.1</span><span>Ambiente do shell</span></a></li><li><a href="15.2-scripts-robustos.html"><span class="num">15.2</span><span>Scripts robustos</span></a></li><li><a href="15.3-scripts-de-administracao.html"><span class="num">15.3</span><span>Scripts de administração</span></a></li><li><a href="15.4-interfaces-graficas.html"><span class="num">15.4</span><span>Interfaces gráficas</span></a></li><li><a href="15.5-idioma-teclado-e-fuso.html"><span class="num">15.5</span><span>Idioma, teclado e fuso</span></a></li></ul><h3>M16 · Semana de incidentes no Rocky 10</h3><ul><li><a href="16.1-rocky-10-o-que-muda.html"><span class="num">16.1</span><span>Rocky 10: o que muda</span></a></li><li><a href="16.2-incidentes-por-area.html"><span class="num">16.2</span><span>Incidentes por área</span></a></li><li><a href="16.3-incidente-com-relogio.html"><span class="num">16.3</span><span>Incidente com relógio</span></a></li><li><a href="16.4-correcao-e-reforco.html"><span class="num">16.4</span><span>Correção e reforço</span></a></li></ul><h3>M17 · Proxmox na prática</h3><ul><li><a href="17.1-proxmox-por-dentro.html"><span class="num">17.1</span><span>Proxmox por dentro</span></a></li><li><a href="17.2-vm-pela-linha-de-comando.html"><span class="num">17.2</span><span>VM pela linha de comando</span></a></li><li><a href="17.3-conteiner-lxc.html"><span class="num">17.3</span><span>Contêiner LXC</span></a></li><li><a href="17.4-storage.html"><span class="num">17.4</span><span>Storage: capacidade, crescimento e movimento</span></a></li><li><a href="17.5-rede.html"><span class="num">17.5</span><span>Rede: bridge, VLAN, bond e SDN</span></a></li><li><a href="17.6-backup-e-restauracao.html"><span class="num">17.6</span><span>Backup e restauração com PBS</span></a></li><li><a href="17.7-migracao-e-quorum.html"><span class="num">17.7</span><span>Migração e quorum</span></a></li></ul><h3>M18 · Podman</h3><ul><li><a href="18.1-conteiner-nao-e-vm.html"><span class="num">18.1</span><span>Contêiner não é VM</span></a></li><li><a href="18.2-rodar-e-persistir.html"><span class="num">18.2</span><span>Rodar e persistir</span></a></li><li><a href="18.3-conteiner-como-servico.html"><span class="num">18.3</span><span>Contêiner como serviço</span></a></li><li><a href="18.4-diagnosticar-conteiner-rootless.html"><span class="num">18.4</span><span>Diagnosticar contêiner rootless</span></a></li><li><a href="18.5-construir-imagens.html"><span class="num">18.5</span><span>Construir imagens</span></a></li></ul><h3>M19 · Serviços de rede</h3><ul><li><a href="19.1-dns-autoritativo.html"><span class="num">19.1</span><span>DNS autoritativo</span></a></li><li><a href="19.2-dns-recursivo-e-diagnostico.html"><span class="num">19.2</span><span>DNS recursivo e diagnóstico</span></a></li><li><a href="19.3-dhcp.html"><span class="num">19.3</span><span>DHCP</span></a></li><li><a href="19.4-servidor-web.html"><span class="num">19.4</span><span>Servidor web: nome, arquivo e resposta</span></a></li><li><a href="19.5-tls-e-proxy-reverso.html"><span class="num">19.5</span><span>TLS e proxy reverso: identidade antes do cadeado</span></a></li><li><a href="19.6-samba-a-ponte-windows.html"><span class="num">19.6</span><span>Samba: a ponte com o cliente Windows</span></a></li><li><a href="19.7-postfix-e-correio-local.html"><span class="num">19.7</span><span>Postfix e correio local</span></a></li><li><a href="19.8-dovecot-e-imaps.html"><span class="num">19.8</span><span>Dovecot e leitura por IMAPS</span></a></li><li><a href="19.9-squid-e-desafio-integrado.html"><span class="num">19.9</span><span>Squid e desafio integrado</span></a></li></ul><h3>M20 · NethServer 8 por dentro</h3><ul><li><a href="20.1-instalar-nethserver-8.html"><span class="num">20.1</span><span>Instalar em uma VM limpa</span></a></li><li><a href="20.2-cluster-no-e-modulo.html"><span class="num">20.2</span><span>Cluster, nó e módulo</span></a></li><li><a href="20.3-modulo-por-dentro.html"><span class="num">20.3</span><span>Um módulo por dentro</span></a></li><li><a href="20.4-proxy-e-certificados.html"><span class="num">20.4</span><span>Proxy e certificados</span></a></li><li><a href="20.5-dominios-de-usuario.html"><span class="num">20.5</span><span>Domínios de usuário: identidade com fronteiras</span></a></li><li><a href="20.6-backup-e-restauracao.html"><span class="num">20.6</span><span>Backup e restauração: provar o retorno</span></a></li><li><a href="20.7-atualizar-mover-e-falhar.html"><span class="num">20.7</span><span>Atualizar, mover e falhar com prova</span></a></li></ul></aside><main id="conteudo" class="aula"><article><h1>Aula 14.1 · cron e at</h1>
+<p>No Agendador de Tarefas do Windows, você confere conta, ação e resultado. No Linux, a mesma disciplina evita trabalhos que funcionam no terminal e falham sozinhos. Você vai criar agendas próprias, preservar as existentes e distinguir repetição de execução única.</p>
+<blockquote><p><strong>Núcleo desta aula:</strong> uma agenda precisa de usuário, ambiente, comando e evidência de execução. cron repete; at executa uma vez. O resto é aprofundamento.</p></blockquote>
+<div class="tabela"><table><thead><tr><th scope="col">Ficha</th><th scope="col"></th></tr></thead><tbody><tr><td><strong>Módulo</strong></td><td>M14 · Agendamento, logs e hora, aula 1 de 5</td></tr><tr><td><strong>Quando</strong></td><td>Semana 19</td></tr><tr><td><strong>Ao final</strong></td><td>Você instala agendas sem apagar trabalhos alheios e verifica a execução pelo resultado</td></tr><tr><td><strong>Pré-requisitos</strong></td><td>M13 concluído; <code translate="no">student</code>, <code translate="no">sudo</code>, noVNC e SSH nas VMs 201 e 202</td></tr><tr><td><strong>Tempo</strong></td><td>Cerca de 90 minutos</td></tr><tr><td><strong>Snapshots</strong></td><td><code translate="no">m14a1-inicio</code> e <code translate="no">m14a1-fim</code> nas duas VMs</td></tr></tbody></table></div>
+<h2 id="1-aquecimento">1 · Aquecimento</h2>
+<p>Responda antes de consultar os comandos.</p>
+<ol><li>Por que uma permissão DAC correta não garante qualquer operação de um processo confinado?</li>
+<li>Qual diferença existe entre habilitar e iniciar um serviço?</li>
+<li>Como você distingue uma configuração salva de uma execução realmente ocorrida?</li></ol>
+<h2 id="2-por-que-importa">2 · Por que importa</h2>
+<p>O relatório diário não apareceu. O comando funciona quando você entra pelo SSH, mas depende de um diretório atual e de uma variável da sua sessão. O agendador não abriu seu terminal interativo. Seu diagnóstico começa pelo ambiente e pelo usuário, não por reiniciar a máquina.</p>
+<p>Uma agenda também pode estar correta com o serviço parado. Registre três evidências: entrada instalada, agendador ativo e arquivo ou log produzido pelo trabalho.</p>
+<h2 id="3-modelo-mental">3 · Modelo mental</h2>
+<p>Pense na portaria: a lista de horários manda chamar alguém, mas o crachá define quem executa. A ficha do trabalho precisa conter o caminho completo, sem depender do que estava aberto na mesa de outra pessoa.</p>
+<pre translate="no"><code class="lang-text">agenda -&gt; agendador ativo -&gt; usuário -&gt; comando -&gt; evidência
+cron: repetição                       at: uma ocasião</code></pre>
+<figure><a href="../img/14.1-agenda-e-ambiente.jpg"><img src="../img/14.1-agenda-e-ambiente.jpg" alt="A agenda não é sua sessão" loading="lazy" decoding="async"></a><figcaption>Defina usuário, caminhos e saída antes de agendar.</figcaption></figure>
+<h3 id="ponte-windows">Ponte Windows</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Windows</th><th scope="col">Linux</th></tr></thead><tbody><tr><td>Gatilho recorrente</td><td>cron</td></tr><tr><td>Executar uma vez</td><td>at</td></tr><tr><td>Conta da tarefa</td><td>Dono da crontab ou campo de usuário do sistema</td></tr><tr><td>Histórico e resultado</td><td>Saída capturada, journal e arquivo produzido</td></tr></tbody></table></div>
+<h2 id="4-o-essencial">4 · O essencial</h2>
+<h3 id="cinco-campos-de-tempo">Cinco campos de tempo</h3>
+<p>A ordem é minuto, hora, dia do mês, mês e dia da semana. Depois vem o comando. Use um script para lógica e formatação; uma linha de agenda longa é difícil de revisar.</p>
+<pre translate="no"><code class="lang-text">* * * * * comando</code></pre>
+<p>O asterisco em todos os campos significa cada minuto. Dia do mês e dia da semana têm uma interação importante: quando ambos são restritos, o cron tradicional executa quando qualquer um dos dois corresponde.</p>
+<h3 id="usuario-versus-sistema">Usuário versus sistema</h3>
+<p><code translate="no">crontab -e</code> edita a tabela do próprio usuário. Arquivos em <code translate="no">/etc/cron.d</code> acrescentam um campo de usuário entre o calendário e o comando. Não coloque esse campo na tabela do usuário.</p>
+<figure><a href="../img/14.1-usuario-e-sistema.jpg"><img src="../img/14.1-usuario-e-sistema.jpg" alt="Duas tabelas, uma diferença" loading="lazy" decoding="async"></a><figcaption>A tabela de sistema inclui o usuário; a do usuário não.</figcaption></figure>
+<h3 id="ambiente-e-saida">Ambiente e saída</h3>
+<p>Defina caminhos absolutos. Capture saída e erro. O caractere <code translate="no">%</code> tem tratamento especial em uma linha cron; deixe formatações de data dentro do script para evitar esse problema.</p>
+<h3 id="execucao-unica-e-acesso">Execução única e acesso</h3>
+<p><code translate="no">at</code> guarda um trabalho para um instante futuro. <code translate="no">atq</code> mostra a fila; <code translate="no">atrm</code> remove um identificador específico. Os arquivos <code translate="no">cron.allow</code>, <code translate="no">cron.deny</code>, <code translate="no">at.allow</code> e <code translate="no">at.deny</code> controlam quem pode usar essas ferramentas conforme a implementação.</p>
+<p>Restringir a ferramenta não apaga automaticamente trabalhos já instalados. Nesta aula você observa os controles existentes; não modifica listas compartilhadas para plantar uma falha.</p>
+<figure><a href="../img/14.1-cron-e-at.jpg"><img src="../img/14.1-cron-e-at.jpg" alt="Repetir ou executar uma vez" loading="lazy" decoding="async"></a><figcaption>cron repete; at guarda um trabalho para uma ocasião.</figcaption></figure>
+<h3 id="rocky-debian">Rocky × Debian</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Item</th><th scope="col">Rocky 9</th><th scope="col">Debian 13</th></tr></thead><tbody><tr><td>Pacote cron tradicional</td><td><code translate="no">cronie</code></td><td><code translate="no">cron</code></td></tr><tr><td>Unidade</td><td><code translate="no">crond.service</code></td><td><code translate="no">cron.service</code></td></tr><tr><td>Execução única</td><td>Pacote <code translate="no">at</code>, unidade <code translate="no">atd.service</code></td><td>Pacote <code translate="no">at</code>, unidade <code translate="no">atd.service</code></td></tr><tr><td>Alternativa instalada</td><td>Identifique o proprietário atual</td><td>Não substitua <code translate="no">systemd-cron</code> sem planejar</td></tr></tbody></table></div>
+<h2 id="5-lab-guiado">5 · Lab guiado</h2>
+<p>Faça tudo nas duas VMs. Confirme que a home de <code translate="no">student</code> é <code translate="no">/home/student</code>, que o usuário pode usar <code translate="no">crontab</code> e <code translate="no">at</code>, e que não existe outra alteração simultânea nas agendas dele durante o exercício.</p>
+<h3 id="passo-1-preparar-a-protecao">Passo 1 · Preparar a proteção</h3>
+<p><strong>Palpite:</strong> instalar cron comprova que algum trabalho foi executado?</p>
+<p>No host Proxmox:</p>
+<pre translate="no"><code class="lang-bash">qm snapshot 201 m14a1-inicio
+qm snapshot 202 m14a1-inicio</code></pre>
+<p>Na Rocky, use o primeiro bloco. Na Debian, confirme antes que o lab usa cron tradicional e use o segundo.</p>
+<pre translate="no"><code class="lang-bash">sudo dnf install -y cronie at
+sudo systemctl enable --now crond atd</code></pre>
+<pre translate="no"><code class="lang-bash">sudo apt install -y cron at
+sudo systemctl enable --now cron atd</code></pre>
+<p><strong>Saída esperada:</strong> serviços ativos. Os agendadores instalados ficam disponíveis como ferramentas do curso; a limpeza vai retirar somente os trabalhos de exercício.</p>
+<p><strong>Verifique:</strong> confira a unidade correta com <code translate="no">systemctl is-active</code> e a home com <code translate="no">getent passwd student</code>. Se houver outro proprietário das agendas, pare e ajuste o preparo.</p>
+<h3 id="passo-2-testar-o-trabalho-fora-da-agenda">Passo 2 · Testar o trabalho fora da agenda</h3>
+<p><strong>Palpite:</strong> como provar que o trabalho executa como <code translate="no">student</code>?</p>
+<p>Confirme ausência dos caminhos antes de criá-los.</p>
+<pre translate="no"><code class="lang-bash">test ! -e "$HOME/m14a1"
+sudo test ! -e /usr/local/libexec/m14a1-tick
+sudo test ! -e /etc/cron.d/m14a1
+mkdir -m 700 "$HOME/m14a1"
+sudo install -d /usr/local/libexec
+sudo tee /usr/local/libexec/m14a1-tick &gt; /dev/null &lt;&lt;'EOF'
+#!/bin/sh
+/usr/bin/date -Is
+/usr/bin/id -un
+EOF
+sudo chmod 755 /usr/local/libexec/m14a1-tick
+/usr/local/libexec/m14a1-tick</code></pre>
+<p><strong>Saída esperada:</strong> data real da VM e usuário <code translate="no">student</code>. Não há data inventada para copiar.</p>
+<p><strong>Verifique:</strong> execute o mesmo caminho absoluto que será usado pela agenda.</p>
+<h3 id="passo-3-instalar-uma-entrada-do-usuario">Passo 3 · Instalar uma entrada do usuário</h3>
+<p><strong>Palpite:</strong> instalar uma tabela com uma única linha apaga as linhas anteriores?</p>
+<p>Salve a tabela atual. Se não existir tabela, <code translate="no">crontab -l</code> informa isso e retorna falha; o arquivo de referência fica vazio. Uma negativa de permissão é outra situação e precisa ser resolvida antes.</p>
+<pre translate="no"><code class="lang-bash">crontab -l &gt; "$HOME/m14a1/crontab.inicio"
+cp "$HOME/m14a1/crontab.inicio" "$HOME/m14a1/crontab.candidate"
+cat &gt;&gt; "$HOME/m14a1/crontab.candidate" &lt;&lt;'EOF'
+
+# BEGIN m14a1
+* * * * * /usr/local/libexec/m14a1-tick &gt;&gt; /home/student/m14a1/user.log 2&gt;&amp;1
+# END m14a1
+EOF
+diff -u "$HOME/m14a1/crontab.inicio" "$HOME/m14a1/crontab.candidate"</code></pre>
+<p>Confira que só o bloco de exercício foi acrescentado. Depois instale a candidata:</p>
+<pre translate="no"><code class="lang-bash">crontab "$HOME/m14a1/crontab.candidate"
+crontab -l</code></pre>
+<p><strong>Saída esperada:</strong> tabela anterior preservada e bloco novo presente. Após uma virada de minuto com o serviço ativo, <code translate="no">user.log</code> recebe o resultado.</p>
+<p><strong>Verifique:</strong> leia <code translate="no">tail "$HOME/m14a1/user.log"</code>; a existência da entrada sozinha não comprova execução.</p>
+<h3 id="decida-1">Decida 1</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Opção</th><th scope="col">Para acrescentar uma tarefa sem perder outras</th></tr></thead><tbody><tr><td>A</td><td>Instalar uma tabela que contém só a tarefa nova</td></tr><tr><td>B</td><td>Revisar uma candidata com as entradas anteriores e o bloco novo</td></tr><tr><td>C</td><td>Apagar a tabela inteira primeiro</td></tr></tbody></table></div>
+<p>Escolha B. A operação de instalação substitui a tabela; a candidata precisa conter o que você quer preservar.</p>
+<h3 id="passo-4-criar-a-agenda-de-sistema-propria">Passo 4 · Criar a agenda de sistema própria</h3>
+<p><strong>Palpite:</strong> onde aparece o usuário nesta variante?</p>
+<pre translate="no"><code class="lang-bash">sudo tee /etc/cron.d/m14a1 &gt; /dev/null &lt;&lt;'EOF'
+SHELL=/bin/sh
+PATH=/usr/bin:/bin
+* * * * * student /usr/local/libexec/m14a1-tick &gt;&gt; /home/student/m14a1/system.log 2&gt;&amp;1
+EOF
+sudo chmod 644 /etc/cron.d/m14a1
+sudo chown root:root /etc/cron.d/m14a1</code></pre>
+<p><strong>Saída esperada:</strong> depois de uma virada de minuto, <code translate="no">system.log</code> mostra o resultado executado como <code translate="no">student</code>. Não é necessário reiniciar cron para cada arquivo correto acrescentado.</p>
+<p><strong>Verifique:</strong> compare os dois logs e identifique o campo adicional no arquivo de sistema.</p>
+<h3 id="passo-5-executar-uma-vez-com-at">Passo 5 · Executar uma vez com at</h3>
+<p><strong>Palpite:</strong> fechar o terminal remove um trabalho já aceito pelo at?</p>
+<pre translate="no"><code class="lang-bash">printf '/usr/local/libexec/m14a1-tick &gt;&gt; /home/student/m14a1/once.log 2&gt;&amp;1\n' &gt; "$HOME/m14a1/once.job"
+LC_ALL=C at -f "$HOME/m14a1/once.job" now + 2 minutes 2&gt; "$HOME/m14a1/at.receipt"
+cat "$HOME/m14a1/at.receipt"
+atq</code></pre>
+<p><strong>Saída esperada:</strong> recibo com o identificador real e trabalho na fila. Após o horário, ele sai da fila e produz <code translate="no">once.log</code>.</p>
+<p><strong>Verifique:</strong> compare recibo, fila e arquivo produzido. Aceitação na fila não é confirmação de sucesso do comando.</p>
+<h3 id="decida-2">Decida 2</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Opção</th><th scope="col">O trabalho foi aceito, mas não há resultado</th></tr></thead><tbody><tr><td>A</td><td>Trocar as permissões para todos poderem escrever</td></tr><tr><td>B</td><td>Reenviar várias cópias sem verificar</td></tr><tr><td>C</td><td>Conferir horário, fila, serviço e saída do trabalho</td></tr></tbody></table></div>
+<p>Escolha C. A evidência de entrega ao agendador e a de execução são diferentes.</p>
+<h3 id="passo-6-conferir-acesso-e-persistencia">Passo 6 · Conferir acesso e persistência</h3>
+<p><strong>Palpite:</strong> proibir o uso de uma ferramenta apaga seus trabalhos existentes?</p>
+<p>Observe os controles que já existem, sem alterá-los. Um caminho ausente é uma informação sobre a configuração.</p>
+<pre translate="no"><code class="lang-bash">sudo ls -l /etc/cron.allow /etc/cron.deny /etc/at.allow /etc/at.deny
+crontab -l
+atq
+sudo systemctl reboot</code></pre>
+<p><strong>Saída esperada:</strong> depois do reboot, cron ativo continua usando as entradas instaladas. O trabalho at já concluído não reaparece como recorrente.</p>
+<p><strong>Verifique:</strong> leia as datas novas nos dois logs. Não altere o relógio para acelerar o teste.</p>
+<h2 id="6-quebre-e-conserte">6 · Quebre e conserte</h2>
+<h3 id="quebra-1-trabalho-sem-execucao-permitida">Quebra 1 · Trabalho sem execução permitida</h3>
+<p><strong>Sintoma:</strong> o minuto passa, mas a tarefa registra um erro em vez da saída normal.</p>
+<p><strong>Investigação:</strong> retire execução somente do script próprio e tente manualmente o mesmo caminho.</p>
+<pre translate="no"><code class="lang-bash">sudo chmod 644 /usr/local/libexec/m14a1-tick
+/usr/local/libexec/m14a1-tick
+tail "$HOME/m14a1/user.log"</code></pre>
+<p><strong>Causa:</strong> a agenda chama um executável sem permissão de execução.</p>
+<p><strong>Conserto:</strong> restaure <code translate="no">sudo chmod 755 /usr/local/libexec/m14a1-tick</code>.</p>
+<p><strong>Verifique:</strong> execute manualmente e confira a próxima saída agendada.</p>
+<p><strong>Prevenção:</strong> teste como o mesmo usuário e pelo mesmo caminho da agenda.</p>
+<h3 id="quebra-2-campo-de-usuario-ausente">Quebra 2 · Campo de usuário ausente</h3>
+<p><strong>Sintoma:</strong> a tabela do usuário funciona, mas o arquivo de sistema deixa de gerar resultado novo.</p>
+<p><strong>Investigação:</strong> salve o arquivo próprio e remova apenas o campo obrigatório dele.</p>
+<pre translate="no"><code class="lang-bash">sudo cp -a /etc/cron.d/m14a1 "$HOME/m14a1/cron.d.good"
+sudo sed -i 's/\* student /\* /' /etc/cron.d/m14a1
+sudo cat /etc/cron.d/m14a1</code></pre>
+<p><strong>Causa:</strong> cron interpreta a posição do usuário segundo o formato de sistema, não o formato da crontab pessoal.</p>
+<p><strong>Conserto:</strong> restaure só o arquivo próprio com <code translate="no">sudo cp -a "$HOME/m14a1/cron.d.good" /etc/cron.d/m14a1</code>.</p>
+<p><strong>Verifique:</strong> depois da próxima virada de minuto, <code translate="no">system.log</code> volta a crescer.</p>
+<p><strong>Prevenção:</strong> confira o formato do destino antes de colar uma linha de agenda.</p>
+<h3 id="quebra-3-trabalho-cancelado-antes-do-horario">Quebra 3 · Trabalho cancelado antes do horário</h3>
+<p><strong>Sintoma:</strong> um novo trabalho at não produz o resultado porque você o retirou da fila.</p>
+<p><strong>Investigação:</strong> envie outra vez <code translate="no">once.job</code>, anote o identificador do recibo novo e confira o conteúdo com <code translate="no">at -c</code> antes de remover. Não use um número de exemplo.</p>
+<pre translate="no"><code class="lang-bash">at -f "$HOME/m14a1/once.job" now + 5 minutes
+atq
+read -r -p 'Own job ID: ' ATJOB
+at -c "$ATJOB"</code></pre>
+<p>Confirme que é o trabalho de <code translate="no">student</code> criado agora e só então execute <code translate="no">atrm "$ATJOB"</code>.</p>
+<p><strong>Causa:</strong> a ausência de resultado corresponde ao cancelamento, não a um defeito do serviço.</p>
+<p><strong>Conserto:</strong> se o trabalho ainda for necessário, envie uma única nova cópia.</p>
+<p><strong>Verifique:</strong> confira o novo identificador e o resultado após o horário.</p>
+<p><strong>Prevenção:</strong> registre identificador, horário e estado, sem apagar a fila inteira.</p>
+<h3 id="limpeza">Limpeza</h3>
+<p>Remova somente o bloco marcado da tabela atual. Revise o diff antes de instalar a tabela limpa; outras entradas precisam permanecer.</p>
+<pre translate="no"><code class="lang-bash">crontab -l &gt; "$HOME/m14a1/crontab.atual"
+sed '/^# BEGIN m14a1$/,/^# END m14a1$/d' "$HOME/m14a1/crontab.atual" &gt; "$HOME/m14a1/crontab.clean"
+diff -u "$HOME/m14a1/crontab.atual" "$HOME/m14a1/crontab.clean"</code></pre>
+<p>Após conferir a remoção exclusiva do bloco:</p>
+<pre translate="no"><code class="lang-bash">crontab "$HOME/m14a1/crontab.clean"
+sudo rm -f /etc/cron.d/m14a1 /usr/local/libexec/m14a1-tick
+atq</code></pre>
+<p>Cancele apenas trabalhos de exercício ainda pendentes, pelo identificador conferido. Guarde os registros; uma tabela vazia remanescente não executa trabalhos.</p>
+<h2 id="7-armadilhas">7 · Armadilhas</h2>
+<div class="tabela"><table><thead><tr><th scope="col">Erro</th><th scope="col">Faça</th><th scope="col">Motivo</th></tr></thead><tbody><tr><td>Depender da sessão interativa</td><td>Caminhos absolutos e ambiente explícito</td><td>cron não abriu seu terminal</td></tr><tr><td>Apagar tabela para acrescentar tarefa</td><td>Candidata revisada preservando entradas</td><td>Instalar substitui a tabela</td></tr><tr><td>Confundir os dois formatos</td><td>Campo de usuário só no formato de sistema</td><td>A interpretação muda</td></tr><tr><td>Aceitação significa sucesso</td><td>Conferir saída do trabalho</td><td>Fila e resultado são evidências distintas</td></tr></tbody></table></div>
+<h2 id="8-quiz">8 · Quiz</h2>
+<ol><li>Quais são os cinco campos de tempo?</li>
+<li>Onde entra o usuário em <code translate="no">/etc/cron.d</code>?</li>
+<li>Por que usar caminhos absolutos?</li>
+<li>O que <code translate="no">atq</code> demonstra?</li>
+<li>Remover acesso à ferramenta apaga trabalhos existentes?</li>
+<li>O que deve ser preservado ao limpar uma agenda?</li></ol>
+<h2 id="9-cola">9 · Cola</h2>
+<div class="tabela"><table><thead><tr><th scope="col">Tarefa</th><th scope="col">Comando</th></tr></thead><tbody><tr><td>Listar tabela pessoal</td><td><code translate="no">crontab -l</code></td></tr><tr><td>Editar tabela pessoal</td><td><code translate="no">crontab -e</code></td></tr><tr><td>Listar fila única</td><td><code translate="no">atq</code></td></tr><tr><td>Inspecionar trabalho escolhido</td><td><code translate="no">at -c "$ATJOB"</code></td></tr></tbody></table></div>
+<p><strong>Flashcards:</strong> crie cinco cartões sobre formato, usuário, ambiente, fila e evidência. Revise em D+1, D+3, D+7 e D+21.</p>
+<h2 id="10-checklist-e-fechamento">10 · Checklist e fechamento</h2>
+<ul><li>[ ] Executei o mesmo trabalho manualmente e agendado.</li>
+<li>[ ] Preservei outras entradas e identificadores da fila.</li>
+<li>[ ] Expliquei as três causas com evidências.</li></ul>
+<p><strong>Último exercício:</strong> descreva um relatório que não depende de variável da sessão e mostre como você comprovaria que rodou.</p>
+<p><strong>Reboot de conferência:</strong> depois da limpeza, reinicie as duas VMs e confirme que os registros de exercício não recebem novas linhas e que as outras agendas continuam instaladas.</p>
+<pre translate="no"><code class="lang-bash">sudo systemctl reboot</code></pre>
+<p>No host Proxmox:</p>
+<pre translate="no"><code class="lang-bash">qm snapshot 201 m14a1-fim
+qm snapshot 202 m14a1-fim</code></pre>
+<h2 id="11-na-vida-real">11 · Na vida real</h2>
+<p>Em host autorizado, faça apenas inventário com <code translate="no">crontab -l</code>, <code translate="no">atq</code> e a leitura dos arquivos de agenda permitidos ao seu papel. Não edite, reenvie nem cancele trabalhos nessa missão. Identifique dono, comando, destino da saída e evidência da última execução.</p>
+<h2 id="12-aprofundar-quando-quiser">12 · Aprofundar quando quiser</h2>
+<ul><li><a href="https://manpages.debian.org/trixie/cron/crontab.5.en.html">crontab(5), Debian</a> e <a href="https://man7.org/linux/man-pages/man5/crontab.5.html">crontab(5), cronie</a>: formato e ambiente.</li>
+<li><a href="https://manpages.debian.org/trixie/cron/crontab.1.en.html">crontab(1)</a> e <a href="https://manpages.debian.org/trixie/at/at.1.en.html">at(1)</a>: instalação e fila.</li></ul>
+<p><strong>DeepTutor</strong> (http://10.1.0.149:3782, KB "Curso Linux Sysadmin"):</p>
+<ul><li><code translate="no">!explica Compare crontab de usuário, /etc/cron.d e at com foco em usuário e ambiente.</code></li>
+<li><code translate="no">!feynman Vou explicar por que um comando funciona no SSH e falha no cron. Critique minha explicação.</code></li>
+<li><code translate="no">!quiz Crie seis incidentes de agendamento sem propor apagar agendas existentes.</code></li></ul>
+<h2 id="gabarito-comentado">Gabarito comentado</h2>
+<h3 id="aquecimento">Aquecimento</h3>
+<ol><li>DAC e a política MAC precisam permitir a operação.</li>
+<li>Habilitar participa do boot; iniciar muda o estado atual.</li>
+<li>Compare configuração, estado do serviço e resultado produzido.</li></ol>
+<h3 id="quiz">Quiz</h3>
+<ol><li>Minuto, hora, dia do mês, mês e dia da semana.</li>
+<li>Depois dos cinco campos e antes do comando.</li>
+<li>O ambiente não é sua sessão interativa.</li>
+<li>Trabalhos ainda na fila, não o sucesso de trabalhos concluídos.</li>
+<li>Não; controle de uso da ferramenta e trabalhos instalados são coisas diferentes.</li>
+<li>Todas as entradas e trabalhos que não pertencem ao exercício.</li></ol>
+<p><a href="13.3-autofs.html">← Aula 13.3 · autofs</a> · <a href="index.html">Índice de aulas</a> · <a href="https://github.com/Rodrigoantignani/curso-linux-sysadmin/blob/master/00-plano-do-curso.md">Plano do curso: 14.2 em diante →</a></p>
+</article><nav class="paginas" aria-label="Aulas"><a class="ant" href="13.3-autofs.html"><small>← Anterior</small>13.3 · autofs</a><a class="prox" href="14.2-timers-do-systemd.html"><small>Próxima →</small>14.2 · Timers do systemd</a></nav></main></div>
+<footer><div class="wrap">Gerado a partir do Markdown do curso · Imagens em <code translate="no">img/</code></div></footer>
+</body>
+</html>

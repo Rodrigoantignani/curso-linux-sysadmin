@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light dark">
+<title>20.7 · Atualizar, mover e falhar com prova · Curso Linux Sysadmin</title>
+<link rel="alternate" hreflang="pt-BR" href="20.7-atualizar-mover-e-falhar.html"><link rel="alternate" hreflang="it" href="20.7-atualizar-mover-e-falhar.it.html">
+<style>
+:root{color-scheme:light dark;--bg:#f6f1e7;--card:#fffdf8;--ink:#201c16;--muted:#5e564a;--accent:#9a3412;--accent-2:#1f5f4a;--tint:#efe6d4;--line:#ddd2bc;--code:#f1eadb;--shadow:0 1px 2px rgba(60,40,10,.08);--serif:Georgia,"Iowan Old Style","Palatino Linotype",Palatino,serif;--sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--mono:"Cascadia Code",Consolas,"DejaVu Sans Mono",monospace}
+@media (prefers-color-scheme:dark){:root{--bg:#16130f;--card:#201b15;--ink:#f1eadb;--muted:#b9ad98;--accent:#f0a070;--accent-2:#7fd0b0;--tint:#2a231a;--line:#3d3427;--code:#191510;--shadow:none}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:5.5rem}
+body{margin:0;background:var(--bg);color:var(--ink);font:1rem/1.6 var(--sans)}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--accent-2);outline-offset:2px;border-radius:4px}
+.pular{position:absolute;left:-999px;top:0;background:var(--card);padding:.5rem 1rem;z-index:20}
+.pular:focus{left:.5rem;top:.5rem}
+.wrap{width:100%;max-width:84rem;margin:0 auto;padding-inline:max(1rem,env(safe-area-inset-left))}
+.top{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10;border-top:6px solid var(--accent)}
+.top-in{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding-block:.6rem}
+.titles{min-width:0}
+.marca{margin:0;font:700 clamp(1.15rem,1rem + 1vw,1.6rem)/1.15 var(--serif);letter-spacing:-.01em}
+.marca a{text-decoration:none}
+.marca a:hover{color:var(--accent)}
+.meta{margin:.1rem 0 0;color:var(--muted);font-size:.85rem}
+.acoes{display:flex;align-items:center;gap:.9rem;flex:none}
+.acoes>a{font-size:.9rem;font-weight:600;color:var(--muted);text-decoration:none}
+.acoes>a:hover{color:var(--accent);text-decoration:underline}
+.idioma{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--tint)}
+.idioma>*{padding:.35rem .9rem;font-size:.8rem;font-weight:700;letter-spacing:.06em;text-decoration:none;color:var(--muted);min-width:2.75rem;text-align:center}
+.idioma a:hover{color:var(--accent);text-decoration:underline}
+.idioma span{background:var(--accent);color:#fff}
+@media (prefers-color-scheme:dark){.idioma span{color:#16130f}}
+code{font-family:var(--mono);font-size:.9em;background:var(--tint);padding:.1rem .35rem;border-radius:4px;overflow-wrap:anywhere}
+/* índice */
+.capa{max-width:70rem;padding-block:2rem 3rem}
+.stats{border-left:4px solid var(--accent-2);background:var(--card);border-radius:0 10px 10px 0;padding:1rem 1.25rem;margin:0 0 2.5rem;box-shadow:var(--shadow);color:var(--muted)}
+.stats strong{color:var(--ink)}
+.modulo{display:grid;grid-template-columns:15rem minmax(0,1fr);gap:1rem 2rem;padding:1.75rem 0;border-top:1px solid var(--line)}
+.modulo h2{margin:0;font:700 1.25rem/1.25 var(--serif);align-self:start;position:sticky;top:6rem}
+.mn{display:block;font:700 .8rem var(--mono);letter-spacing:.12em;color:var(--accent);margin-bottom:.25rem}
+.sep{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.modulo ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,17rem),1fr));gap:.75rem}
+.modulo li{margin:0}
+.modulo a{display:flex;gap:.45rem;align-items:baseline;height:100%;padding:.85rem 1rem;background:var(--card);border:1px solid var(--line);border-radius:10px;text-decoration:none;font-weight:600;line-height:1.35;box-shadow:var(--shadow);transition:border-color .15s,transform .15s}
+.modulo a:hover{border-color:var(--accent);color:var(--accent)}
+.num{font:700 .85rem var(--mono);color:var(--accent);white-space:nowrap}
+/* aula */
+.doc{display:grid;grid-template-columns:17rem minmax(0,1fr);gap:2.5rem;align-items:start;padding-block:2rem 3rem}
+.lateral{position:sticky;top:5.5rem;max-height:calc(100vh - 6.5rem);overflow:auto;font-size:.875rem;padding-right:.5rem}
+.lateral h2{margin:0 0 .25rem;font:700 .95rem var(--serif);color:var(--muted)}
+.lateral h3{margin:1rem 0 .25rem;font:700 .75rem var(--mono);letter-spacing:.06em;color:var(--accent)}
+.lateral ul{list-style:none;margin:0;padding:0}
+.lateral a{display:flex;gap:.45rem;padding:.25rem .5rem;border-radius:6px;text-decoration:none;color:var(--muted);line-height:1.3}
+.lateral a:hover{background:var(--tint);color:var(--ink)}
+.lateral a[aria-current]{background:var(--tint);color:var(--ink);font-weight:700;box-shadow:inset 3px 0 0 var(--accent)}
+.lateral .num{font-size:.75rem}
+.aula{min-width:0;max-width:56rem;overflow-wrap:break-word;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:clamp(1.25rem,1rem + 2vw,2.75rem);box-shadow:var(--shadow)}
+.aula h1{margin:0 0 1.5rem;font:700 clamp(1.75rem,1.4rem + 1.6vw,2.5rem)/1.15 var(--serif);letter-spacing:-.015em;color:var(--ink)}
+.aula h2{margin:2.5rem 0 .75rem;padding-top:1.25rem;border-top:1px solid var(--line);font:700 1.5rem/1.25 var(--serif)}
+.aula h3{margin:2rem 0 .5rem;font:700 1.15rem/1.3 var(--serif);color:var(--accent)}
+.aula h4,.aula h5,.aula h6{margin:1.5rem 0 .5rem;font-size:1rem}
+.aula p,.aula ul,.aula ol{margin:1rem 0}
+.aula ul,.aula ol{padding-left:1.5rem}
+.aula li{margin:.35rem 0}
+.aula li>ul,.aula li>ol{margin:.35rem 0}
+.aula a{color:var(--accent);text-underline-offset:2px}
+.aula hr{border:0;border-top:1px solid var(--line);margin:2rem 0}
+.tabela{overflow-x:auto;margin:1.25rem 0;border:1px solid var(--line);border-radius:10px}
+.aula table{width:100%;border-collapse:collapse;font-size:.9rem}
+.aula th,.aula td{padding:.55rem .75rem;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+.aula tr:last-child td{border-bottom:0}
+.aula th{background:var(--tint);font-weight:700}
+.aula pre{background:var(--code);border:1px solid var(--line);border-radius:10px;padding:.9rem 1rem;overflow-x:auto;font:.85rem/1.5 var(--mono);margin:1rem 0;tab-size:4}
+.aula pre code{background:none;padding:0;font-size:inherit;overflow-wrap:normal}
+.aula blockquote{margin:1.25rem 0;padding:.75rem 1.25rem;border-left:4px solid var(--accent-2);background:var(--tint);border-radius:0 10px 10px 0}
+.aula blockquote>:first-child{margin-top:0}
+.aula blockquote>:last-child{margin-bottom:0}
+.aula figure{margin:1.75rem 0;text-align:center}
+.aula figure img{display:block;margin:0 auto;max-width:100%;height:auto;border:1px solid var(--line);border-radius:10px;background:#fff}
+.aula figcaption{margin-top:.5rem;color:var(--muted);font-size:.9rem;font-style:italic}
+.paginas{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:2.5rem;padding-top:1.5rem;border-top:1px solid var(--line)}
+.paginas a{display:block;padding:.75rem 1rem;border:1px solid var(--line);border-radius:10px;text-decoration:none;color:var(--ink);font-weight:600;line-height:1.3}
+.paginas a:hover{border-color:var(--accent);color:var(--accent)}
+.paginas small{display:block;color:var(--muted);font-weight:400}
+.paginas .prox{grid-column:2;text-align:right}
+footer{border-top:1px solid var(--line);padding-block:1.5rem;color:var(--muted);font-size:.85rem;text-align:center}
+@media (hover:hover) and (prefers-reduced-motion:no-preference){.modulo a:hover{transform:translateY(-2px)}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+@media (max-width:980px){.doc{grid-template-columns:minmax(0,1fr);padding-top:1rem}.lateral{position:static;max-height:none;order:2}.aula{max-width:none}}
+@media (max-width:860px){.modulo{grid-template-columns:minmax(0,1fr)}.modulo h2{position:static}.mn{display:inline;margin-right:.5rem}}
+@media (max-width:420px){.meta{display:none}.top-in{gap:.5rem}.acoes{gap:.6rem}.capa{padding-top:1.25rem}.paginas{grid-template-columns:minmax(0,1fr)}.paginas .prox{grid-column:1}}
+@media print{.top,.lateral,.paginas{display:none}.aula{border:0;box-shadow:none;padding:0;max-width:none}.doc{display:block}}
+</style>
+</head>
+<body>
+<a class="pular" href="#conteudo">Pular para o conteúdo</a>
+<header class="top"><div class="wrap top-in"><div class="titles"><p class="marca"><a href="index.html">Curso Linux Sysadmin</a></p><p class="meta">Rodrigo Antignani · Aula 20.7</p></div><div class="acoes"><a href="index.html">Índice</a><div class="idioma" role="group" aria-label="Idioma"><span aria-current="true">PT</span><a href="20.7-atualizar-mover-e-falhar.it.html" hreflang="it" lang="it">IT</a></div></div></div></header>
+<div class="wrap doc"><aside class="lateral" aria-label="Aulas"><h2>Aulas</h2><h3>M0 · Laboratório</h3><ul><li><a href="0.1-montar-o-laboratorio.html"><span class="num">0.1</span><span>Montar o laboratório</span></a></li><li><a href="0.2-acesso-e-protecao.html"><span class="num">0.2</span><span>Acesso e proteção</span></a></li></ul><h3>M1 · Linha de comando</h3><ul><li><a href="1.1-o-que-e-linux.html"><span class="num">1.1</span><span>O que é Linux</span></a></li><li><a href="1.2-o-shell-e-a-ajuda.html"><span class="num">1.2</span><span>O shell e a ajuda</span></a></li><li><a href="1.3-caminhos-e-navegacao.html"><span class="num">1.3</span><span>Caminhos e navegação</span></a></li><li><a href="1.4-criar-copiar-mover-e-apagar.html"><span class="num">1.4</span><span>Criar, copiar, mover e apagar</span></a></li><li><a href="1.5-ler-e-procurar-texto.html"><span class="num">1.5</span><span>Ler e procurar texto</span></a></li><li><a href="1.6-redirecionamentos-e-pipes.html"><span class="num">1.6</span><span>Redirecionamentos e pipes</span></a></li><li><a href="1.7-arquivar-e-compactar.html"><span class="num">1.7</span><span>Arquivar e compactar</span></a></li><li><a href="1.8-primeiro-script.html"><span class="num">1.8</span><span>Primeiro script</span></a></li><li><a href="1.9-decidir-e-repetir.html"><span class="num">1.9</span><span>Decidir e repetir</span></a></li><li><a href="1.10-software-livre-na-pratica.html"><span class="num">1.10</span><span>Software livre na prática</span></a></li></ul><h3>M2 · Sistema, usuários e permissões</h3><ul><li><a href="2.1-instalacao-e-provisionamento.html"><span class="num">2.1</span><span>Instalação e provisionamento</span></a></li><li><a href="2.2-hardware-e-dispositivos.html"><span class="num">2.2</span><span>Hardware e dispositivos</span></a></li><li><a href="2.3-processos-e-logs.html"><span class="num">2.3</span><span>Processos e logs</span></a></li><li><a href="2.4-rede-no-dia-a-dia.html"><span class="num">2.4</span><span>Rede no dia a dia</span></a></li><li><a href="2.5-acesso-remoto-e-privilegios.html"><span class="num">2.5</span><span>Acesso remoto e privilégios</span></a></li><li><a href="2.6-usuarios-e-grupos.html"><span class="num">2.6</span><span>Usuários e grupos</span></a></li><li><a href="2.7-permissoes-e-dono.html"><span class="num">2.7</span><span>Permissões e dono</span></a></li><li><a href="2.8-diretorios-e-arquivos-especiais.html"><span class="num">2.8</span><span>Diretórios e arquivos especiais</span></a></li></ul><h3>M3 · Texto e editor</h3><ul><li><a href="3.1-fluxos-a-fundo.html"><span class="num">3.1</span><span>Fluxos a fundo</span></a></li><li><a href="3.2-filtros-de-texto.html"><span class="num">3.2</span><span>Filtros de texto</span></a></li><li><a href="3.3-regex-e-grep.html"><span class="num">3.3</span><span>Regex e grep</span></a></li><li><a href="3.4-sed-e-awk.html"><span class="num">3.4</span><span>sed e awk</span></a></li><li><a href="3.5-vi-e-vim-de-verdade.html"><span class="num">3.5</span><span>vi e vim de verdade</span></a></li></ul><h3>M4 · systemd e boot</h3><ul><li><a href="4.1-como-o-linux-liga.html"><span class="num">4.1</span><span>Como o Linux liga</span></a></li><li><a href="4.2-systemd-servicos-e-units.html"><span class="num">4.2</span><span>systemd: serviços e units</span></a></li><li><a href="4.3-targets-desligar-e-reiniciar.html"><span class="num">4.3</span><span>Targets: desligar e reiniciar</span></a></li><li><a href="4.4-grub-e-acesso-de-emergencia.html"><span class="num">4.4</span><span>GRUB e acesso de emergência</span></a></li></ul><h3>M5 · Kernel, módulos e VM</h3><ul><li><a href="5.1-hardware-pelo-kernel.html"><span class="num">5.1</span><span>Hardware pelo kernel</span></a></li><li><a href="5.2-modulos-e-parametros.html"><span class="num">5.2</span><span>Módulos e parâmetros</span></a></li><li><a href="5.3-linux-como-convidado.html"><span class="num">5.3</span><span>Linux como convidado</span></a></li></ul><h3>M6 · Pacotes e repositórios</h3><ul><li><a href="6.1-pacotes-no-debian.html"><span class="num">6.1</span><span>Pacotes no Debian</span></a></li><li><a href="6.2-pacotes-na-rocky.html"><span class="num">6.2</span><span>Pacotes na Rocky</span></a></li><li><a href="6.3-repositorios.html"><span class="num">6.3</span><span>Repositórios</span></a></li><li><a href="6.4-flatpak.html"><span class="num">6.4</span><span>Flatpak</span></a></li><li><a href="6.5-bibliotecas-compartilhadas.html"><span class="num">6.5</span><span>Bibliotecas compartilhadas</span></a></li></ul><h3>M7 · Processos e desempenho</h3><ul><li><a href="7.1-processos-e-sinais.html"><span class="num">7.1</span><span>Processos e sinais</span></a></li><li><a href="7.2-jobs-e-sessoes.html"><span class="num">7.2</span><span>Jobs e sessões</span></a></li><li><a href="7.3-prioridade-e-perfis.html"><span class="num">7.3</span><span>Prioridade e perfis</span></a></li></ul><h3>M8 · Arquivos a fundo</h3><ul><li><a href="8.1-fhs-e-onde-cada-coisa-mora.html"><span class="num">8.1</span><span>FHS e onde cada coisa mora</span></a></li><li><a href="8.2-find-a-fundo.html"><span class="num">8.2</span><span>find a fundo</span></a></li><li><a href="8.3-arquivamento-avancado.html"><span class="num">8.3</span><span>Arquivamento avançado</span></a></li><li><a href="8.4-links.html"><span class="num">8.4</span><span>Links</span></a></li><li><a href="8.5-permissoes-avancadas.html"><span class="num">8.5</span><span>Permissões avançadas</span></a></li></ul><h3>M9 · Armazenamento</h3><ul><li><a href="9.1-discos-e-layout.html"><span class="num">9.1</span><span>Discos e layout</span></a></li><li><a href="9.2-particionar.html"><span class="num">9.2</span><span>Particionar</span></a></li><li><a href="9.3-sistemas-de-arquivos.html"><span class="num">9.3</span><span>Sistemas de arquivos</span></a></li><li><a href="9.4-montar-e-persistir.html"><span class="num">9.4</span><span>Montar e persistir</span></a></li><li><a href="9.5-integridade-e-espaco.html"><span class="num">9.5</span><span>Integridade e espaço</span></a></li><li><a href="9.6-lvm.html"><span class="num">9.6</span><span>LVM</span></a></li><li><a href="9.7-crescer-sem-destruir.html"><span class="num">9.7</span><span>Crescer sem destruir</span></a></li></ul><h3>M10 · Usuários e acesso privilegiado</h3><ul><li><a href="10.1-contas.html"><span class="num">10.1</span><span>Contas</span></a></li><li><a href="10.2-senhas-e-validade.html"><span class="num">10.2</span><span>Senhas e validade</span></a></li><li><a href="10.3-grupos-e-trabalho-em-equipe.html"><span class="num">10.3</span><span>Grupos e trabalho em equipe</span></a></li><li><a href="10.4-sudo-de-verdade.html"><span class="num">10.4</span><span>sudo de verdade</span></a></li></ul><h3>M11 · Rede</h3><ul><li><a href="11.1-tcp-ip-para-quem-administra.html"><span class="num">11.1</span><span>TCP/IP para quem administra</span></a></li><li><a href="11.2-networkmanager-e-nmcli.html"><span class="num">11.2</span><span>NetworkManager e nmcli</span></a></li><li><a href="11.3-rede-no-debian.html"><span class="num">11.3</span><span>Rede no Debian</span></a></li><li><a href="11.4-nomes-e-resolucao.html"><span class="num">11.4</span><span>Nomes e resolução</span></a></li><li><a href="11.5-diagnostico-de-rede.html"><span class="num">11.5</span><span>Diagnóstico de rede</span></a></li></ul><h3>M12 · Segurança do host</h3><ul><li><a href="12.1-ssh-a-fundo.html"><span class="num">12.1</span><span>SSH a fundo</span></a></li><li><a href="12.2-firewall.html"><span class="num">12.2</span><span>Firewall</span></a></li><li><a href="12.3-selinux-modos-e-contextos.html"><span class="num">12.3</span><span>SELinux: modos e contextos</span></a></li><li><a href="12.4-selinux-portas-e-booleanos.html"><span class="num">12.4</span><span>SELinux: portas e booleanos</span></a></li><li><a href="12.5-auditoria-e-criptografia.html"><span class="num">12.5</span><span>Auditoria e criptografia</span></a></li></ul><h3>M13 · Armazenamento em rede</h3><ul><li><a href="13.1-servidor-nfs.html"><span class="num">13.1</span><span>Servidor NFS</span></a></li><li><a href="13.2-cliente-nfs.html"><span class="num">13.2</span><span>Cliente NFS</span></a></li><li><a href="13.3-autofs.html"><span class="num">13.3</span><span>autofs</span></a></li></ul><h3>M14 · Agendamento</h3><ul><li><a href="14.1-cron-e-at.html"><span class="num">14.1</span><span>cron e at</span></a></li><li><a href="14.2-timers-do-systemd.html"><span class="num">14.2</span><span>Timers do systemd</span></a></li><li><a href="14.3-journald-e-rsyslog.html"><span class="num">14.3</span><span>journald e rsyslog</span></a></li><li><a href="14.4-hora-certa.html"><span class="num">14.4</span><span>Hora certa</span></a></li><li><a href="14.5-email-local-e-impressao.html"><span class="num">14.5</span><span>E-mail local e impressão</span></a></li></ul><h3>M15 · Shell e ambiente</h3><ul><li><a href="15.1-ambiente-do-shell.html"><span class="num">15.1</span><span>Ambiente do shell</span></a></li><li><a href="15.2-scripts-robustos.html"><span class="num">15.2</span><span>Scripts robustos</span></a></li><li><a href="15.3-scripts-de-administracao.html"><span class="num">15.3</span><span>Scripts de administração</span></a></li><li><a href="15.4-interfaces-graficas.html"><span class="num">15.4</span><span>Interfaces gráficas</span></a></li><li><a href="15.5-idioma-teclado-e-fuso.html"><span class="num">15.5</span><span>Idioma, teclado e fuso</span></a></li></ul><h3>M16 · Semana de incidentes no Rocky 10</h3><ul><li><a href="16.1-rocky-10-o-que-muda.html"><span class="num">16.1</span><span>Rocky 10: o que muda</span></a></li><li><a href="16.2-incidentes-por-area.html"><span class="num">16.2</span><span>Incidentes por área</span></a></li><li><a href="16.3-incidente-com-relogio.html"><span class="num">16.3</span><span>Incidente com relógio</span></a></li><li><a href="16.4-correcao-e-reforco.html"><span class="num">16.4</span><span>Correção e reforço</span></a></li></ul><h3>M17 · Proxmox na prática</h3><ul><li><a href="17.1-proxmox-por-dentro.html"><span class="num">17.1</span><span>Proxmox por dentro</span></a></li><li><a href="17.2-vm-pela-linha-de-comando.html"><span class="num">17.2</span><span>VM pela linha de comando</span></a></li><li><a href="17.3-conteiner-lxc.html"><span class="num">17.3</span><span>Contêiner LXC</span></a></li><li><a href="17.4-storage.html"><span class="num">17.4</span><span>Storage: capacidade, crescimento e movimento</span></a></li><li><a href="17.5-rede.html"><span class="num">17.5</span><span>Rede: bridge, VLAN, bond e SDN</span></a></li><li><a href="17.6-backup-e-restauracao.html"><span class="num">17.6</span><span>Backup e restauração com PBS</span></a></li><li><a href="17.7-migracao-e-quorum.html"><span class="num">17.7</span><span>Migração e quorum</span></a></li></ul><h3>M18 · Podman</h3><ul><li><a href="18.1-conteiner-nao-e-vm.html"><span class="num">18.1</span><span>Contêiner não é VM</span></a></li><li><a href="18.2-rodar-e-persistir.html"><span class="num">18.2</span><span>Rodar e persistir</span></a></li><li><a href="18.3-conteiner-como-servico.html"><span class="num">18.3</span><span>Contêiner como serviço</span></a></li><li><a href="18.4-diagnosticar-conteiner-rootless.html"><span class="num">18.4</span><span>Diagnosticar contêiner rootless</span></a></li><li><a href="18.5-construir-imagens.html"><span class="num">18.5</span><span>Construir imagens</span></a></li></ul><h3>M19 · Serviços de rede</h3><ul><li><a href="19.1-dns-autoritativo.html"><span class="num">19.1</span><span>DNS autoritativo</span></a></li><li><a href="19.2-dns-recursivo-e-diagnostico.html"><span class="num">19.2</span><span>DNS recursivo e diagnóstico</span></a></li><li><a href="19.3-dhcp.html"><span class="num">19.3</span><span>DHCP</span></a></li><li><a href="19.4-servidor-web.html"><span class="num">19.4</span><span>Servidor web: nome, arquivo e resposta</span></a></li><li><a href="19.5-tls-e-proxy-reverso.html"><span class="num">19.5</span><span>TLS e proxy reverso: identidade antes do cadeado</span></a></li><li><a href="19.6-samba-a-ponte-windows.html"><span class="num">19.6</span><span>Samba: a ponte com o cliente Windows</span></a></li><li><a href="19.7-postfix-e-correio-local.html"><span class="num">19.7</span><span>Postfix e correio local</span></a></li><li><a href="19.8-dovecot-e-imaps.html"><span class="num">19.8</span><span>Dovecot e leitura por IMAPS</span></a></li><li><a href="19.9-squid-e-desafio-integrado.html"><span class="num">19.9</span><span>Squid e desafio integrado</span></a></li></ul><h3>M20 · NethServer 8 por dentro</h3><ul><li><a href="20.1-instalar-nethserver-8.html"><span class="num">20.1</span><span>Instalar em uma VM limpa</span></a></li><li><a href="20.2-cluster-no-e-modulo.html"><span class="num">20.2</span><span>Cluster, nó e módulo</span></a></li><li><a href="20.3-modulo-por-dentro.html"><span class="num">20.3</span><span>Um módulo por dentro</span></a></li><li><a href="20.4-proxy-e-certificados.html"><span class="num">20.4</span><span>Proxy e certificados</span></a></li><li><a href="20.5-dominios-de-usuario.html"><span class="num">20.5</span><span>Domínios de usuário: identidade com fronteiras</span></a></li><li><a href="20.6-backup-e-restauracao.html"><span class="num">20.6</span><span>Backup e restauração: provar o retorno</span></a></li><li><a href="20.7-atualizar-mover-e-falhar.html" aria-current="page"><span class="num">20.7</span><span>Atualizar, mover e falhar com prova</span></a></li></ul></aside><main id="conteudo" class="aula"><article><h1>Aula 20.7 · Atualizar, mover e falhar com prova</h1>
+<blockquote><p><strong>O coração desta aula:</strong> mover a Wiki entre nós e recuperar uma falha controlada sem prometer HA automática.</p></blockquote>
+<div class="tabela"><table><thead><tr><th scope="col">Ficha</th><th scope="col">Plano de trabalho</th></tr></thead><tbody><tr><td>Módulo</td><td>M20 · NethServer 8 por dentro, aula 7 de 7</td></tr><tr><td>Quando</td><td>Semana 29</td></tr><tr><td>Ao final</td><td>mover a Wiki entre nós e recuperar uma falha controlada sem prometer HA automática.</td></tr><tr><td>Pré-requisitos</td><td>Aulas anteriores do M20; M18 e M19 corrigidos; console e inventário do lab</td></tr><tr><td>Duração</td><td>100–140 minutos, além de downloads e janelas</td></tr><tr><td>Snapshot</td><td>m20a7-inicio e m20a7-fim, somente nas VMs desta aula</td></tr></tbody></table></div>
+<p>A bancada principal é a VM <code translate="no">240</code>, hostname <code translate="no">ns8-1.lab.test</code>, Rocky Linux 9 com NS8. A VM <code translate="no">241</code>, <code translate="no">ns8-2.lab.test</code>, só entra na 20.7.</p>
+<p>A gestão em <code translate="no">net0</code> usa endereço real reservado e acesso à Internet. A <code translate="no">net1</code> fica na bridge isolada <code translate="no">vmbr17</code>, sem gateway; a rede de laboratório não fornece Internet.</p>
+<p>Use o <a href="https://github.com/Rodrigoantignani/curso-linux-sysadmin/blob/master/GUIA_BANCADA_M20_PT.md">guia de bancada M20</a>. Todos os comandos do NS8 indicados como root são dentro do nó, após <code translate="no">sudo -i</code>, e nunca no host Proxmox.</p>
+<p>Nenhum laboratório deste material foi executado durante a elaboração. As saídas descritas são critérios para você observar e registrar, não resultados medidos.</p>
+<h2 id="1-aquecimento">1 · Aquecimento</h2>
+<ol><li>Mover uma aplicação promove outro líder?</li>
+<li>Dois nós no mesmo host físico provam tolerância à perda desse host?</li>
+<li>Desligar um worker obriga a Wiki a reaparecer no líder?</li></ol>
+<p>Desenhe quem coordena, onde estão os dados e qual máquina responde à URL. Atualize o desenho depois de cada mudança.</p>
+<h2 id="2-por-que-importa">2 · Por que importa</h2>
+<p>Uma manutenção previsível precisa de estado anterior, janela, caminho de retorno e teste funcional. A tela de tarefa concluída é uma evidência de controle, não a resposta da aplicação.</p>
+<p>A VM <code translate="no">241</code> será um worker no mesmo cluster. O ensaio derruba somente essa VM, preservando o líder, o DNS e o destino de backup.</p>
+<h3 id="ponte-windows">Ponte Windows</h3>
+<p>Transferir uma pasta de trabalho entre duas mesas não transfere a chefia do escritório. E duas mesas no mesmo prédio não protegem contra a perda do prédio.</p>
+<h2 id="3-modelo-mental">3 · Modelo mental</h2>
+<figure><a href="../img/20.7-lider-no-e-aplicacao.jpg"><img src="../img/20.7-lider-no-e-aplicacao.jpg" alt="Mudar a aplicação não muda o líder" loading="lazy" decoding="async"></a><figcaption>Mover uma instância e transferir a liderança são operações diferentes.</figcaption></figure>
+<p>O líder recebe o controle do cluster. Cada nó executa suas aplicações. A movimentação altera a localização da instância; a promoção de líder é outra operação, com consequências próprias.</p>
+<p>Não existe nesta aula uma promessa de migração automática de aplicação após uma falha. Você mede a indisponibilidade, recupera o worker e verifica o conteúdo no lugar planejado.</p>
+<p>A bridge <code translate="no">vmbr17</code> é local ao host Proxmox. As VMs <code translate="no">240</code>, <code translate="no">241</code> e a bancada isolada precisam estar no mesmo nó físico para esse segmento; não migre uma VM a outro host durante o ensaio.</p>
+<h2 id="4-o-essencial">4 · O essencial</h2>
+<div class="tabela"><table><thead><tr><th scope="col">Operação</th><th scope="col">O que conferir</th></tr></thead><tbody><tr><td>Atualizar core</td><td>Versões compatíveis em todos os nós e controle funcional</td></tr><tr><td>Adicionar nó</td><td>VM nova, mesmo sistema, nome e conectividade corretos</td></tr><tr><td>Mover instância</td><td>Origem, destino, UUID, dados, DNS e TLS</td></tr><tr><td>Recuperar falha</td><td>Escopo observado e retorno do serviço testado</td></tr></tbody></table></div>
+<h3 id="rocky-debian">Rocky × Debian</h3>
+<p>Os dois nós NS8 usam Rocky Linux 9. A VM Debian <code translate="no">202</code> faz o teste de cliente e a <code translate="no">204</code> continua oferecendo DNS e backup; nenhuma delas ingressa como worker.</p>
+<p>Não reutilize o ID 241 se estiver ocupado por VM ou CT. Uma identidade já existente exige reconciliar o inventário, não destruí-la.</p>
+<h3 id="decida-1-uma-atualizacao-esta-disponivel">Decida 1 · Uma atualização está disponível</h3>
+<p>A. Atualizar módulos core separadamente por tentativa. B. Instalar versão de teste para facilitar. C. Ler a mudança, confirmar backup e usar a ação de atualização core.</p>
+<h2 id="5-lab-guiado">5 · Lab guiado</h2>
+<h3 id="passo-1-congelar-o-estado-anterior">Passo 1 · Congelar o estado anterior</h3>
+<p><strong>Palpite:</strong> Qual resposta permitirá detectar uma regressão?</p>
+<pre translate="no"><code class="lang-bash">test "$(id -u)" -eq 0 || exit 1
+test "$(hostname -f)" = ns8-1.lab.test || exit 1
+test -f /root/m20-lab/operador.env &amp;&amp; test ! -L /root/m20-lab/operador.env || exit 1
+test "$(stat -c '%U:%G:%a' /root/m20-lab/operador.env)" = root:root:600 || exit 1
+. /root/m20-lab/operador.env
+test -n "$MODULE_ID" &amp;&amp; test -n "$MODULE_UUID" || exit 1
+runagent -l</code></pre>
+<pre translate="no"><code class="lang-bash">install -d -m 0700 /root/m20-lab/evidence-20-7
+date --iso-8601=seconds &gt; /root/m20-lab/evidence-20-7/start.txt
+redis-cli --raw HGET cluster/module_uuid "$MODULE_ID"
+redis-cli --raw HGET cluster/module_node "$MODULE_ID"
+runagent -m "$MODULE_ID" podman ps
+df -h / /home</code></pre>
+<p>Na VM 202, repita a requisição da 20.6 e confirme o marcador salvo. No painel, confira o último backup e faça novo backup se houve mudança posterior.</p>
+<p>Registre versões do core e da Wiki, nó atual, UUID e localização da cópia de recuperação. Crie snapshots de início apenas depois de identificar cada VM no host.</p>
+<p><strong>Saída esperada:</strong> Inventário e conteúdo anteriores são reproduzíveis antes de modificar o cluster.</p>
+<p><strong>Verifique:</strong> Backup sem snapshot identificável ou marcador ausente impede as próximas etapas de mudança.</p>
+<h3 id="passo-2-atualizar-com-escopo-conhecido">Passo 2 · Atualizar com escopo conhecido</h3>
+<p><strong>Palpite:</strong> Atualizar core e atualizar a Wiki são a mesma tarefa?</p>
+<p>No Software Center, confira as versões instaladas e as notas das atualizações oferecidas. Atualize core pela ação própria, que mantém seus componentes alinhados.</p>
+<p>Depois, trate a Wiki pela ação de atualização da aplicação. A DokuWiki de NethForge não deve ser considerada coberta automaticamente por uma política de assinatura de outro repositório.</p>
+<p>Se não houver atualização oferecida, registre versões e ausência de pendência. Não instale uma versão de teste para produzir uma mudança artificial.</p>
+<p>Aguarde uma tarefa por vez e repita o teste do marcador após cada uma. Atualizações do sistema operacional seguem a janela e o método suportados para a instalação, não um comando improvisado em paralelo.</p>
+<p><strong>Saída esperada:</strong> Versões e resultado funcional registrados após as ações realmente disponíveis.</p>
+<p><strong>Verifique:</strong> O líder precisa estar atualizado antes de unir um nó novo com a mesma versão core.</p>
+<h3 id="passo-3-criar-a-vm-241-independente">Passo 3 · Criar a VM 241 independente</h3>
+<p><strong>Palpite:</strong> Um clone da VM 240 seria um nó novo com identidade própria?</p>
+<p>Volte ao host Proxmox proprietário da bancada. Use o diário ISO autenticado da 20.1, sem carregar automaticamente o arquivo; confira volume e SHA256 antes da criação.</p>
+<pre translate="no"><code class="lang-bash">test "$(id -u)" -eq 0 || exit 1
+pvesh get /cluster/resources --type vm --output-format json-pretty || exit 1
+test "$(pvesh get /cluster/nextid --vmid 241)" = 241 || exit 1
+test -f /root/m20-operador.env &amp;&amp; test ! -L /root/m20-operador.env || exit 1
+test "$(stat -c '%U:%G:%a' /root/m20-operador.env)" = root:root:600 || exit 1
+cat /root/m20-operador.env
+read -r -p 'ISO_VOLUME Rocky 9 autenticado no diario: ' ISO_VOLUME
+read -r -p 'ISO_SHA256 autenticado no diario: ' ISO_SHA256
+[[ "$ISO_SHA256" =~ ^[0-9a-fA-F]{64}$ ]] || exit 1
+ISO_PATH=$(pvesm path "$ISO_VOLUME") || exit 1
+test -f "$ISO_PATH" || exit 1
+printf '%s  %s\n' "$ISO_SHA256" "$ISO_PATH" | sha256sum -c - || exit 1
+M20_241_RECORD=$(mktemp /root/m20-241-created.XXXXXX.conf) || exit 1
+qm create 241 --name ns8-2 --machine q35 --bios ovmf --cpu x86-64-v2-AES --cores 2 --memory 4096 --agent enabled=1 --scsihw virtio-scsi-single --scsi0 vm-hdd:40 --efidisk0 vm-hdd:1,efitype=4m,pre-enrolled-keys=1 --net0 virtio,bridge=vmbr0 --net1 virtio,bridge=vmbr17,link_down=1 --ide2 "$ISO_VOLUME",media=cdrom --boot order=ide2 || exit 1
+qm config 241 &gt; "$M20_241_RECORD" || exit 1
+test -s "$M20_241_RECORD" || exit 1
+printf 'Creation record: %s\n' "$M20_241_RECORD"
+qm start 241 || exit 1</code></pre>
+<p>Instale Rocky Linux 9 mínimo e independente, hostname <code translate="no">ns8-2.lab.test</code>, conta <code translate="no">student</code> com sudo e console root de emergência. A gestão usa o endereço real reservado; não clone identidade, chaves SSH ou estado da 240.</p>
+<p>Depois de conferir o nome, no host ajuste o boot com <code translate="no">qm set 241 --boot order=scsi0</code>. No convidado 241, siga o guia M20 para a placa isolada <code translate="no">.241</code>, DNS e acesso do operador. O bloco abaixo instala somente NS8 na 241: não repete as guardas da 240 nem a criação do cluster.</p>
+<pre translate="no"><code class="lang-bash">test "$(id -u)" -eq 0 || exit 1
+test "$(hostname -f)" = ns8-2.lab.test || exit 1
+test ! -e /root/m20-install || exit 1
+install -d -m 0700 /root/m20-install
+dnf install -y curl || exit 1
+curl --fail --location --proto '=https' --tlsv1.2 --retry 10 --retry-delay 1 --retry-all-errors https://raw.githubusercontent.com/NethServer/ns8-core/ns8-stable/core/install.sh --output /root/m20-install/install.sh || exit 1
+bash -n /root/m20-install/install.sh || exit 1
+sha256sum /root/m20-install/install.sh &gt; /root/m20-install/install.sha256
+cat /root/m20-install/install.sh
+read -r -p 'Digite INSTALAR-NS8-241 apos revisar o script: ' M20_OK
+test "$M20_OK" = INSTALAR-NS8-241 || exit 1
+bash /root/m20-install/install.sh || exit 1
+systemctl reboot</code></pre>
+<p>O hash local registra o arquivo obtido, mas não é uma assinatura independente do distribuidor. A revisão do conteúdo e a confiança na fonte HTTPS continuam necessárias. Não salve as credenciais iniciais nos relatórios.</p>
+<p><strong>Saída esperada:</strong> VM nova com sistema limpo, rede conferida e NS8 pronto para ingressar.</p>
+<p><strong>Verifique:</strong> Não escolha Create cluster na 241: clusters independentes não são unidos por essa ação.</p>
+<h3 id="passo-4-ingressar-sem-alterar-a-lideranca">Passo 4 · Ingressar sem alterar a liderança</h3>
+<p><strong>Palpite:</strong> O nome correto também precisa ser resolvido pelos dois nós?</p>
+<p>No líder, confira a versão core. Na 241, confira a mesma versão instalada, FQDN, relógio, resoluções de ambos os nós e ausência de sobreposição da rede com a VPN do cluster registrada.</p>
+<p>Na 241, como root, prepare a pasta antes de transferir a CA pública. Se já existir, confira proprietário, permissões e ausência de link simbólico; uma divergência interrompe o procedimento.</p>
+<pre translate="no"><code class="lang-bash">test "$(id -u)" -eq 0 || exit 1
+test "$(hostname -f)" = ns8-2.lab.test || exit 1
+test ! -L /root/m20-lab || exit 1
+if test -e /root/m20-lab; then
+  test -d /root/m20-lab || exit 1
+  test "$(stat -c '%U:%G:%a' /root/m20-lab)" = root:root:700 || exit 1
+else
+  install -d -o root -g root -m 0700 /root/m20-lab || exit 1
+fi</code></pre>
+<p>Pela transferência autenticada do guia, copie somente a CA pública já conferida da 204 para <code translate="no">/root/m20-lab/ca.crt</code> na 241. Execute uma única vez o bloco de confiança do Passo 3 da 20.4, escolhendo <code translate="no">241</code> e conferindo a impressão digital no console da 204. A conexão ao líder deve validar seu certificado pelo nome; a chave privada da CA permanece na 204.</p>
+<p>No líder, abra <code translate="no">Nodes</code> e <code translate="no">Add node to cluster</code>. Copie o join code somente para o formulário <code translate="no">Join cluster</code> da 241. O código é segredo temporário: não vai para prints ou evidências.</p>
+<p>Confirme a tarefa e o novo worker no painel do líder. Registre seu ID NS8 real; o VMID <code translate="no">241</code> não é esse ID. Não mude a VPN escolhida no primeiro nó.</p>
+<pre translate="no"><code class="lang-bash">test "$(id -u)" -eq 0 || exit 1
+test "$(hostname -f)" = ns8-2.lab.test || exit 1
+runagent -l
+runagent -m node printenv NODE_ID
+getent ahostsv4 ns8-1.lab.test
+getent ahostsv4 ns8-2.lab.test</code></pre>
+<p>Já dentro do cluster, execute o Passo 2 da 20.4 escolhendo <code translate="no">241</code> para emitir chave e certificado novos com SAN da 241 e da Wiki. No Passo 3, faça somente o staging e a transferência dos arquivos para a estação operadora: não repita o bloco de confiança no nó, pois a CA já foi instalada antes do Join. Execute o upload do Passo 4 no Traefik do nó 241 antes de mover a aplicação e a limpeza do Passo 6 após a conferência; certificados enviados não são replicados automaticamente.</p>
+<p><strong>Saída esperada:</strong> Um líder existente e um worker novo aparecem com identidades distintas.</p>
+<p><strong>Verifique:</strong> Confirme que <code translate="no">ns8-2.lab.test</code> apresenta o certificado esperado antes da mudança da Wiki.</p>
+<h3 id="passo-5-mover-e-acompanhar-os-dois-lados">Passo 5 · Mover e acompanhar os dois lados</h3>
+<p><strong>Palpite:</strong> Onde a instância estará depois da tarefa?</p>
+<figure><a href="../img/20.7-mover-com-prova.jpg"><img src="../img/20.7-mover-com-prova.jpg" alt="Antes, durante e depois" loading="lazy" decoding="async"></a><figcaption>Confirme onde roda e o que responde depois da mudança.</figcaption></figure>
+<p>No cartão da Wiki fictícia, compare ID, UUID e nó de origem com o diário. Escolha <code translate="no">Move</code>, selecione o worker correspondente à VM 241 e confirme a janela.</p>
+<p>Aguarde a tarefa inteira. Depois siga a seção do guia M20 que muda o A de <code translate="no">wiki.lab.test</code> de <code translate="no">.240</code> para <code translate="no">.241</code>, incrementa o serial, valida BIND e atualiza o mapeamento do túnel no computador do operador.</p>
+<p>Atualize também a eventual entrada <code translate="no">wiki.lab.test</code> no bloco M20 de <code translate="no">/etc/hosts</code> da VM 202 pelo guia. Um hosts que ficou em <code translate="no">.240</code> prevalece sobre o DNS correto; aguardar o TTL não o corrige.</p>
+<p>Na VM 202, confira resposta DNS autoritativa e TLS direto ao destino novo; depois teste pelo nome sem forçar o endereço, após expirar ou atualizar o cache do cliente.</p>
+<pre translate="no"><code class="lang-bash">test "$(hostname -s)" = debian-lab || exit 1
+dig @192.0.2.204 wiki.lab.test A +short
+curl --retry 10 --retry-delay 1 --retry-all-errors --max-time 10 --fail --silent --show-error --cacert /etc/ssl/m19/ca.crt --resolve wiki.lab.test:443:192.0.2.241 'https://wiki.lab.test/doku.php?id=m20_restore' --output "$HOME/m20-lab/wiki-moved.html" || exit 1
+M20_MARKER=$(cat "$HOME/m20-lab/wiki-marker.txt") || exit 1
+grep -F -- "$M20_MARKER" "$HOME/m20-lab/wiki-moved.html" || exit 1
+curl --max-time 10 --fail --cacert /etc/ssl/m19/ca.crt 'https://wiki.lab.test/doku.php?id=m20_restore'</code></pre>
+<p>No terminal root da 241, encontre a instância real e anote seu ID. No líder, as associações públicas de Redis permitem conferir UUID e nó por leitura. Não escreva diretamente nessas chaves.</p>
+<pre translate="no"><code class="lang-bash">runagent -l
+read -r -p 'ID real da Wiki apos Move: ' MOVED_ID
+[[ "$MOVED_ID" =~ ^dokuwiki[0-9]+$ ]] || exit 1
+runagent -m "$MOVED_ID" podman ps
+runagent -m "$MOVED_ID" id</code></pre>
+<p>Volte agora ao terminal root do líder 240. Compare UUID e associação de nó antes de registrar o novo ID. O candidato preserva <code translate="no">NODE_ID</code> do líder e <code translate="no">VPN_CIDR</code>; somente <code translate="no">MODULE_NODE_ID</code> descreve a localização da Wiki.</p>
+<pre translate="no"><code class="lang-bash">test "$(id -u)" -eq 0 || exit 1
+test "$(hostname -f)" = ns8-1.lab.test || exit 1
+test -f /root/m20-lab/operador.env &amp;&amp; test ! -L /root/m20-lab/operador.env || exit 1
+test "$(stat -c '%U:%G:%a' /root/m20-lab/operador.env)" = root:root:600 || exit 1
+. /root/m20-lab/operador.env
+read -r -p 'ID real da Wiki observado no worker: ' MOVED_ID
+[[ "$MOVED_ID" =~ ^dokuwiki[0-9]+$ ]] || exit 1
+read -r -p 'NODE_ID do worker observado no passo 4: ' TARGET_NODE_ID
+[[ "$TARGET_NODE_ID" =~ ^[1-9][0-9]*$ ]] || exit 1
+test "$(redis-cli --raw HGET cluster/module_uuid "$MOVED_ID")" = "$MODULE_UUID" || exit 1
+MODULE_NODE_ID=$(redis-cli --raw HGET cluster/module_node "$MOVED_ID") || exit 1
+test "$MODULE_NODE_ID" = "$TARGET_NODE_ID" || exit 1
+M20_NEXT=$(mktemp /root/m20-lab/operador.env.XXXXXX) || exit 1
+awk -v id="$MOVED_ID" -v node="$MODULE_NODE_ID" '/^MODULE_ID=/ {print "MODULE_ID=" id; next} /^MODULE_NODE_ID=/ {next} {print} END {print "MODULE_NODE_ID=" node}' /root/m20-lab/operador.env &gt; "$M20_NEXT" || exit 1
+test "$(grep -c '^MODULE_ID=' "$M20_NEXT")" -eq 1 || exit 1
+chmod 0600 "$M20_NEXT"
+mv -f "$M20_NEXT" /root/m20-lab/operador.env</code></pre>
+<p><strong>Saída esperada:</strong> Aplicação responde na 241, com marcador e identidade conferidos.</p>
+<p><strong>Verifique:</strong> O líder continua na 240. Registre o novo ID curto se a operação o alterou; não trate a mudança de ID como perda automática de dados.</p>
+<h3 id="passo-6-interromper-e-recuperar-apenas-o-worker">Passo 6 · Interromper e recuperar apenas o worker</h3>
+<p><strong>Palpite:</strong> A aplicação migra sozinha quando o worker desliga?</p>
+<figure><a href="../img/20.7-falha-nao-e-ha.jpg"><img src="../img/20.7-falha-nao-e-ha.jpg" alt="Dois nós não prometem continuidade automática" loading="lazy" decoding="async"></a><figcaption>Planeje a recuperação; não suponha migração automática após a falha.</figcaption></figure>
+<p>Antes de desligar, confirme que a VM 241 foi criada neste ensaio, não é gerenciada por HA do Proxmox e não recebeu outra carga. No host, leia <code translate="no">qm config 241</code> e <code translate="no">ha-manager config</code>. Se houver gestão automática ou trabalho extra, pare.</p>
+<p>No convidado 241, como root, faça desligamento controlado. Isso testa perda do worker, não perda física do host ou do Ceph.</p>
+<pre translate="no"><code class="lang-bash">test "$(id -u)" -eq 0 || exit 1
+test "$(hostname -f)" = ns8-2.lab.test || exit 1
+systemctl poweroff</code></pre>
+<p>Na VM 202, um pedido direto à 241 deve falhar dentro do limite de tempo. O painel do líder permanece acessível. Registre a ausência de retorno automático da Wiki em outro nó.</p>
+<pre translate="no"><code class="lang-bash">if curl --connect-timeout 3 --max-time 5 --fail --cacert /etc/ssl/m19/ca.crt --resolve wiki.lab.test:443:192.0.2.241 'https://wiki.lab.test/doku.php?id=m20_restore'; then
+  printf '%s\n' 'STOP: resposta inesperada durante desligamento' &gt;&amp;2
+  exit 1
+fi</code></pre>
+<p>No host Proxmox correto, confira nome e estado antes de ligar exclusivamente a VM do ensaio.</p>
+<pre translate="no"><code class="lang-bash">test "$(qm config 241 | sed -n 's/^name: //p')" = ns8-2 || exit 1
+test "$(qm status 241)" = 'status: stopped' || exit 1
+qm start 241 || exit 1</code></pre>
+<p><strong>Saída esperada:</strong> Worker retorna e a Wiki volta a responder no mesmo local planejado.</p>
+<p><strong>Verifique:</strong> Repita a prova completa do marcador; não conclua só porque o painel chama o nó de online.</p>
+<h3 id="decida-2-o-lider-tambem-ficou-fora">Decida 2 · O líder também ficou fora</h3>
+<p>A. Recuperar o líder ou seguir o procedimento documentado de promoção com plano explícito. B. Escrever manualmente o novo líder no Redis. C. Supor que o painel migrou sozinho.</p>
+<h2 id="6-quebre-e-conserte">6 · Quebre e conserte</h2>
+<h3 id="quebra-1-destino-sem-capacidade">Quebra 1 · Destino sem capacidade</h3>
+<p><strong>Sintoma:</strong> Antes de confirmar Move, encontre no painel um destino sem espaço ou sem requisito suficiente; não confirme a operação.</p>
+<p><strong>Investigação:</strong> Compare espaço, requisitos da aplicação e restrições da operação.</p>
+<p><strong>Causa:</strong> Um nó listado no cluster não é necessariamente destino apto.</p>
+<p><strong>Conserto:</strong> Libere recursos pelo plano ou escolha apenas o destino preparado para o exercício.</p>
+<p><strong>Prevenção:</strong> Inclua capacidade no inventário anterior à janela.</p>
+<p><strong>Verifique:</strong> O destino válido é escolhido antes de copiar dados.</p>
+<h3 id="quebra-2-dns-antigo-apos-move">Quebra 2 · DNS antigo após Move</h3>
+<p><strong>Sintoma:</strong> O pedido por nome alcança o endereço antigo; o teste forçado para a 241 funciona.</p>
+<p><strong>Investigação:</strong> Compare consulta autoritativa, cache e mapeamento do túnel.</p>
+<p><strong>Causa:</strong> A localização da aplicação mudou, mas o caminho do cliente ficou antigo.</p>
+<p><strong>Conserto:</strong> Corrija A, serial e mapa pelo guia; aguarde o cache ou atualize-o de forma controlada.</p>
+<p><strong>Prevenção:</strong> Trate DNS e acesso do operador como parte da janela.</p>
+<p><strong>Verifique:</strong> O pedido comum por nome, sem --resolve, retorna o marcador.</p>
+<h3 id="quebra-3-certificado-do-destino-ausente">Quebra 3 · Certificado do destino ausente</h3>
+<p><strong>Sintoma:</strong> O servidor responde na 241, mas apresenta certificado que não valida a Wiki.</p>
+<p><strong>Investigação:</strong> Confira SAN, nó selecionado no upload e confiança da CA.</p>
+<p><strong>Causa:</strong> O certificado enviado na 240 não foi distribuído automaticamente.</p>
+<p><strong>Conserto:</strong> Importe o certificado próprio da 241 pelo procedimento da 20.4, sem copiar a chave da CA.</p>
+<p><strong>Prevenção:</strong> Prepare TLS do destino antes de mover o serviço.</p>
+<p><strong>Verifique:</strong> Nome, cadeia e marcador passam no mesmo pedido novo.</p>
+<h2 id="7-armadilhas">7 · Armadilhas</h2>
+<ol><li>Não remova um nó para simular uma simples interrupção: remoção tem efeitos permanentes e não desliga todas as cargas automaticamente.</li>
+<li>Não use Clone quando o objetivo é Move; você precisa terminar com uma localização definida.</li>
+<li>Dois nós no mesmo host continuam dependentes do mesmo host.</li>
+<li>Uma promoção de líder exige novo cuidado com senha do backup de cluster e logs.</li>
+<li>Não reverta snapshots independentes de nós como se fossem uma restauração coordenada do cluster.</li></ol>
+<h2 id="8-quiz">8 · Quiz</h2>
+<ol><li>Qual é a diferença entre Move e promoção de líder?</li>
+<li>Por que a VM 241 não deve nascer de um clone da 240?</li>
+<li>O que o teste com --resolve isola depois do Move?</li>
+<li>Qual falha física este ensaio não cobriu?</li>
+<li>Um worker online prova conteúdo restaurado?</li></ol>
+<h2 id="9-folha-de-bolso">9 · Folha de bolso</h2>
+<pre translate="no"><code class="lang-bash">runagent -l
+redis-cli --raw HGET cluster/module_uuid "$MODULE_ID"
+redis-cli --raw HGET cluster/module_node "$MODULE_ID"
+runagent -m "$MODULE_ID" podman ps
+date --iso-8601=seconds</code></pre>
+<p><strong>Flashcards:</strong> Líder → controle; nó → execução local.</p>
+<p><strong>Flashcards:</strong> Move → dados e localização; DNS/TLS → caminho e identidade do cliente.</p>
+<p><strong>Flashcards:</strong> Nó online → condição necessária, não prova funcional completa.</p>
+<h2 id="10-checklist-e-fechamento">10 · Checklist e fechamento</h2>
+<ul><li>[ ] Versões e backup conferidos antes da mudança.</li>
+<li>[ ] VM 241 nova, mesma distribuição e core compatível.</li>
+<li>[ ] Certificado próprio importado no destino.</li>
+<li>[ ] Wiki no worker com UUID e marcador conferidos.</li>
+<li>[ ] DNS e mapa do túnel apontam para a localização atual.</li>
+<li>[ ] Falha limitada à VM, recuperação e limites documentados.</li></ul>
+<p><strong>Reboot de conferência:</strong> a etapa 6 já desligou e ligou o worker. Feche a prova repetindo uma requisição normal da VM 202, sem endereço forçado, e conferindo o marcador.</p>
+<p><strong>Último exercício:</strong> execute o desafio abaixo somente na Wiki fictícia. Preserve os nós 240 e 241, o domínio de teste e o destino de backup para o M21.</p>
+<h3 id="desafio-do-modulo-apagar-e-recuperar-a-instancia">Desafio do módulo · Apagar e recuperar a instância</h3>
+<p>Com a Wiki saudável na 241, faça novo backup e identifique seu snapshot. Baixe o backup cifrado do cluster e confirme custódia de chave e senha fora dos nós. A limitação de Ceph da 20.6 permanece.</p>
+<p>Antes de remover, no líder compare o ID atual e seu UUID com a aplicação fictícia e o snapshot. Se qualquer valor divergir, pare. Não use um ID da documentação.</p>
+<pre translate="no"><code class="lang-bash">test "$(hostname -f)" = ns8-1.lab.test || exit 1
+test -f /root/m20-lab/operador.env &amp;&amp; test ! -L /root/m20-lab/operador.env || exit 1
+test "$(stat -c '%U:%G:%a' /root/m20-lab/operador.env)" = root:root:600 || exit 1
+. /root/m20-lab/operador.env
+read -r -p 'ID atual da Wiki ficticia: ' MODULE_ID
+[[ "$MODULE_ID" =~ ^dokuwiki[0-9]+$ ]] || exit 1
+read -r -p 'UUID original conferido no diario externo: ' EXPECTED_UUID
+CURRENT_UUID=$(redis-cli --raw HGET cluster/module_uuid "$MODULE_ID") || exit 1
+test -n "$CURRENT_UUID" &amp;&amp; test "$CURRENT_UUID" = "$EXPECTED_UUID" || exit 1
+redis-cli --raw HGET cluster/module_node "$MODULE_ID"</code></pre>
+<p>No painel, use <code translate="no">Uninstall</code> apenas nesse cartão conferido. Essa ação remove a instância e seus dados atuais. Aguarde a tarefa e comprove a indisponibilidade; não apague volumes manualmente.</p>
+<p>Pela aba <code translate="no">Restore</code>, escolha o backup da mesma identidade, o snapshot identificado e o nó 241. Não crie outra Wiki vazia no lugar. Aguarde o fim e redescubra ID, UUID e nó.</p>
+<p>Na 241, <code translate="no">runagent -l</code> e o inventário Podman do ID restaurado devem mostrar onde o serviço voltou. No líder, confira UUID e associação de nó. Na 202, prove nome, TLS e marcador por uma requisição nova.</p>
+<p>Depois da prova, atualize somente o ID curto no arquivo de operador pelo candidato atômico da 20.6. <code translate="no">NODE_ID</code> continua identificando o líder 240; <code translate="no">MODULE_NODE_ID</code> registra a localização da Wiki. Preserve <code translate="no">VPN_CIDR</code> e todos os demais campos.</p>
+<p>No líder, confira os valores reais depois da restauração e só então grave o novo ID.</p>
+<pre translate="no"><code class="lang-bash">read -r -p 'ID real da Wiki restaurada no worker: ' NEW_MODULE
+[[ "$NEW_MODULE" =~ ^dokuwiki[0-9]+$ ]] || exit 1
+test "$(redis-cli --raw HGET cluster/module_uuid "$NEW_MODULE")" = "$EXPECTED_UUID" || exit 1
+test "$(redis-cli --raw HGET cluster/module_node "$NEW_MODULE")" = "$MODULE_NODE_ID" || exit 1
+M20_NEXT=$(mktemp /root/m20-lab/operador.env.XXXXXX) || exit 1
+sed "s/^MODULE_ID=.*/MODULE_ID=$NEW_MODULE/" /root/m20-lab/operador.env &gt; "$M20_NEXT" || exit 1
+test "$(grep -c '^MODULE_ID=' "$M20_NEXT")" -eq 1 || exit 1
+grep -qx "MODULE_ID=$NEW_MODULE" "$M20_NEXT" || exit 1
+chmod 0600 "$M20_NEXT"
+mv -f "$M20_NEXT" /root/m20-lab/operador.env</code></pre>
+<p>Entregue no diário a cadeia: snapshot escolhido → instância removida → instância restaurada → conteúdo reconhecido. Não limpe o destino de backup para deixar a tela vazia.</p>
+<h2 id="11-na-vida-real">11 · Na vida real</h2>
+<p>Em um ambiente autorizado, faça primeiro o inventário de versões, localização e dependências. Uma janela precisa dizer quem decide voltar e qual evidência autoriza encerrar.</p>
+<p>O exercício no mesmo host não mede tolerância a falhas físicas. Se a meta for essa, desenhe outro ensaio com nós, rede, armazenamento e backup em domínios de falha coerentes.</p>
+<h2 id="12-aprofundar-quando-quiser">12 · Aprofundar quando quiser</h2>
+<ul><li><a href="https://docs.nethserver.org/docs/administrator-manual/configuration/cluster">Adicionar e recuperar nós</a></li>
+<li><a href="https://docs.nethserver.org/docs/administrator-manual/installation/software_center">Atualizações de core e aplicações</a></li>
+<li><a href="https://docs.nethserver.org/docs/administrator-manual/installation/modules">Aplicações: Clone e Move</a></li>
+<li><a href="https://nethserver.github.io/ns8-core/core/database/">Mapas públicos de identidade e nó</a></li></ul>
+<p>!explica Por que mover uma aplicação não promove outro líder?</p>
+<p>!feynman Explique o limite de dois nós virtuais no mesmo host físico.</p>
+<p>!quiz Crie um incidente após Move em que os dados estão corretos, mas o DNS ficou antigo.</p>
+<h2 id="gabarito-comentado">Gabarito comentado</h2>
+<p>Decida 1: C. Core tem componentes coordenados; a atualização é seguida de nova prova funcional.</p>
+<p>Decida 2: A. Recuperação e promoção são procedimentos explícitos; o teste do worker não validou perda do líder.</p>
+<p>Quiz 1: Move altera a localização da aplicação; promoção muda quem coordena o cluster.</p>
+<p>Quiz 2: O clone levaria identidades e estado de um nó existente, em vez de uma instalação limpa para Join.</p>
+<p>Quiz 3: Ele separa o caminho de rede até a 241 da resolução DNS comum, mantendo nome e validação TLS.</p>
+<p>Quiz 4: Perda do host físico, do storage Ceph ou da infraestrutura comum.</p>
+<p>Quiz 5: Não. Precisa responder pelo nome correto com TLS e conteúdo esperado, no nó e UUID observados.</p>
+<p><a href="20.6-backup-e-restauracao.html">← Aula 20.6 · Backup e restauração</a> · <a href="index.html">Índice das aulas</a> · <a href="https://github.com/Rodrigoantignani/curso-linux-sysadmin/blob/master/00-plano-do-curso.md">Plano do curso: M21 →</a></p>
+</article><nav class="paginas" aria-label="Aulas"><a class="ant" href="20.6-backup-e-restauracao.html"><small>← Anterior</small>20.6 · Backup e restauração: provar o retorno</a></nav></main></div>
+<footer><div class="wrap">Gerado a partir do Markdown do curso · Imagens em <code translate="no">img/</code></div></footer>
+</body>
+</html>

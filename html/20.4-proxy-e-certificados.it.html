@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light dark">
+<title>20.4 · Proxy e certificati · Corso Linux Sysadmin</title>
+<link rel="alternate" hreflang="pt-BR" href="20.4-proxy-e-certificados.html"><link rel="alternate" hreflang="it" href="20.4-proxy-e-certificados.it.html">
+<style>
+:root{color-scheme:light dark;--bg:#f6f1e7;--card:#fffdf8;--ink:#201c16;--muted:#5e564a;--accent:#9a3412;--accent-2:#1f5f4a;--tint:#efe6d4;--line:#ddd2bc;--code:#f1eadb;--shadow:0 1px 2px rgba(60,40,10,.08);--serif:Georgia,"Iowan Old Style","Palatino Linotype",Palatino,serif;--sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--mono:"Cascadia Code",Consolas,"DejaVu Sans Mono",monospace}
+@media (prefers-color-scheme:dark){:root{--bg:#16130f;--card:#201b15;--ink:#f1eadb;--muted:#b9ad98;--accent:#f0a070;--accent-2:#7fd0b0;--tint:#2a231a;--line:#3d3427;--code:#191510;--shadow:none}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:5.5rem}
+body{margin:0;background:var(--bg);color:var(--ink);font:1rem/1.6 var(--sans)}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--accent-2);outline-offset:2px;border-radius:4px}
+.pular{position:absolute;left:-999px;top:0;background:var(--card);padding:.5rem 1rem;z-index:20}
+.pular:focus{left:.5rem;top:.5rem}
+.wrap{width:100%;max-width:84rem;margin:0 auto;padding-inline:max(1rem,env(safe-area-inset-left))}
+.top{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10;border-top:6px solid var(--accent)}
+.top-in{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding-block:.6rem}
+.titles{min-width:0}
+.marca{margin:0;font:700 clamp(1.15rem,1rem + 1vw,1.6rem)/1.15 var(--serif);letter-spacing:-.01em}
+.marca a{text-decoration:none}
+.marca a:hover{color:var(--accent)}
+.meta{margin:.1rem 0 0;color:var(--muted);font-size:.85rem}
+.acoes{display:flex;align-items:center;gap:.9rem;flex:none}
+.acoes>a{font-size:.9rem;font-weight:600;color:var(--muted);text-decoration:none}
+.acoes>a:hover{color:var(--accent);text-decoration:underline}
+.idioma{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--tint)}
+.idioma>*{padding:.35rem .9rem;font-size:.8rem;font-weight:700;letter-spacing:.06em;text-decoration:none;color:var(--muted);min-width:2.75rem;text-align:center}
+.idioma a:hover{color:var(--accent);text-decoration:underline}
+.idioma span{background:var(--accent);color:#fff}
+@media (prefers-color-scheme:dark){.idioma span{color:#16130f}}
+code{font-family:var(--mono);font-size:.9em;background:var(--tint);padding:.1rem .35rem;border-radius:4px;overflow-wrap:anywhere}
+/* índice */
+.capa{max-width:70rem;padding-block:2rem 3rem}
+.stats{border-left:4px solid var(--accent-2);background:var(--card);border-radius:0 10px 10px 0;padding:1rem 1.25rem;margin:0 0 2.5rem;box-shadow:var(--shadow);color:var(--muted)}
+.stats strong{color:var(--ink)}
+.modulo{display:grid;grid-template-columns:15rem minmax(0,1fr);gap:1rem 2rem;padding:1.75rem 0;border-top:1px solid var(--line)}
+.modulo h2{margin:0;font:700 1.25rem/1.25 var(--serif);align-self:start;position:sticky;top:6rem}
+.mn{display:block;font:700 .8rem var(--mono);letter-spacing:.12em;color:var(--accent);margin-bottom:.25rem}
+.sep{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.modulo ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,17rem),1fr));gap:.75rem}
+.modulo li{margin:0}
+.modulo a{display:flex;gap:.45rem;align-items:baseline;height:100%;padding:.85rem 1rem;background:var(--card);border:1px solid var(--line);border-radius:10px;text-decoration:none;font-weight:600;line-height:1.35;box-shadow:var(--shadow);transition:border-color .15s,transform .15s}
+.modulo a:hover{border-color:var(--accent);color:var(--accent)}
+.num{font:700 .85rem var(--mono);color:var(--accent);white-space:nowrap}
+/* aula */
+.doc{display:grid;grid-template-columns:17rem minmax(0,1fr);gap:2.5rem;align-items:start;padding-block:2rem 3rem}
+.lateral{position:sticky;top:5.5rem;max-height:calc(100vh - 6.5rem);overflow:auto;font-size:.875rem;padding-right:.5rem}
+.lateral h2{margin:0 0 .25rem;font:700 .95rem var(--serif);color:var(--muted)}
+.lateral h3{margin:1rem 0 .25rem;font:700 .75rem var(--mono);letter-spacing:.06em;color:var(--accent)}
+.lateral ul{list-style:none;margin:0;padding:0}
+.lateral a{display:flex;gap:.45rem;padding:.25rem .5rem;border-radius:6px;text-decoration:none;color:var(--muted);line-height:1.3}
+.lateral a:hover{background:var(--tint);color:var(--ink)}
+.lateral a[aria-current]{background:var(--tint);color:var(--ink);font-weight:700;box-shadow:inset 3px 0 0 var(--accent)}
+.lateral .num{font-size:.75rem}
+.aula{min-width:0;max-width:56rem;overflow-wrap:break-word;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:clamp(1.25rem,1rem + 2vw,2.75rem);box-shadow:var(--shadow)}
+.aula h1{margin:0 0 1.5rem;font:700 clamp(1.75rem,1.4rem + 1.6vw,2.5rem)/1.15 var(--serif);letter-spacing:-.015em;color:var(--ink)}
+.aula h2{margin:2.5rem 0 .75rem;padding-top:1.25rem;border-top:1px solid var(--line);font:700 1.5rem/1.25 var(--serif)}
+.aula h3{margin:2rem 0 .5rem;font:700 1.15rem/1.3 var(--serif);color:var(--accent)}
+.aula h4,.aula h5,.aula h6{margin:1.5rem 0 .5rem;font-size:1rem}
+.aula p,.aula ul,.aula ol{margin:1rem 0}
+.aula ul,.aula ol{padding-left:1.5rem}
+.aula li{margin:.35rem 0}
+.aula li>ul,.aula li>ol{margin:.35rem 0}
+.aula a{color:var(--accent);text-underline-offset:2px}
+.aula hr{border:0;border-top:1px solid var(--line);margin:2rem 0}
+.tabela{overflow-x:auto;margin:1.25rem 0;border:1px solid var(--line);border-radius:10px}
+.aula table{width:100%;border-collapse:collapse;font-size:.9rem}
+.aula th,.aula td{padding:.55rem .75rem;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+.aula tr:last-child td{border-bottom:0}
+.aula th{background:var(--tint);font-weight:700}
+.aula pre{background:var(--code);border:1px solid var(--line);border-radius:10px;padding:.9rem 1rem;overflow-x:auto;font:.85rem/1.5 var(--mono);margin:1rem 0;tab-size:4}
+.aula pre code{background:none;padding:0;font-size:inherit;overflow-wrap:normal}
+.aula blockquote{margin:1.25rem 0;padding:.75rem 1.25rem;border-left:4px solid var(--accent-2);background:var(--tint);border-radius:0 10px 10px 0}
+.aula blockquote>:first-child{margin-top:0}
+.aula blockquote>:last-child{margin-bottom:0}
+.aula figure{margin:1.75rem 0;text-align:center}
+.aula figure img{display:block;margin:0 auto;max-width:100%;height:auto;border:1px solid var(--line);border-radius:10px;background:#fff}
+.aula figcaption{margin-top:.5rem;color:var(--muted);font-size:.9rem;font-style:italic}
+.paginas{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:2.5rem;padding-top:1.5rem;border-top:1px solid var(--line)}
+.paginas a{display:block;padding:.75rem 1rem;border:1px solid var(--line);border-radius:10px;text-decoration:none;color:var(--ink);font-weight:600;line-height:1.3}
+.paginas a:hover{border-color:var(--accent);color:var(--accent)}
+.paginas small{display:block;color:var(--muted);font-weight:400}
+.paginas .prox{grid-column:2;text-align:right}
+footer{border-top:1px solid var(--line);padding-block:1.5rem;color:var(--muted);font-size:.85rem;text-align:center}
+@media (hover:hover) and (prefers-reduced-motion:no-preference){.modulo a:hover{transform:translateY(-2px)}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+@media (max-width:980px){.doc{grid-template-columns:minmax(0,1fr);padding-top:1rem}.lateral{position:static;max-height:none;order:2}.aula{max-width:none}}
+@media (max-width:860px){.modulo{grid-template-columns:minmax(0,1fr)}.modulo h2{position:static}.mn{display:inline;margin-right:.5rem}}
+@media (max-width:420px){.meta{display:none}.top-in{gap:.5rem}.acoes{gap:.6rem}.capa{padding-top:1.25rem}.paginas{grid-template-columns:minmax(0,1fr)}.paginas .prox{grid-column:1}}
+@media print{.top,.lateral,.paginas{display:none}.aula{border:0;box-shadow:none;padding:0;max-width:none}.doc{display:block}}
+</style>
+</head>
+<body>
+<a class="pular" href="#conteudo">Vai al contenuto</a>
+<header class="top"><div class="wrap top-in"><div class="titles"><p class="marca"><a href="index.it.html">Corso Linux Sysadmin</a></p><p class="meta">Rodrigo Antignani · Lezione 20.4</p></div><div class="acoes"><a href="index.it.html">Indice</a><div class="idioma" role="group" aria-label="Lingua"><a href="20.4-proxy-e-certificados.html" hreflang="pt-BR" lang="pt-BR">PT</a><span aria-current="true">IT</span></div></div></div></header>
+<div class="wrap doc"><aside class="lateral" aria-label="Lezioni"><h2>Lezioni</h2><h3>M0 · Laboratorio</h3><ul><li><a href="0.1-montar-o-laboratorio.it.html"><span class="num">0.1</span><span>Allestire il laboratorio</span></a></li><li><a href="0.2-acesso-e-protecao.it.html"><span class="num">0.2</span><span>Accesso e protezione</span></a></li></ul><h3>M1 · Riga di comando</h3><ul><li><a href="1.1-o-que-e-linux.it.html"><span class="num">1.1</span><span>Che cos'è Linux</span></a></li><li><a href="1.2-o-shell-e-a-ajuda.it.html"><span class="num">1.2</span><span>La shell e la guida</span></a></li><li><a href="1.3-caminhos-e-navegacao.it.html"><span class="num">1.3</span><span>Percorsi e navigazione</span></a></li><li><a href="1.4-criar-copiar-mover-e-apagar.it.html"><span class="num">1.4</span><span>Creare, copiare, spostare ed eliminare</span></a></li><li><a href="1.5-ler-e-procurar-texto.it.html"><span class="num">1.5</span><span>Leggere e cercare testo</span></a></li><li><a href="1.6-redirecionamentos-e-pipes.it.html"><span class="num">1.6</span><span>Reindirizzamenti e pipe</span></a></li><li><a href="1.7-arquivar-e-compactar.it.html"><span class="num">1.7</span><span>Archiviare e comprimere</span></a></li><li><a href="1.8-primeiro-script.it.html"><span class="num">1.8</span><span>Primo script</span></a></li><li><a href="1.9-decidir-e-repetir.it.html"><span class="num">1.9</span><span>Decidere e ripetere</span></a></li><li><a href="1.10-software-livre-na-pratica.it.html"><span class="num">1.10</span><span>Il software libero in pratica</span></a></li></ul><h3>M2 · Sistema, utenti e permessi</h3><ul><li><a href="2.1-instalacao-e-provisionamento.it.html"><span class="num">2.1</span><span>Installazione e provisioning</span></a></li><li><a href="2.2-hardware-e-dispositivos.it.html"><span class="num">2.2</span><span>Hardware e dispositivi</span></a></li><li><a href="2.3-processos-e-logs.it.html"><span class="num">2.3</span><span>Processi e log</span></a></li><li><a href="2.4-rede-no-dia-a-dia.it.html"><span class="num">2.4</span><span>La rete di tutti i giorni</span></a></li><li><a href="2.5-acesso-remoto-e-privilegios.it.html"><span class="num">2.5</span><span>Accesso remoto e privilegi</span></a></li><li><a href="2.6-usuarios-e-grupos.it.html"><span class="num">2.6</span><span>Utenti e gruppi</span></a></li><li><a href="2.7-permissoes-e-dono.it.html"><span class="num">2.7</span><span>Permessi e proprietario</span></a></li><li><a href="2.8-diretorios-e-arquivos-especiais.it.html"><span class="num">2.8</span><span>Directory e file speciali</span></a></li></ul><h3>M3 · Testo ed editor</h3><ul><li><a href="3.1-fluxos-a-fundo.it.html"><span class="num">3.1</span><span>I flussi in profondità</span></a></li><li><a href="3.2-filtros-de-texto.it.html"><span class="num">3.2</span><span>Filtri di testo</span></a></li><li><a href="3.3-regex-e-grep.it.html"><span class="num">3.3</span><span>Regex e grep</span></a></li><li><a href="3.4-sed-e-awk.it.html"><span class="num">3.4</span><span>sed e awk</span></a></li><li><a href="3.5-vi-e-vim-de-verdade.it.html"><span class="num">3.5</span><span>vi e vim sul serio</span></a></li></ul><h3>M4 · systemd e boot</h3><ul><li><a href="4.1-como-o-linux-liga.it.html"><span class="num">4.1</span><span>Come si avvia Linux</span></a></li><li><a href="4.2-systemd-servicos-e-units.it.html"><span class="num">4.2</span><span>systemd: servizi e unit</span></a></li><li><a href="4.3-targets-desligar-e-reiniciar.it.html"><span class="num">4.3</span><span>Target: spegnere e riavviare</span></a></li><li><a href="4.4-grub-e-acesso-de-emergencia.it.html"><span class="num">4.4</span><span>GRUB e accesso di emergenza</span></a></li></ul><h3>M5 · Kernel, moduli e VM</h3><ul><li><a href="5.1-hardware-pelo-kernel.it.html"><span class="num">5.1</span><span>L'hardware visto dal kernel</span></a></li><li><a href="5.2-modulos-e-parametros.it.html"><span class="num">5.2</span><span>Moduli e parametri</span></a></li><li><a href="5.3-linux-como-convidado.it.html"><span class="num">5.3</span><span>Linux come guest</span></a></li></ul><h3>M6 · Pacchetti e repository</h3><ul><li><a href="6.1-pacotes-no-debian.it.html"><span class="num">6.1</span><span>Pacchetti su Debian</span></a></li><li><a href="6.2-pacotes-na-rocky.it.html"><span class="num">6.2</span><span>Pacchetti su Rocky</span></a></li><li><a href="6.3-repositorios.it.html"><span class="num">6.3</span><span>Repository</span></a></li><li><a href="6.4-flatpak.it.html"><span class="num">6.4</span><span>Flatpak</span></a></li><li><a href="6.5-bibliotecas-compartilhadas.it.html"><span class="num">6.5</span><span>Librerie condivise</span></a></li></ul><h3>M7 · Processi e prestazioni</h3><ul><li><a href="7.1-processos-e-sinais.it.html"><span class="num">7.1</span><span>Processi e segnali</span></a></li><li><a href="7.2-jobs-e-sessoes.it.html"><span class="num">7.2</span><span>Job e sessioni</span></a></li><li><a href="7.3-prioridade-e-perfis.it.html"><span class="num">7.3</span><span>Priorità e profili</span></a></li></ul><h3>M8 · File a fondo</h3><ul><li><a href="8.1-fhs-e-onde-cada-coisa-mora.it.html"><span class="num">8.1</span><span>FHS e dove sta ogni cosa</span></a></li><li><a href="8.2-find-a-fundo.it.html"><span class="num">8.2</span><span>find a fondo</span></a></li><li><a href="8.3-arquivamento-avancado.it.html"><span class="num">8.3</span><span>Archiviazione avanzata</span></a></li><li><a href="8.4-links.it.html"><span class="num">8.4</span><span>Link</span></a></li><li><a href="8.5-permissoes-avancadas.it.html"><span class="num">8.5</span><span>Permessi avanzati</span></a></li></ul><h3>M9 · Storage</h3><ul><li><a href="9.1-discos-e-layout.it.html"><span class="num">9.1</span><span>Dischi e layout</span></a></li><li><a href="9.2-particionar.it.html"><span class="num">9.2</span><span>Partizionare</span></a></li><li><a href="9.3-sistemas-de-arquivos.it.html"><span class="num">9.3</span><span>File system</span></a></li><li><a href="9.4-montar-e-persistir.it.html"><span class="num">9.4</span><span>Montare e rendere persistente</span></a></li><li><a href="9.5-integridade-e-espaco.it.html"><span class="num">9.5</span><span>Integrità e spazio</span></a></li><li><a href="9.6-lvm.it.html"><span class="num">9.6</span><span>LVM</span></a></li><li><a href="9.7-crescer-sem-destruir.it.html"><span class="num">9.7</span><span>Crescere senza distruggere</span></a></li></ul><h3>M10 · Utenti e accesso privilegiato</h3><ul><li><a href="10.1-contas.it.html"><span class="num">10.1</span><span>Account</span></a></li><li><a href="10.2-senhas-e-validade.it.html"><span class="num">10.2</span><span>Password e scadenza</span></a></li><li><a href="10.3-grupos-e-trabalho-em-equipe.it.html"><span class="num">10.3</span><span>Gruppi e lavoro di squadra</span></a></li><li><a href="10.4-sudo-de-verdade.it.html"><span class="num">10.4</span><span>sudo sul serio</span></a></li></ul><h3>M11 · Rete</h3><ul><li><a href="11.1-tcp-ip-para-quem-administra.it.html"><span class="num">11.1</span><span>TCP/IP per chi amministra</span></a></li><li><a href="11.2-networkmanager-e-nmcli.it.html"><span class="num">11.2</span><span>NetworkManager e nmcli</span></a></li><li><a href="11.3-rede-no-debian.it.html"><span class="num">11.3</span><span>Rete su Debian</span></a></li><li><a href="11.4-nomes-e-resolucao.it.html"><span class="num">11.4</span><span>Nomi e risoluzione</span></a></li><li><a href="11.5-diagnostico-de-rede.it.html"><span class="num">11.5</span><span>Diagnosi di rete</span></a></li></ul><h3>M12 · Sicurezza dell'host</h3><ul><li><a href="12.1-ssh-a-fundo.it.html"><span class="num">12.1</span><span>SSH in dettaglio</span></a></li><li><a href="12.2-firewall.it.html"><span class="num">12.2</span><span>Firewall</span></a></li><li><a href="12.3-selinux-modos-e-contextos.it.html"><span class="num">12.3</span><span>SELinux: modalità e contesti</span></a></li><li><a href="12.4-selinux-portas-e-booleanos.it.html"><span class="num">12.4</span><span>SELinux: porte e booleani</span></a></li><li><a href="12.5-auditoria-e-criptografia.it.html"><span class="num">12.5</span><span>Audit e crittografia</span></a></li></ul><h3>M13 · Archiviazione in rete</h3><ul><li><a href="13.1-servidor-nfs.it.html"><span class="num">13.1</span><span>Server NFS</span></a></li><li><a href="13.2-cliente-nfs.it.html"><span class="num">13.2</span><span>Client NFS</span></a></li><li><a href="13.3-autofs.it.html"><span class="num">13.3</span><span>autofs</span></a></li></ul><h3>M14 · Pianificazione</h3><ul><li><a href="14.1-cron-e-at.it.html"><span class="num">14.1</span><span>cron e at</span></a></li><li><a href="14.2-timers-do-systemd.it.html"><span class="num">14.2</span><span>Timer di systemd</span></a></li><li><a href="14.3-journald-e-rsyslog.it.html"><span class="num">14.3</span><span>journald e rsyslog</span></a></li><li><a href="14.4-hora-certa.it.html"><span class="num">14.4</span><span>L'ora corretta</span></a></li><li><a href="14.5-email-local-e-impressao.it.html"><span class="num">14.5</span><span>E-mail locale e stampa</span></a></li></ul><h3>M15 · Shell e ambiente</h3><ul><li><a href="15.1-ambiente-do-shell.it.html"><span class="num">15.1</span><span>Ambiente della shell</span></a></li><li><a href="15.2-scripts-robustos.it.html"><span class="num">15.2</span><span>Script robusti</span></a></li><li><a href="15.3-scripts-de-administracao.it.html"><span class="num">15.3</span><span>Script di amministrazione</span></a></li><li><a href="15.4-interfaces-graficas.it.html"><span class="num">15.4</span><span>Interfacce grafiche</span></a></li><li><a href="15.5-idioma-teclado-e-fuso.it.html"><span class="num">15.5</span><span>Lingua, tastiera e fuso orario</span></a></li></ul><h3>M16 · Settimana di incidenti su Rocky 10</h3><ul><li><a href="16.1-rocky-10-o-que-muda.it.html"><span class="num">16.1</span><span>Rocky 10: cosa cambia</span></a></li><li><a href="16.2-incidentes-por-area.it.html"><span class="num">16.2</span><span>Incidenti per area</span></a></li><li><a href="16.3-incidente-com-relogio.it.html"><span class="num">16.3</span><span>Incidente con cronometro</span></a></li><li><a href="16.4-correcao-e-reforco.it.html"><span class="num">16.4</span><span>Correzione e rinforzo</span></a></li></ul><h3>M17 · Proxmox in pratica</h3><ul><li><a href="17.1-proxmox-por-dentro.it.html"><span class="num">17.1</span><span>Proxmox dall'interno</span></a></li><li><a href="17.2-vm-pela-linha-de-comando.it.html"><span class="num">17.2</span><span>VM dalla riga di comando</span></a></li><li><a href="17.3-conteiner-lxc.it.html"><span class="num">17.3</span><span>Container LXC</span></a></li><li><a href="17.4-storage.it.html"><span class="num">17.4</span><span>Storage: capacità, ampliamento e spostamento</span></a></li><li><a href="17.5-rede.it.html"><span class="num">17.5</span><span>Rete: bridge, VLAN, bond e SDN</span></a></li><li><a href="17.6-backup-e-restauracao.it.html"><span class="num">17.6</span><span>Backup e ripristino con PBS</span></a></li><li><a href="17.7-migracao-e-quorum.it.html"><span class="num">17.7</span><span>Migrazione e quorum</span></a></li></ul><h3>M18 · Podman</h3><ul><li><a href="18.1-conteiner-nao-e-vm.it.html"><span class="num">18.1</span><span>Un container non è una VM</span></a></li><li><a href="18.2-rodar-e-persistir.it.html"><span class="num">18.2</span><span>Eseguire e conservare i dati</span></a></li><li><a href="18.3-conteiner-como-servico.it.html"><span class="num">18.3</span><span>Container come servizio</span></a></li><li><a href="18.4-diagnosticar-conteiner-rootless.it.html"><span class="num">18.4</span><span>Diagnosticare un container rootless</span></a></li><li><a href="18.5-construir-imagens.it.html"><span class="num">18.5</span><span>Costruire immagini</span></a></li></ul><h3>M19 · Servizi di rete</h3><ul><li><a href="19.1-dns-autoritativo.it.html"><span class="num">19.1</span><span>DNS autoritativo</span></a></li><li><a href="19.2-dns-recursivo-e-diagnostico.it.html"><span class="num">19.2</span><span>DNS ricorsivo e diagnosi</span></a></li><li><a href="19.3-dhcp.it.html"><span class="num">19.3</span><span>DHCP</span></a></li><li><a href="19.4-servidor-web.it.html"><span class="num">19.4</span><span>Server web: nome, file e risposta</span></a></li><li><a href="19.5-tls-e-proxy-reverso.it.html"><span class="num">19.5</span><span>TLS e reverse proxy: identità prima del lucchetto</span></a></li><li><a href="19.6-samba-a-ponte-windows.it.html"><span class="num">19.6</span><span>Samba: il ponte con il client Windows</span></a></li><li><a href="19.7-postfix-e-correio-local.it.html"><span class="num">19.7</span><span>Postfix e posta locale</span></a></li><li><a href="19.8-dovecot-e-imaps.it.html"><span class="num">19.8</span><span>Dovecot e lettura tramite IMAPS</span></a></li><li><a href="19.9-squid-e-desafio-integrado.it.html"><span class="num">19.9</span><span>Squid e sfida integrata</span></a></li></ul><h3>M20 · Dentro NethServer 8</h3><ul><li><a href="20.1-instalar-nethserver-8.it.html"><span class="num">20.1</span><span>Installare in una VM pulita</span></a></li><li><a href="20.2-cluster-no-e-modulo.it.html"><span class="num">20.2</span><span>Cluster, nodo e modulo</span></a></li><li><a href="20.3-modulo-por-dentro.it.html"><span class="num">20.3</span><span>Dentro un modulo</span></a></li><li><a href="20.4-proxy-e-certificados.it.html" aria-current="page"><span class="num">20.4</span><span>Proxy e certificati</span></a></li><li><a href="20.5-dominios-de-usuario.it.html"><span class="num">20.5</span><span>Domini utente: identità con confini</span></a></li><li><a href="20.6-backup-e-restauracao.it.html"><span class="num">20.6</span><span>Backup e ripristino: verificare il ritorno</span></a></li><li><a href="20.7-atualizar-mover-e-falhar.it.html"><span class="num">20.7</span><span>Aggiornare, spostare e guastare con verifica</span></a></li></ul></aside><main id="conteudo" class="aula"><article><h1>Lezione 20.4 · Proxy e certificati</h1>
+<blockquote><p><strong>Il cuore di questa lezione:</strong> separare risoluzione, rotta, identità TLS e raggiungibilità del backend.</p></blockquote>
+<div class="tabela"><table><thead><tr><th scope="col">Scheda</th><th scope="col">Piano di lavoro</th></tr></thead><tbody><tr><td>Modulo</td><td>M20 · Dentro NethServer 8, lezione 4 di 7</td></tr><tr><td>Quando</td><td>Settimana 28</td></tr><tr><td>Alla fine</td><td>separare risoluzione, rotta, identità TLS e raggiungibilità del backend.</td></tr><tr><td>Prerequisiti</td><td>20.3; CA privata del M19 conservata sulla 204; accesso del browser tramite la guida</td></tr><tr><td>Durata</td><td>100–120 minuti</td></tr><tr><td>Snapshot</td><td>VM 240: <code translate="no">m20a4-inicio</code> e <code translate="no">m20a4-fim</code></td></tr></tbody></table></div>
+<p>La VM <code translate="no">240</code>, <code translate="no">ns8-1</code>, esegue Rocky Linux 9 e NS8. La gestione ha un indirizzo reale riservato; la seconda scheda ha <code translate="no">192.0.2.240/24</code> su <code translate="no">vmbr17</code>, senza gateway. Internet passa soltanto dalla gestione.</p>
+<p>Controlla la <a href="https://github.com/Rodrigoantignani/curso-linux-sysadmin/blob/master/GUIA_BANCADA_M20_IT.md">guida del laboratorio</a>, i nomi e le rotte prima di iniziare. Il DNS M19 su <code translate="no">192.0.2.204</code> serve la rete isolata; non configurare il loopback come DNS del nodo.</p>
+<p>I comandi amministrativi di questa lezione si eseguono in una shell root della VM indicata, aperta con <code translate="no">sudo -i</code>. L’utente root del nodo non è automaticamente il proprietario dei container dell’applicazione.</p>
+<p>Il nome dell’istanza viene rilevato nell’installazione reale. Non sostituire mai una variabile con un nome di esempio soltanto perché ti sembra familiare. Non pubblicare il file di ambiente interno di un agente.</p>
+<h2 id="1-riscaldamento">1 · Riscaldamento</h2>
+<ol><li>Un DNS corretto dimostra che il certificato contenga il nome?</li>
+<li>Il leader riceve necessariamente tutto il traffico HTTP del cluster?</li>
+<li>Un certificato caricato su un nodo viene replicato automaticamente sugli altri?</li></ol>
+<h2 id="2-perche-conta">2 · Perché conta</h2>
+<p>Un’applicazione può funzionare tramite un percorso e fallire con il nome pubblicato. DNS, selezione della rotta e fiducia del client sono verifiche indipendenti.</p>
+<p>Ogni nodo possiede il proprio Traefik. La rotta automatica dell’applicazione punta di solito a un backend locale; essere leader non trasforma il nodo nell’ingresso universale di ogni applicazione.</p>
+<h3 id="ponte-windows">Ponte Windows</h3>
+<p>Nel browser dell’operatore la guida può associare i nomi ai loopback di un tunnel SSH. Questo consegna soltanto la richiesta al nodo corretto; nome dell’URL e verifica del certificato restano integri.</p>
+<p>Il DNS reale dei nodi e del client <code translate="no">202</code> continua a indicare gli indirizzi isolati. Non copiare i loopback della postazione nel DNS del laboratorio.</p>
+<h2 id="3-modello-mentale">3 · Modello mentale</h2>
+<figure><a href="../img/20.4-nome-rota-e-destino.it.jpg"><img src="../img/20.4-nome-rota-e-destino.it.jpg" alt="Nome, rotta e destinazione" loading="lazy" decoding="async"></a><figcaption>Il nome sceglie la rotta; il proxy deve raggiungere l’applicazione.</figcaption></figure>
+<p>Il client risolve il nome e si collega alla destinazione. Traefik presenta un’identità TLS e sceglie una rotta compatibile con Host e, quando configurato, percorso.</p>
+<p>Poi esiste un altro tratto verso l’applicazione. Un certificato valido nel primo tratto non mantiene attivo il backend e non crea una rotta assente.</p>
+<p>Le rotte contrassegnate come automatiche appartengono all’applicazione. Modifica il nome tramite la configurazione supportata del modulo; non modificare i file generati di Traefik.</p>
+<h2 id="4-l-essenziale">4 · L'essenziale</h2>
+<div class="tabela"><table><thead><tr><th scope="col">Livello</th><th scope="col">Domanda</th></tr></thead><tbody><tr><td>DNS</td><td>Il nome risolve verso il nodo atteso?</td></tr><tr><td>TCP</td><td>La porta accetta una connessione da questo client?</td></tr><tr><td>TLS</td><td>Nome, catena e validità corrispondono?</td></tr><tr><td>Rotta</td><td>Host e percorso corrispondono all’applicazione?</td></tr><tr><td>Backend</td><td>L’applicazione risponde tramite la destinazione della rotta?</td></tr></tbody></table></div>
+<h3 id="rocky-debian">Rocky × Debian</h3>
+<p>Nella VM NS8 Rocky la CA pubblica attendibile entra in <code translate="no">/etc/pki/ca-trust/source/anchors/</code>. Nel client Debian del laboratorio le prove usano esplicitamente <code translate="no">/etc/ssl/m19/ca.crt</code>; nessun client riceve la chiave privata della CA.</p>
+<h3 id="decidi-1">Decidi 1</h3>
+<p>Il certificato copre il nome, ma la CA è sconosciuta. Cosa cambia correttamente la verifica?</p>
+<p>A. Disattivare la verifica per sempre.
+B. Verificare la CA tramite un canale fidato e fornirla al client.
+C. Usare l’IP come nome per evitare il SAN.</p>
+<h2 id="5-lab-guidato">5 · Lab guidato</h2>
+<h3 id="passo-1-controllare-nome-nodo-e-rotta">Passo 1 · Controllare nome, nodo e rotta</h3>
+<p><strong>Ipotesi:</strong> Il nome del wiki indica il nodo su cui gira l’istanza?</p>
+<pre translate="no"><code class="lang-bash">test "$(id -u)" -eq 0 || exit 1
+test "$(hostname -s)" = ns8-1 || exit 1
+test -f /root/m20-lab/operador.env || exit 1
+test ! -L /root/m20-lab/operador.env || exit 1
+test "$(stat -c '%u:%g:%a' /root/m20-lab/operador.env)" = 0:0:600 || exit 1
+cat /root/m20-lab/operador.env
+. /root/m20-lab/operador.env
+test "$NS8_IP" = 192.0.2.240 || exit 1
+test "$WIKI_FQDN" = wiki.lab.test || exit 1
+case "$MODULE_ID" in dokuwiki[0-9]*) ;; *) exit 1 ;; esac
+runagent -l
+runagent -l | grep -Fx -- "$MODULE_ID" || exit 1</code></pre>
+<pre translate="no"><code class="lang-bash">dig @192.0.2.204 wiki.lab.test A +short
+dig @192.0.2.204 ns8-1.lab.test A +short
+getent ahostsv4 wiki.lab.test
+ss -ltnp '( sport = :80 or sport = :443 )'
+firewall-cmd --get-active-zones
+firewall-cmd --list-all-zones</code></pre>
+<p>Nel pannello apri Settings, HTTP routes. Individua la rotta automatica del wiki, il nodo e la destinazione reale. Conserva questi valori nel diario; non scrivere una destinazione che non hai osservato.</p>
+<p>Le restrizioni del firewall e della rotta sono livelli distinti. La pagina Firewall non mostra necessariamente tutte le rich rule; confronta anche la lettura dal terminale.</p>
+<p><strong>Output atteso:</strong> Il DNS del laboratorio restituisce <code translate="no">192.0.2.240</code>; la rotta del wiki appartiene al nodo che ospita l’istanza.</p>
+<p><strong>Verifica:</strong> La postazione con tunnel può risolvere verso loopback secondo la guida. Conferma la destinazione del forwarding prima di considerare quella risposta locale un errore DNS.</p>
+<h3 id="passo-2-emettere-unidentita-di-laboratorio">Passo 2 · Emettere un’identità di laboratorio</h3>
+<p><strong>Ipotesi:</strong> Quale chiave può essere inviata al nodo e quale deve restare sull’emittente?</p>
+<figure><a href="../img/20.4-tres-provas-do-certificado.it.jpg"><img src="../img/20.4-tres-provas-do-certificado.it.jpg" alt="Tre verifiche prima della fiducia" loading="lazy" decoding="async"></a><figcaption>Fidarsi della CA non corregge un nome assente nel certificato.</figcaption></figure>
+<p>Ora lavora nella VM <code translate="no">204</code>, come root. La CA del M19 deve essere ancora valida e sotto il tuo controllo. Non sostituire una CA persa emettendone un’altra con lo stesso nome e fingendo continuità.</p>
+<pre translate="no"><code class="lang-bash">test "$(id -u)" -eq 0 || exit 1
+test "$(hostname -s)" = srv-deb || exit 1
+set -eu
+test -f /etc/ssl/m19/ca.crt || exit 1
+test -f /root/m19-ca/ca.key || exit 1
+openssl x509 -in /etc/ssl/m19/ca.crt -noout -dates -fingerprint -sha256
+read -r -p 'Target node: 240 or 241: ' CERT_NODE
+case "$CERT_NODE" in
+  240) CERT_HOST=ns8-1.lab.test ;;
+  241) CERT_HOST=ns8-2.lab.test ;;
+  *) exit 1 ;;
+esac
+umask 077
+install -d -m 0700 /root/m20-pki
+CERT_BASE="/root/m20-pki/node$CERT_NODE"
+test ! -e "$CERT_BASE.key" &amp;&amp; test ! -e "$CERT_BASE.crt" || exit 1
+openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:3072 -out "$CERT_BASE.key"
+openssl req -new -key "$CERT_BASE.key" -out "$CERT_BASE.csr" -subj "/CN=$CERT_HOST"
+cat &gt; "$CERT_BASE.ext" &lt;&lt;EOF
+basicConstraints=critical,CA:FALSE
+keyUsage=critical,digitalSignature,keyEncipherment
+extendedKeyUsage=serverAuth
+subjectAltName=DNS:wiki.lab.test,DNS:$CERT_HOST
+EOF
+openssl x509 -req -sha256 -days 90 -in "$CERT_BASE.csr" -CA /etc/ssl/m19/ca.crt -CAkey /root/m19-ca/ca.key -CAcreateserial -extfile "$CERT_BASE.ext" -out "$CERT_BASE.crt"
+chmod 0600 "$CERT_BASE.key"
+openssl verify -CAfile /etc/ssl/m19/ca.crt -verify_hostname wiki.lab.test "$CERT_BASE.crt"
+openssl verify -CAfile /etc/ssl/m19/ca.crt -verify_hostname "$CERT_HOST" "$CERT_BASE.crt"
+openssl x509 -in "$CERT_BASE.crt" -noout -dates -ext subjectAltName -fingerprint -sha256</code></pre>
+<p>In questa lezione scegli <code translate="no">240</code>. Nella 20.7 ripeti questo passo scegliendo <code translate="no">241</code> prima di spostare il wiki: sarà un’altra chiave, con il nome del secondo nodo. I certificati di Traefik non vengono replicati automaticamente.</p>
+<p><strong>Output atteso:</strong> Il certificato è nuovo, ha i SAN del wiki e del nodo scelto ed è firmato dalla CA già verificata. La password della CA viene digitata al prompt.</p>
+<p><strong>Verifica:</strong> Controlla il certificato emesso, non soltanto il CSR. I due file privati dei nodi devono essere diversi; la chiave della CA non lascia mai la <code translate="no">204</code>.</p>
+<h3 id="passo-3-trasferire-soltanto-il-necessario">Passo 3 · Trasferire soltanto il necessario</h3>
+<p><strong>Ipotesi:</strong> Un file PEM chiamato certificato può contenere una chiave privata?</p>
+<p>Sempre sulla <code translate="no">204</code>, prepara una cartella temporanea di trasferimento esclusiva dell’account <code translate="no">student</code>. Contiene la chiave del server scelto, non la chiave della CA. L’accesso alla postazione operatrice deve essere autenticato e protetto.</p>
+<pre translate="no"><code class="lang-bash">test ! -e /home/student/m20-tls || exit 1
+install -d -o student -g student -m 0700 /home/student/m20-tls
+install -o student -g student -m 0600 "$CERT_BASE.key" /home/student/m20-tls/server.key
+install -o student -g student -m 0644 "$CERT_BASE.crt" /home/student/m20-tls/server.crt
+install -o student -g student -m 0644 /etc/ssl/m19/ca.crt /home/student/m20-tls/ca.crt
+openssl x509 -in /home/student/m20-tls/ca.crt -noout -fingerprint -sha256
+openssl x509 -in /home/student/m20-tls/server.crt -noout -fingerprint -sha256
+stat -c '%U:%G:%a %n' /home/student/m20-tls /home/student/m20-tls/server.key</code></pre>
+<p>Sulla postazione che esegue il browser della guida usa SCP o SFTP dell’account <code translate="no">student</code> della <code translate="no">204</code>, tramite la gestione autenticata, verso una nuova cartella privata. Copia soltanto <code translate="no">server.key</code>, <code translate="no">server.crt</code> e <code translate="no">ca.crt</code>; confronta le impronte con la lettura effettuata dalla console.</p>
+<p>Sul nodo scelto trasferisci soltanto la CA pubblica in <code translate="no">/root/m20-lab/ca.crt</code>. Il file pubblico può arrivare tramite SCP dalla stessa cartella o tramite console; l’impronta deve coincidere prima di installarlo.</p>
+<pre translate="no"><code class="lang-bash">test "$(id -u)" -eq 0 || exit 1
+read -r -p 'Target node: 240 or 241: ' CERT_NODE
+case "$CERT_NODE:$(hostname -s)" in 240:ns8-1|241:ns8-2) ;; *) exit 1 ;; esac
+openssl x509 -in /root/m20-lab/ca.crt -noout -fingerprint -sha256
+read -r -p 'Expected CA SHA256, hex only: ' CA_EXPECTED
+[[ "$CA_EXPECTED" =~ ^[0-9a-fA-F]{64}$ ]] || exit 1
+CA_ACTUAL=$(openssl x509 -in /root/m20-lab/ca.crt -noout -fingerprint -sha256 | cut -d= -f2 | tr -d ':') || exit 1
+test "$(printf '%s' "$CA_ACTUAL" | tr 'A-F' 'a-f')" = "$(printf '%s' "$CA_EXPECTED" | tr 'A-F' 'a-f')" || exit 1
+test ! -e /etc/pki/ca-trust/source/anchors/m20-lab-ca.crt || exit 1
+install -o root -g root -m 0644 /root/m20-lab/ca.crt /etc/pki/ca-trust/source/anchors/m20-lab-ca.crt
+update-ca-trust extract</code></pre>
+<p><strong>Output atteso:</strong> Soltanto la CA pubblica entra nel trust store del nodo. La chiave dell’applicazione resta in file privati destinati al caricamento autorizzato.</p>
+<p><strong>Verifica:</strong> La documentazione NS8 richiede fiducia nella CA privata anche sul sistema del nodo per accettare il caricamento. Non correggere un rifiuto di fiducia disattivando la verifica.</p>
+<h3 id="passo-4-importare-sul-nodo-corretto">Passo 4 · Importare sul nodo corretto</h3>
+<p><strong>Ipotesi:</strong> Importare sul leader configura il certificato di tutti i nodi?</p>
+<p>Sulla postazione operatrice apri il pannello tramite HTTPS con il bootstrap già verificato. Vai a Settings, TLS certificates e Upload certificate. Seleziona esplicitamente il nodo il cui hostname è nel certificato.</p>
+<p>Scegli <code translate="no">server.crt</code> come Certificate e <code translate="no">server.key</code> come Private key; fornisci <code translate="no">ca.crt</code> come Chain file in questo lab senza CA intermedia. I file sono PEM e la chiave del server non ha password; è l’accesso al file che deve restare limitato.</p>
+<p>Conferma Upload e attendi l’esito. Nell’elenco controlla nodo, nomi, tipo Uploaded e validità. Non eliminare il certificato precedente prima di dimostrare che la sostituzione funziona.</p>
+<p>Il wiki usa il certificato caricato quando corrisponde all’hostname configurato. Controlla il certificato effettivamente presentato al client: l’elenco del pannello non dimostra quale identità sia arrivata alla connessione.</p>
+<p><strong>Output atteso:</strong> Il caricamento termina senza errori e l’identità del nodo corretto compare nell’elenco.</p>
+<p><strong>Verifica:</strong> Se la chiave non corrisponde, i nomi non coincidono o la CA non è attendibile, fermati e correggi il materiale. Non sostituire la chiave del server con la chiave privata della CA nel modulo.</p>
+<h3 id="passo-5-verificare-dalla-rete-del-client">Passo 5 · Verificare dalla rete del client</h3>
+<p><strong>Ipotesi:</strong> Una prova fatta soltanto sul nodo dimostra la fiducia del client?</p>
+<figure><a href="../img/20.4-duas-portas-do-proxy.it.jpg"><img src="../img/20.4-duas-portas-do-proxy.it.jpg" alt="Due porte della stessa richiesta" loading="lazy" decoding="async"></a><figcaption>Un rifiuto di rete e una risposta del proxy richiedono riscontri diversi.</figcaption></figure>
+<p>I comandi seguenti si eseguono sulla VM <code translate="no">202</code>, come <code translate="no">student</code>. La CA pubblica è già in <code translate="no">/etc/ssl/m19/ca.crt</code> dal M19; controlla la sua impronta prima di usarla.</p>
+<pre translate="no"><code class="lang-bash">test "$(hostname -s)" = debian-lab || exit 1
+test "$(id -un)" = student || exit 1
+openssl x509 -in /etc/ssl/m19/ca.crt -noout -fingerprint -sha256
+dig @192.0.2.204 wiki.lab.test A +short
+openssl s_client -connect 192.0.2.240:443 -servername wiki.lab.test -verify_hostname wiki.lab.test -verify_return_error -CAfile /etc/ssl/m19/ca.crt &lt;/dev/null
+curl --retry 10 --retry-delay 1 --retry-all-errors --max-time 10 --fail --cacert /etc/ssl/m19/ca.crt --resolve wiki.lab.test:443:192.0.2.240 https://wiki.lab.test/
+curl --retry 10 --retry-delay 1 --retry-all-errors --max-time 10 --fail --cacert /etc/ssl/m19/ca.crt --resolve wiki.lab.test:443:192.0.2.240 'https://wiki.lab.test/doku.php?id=m20:prova'</code></pre>
+<p>La prima verifica TLS deve convalidare nome e catena. La risposta della pagina può richiedere il login, secondo l’ACL del wiki; in tal caso completa la prova del contenuto tramite browser autenticato e non mettere password o cookie negli argomenti.</p>
+<p>Sulla postazione con browser importa soltanto la CA pubblica nell’archivio di fiducia appropriato, dopo averne verificato l’impronta. Riapri l’URL originale e controlla SAN, emittente e validità senza ignorare avvisi.</p>
+<p><strong>Output atteso:</strong> TLS viene convalidato e la pagina mostra <code translate="no">M20 prova inicial</code> all’utente autorizzato. La prova non dipende dalla disattivazione della verifica.</p>
+<p><strong>Verifica:</strong> Dopo lo spostamento nella 20.7 sostituisci la destinazione esplicita con l’indirizzo reale del nuovo nodo e conferma la nuova identità oltre al DNS.</p>
+<p>Su Windows usa l’installazione del certificato pubblico per l’utente corrente nell’archivio delle autorità radice attendibili, dopo la verifica dell’impronta. Non selezionare file di chiave nel programma di importazione della CA. Se il browser usa un archivio proprio, applica il suo metodo documentato e verifica il risultato.</p>
+<h3 id="passo-6-distinguere-emissione-pubblica-e-privata">Passo 6 · Distinguere emissione pubblica e privata</h3>
+<p><strong>Ipotesi:</strong> Un nome che termina in lab.test può ricevere un certificato pubblico soltanto perché c’è Internet?</p>
+<p>Per <code translate="no">lab.test</code> l’emissione pubblica non viene eseguita. La prova obbligatoria del laboratorio usa la CA privata; registra il ramo pubblico come non eseguito se non controlli un dominio pubblico e la relativa pubblicazione.</p>
+<p>Nel ramo pubblico opzionale usa soltanto un nome reale sotto il tuo controllo. Controlla A e AAAA pubblici, NAT e firewall; il client ACME deve raggiungere il nodo corretto tramite la porta del challenge configurato.</p>
+<p>Nella pagina TLS certificates, ACME settings, controlla nodo e Challenge type. Le installazioni attuali possono usare TLS-ALPN-01 su TCP 443; HTTP-01 usa TCP 80. Non aprire porte seguendo una ricetta che presuppone un altro challenge.</p>
+<p>La modalità staging fornisce certificati di test di cui i client non si fidano per impostazione predefinita. Cambiare l’URL ACME non sostituisce immediatamente i certificati già emessi.</p>
+<p>I certificati Uploaded non si rinnovano automaticamente. Annota responsabile e scadenza del rinnovo; Request e Automatic hanno meccanismi distinti e continuano a dipendere da DNS e accesso pubblico corretti.</p>
+<p><strong>Output atteso:</strong> Riesci a spiegare quale CA ha emesso l’identità attuale e come verrà rinnovata.</p>
+<p><strong>Verifica:</strong> Elimina le copie temporanee della chiave del server dalla cartella di trasferimento e dalla postazione dopo il caricamento confermato, conservando le copie di custodia autorizzate e la CA sull’emittente.</p>
+<p>Sulla <code translate="no">204</code> controlla i nomi esatti prima di rimuovere soltanto lo staging. La cartella potrà essere ricreata nella 20.7 per il certificato del secondo nodo.</p>
+<pre translate="no"><code class="lang-bash">test "$(hostname -s)" = srv-deb || exit 1
+stat -c '%U:%G:%a %n' /home/student/m20-tls
+rm -- /home/student/m20-tls/server.key /home/student/m20-tls/server.crt /home/student/m20-tls/ca.crt
+rmdir -- /home/student/m20-tls</code></pre>
+<h3 id="decidi-2">Decidi 2</h3>
+<p>DNS e TLS sono corretti, ma il proxy mostra un errore di backend. Quale riscontro viene dopo?</p>
+<p>A. Cambiare il DNS di tutti i nodi.
+B. Aumentare la validità del certificato.
+C. Controllare destinazione della rotta e stato dell’istanza sul nodo ospitante.</p>
+<h2 id="6-rompi-e-ripara">6 · Rompi e ripara</h2>
+<p>Esegui soltanto le prove del client qui sotto. Non modificano DNS globale, firewall, rotta automatica o pannello amministrativo.</p>
+<h3 id="guasto-1-nome-assente">Guasto 1 · Nome assente</h3>
+<p><strong>Sintomo:</strong> Sulla VM 202 richiedi l’IP letterale con la CA corretta.</p>
+<p><strong>Indagine:</strong> Confronta il messaggio sul nome con la richiesta tramite FQDN e <code translate="no">--resolve</code>.</p>
+<p><strong>Causa:</strong> Il certificato copre i nomi DNS emessi, non un IP SAN che non hai incluso.</p>
+<p><strong>Riparazione:</strong> Torna al FQDN pubblicato e conserva SNI e Host.</p>
+<p><strong>Prevenzione:</strong> Registra nome e destinazione come campi separati.</p>
+<p><strong>Verifica:</strong> La connessione tramite nome viene convalidata senza saltare la verifica.</p>
+<pre translate="no"><code class="lang-bash">curl --max-time 5 --cacert /etc/ssl/m19/ca.crt https://192.0.2.240/</code></pre>
+<h3 id="guasto-2-fiducia-non-fornita">Guasto 2 · Fiducia non fornita</h3>
+<p><strong>Sintomo:</strong> Sul client che non si fida ancora globalmente della CA togli soltanto <code translate="no">--cacert</code> da una copia del comando.</p>
+<p><strong>Indagine:</strong> Leggi emittente, catena ed esito TLS; non confonderlo con un errore DNS.</p>
+<p><strong>Causa:</strong> L’identità è di una CA privata che quel contesto non conosce ancora.</p>
+<p><strong>Riparazione:</strong> Fornisci la CA pubblica verificata; non usare un’opzione per ignorare gli errori.</p>
+<p><strong>Prevenzione:</strong> Documenta dove è stata installata la fiducia e dove è esplicita per comando.</p>
+<p><strong>Verifica:</strong> Con la CA corretta nome e catena superano la stessa connessione.</p>
+<h3 id="guasto-3-nome-verso-la-destinazione-sbagliata">Guasto 3 · Nome verso la destinazione sbagliata</h3>
+<p><strong>Sintomo:</strong> Usa una copia del comando con <code translate="no">--resolve wiki.lab.test:443:127.0.0.1</code> sul client 202.</p>
+<p><strong>Indagine:</strong> Confronta la destinazione forzata con la risposta A del DNS del laboratorio.</p>
+<p><strong>Causa:</strong> Il comando ha deviato la connessione sul client stesso; non dimostra una caduta di NS8.</p>
+<p><strong>Riparazione:</strong> Ripristina soltanto la destinazione del comando di prova senza cambiare il DNS globale.</p>
+<p><strong>Prevenzione:</strong> Identifica il punto di osservazione e il forwarding prima di aprire porte.</p>
+<p><strong>Verifica:</strong> Il comando corretto riceve la risposta del nodo atteso e il contenuto noto.</p>
+<h2 id="7-trappole">7 · Trappole</h2>
+<ol><li>Una rotta automatica non va modificata in un file per resistere al pannello.</li>
+<li>I certificati Uploaded richiedono un piano di rinnovo manuale.</li>
+<li>I certificati sono locali al nodo; spostare il modulo non dimostra che la destinazione abbia l’identità necessaria.</li>
+<li>Limitare cluster-admin può impedire gestione, ingresso dei nodi ed elezione. Non è il guasto scelto qui.</li>
+<li>Cambiare ACME o rimuovere certificati può riavviare Traefik e interrompere connessioni.</li>
+<li>NS8 apre le porte dei servizi gestiti; non sostituirne la politica con un flush del firewall.</li></ol>
+<h2 id="8-quiz">8 · Quiz</h2>
+<ol><li>Perché TLS può essere valido mentre il wiki resta indisponibile?</li>
+<li>Quale file privato non lascia l’emittente?</li>
+<li>Cosa deve esistere sul nodo 241 prima di ricevere il wiki?</li>
+<li>Quale porta richiede ACME in questa installazione?</li>
+<li>Cosa distingue un certificato Uploaded da uno richiesto tramite ACME?</li></ol>
+<h2 id="9-promemoria">9 · Promemoria</h2>
+<pre translate="no"><code class="lang-bash">dig @192.0.2.204 wiki.lab.test A +short
+ss -ltnp '( sport = :80 or sport = :443 )'
+firewall-cmd --get-active-zones
+openssl x509 -in /etc/ssl/m19/ca.crt -noout -fingerprint -sha256
+curl --cacert /etc/ssl/m19/ca.crt --resolve wiki.lab.test:443:192.0.2.240 https://wiki.lab.test/</code></pre>
+<p><strong>Flashcard:</strong> indica macchina, contesto e riscontro prima di proporre una modifica.</p>
+<pre translate="no"><code class="lang-text">!explica Separe DNS, rota HTTP, TLS e backend no NS8.
+!feynman Explique por que um certificado confiavel pode acompanhar uma aplicacao indisponivel.
+!quiz Crie tres falhas de nome, confianca ou rota e peca uma prova distinta.</code></pre>
+<h2 id="10-checklist-e-chiusura">10 · Checklist e chiusura</h2>
+<ul><li>[ ] Il nome risolve verso il nodo che ospita la rotta.</li>
+<li>[ ] Il certificato presentato contiene SAN e catena attesi.</li>
+<li>[ ] La CA pubblica è stata verificata prima di installarla.</li>
+<li>[ ] La rotta automatica non è stata sostituita da un file manuale.</li>
+<li>[ ] Chiave privata e copie di trasferimento sono sotto controllo.</li></ul>
+<p><strong>Reboot di verifica:</strong> concorda una finestra soltanto per la VM <code translate="no">240</code>. Esci dal modulo prima del reboot; conserva console e diario fuori dalla VM. Non ripristinare snapshot sopra lavoro successivo.</p>
+<pre translate="no"><code class="lang-bash">test "$(hostname -s)" = ns8-1 || exit 1
+systemctl reboot</code></pre>
+<p>Dopo esserti riconnesso dalla gestione, ricarica il registro verificato e ripeti le prove funzionali. Il solo pannello attivo non dimostra che la pagina sia tornata.</p>
+<p><strong>Ultimo esercizio:</strong> registra orario, nodo osservato e contenuto della pagina dopo il reboot. Confronta con il riferimento precedente e lascia l’istanza funzionante per le prossime lezioni.</p>
+<h2 id="11-nella-vita-reale">11 · Nella vita reale</h2>
+<p>In un ambiente reale, parti da inventario, finestra e riscontri di sola lettura. L’autorizzazione a diagnosticare non permette di riavviare moduli altrui o pubblicarne i registri.</p>
+<p>La missione fuori dal laboratorio è soltanto di lettura: confronta la procedura con la documentazione della versione installata e annota ciò che dovresti verificare con il responsabile.</p>
+<p>Non incollare token, cookie, variabili complete degli agenti o contenuti degli utenti in DeepTutor. Usa il marcatore fittizio e un riepilogo del riscontro.</p>
+<h2 id="12-approfondire-quando-vuoi">12 · Approfondire quando vuoi</h2>
+<ul><li><a href="https://docs.nethserver.org/docs/administrator-manual/configuration/proxy">Rotte HTTP NS8</a></li>
+<li><a href="https://docs.nethserver.org/docs/administrator-manual/configuration/certificates">Certificati TLS NS8</a></li>
+<li><a href="https://docs.nethserver.org/docs/administrator-manual/configuration/firewall">Firewall NS8</a></li>
+<li><a href="https://nethserver.github.io/ns8-core/core/proxy_certificates/">Proxy e certificati, architettura</a></li></ul>
+<p>La documentazione descrive i meccanismi; l’output osservato identifica la tua istanza. Confronta entrambi prima di adattare un comando di un’altra versione.</p>
+<h2 id="soluzioni-commentate">Soluzioni commentate</h2>
+<p>Riscaldamento: DNS non dimostra il SAN; il leader non riceve tutto HTTP; i certificati non si replicano automaticamente.</p>
+<p>Decidi 1: B. La fiducia va stabilita tramite il certificato pubblico della CA verificato da un altro canale.</p>
+<p>Decidi 2: C. Un errore successivo alla verifica TLS richiede di esaminare rotta e backend.</p>
+<p>Quiz 1: TLS identifica il primo estremo; servizio e destinazione della rotta possono ancora essere errati o indisponibili.</p>
+<p>Quiz 2: la chiave privata della CA, conservata nella VM 204. La chiave privata del server va soltanto al nodo e nei trasferimenti autorizzati.</p>
+<p>Quiz 3: CA pubblica attendibile e certificato/chiave propri per wiki e ns8-2, importati nel Traefik di quel nodo; poi occorre dimostrare DNS e contenuto.</p>
+<p>Quiz 4: controlla Challenge type: TLS-ALPN-01 usa TCP 443; HTTP-01 usa TCP 80. Nome pubblico e raggiungibilità esterna sono ulteriori prerequisiti.</p>
+<p>Quiz 5: Uploaded non si rinnova automaticamente; ACME può rinnovare finché nomi, raggiungibilità e configurazione restano corretti.</p>
+<p><a href="20.3-modulo-por-dentro.it.html">← Lezione 20.3</a> · <a href="index.it.html">Indice delle lezioni</a> · <a href="20.5-dominios-de-usuario.it.html">Lezione 20.5 →</a></p>
+</article><nav class="paginas" aria-label="Lezioni"><a class="ant" href="20.3-modulo-por-dentro.it.html"><small>← Precedente</small>20.3 · Dentro un modulo</a><a class="prox" href="20.5-dominios-de-usuario.it.html"><small>Successiva →</small>20.5 · Domini utente: identità con confini</a></nav></main></div>
+<footer><div class="wrap">Generato dal Markdown del corso · Immagini in <code translate="no">img/</code></div></footer>
+</body>
+</html>

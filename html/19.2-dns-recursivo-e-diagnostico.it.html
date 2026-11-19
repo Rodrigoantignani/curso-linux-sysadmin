@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light dark">
+<title>19.2 · DNS ricorsivo e diagnosi · Corso Linux Sysadmin</title>
+<link rel="alternate" hreflang="pt-BR" href="19.2-dns-recursivo-e-diagnostico.html"><link rel="alternate" hreflang="it" href="19.2-dns-recursivo-e-diagnostico.it.html">
+<style>
+:root{color-scheme:light dark;--bg:#f6f1e7;--card:#fffdf8;--ink:#201c16;--muted:#5e564a;--accent:#9a3412;--accent-2:#1f5f4a;--tint:#efe6d4;--line:#ddd2bc;--code:#f1eadb;--shadow:0 1px 2px rgba(60,40,10,.08);--serif:Georgia,"Iowan Old Style","Palatino Linotype",Palatino,serif;--sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--mono:"Cascadia Code",Consolas,"DejaVu Sans Mono",monospace}
+@media (prefers-color-scheme:dark){:root{--bg:#16130f;--card:#201b15;--ink:#f1eadb;--muted:#b9ad98;--accent:#f0a070;--accent-2:#7fd0b0;--tint:#2a231a;--line:#3d3427;--code:#191510;--shadow:none}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:5.5rem}
+body{margin:0;background:var(--bg);color:var(--ink);font:1rem/1.6 var(--sans)}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--accent-2);outline-offset:2px;border-radius:4px}
+.pular{position:absolute;left:-999px;top:0;background:var(--card);padding:.5rem 1rem;z-index:20}
+.pular:focus{left:.5rem;top:.5rem}
+.wrap{width:100%;max-width:84rem;margin:0 auto;padding-inline:max(1rem,env(safe-area-inset-left))}
+.top{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10;border-top:6px solid var(--accent)}
+.top-in{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding-block:.6rem}
+.titles{min-width:0}
+.marca{margin:0;font:700 clamp(1.15rem,1rem + 1vw,1.6rem)/1.15 var(--serif);letter-spacing:-.01em}
+.marca a{text-decoration:none}
+.marca a:hover{color:var(--accent)}
+.meta{margin:.1rem 0 0;color:var(--muted);font-size:.85rem}
+.acoes{display:flex;align-items:center;gap:.9rem;flex:none}
+.acoes>a{font-size:.9rem;font-weight:600;color:var(--muted);text-decoration:none}
+.acoes>a:hover{color:var(--accent);text-decoration:underline}
+.idioma{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--tint)}
+.idioma>*{padding:.35rem .9rem;font-size:.8rem;font-weight:700;letter-spacing:.06em;text-decoration:none;color:var(--muted);min-width:2.75rem;text-align:center}
+.idioma a:hover{color:var(--accent);text-decoration:underline}
+.idioma span{background:var(--accent);color:#fff}
+@media (prefers-color-scheme:dark){.idioma span{color:#16130f}}
+code{font-family:var(--mono);font-size:.9em;background:var(--tint);padding:.1rem .35rem;border-radius:4px;overflow-wrap:anywhere}
+/* índice */
+.capa{max-width:70rem;padding-block:2rem 3rem}
+.stats{border-left:4px solid var(--accent-2);background:var(--card);border-radius:0 10px 10px 0;padding:1rem 1.25rem;margin:0 0 2.5rem;box-shadow:var(--shadow);color:var(--muted)}
+.stats strong{color:var(--ink)}
+.modulo{display:grid;grid-template-columns:15rem minmax(0,1fr);gap:1rem 2rem;padding:1.75rem 0;border-top:1px solid var(--line)}
+.modulo h2{margin:0;font:700 1.25rem/1.25 var(--serif);align-self:start;position:sticky;top:6rem}
+.mn{display:block;font:700 .8rem var(--mono);letter-spacing:.12em;color:var(--accent);margin-bottom:.25rem}
+.sep{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.modulo ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,17rem),1fr));gap:.75rem}
+.modulo li{margin:0}
+.modulo a{display:flex;gap:.45rem;align-items:baseline;height:100%;padding:.85rem 1rem;background:var(--card);border:1px solid var(--line);border-radius:10px;text-decoration:none;font-weight:600;line-height:1.35;box-shadow:var(--shadow);transition:border-color .15s,transform .15s}
+.modulo a:hover{border-color:var(--accent);color:var(--accent)}
+.num{font:700 .85rem var(--mono);color:var(--accent);white-space:nowrap}
+/* aula */
+.doc{display:grid;grid-template-columns:17rem minmax(0,1fr);gap:2.5rem;align-items:start;padding-block:2rem 3rem}
+.lateral{position:sticky;top:5.5rem;max-height:calc(100vh - 6.5rem);overflow:auto;font-size:.875rem;padding-right:.5rem}
+.lateral h2{margin:0 0 .25rem;font:700 .95rem var(--serif);color:var(--muted)}
+.lateral h3{margin:1rem 0 .25rem;font:700 .75rem var(--mono);letter-spacing:.06em;color:var(--accent)}
+.lateral ul{list-style:none;margin:0;padding:0}
+.lateral a{display:flex;gap:.45rem;padding:.25rem .5rem;border-radius:6px;text-decoration:none;color:var(--muted);line-height:1.3}
+.lateral a:hover{background:var(--tint);color:var(--ink)}
+.lateral a[aria-current]{background:var(--tint);color:var(--ink);font-weight:700;box-shadow:inset 3px 0 0 var(--accent)}
+.lateral .num{font-size:.75rem}
+.aula{min-width:0;max-width:56rem;overflow-wrap:break-word;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:clamp(1.25rem,1rem + 2vw,2.75rem);box-shadow:var(--shadow)}
+.aula h1{margin:0 0 1.5rem;font:700 clamp(1.75rem,1.4rem + 1.6vw,2.5rem)/1.15 var(--serif);letter-spacing:-.015em;color:var(--ink)}
+.aula h2{margin:2.5rem 0 .75rem;padding-top:1.25rem;border-top:1px solid var(--line);font:700 1.5rem/1.25 var(--serif)}
+.aula h3{margin:2rem 0 .5rem;font:700 1.15rem/1.3 var(--serif);color:var(--accent)}
+.aula h4,.aula h5,.aula h6{margin:1.5rem 0 .5rem;font-size:1rem}
+.aula p,.aula ul,.aula ol{margin:1rem 0}
+.aula ul,.aula ol{padding-left:1.5rem}
+.aula li{margin:.35rem 0}
+.aula li>ul,.aula li>ol{margin:.35rem 0}
+.aula a{color:var(--accent);text-underline-offset:2px}
+.aula hr{border:0;border-top:1px solid var(--line);margin:2rem 0}
+.tabela{overflow-x:auto;margin:1.25rem 0;border:1px solid var(--line);border-radius:10px}
+.aula table{width:100%;border-collapse:collapse;font-size:.9rem}
+.aula th,.aula td{padding:.55rem .75rem;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+.aula tr:last-child td{border-bottom:0}
+.aula th{background:var(--tint);font-weight:700}
+.aula pre{background:var(--code);border:1px solid var(--line);border-radius:10px;padding:.9rem 1rem;overflow-x:auto;font:.85rem/1.5 var(--mono);margin:1rem 0;tab-size:4}
+.aula pre code{background:none;padding:0;font-size:inherit;overflow-wrap:normal}
+.aula blockquote{margin:1.25rem 0;padding:.75rem 1.25rem;border-left:4px solid var(--accent-2);background:var(--tint);border-radius:0 10px 10px 0}
+.aula blockquote>:first-child{margin-top:0}
+.aula blockquote>:last-child{margin-bottom:0}
+.aula figure{margin:1.75rem 0;text-align:center}
+.aula figure img{display:block;margin:0 auto;max-width:100%;height:auto;border:1px solid var(--line);border-radius:10px;background:#fff}
+.aula figcaption{margin-top:.5rem;color:var(--muted);font-size:.9rem;font-style:italic}
+.paginas{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:2.5rem;padding-top:1.5rem;border-top:1px solid var(--line)}
+.paginas a{display:block;padding:.75rem 1rem;border:1px solid var(--line);border-radius:10px;text-decoration:none;color:var(--ink);font-weight:600;line-height:1.3}
+.paginas a:hover{border-color:var(--accent);color:var(--accent)}
+.paginas small{display:block;color:var(--muted);font-weight:400}
+.paginas .prox{grid-column:2;text-align:right}
+footer{border-top:1px solid var(--line);padding-block:1.5rem;color:var(--muted);font-size:.85rem;text-align:center}
+@media (hover:hover) and (prefers-reduced-motion:no-preference){.modulo a:hover{transform:translateY(-2px)}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+@media (max-width:980px){.doc{grid-template-columns:minmax(0,1fr);padding-top:1rem}.lateral{position:static;max-height:none;order:2}.aula{max-width:none}}
+@media (max-width:860px){.modulo{grid-template-columns:minmax(0,1fr)}.modulo h2{position:static}.mn{display:inline;margin-right:.5rem}}
+@media (max-width:420px){.meta{display:none}.top-in{gap:.5rem}.acoes{gap:.6rem}.capa{padding-top:1.25rem}.paginas{grid-template-columns:minmax(0,1fr)}.paginas .prox{grid-column:1}}
+@media print{.top,.lateral,.paginas{display:none}.aula{border:0;box-shadow:none;padding:0;max-width:none}.doc{display:block}}
+</style>
+</head>
+<body>
+<a class="pular" href="#conteudo">Vai al contenuto</a>
+<header class="top"><div class="wrap top-in"><div class="titles"><p class="marca"><a href="index.it.html">Corso Linux Sysadmin</a></p><p class="meta">Rodrigo Antignani · Lezione 19.2</p></div><div class="acoes"><a href="index.it.html">Indice</a><div class="idioma" role="group" aria-label="Lingua"><a href="19.2-dns-recursivo-e-diagnostico.html" hreflang="pt-BR" lang="pt-BR">PT</a><span aria-current="true">IT</span></div></div></div></header>
+<div class="wrap doc"><aside class="lateral" aria-label="Lezioni"><h2>Lezioni</h2><h3>M0 · Laboratorio</h3><ul><li><a href="0.1-montar-o-laboratorio.it.html"><span class="num">0.1</span><span>Allestire il laboratorio</span></a></li><li><a href="0.2-acesso-e-protecao.it.html"><span class="num">0.2</span><span>Accesso e protezione</span></a></li></ul><h3>M1 · Riga di comando</h3><ul><li><a href="1.1-o-que-e-linux.it.html"><span class="num">1.1</span><span>Che cos'è Linux</span></a></li><li><a href="1.2-o-shell-e-a-ajuda.it.html"><span class="num">1.2</span><span>La shell e la guida</span></a></li><li><a href="1.3-caminhos-e-navegacao.it.html"><span class="num">1.3</span><span>Percorsi e navigazione</span></a></li><li><a href="1.4-criar-copiar-mover-e-apagar.it.html"><span class="num">1.4</span><span>Creare, copiare, spostare ed eliminare</span></a></li><li><a href="1.5-ler-e-procurar-texto.it.html"><span class="num">1.5</span><span>Leggere e cercare testo</span></a></li><li><a href="1.6-redirecionamentos-e-pipes.it.html"><span class="num">1.6</span><span>Reindirizzamenti e pipe</span></a></li><li><a href="1.7-arquivar-e-compactar.it.html"><span class="num">1.7</span><span>Archiviare e comprimere</span></a></li><li><a href="1.8-primeiro-script.it.html"><span class="num">1.8</span><span>Primo script</span></a></li><li><a href="1.9-decidir-e-repetir.it.html"><span class="num">1.9</span><span>Decidere e ripetere</span></a></li><li><a href="1.10-software-livre-na-pratica.it.html"><span class="num">1.10</span><span>Il software libero in pratica</span></a></li></ul><h3>M2 · Sistema, utenti e permessi</h3><ul><li><a href="2.1-instalacao-e-provisionamento.it.html"><span class="num">2.1</span><span>Installazione e provisioning</span></a></li><li><a href="2.2-hardware-e-dispositivos.it.html"><span class="num">2.2</span><span>Hardware e dispositivi</span></a></li><li><a href="2.3-processos-e-logs.it.html"><span class="num">2.3</span><span>Processi e log</span></a></li><li><a href="2.4-rede-no-dia-a-dia.it.html"><span class="num">2.4</span><span>La rete di tutti i giorni</span></a></li><li><a href="2.5-acesso-remoto-e-privilegios.it.html"><span class="num">2.5</span><span>Accesso remoto e privilegi</span></a></li><li><a href="2.6-usuarios-e-grupos.it.html"><span class="num">2.6</span><span>Utenti e gruppi</span></a></li><li><a href="2.7-permissoes-e-dono.it.html"><span class="num">2.7</span><span>Permessi e proprietario</span></a></li><li><a href="2.8-diretorios-e-arquivos-especiais.it.html"><span class="num">2.8</span><span>Directory e file speciali</span></a></li></ul><h3>M3 · Testo ed editor</h3><ul><li><a href="3.1-fluxos-a-fundo.it.html"><span class="num">3.1</span><span>I flussi in profondità</span></a></li><li><a href="3.2-filtros-de-texto.it.html"><span class="num">3.2</span><span>Filtri di testo</span></a></li><li><a href="3.3-regex-e-grep.it.html"><span class="num">3.3</span><span>Regex e grep</span></a></li><li><a href="3.4-sed-e-awk.it.html"><span class="num">3.4</span><span>sed e awk</span></a></li><li><a href="3.5-vi-e-vim-de-verdade.it.html"><span class="num">3.5</span><span>vi e vim sul serio</span></a></li></ul><h3>M4 · systemd e boot</h3><ul><li><a href="4.1-como-o-linux-liga.it.html"><span class="num">4.1</span><span>Come si avvia Linux</span></a></li><li><a href="4.2-systemd-servicos-e-units.it.html"><span class="num">4.2</span><span>systemd: servizi e unit</span></a></li><li><a href="4.3-targets-desligar-e-reiniciar.it.html"><span class="num">4.3</span><span>Target: spegnere e riavviare</span></a></li><li><a href="4.4-grub-e-acesso-de-emergencia.it.html"><span class="num">4.4</span><span>GRUB e accesso di emergenza</span></a></li></ul><h3>M5 · Kernel, moduli e VM</h3><ul><li><a href="5.1-hardware-pelo-kernel.it.html"><span class="num">5.1</span><span>L'hardware visto dal kernel</span></a></li><li><a href="5.2-modulos-e-parametros.it.html"><span class="num">5.2</span><span>Moduli e parametri</span></a></li><li><a href="5.3-linux-como-convidado.it.html"><span class="num">5.3</span><span>Linux come guest</span></a></li></ul><h3>M6 · Pacchetti e repository</h3><ul><li><a href="6.1-pacotes-no-debian.it.html"><span class="num">6.1</span><span>Pacchetti su Debian</span></a></li><li><a href="6.2-pacotes-na-rocky.it.html"><span class="num">6.2</span><span>Pacchetti su Rocky</span></a></li><li><a href="6.3-repositorios.it.html"><span class="num">6.3</span><span>Repository</span></a></li><li><a href="6.4-flatpak.it.html"><span class="num">6.4</span><span>Flatpak</span></a></li><li><a href="6.5-bibliotecas-compartilhadas.it.html"><span class="num">6.5</span><span>Librerie condivise</span></a></li></ul><h3>M7 · Processi e prestazioni</h3><ul><li><a href="7.1-processos-e-sinais.it.html"><span class="num">7.1</span><span>Processi e segnali</span></a></li><li><a href="7.2-jobs-e-sessoes.it.html"><span class="num">7.2</span><span>Job e sessioni</span></a></li><li><a href="7.3-prioridade-e-perfis.it.html"><span class="num">7.3</span><span>Priorità e profili</span></a></li></ul><h3>M8 · File a fondo</h3><ul><li><a href="8.1-fhs-e-onde-cada-coisa-mora.it.html"><span class="num">8.1</span><span>FHS e dove sta ogni cosa</span></a></li><li><a href="8.2-find-a-fundo.it.html"><span class="num">8.2</span><span>find a fondo</span></a></li><li><a href="8.3-arquivamento-avancado.it.html"><span class="num">8.3</span><span>Archiviazione avanzata</span></a></li><li><a href="8.4-links.it.html"><span class="num">8.4</span><span>Link</span></a></li><li><a href="8.5-permissoes-avancadas.it.html"><span class="num">8.5</span><span>Permessi avanzati</span></a></li></ul><h3>M9 · Storage</h3><ul><li><a href="9.1-discos-e-layout.it.html"><span class="num">9.1</span><span>Dischi e layout</span></a></li><li><a href="9.2-particionar.it.html"><span class="num">9.2</span><span>Partizionare</span></a></li><li><a href="9.3-sistemas-de-arquivos.it.html"><span class="num">9.3</span><span>File system</span></a></li><li><a href="9.4-montar-e-persistir.it.html"><span class="num">9.4</span><span>Montare e rendere persistente</span></a></li><li><a href="9.5-integridade-e-espaco.it.html"><span class="num">9.5</span><span>Integrità e spazio</span></a></li><li><a href="9.6-lvm.it.html"><span class="num">9.6</span><span>LVM</span></a></li><li><a href="9.7-crescer-sem-destruir.it.html"><span class="num">9.7</span><span>Crescere senza distruggere</span></a></li></ul><h3>M10 · Utenti e accesso privilegiato</h3><ul><li><a href="10.1-contas.it.html"><span class="num">10.1</span><span>Account</span></a></li><li><a href="10.2-senhas-e-validade.it.html"><span class="num">10.2</span><span>Password e scadenza</span></a></li><li><a href="10.3-grupos-e-trabalho-em-equipe.it.html"><span class="num">10.3</span><span>Gruppi e lavoro di squadra</span></a></li><li><a href="10.4-sudo-de-verdade.it.html"><span class="num">10.4</span><span>sudo sul serio</span></a></li></ul><h3>M11 · Rete</h3><ul><li><a href="11.1-tcp-ip-para-quem-administra.it.html"><span class="num">11.1</span><span>TCP/IP per chi amministra</span></a></li><li><a href="11.2-networkmanager-e-nmcli.it.html"><span class="num">11.2</span><span>NetworkManager e nmcli</span></a></li><li><a href="11.3-rede-no-debian.it.html"><span class="num">11.3</span><span>Rete su Debian</span></a></li><li><a href="11.4-nomes-e-resolucao.it.html"><span class="num">11.4</span><span>Nomi e risoluzione</span></a></li><li><a href="11.5-diagnostico-de-rede.it.html"><span class="num">11.5</span><span>Diagnosi di rete</span></a></li></ul><h3>M12 · Sicurezza dell'host</h3><ul><li><a href="12.1-ssh-a-fundo.it.html"><span class="num">12.1</span><span>SSH in dettaglio</span></a></li><li><a href="12.2-firewall.it.html"><span class="num">12.2</span><span>Firewall</span></a></li><li><a href="12.3-selinux-modos-e-contextos.it.html"><span class="num">12.3</span><span>SELinux: modalità e contesti</span></a></li><li><a href="12.4-selinux-portas-e-booleanos.it.html"><span class="num">12.4</span><span>SELinux: porte e booleani</span></a></li><li><a href="12.5-auditoria-e-criptografia.it.html"><span class="num">12.5</span><span>Audit e crittografia</span></a></li></ul><h3>M13 · Archiviazione in rete</h3><ul><li><a href="13.1-servidor-nfs.it.html"><span class="num">13.1</span><span>Server NFS</span></a></li><li><a href="13.2-cliente-nfs.it.html"><span class="num">13.2</span><span>Client NFS</span></a></li><li><a href="13.3-autofs.it.html"><span class="num">13.3</span><span>autofs</span></a></li></ul><h3>M14 · Pianificazione</h3><ul><li><a href="14.1-cron-e-at.it.html"><span class="num">14.1</span><span>cron e at</span></a></li><li><a href="14.2-timers-do-systemd.it.html"><span class="num">14.2</span><span>Timer di systemd</span></a></li><li><a href="14.3-journald-e-rsyslog.it.html"><span class="num">14.3</span><span>journald e rsyslog</span></a></li><li><a href="14.4-hora-certa.it.html"><span class="num">14.4</span><span>L'ora corretta</span></a></li><li><a href="14.5-email-local-e-impressao.it.html"><span class="num">14.5</span><span>E-mail locale e stampa</span></a></li></ul><h3>M15 · Shell e ambiente</h3><ul><li><a href="15.1-ambiente-do-shell.it.html"><span class="num">15.1</span><span>Ambiente della shell</span></a></li><li><a href="15.2-scripts-robustos.it.html"><span class="num">15.2</span><span>Script robusti</span></a></li><li><a href="15.3-scripts-de-administracao.it.html"><span class="num">15.3</span><span>Script di amministrazione</span></a></li><li><a href="15.4-interfaces-graficas.it.html"><span class="num">15.4</span><span>Interfacce grafiche</span></a></li><li><a href="15.5-idioma-teclado-e-fuso.it.html"><span class="num">15.5</span><span>Lingua, tastiera e fuso orario</span></a></li></ul><h3>M16 · Settimana di incidenti su Rocky 10</h3><ul><li><a href="16.1-rocky-10-o-que-muda.it.html"><span class="num">16.1</span><span>Rocky 10: cosa cambia</span></a></li><li><a href="16.2-incidentes-por-area.it.html"><span class="num">16.2</span><span>Incidenti per area</span></a></li><li><a href="16.3-incidente-com-relogio.it.html"><span class="num">16.3</span><span>Incidente con cronometro</span></a></li><li><a href="16.4-correcao-e-reforco.it.html"><span class="num">16.4</span><span>Correzione e rinforzo</span></a></li></ul><h3>M17 · Proxmox in pratica</h3><ul><li><a href="17.1-proxmox-por-dentro.it.html"><span class="num">17.1</span><span>Proxmox dall'interno</span></a></li><li><a href="17.2-vm-pela-linha-de-comando.it.html"><span class="num">17.2</span><span>VM dalla riga di comando</span></a></li><li><a href="17.3-conteiner-lxc.it.html"><span class="num">17.3</span><span>Container LXC</span></a></li><li><a href="17.4-storage.it.html"><span class="num">17.4</span><span>Storage: capacità, ampliamento e spostamento</span></a></li><li><a href="17.5-rede.it.html"><span class="num">17.5</span><span>Rete: bridge, VLAN, bond e SDN</span></a></li><li><a href="17.6-backup-e-restauracao.it.html"><span class="num">17.6</span><span>Backup e ripristino con PBS</span></a></li><li><a href="17.7-migracao-e-quorum.it.html"><span class="num">17.7</span><span>Migrazione e quorum</span></a></li></ul><h3>M18 · Podman</h3><ul><li><a href="18.1-conteiner-nao-e-vm.it.html"><span class="num">18.1</span><span>Un container non è una VM</span></a></li><li><a href="18.2-rodar-e-persistir.it.html"><span class="num">18.2</span><span>Eseguire e conservare i dati</span></a></li><li><a href="18.3-conteiner-como-servico.it.html"><span class="num">18.3</span><span>Container come servizio</span></a></li><li><a href="18.4-diagnosticar-conteiner-rootless.it.html"><span class="num">18.4</span><span>Diagnosticare un container rootless</span></a></li><li><a href="18.5-construir-imagens.it.html"><span class="num">18.5</span><span>Costruire immagini</span></a></li></ul><h3>M19 · Servizi di rete</h3><ul><li><a href="19.1-dns-autoritativo.it.html"><span class="num">19.1</span><span>DNS autoritativo</span></a></li><li><a href="19.2-dns-recursivo-e-diagnostico.it.html" aria-current="page"><span class="num">19.2</span><span>DNS ricorsivo e diagnosi</span></a></li><li><a href="19.3-dhcp.it.html"><span class="num">19.3</span><span>DHCP</span></a></li><li><a href="19.4-servidor-web.it.html"><span class="num">19.4</span><span>Server web: nome, file e risposta</span></a></li><li><a href="19.5-tls-e-proxy-reverso.it.html"><span class="num">19.5</span><span>TLS e reverse proxy: identità prima del lucchetto</span></a></li><li><a href="19.6-samba-a-ponte-windows.it.html"><span class="num">19.6</span><span>Samba: il ponte con il client Windows</span></a></li><li><a href="19.7-postfix-e-correio-local.it.html"><span class="num">19.7</span><span>Postfix e posta locale</span></a></li><li><a href="19.8-dovecot-e-imaps.it.html"><span class="num">19.8</span><span>Dovecot e lettura tramite IMAPS</span></a></li><li><a href="19.9-squid-e-desafio-integrado.it.html"><span class="num">19.9</span><span>Squid e sfida integrata</span></a></li></ul><h3>M20 · Dentro NethServer 8</h3><ul><li><a href="20.1-instalar-nethserver-8.it.html"><span class="num">20.1</span><span>Installare in una VM pulita</span></a></li><li><a href="20.2-cluster-no-e-modulo.it.html"><span class="num">20.2</span><span>Cluster, nodo e modulo</span></a></li><li><a href="20.3-modulo-por-dentro.it.html"><span class="num">20.3</span><span>Dentro un modulo</span></a></li><li><a href="20.4-proxy-e-certificados.it.html"><span class="num">20.4</span><span>Proxy e certificati</span></a></li><li><a href="20.5-dominios-de-usuario.it.html"><span class="num">20.5</span><span>Domini utente: identità con confini</span></a></li><li><a href="20.6-backup-e-restauracao.it.html"><span class="num">20.6</span><span>Backup e ripristino: verificare il ritorno</span></a></li><li><a href="20.7-atualizar-mover-e-falhar.it.html"><span class="num">20.7</span><span>Aggiornare, spostare e guastare con verifica</span></a></li></ul></aside><main id="conteudo" class="aula"><article><h1>Lezione 19.2 · DNS ricorsivo e diagnosi</h1>
+<blockquote><p><strong>Il cuore di questa lezione:</strong> distingui autorità, ricorsione e cache senza aprire un resolver a qualunque origine.</p></blockquote>
+<div class="tabela"><table><thead><tr><th scope="col">Scheda</th><th scope="col">Piano di lavoro</th></tr></thead><tbody><tr><td>Modulo</td><td>M19 · Servizi di rete, lezione 2 di 9</td></tr><tr><td>Quando</td><td>Settimana 25</td></tr><tr><td>Alla fine</td><td>distingui autorità, ricorsione e cache senza aprire un resolver a qualunque origine.</td></tr><tr><td>Prerequisiti</td><td>M17, M18; VM 201 e 202; utente student; rete isolata vmbr17</td></tr><tr><td>Durata</td><td>80–110 minuti</td></tr><tr><td>Snapshot</td><td>m19a2-inicio e m19a2-fim; solo VM indicate</td></tr></tbody></table></div>
+<p>Il nodo Proxmox riceve solo i comandi indicati come host.</p>
+<p>Gli altri appartengono alla VM specificata, con Bash e utente <code translate="no">student</code>.</p>
+<p>Non eseguire i blocchi successivi se una verifica fallisce.</p>
+<p>Conserva l’output reale nel diario; questa lezione non presenta un’esecuzione già effettuata.</p>
+<p>Prima del lab, completa la <a href="https://github.com/Rodrigoantignani/curso-linux-sysadmin/blob/master/GUIA_BANCADA_M19_IT.md">guida del banco M19</a>.</p>
+<p>Il profilo isolato della VM 202 si chiama <code translate="no">m19-isolada</code>, con indirizzo <code translate="no">.202/24</code>; la VM 204 conserva ifupdown della 19.1.</p>
+<p>Nomi canonici del modulo: il nome della VM in Proxmox e l’hostname del sistema operativo devono corrispondere al ruolo, prima di eseguire le guardie. Un nome DNS di servizio non cambia l’hostname. Se l’inventario differisce, riconcilialo dalla console prima di proseguire; non ignorare le guardie.</p>
+<div class="tabela"><table><thead><tr><th scope="col">VM</th><th scope="col">Hostname breve</th><th scope="col">Indirizzo isolato</th></tr></thead><tbody><tr><td>201</td><td><code translate="no">rocky-lab</code></td><td><code translate="no">192.0.2.201</code></td></tr><tr><td>202</td><td><code translate="no">debian-lab</code></td><td><code translate="no">192.0.2.202</code></td></tr><tr><td>204</td><td><code translate="no">srv-deb</code></td><td><code translate="no">192.0.2.204</code></td></tr><tr><td>212</td><td><code translate="no">m19-client</code></td><td>DHCP; solo sfida 19.9</td></tr></tbody></table></div>
+<p>I messaggi di priming osservati durante la fase autoritativa con <code translate="no">recursion no</code> non sostituiscono la verifica delle risposte. Dopo aver attivato la ricorsione, errori persistenti richiedono di controllare inoltro, rete e ACL; non considerarli automaticamente innocui.</p>
+<h2 id="1-riscaldamento">1 · Riscaldamento</h2>
+<ol><li>Qual è la differenza fra AA e RA in una risposta DNS?</li>
+<li>Il TTL di una risposta nella cache deve seguire immediatamente una modifica all’origine?</li>
+<li>Quale server hai interrogato nell’ultima diagnosi DNS?</li></ol>
+<p>Disegna client, resolver e autorità.</p>
+<p>Aggiungi il percorso di uscita della VM 204 tramite la gestione, senza trasformarla in router dei client.</p>
+<h2 id="2-perche-conta">2 · Perché conta</h2>
+<p>Il servizio risponde per la zona locale, ma il client chiede anche nomi esterni.</p>
+<p>Serve un ruolo aggiuntivo: cercare una risposta per conto del client e mantenere una cache.</p>
+<p>Una query esterna può fallire per rotta, firewall, forwarder, DNSSEC, orologio o delega.</p>
+<p>Riavviare il DNS senza distinguere queste cause fa perdere riscontri.</p>
+<h3 id="ponte-windows">Ponte Windows</h3>
+<p>Svuotare la cache di un client non svuota quella del server.</p>
+<p>Identifica il livello prima di chiedere una pulizia o annunciare che il problema è risolto.</p>
+<h2 id="3-modello-mentale">3 · Modello mentale</h2>
+<figure><a href="../img/19.2-autoridade-e-recursao.it.jpg"><img src="../img/19.2-autoridade-e-recursao.it.jpg" alt="Autorità e ricorsione sono ruoli diversi" loading="lazy" decoding="async"></a><figcaption>Rispondere per la propria zona non autorizza la ricorsione per tutti.</figcaption></figure>
+<p>L’autorità conosce la propria zona; il ricorsore cerca risposte di altre zone.</p>
+<p>Lo stesso processo BIND può svolgere entrambi i ruoli con controlli distinti.</p>
+<p>RD è la richiesta di ricorsione inviata dal client.</p>
+<p>RA annuncia la disponibilità della ricorsione; AA caratterizza una risposta autoritativa.</p>
+<p>Questi segnali rispondono a domande diverse.</p>
+<figure><a href="../img/19.2-tempo-de-cache.it.jpg"><img src="../img/19.2-tempo-de-cache.it.jpg" alt="La cache ha una scadenza" loading="lazy" decoding="async"></a><figcaption>Un valore in cache può restare valido dopo una modifica all’origine.</figcaption></figure>
+<p>TTL è il tempo di conservazione di un record nella cache.</p>
+<p>Non misura la latenza, non garantisce aggiornamenti istantanei e non sostituisce il seriale della zona.</p>
+<h3 id="rocky-debian">Rocky × Debian</h3>
+<p>BIND resta nella VM 204 Debian; puoi ripetere le query esplicite dalla VM 201 Rocky.</p>
+<p>Confronta le risposte dello stesso server prima di confrontare i resolver locali delle distribuzioni.</p>
+<h2 id="4-l-essenziale">4 · L'essenziale</h2>
+<div class="tabela"><table><thead><tr><th scope="col">Riscontro</th><th scope="col">Domanda a cui risponde</th></tr></thead><tbody><tr><td>SERVER</td><td>Chi ha ricevuto questa query?</td></tr><tr><td>AA</td><td>La risposta viene da un’autorità per la domanda?</td></tr><tr><td>RA</td><td>Il server annuncia ricorsione disponibile?</td></tr><tr><td>NXDOMAIN</td><td>Il nome interrogato non esiste?</td></tr><tr><td>SERVFAIL</td><td>Il server non è riuscito a concludere?</td></tr><tr><td>timeout</td><td>È arrivata una risposta entro il limite?</td></tr><tr><td>TTL</td><td>Per quanto tempo il record può restare nella cache?</td></tr></tbody></table></div>
+<p>Non copiare un resolver pubblico come forwarder per abitudine.</p>
+<p>Usa solo indirizzi reali autorizzati della gestione e verifica la raggiungibilità dalla VM 204.</p>
+<p>Un forwarder evita query iterative dirette quando la rete limita l’uscita.</p>
+<p>Se fallisce, la politica scelta definisce se esiste un altro tentativo.</p>
+<h3 id="decidi-1">Decidi 1</h3>
+<p>A locale funziona e i nomi esterni danno SERVFAIL.</p>
+<p>Quale verifica restringe meglio il problema?</p>
+<p>A. Cambiare l’indirizzo di gestione della VM 202.</p>
+<p>B. Interrogare direttamente il forwarder reale dalla VM 204.</p>
+<p>C. Disattivare DNSSEC e firewall insieme.</p>
+<h2 id="5-lab-guidato">5 · Lab guidato</h2>
+<h3 id="passo-1-registrare-la-base-e-luscita-autorizzata">Passo 1 · Registrare la base e l’uscita autorizzata</h3>
+<p><strong>Ipotesi:</strong> Il client isolato ha bisogno di un gateway per interrogare la VM 204?</p>
+<p>Sull’host, conserva lo stato iniziale con <code translate="no">qm snapshot 204 m19a2-inicio</code>.</p>
+<p>Nella VM 204, registra interfacce, rotta di gestione e configurazione attuale prima di modificare.</p>
+<pre translate="no"><code class="lang-bash">ip -br address
+ip -4 route
+cat /etc/resolv.conf
+sudo named-checkconf
+dig @192.0.2.204 app.lab.test A +norecurse
+sudo test ! -e /etc/bind/named.conf.options.m19a2-before || exit 1
+sudo cp -a /etc/bind/named.conf.options /etc/bind/named.conf.options.m19a2-before</code></pre>
+<p>Leggi il DNS reale configurato nella gestione.</p>
+<p>Se <code translate="no">resolv.conf</code> mostra uno stub di loopback, identifica il server a monte tramite il gestore effettivamente installato e la documentazione della rete.</p>
+<p>Non usare BIND come forwarder di se stesso.</p>
+<pre translate="no"><code class="lang-bash">read -r -p "IPv4 do DNS real autorizado da gestao: " UPSTREAM_DNS
+python3 - "$UPSTREAM_DNS" &lt;&lt;'PY'
+import ipaddress,sys
+a=ipaddress.IPv4Address(sys.argv[1])
+assert not (a.is_loopback or a.is_unspecified or a.is_multicast)
+assert a not in ipaddress.IPv4Network("192.0.2.0/24")
+PY
+test "$?" -eq 0 || exit 1
+ip -4 route get "$UPSTREAM_DNS"
+dig @"$UPSTREAM_DNS" www.debian.org A +time=3 +tries=1
+dig @"$UPSTREAM_DNS" www.debian.org A +tcp +time=3 +tries=1</code></pre>
+<p><strong>Output atteso:</strong> La VM 204 raggiunge il DNS autorizzato tramite la gestione con UDP e TCP. Il client resta senza gateway sulla scheda isolata.</p>
+<p><strong>Verifica:</strong> Fermati se il DNS autorizzato non risponde. Correggi l’uscita della VM 204 prima di abilitare il servizio ricorsivo.</p>
+<h3 id="passo-2-attivare-la-ricorsione-solo-per-lacl">Passo 2 · Attivare la ricorsione solo per l’ACL</h3>
+<p><strong>Ipotesi:</strong> Limitare chi esegue query richiede anche di limitare l’accesso alla cache?</p>
+<p>Questa variante usa <code translate="no">forward only</code> per rendere esplicita la dipendenza dal forwarder.</p>
+<p>Non ci saranno tentativi iterativi diretti se fallisce.</p>
+<pre translate="no"><code class="lang-bash">[[ "$UPSTREAM_DNS" =~ ^[0-9.]+$ ]] || exit 1
+sudo tee /etc/bind/named.conf.options &gt;/dev/null &lt;&lt;EOF
+acl m19_trusted { 127.0.0.1; 192.0.2.0/24; };
+options {
+    directory "/var/cache/bind";
+    listen-on { 127.0.0.1; 192.0.2.204; };
+    listen-on-v6 { none; };
+    allow-query { m19_trusted; };
+    allow-transfer { none; };
+    recursion yes;
+    allow-recursion { m19_trusted; };
+    allow-query-cache { m19_trusted; };
+    forward only;
+    forwarders { $UPSTREAM_DNS; };
+    dnssec-validation auto;
+};
+EOF
+sudo named-checkconf &amp;&amp; sudo rndc reconfig
+sudo systemctl is-active named
+sudo ss -lntup | grep ":53"
+sudo journalctl -u named -b --no-pager -n 30</code></pre>
+<p>Se la validazione fallisce, ripristina il file precedente e valida prima di ricaricare.</p>
+<p>Non lasciare un tentativo non valido come configurazione di avvio.</p>
+<p><strong>Output atteso:</strong> Autorità locale conservata, ricorsione e cache limitate all’ACL; BIND resta fuori dall’indirizzo di gestione.</p>
+<p><strong>Verifica:</strong> Leggi le tre direttive ACL. Un semplice <code translate="no">recursion yes</code> non è una politica completa per un server accessibile dai client.</p>
+<h3 id="passo-3-distinguere-risposta-locale-ed-esterna">Passo 3 · Distinguere risposta locale ed esterna</h3>
+<p><strong>Ipotesi:</strong> Un nome esterno restituito dal ricorsore deve avere AA?</p>
+<p>Nella VM 202, mantieni il profilo isolato <code translate="no">m19-isolada</code> e usa l’indirizzo esplicito.</p>
+<p>Non modificare resolver globale o profilo di gestione.</p>
+<pre translate="no"><code class="lang-bash">dig @192.0.2.204 app.lab.test A +norecurse
+dig @192.0.2.204 www.debian.org A
+dig @192.0.2.204 lab.test MX +norecurse
+dig @192.0.2.204 -x 192.0.2.204 +norecurse</code></pre>
+<p><strong>Output atteso:</strong> La zona locale conserva AA; una risposta esterna riuscita annuncia la ricorsione disponibile e normalmente non ha AA. Leggi status e sezione SERVER.</p>
+<p><strong>Verifica:</strong> Se compare SERVFAIL, confronta con la query diretta al forwarder nella VM 204. Se compare timeout, controlla prima percorso, socket e firewall.</p>
+<p>Un NXDOMAIN esterno può essere una risposta negativa valida.</p>
+<p>Non trattare ogni risultato senza indirizzo come errore di trasporto.</p>
+<h3 id="passo-4-osservare-la-cache-senza-inventare-tempi">Passo 4 · Osservare la cache senza inventare tempi</h3>
+<p><strong>Ipotesi:</strong> La seconda query sarà sempre più veloce, con TTL esattamente inferiore?</p>
+<pre translate="no"><code class="lang-bash">date -Is
+dig @192.0.2.204 www.debian.org A +noall +answer +stats
+sleep 2
+date -Is
+dig @192.0.2.204 www.debian.org A +noall +answer +stats</code></pre>
+<p>Registra RRset, TTL, server e tempo osservato.</p>
+<p>In una cache stabile il TTL residuo tende a diminuire; prefetch, scadenza, risposte variabili e cache del forwarder possono cambiare l’osservazione.</p>
+<p>Interrogare la propria zona autoritativa non è un esperimento sul TTL della cache ricorsiva.</p>
+<p>Il valore mostrato può essere il TTL originale del record locale.</p>
+<pre translate="no"><code class="lang-bash">sudo rndc flushname www.debian.org
+dig @127.0.0.1 www.debian.org A +noall +answer +stats
+sudo rndc status</code></pre>
+<p>Il comando di pulizia si esegue nella VM 204 e riguarda solo quel nome nel BIND locale.</p>
+<p>Non svuota il forwarder né il client.</p>
+<p><strong>Output atteso:</strong> Ottieni riscontri confrontabili, senza una latenza promessa. La cache a monte può continuare a rispondere dopo la pulizia locale.</p>
+<p><strong>Verifica:</strong> Annota esplicitamente ciò che la verifica non dimostra: non dimostra che tutti i livelli siano stati svuotati.</p>
+<h3 id="passo-5-seguire-le-deleghe-sul-percorso-corretto">Passo 5 · Seguire le deleghe sul percorso corretto</h3>
+<p><strong>Ipotesi:</strong> <code translate="no">+trace</code> usa necessariamente lo stesso percorso del forwarder configurato in BIND?</p>
+<figure><a href="../img/19.2-caminho-da-pergunta.it.jpg"><img src="../img/19.2-caminho-da-pergunta.it.jpg" alt="Segui il percorso della domanda" loading="lazy" decoding="async"></a><figcaption>Confronta server interrogato, tipo di risposta e percorso prima di correggere.</figcaption></figure>
+<pre translate="no"><code class="lang-bash">dig +trace debian.org A
+dig @192.0.2.204 debian.org A
+ip -4 route
+timedatectl status</code></pre>
+<p>Esegui il trace nella VM 204, la cui gestione ha l’uscita autorizzata.</p>
+<p>Esegue query iterative proprie dopo la scoperta iniziale; non riproduce la catena di inoltro del servizio.</p>
+<p>Una rete che consente DNS solo al forwarder può bloccare il trace e consentire comunque il ricorsore configurato.</p>
+<p>Registra questo limite invece di cambiare firewall per ottenere un bel disegno.</p>
+<p>Confronta delega, server interrogato e risultato finale.</p>
+<p>Per SERVFAIL con DNSSEC, esamina anche ora e log; non disattivare la validazione senza riscontri della causa.</p>
+<p><strong>Output atteso:</strong> Trace e query ricorsiva sono esperimenti diversi; uno può funzionare quando l’altro è bloccato dalla politica di uscita.</p>
+<p><strong>Verifica:</strong> Disegna i due percorsi e identifica quale processo apre le query esterne in ciascun caso.</p>
+<h3 id="decidi-2">Decidi 2</h3>
+<p>Il trace fallisce, ma la query tramite BIND e forwarder funziona.</p>
+<p>Quale conclusione è giustificata?</p>
+<p>A. I percorsi hanno permessi diversi; non c’è ancora prova di un guasto BIND.</p>
+<p>B. Il client deve ricevere il gateway della VM 204.</p>
+<p>C. Tutto il DNS esterno è guasto.</p>
+<h3 id="passo-6-verificare-limiti-e-persistenza">Passo 6 · Verificare limiti e persistenza</h3>
+<p><strong>Ipotesi:</strong> La ricorsione per il lab richiede ascolto sull’indirizzo di gestione?</p>
+<p>Nella VM 204 leggi configurazione effettiva e socket.</p>
+<p>Non esporre temporaneamente il servizio sulla gestione per produrre una verifica negativa.</p>
+<pre translate="no"><code class="lang-bash">sudo named-checkconf -p | grep -A 6 -E "allow-query|allow-recursion|allow-query-cache|listen-on"
+sudo ss -lntup | grep ":53"
+sudo sysctl net.ipv4.ip_forward
+ip -4 route</code></pre>
+<p>La VM 204 deve restare senza inoltro di pacchetti fra schede.</p>
+<p>La ricorsione DNS è una conversazione del processo server, non NAT del traffico dei client.</p>
+<p><strong>Reboot di verifica:</strong> Con console disponibile, riavvia solo 204. Riapri la gestione e ripeti A locale, nome esterno e socket.</p>
+<pre translate="no"><code class="lang-bash">sudo systemctl reboot</code></pre>
+<p>Dopo l’avvio nella VM 204 e la query esterna nella VM 202:</p>
+<pre translate="no"><code class="lang-bash">sudo systemctl is-active named
+dig @192.0.2.204 app.lab.test A +norecurse
+dig @192.0.2.204 www.debian.org A</code></pre>
+<p><strong>Output atteso:</strong> Entrambi i ruoli persistono, con ambito limitato. Il percorso reale della gestione resta documentato nel diario.</p>
+<p><strong>Verifica:</strong> Sull’host, esegui <code translate="no">qm snapshot 204 m19a2-fim</code> dopo le verifiche. Conserva la configurazione per DHCP, posta e web.</p>
+<h2 id="6-rompi-e-ripara">6 · Rompi e ripara</h2>
+<h3 id="guasto-1-forwarder-irraggiungibile">Guasto 1 · Forwarder irraggiungibile</h3>
+<p><strong>Sintomo:</strong> A locale risponde; la query esterna fallisce.</p>
+<p><strong>Indagine:</strong> Nella VM 204 confronta <code translate="no">ip -4 route</code> e query dirette al forwarder con UDP e TCP.</p>
+<p><strong>Causa:</strong> L’uscita autorizzata o il DNS a monte fallisce; <code translate="no">forward only</code> non tenta un altro percorso di risoluzione.</p>
+<p><strong>Riparazione:</strong> Ripristina la connettività autorizzata; conserva ACL e validazione.</p>
+<p><strong>Verifica:</strong> Verifica prima il forwarder, poi BIND, infine il client.</p>
+<p><strong>Prevenzione:</strong> Registra quale dipendenza esiste fuori dalla zona locale.</p>
+<h3 id="guasto-2-client-che-interroga-un-altro-dns">Guasto 2 · Client che interroga un altro DNS</h3>
+<p><strong>Sintomo:</strong> Il browser fallisce, ma <code translate="no">dig @192.0.2.204 app.lab.test A</code> funziona.</p>
+<p><strong>Indagine:</strong> Confronta server esplicito, risoluzione di sistema ed eventuali impostazioni proprie dell’applicazione.</p>
+<p><strong>Causa:</strong> L’applicazione o il sistema usa un altro percorso di risoluzione.</p>
+<p><strong>Riparazione:</strong> Correggi solo il livello identificato con una modifica autorizzata; non cambiare la gestione nell’esercizio.</p>
+<p><strong>Verifica:</strong> Ripeti esattamente la query che falliva, sullo stesso percorso.</p>
+<p><strong>Prevenzione:</strong> Annota sempre server e strumento usati.</p>
+<h3 id="guasto-3-cache-che-non-segue-la-modifica">Guasto 3 · Cache che non segue la modifica</h3>
+<p><strong>Sintomo:</strong> Un altro resolver restituisce ancora il valore precedente dopo la modifica dell’autorità.</p>
+<p><strong>Indagine:</strong> Confronta autorità, seriale, TTL residuo e server che conserva la risposta.</p>
+<p><strong>Causa:</strong> Una copia valida resta nella cache fino alla scadenza, oppure esiste un altro livello.</p>
+<p><strong>Riparazione:</strong> Conferma l’origine e attendi il TTL osservato; svuota solo la cache autorizzata e identificata.</p>
+<p><strong>Verifica:</strong> La query successiva converge verso l’origine senza interrompere la gestione.</p>
+<p><strong>Prevenzione:</strong> Pianifica TTL prima delle migrazioni e conserva riscontri della versione precedente.</p>
+<h2 id="7-trappole">7 · Trappole</h2>
+<p>Prima di accusare il servizio, verifica VM, interfaccia e rete.</p>
+<p>Una risposta corretta di un altro server resta la verifica sbagliata.</p>
+<p>Un file accettato dal validatore non dimostra che il processo lo abbia caricato.</p>
+<p>Controlla anche stato, socket e risposta del client.</p>
+<p>Gli indirizzi di documentazione usati qui appartengono solo al segmento segregato.</p>
+<p>Se si sovrappongono a gestione, VPN o rotte esistenti, fermati.</p>
+<h2 id="8-quiz">8 · Quiz</h2>
+<ol><li>AA e RA dimostrano la stessa cosa?</li>
+<li>Qual è la differenza fra SERVFAIL e timeout?</li>
+<li>Svuotare BIND svuota il forwarder?</li>
+<li>Perché il trace può fallire quando la ricorsione funziona?</li>
+<li>Che cosa impedisce la ricorsione aperta in questo lab?</li></ol>
+<p>Rispondi prima di aprire le soluzioni.</p>
+<p>Per ogni risposta, indica un’osservazione capace di smentirla.</p>
+<h2 id="9-promemoria">9 · Promemoria</h2>
+<pre translate="no"><code class="lang-bash">dig @192.0.2.204 app.lab.test A +norecurse
+dig @192.0.2.204 www.debian.org A
+sudo rndc status
+sudo journalctl -u named -b --no-pager -n 30</code></pre>
+<p><strong>Flashcard:</strong> Qual è l’oggetto? Chi risponde? Quale osservazione distingue configurazione e risultato?</p>
+<p><code translate="no">!explica</code></p>
+<p><code translate="no">!feynman</code></p>
+<p><code translate="no">!quiz</code></p>
+<h2 id="10-checklist-e-chiusura">10 · Checklist e chiusura</h2>
+<ul><li>[ ] Autorità e ricorsione distinte tramite query e flag.</li>
+<li>[ ] Forwarder reale autorizzato registrato e verificato.</li>
+<li>[ ] Nessun socket DNS sulla gestione, NAT o gateway isolato.</li>
+<li>[ ] TTL osservato con limiti documentati.</li>
+<li>[ ] Il reboot ha conservato configurazione e risposte.</li></ul>
+<p><strong>Ultimo esercizio:</strong> Rifai il disegno iniziale usando solo riscontri registrati nel lab. Segna ciò che non hai ancora dimostrato.</p>
+<p>Lo snapshot finale registra una fase coerente; non sostituisce il backup indipendente.</p>
+<p>Non eliminare la VM 204 né la rete isolata: servono alle prossime lezioni.</p>
+<h2 id="11-nella-vita-reale">11 · Nella vita reale</h2>
+<p>Missione di sola lettura: in un ambiente autorizzato, identifica server interrogato, interfaccia usata e responsabile della configurazione.</p>
+<p>Non modificare profili, porte, lease o zone.</p>
+<p>Consegna tre riscontri con ora e contesto, un’ipotesi e un limite.</p>
+<p>Rimuovi i dati privati prima di condividere il rapporto.</p>
+<h2 id="12-approfondire-quando-vuoi">12 · Approfondire quando vuoi</h2>
+<p><a href="https://bind9.readthedocs.io/en/stable/reference.html">BIND: opzioni, ACL e inoltro</a></p>
+<p><a href="https://bind9.readthedocs.io/en/stable/manpages.html">BIND: dig e strumenti diagnostici</a></p>
+<p>Usa la documentazione della versione installata.</p>
+<p>Controlla il manuale locale prima di adattare un’opzione di un’altra versione.</p>
+<h2 id="soluzioni-commentate">Soluzioni commentate</h2>
+<p>Riscaldamento: AA indica autorità; RA annuncia ricorsione.</p>
+<p>TTL può conservare una risposta precedente.</p>
+<p>Senza registrare il server manca contesto alla diagnosi.</p>
+<p>Decidi 1: B.</p>
+<p>La query diretta distingue dipendenza esterna e BIND.</p>
+<p>Decidi 2: A.</p>
+<p>Trace e inoltro aprono conversazioni diverse, soggette a politiche diverse.</p>
+<p>Quiz 1: no; autorità e ricorsione sono proprietà distinte.</p>
+<p>Quiz 2: SERVFAIL è una risposta di errore; timeout indica assenza di risposta entro il limite.</p>
+<p>Quiz 3: no; le cache sono indipendenti.</p>
+<p>Quiz 4: trace può interrogare direttamente autorità bloccate dall’uscita consentita solo al forwarder.</p>
+<p>Quiz 5: ACL di query, ricorsione e cache; socket limitati; segmentazione e politica firewall coerenti.</p>
+<p><a href="19.1-dns-autoritativo.it.html">← Lezione 19.1</a> · <a href="index.it.html">Indice delle lezioni</a> · <a href="https://github.com/Rodrigoantignani/curso-linux-sysadmin/blob/master/00-plano-do-curso.md">Piano del corso</a></p>
+</article><nav class="paginas" aria-label="Lezioni"><a class="ant" href="19.1-dns-autoritativo.it.html"><small>← Precedente</small>19.1 · DNS autoritativo</a><a class="prox" href="19.3-dhcp.it.html"><small>Successiva →</small>19.3 · DHCP</a></nav></main></div>
+<footer><div class="wrap">Generato dal Markdown del corso · Immagini in <code translate="no">img/</code></div></footer>
+</body>
+</html>

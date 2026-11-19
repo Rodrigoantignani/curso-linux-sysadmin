@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light dark">
+<title>18.3 · Container come servizio · Corso Linux Sysadmin</title>
+<link rel="alternate" hreflang="pt-BR" href="18.3-conteiner-como-servico.html"><link rel="alternate" hreflang="it" href="18.3-conteiner-como-servico.it.html">
+<style>
+:root{color-scheme:light dark;--bg:#f6f1e7;--card:#fffdf8;--ink:#201c16;--muted:#5e564a;--accent:#9a3412;--accent-2:#1f5f4a;--tint:#efe6d4;--line:#ddd2bc;--code:#f1eadb;--shadow:0 1px 2px rgba(60,40,10,.08);--serif:Georgia,"Iowan Old Style","Palatino Linotype",Palatino,serif;--sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--mono:"Cascadia Code",Consolas,"DejaVu Sans Mono",monospace}
+@media (prefers-color-scheme:dark){:root{--bg:#16130f;--card:#201b15;--ink:#f1eadb;--muted:#b9ad98;--accent:#f0a070;--accent-2:#7fd0b0;--tint:#2a231a;--line:#3d3427;--code:#191510;--shadow:none}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:5.5rem}
+body{margin:0;background:var(--bg);color:var(--ink);font:1rem/1.6 var(--sans)}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--accent-2);outline-offset:2px;border-radius:4px}
+.pular{position:absolute;left:-999px;top:0;background:var(--card);padding:.5rem 1rem;z-index:20}
+.pular:focus{left:.5rem;top:.5rem}
+.wrap{width:100%;max-width:84rem;margin:0 auto;padding-inline:max(1rem,env(safe-area-inset-left))}
+.top{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10;border-top:6px solid var(--accent)}
+.top-in{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding-block:.6rem}
+.titles{min-width:0}
+.marca{margin:0;font:700 clamp(1.15rem,1rem + 1vw,1.6rem)/1.15 var(--serif);letter-spacing:-.01em}
+.marca a{text-decoration:none}
+.marca a:hover{color:var(--accent)}
+.meta{margin:.1rem 0 0;color:var(--muted);font-size:.85rem}
+.acoes{display:flex;align-items:center;gap:.9rem;flex:none}
+.acoes>a{font-size:.9rem;font-weight:600;color:var(--muted);text-decoration:none}
+.acoes>a:hover{color:var(--accent);text-decoration:underline}
+.idioma{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--tint)}
+.idioma>*{padding:.35rem .9rem;font-size:.8rem;font-weight:700;letter-spacing:.06em;text-decoration:none;color:var(--muted);min-width:2.75rem;text-align:center}
+.idioma a:hover{color:var(--accent);text-decoration:underline}
+.idioma span{background:var(--accent);color:#fff}
+@media (prefers-color-scheme:dark){.idioma span{color:#16130f}}
+code{font-family:var(--mono);font-size:.9em;background:var(--tint);padding:.1rem .35rem;border-radius:4px;overflow-wrap:anywhere}
+/* índice */
+.capa{max-width:70rem;padding-block:2rem 3rem}
+.stats{border-left:4px solid var(--accent-2);background:var(--card);border-radius:0 10px 10px 0;padding:1rem 1.25rem;margin:0 0 2.5rem;box-shadow:var(--shadow);color:var(--muted)}
+.stats strong{color:var(--ink)}
+.modulo{display:grid;grid-template-columns:15rem minmax(0,1fr);gap:1rem 2rem;padding:1.75rem 0;border-top:1px solid var(--line)}
+.modulo h2{margin:0;font:700 1.25rem/1.25 var(--serif);align-self:start;position:sticky;top:6rem}
+.mn{display:block;font:700 .8rem var(--mono);letter-spacing:.12em;color:var(--accent);margin-bottom:.25rem}
+.sep{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.modulo ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,17rem),1fr));gap:.75rem}
+.modulo li{margin:0}
+.modulo a{display:flex;gap:.45rem;align-items:baseline;height:100%;padding:.85rem 1rem;background:var(--card);border:1px solid var(--line);border-radius:10px;text-decoration:none;font-weight:600;line-height:1.35;box-shadow:var(--shadow);transition:border-color .15s,transform .15s}
+.modulo a:hover{border-color:var(--accent);color:var(--accent)}
+.num{font:700 .85rem var(--mono);color:var(--accent);white-space:nowrap}
+/* aula */
+.doc{display:grid;grid-template-columns:17rem minmax(0,1fr);gap:2.5rem;align-items:start;padding-block:2rem 3rem}
+.lateral{position:sticky;top:5.5rem;max-height:calc(100vh - 6.5rem);overflow:auto;font-size:.875rem;padding-right:.5rem}
+.lateral h2{margin:0 0 .25rem;font:700 .95rem var(--serif);color:var(--muted)}
+.lateral h3{margin:1rem 0 .25rem;font:700 .75rem var(--mono);letter-spacing:.06em;color:var(--accent)}
+.lateral ul{list-style:none;margin:0;padding:0}
+.lateral a{display:flex;gap:.45rem;padding:.25rem .5rem;border-radius:6px;text-decoration:none;color:var(--muted);line-height:1.3}
+.lateral a:hover{background:var(--tint);color:var(--ink)}
+.lateral a[aria-current]{background:var(--tint);color:var(--ink);font-weight:700;box-shadow:inset 3px 0 0 var(--accent)}
+.lateral .num{font-size:.75rem}
+.aula{min-width:0;max-width:56rem;overflow-wrap:break-word;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:clamp(1.25rem,1rem + 2vw,2.75rem);box-shadow:var(--shadow)}
+.aula h1{margin:0 0 1.5rem;font:700 clamp(1.75rem,1.4rem + 1.6vw,2.5rem)/1.15 var(--serif);letter-spacing:-.015em;color:var(--ink)}
+.aula h2{margin:2.5rem 0 .75rem;padding-top:1.25rem;border-top:1px solid var(--line);font:700 1.5rem/1.25 var(--serif)}
+.aula h3{margin:2rem 0 .5rem;font:700 1.15rem/1.3 var(--serif);color:var(--accent)}
+.aula h4,.aula h5,.aula h6{margin:1.5rem 0 .5rem;font-size:1rem}
+.aula p,.aula ul,.aula ol{margin:1rem 0}
+.aula ul,.aula ol{padding-left:1.5rem}
+.aula li{margin:.35rem 0}
+.aula li>ul,.aula li>ol{margin:.35rem 0}
+.aula a{color:var(--accent);text-underline-offset:2px}
+.aula hr{border:0;border-top:1px solid var(--line);margin:2rem 0}
+.tabela{overflow-x:auto;margin:1.25rem 0;border:1px solid var(--line);border-radius:10px}
+.aula table{width:100%;border-collapse:collapse;font-size:.9rem}
+.aula th,.aula td{padding:.55rem .75rem;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+.aula tr:last-child td{border-bottom:0}
+.aula th{background:var(--tint);font-weight:700}
+.aula pre{background:var(--code);border:1px solid var(--line);border-radius:10px;padding:.9rem 1rem;overflow-x:auto;font:.85rem/1.5 var(--mono);margin:1rem 0;tab-size:4}
+.aula pre code{background:none;padding:0;font-size:inherit;overflow-wrap:normal}
+.aula blockquote{margin:1.25rem 0;padding:.75rem 1.25rem;border-left:4px solid var(--accent-2);background:var(--tint);border-radius:0 10px 10px 0}
+.aula blockquote>:first-child{margin-top:0}
+.aula blockquote>:last-child{margin-bottom:0}
+.aula figure{margin:1.75rem 0;text-align:center}
+.aula figure img{display:block;margin:0 auto;max-width:100%;height:auto;border:1px solid var(--line);border-radius:10px;background:#fff}
+.aula figcaption{margin-top:.5rem;color:var(--muted);font-size:.9rem;font-style:italic}
+.paginas{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:2.5rem;padding-top:1.5rem;border-top:1px solid var(--line)}
+.paginas a{display:block;padding:.75rem 1rem;border:1px solid var(--line);border-radius:10px;text-decoration:none;color:var(--ink);font-weight:600;line-height:1.3}
+.paginas a:hover{border-color:var(--accent);color:var(--accent)}
+.paginas small{display:block;color:var(--muted);font-weight:400}
+.paginas .prox{grid-column:2;text-align:right}
+footer{border-top:1px solid var(--line);padding-block:1.5rem;color:var(--muted);font-size:.85rem;text-align:center}
+@media (hover:hover) and (prefers-reduced-motion:no-preference){.modulo a:hover{transform:translateY(-2px)}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+@media (max-width:980px){.doc{grid-template-columns:minmax(0,1fr);padding-top:1rem}.lateral{position:static;max-height:none;order:2}.aula{max-width:none}}
+@media (max-width:860px){.modulo{grid-template-columns:minmax(0,1fr)}.modulo h2{position:static}.mn{display:inline;margin-right:.5rem}}
+@media (max-width:420px){.meta{display:none}.top-in{gap:.5rem}.acoes{gap:.6rem}.capa{padding-top:1.25rem}.paginas{grid-template-columns:minmax(0,1fr)}.paginas .prox{grid-column:1}}
+@media print{.top,.lateral,.paginas{display:none}.aula{border:0;box-shadow:none;padding:0;max-width:none}.doc{display:block}}
+</style>
+</head>
+<body>
+<a class="pular" href="#conteudo">Vai al contenuto</a>
+<header class="top"><div class="wrap top-in"><div class="titles"><p class="marca"><a href="index.it.html">Corso Linux Sysadmin</a></p><p class="meta">Rodrigo Antignani · Lezione 18.3</p></div><div class="acoes"><a href="index.it.html">Indice</a><div class="idioma" role="group" aria-label="Lingua"><a href="18.3-conteiner-como-servico.html" hreflang="pt-BR" lang="pt-BR">PT</a><span aria-current="true">IT</span></div></div></div></header>
+<div class="wrap doc"><aside class="lateral" aria-label="Lezioni"><h2>Lezioni</h2><h3>M0 · Laboratorio</h3><ul><li><a href="0.1-montar-o-laboratorio.it.html"><span class="num">0.1</span><span>Allestire il laboratorio</span></a></li><li><a href="0.2-acesso-e-protecao.it.html"><span class="num">0.2</span><span>Accesso e protezione</span></a></li></ul><h3>M1 · Riga di comando</h3><ul><li><a href="1.1-o-que-e-linux.it.html"><span class="num">1.1</span><span>Che cos'è Linux</span></a></li><li><a href="1.2-o-shell-e-a-ajuda.it.html"><span class="num">1.2</span><span>La shell e la guida</span></a></li><li><a href="1.3-caminhos-e-navegacao.it.html"><span class="num">1.3</span><span>Percorsi e navigazione</span></a></li><li><a href="1.4-criar-copiar-mover-e-apagar.it.html"><span class="num">1.4</span><span>Creare, copiare, spostare ed eliminare</span></a></li><li><a href="1.5-ler-e-procurar-texto.it.html"><span class="num">1.5</span><span>Leggere e cercare testo</span></a></li><li><a href="1.6-redirecionamentos-e-pipes.it.html"><span class="num">1.6</span><span>Reindirizzamenti e pipe</span></a></li><li><a href="1.7-arquivar-e-compactar.it.html"><span class="num">1.7</span><span>Archiviare e comprimere</span></a></li><li><a href="1.8-primeiro-script.it.html"><span class="num">1.8</span><span>Primo script</span></a></li><li><a href="1.9-decidir-e-repetir.it.html"><span class="num">1.9</span><span>Decidere e ripetere</span></a></li><li><a href="1.10-software-livre-na-pratica.it.html"><span class="num">1.10</span><span>Il software libero in pratica</span></a></li></ul><h3>M2 · Sistema, utenti e permessi</h3><ul><li><a href="2.1-instalacao-e-provisionamento.it.html"><span class="num">2.1</span><span>Installazione e provisioning</span></a></li><li><a href="2.2-hardware-e-dispositivos.it.html"><span class="num">2.2</span><span>Hardware e dispositivi</span></a></li><li><a href="2.3-processos-e-logs.it.html"><span class="num">2.3</span><span>Processi e log</span></a></li><li><a href="2.4-rede-no-dia-a-dia.it.html"><span class="num">2.4</span><span>La rete di tutti i giorni</span></a></li><li><a href="2.5-acesso-remoto-e-privilegios.it.html"><span class="num">2.5</span><span>Accesso remoto e privilegi</span></a></li><li><a href="2.6-usuarios-e-grupos.it.html"><span class="num">2.6</span><span>Utenti e gruppi</span></a></li><li><a href="2.7-permissoes-e-dono.it.html"><span class="num">2.7</span><span>Permessi e proprietario</span></a></li><li><a href="2.8-diretorios-e-arquivos-especiais.it.html"><span class="num">2.8</span><span>Directory e file speciali</span></a></li></ul><h3>M3 · Testo ed editor</h3><ul><li><a href="3.1-fluxos-a-fundo.it.html"><span class="num">3.1</span><span>I flussi in profondità</span></a></li><li><a href="3.2-filtros-de-texto.it.html"><span class="num">3.2</span><span>Filtri di testo</span></a></li><li><a href="3.3-regex-e-grep.it.html"><span class="num">3.3</span><span>Regex e grep</span></a></li><li><a href="3.4-sed-e-awk.it.html"><span class="num">3.4</span><span>sed e awk</span></a></li><li><a href="3.5-vi-e-vim-de-verdade.it.html"><span class="num">3.5</span><span>vi e vim sul serio</span></a></li></ul><h3>M4 · systemd e boot</h3><ul><li><a href="4.1-como-o-linux-liga.it.html"><span class="num">4.1</span><span>Come si avvia Linux</span></a></li><li><a href="4.2-systemd-servicos-e-units.it.html"><span class="num">4.2</span><span>systemd: servizi e unit</span></a></li><li><a href="4.3-targets-desligar-e-reiniciar.it.html"><span class="num">4.3</span><span>Target: spegnere e riavviare</span></a></li><li><a href="4.4-grub-e-acesso-de-emergencia.it.html"><span class="num">4.4</span><span>GRUB e accesso di emergenza</span></a></li></ul><h3>M5 · Kernel, moduli e VM</h3><ul><li><a href="5.1-hardware-pelo-kernel.it.html"><span class="num">5.1</span><span>L'hardware visto dal kernel</span></a></li><li><a href="5.2-modulos-e-parametros.it.html"><span class="num">5.2</span><span>Moduli e parametri</span></a></li><li><a href="5.3-linux-como-convidado.it.html"><span class="num">5.3</span><span>Linux come guest</span></a></li></ul><h3>M6 · Pacchetti e repository</h3><ul><li><a href="6.1-pacotes-no-debian.it.html"><span class="num">6.1</span><span>Pacchetti su Debian</span></a></li><li><a href="6.2-pacotes-na-rocky.it.html"><span class="num">6.2</span><span>Pacchetti su Rocky</span></a></li><li><a href="6.3-repositorios.it.html"><span class="num">6.3</span><span>Repository</span></a></li><li><a href="6.4-flatpak.it.html"><span class="num">6.4</span><span>Flatpak</span></a></li><li><a href="6.5-bibliotecas-compartilhadas.it.html"><span class="num">6.5</span><span>Librerie condivise</span></a></li></ul><h3>M7 · Processi e prestazioni</h3><ul><li><a href="7.1-processos-e-sinais.it.html"><span class="num">7.1</span><span>Processi e segnali</span></a></li><li><a href="7.2-jobs-e-sessoes.it.html"><span class="num">7.2</span><span>Job e sessioni</span></a></li><li><a href="7.3-prioridade-e-perfis.it.html"><span class="num">7.3</span><span>Priorità e profili</span></a></li></ul><h3>M8 · File a fondo</h3><ul><li><a href="8.1-fhs-e-onde-cada-coisa-mora.it.html"><span class="num">8.1</span><span>FHS e dove sta ogni cosa</span></a></li><li><a href="8.2-find-a-fundo.it.html"><span class="num">8.2</span><span>find a fondo</span></a></li><li><a href="8.3-arquivamento-avancado.it.html"><span class="num">8.3</span><span>Archiviazione avanzata</span></a></li><li><a href="8.4-links.it.html"><span class="num">8.4</span><span>Link</span></a></li><li><a href="8.5-permissoes-avancadas.it.html"><span class="num">8.5</span><span>Permessi avanzati</span></a></li></ul><h3>M9 · Storage</h3><ul><li><a href="9.1-discos-e-layout.it.html"><span class="num">9.1</span><span>Dischi e layout</span></a></li><li><a href="9.2-particionar.it.html"><span class="num">9.2</span><span>Partizionare</span></a></li><li><a href="9.3-sistemas-de-arquivos.it.html"><span class="num">9.3</span><span>File system</span></a></li><li><a href="9.4-montar-e-persistir.it.html"><span class="num">9.4</span><span>Montare e rendere persistente</span></a></li><li><a href="9.5-integridade-e-espaco.it.html"><span class="num">9.5</span><span>Integrità e spazio</span></a></li><li><a href="9.6-lvm.it.html"><span class="num">9.6</span><span>LVM</span></a></li><li><a href="9.7-crescer-sem-destruir.it.html"><span class="num">9.7</span><span>Crescere senza distruggere</span></a></li></ul><h3>M10 · Utenti e accesso privilegiato</h3><ul><li><a href="10.1-contas.it.html"><span class="num">10.1</span><span>Account</span></a></li><li><a href="10.2-senhas-e-validade.it.html"><span class="num">10.2</span><span>Password e scadenza</span></a></li><li><a href="10.3-grupos-e-trabalho-em-equipe.it.html"><span class="num">10.3</span><span>Gruppi e lavoro di squadra</span></a></li><li><a href="10.4-sudo-de-verdade.it.html"><span class="num">10.4</span><span>sudo sul serio</span></a></li></ul><h3>M11 · Rete</h3><ul><li><a href="11.1-tcp-ip-para-quem-administra.it.html"><span class="num">11.1</span><span>TCP/IP per chi amministra</span></a></li><li><a href="11.2-networkmanager-e-nmcli.it.html"><span class="num">11.2</span><span>NetworkManager e nmcli</span></a></li><li><a href="11.3-rede-no-debian.it.html"><span class="num">11.3</span><span>Rete su Debian</span></a></li><li><a href="11.4-nomes-e-resolucao.it.html"><span class="num">11.4</span><span>Nomi e risoluzione</span></a></li><li><a href="11.5-diagnostico-de-rede.it.html"><span class="num">11.5</span><span>Diagnosi di rete</span></a></li></ul><h3>M12 · Sicurezza dell'host</h3><ul><li><a href="12.1-ssh-a-fundo.it.html"><span class="num">12.1</span><span>SSH in dettaglio</span></a></li><li><a href="12.2-firewall.it.html"><span class="num">12.2</span><span>Firewall</span></a></li><li><a href="12.3-selinux-modos-e-contextos.it.html"><span class="num">12.3</span><span>SELinux: modalità e contesti</span></a></li><li><a href="12.4-selinux-portas-e-booleanos.it.html"><span class="num">12.4</span><span>SELinux: porte e booleani</span></a></li><li><a href="12.5-auditoria-e-criptografia.it.html"><span class="num">12.5</span><span>Audit e crittografia</span></a></li></ul><h3>M13 · Archiviazione in rete</h3><ul><li><a href="13.1-servidor-nfs.it.html"><span class="num">13.1</span><span>Server NFS</span></a></li><li><a href="13.2-cliente-nfs.it.html"><span class="num">13.2</span><span>Client NFS</span></a></li><li><a href="13.3-autofs.it.html"><span class="num">13.3</span><span>autofs</span></a></li></ul><h3>M14 · Pianificazione</h3><ul><li><a href="14.1-cron-e-at.it.html"><span class="num">14.1</span><span>cron e at</span></a></li><li><a href="14.2-timers-do-systemd.it.html"><span class="num">14.2</span><span>Timer di systemd</span></a></li><li><a href="14.3-journald-e-rsyslog.it.html"><span class="num">14.3</span><span>journald e rsyslog</span></a></li><li><a href="14.4-hora-certa.it.html"><span class="num">14.4</span><span>L'ora corretta</span></a></li><li><a href="14.5-email-local-e-impressao.it.html"><span class="num">14.5</span><span>E-mail locale e stampa</span></a></li></ul><h3>M15 · Shell e ambiente</h3><ul><li><a href="15.1-ambiente-do-shell.it.html"><span class="num">15.1</span><span>Ambiente della shell</span></a></li><li><a href="15.2-scripts-robustos.it.html"><span class="num">15.2</span><span>Script robusti</span></a></li><li><a href="15.3-scripts-de-administracao.it.html"><span class="num">15.3</span><span>Script di amministrazione</span></a></li><li><a href="15.4-interfaces-graficas.it.html"><span class="num">15.4</span><span>Interfacce grafiche</span></a></li><li><a href="15.5-idioma-teclado-e-fuso.it.html"><span class="num">15.5</span><span>Lingua, tastiera e fuso orario</span></a></li></ul><h3>M16 · Settimana di incidenti su Rocky 10</h3><ul><li><a href="16.1-rocky-10-o-que-muda.it.html"><span class="num">16.1</span><span>Rocky 10: cosa cambia</span></a></li><li><a href="16.2-incidentes-por-area.it.html"><span class="num">16.2</span><span>Incidenti per area</span></a></li><li><a href="16.3-incidente-com-relogio.it.html"><span class="num">16.3</span><span>Incidente con cronometro</span></a></li><li><a href="16.4-correcao-e-reforco.it.html"><span class="num">16.4</span><span>Correzione e rinforzo</span></a></li></ul><h3>M17 · Proxmox in pratica</h3><ul><li><a href="17.1-proxmox-por-dentro.it.html"><span class="num">17.1</span><span>Proxmox dall'interno</span></a></li><li><a href="17.2-vm-pela-linha-de-comando.it.html"><span class="num">17.2</span><span>VM dalla riga di comando</span></a></li><li><a href="17.3-conteiner-lxc.it.html"><span class="num">17.3</span><span>Container LXC</span></a></li><li><a href="17.4-storage.it.html"><span class="num">17.4</span><span>Storage: capacità, ampliamento e spostamento</span></a></li><li><a href="17.5-rede.it.html"><span class="num">17.5</span><span>Rete: bridge, VLAN, bond e SDN</span></a></li><li><a href="17.6-backup-e-restauracao.it.html"><span class="num">17.6</span><span>Backup e ripristino con PBS</span></a></li><li><a href="17.7-migracao-e-quorum.it.html"><span class="num">17.7</span><span>Migrazione e quorum</span></a></li></ul><h3>M18 · Podman</h3><ul><li><a href="18.1-conteiner-nao-e-vm.it.html"><span class="num">18.1</span><span>Un container non è una VM</span></a></li><li><a href="18.2-rodar-e-persistir.it.html"><span class="num">18.2</span><span>Eseguire e conservare i dati</span></a></li><li><a href="18.3-conteiner-como-servico.it.html" aria-current="page"><span class="num">18.3</span><span>Container come servizio</span></a></li><li><a href="18.4-diagnosticar-conteiner-rootless.it.html"><span class="num">18.4</span><span>Diagnosticare un container rootless</span></a></li><li><a href="18.5-construir-imagens.it.html"><span class="num">18.5</span><span>Costruire immagini</span></a></li></ul><h3>M19 · Servizi di rete</h3><ul><li><a href="19.1-dns-autoritativo.it.html"><span class="num">19.1</span><span>DNS autoritativo</span></a></li><li><a href="19.2-dns-recursivo-e-diagnostico.it.html"><span class="num">19.2</span><span>DNS ricorsivo e diagnosi</span></a></li><li><a href="19.3-dhcp.it.html"><span class="num">19.3</span><span>DHCP</span></a></li><li><a href="19.4-servidor-web.it.html"><span class="num">19.4</span><span>Server web: nome, file e risposta</span></a></li><li><a href="19.5-tls-e-proxy-reverso.it.html"><span class="num">19.5</span><span>TLS e reverse proxy: identità prima del lucchetto</span></a></li><li><a href="19.6-samba-a-ponte-windows.it.html"><span class="num">19.6</span><span>Samba: il ponte con il client Windows</span></a></li><li><a href="19.7-postfix-e-correio-local.it.html"><span class="num">19.7</span><span>Postfix e posta locale</span></a></li><li><a href="19.8-dovecot-e-imaps.it.html"><span class="num">19.8</span><span>Dovecot e lettura tramite IMAPS</span></a></li><li><a href="19.9-squid-e-desafio-integrado.it.html"><span class="num">19.9</span><span>Squid e sfida integrata</span></a></li></ul><h3>M20 · Dentro NethServer 8</h3><ul><li><a href="20.1-instalar-nethserver-8.it.html"><span class="num">20.1</span><span>Installare in una VM pulita</span></a></li><li><a href="20.2-cluster-no-e-modulo.it.html"><span class="num">20.2</span><span>Cluster, nodo e modulo</span></a></li><li><a href="20.3-modulo-por-dentro.it.html"><span class="num">20.3</span><span>Dentro un modulo</span></a></li><li><a href="20.4-proxy-e-certificados.it.html"><span class="num">20.4</span><span>Proxy e certificati</span></a></li><li><a href="20.5-dominios-de-usuario.it.html"><span class="num">20.5</span><span>Domini utente: identità con confini</span></a></li><li><a href="20.6-backup-e-restauracao.it.html"><span class="num">20.6</span><span>Backup e ripristino: verificare il ritorno</span></a></li><li><a href="20.7-atualizar-mover-e-falhar.it.html"><span class="num">20.7</span><span>Aggiornare, spostare e guastare con verifica</span></a></li></ul></aside><main id="conteudo" class="aula"><article><h1>Lezione 18.3 · Container come servizio</h1>
+<blockquote><p><strong>Il cuore di questa lezione:</strong> il gestore dell’utente avvia il servizio dal Quadlet; la sessione aperta non deve essere la sua dipendenza.</p></blockquote>
+<div class="tabela"><table><thead><tr><th scope="col">Scheda</th><th scope="col">Piano di lavoro</th></tr></thead><tbody><tr><td>Modulo</td><td>M18 · Podman, lezione 3 di 5</td></tr><tr><td>Quando</td><td>Settimana 25</td></tr><tr><td>Alla fine</td><td>Creare e verificare un servizio rootless persistente dopo il boot senza login del proprietario</td></tr><tr><td>Prerequisiti</td><td>18.1 e 18.2; immagine tramite digest, contenuto persistente e porta libera</td></tr><tr><td>Durata</td><td>80–100 minuti</td></tr><tr><td>Snapshot</td><td><code translate="no">m18a3-inicio</code> e <code translate="no">m18a3-fim</code> soltanto nelle VM di laboratorio</td></tr></tbody></table></div>
+<p>Lavora come <code translate="no">student</code> nella VM 201, <code translate="no">rocky-lab</code>, e ripeti nella VM 202, <code translate="no">debian-lab</code>. Non eseguire Podman sull’host Proxmox.</p>
+<p>Conserva la directory del contenuto e il file dell’immagine delle lezioni precedenti. Il container manuale è già stato rimosso alla chiusura della 18.2.</p>
+<p>Il servizio di questa lezione rimane per diagnosi, costruzione dell’immagine e reverse proxy nei moduli successivi. La pulizia qui annulla soltanto i guasti introdotti.</p>
+<p>Prima del laboratorio crea lo snapshot della VM con la procedura già nota e verifica che la console della VM resti disponibile. Non creare uno snapshot dell’host per proteggere una modifica nel guest.</p>
+<h2 id="1-riscaldamento">1 · Riscaldamento</h2>
+<p>Rispondi senza consultare i comandi. Torna alle risposte dopo il reboot di verifica.</p>
+<ol><li>Quale parte del sito sopravvive quando il container viene rimosso?</li>
+<li>Pubblicare una porta soltanto sul loopback permette l’accesso diretto da un altro computer?</li>
+<li>Un processo avviato dal terminale possiede automaticamente una politica di boot?</li></ol>
+<h2 id="2-perche-conta">2 · Perché conta</h2>
+<p>Il sito funziona quando sei collegato. Dopo una manutenzione nessuno entra come proprietario e il servizio non compare. L’immagine non è cambiata; mancava la definizione di chi deve avviare il lavoro e quando.</p>
+<p>Un secondo errore consiste nell’inserire un utente in un’unità di sistema e chiamarla rootless. La posizione dell’unità, il gestore che la legge e l’identità del processo devono corrispondere.</p>
+<p>In questa lezione produci una sorgente leggibile, un servizio generato, dati fuori dal container e un riscontro dell’avvio senza login. Questi quattro oggetti rispondono a domande diverse.</p>
+<h3 id="ponte-windows">Ponte Windows</h3>
+<p>Confronta il gestore dei servizi con una finestra di terminale. Chiudere la finestra non deve determinare il ciclo di vita di un servizio. Qui il gestore appartiene a un utente, con il proprio contesto.</p>
+<h2 id="3-modello-mentale">3 · Modello mentale</h2>
+<figure><a href="../img/18.3-fonte-gerador-servico.it.jpg"><img src="../img/18.3-fonte-gerador-servico.it.jpg" alt="Una ricetta diventa un servizio" loading="lazy" decoding="async"></a><figcaption>Modifica la sorgente; il generatore ricrea il servizio.</figcaption></figure>
+<p>Il file Quadlet è la ricetta. Il generatore trasforma la ricetta in un’unità compresa da systemd. Mantieni la sorgente; non correggere il file generato come se fosse l’origine.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Oggetto</th><th scope="col">Domanda</th></tr></thead><tbody><tr><td><code translate="no">.container</code></td><td>Che cosa deve essere eseguito?</td></tr><tr><td><code translate="no">.service</code></td><td>Che cosa ha ricevuto il gestore?</td></tr><tr><td>Gestore dell’utente</td><td>Chi segue il servizio?</td></tr><tr><td>Contenuto persistente</td><td>Dove rimane il dato?</td></tr></tbody></table></div>
+<p>Linger permette al gestore dell’utente di essere avviato al boot e continuare dopo il logout. Non scrive il Quadlet e non sceglie da solo quale servizio deve avviarsi.</p>
+<h2 id="4-l-essenziale">4 · L'essenziale</h2>
+<p>Quadlet richiede cgroup v2 e una versione installata che offra il generatore e le opzioni usate. Controlla il manuale locale; se non esiste, risolvi il prerequisito tramite il repository ufficiale della distribuzione.</p>
+<p>Non installare un pacchetto casuale e non sostituire il servizio con un vecchio comando di generazione per far sembrare conclusa la lezione. Registra versione e lacuna.</p>
+<p>La sorgente rootless si trova in <code translate="no">~/.config/containers/systemd/</code>. Il nome di questo laboratorio è <code translate="no">m18-web.container</code>; il servizio sarà <code translate="no">m18-web.service</code> e il container sarà <code translate="no">m18-web</code>.</p>
+<p>L’immagine è già stata ottenuta tramite digest. Il file di ambiente conserva quel riferimento, ma il campo dell’immagine del Quadlet deve ricevere il valore letterale renderizzato; non espande automaticamente una variabile di shell.</p>
+<p>Non usare una sezione di servizio con un altro utente per simulare un’unità rootless. Usa il gestore del proprietario.</p>
+<h3 id="rocky-debian">Rocky × Debian</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Questione</th><th scope="col">Rocky</th><th scope="col">Debian</th></tr></thead><tbody><tr><td>Pacchetti</td><td>Repository ufficiale della famiglia RPM</td><td>Repository ufficiale della famiglia DEB</td></tr><tr><td>Contenuto montato</td><td>Permessi ed etichetta SELinux</td><td>Permessi e controlli attivi del sistema</td></tr><tr><td>Servizio rootless</td><td>Gestore di student</td><td>Gestore di student</td></tr></tbody></table></div>
+<p>L’opzione <code translate="no">:Z</code> rietichetta soltanto la directory esclusiva dell’esercizio quando SELinux è attivo. Non applicarla all’intera home né a una cartella condivisa da altri servizi.</p>
+<h3 id="decidi-1">Decidi 1</h3>
+<p>Il servizio generato non può essere abilitato come una normale unità installata. Che cosa fai?</p>
+<p>A. Modifichi il file generato e insisti con l’abilitazione.
+B. Mantieni la politica di installazione nella sorgente Quadlet e ricarichi il gestore.
+C. Esegui Podman come root per aggirare l’utente.</p>
+<h2 id="5-lab-guidato">5 · Lab guidato</h2>
+<p>Entra direttamente tramite SSH come proprietario. Un cambio utente incompleto può lasciare il terminale senza il bus e la directory di esecuzione corretti.</p>
+<p>Le guardie accettano soltanto Podman locale rootless e cgroup v2. Un percorso XDG personalizzato richiede un piano esplicito: qui viene usato il percorso standard della home.</p>
+<h3 id="passo-1-controllare-proprietario-versione-e-contesto">Passo 1 · Controllare proprietario, versione e contesto</h3>
+<p><strong>Ipotesi:</strong> l’inventario dell’utente attuale coincide con quello dell’amministratore?</p>
+<pre translate="no"><code class="lang-bash">test "$(id -un)" = student || exit 1
+test "$(id -u)" -ne 0 || exit 1
+test -z "${CONTAINER_HOST-}${CONTAINER_CONNECTION-}" || exit 1
+test "$(podman info --format '{{.Host.Security.Rootless}}')" = true || exit 1
+case "$(hostname -s)" in rocky-lab|debian-lab) ;; *) exit 1 ;; esac
+id
+printf '%s\n' "$XDG_RUNTIME_DIR"
+podman version
+podman info --format '{{.Host.CgroupsVersion}} {{.Host.Security.Rootless}}'
+test "$(podman info --format '{{.Host.CgroupsVersion}}')" = v2 || exit 1
+systemctl --user show-environment || exit 1
+man podman-systemd.unit
+podman ps -a --filter label=io.course.module=M18</code></pre>
+<p><strong>Output atteso:</strong> proprietario corretto, contesto rootless e cgroup v2. Il gestore dell’utente risponde. Se manca il manuale o un’opzione, interrompi la creazione.</p>
+<p><strong>Verifica:</strong> la sessione appartiene alla VM giusta e all’identità giusta. L’host Proxmox resta fuori dalla procedura.</p>
+<h3 id="passo-2-controllare-contenuto-immagine-e-porta">Passo 2 · Controllare contenuto, immagine e porta</h3>
+<p><strong>Ipotesi:</strong> un container manuale dimenticato può impedire l’avvio del servizio senza modificare l’immagine?</p>
+<pre translate="no"><code class="lang-bash">test -z "${XDG_CONFIG_HOME-}" || test "$XDG_CONFIG_HOME" = "$HOME/.config" || exit 1
+test -f "$HOME/m18-lab/image.env" &amp;&amp; test -O "$HOME/m18-lab/image.env" || exit 1
+. "$HOME/m18-lab/image.env" || exit 1
+[[ "$M18_IMAGE" =~ ^docker\.io/nginxinc/nginx-unprivileged@sha256:[[:xdigit:]]{64}$ ]] || exit 1
+podman image exists "$M18_IMAGE" || exit 1
+test -r "$HOME/m18-lab/site/index.html" || exit 1
+stat -c '%a %U:%G %n' "$HOME/m18-lab/site" "$HOME/m18-lab/site/index.html"
+sha256sum "$HOME/m18-lab/site/index.html"
+M18_LISTEN=$(ss -H -ltn 'sport = :18080') || exit 1
+test -z "$M18_LISTEN" || { printf '%s\n' 'STOP: porta ocupada'; exit 1; }
+if podman container exists m18-web; then
+  printf '%s\n' 'STOP: nome ocupado' &gt;&amp;2; exit 1
+else
+  M18_RC=$?; test "$M18_RC" -eq 1 || exit 1
+fi
+if podman container exists m18-web-manual; then
+  printf '%s\n' 'STOP: nome ocupado' &gt;&amp;2; exit 1
+else
+  M18_RC=$?; test "$M18_RC" -eq 1 || exit 1
+fi</code></pre>
+<p><strong>Output atteso:</strong> contenuto conservato, immagine disponibile e nessun listener sulla porta. Un nome occupato chiude la fase, non autorizza la rimozione senza verificarne l’origine.</p>
+<p><strong>Verifica:</strong> la directory ha modalità 755 e il documento 644, entrambi appartenenti al proprietario previsto. Controlla la riserva della porta nel diario; fermati se un processo la usa già.</p>
+<h3 id="passo-3-scrivere-la-sorgente-con-valore-letterale">Passo 3 · Scrivere la sorgente con valore letterale</h3>
+<p><strong>Ipotesi:</strong> ricaricare il gestore crea la sorgente o legge una sorgente che hai già scritto?</p>
+<pre translate="no"><code class="lang-bash">systemctl --user daemon-reload || exit 1
+M18_UNITS=$(systemctl --user list-unit-files --all --no-legend) || exit 1
+if printf '%s\n' "$M18_UNITS" | awk '$1 == "m18-web.service" {found=1} END {exit !found}'; then
+  printf '%s\n' 'STOP: m18-web.service already exists' &gt;&amp;2
+  exit 1
+fi
+install -d -m 0700 "$HOME/.config/containers/systemd" || exit 1
+UNIT="$HOME/.config/containers/systemd/m18-web.container"
+test ! -e "$UNIT" || exit 1
+umask 077
+cat &gt; "$UNIT" &lt;&lt;EOF || exit 1
+[Unit]
+Description=M18 rootless web
+
+[Container]
+Image=$M18_IMAGE
+Pull=never
+ContainerName=m18-web
+Label=io.course.module=M18
+PublishPort=127.0.0.1:18080:8080
+Volume=%h/m18-lab/site:/usr/share/nginx/html:ro,Z
+LogDriver=journald
+NoNewPrivileges=true
+
+[Service]
+Restart=on-failure
+TimeoutStartSec=900
+
+[Install]
+WantedBy=default.target
+EOF
+cat "$UNIT"
+systemctl --user daemon-reload
+systemctl --user cat m18-web.service</code></pre>
+<p><strong>Output atteso:</strong> la sorgente contiene il digest reale, senza variabile irrisolta; l’unità generata punta all’immagine e alla directory previste.</p>
+<p><strong>Verifica:</strong> la sorgente termina con la sezione di installazione e il target dell’utente. Non eseguire l’abilitazione sull’unità generata e non copiarne l’output per sostituire il Quadlet.</p>
+<h3 id="passo-4-avviare-e-collegare-i-tre-riscontri">Passo 4 · Avviare e collegare i tre riscontri</h3>
+<p><strong>Ipotesi:</strong> un’unità attiva dimostra che il contenuto HTTP è il file montato?</p>
+<figure><a href="../img/18.3-porta-dado-e-dono.it.jpg"><img src="../img/18.3-porta-dado-e-dono.it.jpg" alt="Tre indirizzi per tre domande" loading="lazy" decoding="async"></a><figcaption>Controlla chi esegue, dove ascolta e dove rimane il dato.</figcaption></figure>
+<pre translate="no"><code class="lang-bash">systemctl --user start m18-web.service || exit 1
+systemctl --user status m18-web.service --no-pager
+podman inspect m18-web --format '{{index .Config.Labels "io.course.module"}}'
+podman port m18-web
+curl --retry 10 --retry-delay 1 --retry-all-errors --max-time 5 --fail --silent --show-error http://127.0.0.1:18080/
+sudo journalctl _UID="$(id -u student)" _SYSTEMD_USER_UNIT=m18-web.service -b --no-pager -n 30
+podman logs --tail 20 m18-web</code></pre>
+<p><strong>Output atteso:</strong> servizio attivo, etichetta del laboratorio, pubblicazione sul loopback e contenuto noto. I log registrano gli eventi reali; non ci sono righe di successo inventate da confrontare.</p>
+<p><strong>Verifica:</strong> confronta risposta, documento persistente e mount. Se il servizio parte con un altro contenuto, indaga il percorso prima di modificare i permessi.</p>
+<h3 id="passo-5-registrare-e-abilitare-linger">Passo 5 · Registrare e abilitare linger</h3>
+<p><strong>Ipotesi:</strong> linger da solo sceglie il container che deve avviarsi?</p>
+<figure><a href="../img/18.3-usuario-sem-sessao.it.jpg"><img src="../img/18.3-usuario-sem-sessao.it.jpg" alt="Il servizio non dipende dalla finestra aperta" loading="lazy" decoding="async"></a><figcaption>Linger mantiene il gestore dell’utente; il target avvia il servizio.</figcaption></figure>
+<pre translate="no"><code class="lang-bash">test ! -e "$HOME/m18-lab/linger-before.txt" || exit 1
+M18_LINGER=$(loginctl show-user student -p Linger --value) || exit 1
+case "$M18_LINGER" in yes|no) ;; *) exit 1 ;; esac
+printf '%s\n' "$M18_LINGER" &gt; "$HOME/m18-lab/linger-before.txt" || exit 1
+cat "$HOME/m18-lab/linger-before.txt"
+sudo loginctl enable-linger student || exit 1
+test "$(loginctl show-user student -p Linger --value)" = yes || exit 1
+loginctl show-user student -p Linger -p State
+systemctl --user is-active m18-web.service</code></pre>
+<p><strong>Output atteso:</strong> stato precedente conservato e linger abilitato per il proprietario. Il servizio mantiene la stessa identità e la stessa directory del contenuto.</p>
+<p><strong>Verifica:</strong> annota l’UID del proprietario e l’ora. La politica di boot dipende anche dal target nella sorgente. Chiudere una sola finestra non dimostra l’assenza di tutte le sessioni del proprietario.</p>
+<h3 id="passo-6-dimostrare-il-boot-prima-del-login-del-proprietario">Passo 6 · Dimostrare il boot prima del login del proprietario</h3>
+<p><strong>Ipotesi:</strong> entrare tramite SSH come proprietario prima della consultazione compromette quale parte del riscontro?</p>
+<p><strong>Reboot di verifica:</strong> chiudi i lavori nella VM, controlla la console e riavvia soltanto la VM di studio. Dopo il boot non entrare ancora come proprietario.</p>
+<pre translate="no"><code class="lang-bash">case "$(hostname -s)" in rocky-lab|debian-lab) ;; *) exit 1 ;; esac
+sudo reboot</code></pre>
+<p>Su Debian 13, linger può creare una sessione di classe <code translate="no">manager</code>: è il gestore dell’utente, non un login interattivo. Il controllo seguente considera soltanto la classe <code translate="no">user</code>, interrogando ogni sessione di student con <code translate="no">show-session</code>, disponibile anche su Rocky 9.</p>
+<p>Nella console della VM usa l’account amministrativo di emergenza già preparato nel corso, senza avviare una sessione di student. Se non disponi di questo accesso, preparalo prima del reboot; non presentare una sessione del proprietario come prova di avvio senza login.</p>
+<pre translate="no"><code class="lang-bash">M18_UID=$(id -u student)
+loginctl list-sessions
+loginctl show-user student --all -p Linger -p Sessions
+M18_SESSIONS=$(loginctl show-user student --all -p Sessions --value) || exit 1
+M18_USER_SESSIONS=
+for M18_SESSION in $M18_SESSIONS; do
+  M18_CLASS=$(loginctl show-session "$M18_SESSION" -p Class --value) || exit 1
+  if test "$M18_CLASS" = user; then M18_USER_SESSIONS="$M18_USER_SESSIONS $M18_SESSION"; fi
+done
+test -z "$M18_USER_SESSIONS" || { printf '%s\n' 'STOP: student logged in' &gt;&amp;2; exit 1; }
+systemctl status "user@$M18_UID.service" --no-pager
+ss -ltnp 'sport = :18080'
+curl --retry 10 --retry-delay 1 --retry-all-errors --max-time 5 --fail --silent --show-error http://127.0.0.1:18080/
+journalctl -b _UID="$M18_UID" _SYSTEMD_USER_UNIT=m18-web.service --no-pager</code></pre>
+<p><strong>Output atteso:</strong> gestore del proprietario e risposta HTTP prima di qualsiasi login del proprietario. L’elenco delle sessioni e l’orario fanno parte del riscontro.</p>
+<p><strong>Verifica:</strong> conserva la sequenza temporale nel diario esterno. Soltanto dopo entra normalmente come student e ricontrolla servizio, immagine e documento.</p>
+<p>Su Rocky, il journal persistente può non avere un journal separato per utente. Per questo le letture del servizio usano sudo e filtrano contemporaneamente UID di student e unità utente; Podman e <code translate="no">systemctl --user</code> continuano a essere eseguiti dal proprietario senza sudo.</p>
+<h2 id="6-rompi-e-ripara">6 · Rompi e ripara</h2>
+<p>Introduci un guasto alla volta, come proprietario, soltanto nella sorgente del laboratorio. Prima conserva una copia privata; se esiste già, esaminala invece di sovrascriverla.</p>
+<pre translate="no"><code class="lang-bash">UNIT="$HOME/.config/containers/systemd/m18-web.container"
+test ! -e "$HOME/m18-lab/m18-web.container.good" || exit 1
+test -f "$UNIT" &amp;&amp; test -O "$UNIT" || exit 1
+grep -qxF 'ContainerName=m18-web' "$UNIT" || exit 1
+grep -qxF 'Label=io.course.module=M18' "$UNIT" || exit 1
+cp -- "$UNIT" "$HOME/m18-lab/m18-web.container.good" || exit 1</code></pre>
+<h3 id="guasto-1-sorgente-non-valida">Guasto 1 · Sorgente non valida</h3>
+<p><strong>Sintomo:</strong> il gestore non genera l’unità prevista dopo una modifica nella sezione del container.</p>
+<pre translate="no"><code class="lang-bash">systemctl --user stop m18-web.service
+sed -i 's/^Image=/ImageErrada=/' "$UNIT"
+systemctl --user daemon-reload
+systemctl --user status m18-web.service --no-pager</code></pre>
+<p><strong>Indagine:</strong> leggi la sorgente, la guida locale di Quadlet e i messaggi del gestore. L’unità precedente caricata può confondere; non concludere soltanto dalla presenza di un nome nell’elenco.</p>
+<p><strong>Causa:</strong> una chiave obbligatoria è stata sostituita da un nome che non descrive l’immagine.</p>
+<p><strong>Riparazione:</strong> ripristina soltanto la sorgente nota e ricarica il gestore.</p>
+<pre translate="no"><code class="lang-bash">cp -- "$HOME/m18-lab/m18-web.container.good" "$UNIT" || exit 1
+systemctl --user daemon-reload
+systemctl --user start m18-web.service</code></pre>
+<p><strong>Verifica:</strong> l’unità punta al digest corretto e il documento torna a rispondere.</p>
+<p><strong>Prevenzione:</strong> controlla la sorgente e l’unità generata prima di attribuire il guasto all’applicazione.</p>
+<h3 id="guasto-2-porta-pubblicata-nel-posto-sbagliato">Guasto 2 · Porta pubblicata nel posto sbagliato</h3>
+<p><strong>Sintomo:</strong> il servizio è attivo, ma la porta prevista non risponde.</p>
+<p>Conferma che la porta alternativa sia libera prima di introdurre la modifica; non usare la porta di un altro servizio.</p>
+<pre translate="no"><code class="lang-bash">M18_LISTEN=$(ss -H -ltn 'sport = :18081') || exit 1
+test -z "$M18_LISTEN" || exit 1
+systemctl --user stop m18-web.service
+sed -i 's/127.0.0.1:18080:8080/127.0.0.1:18081:8080/' "$UNIT"
+systemctl --user daemon-reload
+systemctl --user start m18-web.service
+podman port m18-web</code></pre>
+<p><strong>Indagine:</strong> confronta pubblicazione reale, sorgente e indirizzo del client.</p>
+<p><strong>Causa:</strong> il client e la pubblicazione usano porte diverse.</p>
+<p><strong>Riparazione:</strong> ripristina la sorgente nota e riavvia soltanto il servizio del laboratorio.</p>
+<pre translate="no"><code class="lang-bash">systemctl --user stop m18-web.service
+cp -- "$HOME/m18-lab/m18-web.container.good" "$UNIT" || exit 1
+systemctl --user daemon-reload
+systemctl --user start m18-web.service
+curl --retry 10 --retry-delay 1 --retry-all-errors --max-time 5 --fail http://127.0.0.1:18080/</code></pre>
+<p><strong>Verifica:</strong> la porta alternativa non è rimasta come dipendenza nascosta.</p>
+<p><strong>Prevenzione:</strong> registra separatamente indirizzo di ascolto, porta pubblicata e porta interna.</p>
+<h3 id="guasto-3-confondere-sorgente-e-unita-generata">Guasto 3 · Confondere sorgente e unità generata</h3>
+<p><strong>Sintomo:</strong> un’annotazione consiglia di modificare il file generato per rendere persistente la riparazione.</p>
+<p><strong>Indagine:</strong> individua l’origine e confronta l’unità mostrata dal gestore. Questo guasto è documentale; non modificare il file generato.</p>
+<pre translate="no"><code class="lang-bash">systemctl --user cat m18-web.service
+cat "$UNIT"</code></pre>
+<p><strong>Causa:</strong> il risultato della generazione è stato trattato come sorgente di configurazione.</p>
+<p><strong>Riparazione:</strong> riscrivi l’annotazione indicando la modifica della sorgente e la ricarica del gestore.</p>
+<p><strong>Verifica:</strong> un’altra persona riesce a ripetere la modifica senza dipendere da un file transitorio.</p>
+<p><strong>Prevenzione:</strong> mantieni la sorgente versionabile e lo stato osservato come riscontro separato.</p>
+<h2 id="7-trappole">7 · Trappole</h2>
+<p>La consultazione del servizio di sistema e quella del servizio utente appartengono a gestori diversi. Una risposta vuota di uno non descrive tutti i container della macchina.</p>
+<p>Non mescolare il vecchio container manuale con il container gestito. Nome e porta appartengono ora al servizio; creare un altro processo con le stesse risorse introduce concorrenza.</p>
+<h3 id="decidi-2">Decidi 2</h3>
+<p>Dopo il reboot sei entrato come proprietario prima del test. Quale conclusione è corretta?</p>
+<p>A. Il test va ripetuto senza login del proprietario prima dell’osservazione.
+B. Il contenuto persistente è stato cancellato.
+C. Il servizio si è certamente avviato senza login.</p>
+<h2 id="8-quiz">8 · Quiz</h2>
+<ol><li>Perché la sorgente deve contenere il digest letterale invece di una variabile di shell non espansa?</li>
+<li>Qual è la funzione di linger e quale quella del target di installazione?</li>
+<li>Perché l’unità generata non va modificata come sorgente?</li>
+<li>Che cosa dimostra la risposta HTTP oltre allo stato attivo del servizio?</li>
+<li>Perché l’osservatore del reboot non deve entrare prima come student?</li>
+<li>Che cosa rimane per la lezione successiva?</li></ol>
+<h2 id="9-promemoria">9 · Promemoria</h2>
+<div class="tabela"><table><thead><tr><th scope="col">Domanda</th><th scope="col">Consultazione</th></tr></thead><tbody><tr><td>Sorgente</td><td><code translate="no">cat ~/.config/containers/systemd/m18-web.container</code></td></tr><tr><td>Unità</td><td><code translate="no">systemctl --user cat m18-web.service</code></td></tr><tr><td>Stato</td><td><code translate="no">systemctl --user status m18-web.service</code></td></tr><tr><td>Eventi</td><td><code translate="no">sudo journalctl _UID="$(id -u student)" _SYSTEMD_USER_UNIT=m18-web.service -b</code></td></tr><tr><td>Pubblicazione</td><td><code translate="no">podman port m18-web</code></td></tr></tbody></table></div>
+<p><strong>Flashcard:</strong> crea schede su sorgente, generatore, servizio, proprietario, linger e riscontro del boot. Ripassa a D+1, D+3, D+7 e D+21.</p>
+<pre translate="no"><code class="lang-text">!explica 18.3 Quadlet, gerenciador do usuario e linger
+!feynman 18.3 vou explicar por que editar a fonte e provar boot sem login
+!quiz 18.3</code></pre>
+<h2 id="10-checklist-e-chiusura">10 · Checklist e chiusura</h2>
+<p>Ripristina la sorgente nota, ricarica e conferma la porta originale. Conserva servizio, directory del sito, riferimento dell’immagine e riscontro dello stato precedente di linger.</p>
+<p>Non disabilitare linger alla chiusura: il laboratorio successivo dipende dal servizio. Quando il corso autorizzerà la rimozione definitiva, esamina gli altri servizi del proprietario prima di ripristinare lo stato precedente.</p>
+<p>Se linger era già abilitato prima del modulo, la pulizia non deve disabilitarlo. Il file dello stato precedente evita che una configurazione preesistente venga trattata come residuo dell’esercizio.</p>
+<ul><li>[ ] Ho identificato VM e proprietario.</li>
+<li>[ ] Ho controllato cgroup v2 e il generatore installato.</li>
+<li>[ ] Ho mantenuto il digest letterale e il contenuto persistente.</li>
+<li>[ ] Ho controllato servizio e risposta HTTP.</li>
+<li>[ ] Ho dimostrato l’avvio prima del login del proprietario.</li>
+<li>[ ] Ho annullato i guasti senza modificare servizi estranei.</li></ul>
+<p><strong>Ultimo esercizio:</strong> spiega perché file esistente, servizio attivo e servizio avviato senza login sono tre riscontri distinti. Cita il dato raccolto per ciascuno.</p>
+<p>Crea lo snapshot finale soltanto dopo aver ripristinato il laboratorio e registrato il riscontro. Uno snapshot della VM non sostituisce la copia del contenuto che sai ripristinare.</p>
+<h2 id="11-nella-vita-reale">11 · Nella vita reale</h2>
+<p>In un ambiente autorizzato esegui soltanto letture: identifica il proprietario di un servizio rootless, individua la sorgente e descrivi il percorso del dato. Non riavviare e non abilitare linger su un account reale per completare l’osservazione.</p>
+<p>Se la sorgente o il riscontro del boot non è disponibile, registra la lacuna. Non trasformare una supposizione di disponibilità in una garanzia di continuità.</p>
+<h2 id="12-approfondire-quando-vuoi">12 · Approfondire quando vuoi</h2>
+<ul><li><a href="https://docs.podman.io/en/latest/markdown/podman-systemd.unit.5.html">Quadlet e unità dell’utente</a>.</li>
+<li><a href="https://docs.podman.io/en/latest/markdown/podman-container.unit.5.html">Opzioni dell’unità container</a>.</li>
+<li><a href="https://www.freedesktop.org/software/systemd/man/latest/loginctl.html">Gestione delle sessioni e linger</a>.</li></ul>
+<p>Confronta il manuale della versione installata prima di adottare un’opzione nuova. Questa lezione non afferma che qualsiasi versione precedente accetti tutte le chiavi documentate nella versione più recente.</p>
+<h3 id="soluzioni-commentate">Soluzioni commentate</h3>
+<p><strong>Riscaldamento:</strong> il contenuto montato rimane fuori dal container; il loopback non espone direttamente ad altri host; un processo manuale non definisce una politica di boot.</p>
+<p><strong>Decidi 1: B.</strong> La sorgente conserva la politica di installazione applicata dal generatore.</p>
+<p><strong>Decidi 2: A.</strong> Il login può aver avviato il gestore, quindi la sequenza temporale va ripetuta.</p>
+<p><strong>Quiz 1:</strong> L’espansione appartiene alla scrittura della sorgente; Quadlet deve ricevere un riferimento valido all’immagine.</p>
+<p><strong>Quiz 2:</strong> Linger mantiene il gestore; il target di installazione collega l’unità all’avvio desiderato.</p>
+<p><strong>Quiz 3:</strong> Il generatore può ricrearla, scartando una modifica fatta sul risultato.</p>
+<p><strong>Quiz 4:</strong> Dimostra il percorso HTTP e permette di confrontare il documento effettivamente servito.</p>
+<p><strong>Quiz 5:</strong> Perché quel login può attivare il gestore e impedire di attribuire l’avvio al boot.</p>
+<p><strong>Quiz 6:</strong> Sorgente, servizio, immagine tramite digest, sito e registrazione dello stato precedente di linger.</p>
+<p><a href="18.2-rodar-e-persistir.it.html">← Lezione18.2 · Eseguire e conservare i dati</a> · <a href="index.it.html">Indice delle lezioni</a> · <a href="18.4-diagnosticar-conteiner-rootless.it.html">Lezione18.4 · Diagnosticare un container rootless →</a></p>
+</article><nav class="paginas" aria-label="Lezioni"><a class="ant" href="18.2-rodar-e-persistir.it.html"><small>← Precedente</small>18.2 · Eseguire e conservare i dati</a><a class="prox" href="18.4-diagnosticar-conteiner-rootless.it.html"><small>Successiva →</small>18.4 · Diagnosticare un container rootless</a></nav></main></div>
+<footer><div class="wrap">Generato dal Markdown del corso · Immagini in <code translate="no">img/</code></div></footer>
+</body>
+</html>

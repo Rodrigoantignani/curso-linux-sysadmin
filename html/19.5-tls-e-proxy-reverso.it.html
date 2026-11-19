@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light dark">
+<title>19.5 · TLS e reverse proxy: identità prima del lucchetto · Corso Linux Sysadmin</title>
+<link rel="alternate" hreflang="pt-BR" href="19.5-tls-e-proxy-reverso.html"><link rel="alternate" hreflang="it" href="19.5-tls-e-proxy-reverso.it.html">
+<style>
+:root{color-scheme:light dark;--bg:#f6f1e7;--card:#fffdf8;--ink:#201c16;--muted:#5e564a;--accent:#9a3412;--accent-2:#1f5f4a;--tint:#efe6d4;--line:#ddd2bc;--code:#f1eadb;--shadow:0 1px 2px rgba(60,40,10,.08);--serif:Georgia,"Iowan Old Style","Palatino Linotype",Palatino,serif;--sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--mono:"Cascadia Code",Consolas,"DejaVu Sans Mono",monospace}
+@media (prefers-color-scheme:dark){:root{--bg:#16130f;--card:#201b15;--ink:#f1eadb;--muted:#b9ad98;--accent:#f0a070;--accent-2:#7fd0b0;--tint:#2a231a;--line:#3d3427;--code:#191510;--shadow:none}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:5.5rem}
+body{margin:0;background:var(--bg);color:var(--ink);font:1rem/1.6 var(--sans)}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--accent-2);outline-offset:2px;border-radius:4px}
+.pular{position:absolute;left:-999px;top:0;background:var(--card);padding:.5rem 1rem;z-index:20}
+.pular:focus{left:.5rem;top:.5rem}
+.wrap{width:100%;max-width:84rem;margin:0 auto;padding-inline:max(1rem,env(safe-area-inset-left))}
+.top{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10;border-top:6px solid var(--accent)}
+.top-in{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding-block:.6rem}
+.titles{min-width:0}
+.marca{margin:0;font:700 clamp(1.15rem,1rem + 1vw,1.6rem)/1.15 var(--serif);letter-spacing:-.01em}
+.marca a{text-decoration:none}
+.marca a:hover{color:var(--accent)}
+.meta{margin:.1rem 0 0;color:var(--muted);font-size:.85rem}
+.acoes{display:flex;align-items:center;gap:.9rem;flex:none}
+.acoes>a{font-size:.9rem;font-weight:600;color:var(--muted);text-decoration:none}
+.acoes>a:hover{color:var(--accent);text-decoration:underline}
+.idioma{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--tint)}
+.idioma>*{padding:.35rem .9rem;font-size:.8rem;font-weight:700;letter-spacing:.06em;text-decoration:none;color:var(--muted);min-width:2.75rem;text-align:center}
+.idioma a:hover{color:var(--accent);text-decoration:underline}
+.idioma span{background:var(--accent);color:#fff}
+@media (prefers-color-scheme:dark){.idioma span{color:#16130f}}
+code{font-family:var(--mono);font-size:.9em;background:var(--tint);padding:.1rem .35rem;border-radius:4px;overflow-wrap:anywhere}
+/* índice */
+.capa{max-width:70rem;padding-block:2rem 3rem}
+.stats{border-left:4px solid var(--accent-2);background:var(--card);border-radius:0 10px 10px 0;padding:1rem 1.25rem;margin:0 0 2.5rem;box-shadow:var(--shadow);color:var(--muted)}
+.stats strong{color:var(--ink)}
+.modulo{display:grid;grid-template-columns:15rem minmax(0,1fr);gap:1rem 2rem;padding:1.75rem 0;border-top:1px solid var(--line)}
+.modulo h2{margin:0;font:700 1.25rem/1.25 var(--serif);align-self:start;position:sticky;top:6rem}
+.mn{display:block;font:700 .8rem var(--mono);letter-spacing:.12em;color:var(--accent);margin-bottom:.25rem}
+.sep{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.modulo ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,17rem),1fr));gap:.75rem}
+.modulo li{margin:0}
+.modulo a{display:flex;gap:.45rem;align-items:baseline;height:100%;padding:.85rem 1rem;background:var(--card);border:1px solid var(--line);border-radius:10px;text-decoration:none;font-weight:600;line-height:1.35;box-shadow:var(--shadow);transition:border-color .15s,transform .15s}
+.modulo a:hover{border-color:var(--accent);color:var(--accent)}
+.num{font:700 .85rem var(--mono);color:var(--accent);white-space:nowrap}
+/* aula */
+.doc{display:grid;grid-template-columns:17rem minmax(0,1fr);gap:2.5rem;align-items:start;padding-block:2rem 3rem}
+.lateral{position:sticky;top:5.5rem;max-height:calc(100vh - 6.5rem);overflow:auto;font-size:.875rem;padding-right:.5rem}
+.lateral h2{margin:0 0 .25rem;font:700 .95rem var(--serif);color:var(--muted)}
+.lateral h3{margin:1rem 0 .25rem;font:700 .75rem var(--mono);letter-spacing:.06em;color:var(--accent)}
+.lateral ul{list-style:none;margin:0;padding:0}
+.lateral a{display:flex;gap:.45rem;padding:.25rem .5rem;border-radius:6px;text-decoration:none;color:var(--muted);line-height:1.3}
+.lateral a:hover{background:var(--tint);color:var(--ink)}
+.lateral a[aria-current]{background:var(--tint);color:var(--ink);font-weight:700;box-shadow:inset 3px 0 0 var(--accent)}
+.lateral .num{font-size:.75rem}
+.aula{min-width:0;max-width:56rem;overflow-wrap:break-word;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:clamp(1.25rem,1rem + 2vw,2.75rem);box-shadow:var(--shadow)}
+.aula h1{margin:0 0 1.5rem;font:700 clamp(1.75rem,1.4rem + 1.6vw,2.5rem)/1.15 var(--serif);letter-spacing:-.015em;color:var(--ink)}
+.aula h2{margin:2.5rem 0 .75rem;padding-top:1.25rem;border-top:1px solid var(--line);font:700 1.5rem/1.25 var(--serif)}
+.aula h3{margin:2rem 0 .5rem;font:700 1.15rem/1.3 var(--serif);color:var(--accent)}
+.aula h4,.aula h5,.aula h6{margin:1.5rem 0 .5rem;font-size:1rem}
+.aula p,.aula ul,.aula ol{margin:1rem 0}
+.aula ul,.aula ol{padding-left:1.5rem}
+.aula li{margin:.35rem 0}
+.aula li>ul,.aula li>ol{margin:.35rem 0}
+.aula a{color:var(--accent);text-underline-offset:2px}
+.aula hr{border:0;border-top:1px solid var(--line);margin:2rem 0}
+.tabela{overflow-x:auto;margin:1.25rem 0;border:1px solid var(--line);border-radius:10px}
+.aula table{width:100%;border-collapse:collapse;font-size:.9rem}
+.aula th,.aula td{padding:.55rem .75rem;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+.aula tr:last-child td{border-bottom:0}
+.aula th{background:var(--tint);font-weight:700}
+.aula pre{background:var(--code);border:1px solid var(--line);border-radius:10px;padding:.9rem 1rem;overflow-x:auto;font:.85rem/1.5 var(--mono);margin:1rem 0;tab-size:4}
+.aula pre code{background:none;padding:0;font-size:inherit;overflow-wrap:normal}
+.aula blockquote{margin:1.25rem 0;padding:.75rem 1.25rem;border-left:4px solid var(--accent-2);background:var(--tint);border-radius:0 10px 10px 0}
+.aula blockquote>:first-child{margin-top:0}
+.aula blockquote>:last-child{margin-bottom:0}
+.aula figure{margin:1.75rem 0;text-align:center}
+.aula figure img{display:block;margin:0 auto;max-width:100%;height:auto;border:1px solid var(--line);border-radius:10px;background:#fff}
+.aula figcaption{margin-top:.5rem;color:var(--muted);font-size:.9rem;font-style:italic}
+.paginas{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:2.5rem;padding-top:1.5rem;border-top:1px solid var(--line)}
+.paginas a{display:block;padding:.75rem 1rem;border:1px solid var(--line);border-radius:10px;text-decoration:none;color:var(--ink);font-weight:600;line-height:1.3}
+.paginas a:hover{border-color:var(--accent);color:var(--accent)}
+.paginas small{display:block;color:var(--muted);font-weight:400}
+.paginas .prox{grid-column:2;text-align:right}
+footer{border-top:1px solid var(--line);padding-block:1.5rem;color:var(--muted);font-size:.85rem;text-align:center}
+@media (hover:hover) and (prefers-reduced-motion:no-preference){.modulo a:hover{transform:translateY(-2px)}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+@media (max-width:980px){.doc{grid-template-columns:minmax(0,1fr);padding-top:1rem}.lateral{position:static;max-height:none;order:2}.aula{max-width:none}}
+@media (max-width:860px){.modulo{grid-template-columns:minmax(0,1fr)}.modulo h2{position:static}.mn{display:inline;margin-right:.5rem}}
+@media (max-width:420px){.meta{display:none}.top-in{gap:.5rem}.acoes{gap:.6rem}.capa{padding-top:1.25rem}.paginas{grid-template-columns:minmax(0,1fr)}.paginas .prox{grid-column:1}}
+@media print{.top,.lateral,.paginas{display:none}.aula{border:0;box-shadow:none;padding:0;max-width:none}.doc{display:block}}
+</style>
+</head>
+<body>
+<a class="pular" href="#conteudo">Vai al contenuto</a>
+<header class="top"><div class="wrap top-in"><div class="titles"><p class="marca"><a href="index.it.html">Corso Linux Sysadmin</a></p><p class="meta">Rodrigo Antignani · Lezione 19.5</p></div><div class="acoes"><a href="index.it.html">Indice</a><div class="idioma" role="group" aria-label="Lingua"><a href="19.5-tls-e-proxy-reverso.html" hreflang="pt-BR" lang="pt-BR">PT</a><span aria-current="true">IT</span></div></div></div></header>
+<div class="wrap doc"><aside class="lateral" aria-label="Lezioni"><h2>Lezioni</h2><h3>M0 · Laboratorio</h3><ul><li><a href="0.1-montar-o-laboratorio.it.html"><span class="num">0.1</span><span>Allestire il laboratorio</span></a></li><li><a href="0.2-acesso-e-protecao.it.html"><span class="num">0.2</span><span>Accesso e protezione</span></a></li></ul><h3>M1 · Riga di comando</h3><ul><li><a href="1.1-o-que-e-linux.it.html"><span class="num">1.1</span><span>Che cos'è Linux</span></a></li><li><a href="1.2-o-shell-e-a-ajuda.it.html"><span class="num">1.2</span><span>La shell e la guida</span></a></li><li><a href="1.3-caminhos-e-navegacao.it.html"><span class="num">1.3</span><span>Percorsi e navigazione</span></a></li><li><a href="1.4-criar-copiar-mover-e-apagar.it.html"><span class="num">1.4</span><span>Creare, copiare, spostare ed eliminare</span></a></li><li><a href="1.5-ler-e-procurar-texto.it.html"><span class="num">1.5</span><span>Leggere e cercare testo</span></a></li><li><a href="1.6-redirecionamentos-e-pipes.it.html"><span class="num">1.6</span><span>Reindirizzamenti e pipe</span></a></li><li><a href="1.7-arquivar-e-compactar.it.html"><span class="num">1.7</span><span>Archiviare e comprimere</span></a></li><li><a href="1.8-primeiro-script.it.html"><span class="num">1.8</span><span>Primo script</span></a></li><li><a href="1.9-decidir-e-repetir.it.html"><span class="num">1.9</span><span>Decidere e ripetere</span></a></li><li><a href="1.10-software-livre-na-pratica.it.html"><span class="num">1.10</span><span>Il software libero in pratica</span></a></li></ul><h3>M2 · Sistema, utenti e permessi</h3><ul><li><a href="2.1-instalacao-e-provisionamento.it.html"><span class="num">2.1</span><span>Installazione e provisioning</span></a></li><li><a href="2.2-hardware-e-dispositivos.it.html"><span class="num">2.2</span><span>Hardware e dispositivi</span></a></li><li><a href="2.3-processos-e-logs.it.html"><span class="num">2.3</span><span>Processi e log</span></a></li><li><a href="2.4-rede-no-dia-a-dia.it.html"><span class="num">2.4</span><span>La rete di tutti i giorni</span></a></li><li><a href="2.5-acesso-remoto-e-privilegios.it.html"><span class="num">2.5</span><span>Accesso remoto e privilegi</span></a></li><li><a href="2.6-usuarios-e-grupos.it.html"><span class="num">2.6</span><span>Utenti e gruppi</span></a></li><li><a href="2.7-permissoes-e-dono.it.html"><span class="num">2.7</span><span>Permessi e proprietario</span></a></li><li><a href="2.8-diretorios-e-arquivos-especiais.it.html"><span class="num">2.8</span><span>Directory e file speciali</span></a></li></ul><h3>M3 · Testo ed editor</h3><ul><li><a href="3.1-fluxos-a-fundo.it.html"><span class="num">3.1</span><span>I flussi in profondità</span></a></li><li><a href="3.2-filtros-de-texto.it.html"><span class="num">3.2</span><span>Filtri di testo</span></a></li><li><a href="3.3-regex-e-grep.it.html"><span class="num">3.3</span><span>Regex e grep</span></a></li><li><a href="3.4-sed-e-awk.it.html"><span class="num">3.4</span><span>sed e awk</span></a></li><li><a href="3.5-vi-e-vim-de-verdade.it.html"><span class="num">3.5</span><span>vi e vim sul serio</span></a></li></ul><h3>M4 · systemd e boot</h3><ul><li><a href="4.1-como-o-linux-liga.it.html"><span class="num">4.1</span><span>Come si avvia Linux</span></a></li><li><a href="4.2-systemd-servicos-e-units.it.html"><span class="num">4.2</span><span>systemd: servizi e unit</span></a></li><li><a href="4.3-targets-desligar-e-reiniciar.it.html"><span class="num">4.3</span><span>Target: spegnere e riavviare</span></a></li><li><a href="4.4-grub-e-acesso-de-emergencia.it.html"><span class="num">4.4</span><span>GRUB e accesso di emergenza</span></a></li></ul><h3>M5 · Kernel, moduli e VM</h3><ul><li><a href="5.1-hardware-pelo-kernel.it.html"><span class="num">5.1</span><span>L'hardware visto dal kernel</span></a></li><li><a href="5.2-modulos-e-parametros.it.html"><span class="num">5.2</span><span>Moduli e parametri</span></a></li><li><a href="5.3-linux-como-convidado.it.html"><span class="num">5.3</span><span>Linux come guest</span></a></li></ul><h3>M6 · Pacchetti e repository</h3><ul><li><a href="6.1-pacotes-no-debian.it.html"><span class="num">6.1</span><span>Pacchetti su Debian</span></a></li><li><a href="6.2-pacotes-na-rocky.it.html"><span class="num">6.2</span><span>Pacchetti su Rocky</span></a></li><li><a href="6.3-repositorios.it.html"><span class="num">6.3</span><span>Repository</span></a></li><li><a href="6.4-flatpak.it.html"><span class="num">6.4</span><span>Flatpak</span></a></li><li><a href="6.5-bibliotecas-compartilhadas.it.html"><span class="num">6.5</span><span>Librerie condivise</span></a></li></ul><h3>M7 · Processi e prestazioni</h3><ul><li><a href="7.1-processos-e-sinais.it.html"><span class="num">7.1</span><span>Processi e segnali</span></a></li><li><a href="7.2-jobs-e-sessoes.it.html"><span class="num">7.2</span><span>Job e sessioni</span></a></li><li><a href="7.3-prioridade-e-perfis.it.html"><span class="num">7.3</span><span>Priorità e profili</span></a></li></ul><h3>M8 · File a fondo</h3><ul><li><a href="8.1-fhs-e-onde-cada-coisa-mora.it.html"><span class="num">8.1</span><span>FHS e dove sta ogni cosa</span></a></li><li><a href="8.2-find-a-fundo.it.html"><span class="num">8.2</span><span>find a fondo</span></a></li><li><a href="8.3-arquivamento-avancado.it.html"><span class="num">8.3</span><span>Archiviazione avanzata</span></a></li><li><a href="8.4-links.it.html"><span class="num">8.4</span><span>Link</span></a></li><li><a href="8.5-permissoes-avancadas.it.html"><span class="num">8.5</span><span>Permessi avanzati</span></a></li></ul><h3>M9 · Storage</h3><ul><li><a href="9.1-discos-e-layout.it.html"><span class="num">9.1</span><span>Dischi e layout</span></a></li><li><a href="9.2-particionar.it.html"><span class="num">9.2</span><span>Partizionare</span></a></li><li><a href="9.3-sistemas-de-arquivos.it.html"><span class="num">9.3</span><span>File system</span></a></li><li><a href="9.4-montar-e-persistir.it.html"><span class="num">9.4</span><span>Montare e rendere persistente</span></a></li><li><a href="9.5-integridade-e-espaco.it.html"><span class="num">9.5</span><span>Integrità e spazio</span></a></li><li><a href="9.6-lvm.it.html"><span class="num">9.6</span><span>LVM</span></a></li><li><a href="9.7-crescer-sem-destruir.it.html"><span class="num">9.7</span><span>Crescere senza distruggere</span></a></li></ul><h3>M10 · Utenti e accesso privilegiato</h3><ul><li><a href="10.1-contas.it.html"><span class="num">10.1</span><span>Account</span></a></li><li><a href="10.2-senhas-e-validade.it.html"><span class="num">10.2</span><span>Password e scadenza</span></a></li><li><a href="10.3-grupos-e-trabalho-em-equipe.it.html"><span class="num">10.3</span><span>Gruppi e lavoro di squadra</span></a></li><li><a href="10.4-sudo-de-verdade.it.html"><span class="num">10.4</span><span>sudo sul serio</span></a></li></ul><h3>M11 · Rete</h3><ul><li><a href="11.1-tcp-ip-para-quem-administra.it.html"><span class="num">11.1</span><span>TCP/IP per chi amministra</span></a></li><li><a href="11.2-networkmanager-e-nmcli.it.html"><span class="num">11.2</span><span>NetworkManager e nmcli</span></a></li><li><a href="11.3-rede-no-debian.it.html"><span class="num">11.3</span><span>Rete su Debian</span></a></li><li><a href="11.4-nomes-e-resolucao.it.html"><span class="num">11.4</span><span>Nomi e risoluzione</span></a></li><li><a href="11.5-diagnostico-de-rede.it.html"><span class="num">11.5</span><span>Diagnosi di rete</span></a></li></ul><h3>M12 · Sicurezza dell'host</h3><ul><li><a href="12.1-ssh-a-fundo.it.html"><span class="num">12.1</span><span>SSH in dettaglio</span></a></li><li><a href="12.2-firewall.it.html"><span class="num">12.2</span><span>Firewall</span></a></li><li><a href="12.3-selinux-modos-e-contextos.it.html"><span class="num">12.3</span><span>SELinux: modalità e contesti</span></a></li><li><a href="12.4-selinux-portas-e-booleanos.it.html"><span class="num">12.4</span><span>SELinux: porte e booleani</span></a></li><li><a href="12.5-auditoria-e-criptografia.it.html"><span class="num">12.5</span><span>Audit e crittografia</span></a></li></ul><h3>M13 · Archiviazione in rete</h3><ul><li><a href="13.1-servidor-nfs.it.html"><span class="num">13.1</span><span>Server NFS</span></a></li><li><a href="13.2-cliente-nfs.it.html"><span class="num">13.2</span><span>Client NFS</span></a></li><li><a href="13.3-autofs.it.html"><span class="num">13.3</span><span>autofs</span></a></li></ul><h3>M14 · Pianificazione</h3><ul><li><a href="14.1-cron-e-at.it.html"><span class="num">14.1</span><span>cron e at</span></a></li><li><a href="14.2-timers-do-systemd.it.html"><span class="num">14.2</span><span>Timer di systemd</span></a></li><li><a href="14.3-journald-e-rsyslog.it.html"><span class="num">14.3</span><span>journald e rsyslog</span></a></li><li><a href="14.4-hora-certa.it.html"><span class="num">14.4</span><span>L'ora corretta</span></a></li><li><a href="14.5-email-local-e-impressao.it.html"><span class="num">14.5</span><span>E-mail locale e stampa</span></a></li></ul><h3>M15 · Shell e ambiente</h3><ul><li><a href="15.1-ambiente-do-shell.it.html"><span class="num">15.1</span><span>Ambiente della shell</span></a></li><li><a href="15.2-scripts-robustos.it.html"><span class="num">15.2</span><span>Script robusti</span></a></li><li><a href="15.3-scripts-de-administracao.it.html"><span class="num">15.3</span><span>Script di amministrazione</span></a></li><li><a href="15.4-interfaces-graficas.it.html"><span class="num">15.4</span><span>Interfacce grafiche</span></a></li><li><a href="15.5-idioma-teclado-e-fuso.it.html"><span class="num">15.5</span><span>Lingua, tastiera e fuso orario</span></a></li></ul><h3>M16 · Settimana di incidenti su Rocky 10</h3><ul><li><a href="16.1-rocky-10-o-que-muda.it.html"><span class="num">16.1</span><span>Rocky 10: cosa cambia</span></a></li><li><a href="16.2-incidentes-por-area.it.html"><span class="num">16.2</span><span>Incidenti per area</span></a></li><li><a href="16.3-incidente-com-relogio.it.html"><span class="num">16.3</span><span>Incidente con cronometro</span></a></li><li><a href="16.4-correcao-e-reforco.it.html"><span class="num">16.4</span><span>Correzione e rinforzo</span></a></li></ul><h3>M17 · Proxmox in pratica</h3><ul><li><a href="17.1-proxmox-por-dentro.it.html"><span class="num">17.1</span><span>Proxmox dall'interno</span></a></li><li><a href="17.2-vm-pela-linha-de-comando.it.html"><span class="num">17.2</span><span>VM dalla riga di comando</span></a></li><li><a href="17.3-conteiner-lxc.it.html"><span class="num">17.3</span><span>Container LXC</span></a></li><li><a href="17.4-storage.it.html"><span class="num">17.4</span><span>Storage: capacità, ampliamento e spostamento</span></a></li><li><a href="17.5-rede.it.html"><span class="num">17.5</span><span>Rete: bridge, VLAN, bond e SDN</span></a></li><li><a href="17.6-backup-e-restauracao.it.html"><span class="num">17.6</span><span>Backup e ripristino con PBS</span></a></li><li><a href="17.7-migracao-e-quorum.it.html"><span class="num">17.7</span><span>Migrazione e quorum</span></a></li></ul><h3>M18 · Podman</h3><ul><li><a href="18.1-conteiner-nao-e-vm.it.html"><span class="num">18.1</span><span>Un container non è una VM</span></a></li><li><a href="18.2-rodar-e-persistir.it.html"><span class="num">18.2</span><span>Eseguire e conservare i dati</span></a></li><li><a href="18.3-conteiner-como-servico.it.html"><span class="num">18.3</span><span>Container come servizio</span></a></li><li><a href="18.4-diagnosticar-conteiner-rootless.it.html"><span class="num">18.4</span><span>Diagnosticare un container rootless</span></a></li><li><a href="18.5-construir-imagens.it.html"><span class="num">18.5</span><span>Costruire immagini</span></a></li></ul><h3>M19 · Servizi di rete</h3><ul><li><a href="19.1-dns-autoritativo.it.html"><span class="num">19.1</span><span>DNS autoritativo</span></a></li><li><a href="19.2-dns-recursivo-e-diagnostico.it.html"><span class="num">19.2</span><span>DNS ricorsivo e diagnosi</span></a></li><li><a href="19.3-dhcp.it.html"><span class="num">19.3</span><span>DHCP</span></a></li><li><a href="19.4-servidor-web.it.html"><span class="num">19.4</span><span>Server web: nome, file e risposta</span></a></li><li><a href="19.5-tls-e-proxy-reverso.it.html" aria-current="page"><span class="num">19.5</span><span>TLS e reverse proxy: identità prima del lucchetto</span></a></li><li><a href="19.6-samba-a-ponte-windows.it.html"><span class="num">19.6</span><span>Samba: il ponte con il client Windows</span></a></li><li><a href="19.7-postfix-e-correio-local.it.html"><span class="num">19.7</span><span>Postfix e posta locale</span></a></li><li><a href="19.8-dovecot-e-imaps.it.html"><span class="num">19.8</span><span>Dovecot e lettura tramite IMAPS</span></a></li><li><a href="19.9-squid-e-desafio-integrado.it.html"><span class="num">19.9</span><span>Squid e sfida integrata</span></a></li></ul><h3>M20 · Dentro NethServer 8</h3><ul><li><a href="20.1-instalar-nethserver-8.it.html"><span class="num">20.1</span><span>Installare in una VM pulita</span></a></li><li><a href="20.2-cluster-no-e-modulo.it.html"><span class="num">20.2</span><span>Cluster, nodo e modulo</span></a></li><li><a href="20.3-modulo-por-dentro.it.html"><span class="num">20.3</span><span>Dentro un modulo</span></a></li><li><a href="20.4-proxy-e-certificados.it.html"><span class="num">20.4</span><span>Proxy e certificati</span></a></li><li><a href="20.5-dominios-de-usuario.it.html"><span class="num">20.5</span><span>Domini utente: identità con confini</span></a></li><li><a href="20.6-backup-e-restauracao.it.html"><span class="num">20.6</span><span>Backup e ripristino: verificare il ritorno</span></a></li><li><a href="20.7-atualizar-mover-e-falhar.it.html"><span class="num">20.7</span><span>Aggiornare, spostare e guastare con verifica</span></a></li></ul></aside><main id="conteudo" class="aula"><article><h1>Lezione 19.5 · TLS e reverse proxy: identità prima del lucchetto</h1>
+<blockquote><p><strong>Il cuore di questa lezione:</strong> verificare nome, catena e validità, conservando la chiave privata e la separazione tra proxy e backend.</p></blockquote>
+<div class="tabela"><table><thead><tr><th scope="col">Scheda</th><th scope="col">Piano di lavoro</th></tr></thead><tbody><tr><td>Modulo</td><td>M19 · Servizi di rete, lezione 5 di 9</td></tr><tr><td>Quando</td><td>Settimana 26</td></tr><tr><td>Alla fine</td><td>verificare nome, catena e validità, conservando la chiave privata e la separazione tra proxy e backend.</td></tr><tr><td>Prerequisiti</td><td>19.4; servizio rootless persistente di M18 nella VM 201</td></tr><tr><td>Durata</td><td>100–120 minuti</td></tr><tr><td>Snapshot</td><td>Soltanto VM del corso: <code translate="no">m19a5-inicio</code> e <code translate="no">m19a5-fim</code></td></tr></tbody></table></div>
+<p>La VM principale è <code translate="no">204</code>, <code translate="no">srv-deb</code>, Debian 13. L’interfaccia isolata ha <code translate="no">192.0.2.204/24</code> su <code translate="no">vmbr17</code>; l’interfaccia di gestione conserva il proprio indirizzo reale.</p>
+<p>La rete <code translate="no">192.0.2.0/24</code> è stata riservata al lab dopo aver escluso sovrapposizioni con gestione e VPN. Non instradarla verso Internet.</p>
+<p>I blocchi indicano su quale macchina e con quale identità lavorare. Crea lo snapshot prima della modifica e tieni disponibile la console; non eseguire queste operazioni sull’host Proxmox.</p>
+<p>Se trovi una configurazione o un servizio precedente fuori dal percorso, fermati e riconcilia l’inventario. I controlli evitano di sostituire un servizio sconosciuto con una configurazione didattica.</p>
+<p>La rete isolata della VM <code translate="no">201</code> deve essere pronta secondo la <a href="https://github.com/Rodrigoantignani/curso-linux-sysadmin/blob/master/GUIA_BANCADA_M19_IT.md">Guida del banco</a>. Usa <code translate="no">192.0.2.201</code>; la gestione rimane intatta.</p>
+<p>Nomi canonici del modulo: il nome della VM in Proxmox e l’hostname del sistema operativo devono corrispondere al ruolo, prima di eseguire le guardie. Un nome DNS di servizio non cambia l’hostname. Se l’inventario differisce, riconcilialo dalla console prima di proseguire; non ignorare le guardie.</p>
+<div class="tabela"><table><thead><tr><th scope="col">VM</th><th scope="col">Hostname breve</th><th scope="col">Indirizzo isolato</th></tr></thead><tbody><tr><td>201</td><td><code translate="no">rocky-lab</code></td><td><code translate="no">192.0.2.201</code></td></tr><tr><td>202</td><td><code translate="no">debian-lab</code></td><td><code translate="no">192.0.2.202</code></td></tr><tr><td>204</td><td><code translate="no">srv-deb</code></td><td><code translate="no">192.0.2.204</code></td></tr><tr><td>212</td><td><code translate="no">m19-client</code></td><td>DHCP; solo sfida 19.9</td></tr></tbody></table></div>
+<h2 id="1-riscaldamento">1 · Riscaldamento</h2>
+<ol><li>Fidarti della CA rende valido qualsiasi nome presentato dal server?</li>
+<li>Il loopback della VM <code translate="no">201</code> è raggiungibile usando il loopback della VM <code translate="no">204</code>?</li>
+<li>Al client serve la chiave privata della CA per verificare un certificato?</li></ol>
+<h2 id="2-perche-conta">2 · Perché conta</h2>
+<p>Una connessione cifrata con la macchina sbagliata consegna comunque informazioni alla macchina sbagliata. TLS deve collegare la richiesta a un nome autorizzato e a una catena fidata dal client.</p>
+<p>Il proxy presenta l’identità esterna e apre un’altra connessione al servizio. Il secondo tratto deve esistere e avere accesso limitato; il certificato del primo tratto non lo crea.</p>
+<h3 id="ponte-windows">Ponte Windows</h3>
+<p>Un certificato pubblico può essere copiato come un documento di identità verificabile. La chiave privata è il mezzo per dimostrarne il possesso; distribuirla insieme elimina la separazione che volevi costruire.</p>
+<h2 id="3-modello-mentale">3 · Modello mentale</h2>
+<figure><a href="../img/19.5-nome-cadeia-e-validade.it.jpg"><img src="../img/19.5-nome-cadeia-e-validade.it.jpg" alt="TLS verifica nome, catena e validità" loading="lazy" decoding="async"></a><figcaption>Fidarsi della CA non elimina il controllo del nome del server.</figcaption></figure>
+<p>Il client richiede un nome. Il certificato server presenta nomi in <code translate="no">subjectAltName</code>; la CA firma quel certificato. L’orologio partecipa alla verifica della validità.</p>
+<p>In questo banco la CA è privata del corso, senza fiducia pubblica. Fornirai esplicitamente il suo certificato al client; non abituerai il browser a ignorare gli errori.</p>
+<p>Il certificato verrà riutilizzato dalla posta nella 19.8. Includi fin da ora il nome della posta nel SAN; copiare un certificato privo di quel nome non corregge l’identità.</p>
+<h2 id="4-l-essenziale">4 · L'essenziale</h2>
+<div class="tabela"><table><thead><tr><th scope="col">Oggetto</th><th scope="col">Posizione</th><th scope="col">Distribuzione</th></tr></thead><tbody><tr><td>CA privata</td><td><code translate="no">/root/m19-ca/ca.key</code></td><td>Non lascia mai la VM emittente</td></tr><tr><td>CA pubblica</td><td><code translate="no">/etc/ssl/m19/ca.crt</code></td><td>Client autorizzati</td></tr><tr><td>Certificato server</td><td><code translate="no">/etc/ssl/m19/server.crt</code></td><td>Servizio che presenta l’identità</td></tr><tr><td>Chiave server</td><td><code translate="no">/etc/ssl/private/m19-server.key</code></td><td>Root, modo <code translate="no">600</code></td></tr></tbody></table></div>
+<h3 id="rocky-debian">Rocky × Debian</h3>
+<p>Il proxy principale rimane su Debian <code translate="no">204</code>. Nella VM Rocky <code translate="no">201</code>, il servizio rootless continua ad appartenere a <code translate="no">student</code>, con SELinux conservato e contenuto montato soltanto nell’albero di M18.</p>
+<p>Spostare un proxy su Rocky aggiungerebbe l’indagine della politica di connessione del processo web. Non attivare preventivamente un permesso ampio; questo lab non richiede tale modifica nella VM <code translate="no">201</code>.</p>
+<h3 id="decidi-1">Decidi 1</h3>
+<p>Il certificato è firmato dalla CA corretta, ma il nome richiesto manca nel SAN. Che cosa risolve?</p>
+<p>A. Disattivare la verifica nel client.
+B. Emettere nuovamente con il nome corretto e verificare il certificato presentato.
+C. Copiare la chiave privata della CA sul client.</p>
+<h2 id="5-lab-guidato">5 · Lab guidato</h2>
+<h3 id="passo-1-controllare-le-due-estremita">Passo 1 · Controllare le due estremità</h3>
+<p><strong>Ipotesi:</strong> Una pubblicazione locale di M18 può diventare upstream remoto senza modifiche?</p>
+<p>Nella VM <code translate="no">204</code>, come root, controlla il servizio della lezione precedente e l’orologio. Nella VM <code translate="no">201</code>, entra direttamente come <code translate="no">student</code> per i comandi dell’utente.</p>
+<pre translate="no"><code class="lang-bash">test ! -L /etc/m19-lab.env || exit 1
+test "$(stat -c '%U:%G:%a' /etc/m19-lab.env)" = root:root:644 || exit 1
+cat /etc/m19-lab.env
+. /etc/m19-lab.env
+test "$LAB_IP" = 192.0.2.204
+ip -4 -o address show dev "$LAB_IF" | grep -F '192.0.2.204/24'
+timedatectl status
+nginx -t
+curl --fail -H 'Host: www.lab.test' http://192.0.2.204/</code></pre>
+<p>Ora nella VM <code translate="no">201</code>, come <code translate="no">student</code>:</p>
+<pre translate="no"><code class="lang-bash">test "$(id -un)" = student
+ip -br -4 address
+systemctl --user is-active m18-web.service
+grep -F 'PublishPort=' ~/.config/containers/systemd/m18-web.container
+curl --fail http://127.0.0.1:18080/</code></pre>
+<p><strong>Output atteso:</strong> M18 risponde sul loopback della <code translate="no">201</code>, mentre nginx risponde sulla rete isolata della <code translate="no">204</code>.</p>
+<p><strong>Verifica:</strong> Se il Quadlet non contiene il servizio previsto o M18 non risponde, risolvi la continuità prima di creare il proxy.</p>
+<h3 id="passo-2-autorizzare-soltanto-il-proxy-sul-backend">Passo 2 · Autorizzare soltanto il proxy sul backend</h3>
+<p><strong>Ipotesi:</strong> Quale macchina deve potersi collegare alla porta pubblicata della VM <code translate="no">201</code>?</p>
+<p>Sempre nella VM <code translate="no">201</code>, come <code translate="no">student</code>, identifica l’interfaccia dall’indirizzo già configurato. Installa prima le regole limitate; modifica il bind del Quadlet soltanto dopo.</p>
+<pre translate="no"><code class="lang-bash">set -eu
+LAB_IF=$(ip -4 -o address show | awk '$4 == "192.0.2.201/24" {print $2}')
+test -n "$LAB_IF"
+test "$(printf '%s\n' "$LAB_IF" | wc -l)" -eq 1
+sudo firewall-cmd --state
+ZONE=$(sudo firewall-cmd --get-zone-of-interface "$LAB_IF" || true)
+if test -z "$ZONE" || test "$ZONE" = 'no zone'; then
+  ZONE=$(sudo firewall-cmd --get-default-zone)
+fi
+ALLOW='rule priority="-20" family="ipv4" source address="192.0.2.204/32" destination address="192.0.2.201/32" port port="18080" protocol="tcp" accept'
+DENY='rule priority="-10" family="ipv4" destination address="192.0.2.201/32" port port="18080" protocol="tcp" drop'
+sudo firewall-cmd --zone="$ZONE" --add-rich-rule="$ALLOW"
+sudo firewall-cmd --zone="$ZONE" --add-rich-rule="$DENY"
+sudo firewall-cmd --permanent --zone="$ZONE" --add-rich-rule="$ALLOW"
+sudo firewall-cmd --permanent --zone="$ZONE" --add-rich-rule="$DENY"
+sudo firewall-cmd --zone="$ZONE" --list-rich-rules
+install -d -m 700 ~/m19-lab
+test ! -e ~/m19-lab/m18-web.before.container
+cp -a ~/.config/containers/systemd/m18-web.container ~/m19-lab/m18-web.before.container
+python3 - &lt;&lt;'PY'
+from pathlib import Path
+p = Path.home()/'.config/containers/systemd/m18-web.container'
+s = p.read_text()
+assert 'ContainerName=m18-web' in s
+assert 'Label=io.course.module=M18' in s
+old = 'PublishPort=127.0.0.1:18080:8080'
+assert s.count(old) == 1
+p.write_text(s.replace(old, 'PublishPort=192.0.2.201:18080:8080'))
+PY
+systemctl --user daemon-reload
+systemctl --user restart m18-web.service
+podman port m18-web</code></pre>
+<p><strong>Output atteso:</strong> La pubblicazione diventa <code translate="no">192.0.2.201:18080</code>, con accettazione dell’origine <code translate="no">192.0.2.204</code> prima dello scarto delle altre origini.</p>
+<p><strong>Verifica:</strong> Nella VM <code translate="no">204</code>, <code translate="no">curl --fail http://192.0.2.201:18080/</code> deve funzionare. Nella VM <code translate="no">202</code>, usa un limite di tempo e conferma il rifiuto. Non concludere soltanto dall’elenco delle regole.</p>
+<p>Nella VM <code translate="no">202</code>, la richiesta <code translate="no">curl --connect-timeout 3 --max-time 5 http://192.0.2.201:18080/</code> non deve ottenere la pagina. Se la ottiene, fermati e indaga regole precedenti con priorità maggiore.</p>
+<h3 id="passo-3-creare-una-ca-di-laboratorio">Passo 3 · Creare una CA di laboratorio</h3>
+<p><strong>Ipotesi:</strong> Quale oggetto può arrivare ai client senza consentire l’emissione di certificati?</p>
+<figure><a href="../img/19.5-chave-nao-viaja.it.jpg"><img src="../img/19.5-chave-nao-viaja.it.jpg" alt="La chiave privata non accompagna il certificato pubblico" loading="lazy" decoding="async"></a><figcaption>Distribuisci il certificato pubblico; conserva la chiave privata.</figcaption></figure>
+<p>Torna alla VM <code translate="no">204</code>, come root. La password della chiave CA verrà richiesta nel terminale; non inserirla in argomenti, cronologia o file della lezione.</p>
+<pre translate="no"><code class="lang-bash">set -eu
+umask 077
+test ! -e /root/m19-ca
+test ! -e /etc/ssl/m19
+test ! -e /etc/ssl/private/m19-server.key
+install -d -m 700 /root/m19-ca
+install -d -m 755 /etc/ssl/m19
+openssl genpkey -algorithm RSA -aes-256-cbc   -pkeyopt rsa_keygen_bits:3072 -out /root/m19-ca/ca.key
+openssl req -new -x509 -sha256 -days 3650   -key /root/m19-ca/ca.key -out /etc/ssl/m19/ca.crt   -subj '/CN=M19 Lab CA'   -addext 'basicConstraints=critical,CA:TRUE'   -addext 'keyUsage=critical,keyCertSign,cRLSign'
+chmod 600 /root/m19-ca/ca.key
+chmod 644 /etc/ssl/m19/ca.crt
+openssl x509 -in /etc/ssl/m19/ca.crt -noout -subject -fingerprint -sha256</code></pre>
+<p><strong>Output atteso:</strong> La chiave CA rimane cifrata e limitata a root; il certificato pubblico può essere controllato senza la password della CA.</p>
+<p><strong>Verifica:</strong> Registra l’impronta del certificato pubblico tramite un canale fidato. La CA dell’esercizio non sostituisce una politica reale di emissione, revoca e custodia.</p>
+<h3 id="passo-4-emettere-lidentita-con-san">Passo 4 · Emettere l’identità con SAN</h3>
+<p><strong>Ipotesi:</strong> Il nome nella richiesta deve corrispondere a quale estensione del certificato?</p>
+<pre translate="no"><code class="lang-bash">openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:3072   -out /etc/ssl/private/m19-server.key
+chmod 600 /etc/ssl/private/m19-server.key
+openssl req -new -key /etc/ssl/private/m19-server.key   -out /root/m19-ca/server.csr -subj '/CN=mail.lab.test'
+cat &gt; /root/m19-ca/server.ext &lt;&lt;'EOF'
+basicConstraints=critical,CA:FALSE
+keyUsage=critical,digitalSignature,keyEncipherment
+extendedKeyUsage=serverAuth
+subjectAltName=DNS:web.lab.test,DNS:www.lab.test,DNS:mail.lab.test,DNS:proxy.lab.test,DNS:srv-deb.lab.test
+EOF
+openssl x509 -req -sha256 -days 90   -in /root/m19-ca/server.csr -CA /etc/ssl/m19/ca.crt   -CAkey /root/m19-ca/ca.key -CAcreateserial   -extfile /root/m19-ca/server.ext -out /etc/ssl/m19/server.crt
+chmod 644 /etc/ssl/m19/server.crt
+openssl x509 -in /etc/ssl/m19/server.crt -noout -dates -ext subjectAltName
+openssl verify -CAfile /etc/ssl/m19/ca.crt   -verify_hostname web.lab.test /etc/ssl/m19/server.crt
+openssl verify -CAfile /etc/ssl/m19/ca.crt   -verify_hostname mail.lab.test /etc/ssl/m19/server.crt</code></pre>
+<p><strong>Output atteso:</strong> Il certificato contiene i cinque nomi SAN e serve i nomi web e posta. La validità del certificato finale è inferiore a quella della CA.</p>
+<p><strong>Verifica:</strong> Controlla i nomi emessi, non soltanto la richiesta CSR. Un’estensione assente dall’emissione non viene aggiunta da nginx.</p>
+<h3 id="passo-5-terminare-tls-e-raggiungere-il-backend">Passo 5 · Terminare TLS e raggiungere il backend</h3>
+<p><strong>Ipotesi:</strong> L’indirizzo dell’upstream appartiene al proxy o alla macchina che esegue il container?</p>
+<figure><a href="../img/19.5-duas-conexoes-do-proxy.it.jpg"><img src="../img/19.5-duas-conexoes-do-proxy.it.jpg" alt="Il proxy comunica da entrambi i lati" loading="lazy" decoding="async"></a><figcaption>TLS termina sul proxy; il backend richiede un percorso raggiungibile.</figcaption></figure>
+<pre translate="no"><code class="lang-bash">test ! -e /etc/nginx/conf.d/m19-tls.conf
+cat &gt; /etc/nginx/conf.d/m19-tls.conf &lt;&lt;'EOF'
+server {
+    listen 192.0.2.204:443 ssl;
+    server_name web.lab.test www.lab.test proxy.lab.test;
+    ssl_certificate /etc/ssl/m19/server.crt;
+    ssl_certificate_key /etc/ssl/private/m19-server.key;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    allow 192.0.2.0/24;
+    deny all;
+    access_log /var/log/nginx/m19-tls-access.log;
+    error_log /var/log/nginx/m19-tls-error.log;
+    location / {
+        proxy_pass http://192.0.2.201:18080;
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Forwarded-For $remote_addr;
+    }
+}
+EOF
+nginx -t
+systemctl reload nginx
+ss -ltnp '( sport = :443 )'
+curl --fail --cacert /etc/ssl/m19/ca.crt   --resolve web.lab.test:443:192.0.2.204 https://web.lab.test/</code></pre>
+<p><strong>Output atteso:</strong> La richiesta HTTPS verificata riceve il contenuto di M18. Il secondo tratto usa HTTP soltanto sulla rete isolata e accetta l’origine del proxy.</p>
+<p><strong>Verifica:</strong> Se esiste un firewall Debian precedente, consenti soltanto TCP 443 dalla rete isolata all’indirizzo isolato secondo il piano della 19.1. Non sostituire l’insieme delle regole.</p>
+<h3 id="passo-6-verificare-da-un-client-indipendente">Passo 6 · Verificare da un client indipendente</h3>
+<p><strong>Ipotesi:</strong> Una verifica effettuata sul server dimostra la fiducia di un altro client?</p>
+<p>Copia soltanto <code translate="no">ca.crt</code> nella VM <code translate="no">202</code>, tramite trasferimento autenticato e con impronta verificata. Crea lì <code translate="no">/etc/ssl/m19/ca.crt</code> come root, modo <code translate="no">644</code>; non copiare mai la chiave privata.</p>
+<p>Nella VM <code translate="no">204</code>, prepara una copia pubblica per l’account di trasferimento già autorizzato. Il file temporaneo seguente contiene soltanto il certificato pubblico.</p>
+<pre translate="no"><code class="lang-bash">install -o student -g student -m 644 /etc/ssl/m19/ca.crt /home/student/m19-ca-public.crt
+openssl x509 -in /home/student/m19-ca-public.crt -noout -fingerprint -sha256</code></pre>
+<p>Nella VM <code translate="no">202</code>, come <code translate="no">student</code>, usa la destinazione di gestione reale della VM <code translate="no">204</code>, secondo l’inventario. Verifica la chiave SSH nota prima del trasferimento.</p>
+<pre translate="no"><code class="lang-bash">read -r -p 'SSH target of VM 204: ' SRV_SSH
+scp "student@$SRV_SSH:m19-ca-public.crt" ./m19-ca-public.crt
+openssl x509 -in ./m19-ca-public.crt -noout -fingerprint -sha256
+sudo install -d -m 755 /etc/ssl/m19
+sudo install -m 644 ./m19-ca-public.crt /etc/ssl/m19/ca.crt
+curl --fail --cacert /etc/ssl/m19/ca.crt   --resolve web.lab.test:443:192.0.2.204 https://web.lab.test/
+openssl s_client -connect 192.0.2.204:443 -servername web.lab.test   -CAfile /etc/ssl/m19/ca.crt -verify_hostname web.lab.test   -verify_return_error &lt;/dev/null</code></pre>
+<p><strong>Output atteso:</strong> Il client verifica catena e nome senza disattivare il controllo; la pagina proviene dal servizio rootless.</p>
+<p><strong>Verifica:</strong> Ripeti dopo il reboot della <code translate="no">201</code> e della <code translate="no">204</code>. Conferma il blocco diretto dalla <code translate="no">202</code> alla porta <code translate="no">18080</code> e l’accesso consentito all’HTTPS del proxy.</p>
+<h2 id="6-rompi-e-ripara">6 · Rompi e ripara</h2>
+<p>Le prove di nome e fiducia non richiedono di corrompere i file del server. Eseguile sul client con gli stessi certificati e confronta gli errori.</p>
+<h3 id="guasto-1-nome-fuori-dal-san">Guasto 1 · Nome fuori dal SAN</h3>
+<p><strong>Sintomo:</strong> Richiedi <code translate="no">https://wrong.lab.test/</code> con risoluzione esplicita verso <code translate="no">192.0.2.204</code> e la stessa CA.</p>
+<p><strong>Indagine:</strong> Confronta il nome della richiesta con <code translate="no">openssl x509 -ext subjectAltName</code>.</p>
+<p><strong>Causa:</strong> Fidarsi dell’emittente non autorizza un nome assente dal SAN.</p>
+<p><strong>Riparazione:</strong> Torna al nome <code translate="no">web.lab.test</code>; una nuova identità richiederebbe un’emissione revisionata.</p>
+<p><strong>Verifica:</strong> Il nome autorizzato passa e quello errato continua a fallire.</p>
+<p><strong>Prevenzione:</strong> Includi una prova negativa del nome nella consegna TLS.</p>
+<h3 id="guasto-2-client-senza-ca">Guasto 2 · Client senza CA</h3>
+<p><strong>Sintomo:</strong> Ripeti la richiesta senza <code translate="no">--cacert</code>, su un client che non ha ricevuto questa CA nell’archivio globale.</p>
+<p><strong>Indagine:</strong> Confronta l’errore di fiducia con la verifica esplicita della CA pubblica.</p>
+<p><strong>Causa:</strong> La CA privata del lab non è automaticamente fidata su un altro sistema.</p>
+<p><strong>Riparazione:</strong> Fornisci al client la CA pubblica verificata; non usare un’opzione per ignorare la validazione.</p>
+<p><strong>Verifica:</strong> Ripeti con nome e CA corretti e controlla l’impronta.</p>
+<p><strong>Prevenzione:</strong> Distribuisci la fiducia con una procedura esplicita e un ambito noto.</p>
+<h3 id="guasto-3-upstream-non-disponibile">Guasto 3 · Upstream non disponibile</h3>
+<p><strong>Sintomo:</strong> Nella VM <code translate="no">201</code>, come <code translate="no">student</code>, ferma <code translate="no">m18-web.service</code>; HTTPS supera la verifica ma restituisce 502.</p>
+<p><strong>Indagine:</strong> Nella VM <code translate="no">204</code>, leggi l’errore del proxy e verifica il backend con un limite di tempo.</p>
+<p><strong>Causa:</strong> Il problema è successivo alla terminazione TLS; il certificato non avvia il servizio.</p>
+<p><strong>Riparazione:</strong> Nella VM <code translate="no">201</code>, come <code translate="no">student</code>, avvia <code translate="no">m18-web.service</code>.</p>
+<p><strong>Verifica:</strong> HTTPS torna a consegnare il contenuto e la <code translate="no">202</code> resta senza accesso diretto al backend.</p>
+<p><strong>Prevenzione:</strong> Monitora separatamente validità TLS e risposta applicativa.</p>
+<h2 id="7-trappole">7 · Trappole</h2>
+<p>Un certificato valido per DNS non autorizza automaticamente una richiesta all’IP. Il lab usa nomi SAN e non emette SAN di indirizzo IP.</p>
+<p>La chiave server rimane senza password per avviare il servizio senza intervento, protetta da root e modo <code translate="no">600</code>. La chiave CA rimane cifrata e non viene caricata da nginx.</p>
+<p>Il file della CA pubblica non va confuso con la chiave privata perché il client usa lo stesso nome di directory. Controlla tipo, impronta e destinazione prima del trasferimento.</p>
+<h3 id="decidi-2">Decidi 2</h3>
+<p>TLS viene verificato, ma la risposta è 502. Quale verifica distingue l’ipotesi principale?</p>
+<p>A. Aprire la porta backend a tutta la gestione.
+B. Emettere subito un’altra CA.
+C. Verificare il backend dal proxy e leggere l’errore dell’upstream.</p>
+<h2 id="8-quiz">8 · Quiz</h2>
+<ol><li>Quali tre verifiche di identità e fiducia hai separato?</li>
+<li>Perché la chiave privata della CA non raggiunge il client?</li>
+<li>Quale modifica ha reso il servizio di M18 raggiungibile dal proxy?</li>
+<li>Quale client deve fallire nell’accesso diretto al backend?</li>
+<li>Che cosa dimostra una verifica TLS seguita da 502?</li></ol>
+<h2 id="9-promemoria">9 · Promemoria</h2>
+<p><strong>Flashcard:</strong> rispondi ad alta voce senza cercare la riga di comando. Una buona risposta nomina il riscontro che può contraddire la tua ipotesi.</p>
+<ul><li>Nome SAN, catena di fiducia e validità temporale sono verifiche indipendenti.</li>
+<li>La CA pubblica verifica la firma; la chiave privata permetterebbe di emettere identità.</li>
+<li>Il bind è passato all’indirizzo isolato della VM 201, con firewall che accetta soltanto la VM 204.</li></ul>
+<p>Usa DeepTutor per giustificare l’ordine delle verifiche con i risultati che hai misurato. Non inviare password, chiavi private o dati di altri utenti.</p>
+<pre translate="no"><code class="lang-text">!explica Separe nome SAN, cadeia de confianca e validade temporal.
+!feynman Explique as duas conexoes do proxy sem confundir seus enderecos.
+!quiz Crie tres falhas de TLS ou backend e peca a prova que as separa.</code></pre>
+<h2 id="10-checklist-e-chiusura">10 · Checklist e chiusura</h2>
+<ul><li>[ ] So indicare macchina, interfaccia, identità e file responsabile della modifica.</li>
+<li>[ ] Ho registrato ipotesi, risultato osservato e una verifica indipendente.</li>
+<li>[ ] Ho annullato tutti i guasti introdotti e ripetuto l’accesso dal client autorizzato.</li>
+<li>[ ] Ho conservato l’interfaccia di gestione e le protezioni di accesso del sistema.</li></ul>
+<p><strong>Reboot di verifica:</strong> dopo aver corretto i guasti, riavvia soltanto la VM del corso coinvolta. Dalla console controlla l’interfaccia isolata e ripeti la richiesta reale da un’altra VM.</p>
+<p>Uno stato attivo dopo il reboot è soltanto una delle prove. La risposta deve arrivare dall’indirizzo corretto, con il nome corretto e l’identità prevista.</p>
+<p><strong>Ultimo esercizio:</strong> chiudi il terminale usato per configurare. In una nuova sessione ricostruisci il percorso della richiesta usando gli appunti, senza dipendere dalle variabili della sessione precedente.</p>
+<p>La pulizia di questa lezione elimina i file temporanei di prova e ripristina i guasti. Conserva servizi, dati e configurazione dedicati a M19 per la sfida integrata della 19.9.</p>
+<p>Crea <code translate="no">m19a5-fim</code> soltanto dopo la verifica esterna. Annota il punto di ripristino precedente e non ripristinare una VM senza valutare i servizi già usati dalle altre lezioni.</p>
+<h2 id="11-nella-vita-reale">11 · Nella vita reale</h2>
+<p>Missione di osservazione: scegli un servizio già autorizzato e segui una singola richiesta nei registri disponibili, senza modificare configurazione, permessi, utenti o firewall.</p>
+<p>Consegna un disegno con client, nome, indirizzo, processo e file. Segna ciò che hai misurato e ciò che resta un’ipotesi; non trasformare l’assenza di riscontri in un’autorizzazione a modificare.</p>
+<h2 id="12-approfondire-quando-vuoi">12 · Approfondire quando vuoi</h2>
+<p><a href="https://docs.openssl.org/3.5/man1/openssl-x509/">OpenSSL · emissione e ispezione dei certificati</a></p>
+<p><a href="https://nginx.org/en/docs/http/ngx_http_proxy_module.html">nginx · modulo proxy HTTP</a></p>
+<p><a href="https://curl.se/docs/sslcerts.html">curl · verifica dei certificati</a></p>
+<p>Consulta anche il manuale installato nella VM: la sintassi della versione presente ha priorità sugli esempi di un’altra distribuzione o edizione.</p>
+<h2 id="soluzioni-commentate">Soluzioni commentate</h2>
+<ol><li>Nome SAN, catena di fiducia e validità temporale sono verifiche indipendenti.</li>
+<li>La CA pubblica verifica la firma; la chiave privata permetterebbe di emettere identità.</li>
+<li>Il bind è passato all’indirizzo isolato della VM 201, con firewall che accetta soltanto la VM 204.</li>
+<li>Decidi 1: B. L’identità emessa deve contenere il nome; ignorare l’errore non lo corregge.</li>
+<li>Decidi 2: C. TLS può essere corretto mentre la connessione al backend fallisce.</li>
+<li>La VM 202 accede a HTTPS sul proxy, ma non accede direttamente alla porta 18080 del backend.</li></ol>
+<h3 id="quiz-risposte-per-domanda">Quiz · Risposte per domanda</h3>
+<ol><li>Nome SAN, catena di fiducia e validità temporale.</li>
+<li>La chiave CA permette di emettere certificati; la verifica richiede soltanto il certificato pubblico fidato.</li>
+<li>Il Quadlet è passato dal loopback all’indirizzo isolato della VM 201, dopo aver limitato l’origine nel firewall.</li>
+<li>La VM 202 deve fallire sulla porta 18080; soltanto la VM 204 viene accettata.</li>
+<li>L’identità TLS è stata verificata, ma il percorso dal proxy al backend è fallito.</li></ol>
+<p>La risposta è completa soltanto quando spiega perché l’alternativa scartata non risolve la causa osservata. Se restano possibili due cause, aggiungi una verifica che le distingua.</p>
+<p><a href="index.it.html">← Indice delle lezioni</a> · <a href="https://github.com/Rodrigoantignani/curso-linux-sysadmin/blob/master/00-plano-do-curso.md">Piano del corso →</a></p>
+</article><nav class="paginas" aria-label="Lezioni"><a class="ant" href="19.4-servidor-web.it.html"><small>← Precedente</small>19.4 · Server web: nome, file e risposta</a><a class="prox" href="19.6-samba-a-ponte-windows.it.html"><small>Successiva →</small>19.6 · Samba: il ponte con il client Windows</a></nav></main></div>
+<footer><div class="wrap">Generato dal Markdown del corso · Immagini in <code translate="no">img/</code></div></footer>
+</body>
+</html>

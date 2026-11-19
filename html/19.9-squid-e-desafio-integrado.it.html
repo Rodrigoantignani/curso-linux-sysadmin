@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light dark">
+<title>19.9 · Squid e sfida integrata · Corso Linux Sysadmin</title>
+<link rel="alternate" hreflang="pt-BR" href="19.9-squid-e-desafio-integrado.html"><link rel="alternate" hreflang="it" href="19.9-squid-e-desafio-integrado.it.html">
+<style>
+:root{color-scheme:light dark;--bg:#f6f1e7;--card:#fffdf8;--ink:#201c16;--muted:#5e564a;--accent:#9a3412;--accent-2:#1f5f4a;--tint:#efe6d4;--line:#ddd2bc;--code:#f1eadb;--shadow:0 1px 2px rgba(60,40,10,.08);--serif:Georgia,"Iowan Old Style","Palatino Linotype",Palatino,serif;--sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--mono:"Cascadia Code",Consolas,"DejaVu Sans Mono",monospace}
+@media (prefers-color-scheme:dark){:root{--bg:#16130f;--card:#201b15;--ink:#f1eadb;--muted:#b9ad98;--accent:#f0a070;--accent-2:#7fd0b0;--tint:#2a231a;--line:#3d3427;--code:#191510;--shadow:none}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:5.5rem}
+body{margin:0;background:var(--bg);color:var(--ink);font:1rem/1.6 var(--sans)}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--accent-2);outline-offset:2px;border-radius:4px}
+.pular{position:absolute;left:-999px;top:0;background:var(--card);padding:.5rem 1rem;z-index:20}
+.pular:focus{left:.5rem;top:.5rem}
+.wrap{width:100%;max-width:84rem;margin:0 auto;padding-inline:max(1rem,env(safe-area-inset-left))}
+.top{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10;border-top:6px solid var(--accent)}
+.top-in{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding-block:.6rem}
+.titles{min-width:0}
+.marca{margin:0;font:700 clamp(1.15rem,1rem + 1vw,1.6rem)/1.15 var(--serif);letter-spacing:-.01em}
+.marca a{text-decoration:none}
+.marca a:hover{color:var(--accent)}
+.meta{margin:.1rem 0 0;color:var(--muted);font-size:.85rem}
+.acoes{display:flex;align-items:center;gap:.9rem;flex:none}
+.acoes>a{font-size:.9rem;font-weight:600;color:var(--muted);text-decoration:none}
+.acoes>a:hover{color:var(--accent);text-decoration:underline}
+.idioma{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--tint)}
+.idioma>*{padding:.35rem .9rem;font-size:.8rem;font-weight:700;letter-spacing:.06em;text-decoration:none;color:var(--muted);min-width:2.75rem;text-align:center}
+.idioma a:hover{color:var(--accent);text-decoration:underline}
+.idioma span{background:var(--accent);color:#fff}
+@media (prefers-color-scheme:dark){.idioma span{color:#16130f}}
+code{font-family:var(--mono);font-size:.9em;background:var(--tint);padding:.1rem .35rem;border-radius:4px;overflow-wrap:anywhere}
+/* índice */
+.capa{max-width:70rem;padding-block:2rem 3rem}
+.stats{border-left:4px solid var(--accent-2);background:var(--card);border-radius:0 10px 10px 0;padding:1rem 1.25rem;margin:0 0 2.5rem;box-shadow:var(--shadow);color:var(--muted)}
+.stats strong{color:var(--ink)}
+.modulo{display:grid;grid-template-columns:15rem minmax(0,1fr);gap:1rem 2rem;padding:1.75rem 0;border-top:1px solid var(--line)}
+.modulo h2{margin:0;font:700 1.25rem/1.25 var(--serif);align-self:start;position:sticky;top:6rem}
+.mn{display:block;font:700 .8rem var(--mono);letter-spacing:.12em;color:var(--accent);margin-bottom:.25rem}
+.sep{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.modulo ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,17rem),1fr));gap:.75rem}
+.modulo li{margin:0}
+.modulo a{display:flex;gap:.45rem;align-items:baseline;height:100%;padding:.85rem 1rem;background:var(--card);border:1px solid var(--line);border-radius:10px;text-decoration:none;font-weight:600;line-height:1.35;box-shadow:var(--shadow);transition:border-color .15s,transform .15s}
+.modulo a:hover{border-color:var(--accent);color:var(--accent)}
+.num{font:700 .85rem var(--mono);color:var(--accent);white-space:nowrap}
+/* aula */
+.doc{display:grid;grid-template-columns:17rem minmax(0,1fr);gap:2.5rem;align-items:start;padding-block:2rem 3rem}
+.lateral{position:sticky;top:5.5rem;max-height:calc(100vh - 6.5rem);overflow:auto;font-size:.875rem;padding-right:.5rem}
+.lateral h2{margin:0 0 .25rem;font:700 .95rem var(--serif);color:var(--muted)}
+.lateral h3{margin:1rem 0 .25rem;font:700 .75rem var(--mono);letter-spacing:.06em;color:var(--accent)}
+.lateral ul{list-style:none;margin:0;padding:0}
+.lateral a{display:flex;gap:.45rem;padding:.25rem .5rem;border-radius:6px;text-decoration:none;color:var(--muted);line-height:1.3}
+.lateral a:hover{background:var(--tint);color:var(--ink)}
+.lateral a[aria-current]{background:var(--tint);color:var(--ink);font-weight:700;box-shadow:inset 3px 0 0 var(--accent)}
+.lateral .num{font-size:.75rem}
+.aula{min-width:0;max-width:56rem;overflow-wrap:break-word;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:clamp(1.25rem,1rem + 2vw,2.75rem);box-shadow:var(--shadow)}
+.aula h1{margin:0 0 1.5rem;font:700 clamp(1.75rem,1.4rem + 1.6vw,2.5rem)/1.15 var(--serif);letter-spacing:-.015em;color:var(--ink)}
+.aula h2{margin:2.5rem 0 .75rem;padding-top:1.25rem;border-top:1px solid var(--line);font:700 1.5rem/1.25 var(--serif)}
+.aula h3{margin:2rem 0 .5rem;font:700 1.15rem/1.3 var(--serif);color:var(--accent)}
+.aula h4,.aula h5,.aula h6{margin:1.5rem 0 .5rem;font-size:1rem}
+.aula p,.aula ul,.aula ol{margin:1rem 0}
+.aula ul,.aula ol{padding-left:1.5rem}
+.aula li{margin:.35rem 0}
+.aula li>ul,.aula li>ol{margin:.35rem 0}
+.aula a{color:var(--accent);text-underline-offset:2px}
+.aula hr{border:0;border-top:1px solid var(--line);margin:2rem 0}
+.tabela{overflow-x:auto;margin:1.25rem 0;border:1px solid var(--line);border-radius:10px}
+.aula table{width:100%;border-collapse:collapse;font-size:.9rem}
+.aula th,.aula td{padding:.55rem .75rem;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+.aula tr:last-child td{border-bottom:0}
+.aula th{background:var(--tint);font-weight:700}
+.aula pre{background:var(--code);border:1px solid var(--line);border-radius:10px;padding:.9rem 1rem;overflow-x:auto;font:.85rem/1.5 var(--mono);margin:1rem 0;tab-size:4}
+.aula pre code{background:none;padding:0;font-size:inherit;overflow-wrap:normal}
+.aula blockquote{margin:1.25rem 0;padding:.75rem 1.25rem;border-left:4px solid var(--accent-2);background:var(--tint);border-radius:0 10px 10px 0}
+.aula blockquote>:first-child{margin-top:0}
+.aula blockquote>:last-child{margin-bottom:0}
+.aula figure{margin:1.75rem 0;text-align:center}
+.aula figure img{display:block;margin:0 auto;max-width:100%;height:auto;border:1px solid var(--line);border-radius:10px;background:#fff}
+.aula figcaption{margin-top:.5rem;color:var(--muted);font-size:.9rem;font-style:italic}
+.paginas{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:2.5rem;padding-top:1.5rem;border-top:1px solid var(--line)}
+.paginas a{display:block;padding:.75rem 1rem;border:1px solid var(--line);border-radius:10px;text-decoration:none;color:var(--ink);font-weight:600;line-height:1.3}
+.paginas a:hover{border-color:var(--accent);color:var(--accent)}
+.paginas small{display:block;color:var(--muted);font-weight:400}
+.paginas .prox{grid-column:2;text-align:right}
+footer{border-top:1px solid var(--line);padding-block:1.5rem;color:var(--muted);font-size:.85rem;text-align:center}
+@media (hover:hover) and (prefers-reduced-motion:no-preference){.modulo a:hover{transform:translateY(-2px)}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+@media (max-width:980px){.doc{grid-template-columns:minmax(0,1fr);padding-top:1rem}.lateral{position:static;max-height:none;order:2}.aula{max-width:none}}
+@media (max-width:860px){.modulo{grid-template-columns:minmax(0,1fr)}.modulo h2{position:static}.mn{display:inline;margin-right:.5rem}}
+@media (max-width:420px){.meta{display:none}.top-in{gap:.5rem}.acoes{gap:.6rem}.capa{padding-top:1.25rem}.paginas{grid-template-columns:minmax(0,1fr)}.paginas .prox{grid-column:1}}
+@media print{.top,.lateral,.paginas{display:none}.aula{border:0;box-shadow:none;padding:0;max-width:none}.doc{display:block}}
+</style>
+</head>
+<body>
+<a class="pular" href="#conteudo">Vai al contenuto</a>
+<header class="top"><div class="wrap top-in"><div class="titles"><p class="marca"><a href="index.it.html">Corso Linux Sysadmin</a></p><p class="meta">Rodrigo Antignani · Lezione 19.9</p></div><div class="acoes"><a href="index.it.html">Indice</a><div class="idioma" role="group" aria-label="Lingua"><a href="19.9-squid-e-desafio-integrado.html" hreflang="pt-BR" lang="pt-BR">PT</a><span aria-current="true">IT</span></div></div></div></header>
+<div class="wrap doc"><aside class="lateral" aria-label="Lezioni"><h2>Lezioni</h2><h3>M0 · Laboratorio</h3><ul><li><a href="0.1-montar-o-laboratorio.it.html"><span class="num">0.1</span><span>Allestire il laboratorio</span></a></li><li><a href="0.2-acesso-e-protecao.it.html"><span class="num">0.2</span><span>Accesso e protezione</span></a></li></ul><h3>M1 · Riga di comando</h3><ul><li><a href="1.1-o-que-e-linux.it.html"><span class="num">1.1</span><span>Che cos'è Linux</span></a></li><li><a href="1.2-o-shell-e-a-ajuda.it.html"><span class="num">1.2</span><span>La shell e la guida</span></a></li><li><a href="1.3-caminhos-e-navegacao.it.html"><span class="num">1.3</span><span>Percorsi e navigazione</span></a></li><li><a href="1.4-criar-copiar-mover-e-apagar.it.html"><span class="num">1.4</span><span>Creare, copiare, spostare ed eliminare</span></a></li><li><a href="1.5-ler-e-procurar-texto.it.html"><span class="num">1.5</span><span>Leggere e cercare testo</span></a></li><li><a href="1.6-redirecionamentos-e-pipes.it.html"><span class="num">1.6</span><span>Reindirizzamenti e pipe</span></a></li><li><a href="1.7-arquivar-e-compactar.it.html"><span class="num">1.7</span><span>Archiviare e comprimere</span></a></li><li><a href="1.8-primeiro-script.it.html"><span class="num">1.8</span><span>Primo script</span></a></li><li><a href="1.9-decidir-e-repetir.it.html"><span class="num">1.9</span><span>Decidere e ripetere</span></a></li><li><a href="1.10-software-livre-na-pratica.it.html"><span class="num">1.10</span><span>Il software libero in pratica</span></a></li></ul><h3>M2 · Sistema, utenti e permessi</h3><ul><li><a href="2.1-instalacao-e-provisionamento.it.html"><span class="num">2.1</span><span>Installazione e provisioning</span></a></li><li><a href="2.2-hardware-e-dispositivos.it.html"><span class="num">2.2</span><span>Hardware e dispositivi</span></a></li><li><a href="2.3-processos-e-logs.it.html"><span class="num">2.3</span><span>Processi e log</span></a></li><li><a href="2.4-rede-no-dia-a-dia.it.html"><span class="num">2.4</span><span>La rete di tutti i giorni</span></a></li><li><a href="2.5-acesso-remoto-e-privilegios.it.html"><span class="num">2.5</span><span>Accesso remoto e privilegi</span></a></li><li><a href="2.6-usuarios-e-grupos.it.html"><span class="num">2.6</span><span>Utenti e gruppi</span></a></li><li><a href="2.7-permissoes-e-dono.it.html"><span class="num">2.7</span><span>Permessi e proprietario</span></a></li><li><a href="2.8-diretorios-e-arquivos-especiais.it.html"><span class="num">2.8</span><span>Directory e file speciali</span></a></li></ul><h3>M3 · Testo ed editor</h3><ul><li><a href="3.1-fluxos-a-fundo.it.html"><span class="num">3.1</span><span>I flussi in profondità</span></a></li><li><a href="3.2-filtros-de-texto.it.html"><span class="num">3.2</span><span>Filtri di testo</span></a></li><li><a href="3.3-regex-e-grep.it.html"><span class="num">3.3</span><span>Regex e grep</span></a></li><li><a href="3.4-sed-e-awk.it.html"><span class="num">3.4</span><span>sed e awk</span></a></li><li><a href="3.5-vi-e-vim-de-verdade.it.html"><span class="num">3.5</span><span>vi e vim sul serio</span></a></li></ul><h3>M4 · systemd e boot</h3><ul><li><a href="4.1-como-o-linux-liga.it.html"><span class="num">4.1</span><span>Come si avvia Linux</span></a></li><li><a href="4.2-systemd-servicos-e-units.it.html"><span class="num">4.2</span><span>systemd: servizi e unit</span></a></li><li><a href="4.3-targets-desligar-e-reiniciar.it.html"><span class="num">4.3</span><span>Target: spegnere e riavviare</span></a></li><li><a href="4.4-grub-e-acesso-de-emergencia.it.html"><span class="num">4.4</span><span>GRUB e accesso di emergenza</span></a></li></ul><h3>M5 · Kernel, moduli e VM</h3><ul><li><a href="5.1-hardware-pelo-kernel.it.html"><span class="num">5.1</span><span>L'hardware visto dal kernel</span></a></li><li><a href="5.2-modulos-e-parametros.it.html"><span class="num">5.2</span><span>Moduli e parametri</span></a></li><li><a href="5.3-linux-como-convidado.it.html"><span class="num">5.3</span><span>Linux come guest</span></a></li></ul><h3>M6 · Pacchetti e repository</h3><ul><li><a href="6.1-pacotes-no-debian.it.html"><span class="num">6.1</span><span>Pacchetti su Debian</span></a></li><li><a href="6.2-pacotes-na-rocky.it.html"><span class="num">6.2</span><span>Pacchetti su Rocky</span></a></li><li><a href="6.3-repositorios.it.html"><span class="num">6.3</span><span>Repository</span></a></li><li><a href="6.4-flatpak.it.html"><span class="num">6.4</span><span>Flatpak</span></a></li><li><a href="6.5-bibliotecas-compartilhadas.it.html"><span class="num">6.5</span><span>Librerie condivise</span></a></li></ul><h3>M7 · Processi e prestazioni</h3><ul><li><a href="7.1-processos-e-sinais.it.html"><span class="num">7.1</span><span>Processi e segnali</span></a></li><li><a href="7.2-jobs-e-sessoes.it.html"><span class="num">7.2</span><span>Job e sessioni</span></a></li><li><a href="7.3-prioridade-e-perfis.it.html"><span class="num">7.3</span><span>Priorità e profili</span></a></li></ul><h3>M8 · File a fondo</h3><ul><li><a href="8.1-fhs-e-onde-cada-coisa-mora.it.html"><span class="num">8.1</span><span>FHS e dove sta ogni cosa</span></a></li><li><a href="8.2-find-a-fundo.it.html"><span class="num">8.2</span><span>find a fondo</span></a></li><li><a href="8.3-arquivamento-avancado.it.html"><span class="num">8.3</span><span>Archiviazione avanzata</span></a></li><li><a href="8.4-links.it.html"><span class="num">8.4</span><span>Link</span></a></li><li><a href="8.5-permissoes-avancadas.it.html"><span class="num">8.5</span><span>Permessi avanzati</span></a></li></ul><h3>M9 · Storage</h3><ul><li><a href="9.1-discos-e-layout.it.html"><span class="num">9.1</span><span>Dischi e layout</span></a></li><li><a href="9.2-particionar.it.html"><span class="num">9.2</span><span>Partizionare</span></a></li><li><a href="9.3-sistemas-de-arquivos.it.html"><span class="num">9.3</span><span>File system</span></a></li><li><a href="9.4-montar-e-persistir.it.html"><span class="num">9.4</span><span>Montare e rendere persistente</span></a></li><li><a href="9.5-integridade-e-espaco.it.html"><span class="num">9.5</span><span>Integrità e spazio</span></a></li><li><a href="9.6-lvm.it.html"><span class="num">9.6</span><span>LVM</span></a></li><li><a href="9.7-crescer-sem-destruir.it.html"><span class="num">9.7</span><span>Crescere senza distruggere</span></a></li></ul><h3>M10 · Utenti e accesso privilegiato</h3><ul><li><a href="10.1-contas.it.html"><span class="num">10.1</span><span>Account</span></a></li><li><a href="10.2-senhas-e-validade.it.html"><span class="num">10.2</span><span>Password e scadenza</span></a></li><li><a href="10.3-grupos-e-trabalho-em-equipe.it.html"><span class="num">10.3</span><span>Gruppi e lavoro di squadra</span></a></li><li><a href="10.4-sudo-de-verdade.it.html"><span class="num">10.4</span><span>sudo sul serio</span></a></li></ul><h3>M11 · Rete</h3><ul><li><a href="11.1-tcp-ip-para-quem-administra.it.html"><span class="num">11.1</span><span>TCP/IP per chi amministra</span></a></li><li><a href="11.2-networkmanager-e-nmcli.it.html"><span class="num">11.2</span><span>NetworkManager e nmcli</span></a></li><li><a href="11.3-rede-no-debian.it.html"><span class="num">11.3</span><span>Rete su Debian</span></a></li><li><a href="11.4-nomes-e-resolucao.it.html"><span class="num">11.4</span><span>Nomi e risoluzione</span></a></li><li><a href="11.5-diagnostico-de-rede.it.html"><span class="num">11.5</span><span>Diagnosi di rete</span></a></li></ul><h3>M12 · Sicurezza dell'host</h3><ul><li><a href="12.1-ssh-a-fundo.it.html"><span class="num">12.1</span><span>SSH in dettaglio</span></a></li><li><a href="12.2-firewall.it.html"><span class="num">12.2</span><span>Firewall</span></a></li><li><a href="12.3-selinux-modos-e-contextos.it.html"><span class="num">12.3</span><span>SELinux: modalità e contesti</span></a></li><li><a href="12.4-selinux-portas-e-booleanos.it.html"><span class="num">12.4</span><span>SELinux: porte e booleani</span></a></li><li><a href="12.5-auditoria-e-criptografia.it.html"><span class="num">12.5</span><span>Audit e crittografia</span></a></li></ul><h3>M13 · Archiviazione in rete</h3><ul><li><a href="13.1-servidor-nfs.it.html"><span class="num">13.1</span><span>Server NFS</span></a></li><li><a href="13.2-cliente-nfs.it.html"><span class="num">13.2</span><span>Client NFS</span></a></li><li><a href="13.3-autofs.it.html"><span class="num">13.3</span><span>autofs</span></a></li></ul><h3>M14 · Pianificazione</h3><ul><li><a href="14.1-cron-e-at.it.html"><span class="num">14.1</span><span>cron e at</span></a></li><li><a href="14.2-timers-do-systemd.it.html"><span class="num">14.2</span><span>Timer di systemd</span></a></li><li><a href="14.3-journald-e-rsyslog.it.html"><span class="num">14.3</span><span>journald e rsyslog</span></a></li><li><a href="14.4-hora-certa.it.html"><span class="num">14.4</span><span>L'ora corretta</span></a></li><li><a href="14.5-email-local-e-impressao.it.html"><span class="num">14.5</span><span>E-mail locale e stampa</span></a></li></ul><h3>M15 · Shell e ambiente</h3><ul><li><a href="15.1-ambiente-do-shell.it.html"><span class="num">15.1</span><span>Ambiente della shell</span></a></li><li><a href="15.2-scripts-robustos.it.html"><span class="num">15.2</span><span>Script robusti</span></a></li><li><a href="15.3-scripts-de-administracao.it.html"><span class="num">15.3</span><span>Script di amministrazione</span></a></li><li><a href="15.4-interfaces-graficas.it.html"><span class="num">15.4</span><span>Interfacce grafiche</span></a></li><li><a href="15.5-idioma-teclado-e-fuso.it.html"><span class="num">15.5</span><span>Lingua, tastiera e fuso orario</span></a></li></ul><h3>M16 · Settimana di incidenti su Rocky 10</h3><ul><li><a href="16.1-rocky-10-o-que-muda.it.html"><span class="num">16.1</span><span>Rocky 10: cosa cambia</span></a></li><li><a href="16.2-incidentes-por-area.it.html"><span class="num">16.2</span><span>Incidenti per area</span></a></li><li><a href="16.3-incidente-com-relogio.it.html"><span class="num">16.3</span><span>Incidente con cronometro</span></a></li><li><a href="16.4-correcao-e-reforco.it.html"><span class="num">16.4</span><span>Correzione e rinforzo</span></a></li></ul><h3>M17 · Proxmox in pratica</h3><ul><li><a href="17.1-proxmox-por-dentro.it.html"><span class="num">17.1</span><span>Proxmox dall'interno</span></a></li><li><a href="17.2-vm-pela-linha-de-comando.it.html"><span class="num">17.2</span><span>VM dalla riga di comando</span></a></li><li><a href="17.3-conteiner-lxc.it.html"><span class="num">17.3</span><span>Container LXC</span></a></li><li><a href="17.4-storage.it.html"><span class="num">17.4</span><span>Storage: capacità, ampliamento e spostamento</span></a></li><li><a href="17.5-rede.it.html"><span class="num">17.5</span><span>Rete: bridge, VLAN, bond e SDN</span></a></li><li><a href="17.6-backup-e-restauracao.it.html"><span class="num">17.6</span><span>Backup e ripristino con PBS</span></a></li><li><a href="17.7-migracao-e-quorum.it.html"><span class="num">17.7</span><span>Migrazione e quorum</span></a></li></ul><h3>M18 · Podman</h3><ul><li><a href="18.1-conteiner-nao-e-vm.it.html"><span class="num">18.1</span><span>Un container non è una VM</span></a></li><li><a href="18.2-rodar-e-persistir.it.html"><span class="num">18.2</span><span>Eseguire e conservare i dati</span></a></li><li><a href="18.3-conteiner-como-servico.it.html"><span class="num">18.3</span><span>Container come servizio</span></a></li><li><a href="18.4-diagnosticar-conteiner-rootless.it.html"><span class="num">18.4</span><span>Diagnosticare un container rootless</span></a></li><li><a href="18.5-construir-imagens.it.html"><span class="num">18.5</span><span>Costruire immagini</span></a></li></ul><h3>M19 · Servizi di rete</h3><ul><li><a href="19.1-dns-autoritativo.it.html"><span class="num">19.1</span><span>DNS autoritativo</span></a></li><li><a href="19.2-dns-recursivo-e-diagnostico.it.html"><span class="num">19.2</span><span>DNS ricorsivo e diagnosi</span></a></li><li><a href="19.3-dhcp.it.html"><span class="num">19.3</span><span>DHCP</span></a></li><li><a href="19.4-servidor-web.it.html"><span class="num">19.4</span><span>Server web: nome, file e risposta</span></a></li><li><a href="19.5-tls-e-proxy-reverso.it.html"><span class="num">19.5</span><span>TLS e reverse proxy: identità prima del lucchetto</span></a></li><li><a href="19.6-samba-a-ponte-windows.it.html"><span class="num">19.6</span><span>Samba: il ponte con il client Windows</span></a></li><li><a href="19.7-postfix-e-correio-local.it.html"><span class="num">19.7</span><span>Postfix e posta locale</span></a></li><li><a href="19.8-dovecot-e-imaps.it.html"><span class="num">19.8</span><span>Dovecot e lettura tramite IMAPS</span></a></li><li><a href="19.9-squid-e-desafio-integrado.it.html" aria-current="page"><span class="num">19.9</span><span>Squid e sfida integrata</span></a></li></ul><h3>M20 · Dentro NethServer 8</h3><ul><li><a href="20.1-instalar-nethserver-8.it.html"><span class="num">20.1</span><span>Installare in una VM pulita</span></a></li><li><a href="20.2-cluster-no-e-modulo.it.html"><span class="num">20.2</span><span>Cluster, nodo e modulo</span></a></li><li><a href="20.3-modulo-por-dentro.it.html"><span class="num">20.3</span><span>Dentro un modulo</span></a></li><li><a href="20.4-proxy-e-certificados.it.html"><span class="num">20.4</span><span>Proxy e certificati</span></a></li><li><a href="20.5-dominios-de-usuario.it.html"><span class="num">20.5</span><span>Domini utente: identità con confini</span></a></li><li><a href="20.6-backup-e-restauracao.it.html"><span class="num">20.6</span><span>Backup e ripristino: verificare il ritorno</span></a></li><li><a href="20.7-atualizar-mover-e-falhar.it.html"><span class="num">20.7</span><span>Aggiornare, spostare e guastare con verifica</span></a></li></ul></aside><main id="conteudo" class="aula"><article><h1>Lezione 19.9 · Squid e sfida integrata</h1>
+<blockquote><p><strong>Il cuore di questa lezione:</strong> un proxy decide secondo una politica e ne registra l’esito; la password del proxy richiede protezione nel tratto fino a esso.</p></blockquote>
+<div class="tabela"><table><thead><tr><th scope="col">Scheda</th><th scope="col">Piano di lavoro</th></tr></thead><tbody><tr><td>Modulo</td><td>M19 · Servizi di rete, lezione 9 di 9</td></tr><tr><td>Quando</td><td>Settimana 27</td></tr><tr><td>Alla fine</td><td>Controllare un proxy esplicito e collegare DHCP, DNS, HTTPS e IMAPS su un nuovo client</td></tr><tr><td>Prerequisiti</td><td>19.1–19.8; VM 204; DNS, CA, web e posta funzionanti</td></tr><tr><td>Durata</td><td>100–140 minuti, oltre alle installazioni</td></tr><tr><td>Snapshot</td><td><code translate="no">m19a9-inicio</code> e <code translate="no">m19a9-fim</code>, VM 204</td></tr></tbody></table></div>
+<p>Esegui nel guest indicato, come <code translate="no">student</code> con <code translate="no">sudo</code>. L’host Proxmox compare soltanto nella sfida esplicitamente indicata. Non adattare gli esempi a un server di produzione.</p>
+<p>Verifica la <a href="https://github.com/Rodrigoantignani/curso-linux-sysadmin/blob/master/GUIA_BANCADA_M19_IT.md">guida comune del laboratorio</a> prima di modificare i servizi; definisce rete, firewall e materiale di fiducia.</p>
+<p>Nomi canonici del modulo: il nome della VM in Proxmox e l’hostname del sistema operativo devono corrispondere al ruolo, prima di eseguire le guardie. Un nome DNS di servizio non cambia l’hostname. Se l’inventario differisce, riconcilialo dalla console prima di proseguire; non ignorare le guardie.</p>
+<div class="tabela"><table><thead><tr><th scope="col">VM</th><th scope="col">Hostname breve</th><th scope="col">Indirizzo isolato</th></tr></thead><tbody><tr><td>201</td><td><code translate="no">rocky-lab</code></td><td><code translate="no">192.0.2.201</code></td></tr><tr><td>202</td><td><code translate="no">debian-lab</code></td><td><code translate="no">192.0.2.202</code></td></tr><tr><td>204</td><td><code translate="no">srv-deb</code></td><td><code translate="no">192.0.2.204</code></td></tr><tr><td>212</td><td><code translate="no">m19-client</code></td><td>DHCP; solo sfida 19.9</td></tr></tbody></table></div>
+<h2 id="1-riscaldamento">1 · Riscaldamento</h2>
+<ol><li>Il proxy esplicito riceve traffico senza essere configurato dal client?</li>
+<li>HTTPS verso la destinazione protegge la password inviata prima al proxy HTTP?</li>
+<li>Una regola di dominio sostituisce una regola di rete?</li></ol>
+<h2 id="2-perche-conta">2 · Perché conta</h2>
+<p>Una persona segnala che il browser apre un sito, ma l’accesso risulta negato sul proxy. Occorre prima dimostrare che quel tentativo sia davvero passato attraverso di esso.</p>
+<p>Un proxy esplicito non è una barriera completa in uscita: il client può tentare una rotta diretta quando esiste. In questo laboratorio la rete isolata non ha uscita esterna.</p>
+<p>La prima fase usa HTTP senza credenziali soltanto per studiare le ACL. La seconda chiude quella porta e richiede autenticazione dentro TLS fino al proxy.</p>
+<h2 id="3-modello-mentale">3 · Modello mentale</h2>
+<figure><a href="../img/19.9-proxy-explicito.it.jpg"><img src="../img/19.9-proxy-explicito.it.jpg" alt="Il proxy è una tappa scelta" loading="lazy" decoding="async"></a><figcaption>Il client sceglie il proxy; l’ACL decide se il viaggio continua.</figcaption></figure>
+<div class="tabela"><table><thead><tr><th scope="col">Elemento</th><th scope="col">Che cosa dimostra</th></tr></thead><tbody><tr><td>ACL</td><td>Condizione che può corrispondere al tentativo</td></tr><tr><td>http_access</td><td>Decisione tramite la prima regola corrispondente</td></tr><tr><td>CONNECT</td><td>Tunnel fino alla destinazione consentita</td></tr><tr><td>https_port</td><td>TLS tra client e proxy</td></tr><tr><td>proxy_auth</td><td>Identità richiesta dalla politica</td></tr><tr><td>access.log</td><td>Risultato reale del tentativo osservato</td></tr></tbody></table></div>
+<h3 id="ponte-windows">Ponte Windows</h3>
+<p>Su un Windows 11 già esistente e autorizzato usa il proxy manuale soltanto nella fase senza autenticazione e soltanto se quella macchina partecipa già alla LAN isolata. Conserva la configurazione precedente e ripristinala alla fine.</p>
+<p>Non creare una VM Windows e non modificare una scheda di una VM fuori inventario. Il campo proxy HTTP del browser non garantisce il supporto al proxy HTTPS; la fase autenticata usa il client da terminale verificato sotto.</p>
+<h2 id="4-l-essenziale">4 · L'essenziale</h2>
+<p>Il server usa il pacchetto <code translate="no">squid-openssl</code> di Debian 13, con supporto a <code translate="no">https_port</code>. Verifica versione e opzioni reali: una compilazione senza TLS non può completare la seconda fase.</p>
+<p>Le porte sono <code translate="no">192.0.2.204:3128</code> nella fase senza password e <code translate="no">192.0.2.204:3129</code> nella fase autenticata. Non ci sono listener sulla gestione, intercettazione trasparente o ispezione del TLS della destinazione.</p>
+<p>Il certificato della 19.5 comprende <code translate="no">proxy.lab.test</code>. La chiave riceve una copia limitata al gruppo del processo Squid, senza aprire il file privato condiviso dagli altri servizi.</p>
+<p>L’autenticazione usa un account esclusivo <code translate="no">proxy-aluno</code> in un file di hash dedicato. Non è l’account di posta né quello di gestione. La password viene digitata nel prompt.</p>
+<p>L’ACL dell’orario usa l’ora locale del server. La finestra iniziale copre l’intera giornata per consentire il laboratorio; l’esercizio di guasto sceglie poi una finestra che esclude l’ora osservata, senza cambiare l’orologio.</p>
+<h3 id="rocky-debian">Rocky × Debian</h3>
+<p>Non trattare il nome del pacchetto come prova della compilazione. Leggi la versione, cerca il supporto OpenSSL e usa il parser prima di pubblicare qualsiasi listener.</p>
+<p>Su Rocky possono cambiare percorso dell’helper, utente del servizio e politiche di sicurezza. Questa lezione mantiene la VM 204 come unico proxy e non disattiva controlli per riutilizzare un percorso Debian.</p>
+<h2 id="5-lab-guidato">5 · Lab guidato</h2>
+<p>La rete del laboratorio è <code translate="no">192.0.2.0/24</code>, isolata in <code translate="no">vmbr17</code>, senza gateway, NAT o porta fisica. La VM 204 usa <code translate="no">192.0.2.204</code> su questa rete. L’interfaccia di gestione conserva il proprio indirizzo reale e la propria rotta.</p>
+<h3 id="passo-1-verificare-destinazioni-e-installare-senza-pubblicare">Passo 1 · Verificare destinazioni e installare senza pubblicare</h3>
+<p><strong>Ipotesi:</strong> La prova del sito deve passare attraverso il proxy per verificare l’ACL?</p>
+<pre translate="no"><code class="lang-bash">test "$(hostname -s)" = srv-deb || exit 1
+test ! -L /etc/m19-lab.env || exit 1
+test "$(stat -c %u:%g:%a /etc/m19-lab.env)" = 0:0:644 || exit 1
+cat /etc/m19-lab.env
+. /etc/m19-lab.env
+test "$LAB_IP" = 192.0.2.204 || exit 1
+ip -4 address show dev "$LAB_IF"
+dig @192.0.2.204 proxy.lab.test A +short
+dig @192.0.2.204 web.lab.test A +short
+curl --cacert /etc/ssl/m19/ca.crt https://web.lab.test/
+sudo ss -ltnp '( sport = :3128 or sport = :3129 )'
+dpkg-query -W squid squid-openssl 2&gt;/dev/null
+# Pare se um proxy anterior ou configuracao propria ja existir.
+sudo systemctl mask squid.service
+sudo apt install squid-openssl apache2-utils
+squid -v
+test -x /usr/lib/squid/basic_ncsa_auth || exit 1
+getent passwd proxy
+getent group proxy
+sudo test ! -e /root/m19-backup-19-9 || exit 1
+sudo install -d -m 0700 /root/m19-backup-19-9
+sudo cp -a /etc/squid/squid.conf /root/m19-backup-19-9/squid.conf
+mkdir -p "$HOME/m19-lab"
+EVID=$(mktemp -d "$HOME/m19-lab/evidence-19-9.XXXXXX") || exit 1
+ip -4 route &gt; "$EVID/routes-before.txt"</code></pre>
+<p><strong>Output atteso:</strong> Web e DNS funzionano direttamente; pacchetto con TLS e helper disponibili; unità mascherata e porte libere.</p>
+<p><strong>Verifica:</strong> Se l’installazione propone di sostituire un altro servizio operativo, fermati. La preparazione riguarda un nuovo proxy, non una migrazione improvvisata.</p>
+<h3 id="passo-2-pubblicare-la-fase-acl-senza-credenziali">Passo 2 · Pubblicare la fase ACL senza credenziali</h3>
+<p><strong>Ipotesi:</strong> Una condizione definita senza regola di accesso modifica la decisione?</p>
+<pre translate="no"><code class="lang-bash">cat &gt; "$EVID/squid-acl.conf" &lt;&lt;'EOF'
+http_port 192.0.2.204:3128
+visible_hostname proxy.lab.test
+dns_nameservers 192.0.2.204
+acl lab src 192.0.2.0/24
+acl destinos dstdomain web.lab.test www.lab.test
+acl horario time SMTWHFA 00:00-23:59
+acl Safe_ports port 80 443
+acl SSL_ports port 443
+acl CONNECT method CONNECT
+http_access deny !Safe_ports
+http_access deny CONNECT !SSL_ports
+http_access allow lab horario destinos
+http_access deny all
+cache deny all
+access_log stdio:/var/log/squid/access.log squid
+EOF
+sudo squid -f "$EVID/squid-acl.conf" -k parse || exit 1
+sudo install -o root -g root -m 0644 "$EVID/squid-acl.conf" /etc/squid/squid.conf
+sudo squid -k parse || exit 1
+sudo systemctl unmask squid.service
+sudo systemctl enable --now squid.service
+sudo ss -ltnp '( sport = :3128 or sport = :3129 )'
+sudo journalctl -u squid.service --since '-5 min' --no-pager</code></pre>
+<p><strong>Output atteso:</strong> Soltanto la porta 3128 sull’indirizzo isolato. La regola di autorizzazione richiede contemporaneamente rete, orario e dominio.</p>
+<p><strong>Verifica:</strong> I rifiuti delle porte precedono l’autorizzazione e l’ultima regola rifiuta il resto. Non aggiungere un’autorizzazione generale prima di esse.</p>
+<h3 id="passo-3-verificare-accesso-rifiuto-e-connect">Passo 3 · Verificare accesso, rifiuto e CONNECT</h3>
+<p><strong>Ipotesi:</strong> Un certificato corretto della destinazione dimostra che la password del proxy sarebbe protetta?</p>
+<p>Sulla VM 202 forza l’uso del proxy e rimuovi soltanto per questo comando l’effetto delle esclusioni del proxy. La fase attuale non chiede né riceve password.</p>
+<pre translate="no"><code class="lang-bash">test "$(hostname -s)" = debian-lab || exit 1
+curl --noproxy '' --proxy http://proxy.lab.test:3128   --fail-with-body http://web.lab.test/
+curl --noproxy '' --proxy http://proxy.lab.test:3128   --fail-with-body http://mail.lab.test/
+curl --noproxy '' --proxy http://proxy.lab.test:3128   --cacert /etc/ssl/m19/ca.crt --fail-with-body https://web.lab.test/
+curl --noproxy '' --proxy http://proxy.lab.test:3128   --fail-with-body https://web.lab.test:22/</code></pre>
+<p><strong>Output atteso:</strong> Web autorizzato funziona; dominio fuori elenco viene rifiutato; CONNECT verso 443 funziona; CONNECT verso una porta non consentita viene rifiutato. I rifiuti restituiscono un codice diverso da zero al client.</p>
+<p><strong>Verifica:</strong> Sulla VM 204 correla ora, origine, destinazione e decisione nel registro. Non copiare tempi o dimensioni da un output di esempio.</p>
+<pre translate="no"><code class="lang-bash">test "$(hostname -s)" = srv-deb || exit 1
+sudo tail -n 30 /var/log/squid/access.log
+date --iso-8601=seconds
+sudo squid -k parse</code></pre>
+<figure><a href="../img/19.9-dois-tuneis.it.jpg"><img src="../img/19.9-dois-tuneis.it.jpg" alt="Due tratti, due protezioni" loading="lazy" decoding="async"></a><figcaption>TLS verso la destinazione non protegge da solo la password inviata al proxy.</figcaption></figure>
+<p>Il lab conserva due copie della stessa chiave server: l’originale root-only e la copia leggibile dal gruppo proxy. Compromettere il processo proxy amplia quindi l’esposizione della stessa identità usata dagli altri servizi. Per un servizio reale emetti una chiave e un certificato dedicati al proxy, con SAN proxy.lab.test; gestisci rinnovo, backup e rimozione di entrambe le copie. Nessuna chiave va ai client.</p>
+<h3 id="passo-4-preparare-tls-e-password-esclusiva">Passo 4 · Preparare TLS e password esclusiva</h3>
+<p><strong>Ipotesi:</strong> HTTPS verso la destinazione protegge il primo tratto fino a un proxy HTTP?</p>
+<p>La risposta è no. Prima di attivare l’autenticazione prepara TLS tra client e proxy. Verifica la corrispondenza di certificato e chiave e mantieni la copia privata limitata al processo necessario.</p>
+<pre translate="no"><code class="lang-bash">openssl verify -CAfile /etc/ssl/m19/ca.crt   -verify_hostname proxy.lab.test /etc/ssl/m19/server.crt
+sudo install -d -o root -g proxy -m 0750 /etc/squid/m19-tls
+sudo install -o root -g proxy -m 0644 /etc/ssl/m19/server.crt /etc/squid/m19-tls/server.crt
+sudo install -o root -g proxy -m 0640 /etc/ssl/private/m19-server.key /etc/squid/m19-tls/server.key
+sudo -u proxy test -r /etc/squid/m19-tls/server.key || exit 1
+sudo stat -c '%U %G %a %n' /etc/squid/m19-tls/server.key
+sudo stat -c '%U %G %a %n' /etc/ssl/private/m19-server.key
+sudo test ! -e /etc/squid/m19.passwd || exit 1
+sudo htpasswd -c /etc/squid/m19.passwd proxy-aluno
+sudo chown root:proxy /etc/squid/m19.passwd
+sudo chmod 0640 /etc/squid/m19.passwd
+sudo stat -c '%U %G %a %n' /etc/squid/m19.passwd</code></pre>
+<p><strong>Output atteso:</strong> Copia privata leggibile dal gruppo di Squid, chiave originale ancora limitata a root e password creata in modo interattivo in un file dedicato.</p>
+<p><strong>Verifica:</strong> L’opzione di creazione del file delle password viene usata soltanto perché la prova precedente ne ha confermato l’assenza. Per cambiare la password in seguito non usare l’opzione che ricrea il file.</p>
+<h3 id="passo-5-richiedere-accesso-sul-proxy-https-e-chiudere-http">Passo 5 · Richiedere accesso sul proxy HTTPS e chiudere HTTP</h3>
+<p><strong>Ipotesi:</strong> Mantenere una porta senza autenticazione permetterebbe di aggirare il requisito dell’altra?</p>
+<pre translate="no"><code class="lang-bash">cat &gt; "$EVID/squid-auth.conf" &lt;&lt;'EOF'
+https_port 192.0.2.204:3129 tls-cert=/etc/squid/m19-tls/server.crt tls-key=/etc/squid/m19-tls/server.key
+visible_hostname proxy.lab.test
+dns_nameservers 192.0.2.204
+auth_param basic program /usr/lib/squid/basic_ncsa_auth /etc/squid/m19.passwd
+auth_param basic realm M19
+acl autenticado proxy_auth REQUIRED
+acl lab src 192.0.2.0/24
+acl destinos dstdomain web.lab.test www.lab.test
+acl horario time SMTWHFA 00:00-23:59
+acl Safe_ports port 80 443
+acl SSL_ports port 443
+acl CONNECT method CONNECT
+http_access deny !Safe_ports
+http_access deny CONNECT !SSL_ports
+http_access allow lab horario destinos autenticado
+http_access deny all
+cache deny all
+access_log stdio:/var/log/squid/access.log squid
+EOF
+sudo squid -f "$EVID/squid-auth.conf" -k parse || exit 1
+sudo install -o root -g root -m 0644 "$EVID/squid-auth.conf" /etc/squid/squid.conf
+sudo squid -k parse || exit 1
+sudo systemctl restart squid.service
+sudo systemctl is-active squid.service
+sudo ss -ltnp '( sport = :3128 or sport = :3129 )'</code></pre>
+<p><strong>Output atteso:</strong> 3128 chiusa; soltanto 3129 sull’indirizzo isolato. Senza credenziale un tentativo autorizzabile riceve una richiesta di autenticazione.</p>
+<p><strong>Verifica:</strong> Se il parser non riconosce TLS, fermati e verifica il pacchetto. Non ripiegare sulla password in un proxy HTTP e non disattivare la verifica del certificato per terminare la lezione.</p>
+<p>Un errore dopo aver installato la configurazione candidata richiede di ripristinare il file verificato e controllarlo di nuovo prima di riavviare. Il recupero della fase senza password non autorizza a inviarvi credenziali.</p>
+<h3 id="passo-6-verificare-le-due-catene-e-il-registro">Passo 6 · Verificare le due catene e il registro</h3>
+<p><strong>Ipotesi:</strong> Il certificato del proxy sostituisce quello della destinazione?</p>
+<p>Sulla VM 202 verifica il supporto del client al proxy HTTPS. Il primo file CA verifica il proxy; il secondo verifica il sito dentro il tunnel. Qui entrambi usano la stessa CA privata, ma sono verifiche diverse.</p>
+<pre translate="no"><code class="lang-bash">curl --version
+curl --noproxy '' --proxy https://proxy.lab.test:3129   --proxy-cacert /etc/ssl/m19/ca.crt   --cacert /etc/ssl/m19/ca.crt --fail-with-body https://web.lab.test/
+curl --noproxy '' --proxy https://proxy.lab.test:3129   --proxy-cacert /etc/ssl/m19/ca.crt --proxy-user proxy-aluno   --cacert /etc/ssl/m19/ca.crt --fail-with-body https://web.lab.test/
+curl --noproxy '' --proxy http://proxy.lab.test:3128   --connect-timeout 5 http://web.lab.test/</code></pre>
+<p><strong>Output atteso:</strong> Senza password c’è una richiesta di autenticazione; con password digitata nel terminale l’accesso funziona; la vecchia porta rifiuta la connessione. Nessuna password compare negli argomenti.</p>
+<p><strong>Verifica:</strong> Sulla VM 204 il registro deve mostrare origine, destinazione, decisione e utente del tentativo accettato. Il proxy non sostituisce né ispeziona il certificato della destinazione.</p>
+<pre translate="no"><code class="lang-bash">sudo tail -n 40 /var/log/squid/access.log
+sudo journalctl -u squid.service --since '-15 min' --no-pager
+sudo squid -k parse
+ip -4 route &gt; "$EVID/routes-after.txt"
+diff -u "$EVID/routes-before.txt" "$EVID/routes-after.txt"</code></pre>
+<h3 id="decidi-1-una-pagina-si-e-aperta">Decidi 1 · Una pagina si è aperta</h3>
+<p>A. Verificare proxy forzato e registro del tentativo. B. Dichiarare approvato il proxy. C. Disabilitare le ACL per confermare.</p>
+<h3 id="decidi-2-il-client-non-supporta-il-proxy-https">Decidi 2 · Il client non supporta il proxy HTTPS</h3>
+<p>A. Ignorare il certificato. B. Inviare la password tramite HTTP. C. Usare un client compatibile o registrare il requisito in sospeso.</p>
+<h2 id="6-rompi-e-ripara">6 · Rompi e ripara</h2>
+<p>Introduci un guasto alla volta e ripristina prima del successivo. Mantieni aperta la sessione di gestione. I difetti seguenti non richiedono di eliminare messaggi, utenti o file di altri servizi.</p>
+<h3 id="guasto-1-lorario-esclude-il-tentativo">Guasto 1 · L’orario esclude il tentativo</h3>
+<p><strong>Sintomo:</strong> Lo stesso dominio autorizzato non si apre più durante una finestra di prova limitata.</p>
+<p><strong>Indagine:</strong> Verifica ora locale e finestra dell’ACL; mantieni uguali utente e destinazione.</p>
+<p><strong>Causa:</strong> La finestra scelta esclude l’ora reale del server.</p>
+<p><strong>Riparazione:</strong> Ripristina la finestra originale della configurazione verificata, esegui il parser e ricarica.</p>
+<p><strong>Prevenzione:</strong> Registra fuso e finestra; non modificare l’orologio per aggirare la politica.</p>
+<p><strong>Verifica:</strong> Lo stesso tentativo torna a essere accettato nella finestra ripristinata.</p>
+<pre translate="no"><code class="lang-bash">date --iso-8601=seconds
+sudo grep -n '^acl horario ' /etc/squid/squid.conf
+sudo squid -k parse &amp;&amp; sudo systemctl reload squid.service</code></pre>
+<h3 id="guasto-2-dominio-fuori-elenco">Guasto 2 · Dominio fuori elenco</h3>
+<p><strong>Sintomo:</strong> La destinazione web funziona e un altro nome della stessa VM viene rifiutato.</p>
+<p><strong>Indagine:</strong> Confronta nome richiesto e ACL di dominio; osserva il registro.</p>
+<p><strong>Causa:</strong> La politica decide sulla destinazione richiesta, non consentendo tutti i servizi di quell’IP.</p>
+<p><strong>Riparazione:</strong> Torna al dominio autorizzato. Amplia l’elenco soltanto quando il contratto del servizio lo richiede.</p>
+<p><strong>Prevenzione:</strong> Prova un rifiuto noto dopo ogni nuova autorizzazione.</p>
+<p><strong>Verifica:</strong> Il dominio consentito funziona e il nome rifiutato resta rifiutato.</p>
+<h3 id="guasto-3-password-rifiutata">Guasto 3 · Password rifiutata</h3>
+<p><strong>Sintomo:</strong> Il tunnel TLS è valido, ma il proxy continua a chiedere autenticazione.</p>
+<p><strong>Indagine:</strong> Verifica utente, helper, proprietario e modalità del file; non pubblicarne il contenuto.</p>
+<p><strong>Causa:</strong> Password digitata male, account assente o helper senza accesso al file sono ipotesi distinte.</p>
+<p><strong>Riparazione:</strong> Correggi la causa osservata. Per ridefinire la password usa il file esistente, senza ricrearlo.</p>
+<p><strong>Prevenzione:</strong> Mantieni una credenziale esclusiva e non attivare la registrazione delle intestazioni di autenticazione.</p>
+<p><strong>Verifica:</strong> L’accesso autenticato funziona con password interattiva e compare con l’utente nel registro.</p>
+<pre translate="no"><code class="lang-bash">sudo stat -c '%U %G %a %n' /etc/squid/m19.passwd
+sudo -u proxy test -r /etc/squid/m19.passwd
+sudo htpasswd /etc/squid/m19.passwd proxy-aluno</code></pre>
+<h2 id="7-trappole">7 · Trappole</h2>
+<figure><a href="../img/19.9-acesso-e-evidencia.it.jpg"><img src="../img/19.9-acesso-e-evidencia.it.jpg" alt="Permesso ed evidenza sullo stesso percorso" loading="lazy" decoding="async"></a><figcaption>Un rifiuto deve avere una causa verificabile nel registro.</figcaption></figure>
+<ol><li>CONNECT consentito non significa ispezione o decifratura della destinazione.</li>
+<li>Una porta HTTP senza autenticazione aperta in parallelo permette di aggirare la seconda fase.</li>
+<li>Definire un’ACL senza usarla non applica una politica.</li>
+<li>Un’esclusione del proxy sul client può invalidare la prova.</li>
+<li>Il contenuto HTTPS resta cifrato fino alla destinazione, senza TLS bump.</li>
+<li>Anche il file degli hash richiede accesso limitato e copia protetta.</li></ol>
+<h2 id="8-quiz">8 · Quiz</h2>
+<ol><li>Quale tratto resta non protetto autenticandoti su un proxy HTTP?</li>
+<li>Perché il rifiuto delle porte deve precedere l’autorizzazione?</li>
+<li>Che cosa dimostra il passaggio reale attraverso il proxy?</li>
+<li>Qual è la differenza tra il certificato del proxy e quello della destinazione?</li>
+<li>Una nuova VM che ottiene un indirizzo dimostra che DNS e posta funzionano?</li></ol>
+<h2 id="9-promemoria">9 · Promemoria</h2>
+<pre translate="no"><code class="lang-bash">sudo squid -k parse
+sudo ss -ltnp '( sport = :3128 or sport = :3129 )'
+sudo tail -n 20 /var/log/squid/access.log
+sudo journalctl -u squid.service --since '-15 min' --no-pager
+date --iso-8601=seconds</code></pre>
+<p><strong>Flashcard:</strong> Proxy esplicito → scelta del client e politica del server.</p>
+<p><strong>Flashcard:</strong> TLS del proxy → protegge anche l’autenticazione su quel tratto.</p>
+<p><strong>Flashcard:</strong> CONNECT → tunnel consentito, senza aprire il contenuto TLS.</p>
+<h2 id="10-checklist-e-chiusura">10 · Checklist e chiusura</h2>
+<ul><li>[ ] 3128 chiusa dopo la fase autenticata.</li>
+<li>[ ] 3129 isolata e certificato verificato tramite il nome.</li>
+<li>[ ] Porte, dominio, rete e orario esercitati.</li>
+<li>[ ] Password interattiva esclusiva e file limitato.</li>
+<li>[ ] Registro di successo e rifiuto correlato.</li>
+<li>[ ] Nessuna intercettazione TLS configurata.</li></ul>
+<p><strong>Reboot di verifica:</strong> pianifica soltanto la VM 204 quando il laboratorio lo consente. Dopo il riavvio verifica indirizzo isolato, listener, politica e prova funzionale completa; un servizio attivo da solo non conclude la verifica.</p>
+<p>Nella finestra concordata riavvia dal guest; poi riconnettiti tramite la gestione ed esegui le verifiche seguenti.</p>
+<pre translate="no"><code class="lang-bash">sudo systemctl reboot</code></pre>
+<pre translate="no"><code class="lang-bash">sudo systemctl is-active squid.service
+sudo squid -k parse
+sudo ss -ltnp '( sport = :3128 or sport = :3129 )'
+sudo tail -n 10 /var/log/squid/access.log</code></pre>
+<p><strong>Ultimo esercizio:</strong> Ripeti accesso autenticato, un dominio rifiutato e vecchia porta chiusa. Poi esegui la sfida integrata sotto.</p>
+<h3 id="sfida-del-modulo-nuovo-client">Sfida del modulo · Nuovo client</h3>
+<p>Riserva la VM temporanea 212, nome <code translate="no">m19-client</code>, soltanto se l’ID è libero nel cluster. Occupa temporaneamente un ID futuro del M24. Se esiste già una VM o un CT con questo ID, fermati; non scegliere un altro ID e non riutilizzarne i dati.</p>
+<p>Sull’host Proxmox usa lo stesso volume ISO DVD Debian 13 verificato nella 19.1 e annotato nel diario esterno <code translate="no">~/m19-operador.env</code> come <code translate="no">ISO_VOLUME</code>. Leggi e verifica di nuovo il registro; non caricare il file automaticamente. Verifica il volume nell’inventario reale, senza indovinare il nome del file.</p>
+<p>L’installazione è nuova, eseguita dalla console con identità proprie. Non clonare la VM 202. L’unica scheda è VirtIO in <code translate="no">vmbr17</code>, senza accesso alla gestione e senza NAT.</p>
+<pre translate="no"><code class="lang-bash"># SOMENTE no host Proxmox, apos conferir o inventario.
+pvesh get /cluster/resources --type vm
+test "$(pvesh get /cluster/nextid --vmid 212)" = 212 || exit 1
+read -r -p 'DVD_ISO_VOLUME do diario 19.1: ' DVD_ISO_VOLUME
+DVD_PATH=$(pvesm path "$DVD_ISO_VOLUME") || exit 1
+test -f "$DVD_PATH" || exit 1
+read -r -p 'SHA512 autenticado do diario 19.1: ' DVD_SHA512
+[[ "$DVD_SHA512" =~ ^[0-9a-fA-F]{128}$ ]] || exit 1
+printf '%s  %s
+' "$DVD_SHA512" "$DVD_PATH" | sha512sum -c - || exit 1
+CLIENT_RECORD=$(mktemp "$HOME/m19-212-created.XXXXXX.conf") || exit 1
+qm create 212 --name m19-client --memory 2048 --cores 2   --cpu x86-64-v2-AES --machine q35 --bios ovmf --ostype l26   --scsihw virtio-scsi-single --scsi0 vm-hdd:20   --efidisk0 vm-hdd:1,efitype=4m,pre-enrolled-keys=1   --net0 virtio,bridge=vmbr17   --ide2 "$DVD_ISO_VOLUME,media=cdrom" --boot 'order=ide2;scsi0' || exit 1
+qm config 212 | tee "$CLIENT_RECORD"
+test -s "$CLIENT_RECORD" || exit 1
+printf 'Creation record: %s\n' "$CLIENT_RECORD"
+qm start 212 || exit 1</code></pre>
+<p>Nella console installa Debian 13 soltanto dal DVD, con utente <code translate="no">student</code>, nome <code translate="no">m19-client</code>, password root di emergenza custodita fuori dal materiale e senza mirror di rete. Non abilitare SSH di root. L’interfaccia riceve DHCP da Kea; non indicare gateway e non aggiungere una seconda scheda.</p>
+<p>Dopo aver installato il sistema, sull’host imposta l’ordine di avvio con disco prima del DVD tramite <code translate="no">qm set 212 --boot 'order=scsi0;ide2'</code>. Mantieni il supporto collegato per i pacchetti offline. I comandi seguenti si eseguono nel nuovo guest. Mantieni il DVD collegato e usalo come sorgente locale per le utilità. Se un pacchetto non è nel DVD scelto, registra la dipendenza e prepara un supporto offline verificato; non collegare la VM alla gestione per scaricare.</p>
+<pre translate="no"><code class="lang-bash"># Console root SOMENTE no cliente novo.
+test "$(hostname -s)" = m19-client || exit 1
+test "$(id -u)" -eq 0 || exit 1
+apt-cdrom add || exit 1
+grep -E '^[[:space:]]*deb[[:space:]]+cdrom:' /etc/apt/sources.list &gt; /root/m19-dvd.list
+test -s /root/m19-dvd.list || exit 1
+apt -o Dir::Etc::sourcelist=/root/m19-dvd.list -o Dir::Etc::sourceparts=- install sudo curl openssl || exit 1
+usermod -aG sudo student
+exit</code></pre>
+<p>Accedi di nuovo come student per ricevere il nuovo gruppo sudo. I comandi seguenti tornano all’utente normale sul client 212.</p>
+<pre translate="no"><code class="lang-bash">test "$(id -un)" = student || exit 1
+sudo -v
+ip -4 address
+ip -4 route
+cat /etc/resolv.conf
+getent ahostsv4 web.lab.test
+getent ahostsv4 mail.lab.test
+cat /etc/machine-id</code></pre>
+<p>L’indirizzo deve essere nel pool <code translate="no">192.0.2.100–192.0.2.149</code>, il DNS deve essere <code translate="no">192.0.2.204</code> e non deve esistere una rotta predefinita. Correla MAC e concessione in Kea sulla VM 204. Confronta il machine-id con le VM esistenti: una nuova installazione non riutilizza l’identità originale.</p>
+<p>Trasferisci solo il PEM pubblico della CA tramite console. Confronta l’impronta con quella della 19.5 ottenuta da un canale fidato; non copiare chiavi private. Esegui prima il blocco seguente, incolla soltanto il PEM completo e termina con Ctrl+D.</p>
+<pre translate="no"><code class="lang-bash">CA_IN=$(mktemp "$HOME/m19-ca-public.XXXXXX.crt") || exit 1
+cat &gt; "$CA_IN"</code></pre>
+<p>Dopo aver terminato l’input del PEM, esegui il prossimo blocco. La verifica dell’impronta deve riuscire prima di installare il certificato.</p>
+<pre translate="no"><code class="lang-bash">openssl x509 -in "$CA_IN" -noout -fingerprint -sha256 || exit 1
+read -r -p 'SHA256 esperado da CA (somente hex, com ou sem dois-pontos): ' CA_EXPECTED
+CA_EXPECTED=$(printf '%s' "$CA_EXPECTED" | tr -d ':')
+[[ "$CA_EXPECTED" =~ ^[0-9a-fA-F]{64}$ ]] || exit 1
+CA_ACTUAL=$(openssl x509 -in "$CA_IN" -noout -fingerprint -sha256 | cut -d= -f2 | tr -d ':') || exit 1
+test "$(printf '%s' "$CA_ACTUAL" | tr 'A-F' 'a-f')" = "$(printf '%s' "$CA_EXPECTED" | tr 'A-F' 'a-f')" || exit 1
+sudo install -d -m 0755 /etc/ssl/m19
+sudo install -o root -g root -m 0644 "$CA_IN" /etc/ssl/m19/ca.crt
+curl --cacert /etc/ssl/m19/ca.crt --fail-with-body https://web.lab.test/
+curl --cacert /etc/ssl/m19/ca.crt --user aluno-mail \
+  --url 'imaps://mail.lab.test/INBOX' --request 'UID SEARCH ALL'
+read -r -p 'UID da mensagem observado: ' MAIL_UID
+case "$MAIL_UID" in ''|*[!0-9]*) exit 1 ;; esac
+curl --cacert /etc/ssl/m19/ca.crt --user aluno-mail \
+  --url "imaps://mail.lab.test/INBOX/;UID=$MAIL_UID"</code></pre>
+<p>La sfida termina soltanto con quattro evidenze: concessione DHCP, risoluzione DNS, contenuto web con TLS valido e contenuto del messaggio letto tramite IMAPS. Aggiungi il proxy HTTPS autenticato come verifica aggiuntiva, usando il comando del passo 6 e password interattiva.</p>
+<p>Copia tramite console gli output non segreti nel diario esterno dell’operatore, annotando MAC, indirizzo, impronta e risultati; verifica che siano leggibili fuori dalla VM. Non creare una seconda scheda per esportarli. Poi arresta dal guest e rimuovi soltanto il client temporaneo, se nome, ID e dischi corrispondono ancora al registro di creazione. L’eliminazione rimuove i dati di quella VM; i servizi 204 e 201 restano.</p>
+<pre translate="no"><code class="lang-bash"># No host, somente depois de exportar as evidencias e desligar o convidado.
+read -r -p 'Caminho do Creation record impresso na criacao: ' CLIENT_RECORD
+test -f "$CLIENT_RECORD" &amp;&amp; test ! -L "$CLIENT_RECORD" || exit 1
+test "$(stat -c %u "$CLIENT_RECORD")" = "$(id -u)" || exit 1
+test "$(qm config 212 | sed -n 's/^name: //p')" = m19-client || exit 1
+test "$(qm status 212)" = 'status: stopped' || exit 1
+CURRENT_RECORD=$(mktemp "$HOME/m19-212-current.XXXXXX.conf") || exit 1
+qm config 212 &gt; "$CURRENT_RECORD" || exit 1
+diff -u &lt;(grep -E '^(name|scsi[0-9]+|efidisk0|net[0-9]+|smbios1|vmgenid):' "$CLIENT_RECORD") &lt;(grep -E '^(name|scsi[0-9]+|efidisk0|net[0-9]+|smbios1|vmgenid):' "$CURRENT_RECORD") || exit 1
+# Somente depois da exportacao e das guardas acima:
+qm destroy 212 || exit 1
+test "$(pvesh get /cluster/nextid --vmid 212)" = 212 || exit 1</code></pre>
+<p>Dopo la rimozione, conserva le configurazioni 201/204 e il client 202 statico <code translate="no">.202</code>; ripeti una query DNS e il test HTTPS dal client esistente. Il lease della 212 può restare fino alla scadenza: non modificare il CSV Kea per cancellarlo.</p>
+<p>L’agente guest può essere installato successivamente tramite supporto offline e abilitato su entrambi i lati, ma non è un requisito per verificare questi quattro servizi. La rimozione del client libera l’ID per il M24.</p>
+<h2 id="11-nella-vita-reale">11 · Nella vita reale</h2>
+<p>Una politica aziendale deve definire autenticazione, riservatezza dei registri, conservazione, eccezioni, disponibilità e chi può modificare le regole. Il laboratorio non autorizza a intercettare il traffico delle persone.</p>
+<p>Raccogli evidenze minime e senza segreti. Un URL completo può contenere dati sensibili; conservazione e accesso al registro fanno parte del servizio.</p>
+<h2 id="12-approfondire-quando-vuoi">12 · Approfondire quando vuoi</h2>
+<p><a href="https://www.squid-cache.org/Doc/config/acl/">Squid · ACL</a> e <a href="https://wiki.squid-cache.org/SquidFaq/SquidAcl">regole di accesso</a> descrivono condizioni e ordine di valutazione.</p>
+<p><a href="https://www.squid-cache.org/Doc/config/https_port/">Squid · porta HTTPS</a> richiede una compilazione con TLS; <a href="https://www.squid-cache.org/Doc/config/auth_param/">autenticazione</a> richiede una regola che usi l’identità.</p>
+<p><a href="https://curl.se/docs/manpage.html">curl · opzioni del proxy</a> documenta la CA del proxy e il prompt della password.</p>
+<p><a href="https://pve.proxmox.com/pve-docs/qm.1.html">Proxmox · creazione VM</a> documenta i parametri del client temporaneo.</p>
+<p>I riferimenti sostengono la verifica documentale. I comandi e i risultati della lezione devono essere eseguiti nel tuo laboratorio; questa consegna non registra prove su VM.</p>
+<p>!explica Por que HTTPS no destino nao protege sozinho a senha do proxy HTTP?</p>
+<p>!feynman Explique CONNECT sem dizer que o proxy le o conteudo cifrado.</p>
+<p>!quiz Crie quatro recusas de proxy e peca a evidencia que separa cada causa.</p>
+<h3 id="soluzioni-commentate">Soluzioni commentate</h3>
+<p>Riscaldamento: no; no; dominio e rete sono condizioni diverse che possono essere richieste insieme.</p>
+<p>Decidi 1: A. Occorre forzare il passaggio e trovare l’evento corrispondente nel registro.</p>
+<p>Decidi 2: C. La compatibilità è un requisito, non un motivo per inviare la password senza protezione.</p>
+<p>Quiz 1: client fino al proxy, prima del tunnel TLS con la destinazione.</p>
+<p>Quiz 2: la prima regola corrispondente conclude la decisione; un’autorizzazione ampia precedente può aggirare il rifiuto successivo.</p>
+<p>Quiz 3: comando con proxy forzato e registro correlato per ora, origine e destinazione.</p>
+<p>Quiz 4: ogni certificato identifica un’estremità distinta; entrambi richiedono nome e catena validi.</p>
+<p>Quiz 5: no. La concessione è soltanto la prima verifica; nome, contenuto web e messaggio vanno provati separatamente.</p>
+<p>Conserva le evidenze fuori dalla VM prima di terminare. Mantieni i servizi del M19 per le lezioni successive e non ripristinare lo snapshot sopra lavoro successivo.</p>
+<p><a href="19.8-dovecot-e-imaps.it.html">← Lezione 19.8 · Dovecot</a> · <a href="index.it.html">Indice delle lezioni</a> · <a href="https://github.com/Rodrigoantignani/curso-linux-sysadmin/blob/master/00-plano-do-curso.md">Piano del corso: M20 →</a></p>
+</article><nav class="paginas" aria-label="Lezioni"><a class="ant" href="19.8-dovecot-e-imaps.it.html"><small>← Precedente</small>19.8 · Dovecot e lettura tramite IMAPS</a><a class="prox" href="20.1-instalar-nethserver-8.it.html"><small>Successiva →</small>20.1 · Installare in una VM pulita</a></nav></main></div>
+<footer><div class="wrap">Generato dal Markdown del corso · Immagini in <code translate="no">img/</code></div></footer>
+</body>
+</html>

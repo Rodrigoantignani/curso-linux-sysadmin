@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light dark">
+<title>13.1 · Servidor NFS · Curso Linux Sysadmin</title>
+<link rel="alternate" hreflang="pt-BR" href="13.1-servidor-nfs.html"><link rel="alternate" hreflang="it" href="13.1-servidor-nfs.it.html">
+<style>
+:root{color-scheme:light dark;--bg:#f6f1e7;--card:#fffdf8;--ink:#201c16;--muted:#5e564a;--accent:#9a3412;--accent-2:#1f5f4a;--tint:#efe6d4;--line:#ddd2bc;--code:#f1eadb;--shadow:0 1px 2px rgba(60,40,10,.08);--serif:Georgia,"Iowan Old Style","Palatino Linotype",Palatino,serif;--sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--mono:"Cascadia Code",Consolas,"DejaVu Sans Mono",monospace}
+@media (prefers-color-scheme:dark){:root{--bg:#16130f;--card:#201b15;--ink:#f1eadb;--muted:#b9ad98;--accent:#f0a070;--accent-2:#7fd0b0;--tint:#2a231a;--line:#3d3427;--code:#191510;--shadow:none}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:5.5rem}
+body{margin:0;background:var(--bg);color:var(--ink);font:1rem/1.6 var(--sans)}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--accent-2);outline-offset:2px;border-radius:4px}
+.pular{position:absolute;left:-999px;top:0;background:var(--card);padding:.5rem 1rem;z-index:20}
+.pular:focus{left:.5rem;top:.5rem}
+.wrap{width:100%;max-width:84rem;margin:0 auto;padding-inline:max(1rem,env(safe-area-inset-left))}
+.top{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10;border-top:6px solid var(--accent)}
+.top-in{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding-block:.6rem}
+.titles{min-width:0}
+.marca{margin:0;font:700 clamp(1.15rem,1rem + 1vw,1.6rem)/1.15 var(--serif);letter-spacing:-.01em}
+.marca a{text-decoration:none}
+.marca a:hover{color:var(--accent)}
+.meta{margin:.1rem 0 0;color:var(--muted);font-size:.85rem}
+.acoes{display:flex;align-items:center;gap:.9rem;flex:none}
+.acoes>a{font-size:.9rem;font-weight:600;color:var(--muted);text-decoration:none}
+.acoes>a:hover{color:var(--accent);text-decoration:underline}
+.idioma{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--tint)}
+.idioma>*{padding:.35rem .9rem;font-size:.8rem;font-weight:700;letter-spacing:.06em;text-decoration:none;color:var(--muted);min-width:2.75rem;text-align:center}
+.idioma a:hover{color:var(--accent);text-decoration:underline}
+.idioma span{background:var(--accent);color:#fff}
+@media (prefers-color-scheme:dark){.idioma span{color:#16130f}}
+code{font-family:var(--mono);font-size:.9em;background:var(--tint);padding:.1rem .35rem;border-radius:4px;overflow-wrap:anywhere}
+/* índice */
+.capa{max-width:70rem;padding-block:2rem 3rem}
+.stats{border-left:4px solid var(--accent-2);background:var(--card);border-radius:0 10px 10px 0;padding:1rem 1.25rem;margin:0 0 2.5rem;box-shadow:var(--shadow);color:var(--muted)}
+.stats strong{color:var(--ink)}
+.modulo{display:grid;grid-template-columns:15rem minmax(0,1fr);gap:1rem 2rem;padding:1.75rem 0;border-top:1px solid var(--line)}
+.modulo h2{margin:0;font:700 1.25rem/1.25 var(--serif);align-self:start;position:sticky;top:6rem}
+.mn{display:block;font:700 .8rem var(--mono);letter-spacing:.12em;color:var(--accent);margin-bottom:.25rem}
+.sep{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.modulo ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,17rem),1fr));gap:.75rem}
+.modulo li{margin:0}
+.modulo a{display:flex;gap:.45rem;align-items:baseline;height:100%;padding:.85rem 1rem;background:var(--card);border:1px solid var(--line);border-radius:10px;text-decoration:none;font-weight:600;line-height:1.35;box-shadow:var(--shadow);transition:border-color .15s,transform .15s}
+.modulo a:hover{border-color:var(--accent);color:var(--accent)}
+.num{font:700 .85rem var(--mono);color:var(--accent);white-space:nowrap}
+/* aula */
+.doc{display:grid;grid-template-columns:17rem minmax(0,1fr);gap:2.5rem;align-items:start;padding-block:2rem 3rem}
+.lateral{position:sticky;top:5.5rem;max-height:calc(100vh - 6.5rem);overflow:auto;font-size:.875rem;padding-right:.5rem}
+.lateral h2{margin:0 0 .25rem;font:700 .95rem var(--serif);color:var(--muted)}
+.lateral h3{margin:1rem 0 .25rem;font:700 .75rem var(--mono);letter-spacing:.06em;color:var(--accent)}
+.lateral ul{list-style:none;margin:0;padding:0}
+.lateral a{display:flex;gap:.45rem;padding:.25rem .5rem;border-radius:6px;text-decoration:none;color:var(--muted);line-height:1.3}
+.lateral a:hover{background:var(--tint);color:var(--ink)}
+.lateral a[aria-current]{background:var(--tint);color:var(--ink);font-weight:700;box-shadow:inset 3px 0 0 var(--accent)}
+.lateral .num{font-size:.75rem}
+.aula{min-width:0;max-width:56rem;overflow-wrap:break-word;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:clamp(1.25rem,1rem + 2vw,2.75rem);box-shadow:var(--shadow)}
+.aula h1{margin:0 0 1.5rem;font:700 clamp(1.75rem,1.4rem + 1.6vw,2.5rem)/1.15 var(--serif);letter-spacing:-.015em;color:var(--ink)}
+.aula h2{margin:2.5rem 0 .75rem;padding-top:1.25rem;border-top:1px solid var(--line);font:700 1.5rem/1.25 var(--serif)}
+.aula h3{margin:2rem 0 .5rem;font:700 1.15rem/1.3 var(--serif);color:var(--accent)}
+.aula h4,.aula h5,.aula h6{margin:1.5rem 0 .5rem;font-size:1rem}
+.aula p,.aula ul,.aula ol{margin:1rem 0}
+.aula ul,.aula ol{padding-left:1.5rem}
+.aula li{margin:.35rem 0}
+.aula li>ul,.aula li>ol{margin:.35rem 0}
+.aula a{color:var(--accent);text-underline-offset:2px}
+.aula hr{border:0;border-top:1px solid var(--line);margin:2rem 0}
+.tabela{overflow-x:auto;margin:1.25rem 0;border:1px solid var(--line);border-radius:10px}
+.aula table{width:100%;border-collapse:collapse;font-size:.9rem}
+.aula th,.aula td{padding:.55rem .75rem;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+.aula tr:last-child td{border-bottom:0}
+.aula th{background:var(--tint);font-weight:700}
+.aula pre{background:var(--code);border:1px solid var(--line);border-radius:10px;padding:.9rem 1rem;overflow-x:auto;font:.85rem/1.5 var(--mono);margin:1rem 0;tab-size:4}
+.aula pre code{background:none;padding:0;font-size:inherit;overflow-wrap:normal}
+.aula blockquote{margin:1.25rem 0;padding:.75rem 1.25rem;border-left:4px solid var(--accent-2);background:var(--tint);border-radius:0 10px 10px 0}
+.aula blockquote>:first-child{margin-top:0}
+.aula blockquote>:last-child{margin-bottom:0}
+.aula figure{margin:1.75rem 0;text-align:center}
+.aula figure img{display:block;margin:0 auto;max-width:100%;height:auto;border:1px solid var(--line);border-radius:10px;background:#fff}
+.aula figcaption{margin-top:.5rem;color:var(--muted);font-size:.9rem;font-style:italic}
+.paginas{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:2.5rem;padding-top:1.5rem;border-top:1px solid var(--line)}
+.paginas a{display:block;padding:.75rem 1rem;border:1px solid var(--line);border-radius:10px;text-decoration:none;color:var(--ink);font-weight:600;line-height:1.3}
+.paginas a:hover{border-color:var(--accent);color:var(--accent)}
+.paginas small{display:block;color:var(--muted);font-weight:400}
+.paginas .prox{grid-column:2;text-align:right}
+footer{border-top:1px solid var(--line);padding-block:1.5rem;color:var(--muted);font-size:.85rem;text-align:center}
+@media (hover:hover) and (prefers-reduced-motion:no-preference){.modulo a:hover{transform:translateY(-2px)}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+@media (max-width:980px){.doc{grid-template-columns:minmax(0,1fr);padding-top:1rem}.lateral{position:static;max-height:none;order:2}.aula{max-width:none}}
+@media (max-width:860px){.modulo{grid-template-columns:minmax(0,1fr)}.modulo h2{position:static}.mn{display:inline;margin-right:.5rem}}
+@media (max-width:420px){.meta{display:none}.top-in{gap:.5rem}.acoes{gap:.6rem}.capa{padding-top:1.25rem}.paginas{grid-template-columns:minmax(0,1fr)}.paginas .prox{grid-column:1}}
+@media print{.top,.lateral,.paginas{display:none}.aula{border:0;box-shadow:none;padding:0;max-width:none}.doc{display:block}}
+</style>
+</head>
+<body>
+<a class="pular" href="#conteudo">Pular para o conteúdo</a>
+<header class="top"><div class="wrap top-in"><div class="titles"><p class="marca"><a href="index.html">Curso Linux Sysadmin</a></p><p class="meta">Rodrigo Antignani · Aula 13.1</p></div><div class="acoes"><a href="index.html">Índice</a><div class="idioma" role="group" aria-label="Idioma"><span aria-current="true">PT</span><a href="13.1-servidor-nfs.it.html" hreflang="it" lang="it">IT</a></div></div></div></header>
+<div class="wrap doc"><aside class="lateral" aria-label="Aulas"><h2>Aulas</h2><h3>M0 · Laboratório</h3><ul><li><a href="0.1-montar-o-laboratorio.html"><span class="num">0.1</span><span>Montar o laboratório</span></a></li><li><a href="0.2-acesso-e-protecao.html"><span class="num">0.2</span><span>Acesso e proteção</span></a></li></ul><h3>M1 · Linha de comando</h3><ul><li><a href="1.1-o-que-e-linux.html"><span class="num">1.1</span><span>O que é Linux</span></a></li><li><a href="1.2-o-shell-e-a-ajuda.html"><span class="num">1.2</span><span>O shell e a ajuda</span></a></li><li><a href="1.3-caminhos-e-navegacao.html"><span class="num">1.3</span><span>Caminhos e navegação</span></a></li><li><a href="1.4-criar-copiar-mover-e-apagar.html"><span class="num">1.4</span><span>Criar, copiar, mover e apagar</span></a></li><li><a href="1.5-ler-e-procurar-texto.html"><span class="num">1.5</span><span>Ler e procurar texto</span></a></li><li><a href="1.6-redirecionamentos-e-pipes.html"><span class="num">1.6</span><span>Redirecionamentos e pipes</span></a></li><li><a href="1.7-arquivar-e-compactar.html"><span class="num">1.7</span><span>Arquivar e compactar</span></a></li><li><a href="1.8-primeiro-script.html"><span class="num">1.8</span><span>Primeiro script</span></a></li><li><a href="1.9-decidir-e-repetir.html"><span class="num">1.9</span><span>Decidir e repetir</span></a></li><li><a href="1.10-software-livre-na-pratica.html"><span class="num">1.10</span><span>Software livre na prática</span></a></li></ul><h3>M2 · Sistema, usuários e permissões</h3><ul><li><a href="2.1-instalacao-e-provisionamento.html"><span class="num">2.1</span><span>Instalação e provisionamento</span></a></li><li><a href="2.2-hardware-e-dispositivos.html"><span class="num">2.2</span><span>Hardware e dispositivos</span></a></li><li><a href="2.3-processos-e-logs.html"><span class="num">2.3</span><span>Processos e logs</span></a></li><li><a href="2.4-rede-no-dia-a-dia.html"><span class="num">2.4</span><span>Rede no dia a dia</span></a></li><li><a href="2.5-acesso-remoto-e-privilegios.html"><span class="num">2.5</span><span>Acesso remoto e privilégios</span></a></li><li><a href="2.6-usuarios-e-grupos.html"><span class="num">2.6</span><span>Usuários e grupos</span></a></li><li><a href="2.7-permissoes-e-dono.html"><span class="num">2.7</span><span>Permissões e dono</span></a></li><li><a href="2.8-diretorios-e-arquivos-especiais.html"><span class="num">2.8</span><span>Diretórios e arquivos especiais</span></a></li></ul><h3>M3 · Texto e editor</h3><ul><li><a href="3.1-fluxos-a-fundo.html"><span class="num">3.1</span><span>Fluxos a fundo</span></a></li><li><a href="3.2-filtros-de-texto.html"><span class="num">3.2</span><span>Filtros de texto</span></a></li><li><a href="3.3-regex-e-grep.html"><span class="num">3.3</span><span>Regex e grep</span></a></li><li><a href="3.4-sed-e-awk.html"><span class="num">3.4</span><span>sed e awk</span></a></li><li><a href="3.5-vi-e-vim-de-verdade.html"><span class="num">3.5</span><span>vi e vim de verdade</span></a></li></ul><h3>M4 · systemd e boot</h3><ul><li><a href="4.1-como-o-linux-liga.html"><span class="num">4.1</span><span>Como o Linux liga</span></a></li><li><a href="4.2-systemd-servicos-e-units.html"><span class="num">4.2</span><span>systemd: serviços e units</span></a></li><li><a href="4.3-targets-desligar-e-reiniciar.html"><span class="num">4.3</span><span>Targets: desligar e reiniciar</span></a></li><li><a href="4.4-grub-e-acesso-de-emergencia.html"><span class="num">4.4</span><span>GRUB e acesso de emergência</span></a></li></ul><h3>M5 · Kernel, módulos e VM</h3><ul><li><a href="5.1-hardware-pelo-kernel.html"><span class="num">5.1</span><span>Hardware pelo kernel</span></a></li><li><a href="5.2-modulos-e-parametros.html"><span class="num">5.2</span><span>Módulos e parâmetros</span></a></li><li><a href="5.3-linux-como-convidado.html"><span class="num">5.3</span><span>Linux como convidado</span></a></li></ul><h3>M6 · Pacotes e repositórios</h3><ul><li><a href="6.1-pacotes-no-debian.html"><span class="num">6.1</span><span>Pacotes no Debian</span></a></li><li><a href="6.2-pacotes-na-rocky.html"><span class="num">6.2</span><span>Pacotes na Rocky</span></a></li><li><a href="6.3-repositorios.html"><span class="num">6.3</span><span>Repositórios</span></a></li><li><a href="6.4-flatpak.html"><span class="num">6.4</span><span>Flatpak</span></a></li><li><a href="6.5-bibliotecas-compartilhadas.html"><span class="num">6.5</span><span>Bibliotecas compartilhadas</span></a></li></ul><h3>M7 · Processos e desempenho</h3><ul><li><a href="7.1-processos-e-sinais.html"><span class="num">7.1</span><span>Processos e sinais</span></a></li><li><a href="7.2-jobs-e-sessoes.html"><span class="num">7.2</span><span>Jobs e sessões</span></a></li><li><a href="7.3-prioridade-e-perfis.html"><span class="num">7.3</span><span>Prioridade e perfis</span></a></li></ul><h3>M8 · Arquivos a fundo</h3><ul><li><a href="8.1-fhs-e-onde-cada-coisa-mora.html"><span class="num">8.1</span><span>FHS e onde cada coisa mora</span></a></li><li><a href="8.2-find-a-fundo.html"><span class="num">8.2</span><span>find a fundo</span></a></li><li><a href="8.3-arquivamento-avancado.html"><span class="num">8.3</span><span>Arquivamento avançado</span></a></li><li><a href="8.4-links.html"><span class="num">8.4</span><span>Links</span></a></li><li><a href="8.5-permissoes-avancadas.html"><span class="num">8.5</span><span>Permissões avançadas</span></a></li></ul><h3>M9 · Armazenamento</h3><ul><li><a href="9.1-discos-e-layout.html"><span class="num">9.1</span><span>Discos e layout</span></a></li><li><a href="9.2-particionar.html"><span class="num">9.2</span><span>Particionar</span></a></li><li><a href="9.3-sistemas-de-arquivos.html"><span class="num">9.3</span><span>Sistemas de arquivos</span></a></li><li><a href="9.4-montar-e-persistir.html"><span class="num">9.4</span><span>Montar e persistir</span></a></li><li><a href="9.5-integridade-e-espaco.html"><span class="num">9.5</span><span>Integridade e espaço</span></a></li><li><a href="9.6-lvm.html"><span class="num">9.6</span><span>LVM</span></a></li><li><a href="9.7-crescer-sem-destruir.html"><span class="num">9.7</span><span>Crescer sem destruir</span></a></li></ul><h3>M10 · Usuários e acesso privilegiado</h3><ul><li><a href="10.1-contas.html"><span class="num">10.1</span><span>Contas</span></a></li><li><a href="10.2-senhas-e-validade.html"><span class="num">10.2</span><span>Senhas e validade</span></a></li><li><a href="10.3-grupos-e-trabalho-em-equipe.html"><span class="num">10.3</span><span>Grupos e trabalho em equipe</span></a></li><li><a href="10.4-sudo-de-verdade.html"><span class="num">10.4</span><span>sudo de verdade</span></a></li></ul><h3>M11 · Rede</h3><ul><li><a href="11.1-tcp-ip-para-quem-administra.html"><span class="num">11.1</span><span>TCP/IP para quem administra</span></a></li><li><a href="11.2-networkmanager-e-nmcli.html"><span class="num">11.2</span><span>NetworkManager e nmcli</span></a></li><li><a href="11.3-rede-no-debian.html"><span class="num">11.3</span><span>Rede no Debian</span></a></li><li><a href="11.4-nomes-e-resolucao.html"><span class="num">11.4</span><span>Nomes e resolução</span></a></li><li><a href="11.5-diagnostico-de-rede.html"><span class="num">11.5</span><span>Diagnóstico de rede</span></a></li></ul><h3>M12 · Segurança do host</h3><ul><li><a href="12.1-ssh-a-fundo.html"><span class="num">12.1</span><span>SSH a fundo</span></a></li><li><a href="12.2-firewall.html"><span class="num">12.2</span><span>Firewall</span></a></li><li><a href="12.3-selinux-modos-e-contextos.html"><span class="num">12.3</span><span>SELinux: modos e contextos</span></a></li><li><a href="12.4-selinux-portas-e-booleanos.html"><span class="num">12.4</span><span>SELinux: portas e booleanos</span></a></li><li><a href="12.5-auditoria-e-criptografia.html"><span class="num">12.5</span><span>Auditoria e criptografia</span></a></li></ul><h3>M13 · Armazenamento em rede</h3><ul><li><a href="13.1-servidor-nfs.html" aria-current="page"><span class="num">13.1</span><span>Servidor NFS</span></a></li><li><a href="13.2-cliente-nfs.html"><span class="num">13.2</span><span>Cliente NFS</span></a></li><li><a href="13.3-autofs.html"><span class="num">13.3</span><span>autofs</span></a></li></ul><h3>M14 · Agendamento</h3><ul><li><a href="14.1-cron-e-at.html"><span class="num">14.1</span><span>cron e at</span></a></li><li><a href="14.2-timers-do-systemd.html"><span class="num">14.2</span><span>Timers do systemd</span></a></li><li><a href="14.3-journald-e-rsyslog.html"><span class="num">14.3</span><span>journald e rsyslog</span></a></li><li><a href="14.4-hora-certa.html"><span class="num">14.4</span><span>Hora certa</span></a></li><li><a href="14.5-email-local-e-impressao.html"><span class="num">14.5</span><span>E-mail local e impressão</span></a></li></ul><h3>M15 · Shell e ambiente</h3><ul><li><a href="15.1-ambiente-do-shell.html"><span class="num">15.1</span><span>Ambiente do shell</span></a></li><li><a href="15.2-scripts-robustos.html"><span class="num">15.2</span><span>Scripts robustos</span></a></li><li><a href="15.3-scripts-de-administracao.html"><span class="num">15.3</span><span>Scripts de administração</span></a></li><li><a href="15.4-interfaces-graficas.html"><span class="num">15.4</span><span>Interfaces gráficas</span></a></li><li><a href="15.5-idioma-teclado-e-fuso.html"><span class="num">15.5</span><span>Idioma, teclado e fuso</span></a></li></ul><h3>M16 · Semana de incidentes no Rocky 10</h3><ul><li><a href="16.1-rocky-10-o-que-muda.html"><span class="num">16.1</span><span>Rocky 10: o que muda</span></a></li><li><a href="16.2-incidentes-por-area.html"><span class="num">16.2</span><span>Incidentes por área</span></a></li><li><a href="16.3-incidente-com-relogio.html"><span class="num">16.3</span><span>Incidente com relógio</span></a></li><li><a href="16.4-correcao-e-reforco.html"><span class="num">16.4</span><span>Correção e reforço</span></a></li></ul><h3>M17 · Proxmox na prática</h3><ul><li><a href="17.1-proxmox-por-dentro.html"><span class="num">17.1</span><span>Proxmox por dentro</span></a></li><li><a href="17.2-vm-pela-linha-de-comando.html"><span class="num">17.2</span><span>VM pela linha de comando</span></a></li><li><a href="17.3-conteiner-lxc.html"><span class="num">17.3</span><span>Contêiner LXC</span></a></li><li><a href="17.4-storage.html"><span class="num">17.4</span><span>Storage: capacidade, crescimento e movimento</span></a></li><li><a href="17.5-rede.html"><span class="num">17.5</span><span>Rede: bridge, VLAN, bond e SDN</span></a></li><li><a href="17.6-backup-e-restauracao.html"><span class="num">17.6</span><span>Backup e restauração com PBS</span></a></li><li><a href="17.7-migracao-e-quorum.html"><span class="num">17.7</span><span>Migração e quorum</span></a></li></ul><h3>M18 · Podman</h3><ul><li><a href="18.1-conteiner-nao-e-vm.html"><span class="num">18.1</span><span>Contêiner não é VM</span></a></li><li><a href="18.2-rodar-e-persistir.html"><span class="num">18.2</span><span>Rodar e persistir</span></a></li><li><a href="18.3-conteiner-como-servico.html"><span class="num">18.3</span><span>Contêiner como serviço</span></a></li><li><a href="18.4-diagnosticar-conteiner-rootless.html"><span class="num">18.4</span><span>Diagnosticar contêiner rootless</span></a></li><li><a href="18.5-construir-imagens.html"><span class="num">18.5</span><span>Construir imagens</span></a></li></ul><h3>M19 · Serviços de rede</h3><ul><li><a href="19.1-dns-autoritativo.html"><span class="num">19.1</span><span>DNS autoritativo</span></a></li><li><a href="19.2-dns-recursivo-e-diagnostico.html"><span class="num">19.2</span><span>DNS recursivo e diagnóstico</span></a></li><li><a href="19.3-dhcp.html"><span class="num">19.3</span><span>DHCP</span></a></li><li><a href="19.4-servidor-web.html"><span class="num">19.4</span><span>Servidor web: nome, arquivo e resposta</span></a></li><li><a href="19.5-tls-e-proxy-reverso.html"><span class="num">19.5</span><span>TLS e proxy reverso: identidade antes do cadeado</span></a></li><li><a href="19.6-samba-a-ponte-windows.html"><span class="num">19.6</span><span>Samba: a ponte com o cliente Windows</span></a></li><li><a href="19.7-postfix-e-correio-local.html"><span class="num">19.7</span><span>Postfix e correio local</span></a></li><li><a href="19.8-dovecot-e-imaps.html"><span class="num">19.8</span><span>Dovecot e leitura por IMAPS</span></a></li><li><a href="19.9-squid-e-desafio-integrado.html"><span class="num">19.9</span><span>Squid e desafio integrado</span></a></li></ul><h3>M20 · NethServer 8 por dentro</h3><ul><li><a href="20.1-instalar-nethserver-8.html"><span class="num">20.1</span><span>Instalar em uma VM limpa</span></a></li><li><a href="20.2-cluster-no-e-modulo.html"><span class="num">20.2</span><span>Cluster, nó e módulo</span></a></li><li><a href="20.3-modulo-por-dentro.html"><span class="num">20.3</span><span>Um módulo por dentro</span></a></li><li><a href="20.4-proxy-e-certificados.html"><span class="num">20.4</span><span>Proxy e certificados</span></a></li><li><a href="20.5-dominios-de-usuario.html"><span class="num">20.5</span><span>Domínios de usuário: identidade com fronteiras</span></a></li><li><a href="20.6-backup-e-restauracao.html"><span class="num">20.6</span><span>Backup e restauração: provar o retorno</span></a></li><li><a href="20.7-atualizar-mover-e-falhar.html"><span class="num">20.7</span><span>Atualizar, mover e falhar com prova</span></a></li></ul></aside><main id="conteudo" class="aula"><article><h1>Aula 13.1 · Servidor NFS</h1>
+<p>No Windows Server, compartilhar uma pasta envolve serviço, cliente autorizado e permissão dos arquivos. No NFS você separa as mesmas perguntas. Esta aula acrescenta a VM 203 ao laboratório, publica um diretório somente para as duas VMs do curso e mantém SELinux e firewall ativos.</p>
+<blockquote><p><strong>Núcleo desta aula:</strong> exportação define quais clientes e operações o servidor permite; firewall limita a chegada; permissões dos arquivos continuam valendo. O resto é aprofundamento.</p></blockquote>
+<div class="tabela"><table><thead><tr><th scope="col">Ficha</th><th scope="col"></th></tr></thead><tbody><tr><td><strong>Módulo</strong></td><td>M13 · Armazenamento em rede, aula 1 de 3</td></tr><tr><td><strong>Quando</strong></td><td>Semana 18</td></tr><tr><td><strong>Ao final</strong></td><td>Você prepara a VM 203 e exporta conteúdo NFS de leitura para as VMs 201 e 202</td></tr><tr><td><strong>Pré-requisitos</strong></td><td>M0 a M12; noVNC, backup do curso, IP reservado fora do pool DHCP e storage do laboratório</td></tr><tr><td><strong>Tempo</strong></td><td>Cerca de 90 minutos, mais a instalação da nova VM</td></tr><tr><td><strong>Snapshots</strong></td><td><code translate="no">m13a1-inicio</code> e <code translate="no">m13a1-fim</code> nas VMs 201, 202 e 203</td></tr></tbody></table></div>
+<h2 id="1-aquecimento">1 · Aquecimento</h2>
+<p>Responda sem consultar. O gabarito fica no fim.</p>
+<ol><li>Permitir uma porta no firewall cria o serviço que atende nela?</li>
+<li>Dono, modo e contexto SELinux respondem à mesma pergunta?</li>
+<li>Por que você confere um VMID no cluster antes de criar uma VM?</li></ol>
+<h2 id="2-por-que-importa">2 · Por que importa</h2>
+<p>Você quer entregar o mesmo conteúdo para dois servidores. Copiar arquivos para cada host cria versões diferentes e exige sincronização. Um compartilhamento permite trabalhar com uma origem central, mas acrescenta dependência da rede e do servidor de arquivos.</p>
+<p>O objetivo não é tornar qualquer diretório acessível para qualquer máquina. Você vai publicar uma árvore própria, em leitura, para dois endereços conhecidos e verificar cada camada separadamente.</p>
+<h2 id="3-modelo-mental">3 · Modelo mental</h2>
+<p>O servidor é a biblioteca do prédio. A exportação é a lista de leitores autorizados. Montar é encaixar uma entrada para essa biblioteca na árvore do cliente; não é copiar os livros para outro disco.</p>
+<pre translate="no"><code class="lang-text">VM 203: diretório -&gt; exportação -&gt; NFS -&gt; VM 201 e VM 202
+          |             |          |              |
+       arquivos       clientes   2049/tcp       montagem</code></pre>
+<figure><a href="../img/13.1-servidor-e-clientes.jpg"><img src="../img/13.1-servidor-e-clientes.jpg" alt="Um diretório, dois clientes" loading="lazy" decoding="async"></a><figcaption>Exportar autoriza clientes; montar conecta o diretório ao cliente.</figcaption></figure>
+<h3 id="ponte-windows">Ponte Windows</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Referência do Windows</th><th scope="col">Neste lab Linux</th></tr></thead><tbody><tr><td>Pasta compartilhada</td><td>Diretório exportado por NFS</td></tr><tr><td>Cliente autorizado</td><td>IP exato na exportação e no firewall</td></tr><tr><td>Caminho de acesso remoto</td><td>Servidor e caminho da exportação</td></tr><tr><td>Permissão do arquivo</td><td>UID, GID, modo e política ativa</td></tr></tbody></table></div>
+<h2 id="4-o-essencial">4 · O essencial</h2>
+<h3 id="exportar-nao-e-montar">Exportar não é montar</h3>
+<p>O servidor mantém a lista em <code translate="no">/etc/exports</code> e arquivos terminados em <code translate="no">.exports</code> dentro de <code translate="no">/etc/exports.d/</code>. <code translate="no">exportfs</code> aplica e mostra exportações. Um arquivo salvo precisa ser carregado para participar do estado ativo.</p>
+<p>Nesta aula use NFS <code translate="no">4.2</code>. Os clientes seguintes vão escolher essa versão explicitamente. O tráfego principal chega a TCP <code translate="no">2049</code>; isso não torna consultas antigas de <code translate="no">showmount</code> uma prova adequada de todo servidor NFSv4.</p>
+<h3 id="opcoes-com-finalidade">Opções com finalidade</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Opção</th><th scope="col">Papel no lab</th></tr></thead><tbody><tr><td><code translate="no">ro</code></td><td>Exportar em leitura</td></tr><tr><td><code translate="no">sync</code></td><td>Confirmar operações de escrita conforme as garantias do servidor</td></tr><tr><td><code translate="no">root_squash</code></td><td>Reduzir a identidade remota de UID zero</td></tr><tr><td><code translate="no">no_subtree_check</code></td><td>Evitar a verificação adicional da subárvore exportada</td></tr></tbody></table></div>
+<p>Não coloque espaço entre o cliente e seus parênteses de opções. Neste módulo, o servidor confia nos identificadores numéricos enviados pelos clientes com <code translate="no">AUTH_SYS</code>; use somente a rede autorizada do lab, sem publicar NFS na internet.</p>
+<figure><a href="../img/13.1-tres-controles.jpg"><img src="../img/13.1-tres-controles.jpg" alt="Três controles para o acesso" loading="lazy" decoding="async"></a><figcaption>Rede, exportação e permissão precisam concordar.</figcaption></figure>
+<h3 id="root-remoto-tem-limite">Root remoto tem limite</h3>
+<p><code translate="no">root_squash</code> não transforma todos os usuários em anônimos. Ele trata a identidade privilegiada remota. Isso não substitui a conferência de UID e GID dos usuários comuns, que você fará nas próximas aulas.</p>
+<figure><a href="../img/13.1-root-squash.jpg"><img src="../img/13.1-root-squash.jpg" alt="Root no cliente não vira root no servidor" loading="lazy" decoding="async"></a><figcaption>root_squash reduz o privilégio remoto; os dados ainda exigem permissão.</figcaption></figure>
+<h3 id="rocky-debian">Rocky × Debian</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Item</th><th scope="col">Rocky 9</th><th scope="col">Debian 13</th></tr></thead><tbody><tr><td>Servidor desta aula</td><td>VM 203, <code translate="no">nfs-utils</code></td><td>Papel de cliente na VM 202</td></tr><tr><td>Unidade do servidor</td><td><code translate="no">nfs-server.service</code></td><td>Se fosse servidor: <code translate="no">nfs-kernel-server.service</code></td></tr><tr><td>Pacote cliente</td><td><code translate="no">nfs-utils</code></td><td><code translate="no">nfs-common</code></td></tr><tr><td>Política adicional</td><td>SELinux enforcing</td><td>AppArmor conforme perfis ativos</td></tr></tbody></table></div>
+<p>O plano introduz apenas um servidor NFS, a Rocky da VM 203. As VMs 201 e 202 repetem o papel de cliente; não crie um segundo servidor nem use uma VM fora da tabela do curso.</p>
+<h2 id="5-lab-guiado">5 · Lab guiado</h2>
+<h3 id="passo-1-criar-a-vm-203-com-identidade-propria">Passo 1 · Criar a VM 203 com identidade própria</h3>
+<p><strong>Palpite:</strong> um ID livre no nó atual é suficiente para garantir que esteja livre no cluster?</p>
+<p>No host Proxmox, confira ID, storage e a ISO real antes da criação. Se <code translate="no">203</code> já estiver em uso, pare esta criação e revise o inventário; não remova a VM encontrada.</p>
+<pre translate="no"><code class="lang-bash">qm list
+pvesh get /cluster/resources --type vm
+pvesm status</code></pre>
+<p>Reaplique o procedimento de criação e instalação da aula 0.1 usando estes valores. Selecione a ISO do Rocky 9 presente no storage; não invente o identificador de volume.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Campo</th><th scope="col">Valor da VM nova</th></tr></thead><tbody><tr><td>VMID e nome</td><td><code translate="no">203</code>, <code translate="no">srv-lab</code></td></tr><tr><td>CPU, memória e disco</td><td><code translate="no">x86-64-v2-AES</code>, 2 vCPU, 2 GB, 20 GB</td></tr><tr><td>Máquina e firmware</td><td>q35 e UEFI OVMF</td></tr><tr><td>Storage e interface</td><td><code translate="no">vm-hdd</code>, virtio em <code translate="no">vmbr0</code></td></tr><tr><td>Sistema e acesso</td><td>Rocky 9, <code translate="no">student</code>, <code translate="no">sudo</code>, SSH por chave e guest agent</td></tr><tr><td>Rede</td><td>IPv4 reservado fora do pool DHCP, prefixo, gateway e DNS confirmados no plano da rede</td></tr></tbody></table></div>
+<p>Faça a instalação nova pelo noVNC. Não clone a identidade de uma VM existente. Registre o endereço reservado como <code translate="no">IP_SRV</code>, sem presumir que o próximo número esteja disponível; uma ausência de resposta ao ping não comprova reserva. Prepare o alias SSH <code translate="no">srv-lab</code> no Windows conforme a 0.2.</p>
+<p><strong>Saída esperada:</strong> VM 203 com hostname e chaves de host próprios, endereço reservado persistente e acesso por chave.</p>
+<p><strong>Verifique:</strong> na 203, confira <code translate="no">hostnamectl --static</code>, <code translate="no">ip -br address</code>, <code translate="no">sudo systemctl is-active qemu-guest-agent</code> e uma nova sessão <code translate="no">ssh srv-lab</code> do Windows. Reinicie a VM e confirme o mesmo endereço antes de exportar arquivos.</p>
+<h3 id="passo-2-registrar-a-base-e-instalar-nfs">Passo 2 · Registrar a base e instalar NFS</h3>
+<p><strong>Palpite:</strong> um snapshot anterior à criação do serviço permite voltar sem apagar as VMs clientes?</p>
+<p>No host Proxmox, depois de instalar e conferir a VM nova:</p>
+<pre translate="no"><code class="lang-bash">qm snapshot 201 m13a1-inicio
+qm snapshot 202 m13a1-inicio
+qm snapshot 203 m13a1-inicio</code></pre>
+<p>Na 203, crie registros e anote o IP real. A pasta precisa estar ausente.</p>
+<pre translate="no"><code class="lang-bash">test ! -e "$HOME/m13"
+mkdir -m 700 "$HOME/m13"
+read -r -p 'IP_SRV: ' IP_SRV
+printf '%s\n' "$IP_SRV" &gt; "$HOME/m13/ip-servidor"
+ip -br address
+sudo dnf install -y nfs-utils policycoreutils-python-utils
+getenforce
+sudo firewall-cmd --state
+sudo exportfs -v</code></pre>
+<p><strong>Saída esperada:</strong> endereço digitado presente na interface, SELinux enforcing, firewalld ativo e nenhuma exportação de outro exercício. Se a base não corresponder, ajuste o preparo antes de prosseguir.</p>
+<p><strong>Verifique:</strong> o NFS será instalado somente no servidor 203 nesta aula. Pacotes dos clientes entram na 13.2. Preserve o estado inicial de SSH e firewalld.</p>
+<h3 id="passo-3-preparar-o-diretorio-de-leitura">Passo 3 · Preparar o diretório de leitura</h3>
+<p><strong>Palpite:</strong> uma exportação em leitura precisa que o arquivo tenha modo de escrita para todos?</p>
+<p>Na 203, verifique os nomes reservados antes de criar qualquer arquivo.</p>
+<pre translate="no"><code class="lang-bash">sudo test ! -e /srv/m13-share
+sudo test ! -e /etc/exports.d/m13-share.exports
+sudo install -d -m 0755 /srv/m13-share
+printf 'NFS COURSE ok\n' | sudo tee /srv/m13-share/leia.txt &gt; /dev/null
+sudo chmod 0644 /srv/m13-share/leia.txt
+sudo semanage fcontext -l -C | grep -F '/srv/m13-share'</code></pre>
+<p>Se já existir uma regra local para essa árvore, pare e revise a autoria antes de substituir. Registre um tipo de conteúdo público para o compartilhamento de leitura.</p>
+<pre translate="no"><code class="lang-bash">sudo semanage fcontext -a -t public_content_t '/srv/m13-share(/.*)?'
+sudo restorecon -Rv /srv/m13-share
+ls -ldZ /srv/m13-share
+ls -lZ /srv/m13-share/leia.txt
+getsebool nfs_export_all_ro nfs_export_all_rw</code></pre>
+<p><strong>Saída esperada:</strong> árvore atravessável, arquivo legível e regra de contexto aplicada. Leia os booleanos existentes sem mudar o host para permissive nem ampliar a política por tentativa.</p>
+<p><strong>Verifique:</strong> <code translate="no">matchpathcon -V /srv/m13-share/leia.txt</code> deve coincidir com a regra registrada. Se uma política local endurecida negar o acesso depois, investigue o registro e a política específica, como no M12.</p>
+<h3 id="decida-1">Decida 1</h3>
+<p>Você quer permitir apenas os dois clientes do curso. Qual alvo descreve essa intenção?</p>
+<div class="tabela"><table><thead><tr><th scope="col">Opção</th><th scope="col">Ação</th></tr></thead><tbody><tr><td>A</td><td>Exportar para qualquer host</td></tr><tr><td>B</td><td>Usar os IPs exatos das VMs 201 e 202</td></tr><tr><td>C</td><td>Tornar o diretório gravável por todos</td></tr></tbody></table></div>
+<p>Escolha B. A lista de clientes e os modos dos arquivos são controles diferentes.</p>
+<h3 id="passo-4-registrar-e-carregar-a-exportacao">Passo 4 · Registrar e carregar a exportação</h3>
+<p><strong>Palpite:</strong> salvar o arquivo de exportação já atualiza a tabela usada pelo servidor?</p>
+<p>Na 203:</p>
+<pre translate="no"><code class="lang-bash">sudo install -d -m 0755 /etc/exports.d
+sudo tee /etc/exports.d/m13-share.exports &gt; /dev/null &lt;&lt;'EOF'
+/srv/m13-share 10.1.0.51(ro,sync,root_squash,no_subtree_check) 10.1.0.52(ro,sync,root_squash,no_subtree_check)
+EOF
+sudo chmod 0644 /etc/exports.d/m13-share.exports
+sudo systemctl enable --now nfs-server.service
+sudo exportfs -rav
+sudo exportfs -v
+sudo ss -lnt 'sport = :2049'</code></pre>
+<p><strong>Saída esperada:</strong> exportação para os dois IPs com leitura, <code translate="no">root_squash</code> e serviço em TCP <code translate="no">2049</code>. A representação das opções em <code translate="no">exportfs -v</code> pode incluir valores padrão adicionais.</p>
+<p><strong>Verifique:</strong> confira o caminho e cada cliente separadamente. O espaço antes dos parênteses mudaria o significado; não corrija um erro de sintaxe abrindo o acesso a todos.</p>
+<h3 id="passo-5-autorizar-a-rede-necessaria">Passo 5 · Autorizar a rede necessária</h3>
+<p><strong>Palpite:</strong> liberar TCP <code translate="no">2049</code> para dois IPs modifica a regra de SSH?</p>
+<p>Na 203, identifique a zona efetiva da interface e das origens do lab. A base deve bloquear TCP <code translate="no">2049</code> sem uma autorização e não pode ter serviço NFS ou porta equivalente liberados de forma ampla. As regras exatas abaixo não podem existir antes desta aula.</p>
+<pre translate="no"><code class="lang-bash">sudo firewall-cmd --get-active-zones
+read -r -p 'ZONE: ' ZONE
+sudo firewall-cmd --zone="$ZONE" --list-all
+RULE201='rule family="ipv4" source address="10.1.0.51/32" port port="2049" protocol="tcp" accept'
+RULE202='rule family="ipv4" source address="10.1.0.52/32" port port="2049" protocol="tcp" accept'
+printf '%s\n' "$ZONE" &gt; "$HOME/m13/zone"
+printf '%s\n' "$RULE201" &gt; "$HOME/m13/rule201"
+printf '%s\n' "$RULE202" &gt; "$HOME/m13/rule202"
+sudo firewall-cmd --zone="$ZONE" --add-rich-rule="$RULE201"
+sudo firewall-cmd --zone="$ZONE" --add-rich-rule="$RULE202"
+sudo firewall-cmd --permanent --zone="$ZONE" --add-rich-rule="$RULE201"
+sudo firewall-cmd --permanent --zone="$ZONE" --add-rich-rule="$RULE202"
+sudo firewall-cmd --check-config</code></pre>
+<p><strong>Saída esperada:</strong> as duas regras existem no ativo e no permanente. Não houve mudança na autorização SSH nem abertura de NFS para uma rede inteira.</p>
+<p><strong>Verifique:</strong> das VMs 201 e 202, digite o <code translate="no">IP_SRV</code> confirmado e teste <code translate="no">timeout 2 bash -c "&lt;/dev/tcp/$IP_SRV/2049" &amp;&amp; echo ok</code>. Isso comprova TCP; a leitura NFS será testada na 13.2.</p>
+<h3 id="decida-2">Decida 2</h3>
+<p>A porta responde, mas um cliente informa acesso negado na montagem. Qual é a próxima evidência?</p>
+<div class="tabela"><table><thead><tr><th scope="col">Opção</th><th scope="col">Ação</th></tr></thead><tbody><tr><td>A</td><td>Conferir exportação ativa, origem real e caminho solicitado</td></tr><tr><td>B</td><td>Remover <code translate="no">root_squash</code></td></tr><tr><td>C</td><td>Desligar SELinux</td></tr></tbody></table></div>
+<p>Escolha A. TCP e autorização de exportação respondem a perguntas diferentes.</p>
+<h3 id="passo-6-conferir-o-servidor-apos-reboot">Passo 6 · Conferir o servidor após reboot</h3>
+<p><strong>Palpite:</strong> um serviço habilitado sem exportação válida entrega automaticamente o diretório certo?</p>
+<p>Na 203, reinicie e volte por SSH ou noVNC.</p>
+<pre translate="no"><code class="lang-bash">sudo systemctl reboot</code></pre>
+<p>Depois de voltar:</p>
+<pre translate="no"><code class="lang-bash">systemctl is-active nfs-server.service
+sudo exportfs -v
+getenforce
+matchpathcon -V /srv/m13-share/leia.txt
+ZONE=$(cat "$HOME/m13/zone")
+RULE201=$(cat "$HOME/m13/rule201")
+RULE202=$(cat "$HOME/m13/rule202")
+sudo firewall-cmd --zone="$ZONE" --query-rich-rule="$RULE201"
+sudo firewall-cmd --permanent --zone="$ZONE" --query-rich-rule="$RULE202"</code></pre>
+<p><strong>Saída esperada:</strong> serviço ativo, exportação correta, enforcing e regras persistentes.</p>
+<p><strong>Verifique:</strong> teste novamente TCP a partir de cada cliente e uma sessão SSH do Windows. A montagem e a identidade numérica entram na próxima aula.</p>
+<h2 id="6-quebre-e-conserte">6 · Quebre e conserte</h2>
+<h3 id="quebra-1-arquivo-salvo-com-nome-ignorado">Quebra 1 · Arquivo salvo com nome ignorado</h3>
+<p>Na 203, mude apenas o sufixo do arquivo próprio.</p>
+<pre translate="no"><code class="lang-bash">sudo mv /etc/exports.d/m13-share.exports /etc/exports.d/m13-share.disabled
+sudo exportfs -ra</code></pre>
+<p><strong>Sintoma:</strong> o serviço permanece ativo, mas a exportação de exercício some da tabela.</p>
+<p><strong>Investigação:</strong> compare os arquivos e a tabela carregada.</p>
+<pre translate="no"><code class="lang-bash">sudo ls -l /etc/exports.d/
+sudo exportfs -v</code></pre>
+<p><strong>Causa:</strong> o arquivo deixou de terminar em <code translate="no">.exports</code> e não participa da carga normal.</p>
+<p><strong>Conserto:</strong> restaure o nome exato e recarregue a exportação.</p>
+<pre translate="no"><code class="lang-bash">sudo mv /etc/exports.d/m13-share.disabled /etc/exports.d/m13-share.exports
+sudo exportfs -ra</code></pre>
+<p><strong>Verifique:</strong> <code translate="no">exportfs -v</code> volta a listar os dois clientes.</p>
+<p><strong>Prevenção:</strong> confira arquivo, carga e resultado ativo como três evidências distintas.</p>
+<h3 id="quebra-2-cliente-autorizado-errado">Quebra 2 · Cliente autorizado errado</h3>
+<p>Na 203, preserve o arquivo válido e altere só o cliente de exercício.</p>
+<pre translate="no"><code class="lang-bash">sudo cp -a /etc/exports.d/m13-share.exports /etc/exports.d/m13-share.backup
+sudo sed -i 's/10\.1\.0\.52/10.1.0.99/' /etc/exports.d/m13-share.exports
+sudo exportfs -ra
+sudo exportfs -v</code></pre>
+<p><strong>Sintoma:</strong> TCP <code translate="no">2049</code> continua acessível à VM 202, mas ela já não está na exportação ativa.</p>
+<p><strong>Investigação:</strong> compare a origem real da 202 com a lista de clientes da exportação.</p>
+<p><strong>Causa:</strong> a lista passou a autorizar outro endereço; a regra do firewall não corrige essa lista.</p>
+<p><strong>Conserto:</strong> recoloque a cópia válida e reaplique.</p>
+<pre translate="no"><code class="lang-bash">sudo cp -a /etc/exports.d/m13-share.backup /etc/exports.d/m13-share.exports
+sudo exportfs -ra</code></pre>
+<p><strong>Verifique:</strong> a 202 volta à tabela. Não deixe a exportação de teste apontando para o endereço incorreto.</p>
+<p><strong>Prevenção:</strong> registre cliente autorizado e caminho exportado junto com a regra de rede.</p>
+<h3 id="quebra-3-regra-salva-aceite-ativo-retirado">Quebra 3 · Regra salva, aceite ativo retirado</h3>
+<p>Na 203, retire apenas o aceite ativo da VM 201.</p>
+<pre translate="no"><code class="lang-bash">sudo firewall-cmd --zone="$ZONE" --remove-rich-rule="$RULE201"</code></pre>
+<p><strong>Sintoma:</strong> na zona padrão bloqueadora do lab, a 201 deixa de abrir TCP <code translate="no">2049</code>, mas a 202 continua funcionando.</p>
+<p><strong>Investigação:</strong> compare ativo e permanente e confira se a zona não tem uma autorização mais ampla para essa porta.</p>
+<pre translate="no"><code class="lang-bash">sudo firewall-cmd --zone="$ZONE" --list-all
+sudo firewall-cmd --zone="$ZONE" --query-rich-rule="$RULE201"
+sudo firewall-cmd --permanent --zone="$ZONE" --query-rich-rule="$RULE201"</code></pre>
+<p><strong>Causa:</strong> a regra foi retirada somente da memória. O arquivo permanente continua correto. Uma autorização ampla preexistente esconderia este defeito e precisa ser identificada no preparo, sem apagar regras alheias.</p>
+<p><strong>Conserto:</strong> recoloque apenas o aceite ativo.</p>
+<pre translate="no"><code class="lang-bash">sudo firewall-cmd --zone="$ZONE" --add-rich-rule="$RULE201"</code></pre>
+<p><strong>Verifique:</strong> repita o teste TCP dos dois clientes.</p>
+<p><strong>Prevenção:</strong> compare a política efetiva e a persistente antes de concluir a mudança.</p>
+<h3 id="limpeza-e-continuidade">Limpeza e continuidade</h3>
+<p>Retire somente a cópia da quebra. O servidor, o conteúdo, a regra SELinux e as duas autorizações ficam como base para as aulas 13.2 e 13.3. Essa retenção é intencional, não é um serviço esquecido.</p>
+<pre translate="no"><code class="lang-bash">sudo rm -f /etc/exports.d/m13-share.backup
+sudo exportfs -v
+sudo systemctl is-enabled nfs-server.service</code></pre>
+<p>Não remova a VM 203 nem reverta os clientes ao snapshot para “limpar”. As próximas aulas registram a mesma base e retiram apenas seus próprios testes.</p>
+<h2 id="7-armadilhas">7 · Armadilhas</h2>
+<div class="tabela"><table><thead><tr><th scope="col">Erro comum</th><th scope="col">O que fazer</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>Autorizar qualquer cliente</td><td>Usar IPs exatos do lab</td><td>Limita a superfície publicada</td></tr><tr><td>Espaço antes das opções</td><td>Manter cliente e parênteses juntos</td><td>A sintaxe muda o significado</td></tr><tr><td>Usar <code translate="no">no_root_squash</code> para um erro de dono</td><td>Conferir UID, GID e modo</td><td>Root remoto não deve ganhar privilégio global</td></tr><tr><td>Confundir porta aberta com exportação válida</td><td>Conferir <code translate="no">exportfs -v</code></td><td>TCP não valida o caminho NFS</td></tr></tbody></table></div>
+<h2 id="8-quiz">8 · Quiz</h2>
+<ol><li>Exportar um diretório monta esse diretório no cliente?</li>
+<li>Qual é o alcance de <code translate="no">root_squash</code>?</li>
+<li>Por que <code translate="no">IP_SRV</code> não deve ser escolhido apenas por um ping sem resposta?</li>
+<li>Qual comando mostra exportações ativas?</li>
+<li>Abrir TCP <code translate="no">2049</code> para a 202 corrige um IP errado em exports?</li>
+<li>Quais estados precisam sobreviver ao reboot do servidor?</li></ol>
+<h2 id="9-cola">9 · Cola</h2>
+<div class="tabela"><table><thead><tr><th scope="col">Tarefa</th><th scope="col">Comando</th></tr></thead><tbody><tr><td>Exportações ativas</td><td><code translate="no">sudo exportfs -v</code></td></tr><tr><td>Reaplicar arquivos</td><td><code translate="no">sudo exportfs -ra</code></td></tr><tr><td>Serviço NFS da Rocky</td><td><code translate="no">systemctl status nfs-server.service</code></td></tr><tr><td>Escuta principal</td><td><code translate="no">sudo ss -lnt 'sport = :2049'</code></td></tr><tr><td>Contexto esperado</td><td><code translate="no">matchpathcon -V /srv/m13-share/leia.txt</code></td></tr></tbody></table></div>
+<p><strong>Flashcards:</strong> crie cartões para exportação, montagem, cliente, <code translate="no">ro</code>, <code translate="no">root_squash</code> e estado ativo. Revise em D+1, D+3, D+7 e D+21.</p>
+<h2 id="10-checklist-e-fechamento">10 · Checklist e fechamento</h2>
+<ul><li>[ ] Criei somente a VM 203 e reservei seu endereço formalmente.</li>
+<li>[ ] Mantive firewall e SELinux ativos.</li>
+<li>[ ] Exportei apenas a árvore de exercício para os dois clientes.</li>
+<li>[ ] Deixei o servidor pronto para a 13.2 e retirei os defeitos plantados.</li></ul>
+<p><strong>Último exercício:</strong> explique por que regra de rede, exportação e permissão de arquivo não são intercambiáveis. Use o resultado de uma quebra.</p>
+<p><strong>Reboot de conferência:</strong> depois das quebras corrigidas, reinicie a 203 e confira serviço, exportação, contexto e regras como no passo 6. Abra também uma nova sessão SSH para cada VM.</p>
+<p>No host Proxmox, após a conferência:</p>
+<pre translate="no"><code class="lang-bash">qm snapshot 201 m13a1-fim
+qm snapshot 202 m13a1-fim
+qm snapshot 203 m13a1-fim</code></pre>
+<h2 id="11-na-vida-real">11 · Na vida real</h2>
+<p>Em um servidor que você administre ou tenha autorização para inspecionar, faça somente leitura. Leia <code translate="no">exportfs -v</code>, estado do serviço e política de rede aplicável. Não publique uma pasta, mude um booleano ou altere o firewall nesta missão.</p>
+<p>Qual exportação é mais ampla que o necessário? Qual cliente é uma máquina conhecida? Onde estão documentados dono, UID, GID e finalidade?</p>
+<h2 id="12-aprofundar-quando-quiser">12 · Aprofundar quando quiser</h2>
+<ul><li><a href="https://manpages.debian.org/trixie/nfs-kernel-server/exports.5.en.html">exports(5)</a>: clientes, opções e sintaxe.</li>
+<li><a href="https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/9/html-single/configuring_and_using_network_file_services/index">NFS no RHEL 9</a>: serviço, versões e rede.</li>
+<li>No servidor, consulte <code translate="no">man exportfs</code>, <code translate="no">man nfsd_selinux</code> e <code translate="no">man exports</code>, quando disponíveis.</li>
+<li><a href="https://firewalld.org/documentation/man-pages/firewall-cmd.html">firewall-cmd</a>: regras ativas e permanentes.</li></ul>
+<p><strong>DeepTutor</strong> (http://10.1.0.149:3782, KB "Curso Linux Sysadmin"):</p>
+<ul><li><code translate="no">!explica Separe firewall, exportação NFS e permissão do arquivo com uma analogia de biblioteca.</code></li>
+<li><code translate="no">!feynman Vou explicar o alcance de root_squash sem confundir com identidade de usuários comuns. Critique minha explicação.</code></li>
+<li><code translate="no">!quiz Crie seis situações de cliente, caminho e persistência de exportações NFS.</code></li></ul>
+<h2 id="gabarito-comentado">Gabarito comentado</h2>
+<h3 id="aquecimento">Aquecimento</h3>
+<ol><li>Não. O processo precisa estar em escuta e responder ao protocolo.</li>
+<li>Não. São controles diferentes que se combinam no acesso.</li>
+<li>O ID pode pertencer a outro nó; o inventário do cluster evita alterar uma VM que não é sua.</li></ol>
+<h3 id="quiz">Quiz</h3>
+<ol><li>Não. Montar é uma ação do cliente.</li>
+<li>Reduz a identidade privilegiada remota; não transforma todos os usuários em um só.</li>
+<li>Um host pode não responder a ICMP e continuar usando o endereço. A reserva vem do plano da rede e do controle DHCP.</li>
+<li><code translate="no">sudo exportfs -v</code>.</li>
+<li>Não. A autorização da exportação ainda precisa descrever o cliente real.</li>
+<li>Serviço, exportação, permissões, contextos e regras permanentes que sustentam o acesso.</li></ol>
+<p><a href="12.5-auditoria-e-criptografia.html">← Aula 12.5 · Auditoria e criptografia</a> · <a href="index.html">Índice de aulas</a> · <a href="https://github.com/Rodrigoantignani/curso-linux-sysadmin/blob/master/00-plano-do-curso.md">Plano do curso: 13.2 em diante →</a></p>
+</article><nav class="paginas" aria-label="Aulas"><a class="ant" href="12.5-auditoria-e-criptografia.html"><small>← Anterior</small>12.5 · Auditoria e criptografia</a><a class="prox" href="13.2-cliente-nfs.html"><small>Próxima →</small>13.2 · Cliente NFS</a></nav></main></div>
+<footer><div class="wrap">Gerado a partir do Markdown do curso · Imagens em <code translate="no">img/</code></div></footer>
+</body>
+</html>

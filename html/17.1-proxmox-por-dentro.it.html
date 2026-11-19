@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light dark">
+<title>17.1 · Proxmox dall'interno · Corso Linux Sysadmin</title>
+<link rel="alternate" hreflang="pt-BR" href="17.1-proxmox-por-dentro.html"><link rel="alternate" hreflang="it" href="17.1-proxmox-por-dentro.it.html">
+<style>
+:root{color-scheme:light dark;--bg:#f6f1e7;--card:#fffdf8;--ink:#201c16;--muted:#5e564a;--accent:#9a3412;--accent-2:#1f5f4a;--tint:#efe6d4;--line:#ddd2bc;--code:#f1eadb;--shadow:0 1px 2px rgba(60,40,10,.08);--serif:Georgia,"Iowan Old Style","Palatino Linotype",Palatino,serif;--sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--mono:"Cascadia Code",Consolas,"DejaVu Sans Mono",monospace}
+@media (prefers-color-scheme:dark){:root{--bg:#16130f;--card:#201b15;--ink:#f1eadb;--muted:#b9ad98;--accent:#f0a070;--accent-2:#7fd0b0;--tint:#2a231a;--line:#3d3427;--code:#191510;--shadow:none}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:5.5rem}
+body{margin:0;background:var(--bg);color:var(--ink);font:1rem/1.6 var(--sans)}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--accent-2);outline-offset:2px;border-radius:4px}
+.pular{position:absolute;left:-999px;top:0;background:var(--card);padding:.5rem 1rem;z-index:20}
+.pular:focus{left:.5rem;top:.5rem}
+.wrap{width:100%;max-width:84rem;margin:0 auto;padding-inline:max(1rem,env(safe-area-inset-left))}
+.top{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10;border-top:6px solid var(--accent)}
+.top-in{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding-block:.6rem}
+.titles{min-width:0}
+.marca{margin:0;font:700 clamp(1.15rem,1rem + 1vw,1.6rem)/1.15 var(--serif);letter-spacing:-.01em}
+.marca a{text-decoration:none}
+.marca a:hover{color:var(--accent)}
+.meta{margin:.1rem 0 0;color:var(--muted);font-size:.85rem}
+.acoes{display:flex;align-items:center;gap:.9rem;flex:none}
+.acoes>a{font-size:.9rem;font-weight:600;color:var(--muted);text-decoration:none}
+.acoes>a:hover{color:var(--accent);text-decoration:underline}
+.idioma{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--tint)}
+.idioma>*{padding:.35rem .9rem;font-size:.8rem;font-weight:700;letter-spacing:.06em;text-decoration:none;color:var(--muted);min-width:2.75rem;text-align:center}
+.idioma a:hover{color:var(--accent);text-decoration:underline}
+.idioma span{background:var(--accent);color:#fff}
+@media (prefers-color-scheme:dark){.idioma span{color:#16130f}}
+code{font-family:var(--mono);font-size:.9em;background:var(--tint);padding:.1rem .35rem;border-radius:4px;overflow-wrap:anywhere}
+/* índice */
+.capa{max-width:70rem;padding-block:2rem 3rem}
+.stats{border-left:4px solid var(--accent-2);background:var(--card);border-radius:0 10px 10px 0;padding:1rem 1.25rem;margin:0 0 2.5rem;box-shadow:var(--shadow);color:var(--muted)}
+.stats strong{color:var(--ink)}
+.modulo{display:grid;grid-template-columns:15rem minmax(0,1fr);gap:1rem 2rem;padding:1.75rem 0;border-top:1px solid var(--line)}
+.modulo h2{margin:0;font:700 1.25rem/1.25 var(--serif);align-self:start;position:sticky;top:6rem}
+.mn{display:block;font:700 .8rem var(--mono);letter-spacing:.12em;color:var(--accent);margin-bottom:.25rem}
+.sep{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.modulo ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,17rem),1fr));gap:.75rem}
+.modulo li{margin:0}
+.modulo a{display:flex;gap:.45rem;align-items:baseline;height:100%;padding:.85rem 1rem;background:var(--card);border:1px solid var(--line);border-radius:10px;text-decoration:none;font-weight:600;line-height:1.35;box-shadow:var(--shadow);transition:border-color .15s,transform .15s}
+.modulo a:hover{border-color:var(--accent);color:var(--accent)}
+.num{font:700 .85rem var(--mono);color:var(--accent);white-space:nowrap}
+/* aula */
+.doc{display:grid;grid-template-columns:17rem minmax(0,1fr);gap:2.5rem;align-items:start;padding-block:2rem 3rem}
+.lateral{position:sticky;top:5.5rem;max-height:calc(100vh - 6.5rem);overflow:auto;font-size:.875rem;padding-right:.5rem}
+.lateral h2{margin:0 0 .25rem;font:700 .95rem var(--serif);color:var(--muted)}
+.lateral h3{margin:1rem 0 .25rem;font:700 .75rem var(--mono);letter-spacing:.06em;color:var(--accent)}
+.lateral ul{list-style:none;margin:0;padding:0}
+.lateral a{display:flex;gap:.45rem;padding:.25rem .5rem;border-radius:6px;text-decoration:none;color:var(--muted);line-height:1.3}
+.lateral a:hover{background:var(--tint);color:var(--ink)}
+.lateral a[aria-current]{background:var(--tint);color:var(--ink);font-weight:700;box-shadow:inset 3px 0 0 var(--accent)}
+.lateral .num{font-size:.75rem}
+.aula{min-width:0;max-width:56rem;overflow-wrap:break-word;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:clamp(1.25rem,1rem + 2vw,2.75rem);box-shadow:var(--shadow)}
+.aula h1{margin:0 0 1.5rem;font:700 clamp(1.75rem,1.4rem + 1.6vw,2.5rem)/1.15 var(--serif);letter-spacing:-.015em;color:var(--ink)}
+.aula h2{margin:2.5rem 0 .75rem;padding-top:1.25rem;border-top:1px solid var(--line);font:700 1.5rem/1.25 var(--serif)}
+.aula h3{margin:2rem 0 .5rem;font:700 1.15rem/1.3 var(--serif);color:var(--accent)}
+.aula h4,.aula h5,.aula h6{margin:1.5rem 0 .5rem;font-size:1rem}
+.aula p,.aula ul,.aula ol{margin:1rem 0}
+.aula ul,.aula ol{padding-left:1.5rem}
+.aula li{margin:.35rem 0}
+.aula li>ul,.aula li>ol{margin:.35rem 0}
+.aula a{color:var(--accent);text-underline-offset:2px}
+.aula hr{border:0;border-top:1px solid var(--line);margin:2rem 0}
+.tabela{overflow-x:auto;margin:1.25rem 0;border:1px solid var(--line);border-radius:10px}
+.aula table{width:100%;border-collapse:collapse;font-size:.9rem}
+.aula th,.aula td{padding:.55rem .75rem;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+.aula tr:last-child td{border-bottom:0}
+.aula th{background:var(--tint);font-weight:700}
+.aula pre{background:var(--code);border:1px solid var(--line);border-radius:10px;padding:.9rem 1rem;overflow-x:auto;font:.85rem/1.5 var(--mono);margin:1rem 0;tab-size:4}
+.aula pre code{background:none;padding:0;font-size:inherit;overflow-wrap:normal}
+.aula blockquote{margin:1.25rem 0;padding:.75rem 1.25rem;border-left:4px solid var(--accent-2);background:var(--tint);border-radius:0 10px 10px 0}
+.aula blockquote>:first-child{margin-top:0}
+.aula blockquote>:last-child{margin-bottom:0}
+.aula figure{margin:1.75rem 0;text-align:center}
+.aula figure img{display:block;margin:0 auto;max-width:100%;height:auto;border:1px solid var(--line);border-radius:10px;background:#fff}
+.aula figcaption{margin-top:.5rem;color:var(--muted);font-size:.9rem;font-style:italic}
+.paginas{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:2.5rem;padding-top:1.5rem;border-top:1px solid var(--line)}
+.paginas a{display:block;padding:.75rem 1rem;border:1px solid var(--line);border-radius:10px;text-decoration:none;color:var(--ink);font-weight:600;line-height:1.3}
+.paginas a:hover{border-color:var(--accent);color:var(--accent)}
+.paginas small{display:block;color:var(--muted);font-weight:400}
+.paginas .prox{grid-column:2;text-align:right}
+footer{border-top:1px solid var(--line);padding-block:1.5rem;color:var(--muted);font-size:.85rem;text-align:center}
+@media (hover:hover) and (prefers-reduced-motion:no-preference){.modulo a:hover{transform:translateY(-2px)}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+@media (max-width:980px){.doc{grid-template-columns:minmax(0,1fr);padding-top:1rem}.lateral{position:static;max-height:none;order:2}.aula{max-width:none}}
+@media (max-width:860px){.modulo{grid-template-columns:minmax(0,1fr)}.modulo h2{position:static}.mn{display:inline;margin-right:.5rem}}
+@media (max-width:420px){.meta{display:none}.top-in{gap:.5rem}.acoes{gap:.6rem}.capa{padding-top:1.25rem}.paginas{grid-template-columns:minmax(0,1fr)}.paginas .prox{grid-column:1}}
+@media print{.top,.lateral,.paginas{display:none}.aula{border:0;box-shadow:none;padding:0;max-width:none}.doc{display:block}}
+</style>
+</head>
+<body>
+<a class="pular" href="#conteudo">Vai al contenuto</a>
+<header class="top"><div class="wrap top-in"><div class="titles"><p class="marca"><a href="index.it.html">Corso Linux Sysadmin</a></p><p class="meta">Rodrigo Antignani · Lezione 17.1</p></div><div class="acoes"><a href="index.it.html">Indice</a><div class="idioma" role="group" aria-label="Lingua"><a href="17.1-proxmox-por-dentro.html" hreflang="pt-BR" lang="pt-BR">PT</a><span aria-current="true">IT</span></div></div></div></header>
+<div class="wrap doc"><aside class="lateral" aria-label="Lezioni"><h2>Lezioni</h2><h3>M0 · Laboratorio</h3><ul><li><a href="0.1-montar-o-laboratorio.it.html"><span class="num">0.1</span><span>Allestire il laboratorio</span></a></li><li><a href="0.2-acesso-e-protecao.it.html"><span class="num">0.2</span><span>Accesso e protezione</span></a></li></ul><h3>M1 · Riga di comando</h3><ul><li><a href="1.1-o-que-e-linux.it.html"><span class="num">1.1</span><span>Che cos'è Linux</span></a></li><li><a href="1.2-o-shell-e-a-ajuda.it.html"><span class="num">1.2</span><span>La shell e la guida</span></a></li><li><a href="1.3-caminhos-e-navegacao.it.html"><span class="num">1.3</span><span>Percorsi e navigazione</span></a></li><li><a href="1.4-criar-copiar-mover-e-apagar.it.html"><span class="num">1.4</span><span>Creare, copiare, spostare ed eliminare</span></a></li><li><a href="1.5-ler-e-procurar-texto.it.html"><span class="num">1.5</span><span>Leggere e cercare testo</span></a></li><li><a href="1.6-redirecionamentos-e-pipes.it.html"><span class="num">1.6</span><span>Reindirizzamenti e pipe</span></a></li><li><a href="1.7-arquivar-e-compactar.it.html"><span class="num">1.7</span><span>Archiviare e comprimere</span></a></li><li><a href="1.8-primeiro-script.it.html"><span class="num">1.8</span><span>Primo script</span></a></li><li><a href="1.9-decidir-e-repetir.it.html"><span class="num">1.9</span><span>Decidere e ripetere</span></a></li><li><a href="1.10-software-livre-na-pratica.it.html"><span class="num">1.10</span><span>Il software libero in pratica</span></a></li></ul><h3>M2 · Sistema, utenti e permessi</h3><ul><li><a href="2.1-instalacao-e-provisionamento.it.html"><span class="num">2.1</span><span>Installazione e provisioning</span></a></li><li><a href="2.2-hardware-e-dispositivos.it.html"><span class="num">2.2</span><span>Hardware e dispositivi</span></a></li><li><a href="2.3-processos-e-logs.it.html"><span class="num">2.3</span><span>Processi e log</span></a></li><li><a href="2.4-rede-no-dia-a-dia.it.html"><span class="num">2.4</span><span>La rete di tutti i giorni</span></a></li><li><a href="2.5-acesso-remoto-e-privilegios.it.html"><span class="num">2.5</span><span>Accesso remoto e privilegi</span></a></li><li><a href="2.6-usuarios-e-grupos.it.html"><span class="num">2.6</span><span>Utenti e gruppi</span></a></li><li><a href="2.7-permissoes-e-dono.it.html"><span class="num">2.7</span><span>Permessi e proprietario</span></a></li><li><a href="2.8-diretorios-e-arquivos-especiais.it.html"><span class="num">2.8</span><span>Directory e file speciali</span></a></li></ul><h3>M3 · Testo ed editor</h3><ul><li><a href="3.1-fluxos-a-fundo.it.html"><span class="num">3.1</span><span>I flussi in profondità</span></a></li><li><a href="3.2-filtros-de-texto.it.html"><span class="num">3.2</span><span>Filtri di testo</span></a></li><li><a href="3.3-regex-e-grep.it.html"><span class="num">3.3</span><span>Regex e grep</span></a></li><li><a href="3.4-sed-e-awk.it.html"><span class="num">3.4</span><span>sed e awk</span></a></li><li><a href="3.5-vi-e-vim-de-verdade.it.html"><span class="num">3.5</span><span>vi e vim sul serio</span></a></li></ul><h3>M4 · systemd e boot</h3><ul><li><a href="4.1-como-o-linux-liga.it.html"><span class="num">4.1</span><span>Come si avvia Linux</span></a></li><li><a href="4.2-systemd-servicos-e-units.it.html"><span class="num">4.2</span><span>systemd: servizi e unit</span></a></li><li><a href="4.3-targets-desligar-e-reiniciar.it.html"><span class="num">4.3</span><span>Target: spegnere e riavviare</span></a></li><li><a href="4.4-grub-e-acesso-de-emergencia.it.html"><span class="num">4.4</span><span>GRUB e accesso di emergenza</span></a></li></ul><h3>M5 · Kernel, moduli e VM</h3><ul><li><a href="5.1-hardware-pelo-kernel.it.html"><span class="num">5.1</span><span>L'hardware visto dal kernel</span></a></li><li><a href="5.2-modulos-e-parametros.it.html"><span class="num">5.2</span><span>Moduli e parametri</span></a></li><li><a href="5.3-linux-como-convidado.it.html"><span class="num">5.3</span><span>Linux come guest</span></a></li></ul><h3>M6 · Pacchetti e repository</h3><ul><li><a href="6.1-pacotes-no-debian.it.html"><span class="num">6.1</span><span>Pacchetti su Debian</span></a></li><li><a href="6.2-pacotes-na-rocky.it.html"><span class="num">6.2</span><span>Pacchetti su Rocky</span></a></li><li><a href="6.3-repositorios.it.html"><span class="num">6.3</span><span>Repository</span></a></li><li><a href="6.4-flatpak.it.html"><span class="num">6.4</span><span>Flatpak</span></a></li><li><a href="6.5-bibliotecas-compartilhadas.it.html"><span class="num">6.5</span><span>Librerie condivise</span></a></li></ul><h3>M7 · Processi e prestazioni</h3><ul><li><a href="7.1-processos-e-sinais.it.html"><span class="num">7.1</span><span>Processi e segnali</span></a></li><li><a href="7.2-jobs-e-sessoes.it.html"><span class="num">7.2</span><span>Job e sessioni</span></a></li><li><a href="7.3-prioridade-e-perfis.it.html"><span class="num">7.3</span><span>Priorità e profili</span></a></li></ul><h3>M8 · File a fondo</h3><ul><li><a href="8.1-fhs-e-onde-cada-coisa-mora.it.html"><span class="num">8.1</span><span>FHS e dove sta ogni cosa</span></a></li><li><a href="8.2-find-a-fundo.it.html"><span class="num">8.2</span><span>find a fondo</span></a></li><li><a href="8.3-arquivamento-avancado.it.html"><span class="num">8.3</span><span>Archiviazione avanzata</span></a></li><li><a href="8.4-links.it.html"><span class="num">8.4</span><span>Link</span></a></li><li><a href="8.5-permissoes-avancadas.it.html"><span class="num">8.5</span><span>Permessi avanzati</span></a></li></ul><h3>M9 · Storage</h3><ul><li><a href="9.1-discos-e-layout.it.html"><span class="num">9.1</span><span>Dischi e layout</span></a></li><li><a href="9.2-particionar.it.html"><span class="num">9.2</span><span>Partizionare</span></a></li><li><a href="9.3-sistemas-de-arquivos.it.html"><span class="num">9.3</span><span>File system</span></a></li><li><a href="9.4-montar-e-persistir.it.html"><span class="num">9.4</span><span>Montare e rendere persistente</span></a></li><li><a href="9.5-integridade-e-espaco.it.html"><span class="num">9.5</span><span>Integrità e spazio</span></a></li><li><a href="9.6-lvm.it.html"><span class="num">9.6</span><span>LVM</span></a></li><li><a href="9.7-crescer-sem-destruir.it.html"><span class="num">9.7</span><span>Crescere senza distruggere</span></a></li></ul><h3>M10 · Utenti e accesso privilegiato</h3><ul><li><a href="10.1-contas.it.html"><span class="num">10.1</span><span>Account</span></a></li><li><a href="10.2-senhas-e-validade.it.html"><span class="num">10.2</span><span>Password e scadenza</span></a></li><li><a href="10.3-grupos-e-trabalho-em-equipe.it.html"><span class="num">10.3</span><span>Gruppi e lavoro di squadra</span></a></li><li><a href="10.4-sudo-de-verdade.it.html"><span class="num">10.4</span><span>sudo sul serio</span></a></li></ul><h3>M11 · Rete</h3><ul><li><a href="11.1-tcp-ip-para-quem-administra.it.html"><span class="num">11.1</span><span>TCP/IP per chi amministra</span></a></li><li><a href="11.2-networkmanager-e-nmcli.it.html"><span class="num">11.2</span><span>NetworkManager e nmcli</span></a></li><li><a href="11.3-rede-no-debian.it.html"><span class="num">11.3</span><span>Rete su Debian</span></a></li><li><a href="11.4-nomes-e-resolucao.it.html"><span class="num">11.4</span><span>Nomi e risoluzione</span></a></li><li><a href="11.5-diagnostico-de-rede.it.html"><span class="num">11.5</span><span>Diagnosi di rete</span></a></li></ul><h3>M12 · Sicurezza dell'host</h3><ul><li><a href="12.1-ssh-a-fundo.it.html"><span class="num">12.1</span><span>SSH in dettaglio</span></a></li><li><a href="12.2-firewall.it.html"><span class="num">12.2</span><span>Firewall</span></a></li><li><a href="12.3-selinux-modos-e-contextos.it.html"><span class="num">12.3</span><span>SELinux: modalità e contesti</span></a></li><li><a href="12.4-selinux-portas-e-booleanos.it.html"><span class="num">12.4</span><span>SELinux: porte e booleani</span></a></li><li><a href="12.5-auditoria-e-criptografia.it.html"><span class="num">12.5</span><span>Audit e crittografia</span></a></li></ul><h3>M13 · Archiviazione in rete</h3><ul><li><a href="13.1-servidor-nfs.it.html"><span class="num">13.1</span><span>Server NFS</span></a></li><li><a href="13.2-cliente-nfs.it.html"><span class="num">13.2</span><span>Client NFS</span></a></li><li><a href="13.3-autofs.it.html"><span class="num">13.3</span><span>autofs</span></a></li></ul><h3>M14 · Pianificazione</h3><ul><li><a href="14.1-cron-e-at.it.html"><span class="num">14.1</span><span>cron e at</span></a></li><li><a href="14.2-timers-do-systemd.it.html"><span class="num">14.2</span><span>Timer di systemd</span></a></li><li><a href="14.3-journald-e-rsyslog.it.html"><span class="num">14.3</span><span>journald e rsyslog</span></a></li><li><a href="14.4-hora-certa.it.html"><span class="num">14.4</span><span>L'ora corretta</span></a></li><li><a href="14.5-email-local-e-impressao.it.html"><span class="num">14.5</span><span>E-mail locale e stampa</span></a></li></ul><h3>M15 · Shell e ambiente</h3><ul><li><a href="15.1-ambiente-do-shell.it.html"><span class="num">15.1</span><span>Ambiente della shell</span></a></li><li><a href="15.2-scripts-robustos.it.html"><span class="num">15.2</span><span>Script robusti</span></a></li><li><a href="15.3-scripts-de-administracao.it.html"><span class="num">15.3</span><span>Script di amministrazione</span></a></li><li><a href="15.4-interfaces-graficas.it.html"><span class="num">15.4</span><span>Interfacce grafiche</span></a></li><li><a href="15.5-idioma-teclado-e-fuso.it.html"><span class="num">15.5</span><span>Lingua, tastiera e fuso orario</span></a></li></ul><h3>M16 · Settimana di incidenti su Rocky 10</h3><ul><li><a href="16.1-rocky-10-o-que-muda.it.html"><span class="num">16.1</span><span>Rocky 10: cosa cambia</span></a></li><li><a href="16.2-incidentes-por-area.it.html"><span class="num">16.2</span><span>Incidenti per area</span></a></li><li><a href="16.3-incidente-com-relogio.it.html"><span class="num">16.3</span><span>Incidente con cronometro</span></a></li><li><a href="16.4-correcao-e-reforco.it.html"><span class="num">16.4</span><span>Correzione e rinforzo</span></a></li></ul><h3>M17 · Proxmox in pratica</h3><ul><li><a href="17.1-proxmox-por-dentro.it.html" aria-current="page"><span class="num">17.1</span><span>Proxmox dall'interno</span></a></li><li><a href="17.2-vm-pela-linha-de-comando.it.html"><span class="num">17.2</span><span>VM dalla riga di comando</span></a></li><li><a href="17.3-conteiner-lxc.it.html"><span class="num">17.3</span><span>Container LXC</span></a></li><li><a href="17.4-storage.it.html"><span class="num">17.4</span><span>Storage: capacità, ampliamento e spostamento</span></a></li><li><a href="17.5-rede.it.html"><span class="num">17.5</span><span>Rete: bridge, VLAN, bond e SDN</span></a></li><li><a href="17.6-backup-e-restauracao.it.html"><span class="num">17.6</span><span>Backup e ripristino con PBS</span></a></li><li><a href="17.7-migracao-e-quorum.it.html"><span class="num">17.7</span><span>Migrazione e quorum</span></a></li></ul><h3>M18 · Podman</h3><ul><li><a href="18.1-conteiner-nao-e-vm.it.html"><span class="num">18.1</span><span>Un container non è una VM</span></a></li><li><a href="18.2-rodar-e-persistir.it.html"><span class="num">18.2</span><span>Eseguire e conservare i dati</span></a></li><li><a href="18.3-conteiner-como-servico.it.html"><span class="num">18.3</span><span>Container come servizio</span></a></li><li><a href="18.4-diagnosticar-conteiner-rootless.it.html"><span class="num">18.4</span><span>Diagnosticare un container rootless</span></a></li><li><a href="18.5-construir-imagens.it.html"><span class="num">18.5</span><span>Costruire immagini</span></a></li></ul><h3>M19 · Servizi di rete</h3><ul><li><a href="19.1-dns-autoritativo.it.html"><span class="num">19.1</span><span>DNS autoritativo</span></a></li><li><a href="19.2-dns-recursivo-e-diagnostico.it.html"><span class="num">19.2</span><span>DNS ricorsivo e diagnosi</span></a></li><li><a href="19.3-dhcp.it.html"><span class="num">19.3</span><span>DHCP</span></a></li><li><a href="19.4-servidor-web.it.html"><span class="num">19.4</span><span>Server web: nome, file e risposta</span></a></li><li><a href="19.5-tls-e-proxy-reverso.it.html"><span class="num">19.5</span><span>TLS e reverse proxy: identità prima del lucchetto</span></a></li><li><a href="19.6-samba-a-ponte-windows.it.html"><span class="num">19.6</span><span>Samba: il ponte con il client Windows</span></a></li><li><a href="19.7-postfix-e-correio-local.it.html"><span class="num">19.7</span><span>Postfix e posta locale</span></a></li><li><a href="19.8-dovecot-e-imaps.it.html"><span class="num">19.8</span><span>Dovecot e lettura tramite IMAPS</span></a></li><li><a href="19.9-squid-e-desafio-integrado.it.html"><span class="num">19.9</span><span>Squid e sfida integrata</span></a></li></ul><h3>M20 · Dentro NethServer 8</h3><ul><li><a href="20.1-instalar-nethserver-8.it.html"><span class="num">20.1</span><span>Installare in una VM pulita</span></a></li><li><a href="20.2-cluster-no-e-modulo.it.html"><span class="num">20.2</span><span>Cluster, nodo e modulo</span></a></li><li><a href="20.3-modulo-por-dentro.it.html"><span class="num">20.3</span><span>Dentro un modulo</span></a></li><li><a href="20.4-proxy-e-certificados.it.html"><span class="num">20.4</span><span>Proxy e certificati</span></a></li><li><a href="20.5-dominios-de-usuario.it.html"><span class="num">20.5</span><span>Domini utente: identità con confini</span></a></li><li><a href="20.6-backup-e-restauracao.it.html"><span class="num">20.6</span><span>Backup e ripristino: verificare il ritorno</span></a></li><li><a href="20.7-atualizar-mover-e-falhar.it.html"><span class="num">20.7</span><span>Aggiornare, spostare e guastare con verifica</span></a></li></ul></aside><main id="conteudo" class="aula"><article><h1>Lezione 17.1 · Proxmox dall'interno</h1>
+<blockquote><p><strong>Il cuore di questa lezione:</strong> individua il livello del guasto prima di modificare l'host.</p></blockquote>
+<div class="tabela"><table><thead><tr><th scope="col">Scheda</th><th scope="col">Piano di lavoro</th></tr></thead><tbody><tr><td>Modulo</td><td>M17 · Proxmox in pratica, lezione 1 di 7</td></tr><tr><td>Quando</td><td>Settimana 22</td></tr><tr><td>Alla fine</td><td>Collegare host, API, configurazione, storage e task</td></tr><tr><td>Prerequisiti</td><td>Accesso amministrativo autorizzato al laboratorio e console disponibile</td></tr><tr><td>Durata</td><td>80–100 minuti</td></tr><tr><td>Snapshot</td><td>Non applicabile: questa lezione consulta soltanto l'host</td></tr></tbody></table></div>
+<p>Questa è l'entrata nel modulo: amministrerai il laboratorio che sostiene le altre VM.
+Un comando sull'host ha una portata diversa dallo stesso comando dentro un guest.
+Mantieni aperta la sessione della console durante tutta l'indagine.
+I guest esistenti da 201 a 205 rimangono preservati.
+Gli ID 210, 211 e 212 saranno usati soltanto se liberi nell'intero cluster.</p>
+<h2 id="1-riscaldamento">1 · Riscaldamento</h2>
+<p>Senza consultare la procedura, scrivi una risposta di due righe per ogni domanda.</p>
+<ol><li>L'interfaccia web non si apre. Questo dimostra che le VM sono ferme?</li>
+<li>Una configurazione compare su due nodi. Questo dimostra che anche il disco è su entrambi?</li>
+<li>Un comando restituisce un errore di VM inesistente. L'ID può trovarsi su un altro nodo?</li></ol>
+<h3 id="diagnosi-iniziale">Diagnosi iniziale</h3>
+<p>Scrivi, senza eseguire, come creeresti una VM e dimostreresti che funziona.
+Aggiungi come eseguiresti backup, ripristino e migrazione.
+Segna con un punto interrogativo ogni passaggio per cui non sai ancora ottenere una prova.
+Conserva questa lista: la riprenderai nell'ultima lezione del modulo.
+Non eseguire questo piano iniziale; prima scopriamo l'ambiente reale.</p>
+<p><strong>Ipotesi:</strong> quale componente può guastarsi senza spegnere un processo di VM?</p>
+<h2 id="2-perche-conta">2 · Perché conta</h2>
+<p>Un hypervisor non è una scatola che risponde soltanto tramite la pagina web.
+Ha un sistema operativo, processi, servizi, file di configurazione e percorsi dei dischi.
+Un problema di autenticazione richiede un'indagine diversa da un volume non disponibile.
+Riavviare servizi alla cieca mescola i sintomi e può interrompere ciò che funzionava ancora.</p>
+<p>In questa lezione produci una mappa delle prove, senza modificare la configurazione dell'host.
+Questa mappa sarà il riferimento prima di creare il laboratorio nelle prossime lezioni.
+Registra ora, nodo, comando e conclusione, senza copiare token o file privati.</p>
+<h3 id="ponte-windows">Ponte Windows</h3>
+<p>Pensa alla differenza tra una console amministrativa, un servizio e la VM che continua a funzionare.
+La finestra che mostra una risorsa non è la risorsa stessa.
+La stessa cautela vale quando interpreti l'interfaccia web di Proxmox.</p>
+<h2 id="3-modello-mentale">3 · Modello mentale</h2>
+<figure><a href="../img/17.1-host-api-e-convidado.it.jpg"><img src="../img/17.1-host-api-e-convidado.it.jpg" alt="Ogni livello risponde a una domanda" loading="lazy" decoding="async"></a><figcaption>Conferma host, servizio e guest prima di agire.</figcaption></figure>
+<div class="tabela"><table><thead><tr><th scope="col">Livello</th><th scope="col">Domanda utile</th><th scope="col">Prova iniziale</th></tr></thead><tbody><tr><td>Host</td><td>Su quale sistema sono?</td><td>Versione e kernel</td></tr><tr><td>Servizi</td><td>Chi risponde all'interfaccia e all'API?</td><td>Unità e journal</td></tr><tr><td>Configurazione</td><td>A chi appartiene questo guest?</td><td>Risorse del cluster</td></tr><tr><td>Storage</td><td>Dove sono i byte?</td><td>Volume e disponibilità</td></tr><tr><td>Guest</td><td>Il sistema interno risponde?</td><td>Console e servizi interni</td></tr></tbody></table></div>
+<p>L'host usa Debian con pacchetti, kernel e servizi propri di Proxmox VE.
+Non applicargli automaticamente la procedura che useresti in una normale VM Debian.
+Il proxy web gestisce le connessioni; il daemon privilegiato esegue le operazioni dell'API.
+Un processo di VM può continuare anche quando la pagina smette di rispondere.</p>
+<p>Il filesystem di configurazione del cluster non è una condivisione dei dischi delle VM.
+Organizza la configurazione e la sua replica tra i nodi.
+In un cluster senza quorum diventa di sola lettura per proteggere la coerenza.
+Questo non autorizza a forzare il quorum in questa lezione.</p>
+<h2 id="4-l-essenziale">4 · L'essenziale</h2>
+<div class="tabela"><table><thead><tr><th scope="col">Strumento</th><th scope="col">Ambito</th><th scope="col">Uso qui</th></tr></thead><tbody><tr><td><code translate="no">pveversion</code></td><td>Software dell'host</td><td>Identificare le versioni</td></tr><tr><td><code translate="no">pvesh</code></td><td>API locale</td><td>Consultare gli oggetti</td></tr><tr><td><code translate="no">qm</code></td><td>VM del nodo</td><td>Consultare stato e scheda</td></tr><tr><td><code translate="no">pct</code></td><td>Container del nodo</td><td>Distinguere i tipi</td></tr><tr><td><code translate="no">pvesm</code></td><td>Storage</td><td>Consultare la disponibilità</td></tr><tr><td><code translate="no">pvenode</code></td><td>Nodo e task</td><td>Leggere un'esecuzione identificata</td></tr></tbody></table></div>
+<p>Usa l'aiuto dell'installazione prima di adattare opzioni trovate in un'altra versione.
+I comandi di questa lezione sono di consultazione.
+Non ci sono riavvii di servizi, modifiche ai file o creazioni di guest sull'host.</p>
+<pre translate="no"><code class="lang-bash">pveversion --help
+pvesh help get
+qm help config
+pvenode help task</code></pre>
+<p>Non confondere lo stato attuale con il risultato di un task precedente.
+Non pubblicare un elenco completo della configurazione che contenga dati sensibili.
+Annota soltanto i campi necessari per giustificare la tua decisione.</p>
+<h2 id="5-lab-guidato">5 · Lab guidato</h2>
+<h3 id="passo-1-identificare-l-host">Passo 1 · Identificare l'host</h3>
+<p><strong>Ipotesi:</strong> Quale prova collega questo terminale al nodo corretto?</p>
+<p>Accedi tramite la console amministrativa autorizzata del nodo.
+Conferma che non sei dentro una delle VM del corso.</p>
+<pre translate="no"><code class="lang-bash">hostname
+cat /etc/os-release
+uname -r
+pveversion -v
+systemd-detect-virt</code></pre>
+<p><strong>Output atteso:</strong> identità reale del nodo, base Debian e pacchetti di Proxmox.
+I numeri dipendono dall'aggiornamento installato; non copiare numeri da una vecchia schermata.
+Un nodo annidato può indicare virtualizzazione; questo non lo rende un guest di esercizio.</p>
+<p><strong>Verifica:</strong> quale prova collega il terminale al nodo mostrato dall'interfaccia?
+Registra il nome del nodo e la versione principale nel tuo diario locale.
+Non proseguire se non riesci a identificare il terminale con sicurezza.</p>
+<h3 id="passo-2-consultare-l-inventario-del-cluster">Passo 2 · Consultare l'inventario del cluster</h3>
+<p><strong>Ipotesi:</strong> l'elenco locale mostra tutti i guest di tutti i nodi?</p>
+<pre translate="no"><code class="lang-bash">pvesh get /nodes --output-format json-pretty
+pvesh get /cluster/resources --type vm --output-format json-pretty
+qm list
+pct list</code></pre>
+<p><strong>Output atteso:</strong> risorse con ID, nodo proprietario, tipo e stato.
+Confronta la vista del cluster con i due elenchi locali.
+Una VM di un altro nodo non deve necessariamente comparire nell'elenco locale.
+Un container non diventa una VM perché ha un numero simile.</p>
+<p>Registra se gli ID 210, 211 e 212 compaiono su un qualsiasi nodo.
+Se uno è occupato, segna il laboratorio come bloccato per la creazione e fermati prima della prossima lezione.
+Non eliminare l'oggetto esistente per liberare un numero della procedura.
+Lo stesso inventario sarà ripetuto subito prima di creare gli oggetti.</p>
+<p><strong>Verifica:</strong> identifica una differenza concreta tra ambito locale e ambito del cluster.</p>
+<h3 id="passo-3-separare-servizio-e-guest">Passo 3 · Separare servizio e guest</h3>
+<p><strong>Ipotesi:</strong> Un servizio attivo dimostra che la connessione remota lo raggiunge?</p>
+<p>Non provocare un'indisponibilità per imparare a riconoscerla.
+Leggi lo stato attuale dei servizi e l'intervallo recente del journal.</p>
+<pre translate="no"><code class="lang-bash">systemctl is-active pveproxy pvedaemon pvestatd pve-cluster
+systemctl status pveproxy pvedaemon --no-pager
+journalctl -b -u pveproxy -u pvedaemon --since '-20 min' --no-pager</code></pre>
+<p><strong>Output atteso:</strong> stati e messaggi reali, compresa l'assenza di eventi nell'intervallo.
+Un journal vuoto in questa finestra non dimostra che non ci sia mai stato un errore.
+Anche un'unità attiva non dimostra che un browser remoto raggiunga la porta.</p>
+<pre translate="no"><code class="lang-bash">ss -ltnp 'sport = :8006'</code></pre>
+<p>Osserva l'indirizzo di ascolto e il processo, senza modificare firewall o certificato.
+Se il servizio è attivo e in ascolto, il passo successivo può riguardare il percorso di rete.
+Questo non esonera dal controllare il messaggio concreto del client.</p>
+<p><strong>Verifica:</strong> scrivi un'affermazione dimostrata dalla consultazione e un'altra che non dimostra.</p>
+<h3 id="passo-4-trovare-la-scheda-senza-modificarla">Passo 4 · Trovare la scheda senza modificarla</h3>
+<p><strong>Ipotesi:</strong> La scheda contiene i byte del disco?</p>
+<figure><a href="../img/17.1-mapa-nao-e-disco.it.jpg"><img src="../img/17.1-mapa-nao-e-disco.it.jpg" alt="La scheda non è il disco" loading="lazy" decoding="async"></a><figcaption>La configurazione segue il cluster; i dischi seguono lo storage.</figcaption></figure>
+<p>Scegli una VM esistente dall'inventario soltanto per la lettura.
+Esegui la consultazione sul nodo proprietario e indica l'ID reale quando richiesto.</p>
+<pre translate="no"><code class="lang-bash">read -r -p 'VMID existente para leitura: ' VMID_LEITURA
+qm status "$VMID_LEITURA"
+qm config "$VMID_LEITURA"
+findmnt /etc/pve
+ls -ld /etc/pve/qemu-server /etc/pve/nodes</code></pre>
+<p><strong>Output atteso:</strong> configurazione della VM scelta e montaggio del filesystem di configurazione.
+Cerca le righe di disco, rete e boot nella scheda.
+Un identificatore di volume non contiene i byte del disco stesso.
+Non leggere directory private e non modificare direttamente i file di configurazione.</p>
+<pre translate="no"><code class="lang-bash">pvesm status</code></pre>
+<p><strong>Verifica:</strong> associa una riga di disco a uno storage elencato.
+Se risulta non disponibile, registra il fatto; questa lezione non ripara il backend.
+Non concludere che un volume sia accessibile soltanto perché il nome è nella configurazione.</p>
+<h3 id="passo-5-leggere-un-task-identificato">Passo 5 · Leggere un task identificato</h3>
+<p><strong>Ipotesi:</strong> Un vecchio task descrive lo stato attuale del guest?</p>
+<figure><a href="../img/17.1-tarefa-evento-e-resultado.it.jpg"><img src="../img/17.1-tarefa-evento-e-resultado.it.jpg" alt="Lo stato richiede contesto" loading="lazy" decoding="async"></a><figcaption>Leggi il task corretto e controlla il risultato osservato.</figcaption></figure>
+<p>Consulta l'aiuto locale e un elenco breve dei task recenti del nodo.</p>
+<pre translate="no"><code class="lang-bash">pvenode help task list
+pvenode task list --limit 10</code></pre>
+<p>Scegli un UPID reale dall'elenco e copia il valore intero, senza inventare un esempio.
+Se non ci sono task, registralo e usa il journal del passo precedente come prova disponibile.
+Esegui le prossime consultazioni soltanto se hai selezionato un task esistente.</p>
+<pre translate="no"><code class="lang-bash">read -r -p 'UPID real da lista: ' UPID_LEITURA
+pvenode task status "$UPID_LEITURA"
+pvenode task log "$UPID_LEITURA"</code></pre>
+<p><strong>Output atteso:</strong> stato e righe del task selezionato.
+Collega il tipo di task, l'ID coinvolto e l'ora.
+Un task concluso con successo dimostra il risultato di quell'operazione, in quel momento.
+Non dimostra che il sistema interno del guest continui a funzionare correttamente ore dopo.</p>
+<p><strong>Verifica:</strong> trova la prima riga che spiega un errore, se presente.
+Non inventare un guasto quando il log mostra soltanto un successo.</p>
+<h3 id="passo-6-completare-la-mappa-delle-prove">Passo 6 · Completare la mappa delle prove</h3>
+<p><strong>Ipotesi:</strong> Quali limiti devono accompagnare la conclusione?</p>
+<p>Nel tuo diario, completa una riga per livello.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Livello</th><th scope="col">Comando usato</th><th scope="col">Fatto osservato</th><th scope="col">Prossima domanda</th></tr></thead><tbody><tr><td>Host</td><td>Versione e kernel</td><td>Compila con il dato reale</td><td>Il terminale è il nodo giusto?</td></tr><tr><td>Servizi</td><td>Stato e journal</td><td>Compila con il dato reale</td><td>Ci sono ascolto ed errori nell'intervallo?</td></tr><tr><td>Configurazione</td><td>Inventario e scheda</td><td>Compila con il dato reale</td><td>Chi possiede l'ID?</td></tr><tr><td>Storage</td><td>Disponibilità</td><td>Compila con il dato reale</td><td>Il volume è accessibile?</td></tr><tr><td>Task</td><td>Stato e log</td><td>Compila con il dato reale</td><td>Il risultato corrisponde ancora allo stato attuale?</td></tr></tbody></table></div>
+<p><strong>Verifica:</strong> un'altra persona riesce a ripetere la tua conclusione senza aprire file privati?
+Se no, aggiungi ambito e ora, invece di accumulare altri output senza contesto.</p>
+<p><strong>Output atteso:</strong> mappa con nodo, ora e limiti di ogni prova.</p>
+<h2 id="6-rompi-e-ripara">6 · Rompi e ripara</h2>
+<p>I tre guasti seguenti usano la lettura o il ragionamento sulle annotazioni.
+Non arrestare i servizi dell'host per creare il sintomo.</p>
+<h3 id="guasto-1-l-id-esiste-ma-non-su-questo-nodo">Guasto 1 · L'ID esiste, ma non su questo nodo</h3>
+<p><strong>Sintomo:</strong> una consultazione locale indica che la configurazione non esiste.
+<strong>Indagine:</strong> cerca l'ID nell'inventario completo e leggi il campo del nodo.
+<strong>Causa:</strong> lo strumento locale è stato usato sul proprietario sbagliato.
+<strong>Riparazione:</strong> collegati al nodo proprietario e ripeti soltanto la consultazione.
+<strong>Verifica:</strong> lo stesso ID e tipo compaiono nel cluster e nella consultazione locale corretta.
+<strong>Prevenzione:</strong> registra insieme nodo, ID e tipo prima di qualsiasi azione.</p>
+<h3 id="guasto-2-l-intervallo-nasconde-l-evento">Guasto 2 · L'intervallo nasconde l'evento</h3>
+<p><strong>Sintomo:</strong> il journal recente non mostra l'errore annotato ieri.
+<strong>Indagine:</strong> confronta l'ora dell'annotazione con l'avvio e la finestra consultati.</p>
+<pre translate="no"><code class="lang-bash">journalctl --list-boots --no-pager</code></pre>
+<p><strong>Causa:</strong> la selezione temporale non include l'evento; anche la conservazione può aver rimosso registrazioni.
+<strong>Riparazione:</strong> seleziona un avvio e un intervallo esistenti, usando l'aiuto del journal.
+<strong>Verifica:</strong> la data della prima riga coincide con il periodo esaminato.
+<strong>Prevenzione:</strong> registra l'istante del sintomo e conserva la prova pertinente.</p>
+<h3 id="guasto-3-la-scheda-e-stata-confusa-con-il-disco">Guasto 3 · La scheda è stata confusa con il disco</h3>
+<p><strong>Sintomo:</strong> un'annotazione afferma che i dischi sono stati replicati perché la configurazione compare su un altro nodo.
+<strong>Indagine:</strong> separa il percorso della scheda dall'identificatore di volume e dal backend.
+<strong>Causa:</strong> la configurazione distribuita è stata interpretata come copia automatica dei dati.
+<strong>Riparazione:</strong> riscrivi la conclusione e cita il tipo reale di storage.
+<strong>Verifica:</strong> la tua spiegazione permette di distinguere storage condiviso e disco locale.
+<strong>Prevenzione:</strong> tratta scheda, volume e backup come oggetti diversi.</p>
+<h2 id="7-trappole">7 · Trappole</h2>
+<h3 id="decidi-1">Decidi 1</h3>
+<p>La pagina non si apre, ma una VM risponde tramite il servizio interno. Il primo passo è:</p>
+<p>A. Riavviare tutti i guest.
+B. Consultare servizio, ascolto e messaggi dell'interfaccia.
+C. Eliminare la configurazione della VM che risponde.</p>
+<p>Scegli e giustifica con due prove indipendenti.</p>
+<h3 id="decidi-2">Decidi 2</h3>
+<p>Un ID riservato risulta occupato su un altro nodo. Devi:</p>
+<p>A. Creare lo stesso ID su questo nodo.
+B. Eliminare l'oggetto per seguire la numerazione.
+C. Interrompere la creazione e risolvere la prenotazione con chi amministra il laboratorio.</p>
+<p>Una numerazione didattica non autorizza a sostituire una risorsa esistente.</p>
+<h3 id="rocky-debian">Rocky × Debian</h3>
+<p>Le VM del corso possono usare distribuzioni diverse.
+L'host Proxmox continua a seguire la procedura propria dell'hypervisor.
+Scegli prima la macchina giusta; soltanto dopo scegli il gestore dei pacchetti.</p>
+<h2 id="8-quiz">8 · Quiz</h2>
+<ol><li>Che cosa aggiunge la versione del kernel all'identificazione della base Debian?</li>
+<li>Perché un'unità attiva non dimostra l'accesso remoto all'interfaccia?</li>
+<li>Quale consultazione permette di trovare un ID fuori dal nodo attuale?</li>
+<li>Il filesystem di configurazione del cluster replica automaticamente i dischi locali?</li>
+<li>Perché conservare l'UPID intero invece dell'ultimo testo del log?</li>
+<li>Che cosa fare se non ci sono registrazioni nell'intervallo consultato?</li></ol>
+<p>Rispondi prima di aprire le soluzioni.</p>
+<h2 id="9-promemoria">9 · Promemoria</h2>
+<p><strong>Flashcard:</strong> completa a memoria la seconda colonna.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Fronte</th><th scope="col">Retro</th></tr></thead><tbody><tr><td>Pagina non disponibile</td><td>Da sola non determina lo stato dei guest</td></tr><tr><td>Configurazione del cluster</td><td>Descrive il guest; non contiene il suo disco</td></tr><tr><td>Consultazione locale</td><td>Dipende dal nodo proprietario</td></tr><tr><td>Task</td><td>Ha identità, tempo e risultato propri</td></tr></tbody></table></div>
+<pre translate="no"><code class="lang-text">!explica Por que uma interface indisponível não prova que a VM parou?
+!feynman Explique configuração de cluster e disco de VM sem confundir os dois.
+!quiz Faça uma pergunta por vez sobre escopo local, tarefa e journal.</code></pre>
+<p>I tre comandi di studio sopra rimangono uguali nelle due versioni della lezione.</p>
+<h2 id="10-checklist-e-chiusura">10 · Checklist e chiusura</h2>
+<ul><li>[ ] Ho identificato il terminale e il nodo reale.</li>
+<li>[ ] Ho confrontato la vista locale con l'inventario del cluster.</li>
+<li>[ ] Ho registrato la situazione degli ID 210, 211 e 212.</li>
+<li>[ ] Ho letto stati e log senza riavviare servizi.</li>
+<li>[ ] Ho distinto configurazione, volume e task.</li>
+<li>[ ] Ho preservato i guest esistenti.</li></ul>
+<p><strong>Ultimo esercizio:</strong> produci un resoconto di cinque frasi su una prova reale raccolta.
+Includi sintomo o domanda, ambito, ora, osservazione e limite della conclusione.
+Un'altra persona deve poter trovare la stessa informazione senza ricevere accesso a segreti.</p>
+<p><strong>Reboot di verifica:</strong> non riavviare l'host o i guest in questa lezione di lettura.
+La verifica consiste nel ripetere una breve consultazione e controllare che sei ancora sullo stesso nodo.
+Non ci sono risorse create da rimuovere e non ci sono snapshot da ripristinare.
+Conserva soltanto il tuo diario; le consultazioni non richiedono pulizia dell'host.</p>
+<h2 id="11-nella-vita-reale">11 · Nella vita reale</h2>
+<p>Chiedi a un collega di descrivere un vecchio guasto senza rivelare la soluzione.
+Prepara una sequenza di tre consultazioni, tutte di lettura.
+Per ciascuna, indica quale ipotesi conferma o indebolisce.
+Se la prova necessaria contiene un segreto, chiedi una versione ridotta e autorizzata.
+Non provare a riprodurre un'interruzione sull'host reale.</p>
+<p>Un buon resoconto termina con una prossima domanda verificabile.
+Non termina con un riavvio usato al posto dell'indagine.</p>
+<h2 id="12-approfondire-quando-vuoi">12 · Approfondire quando vuoi</h2>
+<p>Consulta la documentazione corrispondente alla versione installata.
+Il manuale locale è il riferimento immediato quando un'opzione è diversa.</p>
+<ul><li><a href="https://github.com/proxmox/pve-docs/blob/master/pmxcfs.adoc">Configurazione del cluster e quorum</a>.</li>
+<li><a href="https://github.com/proxmox/pve-docs/blob/master/generated/pvenode.1-synopsis.adoc">Comandi del nodo e task</a>.</li>
+<li><a href="https://pve.proxmox.com/pve-docs/pve-admin-guide.html">Manuale di amministrazione Proxmox VE</a>.</li></ul>
+<h3 id="soluzioni-commentate">Soluzioni commentate</h3>
+<p><strong>Riscaldamento 1:</strong> no; interfaccia, API e processo della VM sono componenti diversi.
+<strong>Riscaldamento 2:</strong> no; devi identificare il backend e la disponibilità del volume.
+<strong>Riscaldamento 3:</strong> sì; la vista del cluster individua il proprietario prima della consultazione locale.</p>
+<p><strong>Decidi 1: B.</strong> Preserva il guest che risponde e indaga il percorso dell'interfaccia.
+Lo stato dell'unità e l'ascolto sono prove diverse; può ancora esistere un problema di rete.
+<strong>Decidi 2: C.</strong> L'ID è unico nel cluster e la prenotazione va risolta senza eliminare oggetti.</p>
+<p><strong>Quiz 1:</strong> identifica il kernel in uso, che può essere specifico dell'hypervisor.
+<strong>Quiz 2:</strong> ascolto, percorso, firewall, client e autenticazione sono passaggi distinti.
+<strong>Quiz 3:</strong> consulta le risorse del cluster e osserva il nodo proprietario.
+<strong>Quiz 4:</strong> no; configurazione distribuita non equivale a replica dei byte.
+<strong>Quiz 5:</strong> collega la lettura all'operazione corretta ed evita di mescolare task.
+<strong>Quiz 6:</strong> controlla finestra, avvio e conservazione; registra l'assenza se il dato non è disponibile.</p>
+<p><a href="16.4-correcao-e-reforco.it.html">← Lezione 16.4 · Correzione e rinforzo</a> · <a href="index.it.html">Indice delle lezioni</a> · <a href="17.2-vm-pela-linha-de-comando.it.html">Lezione 17.2 · VM dalla riga di comando →</a></p>
+</article><nav class="paginas" aria-label="Lezioni"><a class="ant" href="16.4-correcao-e-reforco.it.html"><small>← Precedente</small>16.4 · Correzione e rinforzo</a><a class="prox" href="17.2-vm-pela-linha-de-comando.it.html"><small>Successiva →</small>17.2 · VM dalla riga di comando</a></nav></main></div>
+<footer><div class="wrap">Generato dal Markdown del corso · Immagini in <code translate="no">img/</code></div></footer>
+</body>
+</html>

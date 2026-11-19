@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light dark">
+<title>15.2 · Script robusti · Corso Linux Sysadmin</title>
+<link rel="alternate" hreflang="pt-BR" href="15.2-scripts-robustos.html"><link rel="alternate" hreflang="it" href="15.2-scripts-robustos.it.html">
+<style>
+:root{color-scheme:light dark;--bg:#f6f1e7;--card:#fffdf8;--ink:#201c16;--muted:#5e564a;--accent:#9a3412;--accent-2:#1f5f4a;--tint:#efe6d4;--line:#ddd2bc;--code:#f1eadb;--shadow:0 1px 2px rgba(60,40,10,.08);--serif:Georgia,"Iowan Old Style","Palatino Linotype",Palatino,serif;--sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--mono:"Cascadia Code",Consolas,"DejaVu Sans Mono",monospace}
+@media (prefers-color-scheme:dark){:root{--bg:#16130f;--card:#201b15;--ink:#f1eadb;--muted:#b9ad98;--accent:#f0a070;--accent-2:#7fd0b0;--tint:#2a231a;--line:#3d3427;--code:#191510;--shadow:none}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:5.5rem}
+body{margin:0;background:var(--bg);color:var(--ink);font:1rem/1.6 var(--sans)}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--accent-2);outline-offset:2px;border-radius:4px}
+.pular{position:absolute;left:-999px;top:0;background:var(--card);padding:.5rem 1rem;z-index:20}
+.pular:focus{left:.5rem;top:.5rem}
+.wrap{width:100%;max-width:84rem;margin:0 auto;padding-inline:max(1rem,env(safe-area-inset-left))}
+.top{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10;border-top:6px solid var(--accent)}
+.top-in{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding-block:.6rem}
+.titles{min-width:0}
+.marca{margin:0;font:700 clamp(1.15rem,1rem + 1vw,1.6rem)/1.15 var(--serif);letter-spacing:-.01em}
+.marca a{text-decoration:none}
+.marca a:hover{color:var(--accent)}
+.meta{margin:.1rem 0 0;color:var(--muted);font-size:.85rem}
+.acoes{display:flex;align-items:center;gap:.9rem;flex:none}
+.acoes>a{font-size:.9rem;font-weight:600;color:var(--muted);text-decoration:none}
+.acoes>a:hover{color:var(--accent);text-decoration:underline}
+.idioma{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--tint)}
+.idioma>*{padding:.35rem .9rem;font-size:.8rem;font-weight:700;letter-spacing:.06em;text-decoration:none;color:var(--muted);min-width:2.75rem;text-align:center}
+.idioma a:hover{color:var(--accent);text-decoration:underline}
+.idioma span{background:var(--accent);color:#fff}
+@media (prefers-color-scheme:dark){.idioma span{color:#16130f}}
+code{font-family:var(--mono);font-size:.9em;background:var(--tint);padding:.1rem .35rem;border-radius:4px;overflow-wrap:anywhere}
+/* índice */
+.capa{max-width:70rem;padding-block:2rem 3rem}
+.stats{border-left:4px solid var(--accent-2);background:var(--card);border-radius:0 10px 10px 0;padding:1rem 1.25rem;margin:0 0 2.5rem;box-shadow:var(--shadow);color:var(--muted)}
+.stats strong{color:var(--ink)}
+.modulo{display:grid;grid-template-columns:15rem minmax(0,1fr);gap:1rem 2rem;padding:1.75rem 0;border-top:1px solid var(--line)}
+.modulo h2{margin:0;font:700 1.25rem/1.25 var(--serif);align-self:start;position:sticky;top:6rem}
+.mn{display:block;font:700 .8rem var(--mono);letter-spacing:.12em;color:var(--accent);margin-bottom:.25rem}
+.sep{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.modulo ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,17rem),1fr));gap:.75rem}
+.modulo li{margin:0}
+.modulo a{display:flex;gap:.45rem;align-items:baseline;height:100%;padding:.85rem 1rem;background:var(--card);border:1px solid var(--line);border-radius:10px;text-decoration:none;font-weight:600;line-height:1.35;box-shadow:var(--shadow);transition:border-color .15s,transform .15s}
+.modulo a:hover{border-color:var(--accent);color:var(--accent)}
+.num{font:700 .85rem var(--mono);color:var(--accent);white-space:nowrap}
+/* aula */
+.doc{display:grid;grid-template-columns:17rem minmax(0,1fr);gap:2.5rem;align-items:start;padding-block:2rem 3rem}
+.lateral{position:sticky;top:5.5rem;max-height:calc(100vh - 6.5rem);overflow:auto;font-size:.875rem;padding-right:.5rem}
+.lateral h2{margin:0 0 .25rem;font:700 .95rem var(--serif);color:var(--muted)}
+.lateral h3{margin:1rem 0 .25rem;font:700 .75rem var(--mono);letter-spacing:.06em;color:var(--accent)}
+.lateral ul{list-style:none;margin:0;padding:0}
+.lateral a{display:flex;gap:.45rem;padding:.25rem .5rem;border-radius:6px;text-decoration:none;color:var(--muted);line-height:1.3}
+.lateral a:hover{background:var(--tint);color:var(--ink)}
+.lateral a[aria-current]{background:var(--tint);color:var(--ink);font-weight:700;box-shadow:inset 3px 0 0 var(--accent)}
+.lateral .num{font-size:.75rem}
+.aula{min-width:0;max-width:56rem;overflow-wrap:break-word;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:clamp(1.25rem,1rem + 2vw,2.75rem);box-shadow:var(--shadow)}
+.aula h1{margin:0 0 1.5rem;font:700 clamp(1.75rem,1.4rem + 1.6vw,2.5rem)/1.15 var(--serif);letter-spacing:-.015em;color:var(--ink)}
+.aula h2{margin:2.5rem 0 .75rem;padding-top:1.25rem;border-top:1px solid var(--line);font:700 1.5rem/1.25 var(--serif)}
+.aula h3{margin:2rem 0 .5rem;font:700 1.15rem/1.3 var(--serif);color:var(--accent)}
+.aula h4,.aula h5,.aula h6{margin:1.5rem 0 .5rem;font-size:1rem}
+.aula p,.aula ul,.aula ol{margin:1rem 0}
+.aula ul,.aula ol{padding-left:1.5rem}
+.aula li{margin:.35rem 0}
+.aula li>ul,.aula li>ol{margin:.35rem 0}
+.aula a{color:var(--accent);text-underline-offset:2px}
+.aula hr{border:0;border-top:1px solid var(--line);margin:2rem 0}
+.tabela{overflow-x:auto;margin:1.25rem 0;border:1px solid var(--line);border-radius:10px}
+.aula table{width:100%;border-collapse:collapse;font-size:.9rem}
+.aula th,.aula td{padding:.55rem .75rem;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+.aula tr:last-child td{border-bottom:0}
+.aula th{background:var(--tint);font-weight:700}
+.aula pre{background:var(--code);border:1px solid var(--line);border-radius:10px;padding:.9rem 1rem;overflow-x:auto;font:.85rem/1.5 var(--mono);margin:1rem 0;tab-size:4}
+.aula pre code{background:none;padding:0;font-size:inherit;overflow-wrap:normal}
+.aula blockquote{margin:1.25rem 0;padding:.75rem 1.25rem;border-left:4px solid var(--accent-2);background:var(--tint);border-radius:0 10px 10px 0}
+.aula blockquote>:first-child{margin-top:0}
+.aula blockquote>:last-child{margin-bottom:0}
+.aula figure{margin:1.75rem 0;text-align:center}
+.aula figure img{display:block;margin:0 auto;max-width:100%;height:auto;border:1px solid var(--line);border-radius:10px;background:#fff}
+.aula figcaption{margin-top:.5rem;color:var(--muted);font-size:.9rem;font-style:italic}
+.paginas{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:2.5rem;padding-top:1.5rem;border-top:1px solid var(--line)}
+.paginas a{display:block;padding:.75rem 1rem;border:1px solid var(--line);border-radius:10px;text-decoration:none;color:var(--ink);font-weight:600;line-height:1.3}
+.paginas a:hover{border-color:var(--accent);color:var(--accent)}
+.paginas small{display:block;color:var(--muted);font-weight:400}
+.paginas .prox{grid-column:2;text-align:right}
+footer{border-top:1px solid var(--line);padding-block:1.5rem;color:var(--muted);font-size:.85rem;text-align:center}
+@media (hover:hover) and (prefers-reduced-motion:no-preference){.modulo a:hover{transform:translateY(-2px)}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+@media (max-width:980px){.doc{grid-template-columns:minmax(0,1fr);padding-top:1rem}.lateral{position:static;max-height:none;order:2}.aula{max-width:none}}
+@media (max-width:860px){.modulo{grid-template-columns:minmax(0,1fr)}.modulo h2{position:static}.mn{display:inline;margin-right:.5rem}}
+@media (max-width:420px){.meta{display:none}.top-in{gap:.5rem}.acoes{gap:.6rem}.capa{padding-top:1.25rem}.paginas{grid-template-columns:minmax(0,1fr)}.paginas .prox{grid-column:1}}
+@media print{.top,.lateral,.paginas{display:none}.aula{border:0;box-shadow:none;padding:0;max-width:none}.doc{display:block}}
+</style>
+</head>
+<body>
+<a class="pular" href="#conteudo">Vai al contenuto</a>
+<header class="top"><div class="wrap top-in"><div class="titles"><p class="marca"><a href="index.it.html">Corso Linux Sysadmin</a></p><p class="meta">Rodrigo Antignani · Lezione 15.2</p></div><div class="acoes"><a href="index.it.html">Indice</a><div class="idioma" role="group" aria-label="Lingua"><a href="15.2-scripts-robustos.html" hreflang="pt-BR" lang="pt-BR">PT</a><span aria-current="true">IT</span></div></div></div></header>
+<div class="wrap doc"><aside class="lateral" aria-label="Lezioni"><h2>Lezioni</h2><h3>M0 · Laboratorio</h3><ul><li><a href="0.1-montar-o-laboratorio.it.html"><span class="num">0.1</span><span>Allestire il laboratorio</span></a></li><li><a href="0.2-acesso-e-protecao.it.html"><span class="num">0.2</span><span>Accesso e protezione</span></a></li></ul><h3>M1 · Riga di comando</h3><ul><li><a href="1.1-o-que-e-linux.it.html"><span class="num">1.1</span><span>Che cos'è Linux</span></a></li><li><a href="1.2-o-shell-e-a-ajuda.it.html"><span class="num">1.2</span><span>La shell e la guida</span></a></li><li><a href="1.3-caminhos-e-navegacao.it.html"><span class="num">1.3</span><span>Percorsi e navigazione</span></a></li><li><a href="1.4-criar-copiar-mover-e-apagar.it.html"><span class="num">1.4</span><span>Creare, copiare, spostare ed eliminare</span></a></li><li><a href="1.5-ler-e-procurar-texto.it.html"><span class="num">1.5</span><span>Leggere e cercare testo</span></a></li><li><a href="1.6-redirecionamentos-e-pipes.it.html"><span class="num">1.6</span><span>Reindirizzamenti e pipe</span></a></li><li><a href="1.7-arquivar-e-compactar.it.html"><span class="num">1.7</span><span>Archiviare e comprimere</span></a></li><li><a href="1.8-primeiro-script.it.html"><span class="num">1.8</span><span>Primo script</span></a></li><li><a href="1.9-decidir-e-repetir.it.html"><span class="num">1.9</span><span>Decidere e ripetere</span></a></li><li><a href="1.10-software-livre-na-pratica.it.html"><span class="num">1.10</span><span>Il software libero in pratica</span></a></li></ul><h3>M2 · Sistema, utenti e permessi</h3><ul><li><a href="2.1-instalacao-e-provisionamento.it.html"><span class="num">2.1</span><span>Installazione e provisioning</span></a></li><li><a href="2.2-hardware-e-dispositivos.it.html"><span class="num">2.2</span><span>Hardware e dispositivi</span></a></li><li><a href="2.3-processos-e-logs.it.html"><span class="num">2.3</span><span>Processi e log</span></a></li><li><a href="2.4-rede-no-dia-a-dia.it.html"><span class="num">2.4</span><span>La rete di tutti i giorni</span></a></li><li><a href="2.5-acesso-remoto-e-privilegios.it.html"><span class="num">2.5</span><span>Accesso remoto e privilegi</span></a></li><li><a href="2.6-usuarios-e-grupos.it.html"><span class="num">2.6</span><span>Utenti e gruppi</span></a></li><li><a href="2.7-permissoes-e-dono.it.html"><span class="num">2.7</span><span>Permessi e proprietario</span></a></li><li><a href="2.8-diretorios-e-arquivos-especiais.it.html"><span class="num">2.8</span><span>Directory e file speciali</span></a></li></ul><h3>M3 · Testo ed editor</h3><ul><li><a href="3.1-fluxos-a-fundo.it.html"><span class="num">3.1</span><span>I flussi in profondità</span></a></li><li><a href="3.2-filtros-de-texto.it.html"><span class="num">3.2</span><span>Filtri di testo</span></a></li><li><a href="3.3-regex-e-grep.it.html"><span class="num">3.3</span><span>Regex e grep</span></a></li><li><a href="3.4-sed-e-awk.it.html"><span class="num">3.4</span><span>sed e awk</span></a></li><li><a href="3.5-vi-e-vim-de-verdade.it.html"><span class="num">3.5</span><span>vi e vim sul serio</span></a></li></ul><h3>M4 · systemd e boot</h3><ul><li><a href="4.1-como-o-linux-liga.it.html"><span class="num">4.1</span><span>Come si avvia Linux</span></a></li><li><a href="4.2-systemd-servicos-e-units.it.html"><span class="num">4.2</span><span>systemd: servizi e unit</span></a></li><li><a href="4.3-targets-desligar-e-reiniciar.it.html"><span class="num">4.3</span><span>Target: spegnere e riavviare</span></a></li><li><a href="4.4-grub-e-acesso-de-emergencia.it.html"><span class="num">4.4</span><span>GRUB e accesso di emergenza</span></a></li></ul><h3>M5 · Kernel, moduli e VM</h3><ul><li><a href="5.1-hardware-pelo-kernel.it.html"><span class="num">5.1</span><span>L'hardware visto dal kernel</span></a></li><li><a href="5.2-modulos-e-parametros.it.html"><span class="num">5.2</span><span>Moduli e parametri</span></a></li><li><a href="5.3-linux-como-convidado.it.html"><span class="num">5.3</span><span>Linux come guest</span></a></li></ul><h3>M6 · Pacchetti e repository</h3><ul><li><a href="6.1-pacotes-no-debian.it.html"><span class="num">6.1</span><span>Pacchetti su Debian</span></a></li><li><a href="6.2-pacotes-na-rocky.it.html"><span class="num">6.2</span><span>Pacchetti su Rocky</span></a></li><li><a href="6.3-repositorios.it.html"><span class="num">6.3</span><span>Repository</span></a></li><li><a href="6.4-flatpak.it.html"><span class="num">6.4</span><span>Flatpak</span></a></li><li><a href="6.5-bibliotecas-compartilhadas.it.html"><span class="num">6.5</span><span>Librerie condivise</span></a></li></ul><h3>M7 · Processi e prestazioni</h3><ul><li><a href="7.1-processos-e-sinais.it.html"><span class="num">7.1</span><span>Processi e segnali</span></a></li><li><a href="7.2-jobs-e-sessoes.it.html"><span class="num">7.2</span><span>Job e sessioni</span></a></li><li><a href="7.3-prioridade-e-perfis.it.html"><span class="num">7.3</span><span>Priorità e profili</span></a></li></ul><h3>M8 · File a fondo</h3><ul><li><a href="8.1-fhs-e-onde-cada-coisa-mora.it.html"><span class="num">8.1</span><span>FHS e dove sta ogni cosa</span></a></li><li><a href="8.2-find-a-fundo.it.html"><span class="num">8.2</span><span>find a fondo</span></a></li><li><a href="8.3-arquivamento-avancado.it.html"><span class="num">8.3</span><span>Archiviazione avanzata</span></a></li><li><a href="8.4-links.it.html"><span class="num">8.4</span><span>Link</span></a></li><li><a href="8.5-permissoes-avancadas.it.html"><span class="num">8.5</span><span>Permessi avanzati</span></a></li></ul><h3>M9 · Storage</h3><ul><li><a href="9.1-discos-e-layout.it.html"><span class="num">9.1</span><span>Dischi e layout</span></a></li><li><a href="9.2-particionar.it.html"><span class="num">9.2</span><span>Partizionare</span></a></li><li><a href="9.3-sistemas-de-arquivos.it.html"><span class="num">9.3</span><span>File system</span></a></li><li><a href="9.4-montar-e-persistir.it.html"><span class="num">9.4</span><span>Montare e rendere persistente</span></a></li><li><a href="9.5-integridade-e-espaco.it.html"><span class="num">9.5</span><span>Integrità e spazio</span></a></li><li><a href="9.6-lvm.it.html"><span class="num">9.6</span><span>LVM</span></a></li><li><a href="9.7-crescer-sem-destruir.it.html"><span class="num">9.7</span><span>Crescere senza distruggere</span></a></li></ul><h3>M10 · Utenti e accesso privilegiato</h3><ul><li><a href="10.1-contas.it.html"><span class="num">10.1</span><span>Account</span></a></li><li><a href="10.2-senhas-e-validade.it.html"><span class="num">10.2</span><span>Password e scadenza</span></a></li><li><a href="10.3-grupos-e-trabalho-em-equipe.it.html"><span class="num">10.3</span><span>Gruppi e lavoro di squadra</span></a></li><li><a href="10.4-sudo-de-verdade.it.html"><span class="num">10.4</span><span>sudo sul serio</span></a></li></ul><h3>M11 · Rete</h3><ul><li><a href="11.1-tcp-ip-para-quem-administra.it.html"><span class="num">11.1</span><span>TCP/IP per chi amministra</span></a></li><li><a href="11.2-networkmanager-e-nmcli.it.html"><span class="num">11.2</span><span>NetworkManager e nmcli</span></a></li><li><a href="11.3-rede-no-debian.it.html"><span class="num">11.3</span><span>Rete su Debian</span></a></li><li><a href="11.4-nomes-e-resolucao.it.html"><span class="num">11.4</span><span>Nomi e risoluzione</span></a></li><li><a href="11.5-diagnostico-de-rede.it.html"><span class="num">11.5</span><span>Diagnosi di rete</span></a></li></ul><h3>M12 · Sicurezza dell'host</h3><ul><li><a href="12.1-ssh-a-fundo.it.html"><span class="num">12.1</span><span>SSH in dettaglio</span></a></li><li><a href="12.2-firewall.it.html"><span class="num">12.2</span><span>Firewall</span></a></li><li><a href="12.3-selinux-modos-e-contextos.it.html"><span class="num">12.3</span><span>SELinux: modalità e contesti</span></a></li><li><a href="12.4-selinux-portas-e-booleanos.it.html"><span class="num">12.4</span><span>SELinux: porte e booleani</span></a></li><li><a href="12.5-auditoria-e-criptografia.it.html"><span class="num">12.5</span><span>Audit e crittografia</span></a></li></ul><h3>M13 · Archiviazione in rete</h3><ul><li><a href="13.1-servidor-nfs.it.html"><span class="num">13.1</span><span>Server NFS</span></a></li><li><a href="13.2-cliente-nfs.it.html"><span class="num">13.2</span><span>Client NFS</span></a></li><li><a href="13.3-autofs.it.html"><span class="num">13.3</span><span>autofs</span></a></li></ul><h3>M14 · Pianificazione</h3><ul><li><a href="14.1-cron-e-at.it.html"><span class="num">14.1</span><span>cron e at</span></a></li><li><a href="14.2-timers-do-systemd.it.html"><span class="num">14.2</span><span>Timer di systemd</span></a></li><li><a href="14.3-journald-e-rsyslog.it.html"><span class="num">14.3</span><span>journald e rsyslog</span></a></li><li><a href="14.4-hora-certa.it.html"><span class="num">14.4</span><span>L'ora corretta</span></a></li><li><a href="14.5-email-local-e-impressao.it.html"><span class="num">14.5</span><span>E-mail locale e stampa</span></a></li></ul><h3>M15 · Shell e ambiente</h3><ul><li><a href="15.1-ambiente-do-shell.it.html"><span class="num">15.1</span><span>Ambiente della shell</span></a></li><li><a href="15.2-scripts-robustos.it.html" aria-current="page"><span class="num">15.2</span><span>Script robusti</span></a></li><li><a href="15.3-scripts-de-administracao.it.html"><span class="num">15.3</span><span>Script di amministrazione</span></a></li><li><a href="15.4-interfaces-graficas.it.html"><span class="num">15.4</span><span>Interfacce grafiche</span></a></li><li><a href="15.5-idioma-teclado-e-fuso.it.html"><span class="num">15.5</span><span>Lingua, tastiera e fuso orario</span></a></li></ul><h3>M16 · Settimana di incidenti su Rocky 10</h3><ul><li><a href="16.1-rocky-10-o-que-muda.it.html"><span class="num">16.1</span><span>Rocky 10: cosa cambia</span></a></li><li><a href="16.2-incidentes-por-area.it.html"><span class="num">16.2</span><span>Incidenti per area</span></a></li><li><a href="16.3-incidente-com-relogio.it.html"><span class="num">16.3</span><span>Incidente con cronometro</span></a></li><li><a href="16.4-correcao-e-reforco.it.html"><span class="num">16.4</span><span>Correzione e rinforzo</span></a></li></ul><h3>M17 · Proxmox in pratica</h3><ul><li><a href="17.1-proxmox-por-dentro.it.html"><span class="num">17.1</span><span>Proxmox dall'interno</span></a></li><li><a href="17.2-vm-pela-linha-de-comando.it.html"><span class="num">17.2</span><span>VM dalla riga di comando</span></a></li><li><a href="17.3-conteiner-lxc.it.html"><span class="num">17.3</span><span>Container LXC</span></a></li><li><a href="17.4-storage.it.html"><span class="num">17.4</span><span>Storage: capacità, ampliamento e spostamento</span></a></li><li><a href="17.5-rede.it.html"><span class="num">17.5</span><span>Rete: bridge, VLAN, bond e SDN</span></a></li><li><a href="17.6-backup-e-restauracao.it.html"><span class="num">17.6</span><span>Backup e ripristino con PBS</span></a></li><li><a href="17.7-migracao-e-quorum.it.html"><span class="num">17.7</span><span>Migrazione e quorum</span></a></li></ul><h3>M18 · Podman</h3><ul><li><a href="18.1-conteiner-nao-e-vm.it.html"><span class="num">18.1</span><span>Un container non è una VM</span></a></li><li><a href="18.2-rodar-e-persistir.it.html"><span class="num">18.2</span><span>Eseguire e conservare i dati</span></a></li><li><a href="18.3-conteiner-como-servico.it.html"><span class="num">18.3</span><span>Container come servizio</span></a></li><li><a href="18.4-diagnosticar-conteiner-rootless.it.html"><span class="num">18.4</span><span>Diagnosticare un container rootless</span></a></li><li><a href="18.5-construir-imagens.it.html"><span class="num">18.5</span><span>Costruire immagini</span></a></li></ul><h3>M19 · Servizi di rete</h3><ul><li><a href="19.1-dns-autoritativo.it.html"><span class="num">19.1</span><span>DNS autoritativo</span></a></li><li><a href="19.2-dns-recursivo-e-diagnostico.it.html"><span class="num">19.2</span><span>DNS ricorsivo e diagnosi</span></a></li><li><a href="19.3-dhcp.it.html"><span class="num">19.3</span><span>DHCP</span></a></li><li><a href="19.4-servidor-web.it.html"><span class="num">19.4</span><span>Server web: nome, file e risposta</span></a></li><li><a href="19.5-tls-e-proxy-reverso.it.html"><span class="num">19.5</span><span>TLS e reverse proxy: identità prima del lucchetto</span></a></li><li><a href="19.6-samba-a-ponte-windows.it.html"><span class="num">19.6</span><span>Samba: il ponte con il client Windows</span></a></li><li><a href="19.7-postfix-e-correio-local.it.html"><span class="num">19.7</span><span>Postfix e posta locale</span></a></li><li><a href="19.8-dovecot-e-imaps.it.html"><span class="num">19.8</span><span>Dovecot e lettura tramite IMAPS</span></a></li><li><a href="19.9-squid-e-desafio-integrado.it.html"><span class="num">19.9</span><span>Squid e sfida integrata</span></a></li></ul><h3>M20 · Dentro NethServer 8</h3><ul><li><a href="20.1-instalar-nethserver-8.it.html"><span class="num">20.1</span><span>Installare in una VM pulita</span></a></li><li><a href="20.2-cluster-no-e-modulo.it.html"><span class="num">20.2</span><span>Cluster, nodo e modulo</span></a></li><li><a href="20.3-modulo-por-dentro.it.html"><span class="num">20.3</span><span>Dentro un modulo</span></a></li><li><a href="20.4-proxy-e-certificados.it.html"><span class="num">20.4</span><span>Proxy e certificati</span></a></li><li><a href="20.5-dominios-de-usuario.it.html"><span class="num">20.5</span><span>Domini utente: identità con confini</span></a></li><li><a href="20.6-backup-e-restauracao.it.html"><span class="num">20.6</span><span>Backup e ripristino: verificare il ritorno</span></a></li><li><a href="20.7-atualizar-mover-e-falhar.it.html"><span class="num">20.7</span><span>Aggiornare, spostare e guastare con verifica</span></a></li></ul></aside><main id="conteudo" class="aula"><article><h1>Lezione 15.2 · Script robusti</h1>
+<p>Un'automazione affidabile deve dichiarare che cosa accetti, che cosa produca e come fallisca. Trasformerai un comando di lettura in uno script con argomenti validati, funzioni, decisioni e codici di uscita. Tutto resta in file privati del lab, sulle due VM.</p>
+<blockquote><p><strong>Il cuore di questa lezione:</strong> valida gli ingressi, proteggi gli argomenti con virgolette, conserva lo stato e gestisci esplicitamente gli errori. Le opzioni della shell aiutano, ma non sostituiscono il contratto. Il resto è approfondimento.</p></blockquote>
+<div class="tabela"><table><thead><tr><th scope="col">Scheda</th><th scope="col"></th></tr></thead><tbody><tr><td><strong>Modulo</strong></td><td>M15 · Shell e ambiente, lezione 2 di 5</td></tr><tr><td><strong>Quando</strong></td><td>Settimana 20</td></tr><tr><td><strong>Alla fine</strong></td><td>Scrivi uno script di lettura con contratto di ingresso ed errore verificabile</td></tr><tr><td><strong>Prerequisiti</strong></td><td>Lezione 15.1, test, redirezioni e permessi di esecuzione</td></tr><tr><td><strong>Durata</strong></td><td>Circa 90 minuti</td></tr><tr><td><strong>Snapshot</strong></td><td><code translate="no">m15a2-inicio</code> e <code translate="no">m15a2-fim</code> sulle VM 201 e 202</td></tr></tbody></table></div>
+<h2 id="1-riscaldamento">1 · Riscaldamento</h2>
+<ol><li>Perché uno script non deve dipendere da un alias del terminale?</li>
+<li>Che cosa accade a un percorso con spazi quando espandi una variabile senza virgolette?</li>
+<li>Quale processo riceve una variabile esportata quando avvii un nuovo comando?</li></ol>
+<h2 id="2-perche-conta">2 · Perché conta</h2>
+<p>Uno script riceve un percorso vuoto e continua a eseguire i comandi successivi. Un altro stampa “OK” dopo una lettura fallita. Il problema inizia prima dell'attività: non è stato definito che cosa significhi un'esecuzione riuscita.</p>
+<p>In questa lezione lo script legge soltanto file. Richiederai comunque argomenti corretti e codici osservabili. L'abitudine sarà la stessa quando l'attività potrà modificare un server.</p>
+<h2 id="3-modello-mentale">3 · Modello mentale</h2>
+<p>Uno script è un ordine di lavoro per la squadra dell'edificio. L'ingresso identifica attività e luogo. La funzione svolge un lavoro definito. L'uscita comunica il risultato; lo stato comunica se il contratto sia stato rispettato.</p>
+<pre translate="no"><code class="lang-text">argomenti -&gt; validazione -&gt; funzione -&gt; risultato su stdout
+                 |                     |
+             errore su stderr      stato finale</code></pre>
+<figure><a href="../img/15.2-entrada-validada.it.jpg"><img src="../img/15.2-entrada-validada.it.jpg" alt="Valida prima di agire" loading="lazy" decoding="async"></a><figcaption>Un argomento ricevuto non è ancora un argomento accettato.</figcaption></figure>
+<h3 id="ponte-windows">Ponte Windows</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Idea</th><th scope="col">Bash</th><th scope="col">Confronto utile</th></tr></thead><tbody><tr><td>Parametri del programma</td><td><code translate="no">"$@"</code>, <code translate="no">$#</code> e posizioni</td><td>Separare valore e quantità</td></tr><tr><td>Risultato per un altro programma</td><td>stdout</td><td>Mantenere i dati leggibili da una macchina</td></tr><tr><td>Diagnostica</td><td>stderr</td><td>Non mescolare avviso e risultato</td></tr><tr><td>Risultato operativo</td><td>Codice di uscita</td><td>Il chiamante deve decidere tramite lo stato</td></tr></tbody></table></div>
+<h2 id="4-l-essenziale">4 · L'essenziale</h2>
+<h3 id="contratto-prima-di-implementare">Contratto prima di implementare</h3>
+<p>Lo script del lab accetta esattamente due argomenti non vuoti: modalità e percorso. <code translate="no">--count</code> conta i caratteri di fine riga; <code translate="no">--list</code> mostra il contenuto, compresa l'ultima riga senza newline. Uso errato restituisce <code translate="no">2</code>; file non valido o errore di elaborazione restituisce <code translate="no">3</code>.</p>
+<p>Il contenuto va su stdout. I messaggi diagnostici vanno su stderr. Questi codici sono il contratto di questo script, non un significato universale di ogni programma Linux.</p>
+<h3 id="le-virgolette-conservano-gli-argomenti">Le virgolette conservano gli argomenti</h3>
+<p><code translate="no">"$@"</code> conserva separatamente ogni argomento. <code translate="no">"$file"</code> conserva un percorso con spazi come un argomento. Un test della quantità deve precedere la lettura di posizioni che potrebbero non esistere.</p>
+<h3 id="lo-stato-deve-essere-conservato">Lo stato deve essere conservato</h3>
+<p><code translate="no">$?</code> appartiene al comando appena terminato. Un altro comando lo sostituisce. Usa la condizione di <code translate="no">if</code> o conserva immediatamente il numero, prima di stampare qualsiasi messaggio.</p>
+<figure><a href="../img/15.2-status-nao-e-texto.it.jpg"><img src="../img/15.2-status-nao-e-texto.it.jpg" alt="Testo e stato sono uscite diverse" loading="lazy" decoding="async"></a><figcaption>Conserva lo stato prima che un altro comando lo sostituisca.</figcaption></figure>
+<h3 id="funzioni-e-opzioni-della-shell">Funzioni e opzioni della shell</h3>
+<p>Una funzione riceve argomenti e restituisce uno stato con <code translate="no">return</code>. <code translate="no">exit</code> termina lo script. Nel lab le funzioni producono un risultato semplice e il corpo principale decide la terminazione.</p>
+<p><code translate="no">set -u</code> aiuta a rilevare variabili assenti. <code translate="no">pipefail</code> fa riflettere a una pipeline gli errori precedenti all'ultimo comando. <code translate="no">set -e</code> ha eccezioni legate al contesto; non verrà usato come sostituto della gestione esplicita.</p>
+<figure><a href="../img/15.2-contrato-da-funcao.it.jpg"><img src="../img/15.2-contrato-da-funcao.it.jpg" alt="Una funzione richiede un contratto" loading="lazy" decoding="async"></a><figcaption>Definisci ingresso, risultato ed errore prima di riutilizzare.</figcaption></figure>
+<h3 id="rocky-debian">Rocky × Debian</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Voce</th><th scope="col">Rocky 9</th><th scope="col">Debian 13</th></tr></thead><tbody><tr><td>Interpretador explícito</td><td><code translate="no">/bin/bash</code></td><td><code translate="no">/bin/bash</code></td></tr><tr><td>Script della lezione</td><td>Usa funzioni di Bash</td><td>Usa funzioni di Bash</td></tr><tr><td>Validação sem execução</td><td><code translate="no">bash -n</code></td><td><code translate="no">bash -n</code></td></tr><tr><td>Test di comportamento</td><td>Stessi casi di ingresso</td><td>Stessi casi di ingresso</td></tr></tbody></table></div>
+<h2 id="5-lab-guidato">5 · Lab guidato</h2>
+<p>Usa <code translate="no">student</code> e una nuova cartella sulle due VM. Lo script legge soltanto i file forniti e non usa <code translate="no">sudo</code>.</p>
+<h3 id="passo-1-creare-dati-noti">Passo 1 · Creare dati noti</h3>
+<p><strong>Ipotesi:</strong> un percorso con spazi cambia la quantità degli argomenti quando viene passato correttamente?</p>
+<p>Sull'host Proxmox:</p>
+<pre translate="no"><code class="lang-bash">qm snapshot 201 m15a2-inicio
+qm snapshot 202 m15a2-inicio</code></pre>
+<p>Sulle due VM conferma che la cartella non esistesse prima di crearla.</p>
+<pre translate="no"><code class="lang-bash">test ! -e "$HOME/m15a2"
+mkdir -m 700 "$HOME/m15a2"
+printf 'alpha\nbeta\ngamma\n' &gt; "$HOME/m15a2/with spaces.txt"</code></pre>
+<p><strong>Output atteso:</strong> file privato con tre righe terminate da newline.</p>
+<p><strong>Verifica:</strong> usa <code translate="no">wc -l &lt; "$HOME/m15a2/with spaces.txt"</code> e controlla <code translate="no">3</code>.</p>
+<h3 id="passo-2-scrivere-il-contratto-nel-codice">Passo 2 · Scrivere il contratto nel codice</h3>
+<p><strong>Ipotesi:</strong> quale test impedisce la lettura di <code translate="no">$2</code> quando è stato inviato un solo argomento?</p>
+<pre translate="no"><code class="lang-bash">cat &gt; "$HOME/m15a2/resumir.sh" &lt;&lt;'EOF'
+#!/bin/bash
+set -u
+set -o pipefail
+usage() { printf 'usage: resumir.sh --count|--list FILE\n' &gt;&amp;2; }
+list_lines() { cat -- "$1"; }
+if [[ $# -ne 2 ]]; then
+    usage
+    exit 2
+fi
+for argument in "$@"; do
+    if [[ -z $argument ]]; then usage; exit 2; fi
+done
+mode=$1
+file=$2
+case $mode in
+    --count|--list) ;;
+    *) usage; exit 2 ;;
+esac
+if [[ ! -f $file || ! -r $file ]]; then
+    printf 'unreadable regular file: %s\n' "$file" &gt;&amp;2
+    exit 3
+fi
+case $mode in
+    --count)
+        if ! wc -l &lt; "$file"; then
+            printf 'processing failed\n' &gt;&amp;2
+            exit 3
+        fi ;;
+    --list)
+        if ! list_lines "$file"; then
+            printf 'processing failed\n' &gt;&amp;2
+            exit 3
+        fi ;;
+esac
+EOF
+chmod 0700 "$HOME/m15a2/resumir.sh"</code></pre>
+<p><strong>Output atteso:</strong> script con interprete, validazione prima dell'uso degli argomenti, funzione e scelta della modalità.</p>
+<p><strong>Verifica:</strong> la funzione non dipende da alias, file di avvio o variabile personale del terminale. Il test preliminare non rende atomica la lettura: un errore rilevato durante l'elaborazione restituisce anch'esso <code translate="no">3</code>, ma potrebbe avere già prodotto parte di stdout.</p>
+<h3 id="passo-3-validare-senza-eseguire">Passo 3 · Validare senza eseguire</h3>
+<p><strong>Ipotesi:</strong> una sintassi accettata dimostra che tutti gli ingressi siano corretti?</p>
+<pre translate="no"><code class="lang-bash">/bin/bash -n "$HOME/m15a2/resumir.sh"
+printf 'syntax_status=%s\n' "$?"</code></pre>
+<p><strong>Output atteso:</strong> <code translate="no">syntax_status=0</code>. Valida la struttura, non legge i file di test e non esegue i percorsi del programma.</p>
+<p><strong>Verifica:</strong> identifica i casi ancora da verificare: modalità valida, modalità errata, argomento assente e file inesistente.</p>
+<h3 id="decidi-1">Decidi 1</h3>
+<p>Quale ingresso richiede un errore di uso prima di leggere il file?</p>
+<div class="tabela"><table><thead><tr><th scope="col">Opzione</th><th scope="col">Ingresso</th></tr></thead><tbody><tr><td>A</td><td><code translate="no">--count</code> e un percorso esistente</td></tr><tr><td>B</td><td>Soltanto <code translate="no">--count</code>, senza percorso</td></tr><tr><td>C</td><td><code translate="no">--list</code> e un file leggibile</td></tr></tbody></table></div>
+<p>Scegli B. La quantità degli argomenti fa parte del contratto.</p>
+<h3 id="passo-4-verificare-successo-ed-errore">Passo 4 · Verificare successo ed errore</h3>
+<p><strong>Ipotesi:</strong> modalità errata e file inesistente devono avere lo stesso codice in questo contratto?</p>
+<pre translate="no"><code class="lang-bash">"$HOME/m15a2/resumir.sh" --count "$HOME/m15a2/with spaces.txt"
+printf 'status=%s\n' "$?"
+"$HOME/m15a2/resumir.sh" --list "$HOME/m15a2/with spaces.txt"
+printf 'status=%s\n' "$?"
+"$HOME/m15a2/resumir.sh" --wrong "$HOME/m15a2/with spaces.txt"
+printf 'status=%s\n' "$?"
+"$HOME/m15a2/resumir.sh" --count "$HOME/m15a2/missing.txt"
+printf 'status=%s\n' "$?"</code></pre>
+<p><strong>Output atteso:</strong> i primi due casi restituiscono <code translate="no">0</code>; la modalità errata restituisce <code translate="no">2</code>; il percorso inesistente restituisce <code translate="no">3</code>.</p>
+<p><strong>Verifica:</strong> controlla separatamente il dato prodotto e lo stato. Il messaggio di errore non deve diventare una riga del risultato normale.</p>
+<p>Ora confronta le modalità con un file senza newline finale. Il conteggio è <code translate="no">0</code>, ma l'elenco conserva <code translate="no">delta</code>. Il newline della diagnostica seguente appartiene al test, non al file.</p>
+<pre translate="no"><code class="lang-bash">printf 'delta' &gt; "$HOME/m15a2/no-newline.txt"
+for mode in --count --list; do
+    "$HOME/m15a2/resumir.sh" "$mode" "$HOME/m15a2/no-newline.txt"
+    rc=$?
+    printf '\nstatus=%s\n' "$rc"
+done</code></pre>
+<h3 id="passo-5-catturare-il-risultato-senza-perdere-lo-stato">Passo 5 · Catturare il risultato senza perdere lo stato</h3>
+<p><strong>Ipotesi:</strong> stampare un messaggio prima di conservare <code translate="no">$?</code> mantiene lo stato originale?</p>
+<pre translate="no"><code class="lang-bash">if result=$("$HOME/m15a2/resumir.sh" --count "$HOME/m15a2/missing.txt" 2&gt; "$HOME/m15a2/error.txt"); then
+    printf 'result=%s\n' "$result"
+else
+    rc=$?
+    printf 'failed_status=%s\n' "$rc"
+fi
+cat "$HOME/m15a2/error.txt"
+(
+set -o pipefail
+false | true
+printf 'pipeline_status=%s\n' "$?"
+)</code></pre>
+<p><strong>Output atteso:</strong> <code translate="no">failed_status=3</code> e diagnostica nel file di stderr. La pipeline della subshell restituisce <code translate="no">1</code> con <code translate="no">pipefail</code>, anche se il suo ultimo comando riesce.</p>
+<p><strong>Verifica:</strong> lo stato è stato conservato prima di <code translate="no">printf</code>. La subshell evita di modificare le opzioni del terminale principale.</p>
+<h3 id="decidi-2">Decidi 2</h3>
+<p>Una funzione aiuta lo script, ma fallisce. Quale forma conserva la decisione nel chiamante?</p>
+<div class="tabela"><table><thead><tr><th scope="col">Opzione</th><th scope="col">Azione</th></tr></thead><tbody><tr><td>A</td><td>La funzione restituisce uno stato e il chiamante lo controlla</td></tr><tr><td>B</td><td>Ignorare stderr perché esiste stdout</td></tr><tr><td>C</td><td>Stampare “OK” dopo qualsiasi errore</td></tr></tbody></table></div>
+<p>Scegli A. Il risultato di una funzione deve fare parte del suo contratto.</p>
+<h3 id="passo-6-pulire-un-temporaneo-alla-terminazione">Passo 6 · Pulire un temporaneo alla terminazione</h3>
+<p><strong>Ipotesi:</strong> un'uscita di errore eseguirà ancora una pulizia registrata per <code translate="no">EXIT</code>?</p>
+<pre translate="no"><code class="lang-bash">cat &gt; "$HOME/m15a2/temporario.sh" &lt;&lt;'EOF'
+#!/bin/bash
+set -u
+tmp=$(mktemp "${HOME}/m15a2/tmp.XXXXXX") || exit 4
+cleanup() { rm -f -- "$tmp"; }
+trap cleanup EXIT
+printf 'temporary=%s\n' "$tmp"
+exit 7
+EOF
+chmod 0700 "$HOME/m15a2/temporario.sh"
+/bin/bash -n "$HOME/m15a2/temporario.sh"
+"$HOME/m15a2/temporario.sh"
+printf 'status=%s\n' "$?"
+find "$HOME/m15a2" -maxdepth 1 -name 'tmp.*' -print</code></pre>
+<p><strong>Output atteso:</strong> <code translate="no">status=7</code> e nessun temporaneo restante. Il nome è stato creato da <code translate="no">mktemp</code> nella cartella privata e la rimozione ha selezionato soltanto quel file.</p>
+<p><strong>Verifica:</strong> lo stato previsto non è scomparso a causa della pulizia. <code translate="no">EXIT</code> non garantisce la pulizia dopo una morte improvvisa che il processo non riesce a gestire.</p>
+<h2 id="6-rompi-e-ripara">6 · Rompi e ripara</h2>
+<h3 id="guasto-1-percorso-diviso">Guasto 1 · Percorso diviso</h3>
+<p><strong>Sintomo:</strong> nella subshell seguente un file esistente diventa una chiamata con troppi argomenti.</p>
+<pre translate="no"><code class="lang-bash">(
+file="$HOME/m15a2/with spaces.txt"
+"$HOME/m15a2/resumir.sh" --count $file
+printf 'status=%s\n' "$?"
+)</code></pre>
+<p><strong>Indagine:</strong> confronta la quantità ricevuta con la chiamata tra virgolette del passo 4.</p>
+<p><strong>Causa:</strong> l'espansione senza virgolette ha diviso il percorso in parole.</p>
+<p><strong>Riparazione:</strong> passa <code translate="no">"$file"</code> come un argomento.</p>
+<p><strong>Verifica:</strong> il conteggio torna a <code translate="no">3</code>, con stato <code translate="no">0</code>.</p>
+<p><strong>Prevenzione:</strong> proteggi le espansioni degli argomenti con virgolette e verifica percorsi con spazi.</p>
+<h3 id="guasto-2-successo-dopo-un-errore">Guasto 2 · Successo dopo un errore</h3>
+<p>Crea una copia errata separata per osservare l'errore di controllo.</p>
+<pre translate="no"><code class="lang-bash">cat &gt; "$HOME/m15a2/fragil.sh" &lt;&lt;'EOF'
+#!/bin/bash
+wc -l &lt; "$1"
+printf 'OK\n'
+EOF
+/bin/bash "$HOME/m15a2/fragil.sh" "$HOME/m15a2/missing.txt"
+printf 'status=%s\n' "$?"</code></pre>
+<p><strong>Sintomo:</strong> compare un errore di lettura, ma lo stato finale è <code translate="no">0</code>.</p>
+<p><strong>Indagine:</strong> identifica l'ultimo comando eseguito nella copia fragile.</p>
+<p><strong>Causa:</strong> <code translate="no">printf</code> è riuscito e ha sostituito l'errore precedente come stato dello script.</p>
+<p><strong>Riparazione:</strong> usa lo script validato e gestisci esplicitamente una lettura fallita.</p>
+<p><strong>Verifica:</strong> per il percorso inesistente lo script corretto restituisce <code translate="no">3</code>, non un messaggio di successo.</p>
+<p><strong>Prevenzione:</strong> verifica i casi di errore prima di automatizzare l'esecuzione.</p>
+<h3 id="guasto-3-sintassi-modificata">Guasto 3 · Sintassi modificata</h3>
+<p><strong>Sintomo:</strong> una copia dello script non supera più l'analisi prima di essere eseguita.</p>
+<p><strong>Indagine:</strong> introduci il guasto soltanto in una copia rimuovendo il suo <code translate="no">esac</code>.</p>
+<pre translate="no"><code class="lang-bash">sed '/^esac$/d' "$HOME/m15a2/resumir.sh" &gt; "$HOME/m15a2/broken.sh"
+/bin/bash -n "$HOME/m15a2/broken.sh"</code></pre>
+<p><strong>Causa:</strong> una struttura decisionale è rimasta incompleta.</p>
+<p><strong>Riparazione:</strong> ripristina soltanto la copia con il file validato.</p>
+<pre translate="no"><code class="lang-bash">cp "$HOME/m15a2/resumir.sh" "$HOME/m15a2/broken.sh"
+/bin/bash -n "$HOME/m15a2/broken.sh"</code></pre>
+<p><strong>Verifica:</strong> l'analisi torna a riuscire; poi ripeti un caso di successo e uno di errore.</p>
+<p><strong>Prevenzione:</strong> separa analisi sintattica e test del comportamento. Servono entrambi.</p>
+<h3 id="pulizia">Pulizia</h3>
+<p>Nessun file globale o servizio è stato modificato. Conserva script e risultati nella cartella privata; controlla che l'esperienza dei temporanei non abbia lasciato file. Non eliminare percorsi calcolati fuori da questa cartella.</p>
+<h2 id="7-trappole">7 · Trappole</h2>
+<div class="tabela"><table><thead><tr><th scope="col">Errore comune</th><th scope="col">Che cosa fare</th><th scope="col">Perché</th></tr></thead><tbody><tr><td>Sintassi valida significa script corretto</td><td>Verificare ingressi reali ed errati</td><td>La sintassi non verifica l'intenzione</td></tr><tr><td>Una modalità “rigida” risolve ogni errore</td><td>Gestire gli errori dove avvengono</td><td>Le opzioni della shell hanno contesti ed eccezioni</td></tr><tr><td>Il messaggio di errore appartiene al risultato</td><td>Usare stderr</td><td>Un altro programma può leggere stdout come dato</td></tr><tr><td>Temporaneo con nome prevedibile</td><td>Creare con <code translate="no">mktemp</code></td><td>Evita conflitto e riutilizzo improprio</td></tr></tbody></table></div>
+<h2 id="8-quiz">8 · Quiz</h2>
+<ol><li>Perché controllare <code translate="no">$#</code> prima di leggere <code translate="no">$2</code>?</li>
+<li>Che cosa conserva <code translate="no">"$@"</code>?</li>
+<li>Qual è la differenza tra <code translate="no">return</code> ed <code translate="no">exit</code>?</li>
+<li>Perché una pipeline può nascondere l'errore del primo comando?</li>
+<li><code translate="no">wc -l</code> conta i record senza newline finale come se fossero terminati?</li>
+<li>Che cosa manca ancora dopo che <code translate="no">bash -n</code> ha restituito successo?</li></ol>
+<h2 id="9-promemoria">9 · Promemoria</h2>
+<div class="tabela"><table><thead><tr><th scope="col">Operazione</th><th scope="col">Comando o struttura</th></tr></thead><tbody><tr><td>Validare senza eseguire</td><td><code translate="no">bash -n script.sh</code></td></tr><tr><td>Conservare gli argomenti</td><td><code translate="no">"$@"</code></td></tr><tr><td>Leggere una riga senza interpretare barre</td><td><code translate="no">IFS= read -r line</code></td></tr><tr><td>Conservare subito lo stato</td><td><code translate="no">rc=$?</code></td></tr><tr><td>Diagnostica separata</td><td><code translate="no">printf '%s\n' 'error' &gt;&amp;2</code></td></tr></tbody></table></div>
+<p><strong>Flashcard:</strong> crea cinque schede su argomenti, virgolette, funzione, stato e pulizia. Ripassa a D+1, D+3, D+7 e D+21.</p>
+<h2 id="10-checklist-e-chiusura">10 · Checklist e chiusura</h2>
+<ul><li>[ ] Ho eseguito gli stessi casi sulle due VM.</li>
+<li>[ ] Ho verificato un percorso con spazi e un file inesistente.</li>
+<li>[ ] Ho distinto stdout, stderr e stato.</li>
+<li>[ ] Non ho modificato opzioni permanenti o file globali della shell.</li></ul>
+<p><strong>Ultimo esercizio:</strong> descrivi il contratto dello script senza leggere il codice. Poi controlla se i test coprano ogni requisito che hai scritto.</p>
+<p><strong>Reboot di verifica:</strong> riavvia una VM alla volta. Valida la sintassi dello script e ripeti il caso valido e il file inesistente. I risultati non devono dipendere da un alias o variabile del terminale precedente.</p>
+<pre translate="no"><code class="lang-bash">sudo systemctl reboot</code></pre>
+<p>Sull'host Proxmox, dopo la verifica:</p>
+<pre translate="no"><code class="lang-bash">qm snapshot 201 m15a2-fim
+qm snapshot 202 m15a2-fim</code></pre>
+<h2 id="11-nella-vita-reale">11 · Nella vita reale</h2>
+<p>In uno script che sei autorizzato a esaminare, leggi soltanto contratto, validazioni e gestione dello stato. Non eseguire uno script amministrativo sconosciuto soltanto per osservare che cosa accada.</p>
+<p>Quali ingressi sono stati verificati? Quale errore può essere nascosto da un comando successivo? La pulizia seleziona soltanto risorse create dallo stesso script? Registra l'evidenza senza copiare segreti.</p>
+<h2 id="12-approfondire-quando-vuoi">12 · Approfondire quando vuoi</h2>
+<ul><li><a href="https://www.gnu.org/software/bash/manual/html_node/Exit-Status.html">Bash: stato di uscita</a>, <a href="https://www.gnu.org/software/bash/manual/html_node/The-Set-Builtin.html">opzioni set</a> e <a href="https://www.gnu.org/software/bash/manual/html_node/Bourne-Shell-Builtins.html">builtin</a>.</li>
+<li><a href="https://www.gnu.org/software/coreutils/manual/html_node/mktemp-invocation.html">mktemp</a> e <a href="https://www.gnu.org/software/coreutils/manual/html_node/wc-invocation.html">wc</a>: creazione di temporanei e definizione del conteggio.</li></ul>
+<p><strong>DeepTutor</strong> (http://10.1.0.149:3782, KB "Curso Linux Sysadmin"):</p>
+<ul><li><code translate="no">!explica Mostre a diferença entre erro de uso, erro de leitura e resultado vazio num script Bash.</code></li>
+<li><code translate="no">!feynman Vou explicar por que printf depois de uma falha pode esconder o status. Aponte as lacunas.</code></li>
+<li><code translate="no">!quiz Crie seis casos de argumentos, aspas e códigos de saída para um script somente de leitura.</code></li></ul>
+<h2 id="soluzioni-commentate">Soluzioni commentate</h2>
+<h3 id="riscaldamento">Riscaldamento</h3>
+<ol><li>L'alias è configurazione della sessione interattiva, non una dipendenza dichiarata dello script.</li>
+<li>La shell può dividere il valore in più argomenti ed espandere anche i modelli.</li>
+<li>Il nuovo processo riceve una copia dell'ambiente esportato alla sua creazione.</li></ol>
+<h3 id="quiz">Quiz</h3>
+<ol><li>Per rifiutare una quantità errata prima di accedere a una posizione assente.</li>
+<li>Ogni argomento originale, compresi gli spazi al suo interno.</li>
+<li><code translate="no">return</code> restituisce controllo e stato dalla funzione; <code translate="no">exit</code> termina lo script.</li>
+<li>Senza <code translate="no">pipefail</code>, lo stato normalmente deriva dall'ultimo comando della pipeline.</li>
+<li>No. Conta i caratteri newline; occorre definire formato di ingresso e metrica desiderata.</li>
+<li>Verificare ingressi, risultati, errori e ambiente di esecuzione reale.</li></ol>
+<p><a href="15.1-ambiente-do-shell.it.html">← Lezione 15.1 · Ambiente della shell</a> · <a href="index.it.html">Indice delle lezioni</a> · <a href="https://github.com/Rodrigoantignani/curso-linux-sysadmin/blob/master/00-plano-do-curso.md">Piano del corso: dalla 15.3 in poi →</a></p>
+</article><nav class="paginas" aria-label="Lezioni"><a class="ant" href="15.1-ambiente-do-shell.it.html"><small>← Precedente</small>15.1 · Ambiente della shell</a><a class="prox" href="15.3-scripts-de-administracao.it.html"><small>Successiva →</small>15.3 · Script di amministrazione</a></nav></main></div>
+<footer><div class="wrap">Generato dal Markdown del corso · Immagini in <code translate="no">img/</code></div></footer>
+</body>
+</html>

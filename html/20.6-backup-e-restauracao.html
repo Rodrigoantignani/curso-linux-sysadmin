@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light dark">
+<title>20.6 · Backup e restauração: provar o retorno · Curso Linux Sysadmin</title>
+<link rel="alternate" hreflang="pt-BR" href="20.6-backup-e-restauracao.html"><link rel="alternate" hreflang="it" href="20.6-backup-e-restauracao.it.html">
+<style>
+:root{color-scheme:light dark;--bg:#f6f1e7;--card:#fffdf8;--ink:#201c16;--muted:#5e564a;--accent:#9a3412;--accent-2:#1f5f4a;--tint:#efe6d4;--line:#ddd2bc;--code:#f1eadb;--shadow:0 1px 2px rgba(60,40,10,.08);--serif:Georgia,"Iowan Old Style","Palatino Linotype",Palatino,serif;--sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--mono:"Cascadia Code",Consolas,"DejaVu Sans Mono",monospace}
+@media (prefers-color-scheme:dark){:root{--bg:#16130f;--card:#201b15;--ink:#f1eadb;--muted:#b9ad98;--accent:#f0a070;--accent-2:#7fd0b0;--tint:#2a231a;--line:#3d3427;--code:#191510;--shadow:none}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:5.5rem}
+body{margin:0;background:var(--bg);color:var(--ink);font:1rem/1.6 var(--sans)}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--accent-2);outline-offset:2px;border-radius:4px}
+.pular{position:absolute;left:-999px;top:0;background:var(--card);padding:.5rem 1rem;z-index:20}
+.pular:focus{left:.5rem;top:.5rem}
+.wrap{width:100%;max-width:84rem;margin:0 auto;padding-inline:max(1rem,env(safe-area-inset-left))}
+.top{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10;border-top:6px solid var(--accent)}
+.top-in{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding-block:.6rem}
+.titles{min-width:0}
+.marca{margin:0;font:700 clamp(1.15rem,1rem + 1vw,1.6rem)/1.15 var(--serif);letter-spacing:-.01em}
+.marca a{text-decoration:none}
+.marca a:hover{color:var(--accent)}
+.meta{margin:.1rem 0 0;color:var(--muted);font-size:.85rem}
+.acoes{display:flex;align-items:center;gap:.9rem;flex:none}
+.acoes>a{font-size:.9rem;font-weight:600;color:var(--muted);text-decoration:none}
+.acoes>a:hover{color:var(--accent);text-decoration:underline}
+.idioma{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--tint)}
+.idioma>*{padding:.35rem .9rem;font-size:.8rem;font-weight:700;letter-spacing:.06em;text-decoration:none;color:var(--muted);min-width:2.75rem;text-align:center}
+.idioma a:hover{color:var(--accent);text-decoration:underline}
+.idioma span{background:var(--accent);color:#fff}
+@media (prefers-color-scheme:dark){.idioma span{color:#16130f}}
+code{font-family:var(--mono);font-size:.9em;background:var(--tint);padding:.1rem .35rem;border-radius:4px;overflow-wrap:anywhere}
+/* índice */
+.capa{max-width:70rem;padding-block:2rem 3rem}
+.stats{border-left:4px solid var(--accent-2);background:var(--card);border-radius:0 10px 10px 0;padding:1rem 1.25rem;margin:0 0 2.5rem;box-shadow:var(--shadow);color:var(--muted)}
+.stats strong{color:var(--ink)}
+.modulo{display:grid;grid-template-columns:15rem minmax(0,1fr);gap:1rem 2rem;padding:1.75rem 0;border-top:1px solid var(--line)}
+.modulo h2{margin:0;font:700 1.25rem/1.25 var(--serif);align-self:start;position:sticky;top:6rem}
+.mn{display:block;font:700 .8rem var(--mono);letter-spacing:.12em;color:var(--accent);margin-bottom:.25rem}
+.sep{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.modulo ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,17rem),1fr));gap:.75rem}
+.modulo li{margin:0}
+.modulo a{display:flex;gap:.45rem;align-items:baseline;height:100%;padding:.85rem 1rem;background:var(--card);border:1px solid var(--line);border-radius:10px;text-decoration:none;font-weight:600;line-height:1.35;box-shadow:var(--shadow);transition:border-color .15s,transform .15s}
+.modulo a:hover{border-color:var(--accent);color:var(--accent)}
+.num{font:700 .85rem var(--mono);color:var(--accent);white-space:nowrap}
+/* aula */
+.doc{display:grid;grid-template-columns:17rem minmax(0,1fr);gap:2.5rem;align-items:start;padding-block:2rem 3rem}
+.lateral{position:sticky;top:5.5rem;max-height:calc(100vh - 6.5rem);overflow:auto;font-size:.875rem;padding-right:.5rem}
+.lateral h2{margin:0 0 .25rem;font:700 .95rem var(--serif);color:var(--muted)}
+.lateral h3{margin:1rem 0 .25rem;font:700 .75rem var(--mono);letter-spacing:.06em;color:var(--accent)}
+.lateral ul{list-style:none;margin:0;padding:0}
+.lateral a{display:flex;gap:.45rem;padding:.25rem .5rem;border-radius:6px;text-decoration:none;color:var(--muted);line-height:1.3}
+.lateral a:hover{background:var(--tint);color:var(--ink)}
+.lateral a[aria-current]{background:var(--tint);color:var(--ink);font-weight:700;box-shadow:inset 3px 0 0 var(--accent)}
+.lateral .num{font-size:.75rem}
+.aula{min-width:0;max-width:56rem;overflow-wrap:break-word;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:clamp(1.25rem,1rem + 2vw,2.75rem);box-shadow:var(--shadow)}
+.aula h1{margin:0 0 1.5rem;font:700 clamp(1.75rem,1.4rem + 1.6vw,2.5rem)/1.15 var(--serif);letter-spacing:-.015em;color:var(--ink)}
+.aula h2{margin:2.5rem 0 .75rem;padding-top:1.25rem;border-top:1px solid var(--line);font:700 1.5rem/1.25 var(--serif)}
+.aula h3{margin:2rem 0 .5rem;font:700 1.15rem/1.3 var(--serif);color:var(--accent)}
+.aula h4,.aula h5,.aula h6{margin:1.5rem 0 .5rem;font-size:1rem}
+.aula p,.aula ul,.aula ol{margin:1rem 0}
+.aula ul,.aula ol{padding-left:1.5rem}
+.aula li{margin:.35rem 0}
+.aula li>ul,.aula li>ol{margin:.35rem 0}
+.aula a{color:var(--accent);text-underline-offset:2px}
+.aula hr{border:0;border-top:1px solid var(--line);margin:2rem 0}
+.tabela{overflow-x:auto;margin:1.25rem 0;border:1px solid var(--line);border-radius:10px}
+.aula table{width:100%;border-collapse:collapse;font-size:.9rem}
+.aula th,.aula td{padding:.55rem .75rem;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+.aula tr:last-child td{border-bottom:0}
+.aula th{background:var(--tint);font-weight:700}
+.aula pre{background:var(--code);border:1px solid var(--line);border-radius:10px;padding:.9rem 1rem;overflow-x:auto;font:.85rem/1.5 var(--mono);margin:1rem 0;tab-size:4}
+.aula pre code{background:none;padding:0;font-size:inherit;overflow-wrap:normal}
+.aula blockquote{margin:1.25rem 0;padding:.75rem 1.25rem;border-left:4px solid var(--accent-2);background:var(--tint);border-radius:0 10px 10px 0}
+.aula blockquote>:first-child{margin-top:0}
+.aula blockquote>:last-child{margin-bottom:0}
+.aula figure{margin:1.75rem 0;text-align:center}
+.aula figure img{display:block;margin:0 auto;max-width:100%;height:auto;border:1px solid var(--line);border-radius:10px;background:#fff}
+.aula figcaption{margin-top:.5rem;color:var(--muted);font-size:.9rem;font-style:italic}
+.paginas{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:2.5rem;padding-top:1.5rem;border-top:1px solid var(--line)}
+.paginas a{display:block;padding:.75rem 1rem;border:1px solid var(--line);border-radius:10px;text-decoration:none;color:var(--ink);font-weight:600;line-height:1.3}
+.paginas a:hover{border-color:var(--accent);color:var(--accent)}
+.paginas small{display:block;color:var(--muted);font-weight:400}
+.paginas .prox{grid-column:2;text-align:right}
+footer{border-top:1px solid var(--line);padding-block:1.5rem;color:var(--muted);font-size:.85rem;text-align:center}
+@media (hover:hover) and (prefers-reduced-motion:no-preference){.modulo a:hover{transform:translateY(-2px)}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+@media (max-width:980px){.doc{grid-template-columns:minmax(0,1fr);padding-top:1rem}.lateral{position:static;max-height:none;order:2}.aula{max-width:none}}
+@media (max-width:860px){.modulo{grid-template-columns:minmax(0,1fr)}.modulo h2{position:static}.mn{display:inline;margin-right:.5rem}}
+@media (max-width:420px){.meta{display:none}.top-in{gap:.5rem}.acoes{gap:.6rem}.capa{padding-top:1.25rem}.paginas{grid-template-columns:minmax(0,1fr)}.paginas .prox{grid-column:1}}
+@media print{.top,.lateral,.paginas{display:none}.aula{border:0;box-shadow:none;padding:0;max-width:none}.doc{display:block}}
+</style>
+</head>
+<body>
+<a class="pular" href="#conteudo">Pular para o conteúdo</a>
+<header class="top"><div class="wrap top-in"><div class="titles"><p class="marca"><a href="index.html">Curso Linux Sysadmin</a></p><p class="meta">Rodrigo Antignani · Aula 20.6</p></div><div class="acoes"><a href="index.html">Índice</a><div class="idioma" role="group" aria-label="Idioma"><span aria-current="true">PT</span><a href="20.6-backup-e-restauracao.it.html" hreflang="it" lang="it">IT</a></div></div></div></header>
+<div class="wrap doc"><aside class="lateral" aria-label="Aulas"><h2>Aulas</h2><h3>M0 · Laboratório</h3><ul><li><a href="0.1-montar-o-laboratorio.html"><span class="num">0.1</span><span>Montar o laboratório</span></a></li><li><a href="0.2-acesso-e-protecao.html"><span class="num">0.2</span><span>Acesso e proteção</span></a></li></ul><h3>M1 · Linha de comando</h3><ul><li><a href="1.1-o-que-e-linux.html"><span class="num">1.1</span><span>O que é Linux</span></a></li><li><a href="1.2-o-shell-e-a-ajuda.html"><span class="num">1.2</span><span>O shell e a ajuda</span></a></li><li><a href="1.3-caminhos-e-navegacao.html"><span class="num">1.3</span><span>Caminhos e navegação</span></a></li><li><a href="1.4-criar-copiar-mover-e-apagar.html"><span class="num">1.4</span><span>Criar, copiar, mover e apagar</span></a></li><li><a href="1.5-ler-e-procurar-texto.html"><span class="num">1.5</span><span>Ler e procurar texto</span></a></li><li><a href="1.6-redirecionamentos-e-pipes.html"><span class="num">1.6</span><span>Redirecionamentos e pipes</span></a></li><li><a href="1.7-arquivar-e-compactar.html"><span class="num">1.7</span><span>Arquivar e compactar</span></a></li><li><a href="1.8-primeiro-script.html"><span class="num">1.8</span><span>Primeiro script</span></a></li><li><a href="1.9-decidir-e-repetir.html"><span class="num">1.9</span><span>Decidir e repetir</span></a></li><li><a href="1.10-software-livre-na-pratica.html"><span class="num">1.10</span><span>Software livre na prática</span></a></li></ul><h3>M2 · Sistema, usuários e permissões</h3><ul><li><a href="2.1-instalacao-e-provisionamento.html"><span class="num">2.1</span><span>Instalação e provisionamento</span></a></li><li><a href="2.2-hardware-e-dispositivos.html"><span class="num">2.2</span><span>Hardware e dispositivos</span></a></li><li><a href="2.3-processos-e-logs.html"><span class="num">2.3</span><span>Processos e logs</span></a></li><li><a href="2.4-rede-no-dia-a-dia.html"><span class="num">2.4</span><span>Rede no dia a dia</span></a></li><li><a href="2.5-acesso-remoto-e-privilegios.html"><span class="num">2.5</span><span>Acesso remoto e privilégios</span></a></li><li><a href="2.6-usuarios-e-grupos.html"><span class="num">2.6</span><span>Usuários e grupos</span></a></li><li><a href="2.7-permissoes-e-dono.html"><span class="num">2.7</span><span>Permissões e dono</span></a></li><li><a href="2.8-diretorios-e-arquivos-especiais.html"><span class="num">2.8</span><span>Diretórios e arquivos especiais</span></a></li></ul><h3>M3 · Texto e editor</h3><ul><li><a href="3.1-fluxos-a-fundo.html"><span class="num">3.1</span><span>Fluxos a fundo</span></a></li><li><a href="3.2-filtros-de-texto.html"><span class="num">3.2</span><span>Filtros de texto</span></a></li><li><a href="3.3-regex-e-grep.html"><span class="num">3.3</span><span>Regex e grep</span></a></li><li><a href="3.4-sed-e-awk.html"><span class="num">3.4</span><span>sed e awk</span></a></li><li><a href="3.5-vi-e-vim-de-verdade.html"><span class="num">3.5</span><span>vi e vim de verdade</span></a></li></ul><h3>M4 · systemd e boot</h3><ul><li><a href="4.1-como-o-linux-liga.html"><span class="num">4.1</span><span>Como o Linux liga</span></a></li><li><a href="4.2-systemd-servicos-e-units.html"><span class="num">4.2</span><span>systemd: serviços e units</span></a></li><li><a href="4.3-targets-desligar-e-reiniciar.html"><span class="num">4.3</span><span>Targets: desligar e reiniciar</span></a></li><li><a href="4.4-grub-e-acesso-de-emergencia.html"><span class="num">4.4</span><span>GRUB e acesso de emergência</span></a></li></ul><h3>M5 · Kernel, módulos e VM</h3><ul><li><a href="5.1-hardware-pelo-kernel.html"><span class="num">5.1</span><span>Hardware pelo kernel</span></a></li><li><a href="5.2-modulos-e-parametros.html"><span class="num">5.2</span><span>Módulos e parâmetros</span></a></li><li><a href="5.3-linux-como-convidado.html"><span class="num">5.3</span><span>Linux como convidado</span></a></li></ul><h3>M6 · Pacotes e repositórios</h3><ul><li><a href="6.1-pacotes-no-debian.html"><span class="num">6.1</span><span>Pacotes no Debian</span></a></li><li><a href="6.2-pacotes-na-rocky.html"><span class="num">6.2</span><span>Pacotes na Rocky</span></a></li><li><a href="6.3-repositorios.html"><span class="num">6.3</span><span>Repositórios</span></a></li><li><a href="6.4-flatpak.html"><span class="num">6.4</span><span>Flatpak</span></a></li><li><a href="6.5-bibliotecas-compartilhadas.html"><span class="num">6.5</span><span>Bibliotecas compartilhadas</span></a></li></ul><h3>M7 · Processos e desempenho</h3><ul><li><a href="7.1-processos-e-sinais.html"><span class="num">7.1</span><span>Processos e sinais</span></a></li><li><a href="7.2-jobs-e-sessoes.html"><span class="num">7.2</span><span>Jobs e sessões</span></a></li><li><a href="7.3-prioridade-e-perfis.html"><span class="num">7.3</span><span>Prioridade e perfis</span></a></li></ul><h3>M8 · Arquivos a fundo</h3><ul><li><a href="8.1-fhs-e-onde-cada-coisa-mora.html"><span class="num">8.1</span><span>FHS e onde cada coisa mora</span></a></li><li><a href="8.2-find-a-fundo.html"><span class="num">8.2</span><span>find a fundo</span></a></li><li><a href="8.3-arquivamento-avancado.html"><span class="num">8.3</span><span>Arquivamento avançado</span></a></li><li><a href="8.4-links.html"><span class="num">8.4</span><span>Links</span></a></li><li><a href="8.5-permissoes-avancadas.html"><span class="num">8.5</span><span>Permissões avançadas</span></a></li></ul><h3>M9 · Armazenamento</h3><ul><li><a href="9.1-discos-e-layout.html"><span class="num">9.1</span><span>Discos e layout</span></a></li><li><a href="9.2-particionar.html"><span class="num">9.2</span><span>Particionar</span></a></li><li><a href="9.3-sistemas-de-arquivos.html"><span class="num">9.3</span><span>Sistemas de arquivos</span></a></li><li><a href="9.4-montar-e-persistir.html"><span class="num">9.4</span><span>Montar e persistir</span></a></li><li><a href="9.5-integridade-e-espaco.html"><span class="num">9.5</span><span>Integridade e espaço</span></a></li><li><a href="9.6-lvm.html"><span class="num">9.6</span><span>LVM</span></a></li><li><a href="9.7-crescer-sem-destruir.html"><span class="num">9.7</span><span>Crescer sem destruir</span></a></li></ul><h3>M10 · Usuários e acesso privilegiado</h3><ul><li><a href="10.1-contas.html"><span class="num">10.1</span><span>Contas</span></a></li><li><a href="10.2-senhas-e-validade.html"><span class="num">10.2</span><span>Senhas e validade</span></a></li><li><a href="10.3-grupos-e-trabalho-em-equipe.html"><span class="num">10.3</span><span>Grupos e trabalho em equipe</span></a></li><li><a href="10.4-sudo-de-verdade.html"><span class="num">10.4</span><span>sudo de verdade</span></a></li></ul><h3>M11 · Rede</h3><ul><li><a href="11.1-tcp-ip-para-quem-administra.html"><span class="num">11.1</span><span>TCP/IP para quem administra</span></a></li><li><a href="11.2-networkmanager-e-nmcli.html"><span class="num">11.2</span><span>NetworkManager e nmcli</span></a></li><li><a href="11.3-rede-no-debian.html"><span class="num">11.3</span><span>Rede no Debian</span></a></li><li><a href="11.4-nomes-e-resolucao.html"><span class="num">11.4</span><span>Nomes e resolução</span></a></li><li><a href="11.5-diagnostico-de-rede.html"><span class="num">11.5</span><span>Diagnóstico de rede</span></a></li></ul><h3>M12 · Segurança do host</h3><ul><li><a href="12.1-ssh-a-fundo.html"><span class="num">12.1</span><span>SSH a fundo</span></a></li><li><a href="12.2-firewall.html"><span class="num">12.2</span><span>Firewall</span></a></li><li><a href="12.3-selinux-modos-e-contextos.html"><span class="num">12.3</span><span>SELinux: modos e contextos</span></a></li><li><a href="12.4-selinux-portas-e-booleanos.html"><span class="num">12.4</span><span>SELinux: portas e booleanos</span></a></li><li><a href="12.5-auditoria-e-criptografia.html"><span class="num">12.5</span><span>Auditoria e criptografia</span></a></li></ul><h3>M13 · Armazenamento em rede</h3><ul><li><a href="13.1-servidor-nfs.html"><span class="num">13.1</span><span>Servidor NFS</span></a></li><li><a href="13.2-cliente-nfs.html"><span class="num">13.2</span><span>Cliente NFS</span></a></li><li><a href="13.3-autofs.html"><span class="num">13.3</span><span>autofs</span></a></li></ul><h3>M14 · Agendamento</h3><ul><li><a href="14.1-cron-e-at.html"><span class="num">14.1</span><span>cron e at</span></a></li><li><a href="14.2-timers-do-systemd.html"><span class="num">14.2</span><span>Timers do systemd</span></a></li><li><a href="14.3-journald-e-rsyslog.html"><span class="num">14.3</span><span>journald e rsyslog</span></a></li><li><a href="14.4-hora-certa.html"><span class="num">14.4</span><span>Hora certa</span></a></li><li><a href="14.5-email-local-e-impressao.html"><span class="num">14.5</span><span>E-mail local e impressão</span></a></li></ul><h3>M15 · Shell e ambiente</h3><ul><li><a href="15.1-ambiente-do-shell.html"><span class="num">15.1</span><span>Ambiente do shell</span></a></li><li><a href="15.2-scripts-robustos.html"><span class="num">15.2</span><span>Scripts robustos</span></a></li><li><a href="15.3-scripts-de-administracao.html"><span class="num">15.3</span><span>Scripts de administração</span></a></li><li><a href="15.4-interfaces-graficas.html"><span class="num">15.4</span><span>Interfaces gráficas</span></a></li><li><a href="15.5-idioma-teclado-e-fuso.html"><span class="num">15.5</span><span>Idioma, teclado e fuso</span></a></li></ul><h3>M16 · Semana de incidentes no Rocky 10</h3><ul><li><a href="16.1-rocky-10-o-que-muda.html"><span class="num">16.1</span><span>Rocky 10: o que muda</span></a></li><li><a href="16.2-incidentes-por-area.html"><span class="num">16.2</span><span>Incidentes por área</span></a></li><li><a href="16.3-incidente-com-relogio.html"><span class="num">16.3</span><span>Incidente com relógio</span></a></li><li><a href="16.4-correcao-e-reforco.html"><span class="num">16.4</span><span>Correção e reforço</span></a></li></ul><h3>M17 · Proxmox na prática</h3><ul><li><a href="17.1-proxmox-por-dentro.html"><span class="num">17.1</span><span>Proxmox por dentro</span></a></li><li><a href="17.2-vm-pela-linha-de-comando.html"><span class="num">17.2</span><span>VM pela linha de comando</span></a></li><li><a href="17.3-conteiner-lxc.html"><span class="num">17.3</span><span>Contêiner LXC</span></a></li><li><a href="17.4-storage.html"><span class="num">17.4</span><span>Storage: capacidade, crescimento e movimento</span></a></li><li><a href="17.5-rede.html"><span class="num">17.5</span><span>Rede: bridge, VLAN, bond e SDN</span></a></li><li><a href="17.6-backup-e-restauracao.html"><span class="num">17.6</span><span>Backup e restauração com PBS</span></a></li><li><a href="17.7-migracao-e-quorum.html"><span class="num">17.7</span><span>Migração e quorum</span></a></li></ul><h3>M18 · Podman</h3><ul><li><a href="18.1-conteiner-nao-e-vm.html"><span class="num">18.1</span><span>Contêiner não é VM</span></a></li><li><a href="18.2-rodar-e-persistir.html"><span class="num">18.2</span><span>Rodar e persistir</span></a></li><li><a href="18.3-conteiner-como-servico.html"><span class="num">18.3</span><span>Contêiner como serviço</span></a></li><li><a href="18.4-diagnosticar-conteiner-rootless.html"><span class="num">18.4</span><span>Diagnosticar contêiner rootless</span></a></li><li><a href="18.5-construir-imagens.html"><span class="num">18.5</span><span>Construir imagens</span></a></li></ul><h3>M19 · Serviços de rede</h3><ul><li><a href="19.1-dns-autoritativo.html"><span class="num">19.1</span><span>DNS autoritativo</span></a></li><li><a href="19.2-dns-recursivo-e-diagnostico.html"><span class="num">19.2</span><span>DNS recursivo e diagnóstico</span></a></li><li><a href="19.3-dhcp.html"><span class="num">19.3</span><span>DHCP</span></a></li><li><a href="19.4-servidor-web.html"><span class="num">19.4</span><span>Servidor web: nome, arquivo e resposta</span></a></li><li><a href="19.5-tls-e-proxy-reverso.html"><span class="num">19.5</span><span>TLS e proxy reverso: identidade antes do cadeado</span></a></li><li><a href="19.6-samba-a-ponte-windows.html"><span class="num">19.6</span><span>Samba: a ponte com o cliente Windows</span></a></li><li><a href="19.7-postfix-e-correio-local.html"><span class="num">19.7</span><span>Postfix e correio local</span></a></li><li><a href="19.8-dovecot-e-imaps.html"><span class="num">19.8</span><span>Dovecot e leitura por IMAPS</span></a></li><li><a href="19.9-squid-e-desafio-integrado.html"><span class="num">19.9</span><span>Squid e desafio integrado</span></a></li></ul><h3>M20 · NethServer 8 por dentro</h3><ul><li><a href="20.1-instalar-nethserver-8.html"><span class="num">20.1</span><span>Instalar em uma VM limpa</span></a></li><li><a href="20.2-cluster-no-e-modulo.html"><span class="num">20.2</span><span>Cluster, nó e módulo</span></a></li><li><a href="20.3-modulo-por-dentro.html"><span class="num">20.3</span><span>Um módulo por dentro</span></a></li><li><a href="20.4-proxy-e-certificados.html"><span class="num">20.4</span><span>Proxy e certificados</span></a></li><li><a href="20.5-dominios-de-usuario.html"><span class="num">20.5</span><span>Domínios de usuário: identidade com fronteiras</span></a></li><li><a href="20.6-backup-e-restauracao.html" aria-current="page"><span class="num">20.6</span><span>Backup e restauração: provar o retorno</span></a></li><li><a href="20.7-atualizar-mover-e-falhar.html"><span class="num">20.7</span><span>Atualizar, mover e falhar com prova</span></a></li></ul></aside><main id="conteudo" class="aula"><article><h1>Aula 20.6 · Backup e restauração: provar o retorno</h1>
+<blockquote><p><strong>O coração desta aula:</strong> restaurar a Wiki de teste com conteúdo, identidade e destino conferidos.</p></blockquote>
+<div class="tabela"><table><thead><tr><th scope="col">Ficha</th><th scope="col">Plano de trabalho</th></tr></thead><tbody><tr><td>Módulo</td><td>M20 · NethServer 8 por dentro, aula 6 de 7</td></tr><tr><td>Quando</td><td>Semana 28</td></tr><tr><td>Ao final</td><td>restaurar a Wiki de teste com conteúdo, identidade e destino conferidos.</td></tr><tr><td>Pré-requisitos</td><td>Aulas anteriores do M20; M18 e M19 corrigidos; console e inventário do lab</td></tr><tr><td>Duração</td><td>100–140 minutos, além de downloads e janelas</td></tr><tr><td>Snapshot</td><td>m20a6-inicio e m20a6-fim, somente nas VMs desta aula</td></tr></tbody></table></div>
+<p>A bancada principal é a VM <code translate="no">240</code>, hostname <code translate="no">ns8-1.lab.test</code>, Rocky Linux 9 com NS8. A VM <code translate="no">241</code>, <code translate="no">ns8-2.lab.test</code>, só entra na 20.7.</p>
+<p>A gestão em <code translate="no">net0</code> usa endereço real reservado e acesso à Internet. A <code translate="no">net1</code> fica na bridge isolada <code translate="no">vmbr17</code>, sem gateway; a rede de laboratório não fornece Internet.</p>
+<p>Use o <a href="https://github.com/Rodrigoantignani/curso-linux-sysadmin/blob/master/GUIA_BANCADA_M20_PT.md">guia de bancada M20</a>. Todos os comandos do NS8 indicados como root são dentro do nó, após <code translate="no">sudo -i</code>, e nunca no host Proxmox.</p>
+<p>Nenhum laboratório deste material foi executado durante a elaboração. As saídas descritas são critérios para você observar e registrar, não resultados medidos.</p>
+<h2 id="1-aquecimento">1 · Aquecimento</h2>
+<ol><li>Um backup do cluster contém todos os arquivos das aplicações?</li>
+<li>Saber o endereço do repositório basta sem sua chave de dados?</li>
+<li>Um status verde prova que o texto correto voltou?</li></ol>
+<p>Liste o que precisaria sobreviver à perda da VM: dados, configuração, segredos de recuperação e um lugar onde ler tudo novamente.</p>
+<h2 id="2-por-que-importa">2 · Por que importa</h2>
+<p>A prova de backup não é a criação de um arquivo. É a capacidade de reconstruir o serviço e reconhecer o conteúdo certo no instante escolhido.</p>
+<p>O exercício usa somente a DokuWiki fictícia da 20.2. A substituição de uma instância pode remover seus dados atuais; não inclua uma aplicação real no ensaio.</p>
+<h3 id="ponte-windows">Ponte Windows</h3>
+<p>Uma lista de impressoras não contém os documentos impressos. Do mesmo modo, o mapa do cluster não substitui os repositórios de conteúdo de cada instância.</p>
+<h2 id="3-modelo-mental">3 · Modelo mental</h2>
+<figure><a href="../img/20.6-mapa-e-conteudo.jpg"><img src="../img/20.6-mapa-e-conteudo.jpg" alt="O mapa não leva as caixas" loading="lazy" decoding="async"></a><figcaption>Para restaurar, reúna configuração, dados e segredos de recuperação.</figcaption></figure>
+<p>O backup do cluster preserva configurações de recuperação, incluindo destinos e chaves de dados. Os dados das aplicações ficam em repositórios separados por tipo e UUID.</p>
+<p>Uma tarefa relaciona destino, agenda e instâncias. O UUID identifica a instância; não escolha uma pasta apenas porque seu nome parece com o ID curto mostrado no painel.</p>
+<p>A senha que cifra o arquivo do cluster e a chave que abre os dados do destino têm papéis diferentes. A recuperação exige custódia de ambos, fora do nó perdido.</p>
+<h2 id="4-o-essencial">4 · O essencial</h2>
+<div class="tabela"><table><thead><tr><th scope="col">Objeto</th><th scope="col">Prova necessária</th></tr></thead><tbody><tr><td>Backup do cluster</td><td>Arquivo cifrado guardado fora do nó e senha custodiada</td></tr><tr><td>Dados da Wiki</td><td>Snapshot da instância e UUID identificados</td></tr><tr><td>Destino SMB</td><td>Escrita validada, espaço e ACL coerentes</td></tr><tr><td>Restauração</td><td>Conteúdo correto, nome, certificado e nó conferidos</td></tr></tbody></table></div>
+<h3 id="rocky-debian">Rocky × Debian</h3>
+<p>A VM NS8 é Rocky; a VM Debian <code translate="no">204</code> oferece o destino SMB independente do nó. A VM Debian <code translate="no">202</code> confere a resposta HTTPS como cliente.</p>
+<p>As três VMs podem usar o mesmo storage Ceph. O destino fora do nó protege este ensaio de perda de instância ou VM, mas não prova recuperação de perda do Ceph.</p>
+<p>Para esse segundo risco, é pré-requisito uma cópia completa cifrada do repositório, do arquivo do cluster e dos segredos em armazenamento fora do Ceph. Sem isso, registre a limitação.</p>
+<h3 id="decida-1-o-status-esta-verde">Decida 1 · O status está verde</h3>
+<p>A. Apagar a instância imediatamente. B. Copiar somente o arquivo do cluster. C. Identificar snapshot, UUID e prova de conteúdo antes de substituir.</p>
+<h2 id="5-lab-guiado">5 · Lab guiado</h2>
+<h3 id="passo-1-criar-um-marcador-recuperavel">Passo 1 · Criar um marcador recuperável</h3>
+<p><strong>Palpite:</strong> Qual conteúdo distinguirá o backup de uma página recém-criada?</p>
+<pre translate="no"><code class="lang-bash">test "$(id -u)" -eq 0 || exit 1
+test "$(hostname -f)" = ns8-1.lab.test || exit 1
+test -f /root/m20-lab/operador.env &amp;&amp; test ! -L /root/m20-lab/operador.env || exit 1
+test "$(stat -c '%U:%G:%a' /root/m20-lab/operador.env)" = root:root:600 || exit 1
+. /root/m20-lab/operador.env
+test -n "$MODULE_ID" &amp;&amp; test -n "$MODULE_UUID" || exit 1
+runagent -l</code></pre>
+<pre translate="no"><code class="lang-bash">install -d -m 0700 /root/m20-lab/evidence-20-6
+date --iso-8601=seconds &gt; /root/m20-lab/evidence-20-6/start.txt
+runagent -m "$MODULE_ID" podman ps
+printf 'M20_BACKUP_%s\n' "$(cat /proc/sys/kernel/random/uuid)"</code></pre>
+<p>Copie o marcador gerado para o diário externo. Na Wiki, como administrador da aplicação, crie apenas a página <code translate="no">m20_restore</code> e coloque nela essa única linha.</p>
+<p>Na ACL da Wiki, permita leitura anônima somente dessa página fictícia para o teste HTTP. Não abra o restante da Wiki. Confira a página em janela privada.</p>
+<p>Na VM <code translate="no">202</code>, como <code translate="no">student</code>, guarde o marcador e a primeira resposta. A CA pública já foi conferida na 20.4.</p>
+<pre translate="no"><code class="lang-bash">test "$(hostname -s)" = debian-lab || exit 1
+install -d -m 0700 "$HOME/m20-lab"
+read -r -p 'Marcador exato gerado no no: ' M20_MARKER
+[[ "$M20_MARKER" =~ ^M20_BACKUP_[0-9a-f-]+$ ]] || exit 1
+printf '%s\n' "$M20_MARKER" &gt; "$HOME/m20-lab/wiki-marker.txt"
+curl --retry 10 --retry-delay 1 --retry-all-errors --max-time 10 --fail --silent --show-error --cacert /etc/ssl/m19/ca.crt 'https://wiki.lab.test/doku.php?id=m20_restore' --output "$HOME/m20-lab/wiki-before.html" || exit 1
+grep -F -- "$M20_MARKER" "$HOME/m20-lab/wiki-before.html" || exit 1</code></pre>
+<p><strong>Saída esperada:</strong> A página fictícia contém o marcador observado e responde com TLS válido.</p>
+<p><strong>Verifique:</strong> O diário externo identifica marcador, horário, ID, UUID e nó. Não use apenas uma imagem da página.</p>
+<h3 id="passo-2-conferir-o-destino-fora-do-no">Passo 2 · Conferir o destino fora do nó</h3>
+<p><strong>Palpite:</strong> O destino sobreviverá à remoção desta aplicação?</p>
+<figure><a href="../img/20.6-backup-fora-do-no.jpg"><img src="../img/20.6-backup-fora-do-no.jpg" alt="Uma saída que não cai junto" loading="lazy" decoding="async"></a><figcaption>Um backup no mesmo nó compartilha a mesma perda.</figcaption></figure>
+<p>Conclua a seção de backup SMB do guia de bancada. Ela prepara na VM <code translate="no">204</code> o share <code translate="no">m20backup</code>, diretório <code translate="no">/srv/samba/m20-backup</code> e conta exclusiva <code translate="no">backup20</code>.</p>
+<p>No painel NS8, abra <code translate="no">Backup and restore</code>, defina a senha de cifragem do backup do cluster e guarde-a fora das VMs. Adicione um destino do tipo compartilhamento Windows, por SMB.</p>
+<p>Informe o servidor <code translate="no">192.0.2.204</code>, o share <code translate="no">m20backup</code> e a conta <code translate="no">backup20</code>; digite sua senha no formulário. Use um caminho dedicado ao cluster quando o formulário oferecer esse campo.</p>
+<p>Para destino novo deixe a chave de dados ser gerada. Guarde sua chave de recuperação pelo mecanismo do painel; não a coloque no diário público. Reutilizar um destino existente exige sua chave original.</p>
+<p><strong>Saída esperada:</strong> Validação do destino aceita e credenciais de recuperação custodiadas.</p>
+<p><strong>Verifique:</strong> Não reutilize o share <code translate="no">curso</code> do M19 nem a senha de outro serviço. O limite Ceph continua explícito.</p>
+<h3 id="passo-3-executar-um-backup-identificado">Passo 3 · Executar um backup identificado</h3>
+<p><strong>Palpite:</strong> A agenda selecionou exatamente a instância fictícia?</p>
+<p>Crie uma agenda chamada <code translate="no">m20-wiki-test</code>, incluindo somente a DokuWiki de teste. Selecione o destino preparado e retenção suficiente para manter o snapshot que será usado no ensaio.</p>
+<p>Use <code translate="no">Run backup now</code>. Aguarde o fim e abra os detalhes por aplicação: anote horário, resultado, instância e destino. Uma tarefa de outro módulo não fecha esta prova.</p>
+<pre translate="no"><code class="lang-bash">test "$(hostname -f)" = ns8-1.lab.test || exit 1
+test "$(id -u)" -eq 0 || exit 1
+runagent -m "$MODULE_ID" restic-wrapper --show
+runagent restic-wrapper --help
+date --iso-8601=seconds</code></pre>
+<p>O comando de inventário não substitui o status da tarefa. Use o ID e o snapshot que o painel realmente mostra; não copie UUIDs de exemplos.</p>
+<p><strong>Saída esperada:</strong> O snapshot da Wiki está identificável no destino e na aba de restauração.</p>
+<p><strong>Verifique:</strong> Se o painel não oferece esse snapshot, não prossiga para nenhuma substituição.</p>
+<h3 id="passo-4-guardar-o-mapa-de-recuperacao">Passo 4 · Guardar o mapa de recuperação</h3>
+<p><strong>Palpite:</strong> Os segredos ainda estariam disponíveis sem acesso ao nó?</p>
+<p>Baixe o backup cifrado do cluster pelo painel para o computador do operador. Guarde sua senha separadamente. O arquivo não deve depender da home da VM <code translate="no">240</code>.</p>
+<p>Confira tamanho e hash do arquivo no computador que o recebeu. Isso prova a transferência, não a completude dos dados das aplicações.</p>
+<p>No registro de recuperação, separe senha do arquivo do cluster, credencial SMB e chave de dados. O registro público aponta para o local de custódia, sem revelar os valores.</p>
+<p>Para comprovar recuperação fora do Ceph, pause as agendas e espere todas as tarefas terminarem antes da cópia externa completa do repositório. Não copie um conjunto em mutação e o declare consistente.</p>
+<p><strong>Saída esperada:</strong> Mapa cifrado fora do nó e segredos recuperáveis por canal separado.</p>
+<p><strong>Verifique:</strong> Se não houver cópia dos dados fora do Ceph, declare apenas o alcance do teste de restauração de instância.</p>
+<h3 id="passo-5-restaurar-um-estado-reconhecivel">Passo 5 · Restaurar um estado reconhecível</h3>
+<p><strong>Palpite:</strong> O conteúdo retornará ao instante escolhido?</p>
+<p>Depois do backup confirmado, mude somente a página fictícia para o texto <code translate="no">M20_DEPOIS_DO_BACKUP</code>. Confira que esse texto aparece e que o marcador anterior deixou de aparecer.</p>
+<p>Abra <code translate="no">Restore</code>, escolha a aplicação pelo tipo e UUID registrados e o snapshot anterior à mudança. Selecione o nó <code translate="no">240</code> e marque <code translate="no">Replace existing app</code> somente após comparar a instância existente.</p>
+<p>A substituição remove a instância anterior ao fim do procedimento. Aguarde a tarefa inteira; não instale uma segunda Wiki manualmente para contornar um erro de restauração.</p>
+<p>Confira nome e certificado da rota após a operação. Certificados públicos ACME não fazem parte do backup de aplicação; nesta bancada o certificado personalizado do nó já está instalado.</p>
+<p><strong>Saída esperada:</strong> Uma única Wiki operacional volta ao estado do snapshot escolhido.</p>
+<p><strong>Verifique:</strong> Não aceite duas cópias independentes da mesma identidade em clusters diferentes.</p>
+<h3 id="passo-6-provar-conteudo-identidade-e-no">Passo 6 · Provar conteúdo, identidade e nó</h3>
+<p><strong>Palpite:</strong> Qual evidência fechará a restauração?</p>
+<figure><a href="../img/20.6-restaurar-e-provar.jpg"><img src="../img/20.6-restaurar-e-provar.jpg" alt="Restaurar termina na prova" loading="lazy" decoding="async"></a><figcaption>Tarefa concluída não substitui conteúdo recuperado e identidade conferida.</figcaption></figure>
+<p>No nó <code translate="no">240</code>, redescubra o ID instalado e confira o UUID. O ID curto pode ser diferente; o valor observado deve corresponder à identidade restaurada.</p>
+<pre translate="no"><code class="lang-bash">runagent -l
+read -r -p 'ID real da Wiki restaurada: ' NEW_MODULE
+[[ "$NEW_MODULE" =~ ^dokuwiki[0-9]+$ ]] || exit 1
+OBS_UUID=$(redis-cli --raw HGET cluster/module_uuid "$NEW_MODULE") || exit 1
+test -n "$OBS_UUID" &amp;&amp; test "$OBS_UUID" = "$MODULE_UUID" || exit 1
+runagent -m "$NEW_MODULE" podman ps
+runagent -m "$NEW_MODULE" podman volume ls
+MODULE_ID=$NEW_MODULE
+M20_NEXT=$(mktemp /root/m20-lab/operador.env.XXXXXX) || exit 1
+sed "s/^MODULE_ID=.*/MODULE_ID=$NEW_MODULE/" /root/m20-lab/operador.env &gt; "$M20_NEXT" || exit 1
+test "$(grep -c '^MODULE_ID=' "$M20_NEXT")" -eq 1 || exit 1
+grep -qx "MODULE_ID=$NEW_MODULE" "$M20_NEXT" || exit 1
+chmod 0600 "$M20_NEXT"
+mv -f "$M20_NEXT" /root/m20-lab/operador.env</code></pre>
+<p>O candidato muda apenas o ID curto, preservando todos os outros campos, inclusive <code translate="no">VPN_CIDR</code>. O UUID já foi comparado e o nó deste restore continua na 240.</p>
+<p>Na VM <code translate="no">202</code>, faça uma nova requisição sem reutilizar HTML anterior.</p>
+<pre translate="no"><code class="lang-bash">M20_MARKER=$(cat "$HOME/m20-lab/wiki-marker.txt") || exit 1
+curl --retry 10 --retry-delay 1 --retry-all-errors --max-time 10 --fail --silent --show-error --cacert /etc/ssl/m19/ca.crt 'https://wiki.lab.test/doku.php?id=m20_restore' --output "$HOME/m20-lab/wiki-restored.html" || exit 1
+grep -F -- "$M20_MARKER" "$HOME/m20-lab/wiki-restored.html" || exit 1
+if grep -F 'M20_DEPOIS_DO_BACKUP' "$HOME/m20-lab/wiki-restored.html"; then exit 1; fi</code></pre>
+<p><strong>Saída esperada:</strong> Marcador original presente, mudança posterior ausente, UUID e nó registrados.</p>
+<p><strong>Verifique:</strong> Copie as evidências sem segredos para o diário externo e mantenha o snapshot de backup identificado para a 20.7.</p>
+<h3 id="decida-2-o-ceph-ficou-indisponivel">Decida 2 · O Ceph ficou indisponível</h3>
+<p>A. Exigir dados e mapa recuperáveis fora desse storage. B. Usar apenas o snapshot da VM. C. Declarar que o share da VM 204 é independente.</p>
+<h2 id="6-quebre-e-conserte">6 · Quebre e conserte</h2>
+<h3 id="quebra-1-destino-nao-gravavel">Quebra 1 · Destino não gravável</h3>
+<p><strong>Sintoma:</strong> No formulário de um destino ainda não salvo, informe uma senha SMB errada uma vez.</p>
+<p><strong>Investigação:</strong> Confira servidor, share, conta e resultado da validação sem exibir a senha.</p>
+<p><strong>Causa:</strong> A credencial do destino falhou; isso não demonstra corrupção do Restic.</p>
+<p><strong>Conserto:</strong> Corrija no formulário a credencial da conta exclusiva. Não recrie o destino com nova chave sobre dados existentes.</p>
+<p><strong>Prevenção:</strong> Separe credencial de transporte e chave de cifragem no inventário.</p>
+<p><strong>Verifique:</strong> Validação aceita e backup novo concluído pertencem ao mesmo destino.</p>
+<h3 id="quebra-2-snapshot-errado">Quebra 2 · Snapshot errado</h3>
+<p><strong>Sintoma:</strong> Na seleção de restore, escolha provisoriamente um snapshot anterior à criação do marcador, sem confirmar.</p>
+<p><strong>Investigação:</strong> Compare horário do conteúdo, horário do backup e UUID da aplicação.</p>
+<p><strong>Causa:</strong> Você selecionou outro ponto no tempo; o sistema pode restaurá-lo corretamente e ainda faltar o texto esperado.</p>
+<p><strong>Conserto:</strong> Selecione o snapshot comprovado e só então prossiga no ensaio.</p>
+<p><strong>Prevenção:</strong> Registre o instante do marcador junto do snapshot usado.</p>
+<p><strong>Verifique:</strong> A seleção final corresponde à prova de conteúdo anotada antes da mudança.</p>
+<h3 id="quebra-3-nome-aponta-para-outro-lugar">Quebra 3 · Nome aponta para outro lugar</h3>
+<p><strong>Sintoma:</strong> Na VM 202, faça um pedido com nome de teste errado, mantendo o servidor e os dados intactos.</p>
+<p><strong>Investigação:</strong> Compare resolução, rota HTTP e certificado antes de culpar o restore.</p>
+<p><strong>Causa:</strong> O cliente não chegou à identidade restaurada pelo nome previsto.</p>
+<p><strong>Conserto:</strong> Volte ao nome <code translate="no">wiki.lab.test</code>; corrija apenas o mapeamento do lab se estiver divergente.</p>
+<p><strong>Prevenção:</strong> Use nome, TLS e marcador juntos como critério de conclusão.</p>
+<p><strong>Verifique:</strong> O pedido correto apresenta certificado válido e o marcador antigo.</p>
+<h3 id="o-que-nao-copiar-do-exemplo">O que não copiar do exemplo</h3>
+<p>Não instale um Restic separado no sistema para imitar o motor do NS8. O wrapper prepara contexto, credenciais e volumes para a infraestrutura existente.</p>
+<p>Evite listar a configuração completa de Rclone: ela pode conter credenciais mesmo quando o objetivo era apenas conferir um destino. Use o inventário e o painel sem exportar campos privados.</p>
+<p>As pastas cifradas não devem ser reorganizadas manualmente. Tipo e UUID fazem parte da forma como o sistema encontra o backup da instância.</p>
+<p>Uma agenda que se sobrepõe a outra pode atrasar o trabalho. Confira tarefas em andamento antes de uma cópia externa ou manutenção do destino.</p>
+<p>A recuperação de Traefik tem escopo próprio: rotas personalizadas e certificados enviados são diferentes de certificados ACME emitidos pela autoridade pública.</p>
+<p>Loki restaurado pode servir apenas para buscar logs antigos, sem substituir a instância ativa. Não aplique o comportamento observado na Wiki a todos os componentes.</p>
+<p>Em Samba, o estado do domínio AD existente participa da decisão de restauração. Leia a nota específica antes de restaurar identidade e arquivos juntos.</p>
+<p>O diário de recuperação deve conter a hora de início, a hora da primeira resposta correta e as provas que ainda faltam. Não invente uma duração com base em exemplos.</p>
+<h2 id="7-armadilhas">7 · Armadilhas</h2>
+<ol><li>Nunca execute prune ou forget no repositório para resolver uma listagem que você ainda não entendeu.</li>
+<li>Trocar a chave de um destino existente pode tornar os backups anteriores inacessíveis.</li>
+<li>O arquivo cifrado do cluster inclui segredos e merece custódia restrita.</li>
+<li>Um destino aceito por um nó não comprova acesso direto de todos os outros.</li>
+<li>O backup do app não restaura automaticamente um certificado ACME.</li>
+<li>Um snapshot de VM no mesmo storage não substitui o plano fora do storage.</li></ol>
+<h2 id="8-quiz">8 · Quiz</h2>
+<ol><li>O arquivo do cluster substitui os dados da Wiki?</li>
+<li>Por que o marcador precisa existir antes do backup?</li>
+<li>Qual identificador separa instâncias do mesmo tipo no destino?</li>
+<li>O que falta quando o share está fora da VM, mas dentro do mesmo Ceph?</li>
+<li>Qual prova fecha o ensaio após status de sucesso?</li></ol>
+<h2 id="9-folha-de-bolso">9 · Folha de bolso</h2>
+<pre translate="no"><code class="lang-bash">runagent -l
+runagent -m "$MODULE_ID" restic-wrapper --show
+runagent restic-wrapper --help
+runagent -m "$MODULE_ID" podman volume ls
+date --iso-8601=seconds</code></pre>
+<p><strong>Flashcards:</strong> Mapa do cluster → configuração e acesso à recuperação.</p>
+<p><strong>Flashcards:</strong> Repositório por UUID → dados da instância.</p>
+<p><strong>Flashcards:</strong> Restore fechado → conteúdo, identidade e local conferidos.</p>
+<h2 id="10-checklist-e-fechamento">10 · Checklist e fechamento</h2>
+<ul><li>[ ] Marcador anterior e alteração posterior distinguíveis.</li>
+<li>[ ] Destino SMB exclusivo com chave custodiada.</li>
+<li>[ ] Backup do cluster baixado fora do nó.</li>
+<li>[ ] Snapshot, UUID e destino anotados.</li>
+<li>[ ] Uma instância restaurada, sem cópia independente duplicada.</li>
+<li>[ ] Limite de perda do Ceph descrito no relatório.</li></ul>
+<p><strong>Reboot de conferência:</strong> na janela da VM 240, reinicie pelo convidado; depois confira o ID atualizado, a Wiki e o mesmo marcador a partir da VM 202.</p>
+<pre translate="no"><code class="lang-bash">systemctl reboot</code></pre>
+<p>Não restaure o snapshot antigo da VM como limpeza: isso poderia desfazer outros serviços ou a identidade que você acabou de provar.</p>
+<p><strong>Último exercício:</strong> descreva o que faria se perdesse a VM e, separadamente, se perdesse o Ceph. A segunda resposta precisa citar uma cópia realmente fora dele.</p>
+<h3 id="recuperacao-de-cluster-ramo-condicionado">Recuperação de cluster: ramo condicionado</h3>
+<p>O desastre de cluster único exige um NS8 novo, espaço livre suficiente, arquivo cifrado do cluster e seus segredos. Não apague a VM 240 para simular esse ramo durante o módulo.</p>
+<p>Na instalação nova, troque a senha inicial, escolha <code translate="no">Restore cluster</code>, envie o arquivo de backup e informe sua senha no formulário. Selecione as aplicações e valide dados e rotas depois da conclusão.</p>
+<p>Esse ramo só pode ser marcado como executado em bancada de recuperação autorizada com recursos próprios. Leia a documentação da versão e das aplicações antes de um desastre real.</p>
+<h2 id="11-na-vida-real">11 · Na vida real</h2>
+<p>Planeje tempo máximo de perda de dados e tempo de retorno com o dono do serviço. Uma política de retenção sem teste de recuperação não informa quanto tempo o serviço levará para voltar.</p>
+<p>Numa revisão autorizada, faça inventário por leitura dos destinos, agendas, último resultado e custódia. Não revele chaves ao preparar o relatório.</p>
+<h2 id="12-aprofundar-quando-quiser">12 · Aprofundar quando quiser</h2>
+<ul><li><a href="https://docs.nethserver.org/docs/administrator-manual/configuration/backup">Destinos e restauração no painel</a></li>
+<li><a href="https://nethserver.github.io/ns8-core/core/backup_restore/">Arquitetura de backup e restic-wrapper</a></li>
+<li><a href="https://nethserver.github.io/ns8-core/modules/backup_restore/">Contrato de backup de módulos</a></li></ul>
+<p>!explica Por que mapa, dados e segredos têm papéis diferentes numa restauração?</p>
+<p>!feynman Explique o limite de um backup fora da VM, mas dentro do mesmo storage.</p>
+<p>!quiz Crie um restore com status verde e conteúdo do snapshot errado.</p>
+<h2 id="gabarito-comentado">Gabarito comentado</h2>
+<p>Decida 1: C. O status precisa ser ligado à instância e ao ponto no tempo antes de substituir dados atuais.</p>
+<p>Decida 2: A. A perda do storage exige dados recuperáveis fora dele; mover o backup para outra VM do mesmo Ceph não basta.</p>
+<p>Quiz 1: Não. Ele fornece a configuração de recuperação; os repositórios guardam os dados.</p>
+<p>Quiz 2: Para ligar o conteúdo ao snapshot escolhido e distinguir uma reconstrução vazia.</p>
+<p>Quiz 3: O UUID da instância, agrupado sob o tipo da aplicação.</p>
+<p>Quiz 4: Uma cópia consistente e recuperável fora do Ceph, com mapa e segredos.</p>
+<p>Quiz 5: Uma requisição nova com TLS válido mostra o marcador do snapshot; ID/UUID e nó correspondem ao inventário.</p>
+<p><a href="20.5-dominios-de-usuario.html">← Aula 20.5 · Domínios de usuário</a> · <a href="index.html">Índice das aulas</a> · <a href="20.7-atualizar-mover-e-falhar.html">Aula 20.7 · Atualizar, mover e falhar →</a></p>
+</article><nav class="paginas" aria-label="Aulas"><a class="ant" href="20.5-dominios-de-usuario.html"><small>← Anterior</small>20.5 · Domínios de usuário: identidade com fronteiras</a><a class="prox" href="20.7-atualizar-mover-e-falhar.html"><small>Próxima →</small>20.7 · Atualizar, mover e falhar com prova</a></nav></main></div>
+<footer><div class="wrap">Gerado a partir do Markdown do curso · Imagens em <code translate="no">img/</code></div></footer>
+</body>
+</html>

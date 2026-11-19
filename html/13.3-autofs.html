@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light dark">
+<title>13.3 · autofs · Curso Linux Sysadmin</title>
+<link rel="alternate" hreflang="pt-BR" href="13.3-autofs.html"><link rel="alternate" hreflang="it" href="13.3-autofs.it.html">
+<style>
+:root{color-scheme:light dark;--bg:#f6f1e7;--card:#fffdf8;--ink:#201c16;--muted:#5e564a;--accent:#9a3412;--accent-2:#1f5f4a;--tint:#efe6d4;--line:#ddd2bc;--code:#f1eadb;--shadow:0 1px 2px rgba(60,40,10,.08);--serif:Georgia,"Iowan Old Style","Palatino Linotype",Palatino,serif;--sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--mono:"Cascadia Code",Consolas,"DejaVu Sans Mono",monospace}
+@media (prefers-color-scheme:dark){:root{--bg:#16130f;--card:#201b15;--ink:#f1eadb;--muted:#b9ad98;--accent:#f0a070;--accent-2:#7fd0b0;--tint:#2a231a;--line:#3d3427;--code:#191510;--shadow:none}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:5.5rem}
+body{margin:0;background:var(--bg);color:var(--ink);font:1rem/1.6 var(--sans)}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--accent-2);outline-offset:2px;border-radius:4px}
+.pular{position:absolute;left:-999px;top:0;background:var(--card);padding:.5rem 1rem;z-index:20}
+.pular:focus{left:.5rem;top:.5rem}
+.wrap{width:100%;max-width:84rem;margin:0 auto;padding-inline:max(1rem,env(safe-area-inset-left))}
+.top{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10;border-top:6px solid var(--accent)}
+.top-in{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding-block:.6rem}
+.titles{min-width:0}
+.marca{margin:0;font:700 clamp(1.15rem,1rem + 1vw,1.6rem)/1.15 var(--serif);letter-spacing:-.01em}
+.marca a{text-decoration:none}
+.marca a:hover{color:var(--accent)}
+.meta{margin:.1rem 0 0;color:var(--muted);font-size:.85rem}
+.acoes{display:flex;align-items:center;gap:.9rem;flex:none}
+.acoes>a{font-size:.9rem;font-weight:600;color:var(--muted);text-decoration:none}
+.acoes>a:hover{color:var(--accent);text-decoration:underline}
+.idioma{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--tint)}
+.idioma>*{padding:.35rem .9rem;font-size:.8rem;font-weight:700;letter-spacing:.06em;text-decoration:none;color:var(--muted);min-width:2.75rem;text-align:center}
+.idioma a:hover{color:var(--accent);text-decoration:underline}
+.idioma span{background:var(--accent);color:#fff}
+@media (prefers-color-scheme:dark){.idioma span{color:#16130f}}
+code{font-family:var(--mono);font-size:.9em;background:var(--tint);padding:.1rem .35rem;border-radius:4px;overflow-wrap:anywhere}
+/* índice */
+.capa{max-width:70rem;padding-block:2rem 3rem}
+.stats{border-left:4px solid var(--accent-2);background:var(--card);border-radius:0 10px 10px 0;padding:1rem 1.25rem;margin:0 0 2.5rem;box-shadow:var(--shadow);color:var(--muted)}
+.stats strong{color:var(--ink)}
+.modulo{display:grid;grid-template-columns:15rem minmax(0,1fr);gap:1rem 2rem;padding:1.75rem 0;border-top:1px solid var(--line)}
+.modulo h2{margin:0;font:700 1.25rem/1.25 var(--serif);align-self:start;position:sticky;top:6rem}
+.mn{display:block;font:700 .8rem var(--mono);letter-spacing:.12em;color:var(--accent);margin-bottom:.25rem}
+.sep{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.modulo ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,17rem),1fr));gap:.75rem}
+.modulo li{margin:0}
+.modulo a{display:flex;gap:.45rem;align-items:baseline;height:100%;padding:.85rem 1rem;background:var(--card);border:1px solid var(--line);border-radius:10px;text-decoration:none;font-weight:600;line-height:1.35;box-shadow:var(--shadow);transition:border-color .15s,transform .15s}
+.modulo a:hover{border-color:var(--accent);color:var(--accent)}
+.num{font:700 .85rem var(--mono);color:var(--accent);white-space:nowrap}
+/* aula */
+.doc{display:grid;grid-template-columns:17rem minmax(0,1fr);gap:2.5rem;align-items:start;padding-block:2rem 3rem}
+.lateral{position:sticky;top:5.5rem;max-height:calc(100vh - 6.5rem);overflow:auto;font-size:.875rem;padding-right:.5rem}
+.lateral h2{margin:0 0 .25rem;font:700 .95rem var(--serif);color:var(--muted)}
+.lateral h3{margin:1rem 0 .25rem;font:700 .75rem var(--mono);letter-spacing:.06em;color:var(--accent)}
+.lateral ul{list-style:none;margin:0;padding:0}
+.lateral a{display:flex;gap:.45rem;padding:.25rem .5rem;border-radius:6px;text-decoration:none;color:var(--muted);line-height:1.3}
+.lateral a:hover{background:var(--tint);color:var(--ink)}
+.lateral a[aria-current]{background:var(--tint);color:var(--ink);font-weight:700;box-shadow:inset 3px 0 0 var(--accent)}
+.lateral .num{font-size:.75rem}
+.aula{min-width:0;max-width:56rem;overflow-wrap:break-word;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:clamp(1.25rem,1rem + 2vw,2.75rem);box-shadow:var(--shadow)}
+.aula h1{margin:0 0 1.5rem;font:700 clamp(1.75rem,1.4rem + 1.6vw,2.5rem)/1.15 var(--serif);letter-spacing:-.015em;color:var(--ink)}
+.aula h2{margin:2.5rem 0 .75rem;padding-top:1.25rem;border-top:1px solid var(--line);font:700 1.5rem/1.25 var(--serif)}
+.aula h3{margin:2rem 0 .5rem;font:700 1.15rem/1.3 var(--serif);color:var(--accent)}
+.aula h4,.aula h5,.aula h6{margin:1.5rem 0 .5rem;font-size:1rem}
+.aula p,.aula ul,.aula ol{margin:1rem 0}
+.aula ul,.aula ol{padding-left:1.5rem}
+.aula li{margin:.35rem 0}
+.aula li>ul,.aula li>ol{margin:.35rem 0}
+.aula a{color:var(--accent);text-underline-offset:2px}
+.aula hr{border:0;border-top:1px solid var(--line);margin:2rem 0}
+.tabela{overflow-x:auto;margin:1.25rem 0;border:1px solid var(--line);border-radius:10px}
+.aula table{width:100%;border-collapse:collapse;font-size:.9rem}
+.aula th,.aula td{padding:.55rem .75rem;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+.aula tr:last-child td{border-bottom:0}
+.aula th{background:var(--tint);font-weight:700}
+.aula pre{background:var(--code);border:1px solid var(--line);border-radius:10px;padding:.9rem 1rem;overflow-x:auto;font:.85rem/1.5 var(--mono);margin:1rem 0;tab-size:4}
+.aula pre code{background:none;padding:0;font-size:inherit;overflow-wrap:normal}
+.aula blockquote{margin:1.25rem 0;padding:.75rem 1.25rem;border-left:4px solid var(--accent-2);background:var(--tint);border-radius:0 10px 10px 0}
+.aula blockquote>:first-child{margin-top:0}
+.aula blockquote>:last-child{margin-bottom:0}
+.aula figure{margin:1.75rem 0;text-align:center}
+.aula figure img{display:block;margin:0 auto;max-width:100%;height:auto;border:1px solid var(--line);border-radius:10px;background:#fff}
+.aula figcaption{margin-top:.5rem;color:var(--muted);font-size:.9rem;font-style:italic}
+.paginas{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:2.5rem;padding-top:1.5rem;border-top:1px solid var(--line)}
+.paginas a{display:block;padding:.75rem 1rem;border:1px solid var(--line);border-radius:10px;text-decoration:none;color:var(--ink);font-weight:600;line-height:1.3}
+.paginas a:hover{border-color:var(--accent);color:var(--accent)}
+.paginas small{display:block;color:var(--muted);font-weight:400}
+.paginas .prox{grid-column:2;text-align:right}
+footer{border-top:1px solid var(--line);padding-block:1.5rem;color:var(--muted);font-size:.85rem;text-align:center}
+@media (hover:hover) and (prefers-reduced-motion:no-preference){.modulo a:hover{transform:translateY(-2px)}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+@media (max-width:980px){.doc{grid-template-columns:minmax(0,1fr);padding-top:1rem}.lateral{position:static;max-height:none;order:2}.aula{max-width:none}}
+@media (max-width:860px){.modulo{grid-template-columns:minmax(0,1fr)}.modulo h2{position:static}.mn{display:inline;margin-right:.5rem}}
+@media (max-width:420px){.meta{display:none}.top-in{gap:.5rem}.acoes{gap:.6rem}.capa{padding-top:1.25rem}.paginas{grid-template-columns:minmax(0,1fr)}.paginas .prox{grid-column:1}}
+@media print{.top,.lateral,.paginas{display:none}.aula{border:0;box-shadow:none;padding:0;max-width:none}.doc{display:block}}
+</style>
+</head>
+<body>
+<a class="pular" href="#conteudo">Pular para o conteúdo</a>
+<header class="top"><div class="wrap top-in"><div class="titles"><p class="marca"><a href="index.html">Curso Linux Sysadmin</a></p><p class="meta">Rodrigo Antignani · Aula 13.3</p></div><div class="acoes"><a href="index.html">Índice</a><div class="idioma" role="group" aria-label="Idioma"><span aria-current="true">PT</span><a href="13.3-autofs.it.html" hreflang="it" lang="it">IT</a></div></div></div></header>
+<div class="wrap doc"><aside class="lateral" aria-label="Aulas"><h2>Aulas</h2><h3>M0 · Laboratório</h3><ul><li><a href="0.1-montar-o-laboratorio.html"><span class="num">0.1</span><span>Montar o laboratório</span></a></li><li><a href="0.2-acesso-e-protecao.html"><span class="num">0.2</span><span>Acesso e proteção</span></a></li></ul><h3>M1 · Linha de comando</h3><ul><li><a href="1.1-o-que-e-linux.html"><span class="num">1.1</span><span>O que é Linux</span></a></li><li><a href="1.2-o-shell-e-a-ajuda.html"><span class="num">1.2</span><span>O shell e a ajuda</span></a></li><li><a href="1.3-caminhos-e-navegacao.html"><span class="num">1.3</span><span>Caminhos e navegação</span></a></li><li><a href="1.4-criar-copiar-mover-e-apagar.html"><span class="num">1.4</span><span>Criar, copiar, mover e apagar</span></a></li><li><a href="1.5-ler-e-procurar-texto.html"><span class="num">1.5</span><span>Ler e procurar texto</span></a></li><li><a href="1.6-redirecionamentos-e-pipes.html"><span class="num">1.6</span><span>Redirecionamentos e pipes</span></a></li><li><a href="1.7-arquivar-e-compactar.html"><span class="num">1.7</span><span>Arquivar e compactar</span></a></li><li><a href="1.8-primeiro-script.html"><span class="num">1.8</span><span>Primeiro script</span></a></li><li><a href="1.9-decidir-e-repetir.html"><span class="num">1.9</span><span>Decidir e repetir</span></a></li><li><a href="1.10-software-livre-na-pratica.html"><span class="num">1.10</span><span>Software livre na prática</span></a></li></ul><h3>M2 · Sistema, usuários e permissões</h3><ul><li><a href="2.1-instalacao-e-provisionamento.html"><span class="num">2.1</span><span>Instalação e provisionamento</span></a></li><li><a href="2.2-hardware-e-dispositivos.html"><span class="num">2.2</span><span>Hardware e dispositivos</span></a></li><li><a href="2.3-processos-e-logs.html"><span class="num">2.3</span><span>Processos e logs</span></a></li><li><a href="2.4-rede-no-dia-a-dia.html"><span class="num">2.4</span><span>Rede no dia a dia</span></a></li><li><a href="2.5-acesso-remoto-e-privilegios.html"><span class="num">2.5</span><span>Acesso remoto e privilégios</span></a></li><li><a href="2.6-usuarios-e-grupos.html"><span class="num">2.6</span><span>Usuários e grupos</span></a></li><li><a href="2.7-permissoes-e-dono.html"><span class="num">2.7</span><span>Permissões e dono</span></a></li><li><a href="2.8-diretorios-e-arquivos-especiais.html"><span class="num">2.8</span><span>Diretórios e arquivos especiais</span></a></li></ul><h3>M3 · Texto e editor</h3><ul><li><a href="3.1-fluxos-a-fundo.html"><span class="num">3.1</span><span>Fluxos a fundo</span></a></li><li><a href="3.2-filtros-de-texto.html"><span class="num">3.2</span><span>Filtros de texto</span></a></li><li><a href="3.3-regex-e-grep.html"><span class="num">3.3</span><span>Regex e grep</span></a></li><li><a href="3.4-sed-e-awk.html"><span class="num">3.4</span><span>sed e awk</span></a></li><li><a href="3.5-vi-e-vim-de-verdade.html"><span class="num">3.5</span><span>vi e vim de verdade</span></a></li></ul><h3>M4 · systemd e boot</h3><ul><li><a href="4.1-como-o-linux-liga.html"><span class="num">4.1</span><span>Como o Linux liga</span></a></li><li><a href="4.2-systemd-servicos-e-units.html"><span class="num">4.2</span><span>systemd: serviços e units</span></a></li><li><a href="4.3-targets-desligar-e-reiniciar.html"><span class="num">4.3</span><span>Targets: desligar e reiniciar</span></a></li><li><a href="4.4-grub-e-acesso-de-emergencia.html"><span class="num">4.4</span><span>GRUB e acesso de emergência</span></a></li></ul><h3>M5 · Kernel, módulos e VM</h3><ul><li><a href="5.1-hardware-pelo-kernel.html"><span class="num">5.1</span><span>Hardware pelo kernel</span></a></li><li><a href="5.2-modulos-e-parametros.html"><span class="num">5.2</span><span>Módulos e parâmetros</span></a></li><li><a href="5.3-linux-como-convidado.html"><span class="num">5.3</span><span>Linux como convidado</span></a></li></ul><h3>M6 · Pacotes e repositórios</h3><ul><li><a href="6.1-pacotes-no-debian.html"><span class="num">6.1</span><span>Pacotes no Debian</span></a></li><li><a href="6.2-pacotes-na-rocky.html"><span class="num">6.2</span><span>Pacotes na Rocky</span></a></li><li><a href="6.3-repositorios.html"><span class="num">6.3</span><span>Repositórios</span></a></li><li><a href="6.4-flatpak.html"><span class="num">6.4</span><span>Flatpak</span></a></li><li><a href="6.5-bibliotecas-compartilhadas.html"><span class="num">6.5</span><span>Bibliotecas compartilhadas</span></a></li></ul><h3>M7 · Processos e desempenho</h3><ul><li><a href="7.1-processos-e-sinais.html"><span class="num">7.1</span><span>Processos e sinais</span></a></li><li><a href="7.2-jobs-e-sessoes.html"><span class="num">7.2</span><span>Jobs e sessões</span></a></li><li><a href="7.3-prioridade-e-perfis.html"><span class="num">7.3</span><span>Prioridade e perfis</span></a></li></ul><h3>M8 · Arquivos a fundo</h3><ul><li><a href="8.1-fhs-e-onde-cada-coisa-mora.html"><span class="num">8.1</span><span>FHS e onde cada coisa mora</span></a></li><li><a href="8.2-find-a-fundo.html"><span class="num">8.2</span><span>find a fundo</span></a></li><li><a href="8.3-arquivamento-avancado.html"><span class="num">8.3</span><span>Arquivamento avançado</span></a></li><li><a href="8.4-links.html"><span class="num">8.4</span><span>Links</span></a></li><li><a href="8.5-permissoes-avancadas.html"><span class="num">8.5</span><span>Permissões avançadas</span></a></li></ul><h3>M9 · Armazenamento</h3><ul><li><a href="9.1-discos-e-layout.html"><span class="num">9.1</span><span>Discos e layout</span></a></li><li><a href="9.2-particionar.html"><span class="num">9.2</span><span>Particionar</span></a></li><li><a href="9.3-sistemas-de-arquivos.html"><span class="num">9.3</span><span>Sistemas de arquivos</span></a></li><li><a href="9.4-montar-e-persistir.html"><span class="num">9.4</span><span>Montar e persistir</span></a></li><li><a href="9.5-integridade-e-espaco.html"><span class="num">9.5</span><span>Integridade e espaço</span></a></li><li><a href="9.6-lvm.html"><span class="num">9.6</span><span>LVM</span></a></li><li><a href="9.7-crescer-sem-destruir.html"><span class="num">9.7</span><span>Crescer sem destruir</span></a></li></ul><h3>M10 · Usuários e acesso privilegiado</h3><ul><li><a href="10.1-contas.html"><span class="num">10.1</span><span>Contas</span></a></li><li><a href="10.2-senhas-e-validade.html"><span class="num">10.2</span><span>Senhas e validade</span></a></li><li><a href="10.3-grupos-e-trabalho-em-equipe.html"><span class="num">10.3</span><span>Grupos e trabalho em equipe</span></a></li><li><a href="10.4-sudo-de-verdade.html"><span class="num">10.4</span><span>sudo de verdade</span></a></li></ul><h3>M11 · Rede</h3><ul><li><a href="11.1-tcp-ip-para-quem-administra.html"><span class="num">11.1</span><span>TCP/IP para quem administra</span></a></li><li><a href="11.2-networkmanager-e-nmcli.html"><span class="num">11.2</span><span>NetworkManager e nmcli</span></a></li><li><a href="11.3-rede-no-debian.html"><span class="num">11.3</span><span>Rede no Debian</span></a></li><li><a href="11.4-nomes-e-resolucao.html"><span class="num">11.4</span><span>Nomes e resolução</span></a></li><li><a href="11.5-diagnostico-de-rede.html"><span class="num">11.5</span><span>Diagnóstico de rede</span></a></li></ul><h3>M12 · Segurança do host</h3><ul><li><a href="12.1-ssh-a-fundo.html"><span class="num">12.1</span><span>SSH a fundo</span></a></li><li><a href="12.2-firewall.html"><span class="num">12.2</span><span>Firewall</span></a></li><li><a href="12.3-selinux-modos-e-contextos.html"><span class="num">12.3</span><span>SELinux: modos e contextos</span></a></li><li><a href="12.4-selinux-portas-e-booleanos.html"><span class="num">12.4</span><span>SELinux: portas e booleanos</span></a></li><li><a href="12.5-auditoria-e-criptografia.html"><span class="num">12.5</span><span>Auditoria e criptografia</span></a></li></ul><h3>M13 · Armazenamento em rede</h3><ul><li><a href="13.1-servidor-nfs.html"><span class="num">13.1</span><span>Servidor NFS</span></a></li><li><a href="13.2-cliente-nfs.html"><span class="num">13.2</span><span>Cliente NFS</span></a></li><li><a href="13.3-autofs.html" aria-current="page"><span class="num">13.3</span><span>autofs</span></a></li></ul><h3>M14 · Agendamento</h3><ul><li><a href="14.1-cron-e-at.html"><span class="num">14.1</span><span>cron e at</span></a></li><li><a href="14.2-timers-do-systemd.html"><span class="num">14.2</span><span>Timers do systemd</span></a></li><li><a href="14.3-journald-e-rsyslog.html"><span class="num">14.3</span><span>journald e rsyslog</span></a></li><li><a href="14.4-hora-certa.html"><span class="num">14.4</span><span>Hora certa</span></a></li><li><a href="14.5-email-local-e-impressao.html"><span class="num">14.5</span><span>E-mail local e impressão</span></a></li></ul><h3>M15 · Shell e ambiente</h3><ul><li><a href="15.1-ambiente-do-shell.html"><span class="num">15.1</span><span>Ambiente do shell</span></a></li><li><a href="15.2-scripts-robustos.html"><span class="num">15.2</span><span>Scripts robustos</span></a></li><li><a href="15.3-scripts-de-administracao.html"><span class="num">15.3</span><span>Scripts de administração</span></a></li><li><a href="15.4-interfaces-graficas.html"><span class="num">15.4</span><span>Interfaces gráficas</span></a></li><li><a href="15.5-idioma-teclado-e-fuso.html"><span class="num">15.5</span><span>Idioma, teclado e fuso</span></a></li></ul><h3>M16 · Semana de incidentes no Rocky 10</h3><ul><li><a href="16.1-rocky-10-o-que-muda.html"><span class="num">16.1</span><span>Rocky 10: o que muda</span></a></li><li><a href="16.2-incidentes-por-area.html"><span class="num">16.2</span><span>Incidentes por área</span></a></li><li><a href="16.3-incidente-com-relogio.html"><span class="num">16.3</span><span>Incidente com relógio</span></a></li><li><a href="16.4-correcao-e-reforco.html"><span class="num">16.4</span><span>Correção e reforço</span></a></li></ul><h3>M17 · Proxmox na prática</h3><ul><li><a href="17.1-proxmox-por-dentro.html"><span class="num">17.1</span><span>Proxmox por dentro</span></a></li><li><a href="17.2-vm-pela-linha-de-comando.html"><span class="num">17.2</span><span>VM pela linha de comando</span></a></li><li><a href="17.3-conteiner-lxc.html"><span class="num">17.3</span><span>Contêiner LXC</span></a></li><li><a href="17.4-storage.html"><span class="num">17.4</span><span>Storage: capacidade, crescimento e movimento</span></a></li><li><a href="17.5-rede.html"><span class="num">17.5</span><span>Rede: bridge, VLAN, bond e SDN</span></a></li><li><a href="17.6-backup-e-restauracao.html"><span class="num">17.6</span><span>Backup e restauração com PBS</span></a></li><li><a href="17.7-migracao-e-quorum.html"><span class="num">17.7</span><span>Migração e quorum</span></a></li></ul><h3>M18 · Podman</h3><ul><li><a href="18.1-conteiner-nao-e-vm.html"><span class="num">18.1</span><span>Contêiner não é VM</span></a></li><li><a href="18.2-rodar-e-persistir.html"><span class="num">18.2</span><span>Rodar e persistir</span></a></li><li><a href="18.3-conteiner-como-servico.html"><span class="num">18.3</span><span>Contêiner como serviço</span></a></li><li><a href="18.4-diagnosticar-conteiner-rootless.html"><span class="num">18.4</span><span>Diagnosticar contêiner rootless</span></a></li><li><a href="18.5-construir-imagens.html"><span class="num">18.5</span><span>Construir imagens</span></a></li></ul><h3>M19 · Serviços de rede</h3><ul><li><a href="19.1-dns-autoritativo.html"><span class="num">19.1</span><span>DNS autoritativo</span></a></li><li><a href="19.2-dns-recursivo-e-diagnostico.html"><span class="num">19.2</span><span>DNS recursivo e diagnóstico</span></a></li><li><a href="19.3-dhcp.html"><span class="num">19.3</span><span>DHCP</span></a></li><li><a href="19.4-servidor-web.html"><span class="num">19.4</span><span>Servidor web: nome, arquivo e resposta</span></a></li><li><a href="19.5-tls-e-proxy-reverso.html"><span class="num">19.5</span><span>TLS e proxy reverso: identidade antes do cadeado</span></a></li><li><a href="19.6-samba-a-ponte-windows.html"><span class="num">19.6</span><span>Samba: a ponte com o cliente Windows</span></a></li><li><a href="19.7-postfix-e-correio-local.html"><span class="num">19.7</span><span>Postfix e correio local</span></a></li><li><a href="19.8-dovecot-e-imaps.html"><span class="num">19.8</span><span>Dovecot e leitura por IMAPS</span></a></li><li><a href="19.9-squid-e-desafio-integrado.html"><span class="num">19.9</span><span>Squid e desafio integrado</span></a></li></ul><h3>M20 · NethServer 8 por dentro</h3><ul><li><a href="20.1-instalar-nethserver-8.html"><span class="num">20.1</span><span>Instalar em uma VM limpa</span></a></li><li><a href="20.2-cluster-no-e-modulo.html"><span class="num">20.2</span><span>Cluster, nó e módulo</span></a></li><li><a href="20.3-modulo-por-dentro.html"><span class="num">20.3</span><span>Um módulo por dentro</span></a></li><li><a href="20.4-proxy-e-certificados.html"><span class="num">20.4</span><span>Proxy e certificados</span></a></li><li><a href="20.5-dominios-de-usuario.html"><span class="num">20.5</span><span>Domínios de usuário: identidade com fronteiras</span></a></li><li><a href="20.6-backup-e-restauracao.html"><span class="num">20.6</span><span>Backup e restauração: provar o retorno</span></a></li><li><a href="20.7-atualizar-mover-e-falhar.html"><span class="num">20.7</span><span>Atualizar, mover e falhar com prova</span></a></li></ul></aside><main id="conteudo" class="aula"><article><h1>Aula 13.3 · autofs</h1>
+<p>No Windows Server, você conhece caminhos de rede usados quando um usuário abre uma pasta. No Linux, autofs pode encaixar a exportação quando alguém acessa um caminho e liberá-la depois de ficar sem uso. Você vai separar mapa mestre, mapa indireto e identidade numérica antes de montar homes sob demanda.</p>
+<blockquote><p><strong>Núcleo desta aula:</strong> o mapa descreve o destino; o acesso dispara a montagem; a identidade do usuário ainda precisa corresponder aos dados no servidor. O resto é aprofundamento.</p></blockquote>
+<div class="tabela"><table><thead><tr><th scope="col">Ficha</th><th scope="col"></th></tr></thead><tbody><tr><td><strong>Módulo</strong></td><td>M13 · Armazenamento em rede, aula 3 de 3</td></tr><tr><td><strong>Quando</strong></td><td>Semana 19</td></tr><tr><td><strong>Ao final</strong></td><td>Você configura um mapa indireto, diagnostica o acesso sob demanda e monta uma home NFS nas duas famílias</td></tr><tr><td><strong>Pré-requisitos</strong></td><td>13.1 e 13.2; VM 203 exportando; clientes sem a montagem fstab do exercício anterior; <code translate="no">IP_SRV</code> registrado</td></tr><tr><td><strong>Tempo</strong></td><td>Cerca de 90 minutos, mais a sessão do desafio</td></tr><tr><td><strong>Snapshots</strong></td><td><code translate="no">m13a3-inicio</code> e <code translate="no">m13a3-fim</code> nas VMs 201, 202 e 203</td></tr></tbody></table></div>
+<h2 id="1-aquecimento">1 · Aquecimento</h2>
+<p>Responda sem consultar. O gabarito está no fim.</p>
+<ol><li>Qual diferença existe entre caminho remoto e ponto de montagem local?</li>
+<li>Por que um diretório atual pode impedir desmontagem?</li>
+<li>Um mesmo nome de usuário em duas máquinas comprova que os UIDs são iguais?</li></ol>
+<h2 id="2-por-que-importa">2 · Por que importa</h2>
+<p>Uma frota tem dezenas de diretórios remotos, mas cada máquina usa poucos por vez. Montar tudo no boot aumenta dependências desnecessárias. Autofs permite adiar a montagem até o caminho ser realmente usado.</p>
+<p>Isso não elimina a dependência do servidor quando alguém precisa dos dados. Você precisa saber se a falha vem do mapa, do caminho NFS, da rede ou da identidade que tenta acessar a home.</p>
+<h2 id="3-modelo-mental">3 · Modelo mental</h2>
+<p>O mapa mestre indica qual balcão atende aquela ala do prédio. O mapa indireto relaciona cada chave com uma biblioteca remota. Tocar a porta da chave faz autofs construir a ponte; enquanto alguém a usa, ela não deve ser retirada.</p>
+<pre translate="no"><code class="lang-text">mapa mestre -&gt; ponto base -&gt; mapa indireto -&gt; chave -&gt; destino NFS
+                               acesso -&gt; montagem</code></pre>
+<figure><a href="../img/13.3-sob-demanda.jpg"><img src="../img/13.3-sob-demanda.jpg" alt="Montar quando o caminho é usado" loading="lazy" decoding="async"></a><figcaption>O acesso dispara a montagem; a inatividade permite desmontar.</figcaption></figure>
+<h3 id="ponte-windows">Ponte Windows</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Referência do Windows</th><th scope="col">Neste lab Linux</th></tr></thead><tbody><tr><td>Caminho remoto usado quando necessário</td><td>Acesso a uma chave autofs</td></tr><tr><td>Mapeamento da pasta de usuário</td><td>Home registrada apontando para a árvore autofs</td></tr><tr><td>Identidade central coerente</td><td>UID e GID coerentes neste lab local</td></tr><tr><td>Conexão de rede ainda necessária</td><td>NFS precisa responder quando o caminho é usado</td></tr></tbody></table></div>
+<h2 id="4-o-essencial">4 · O essencial</h2>
+<h3 id="mapa-mestre-e-indireto">Mapa mestre e indireto</h3>
+<p>Uma entrada mestre aponta o diretório base e o arquivo de mapa. No mapa indireto, a chave é um componente abaixo dessa base. Neste lab, <code translate="no">/mnt/m13-auto/share</code> usa a chave <code translate="no">share</code> sob <code translate="no">/mnt/m13-auto</code>.</p>
+<figure><a href="../img/13.3-mapa-indireto.jpg"><img src="../img/13.3-mapa-indireto.jpg" alt="O mapa escolhe o destino" loading="lazy" decoding="async"></a><figcaption>O mapa mestre aponta para o mapa; a chave escolhe a exportação.</figcaption></figure>
+<h3 id="inatividade-nao-e-um-cronometro-de-expulsao">Inatividade não é um cronômetro de expulsão</h3>
+<p>O timeout permite tentar expirar uma montagem sem uso. Um arquivo aberto ou uma shell dentro dela pode mantê-la ocupada. O instante da expiração também depende da verificação do daemon; não prometa que ela ocorrerá exatamente no segundo configurado.</p>
+<p>Listar o conteúdo do próprio caminho dispara acesso. Para observar sem provocá-lo, liste os sistemas NFS montados com <code translate="no">findmnt -rn -t nfs,nfs4 -o TARGET,SOURCE</code>.</p>
+<h3 id="home-remota-e-identidade">Home remota e identidade</h3>
+<p>O cadastro do usuário aponta a home; autofs fornece a árvore quando acessada. O servidor continua verificando os números e as permissões. Nome igual com UID diferente não é uma identidade coerente.</p>
+<figure><a href="../img/13.3-home-e-identidade.jpg"><img src="../img/13.3-home-e-identidade.jpg" alt="A home acompanha a identidade" loading="lazy" decoding="async"></a><figcaption>UID e GID precisam ser coerentes nos clientes e no servidor.</figcaption></figure>
+<h3 id="rocky-debian">Rocky × Debian</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Item</th><th scope="col">Rocky 9</th><th scope="col">Debian 13</th></tr></thead><tbody><tr><td>Pacotes</td><td><code translate="no">autofs</code>, <code translate="no">nfs-utils</code></td><td><code translate="no">autofs</code>, <code translate="no">nfs-common</code></td></tr><tr><td>Unidade</td><td><code translate="no">autofs.service</code></td><td><code translate="no">autofs.service</code></td></tr><tr><td>Mapas próprios</td><td><code translate="no">/etc/auto.master.d/m13.autofs</code>, <code translate="no">/etc/auto.m13</code></td><td>Os mesmos caminhos, após conferir o include mestre</td></tr><tr><td>Homes NFS</td><td>Conferir <code translate="no">use_nfs_home_dirs</code> no desafio</td><td>Observar política AppArmor real, sem usar comandos SELinux</td></tr></tbody></table></div>
+<h2 id="5-lab-guiado">5 · Lab guiado</h2>
+<h3 id="passo-1-proteger-e-conferir-a-base">Passo 1 · Proteger e conferir a base</h3>
+<p><strong>Palpite:</strong> autofs consegue corrigir sozinho uma exportação NFS que já está inacessível?</p>
+<p>No host Proxmox:</p>
+<pre translate="no"><code class="lang-bash">qm snapshot 201 m13a3-inicio
+qm snapshot 202 m13a3-inicio
+qm snapshot 203 m13a3-inicio</code></pre>
+<p>Nos clientes, confirme o preparo deixado na 13.2. Se autofs já estiver ativo ou habilitado com mapas alheios, não o reinicie para esta aula; prepare uma base de lab sem esses consumidores.</p>
+<pre translate="no"><code class="lang-bash">IP_SRV=$(cat "$HOME/m13/ip-servidor")
+systemctl is-active autofs.service
+systemctl is-enabled autofs.service
+sudo test ! -e /etc/auto.master.d/m13.autofs
+sudo test ! -e /etc/auto.m13
+sudo test ! -e /mnt/m13-auto
+findmnt -rn -t nfs,nfs4 -o TARGET,SOURCE
+timeout 2 bash -c "&lt;/dev/tcp/$IP_SRV/2049" &amp;&amp; echo "TCP 2049 ok"</code></pre>
+<p><strong>Saída esperada:</strong> servidor alcançável, nomes de exercício livres e nenhuma montagem fstab da 13.2. Autofs está ausente ou inativo e desabilitado.</p>
+<p><strong>Verifique:</strong> na 203, confirme o arquivo <code translate="no">leia.txt</code> e a exportação ativa. Não use autofs para esconder uma falha da base NFS.</p>
+<h3 id="passo-2-instalar-e-inspecionar-o-mapa-mestre">Passo 2 · Instalar e inspecionar o mapa mestre</h3>
+<p><strong>Palpite:</strong> criar um arquivo de mapa em qualquer diretório faz o daemon usá-lo automaticamente?</p>
+<p>Na Rocky cliente 201:</p>
+<pre translate="no"><code class="lang-bash">sudo dnf install -y autofs nfs-utils</code></pre>
+<p>Na Debian cliente 202:</p>
+<pre translate="no"><code class="lang-bash">sudo apt update
+sudo apt install -y autofs nfs-common</code></pre>
+<p>Nos dois clientes:</p>
+<pre translate="no"><code class="lang-bash">sudo systemctl stop autofs.service
+grep -n 'auto.master.d' /etc/auto.master
+sudo automount -m</code></pre>
+<p><strong>Saída esperada:</strong> o mapa mestre inclui <code translate="no">/etc/auto.master.d</code> pelo mecanismo <code translate="no">+dir:</code> da base do curso. O arquivo terminado em <code translate="no">.autofs</code> será lido nesse diretório.</p>
+<p><strong>Verifique:</strong> se o include estiver ausente, pare e investigue o mapa mestre realmente configurado antes de prosseguir. Não acrescente mapas que ninguém está carregando.</p>
+<h3 id="passo-3-criar-a-chave-de-leitura">Passo 3 · Criar a chave de leitura</h3>
+<p><strong>Palpite:</strong> a chave <code translate="no">share</code> precisa ser o nome do diretório remoto?</p>
+<p>Nos dois clientes, configure somente os arquivos próprios.</p>
+<pre translate="no"><code class="lang-bash">sudo install -d -m 0755 /etc/auto.master.d
+printf '/mnt/m13-auto /etc/auto.m13 --timeout=30\n' | sudo tee /etc/auto.master.d/m13.autofs &gt; /dev/null
+printf 'share -fstype=nfs,vers=4.2,ro,hard,nosuid,nodev %s:/srv/m13-share\n' "$IP_SRV" | sudo tee /etc/auto.m13 &gt; /dev/null
+sudo chmod 0644 /etc/auto.master.d/m13.autofs /etc/auto.m13
+sudo automount -m
+sudo systemctl enable --now autofs.service
+findmnt -rn -t nfs,nfs4 -o TARGET,SOURCE
+cat /mnt/m13-auto/share/leia.txt
+findmnt -rn -t nfs,nfs4 -o TARGET,SOURCE</code></pre>
+<p><strong>Saída esperada:</strong> o mapa lista a chave e o destino esperado. O primeiro acesso entrega <code translate="no">NFS COURSE ok</code> e cria a montagem NFS correspondente.</p>
+<p><strong>Verifique:</strong> observe a origem no <code translate="no">findmnt</code>, não apenas a existência do diretório base autofs. Um ponto autofs não é ainda a montagem NFS de uma chave.</p>
+<h3 id="decida-1">Decida 1</h3>
+<p>A base existe, mas a chave não entrega conteúdo. Qual é a próxima conferência?</p>
+<div class="tabela"><table><thead><tr><th scope="col">Opção</th><th scope="col">Ação</th></tr></thead><tbody><tr><td>A</td><td>Tornar toda a árvore gravável por todos</td></tr><tr><td>B</td><td>Apagar a exportação no servidor</td></tr><tr><td>C</td><td>Conferir mapa carregado, chave e destino</td></tr></tbody></table></div>
+<p>Escolha C. A chave faz a ligação entre o caminho usado e o destino remoto.</p>
+<h3 id="passo-4-observar-a-expiracao-sem-tocar-na-chave">Passo 4 · Observar a expiração sem tocar na chave</h3>
+<p><strong>Palpite:</strong> listar repetidamente a pasta é uma observação sem efeito sobre sua inatividade?</p>
+<p>Nos dois clientes, saia da árvore e feche processos que a usam. Espere pelo menos um ciclo de inatividade e inspeção; não consulte o conteúdo durante a espera.</p>
+<pre translate="no"><code class="lang-bash">cd "$HOME"
+findmnt -rn -t nfs,nfs4 -o TARGET,SOURCE</code></pre>
+<p><strong>Saída esperada:</strong> depois de ficar realmente sem uso e ser processada pelo daemon, a montagem NFS da chave desaparece; o ponto base autofs continua.</p>
+<p><strong>Verifique:</strong> repita a listagem de sistemas montados. Depois acesse novamente o arquivo e observe a reconstrução da montagem.</p>
+<h3 id="passo-5-diagnosticar-os-registros-certos">Passo 5 · Diagnosticar os registros certos</h3>
+<p><strong>Palpite:</strong> uma negativa de leitura necessariamente exige mudar o mapa mestre?</p>
+<p>Nos dois clientes:</p>
+<pre translate="no"><code class="lang-bash">sudo automount -m
+sudo journalctl -u autofs.service -n 20 --no-pager
+findmnt -rn -t nfs,nfs4 -o TARGET,SOURCE
+stat -c '%u:%g %a %n' /mnt/m13-auto/share/leia.txt</code></pre>
+<p><strong>Saída esperada:</strong> chave carregada, destino correto e identidade numérica do arquivo. O comando de <code translate="no">stat</code> é um acesso e pode montar a chave novamente.</p>
+<p><strong>Verifique:</strong> compare erro de mapa, falha de montagem e negativa de acesso a um arquivo já montado. Cada fase tem evidências diferentes.</p>
+<h3 id="decida-2">Decida 2</h3>
+<p>O nome de usuário coincide, mas ele vê um dono diferente ao acessar uma home. O que conferir?</p>
+<div class="tabela"><table><thead><tr><th scope="col">Opção</th><th scope="col">Ação</th></tr></thead><tbody><tr><td>A</td><td>UID, GID e modos no cliente e no servidor</td></tr><tr><td>B</td><td>Excluir o usuário da outra máquina</td></tr><tr><td>C</td><td>Retirar <code translate="no">root_squash</code> de todas as exportações</td></tr></tbody></table></div>
+<p>Escolha A. O nome legível não substitui a identidade numérica usada neste NFS.</p>
+<h3 id="passo-6-conferir-a-primeira-utilizacao-apos-boot">Passo 6 · Conferir a primeira utilização após boot</h3>
+<p><strong>Palpite:</strong> autofs ativo no boot significa que todas as suas chaves já estão montadas?</p>
+<p>Reinicie os clientes um por vez. A 203 permanece ligada.</p>
+<pre translate="no"><code class="lang-bash">sudo systemctl reboot</code></pre>
+<p>Depois de voltar:</p>
+<pre translate="no"><code class="lang-bash">systemctl is-active autofs.service
+findmnt -rn -t nfs,nfs4 -o TARGET,SOURCE
+cat /mnt/m13-auto/share/leia.txt
+findmnt -rn -t nfs,nfs4 -o TARGET,SOURCE</code></pre>
+<p><strong>Saída esperada:</strong> daemon ativo e montagem criada no primeiro acesso, entregando o conteúdo esperado.</p>
+<p><strong>Verifique:</strong> diferencie a volta do serviço, a carga do mapa e a criação da montagem. Não use somente <code translate="no">systemctl is-active</code> como verificação dos dados.</p>
+<h2 id="6-quebre-e-conserte">6 · Quebre e conserte</h2>
+<h3 id="quebra-1-chave-diferente-do-caminho-usado">Quebra 1 · Chave diferente do caminho usado</h3>
+<p>Nos clientes, saia da árvore, pare apenas o autofs de exercício e mude a chave própria.</p>
+<pre translate="no"><code class="lang-bash">cd "$HOME"
+sudo systemctl stop autofs.service
+sudo cp -a /etc/auto.m13 "$HOME/m13/auto.m13.valido"
+sudo sed -i 's/^share /share-errado /' /etc/auto.m13
+sudo systemctl start autofs.service
+cat /mnt/m13-auto/share/leia.txt</code></pre>
+<p><strong>Sintoma:</strong> o caminho antigo deixa de entregar o arquivo.</p>
+<p><strong>Investigação:</strong> compare a chave usada com <code translate="no">sudo automount -m</code> e o arquivo do mapa.</p>
+<p><strong>Causa:</strong> a chave passou a ter outro nome; o caminho antigo não corresponde a uma entrada.</p>
+<p><strong>Conserto:</strong> pare o serviço, restaure o mapa próprio e inicie novamente.</p>
+<pre translate="no"><code class="lang-bash">sudo systemctl stop autofs.service
+sudo cp -a "$HOME/m13/auto.m13.valido" /etc/auto.m13
+sudo systemctl start autofs.service</code></pre>
+<p><strong>Verifique:</strong> o acesso à chave original volta a entregar <code translate="no">NFS COURSE ok</code>.</p>
+<p><strong>Prevenção:</strong> registre ponto base, chave e caminho remoto separadamente.</p>
+<h3 id="quebra-2-destino-remoto-incorreto">Quebra 2 · Destino remoto incorreto</h3>
+<p>Nos clientes, mantenha a chave, mas altere o destino no mapa próprio.</p>
+<pre translate="no"><code class="lang-bash">cd "$HOME"
+sudo systemctl stop autofs.service
+sudo sed -i 's|:/srv/m13-share|:/srv/m13-inexistente|' /etc/auto.m13
+sudo systemctl start autofs.service
+cat /mnt/m13-auto/share/leia.txt</code></pre>
+<p><strong>Sintoma:</strong> a chave existe no mapa, mas a montagem não atende o caminho solicitado.</p>
+<p><strong>Investigação:</strong> leia o mapa, o journal do autofs e a exportação ativa na 203.</p>
+<p><strong>Causa:</strong> o destino não corresponde à exportação publicada. O mapa mestre continua correto.</p>
+<p><strong>Conserto:</strong> restaure o mapa válido, sem alterar a lista de clientes no servidor.</p>
+<pre translate="no"><code class="lang-bash">sudo systemctl stop autofs.service
+sudo cp -a "$HOME/m13/auto.m13.valido" /etc/auto.m13
+sudo systemctl start autofs.service</code></pre>
+<p><strong>Verifique:</strong> a origem correta reaparece no primeiro acesso.</p>
+<p><strong>Prevenção:</strong> confirme servidor e caminho antes de ampliar qualquer permissão.</p>
+<h3 id="quebra-3-uso-mantem-a-montagem-ocupada">Quebra 3 · Uso mantém a montagem ocupada</h3>
+<p>Em um terminal A, mantenha a shell dentro da chave; no B, observe os sistemas montados depois do período de inatividade.</p>
+<pre translate="no"><code class="lang-bash">cd /mnt/m13-auto/share
+pwd</code></pre>
+<p><strong>Sintoma:</strong> a montagem continua presente, mesmo depois do timeout configurado.</p>
+<p><strong>Investigação:</strong> identifique o diretório atual da shell no A. Evite novos acessos à chave pelo B durante a observação.</p>
+<p><strong>Causa:</strong> a montagem não está sem uso. O timeout não autoriza expulsar um consumidor ativo.</p>
+<p><strong>Conserto:</strong> no A, volte a <code translate="no">cd "$HOME"</code> e deixe a árvore realmente sem uso.</p>
+<p><strong>Verifique:</strong> após o daemon processar a expiração, a montagem NFS desaparece e a base autofs permanece.</p>
+<p><strong>Prevenção:</strong> diferencie ausência de requisições novas de ausência de referências abertas.</p>
+<h3 id="limpeza-e-preparacao-do-desafio">Limpeza e preparação do desafio</h3>
+<p>Antes do desafio, saia da árvore nos clientes e remova a chave de leitura de exercício. O servidor e a exportação da 13.1 continuam disponíveis.</p>
+<pre translate="no"><code class="lang-bash">cd "$HOME"
+sudo systemctl disable --now autofs.service
+sudo rm -f /etc/auto.master.d/m13.autofs /etc/auto.m13
+findmnt -rn -t nfs,nfs4 -o TARGET,SOURCE</code></pre>
+<p>Se uma montagem continuar ocupada, identifique o consumidor e encerre seu uso antes de seguir. Não force a remoção da árvore.</p>
+<h2 id="7-armadilhas">7 · Armadilhas</h2>
+<div class="tabela"><table><thead><tr><th scope="col">Erro comum</th><th scope="col">O que fazer</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>Mudar o mapa sem saber quem o carrega</td><td>Inspecionar mestre e <code translate="no">automount -m</code></td><td>Arquivo solto pode não participar</td></tr><tr><td>Esperar expiração enquanto usa a pasta</td><td>Sair da árvore e observar sem tocar</td><td>O uso mantém a referência</td></tr><tr><td>Mapear sobre <code translate="no">/home</code> existente</td><td>Usar uma subárvore nova e vazia</td><td>Não encobre homes já existentes</td></tr><tr><td>Confiar só no nome do usuário</td><td>Conferir UID e GID</td><td>Identidade numérica determina o acesso neste lab</td></tr></tbody></table></div>
+<h2 id="8-quiz">8 · Quiz</h2>
+<ol><li>Qual é a função do mapa mestre?</li>
+<li>O que a chave de um mapa indireto representa no caminho?</li>
+<li>Por que <code translate="no">ls</code> na chave pode mudar o resultado da observação?</li>
+<li>Timeout obriga a desmontar uma árvore em uso?</li>
+<li>Por que usar uma subárvore nova para homes do exercício?</li>
+<li>Autofs substitui coerência de UID e GID?</li></ol>
+<h2 id="9-cola">9 · Cola</h2>
+<div class="tabela"><table><thead><tr><th scope="col">Tarefa</th><th scope="col">Comando</th></tr></thead><tbody><tr><td>Mapas interpretados</td><td><code translate="no">sudo automount -m</code></td></tr><tr><td>Registro do daemon</td><td><code translate="no">sudo journalctl -u autofs.service -n 20 --no-pager</code></td></tr><tr><td>Montagens NFS sem ler conteúdo</td><td><code translate="no">findmnt -rn -t nfs,nfs4 -o TARGET,SOURCE</code></td></tr><tr><td>Identidade do usuário de exercício</td><td><code translate="no">id m13ana</code></td></tr><tr><td>Cadastro da home</td><td><code translate="no">getent passwd m13ana</code></td></tr></tbody></table></div>
+<p><strong>Flashcards:</strong> crie cartões para mapa mestre, chave, acesso, expiração, UID e home. Revise em D+1, D+3, D+7 e D+21.</p>
+<h2 id="10-checklist-e-fechamento">10 · Checklist e fechamento</h2>
+<ul><li>[ ] Usei somente mapas próprios e pontos locais novos.</li>
+<li>[ ] Observei criação e expiração sem confundir base autofs e montagem NFS.</li>
+<li>[ ] Concluí o desafio nas VMs 201 e 202 com dados na 203.</li>
+<li>[ ] Limpei contas, mapas e propriedades de exercício conforme o roteiro final.</li></ul>
+<p><strong>Último exercício:</strong> descreva o caminho completo entre o cadastro de <code translate="no">m13ana</code>, a chave do mapa e o arquivo na 203. Cite onde UID e GID entram nessa decisão.</p>
+<p><strong>Reboot de conferência:</strong> no desafio, comprove o primeiro acesso à home depois do reboot dos clientes. Depois da limpeza, confira que os mapas e contas próprios não voltam.</p>
+<p>Somente após terminar o desafio e sua limpeza, no host Proxmox:</p>
+<pre translate="no"><code class="lang-bash">qm snapshot 201 m13a3-fim
+qm snapshot 202 m13a3-fim
+qm snapshot 203 m13a3-fim</code></pre>
+<h2 id="11-na-vida-real">11 · Na vida real</h2>
+<p>Em um host que você administre ou tenha autorização para inspecionar, leia os mapas e o estado do serviço. Evite acessar uma chave apenas para observá-la, pois isso pode disparar uma montagem. Não reinicie o daemon nem altere mapas nesta missão.</p>
+<p>Quem mantém as identidades? Onde fica a origem dos dados? Qual processo depende de uma montagem que talvez não expire enquanto estiver em uso?</p>
+<h2 id="12-aprofundar-quando-quiser">12 · Aprofundar quando quiser</h2>
+<ul><li><a href="https://manpages.debian.org/trixie/autofs/auto.master.5.en.html">auto.master(5)</a> e <a href="https://manpages.debian.org/trixie/autofs/autofs.5.en.html">autofs(5)</a>: mapas e chaves.</li>
+<li><a href="https://manpages.debian.org/trixie/autofs/autofs.8.en.html">autofs(8)</a>: serviço e comportamento.</li>
+<li><a href="https://manpages.debian.org/trixie/nfs-kernel-server/exports.5.en.html">exports(5)</a> e <a href="https://manpages.debian.org/trixie/nfs-common/nfs.5.en.html">nfs(5)</a>: identidade e acesso NFS.</li>
+<li>No Rocky, consulte <code translate="no">man nfsd_selinux</code> e <code translate="no">man useradd</code> antes do desafio.</li></ul>
+<p><strong>DeepTutor</strong> (http://10.1.0.149:3782, KB "Curso Linux Sysadmin"):</p>
+<ul><li><code translate="no">!explica Separe mapa mestre, chave indireta e destino NFS com uma analogia de portaria.</code></li>
+<li><code translate="no">!feynman Vou explicar por que autofs não resolve um UID diferente no servidor. Critique minha explicação.</code></li>
+<li><code translate="no">!quiz Crie seis casos de acesso sob demanda, expiração e home NFS.</code></li></ul>
+<h2 id="desafio-do-m13-uma-home-dois-clientes">Desafio do M13 · Uma home, dois clientes</h2>
+<p>Crie a conta fictícia <code translate="no">m13ana</code> com UID e GID <code translate="no">2301</code> nas três VMs. O número só pode ser usado se estiver livre em todas elas. Os clientes apontam a home para <code translate="no">/home/m13-net/m13ana</code>, uma subárvore nova; não monte sobre <code translate="no">/home</code> existente.</p>
+<h3 id="preparar-identidade-e-conteudo">Preparar identidade e conteúdo</h3>
+<p>Nas três VMs, confira nome, UID e GID antes de criar. A ausência de resultados é o pré-requisito.</p>
+<pre translate="no"><code class="lang-bash">getent passwd m13ana
+getent passwd 2301
+getent group m13ana
+getent group 2301
+sudo groupadd -g 2301 m13ana</code></pre>
+<p>Na 203, crie uma conta sem login interativo e a árvore remota própria.</p>
+<pre translate="no"><code class="lang-bash">sudo useradd -M -u 2301 -g 2301 -s /sbin/nologin m13ana
+sudo test ! -e /srv/m13-homes
+sudo test ! -e /etc/exports.d/m13-homes.exports
+sudo install -d -m 0755 /srv/m13-homes
+sudo install -d -o 2301 -g 2301 -m 0700 /srv/m13-homes/m13ana
+printf 'HOME NFS ok\n' | sudo tee /srv/m13-homes/m13ana/home.txt &gt; /dev/null
+sudo chown 2301:2301 /srv/m13-homes/m13ana/home.txt
+sudo chmod 0600 /srv/m13-homes/m13ana/home.txt
+sudo semanage fcontext -a -t public_content_rw_t '/srv/m13-homes(/.*)?'
+sudo restorecon -Rv /srv/m13-homes
+getsebool nfsd_anon_write | awk '{print $3}' &gt; "$HOME/m13/nfsd_anon_write.inicio"
+sudo setsebool -P nfsd_anon_write on
+sudo tee /etc/exports.d/m13-homes.exports &gt; /dev/null &lt;&lt;'EOF'
+/srv/m13-homes 10.1.0.51(rw,sync,root_squash,no_subtree_check) 10.1.0.52(rw,sync,root_squash,no_subtree_check)
+EOF
+sudo exportfs -ra
+sudo exportfs -v</code></pre>
+<p>O booleano acima permite a escrita NFS em conteúdo rotulado para compartilhamento público gravável; isso não muda os modos <code translate="no">0700</code> e <code translate="no">0600</code>, que protegem a home. O servidor é a VM nova e dedicada do curso; restaure o valor registrado na limpeza.</p>
+<h3 id="conectar-as-homes-sob-demanda">Conectar as homes sob demanda</h3>
+<p>Nas VMs 201 e 202, confirme que <code translate="no">/home/m13-net</code>, o mapa e o arquivo mestre próprios ainda não existem. Crie a conta sem criar uma home local.</p>
+<pre translate="no"><code class="lang-bash">sudo test ! -e /home/m13-net
+sudo test ! -e /etc/auto.m13homes
+sudo test ! -e /etc/auto.master.d/m13homes.autofs
+sudo useradd -M -u 2301 -g 2301 -d /home/m13-net/m13ana -s /bin/bash m13ana
+IP_SRV=$(cat "$HOME/m13/ip-servidor")
+printf '/home/m13-net /etc/auto.m13homes --timeout=30\n' | sudo tee /etc/auto.master.d/m13homes.autofs &gt; /dev/null
+printf 'm13ana -fstype=nfs,vers=4.2,rw,hard,nosuid,nodev %s:/srv/m13-homes/m13ana\n' "$IP_SRV" | sudo tee /etc/auto.m13homes &gt; /dev/null</code></pre>
+<p>Somente na Rocky cliente 201, registre o estado do booleano de homes antes de autorizar esse uso.</p>
+<pre translate="no"><code class="lang-bash">getsebool use_nfs_home_dirs | awk '{print $3}' &gt; "$HOME/m13/use_nfs_home_dirs.inicio"
+sudo setsebool -P use_nfs_home_dirs on</code></pre>
+<p>Nos dois clientes:</p>
+<pre translate="no"><code class="lang-bash">sudo automount -m
+sudo systemctl enable --now autofs.service
+id m13ana
+getent passwd m13ana
+sudo -iu m13ana sh -c 'pwd; id; cat home.txt; printf "CLIENT wrote\n" &gt;&gt; registro.txt'
+findmnt -rn -t nfs,nfs4 -o TARGET,SOURCE</code></pre>
+<p>Não defina senha nem habilite login SSH para a conta de exercício. O teste com <code translate="no">sudo -iu</code> usa a identidade local já conferida e verifica a home, sem acrescentar um serviço de autenticação de rede.</p>
+<p>Reinicie um cliente por vez e repita o primeiro acesso como <code translate="no">m13ana</code>. O mesmo <code translate="no">registro.txt</code> precisa conter as duas escritas, com dono numérico <code translate="no">2301:2301</code> no servidor. Guarde essa evidência antes de limpar.</p>
+<h3 id="limpeza-do-desafio">Limpeza do desafio</h3>
+<p>Nos clientes, saia da home e confirme que não existem processos da conta de exercício. Se houver, encerre seu uso antes de continuar. Remova somente mapas e conta criados.</p>
+<pre translate="no"><code class="lang-bash">pgrep -u 2301
+sudo systemctl disable --now autofs.service
+sudo rm -f /etc/auto.master.d/m13homes.autofs /etc/auto.m13homes
+sudo userdel m13ana
+getent group m13ana &gt;/dev/null &amp;&amp; sudo groupdel m13ana
+findmnt -rn -t nfs,nfs4 -o TARGET,SOURCE</code></pre>
+<p>Na 201, restaure apenas o booleano registrado. Na 203, retire a exportação própria, restaure seu booleano, remova a regra local e os arquivos conhecidos. Use <code translate="no">rmdir</code> para recusar a exclusão de uma árvore que ainda tenha dados inesperados.</p>
+<pre translate="no"><code class="lang-bash">sudo setsebool -P use_nfs_home_dirs "$(cat "$HOME/m13/use_nfs_home_dirs.inicio")"</code></pre>
+<pre translate="no"><code class="lang-bash">sudo rm -f /etc/exports.d/m13-homes.exports
+sudo exportfs -ra
+sudo setsebool -P nfsd_anon_write "$(cat "$HOME/m13/nfsd_anon_write.inicio")"
+sudo semanage fcontext -d '/srv/m13-homes(/.*)?'
+sudo restorecon -Rv /srv/m13-homes
+sudo rm -f /srv/m13-homes/m13ana/home.txt /srv/m13-homes/m13ana/registro.txt
+sudo rmdir /srv/m13-homes/m13ana /srv/m13-homes
+sudo userdel m13ana
+getent group m13ana &gt;/dev/null &amp;&amp; sudo groupdel m13ana</code></pre>
+<p>A 203 continua como servidor NFS com a exportação de leitura da 13.1, documentada para o curso. Os clientes ficam sem mapas de exercício. Os pacotes permanecem instalados, mas o serviço autofs retorna ao estado inativo e desabilitado registrado no preparo.</p>
+<h2 id="gabarito-comentado">Gabarito comentado</h2>
+<h3 id="aquecimento">Aquecimento</h3>
+<ol><li>Um fica no servidor e o outro é a entrada na árvore do cliente.</li>
+<li>Ele mantém uma referência ativa ao sistema montado.</li>
+<li>Não. É preciso conferir os identificadores numéricos.</li></ol>
+<h3 id="quiz">Quiz</h3>
+<ol><li>Relacionar o ponto base ao mapa que fornece suas chaves.</li>
+<li>O componente de caminho abaixo do ponto base.</li>
+<li>Porque o acesso pode montar ou renovar o uso da chave.</li>
+<li>Não. O daemon precisa poder liberar a montagem sem consumidores ativos.</li>
+<li>Para não encobrir homes e dados que já existem.</li>
+<li>Não. Ele monta o destino; a identidade e os modos ainda determinam o acesso.</li></ol>
+<h3 id="dicas-do-desafio">Dicas do Desafio</h3>
+<p>Se a conta existe mas a home falha, siga cadastro, mapa, montagem e permissão nessa ordem de investigação. Compare os números nas três VMs e a origem efetiva antes de mudar o servidor. Nunca compense um UID errado retirando <code translate="no">root_squash</code>.</p>
+<p><a href="13.2-cliente-nfs.html">← Aula 13.2 · Cliente NFS</a> · <a href="index.html">Índice de aulas</a> · <a href="https://github.com/Rodrigoantignani/curso-linux-sysadmin/blob/master/00-plano-do-curso.md">Plano do curso: M14 em diante →</a></p>
+</article><nav class="paginas" aria-label="Aulas"><a class="ant" href="13.2-cliente-nfs.html"><small>← Anterior</small>13.2 · Cliente NFS</a><a class="prox" href="14.1-cron-e-at.html"><small>Próxima →</small>14.1 · cron e at</a></nav></main></div>
+<footer><div class="wrap">Gerado a partir do Markdown do curso · Imagens em <code translate="no">img/</code></div></footer>
+</body>
+</html>

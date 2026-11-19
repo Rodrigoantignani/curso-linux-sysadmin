@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light dark">
+<title>17.3 · Container LXC · Corso Linux Sysadmin</title>
+<link rel="alternate" hreflang="pt-BR" href="17.3-conteiner-lxc.html"><link rel="alternate" hreflang="it" href="17.3-conteiner-lxc.it.html">
+<style>
+:root{color-scheme:light dark;--bg:#f6f1e7;--card:#fffdf8;--ink:#201c16;--muted:#5e564a;--accent:#9a3412;--accent-2:#1f5f4a;--tint:#efe6d4;--line:#ddd2bc;--code:#f1eadb;--shadow:0 1px 2px rgba(60,40,10,.08);--serif:Georgia,"Iowan Old Style","Palatino Linotype",Palatino,serif;--sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--mono:"Cascadia Code",Consolas,"DejaVu Sans Mono",monospace}
+@media (prefers-color-scheme:dark){:root{--bg:#16130f;--card:#201b15;--ink:#f1eadb;--muted:#b9ad98;--accent:#f0a070;--accent-2:#7fd0b0;--tint:#2a231a;--line:#3d3427;--code:#191510;--shadow:none}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:5.5rem}
+body{margin:0;background:var(--bg);color:var(--ink);font:1rem/1.6 var(--sans)}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--accent-2);outline-offset:2px;border-radius:4px}
+.pular{position:absolute;left:-999px;top:0;background:var(--card);padding:.5rem 1rem;z-index:20}
+.pular:focus{left:.5rem;top:.5rem}
+.wrap{width:100%;max-width:84rem;margin:0 auto;padding-inline:max(1rem,env(safe-area-inset-left))}
+.top{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10;border-top:6px solid var(--accent)}
+.top-in{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding-block:.6rem}
+.titles{min-width:0}
+.marca{margin:0;font:700 clamp(1.15rem,1rem + 1vw,1.6rem)/1.15 var(--serif);letter-spacing:-.01em}
+.marca a{text-decoration:none}
+.marca a:hover{color:var(--accent)}
+.meta{margin:.1rem 0 0;color:var(--muted);font-size:.85rem}
+.acoes{display:flex;align-items:center;gap:.9rem;flex:none}
+.acoes>a{font-size:.9rem;font-weight:600;color:var(--muted);text-decoration:none}
+.acoes>a:hover{color:var(--accent);text-decoration:underline}
+.idioma{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--tint)}
+.idioma>*{padding:.35rem .9rem;font-size:.8rem;font-weight:700;letter-spacing:.06em;text-decoration:none;color:var(--muted);min-width:2.75rem;text-align:center}
+.idioma a:hover{color:var(--accent);text-decoration:underline}
+.idioma span{background:var(--accent);color:#fff}
+@media (prefers-color-scheme:dark){.idioma span{color:#16130f}}
+code{font-family:var(--mono);font-size:.9em;background:var(--tint);padding:.1rem .35rem;border-radius:4px;overflow-wrap:anywhere}
+/* índice */
+.capa{max-width:70rem;padding-block:2rem 3rem}
+.stats{border-left:4px solid var(--accent-2);background:var(--card);border-radius:0 10px 10px 0;padding:1rem 1.25rem;margin:0 0 2.5rem;box-shadow:var(--shadow);color:var(--muted)}
+.stats strong{color:var(--ink)}
+.modulo{display:grid;grid-template-columns:15rem minmax(0,1fr);gap:1rem 2rem;padding:1.75rem 0;border-top:1px solid var(--line)}
+.modulo h2{margin:0;font:700 1.25rem/1.25 var(--serif);align-self:start;position:sticky;top:6rem}
+.mn{display:block;font:700 .8rem var(--mono);letter-spacing:.12em;color:var(--accent);margin-bottom:.25rem}
+.sep{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.modulo ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,17rem),1fr));gap:.75rem}
+.modulo li{margin:0}
+.modulo a{display:flex;gap:.45rem;align-items:baseline;height:100%;padding:.85rem 1rem;background:var(--card);border:1px solid var(--line);border-radius:10px;text-decoration:none;font-weight:600;line-height:1.35;box-shadow:var(--shadow);transition:border-color .15s,transform .15s}
+.modulo a:hover{border-color:var(--accent);color:var(--accent)}
+.num{font:700 .85rem var(--mono);color:var(--accent);white-space:nowrap}
+/* aula */
+.doc{display:grid;grid-template-columns:17rem minmax(0,1fr);gap:2.5rem;align-items:start;padding-block:2rem 3rem}
+.lateral{position:sticky;top:5.5rem;max-height:calc(100vh - 6.5rem);overflow:auto;font-size:.875rem;padding-right:.5rem}
+.lateral h2{margin:0 0 .25rem;font:700 .95rem var(--serif);color:var(--muted)}
+.lateral h3{margin:1rem 0 .25rem;font:700 .75rem var(--mono);letter-spacing:.06em;color:var(--accent)}
+.lateral ul{list-style:none;margin:0;padding:0}
+.lateral a{display:flex;gap:.45rem;padding:.25rem .5rem;border-radius:6px;text-decoration:none;color:var(--muted);line-height:1.3}
+.lateral a:hover{background:var(--tint);color:var(--ink)}
+.lateral a[aria-current]{background:var(--tint);color:var(--ink);font-weight:700;box-shadow:inset 3px 0 0 var(--accent)}
+.lateral .num{font-size:.75rem}
+.aula{min-width:0;max-width:56rem;overflow-wrap:break-word;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:clamp(1.25rem,1rem + 2vw,2.75rem);box-shadow:var(--shadow)}
+.aula h1{margin:0 0 1.5rem;font:700 clamp(1.75rem,1.4rem + 1.6vw,2.5rem)/1.15 var(--serif);letter-spacing:-.015em;color:var(--ink)}
+.aula h2{margin:2.5rem 0 .75rem;padding-top:1.25rem;border-top:1px solid var(--line);font:700 1.5rem/1.25 var(--serif)}
+.aula h3{margin:2rem 0 .5rem;font:700 1.15rem/1.3 var(--serif);color:var(--accent)}
+.aula h4,.aula h5,.aula h6{margin:1.5rem 0 .5rem;font-size:1rem}
+.aula p,.aula ul,.aula ol{margin:1rem 0}
+.aula ul,.aula ol{padding-left:1.5rem}
+.aula li{margin:.35rem 0}
+.aula li>ul,.aula li>ol{margin:.35rem 0}
+.aula a{color:var(--accent);text-underline-offset:2px}
+.aula hr{border:0;border-top:1px solid var(--line);margin:2rem 0}
+.tabela{overflow-x:auto;margin:1.25rem 0;border:1px solid var(--line);border-radius:10px}
+.aula table{width:100%;border-collapse:collapse;font-size:.9rem}
+.aula th,.aula td{padding:.55rem .75rem;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+.aula tr:last-child td{border-bottom:0}
+.aula th{background:var(--tint);font-weight:700}
+.aula pre{background:var(--code);border:1px solid var(--line);border-radius:10px;padding:.9rem 1rem;overflow-x:auto;font:.85rem/1.5 var(--mono);margin:1rem 0;tab-size:4}
+.aula pre code{background:none;padding:0;font-size:inherit;overflow-wrap:normal}
+.aula blockquote{margin:1.25rem 0;padding:.75rem 1.25rem;border-left:4px solid var(--accent-2);background:var(--tint);border-radius:0 10px 10px 0}
+.aula blockquote>:first-child{margin-top:0}
+.aula blockquote>:last-child{margin-bottom:0}
+.aula figure{margin:1.75rem 0;text-align:center}
+.aula figure img{display:block;margin:0 auto;max-width:100%;height:auto;border:1px solid var(--line);border-radius:10px;background:#fff}
+.aula figcaption{margin-top:.5rem;color:var(--muted);font-size:.9rem;font-style:italic}
+.paginas{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:2.5rem;padding-top:1.5rem;border-top:1px solid var(--line)}
+.paginas a{display:block;padding:.75rem 1rem;border:1px solid var(--line);border-radius:10px;text-decoration:none;color:var(--ink);font-weight:600;line-height:1.3}
+.paginas a:hover{border-color:var(--accent);color:var(--accent)}
+.paginas small{display:block;color:var(--muted);font-weight:400}
+.paginas .prox{grid-column:2;text-align:right}
+footer{border-top:1px solid var(--line);padding-block:1.5rem;color:var(--muted);font-size:.85rem;text-align:center}
+@media (hover:hover) and (prefers-reduced-motion:no-preference){.modulo a:hover{transform:translateY(-2px)}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+@media (max-width:980px){.doc{grid-template-columns:minmax(0,1fr);padding-top:1rem}.lateral{position:static;max-height:none;order:2}.aula{max-width:none}}
+@media (max-width:860px){.modulo{grid-template-columns:minmax(0,1fr)}.modulo h2{position:static}.mn{display:inline;margin-right:.5rem}}
+@media (max-width:420px){.meta{display:none}.top-in{gap:.5rem}.acoes{gap:.6rem}.capa{padding-top:1.25rem}.paginas{grid-template-columns:minmax(0,1fr)}.paginas .prox{grid-column:1}}
+@media print{.top,.lateral,.paginas{display:none}.aula{border:0;box-shadow:none;padding:0;max-width:none}.doc{display:block}}
+</style>
+</head>
+<body>
+<a class="pular" href="#conteudo">Vai al contenuto</a>
+<header class="top"><div class="wrap top-in"><div class="titles"><p class="marca"><a href="index.it.html">Corso Linux Sysadmin</a></p><p class="meta">Rodrigo Antignani · Lezione 17.3</p></div><div class="acoes"><a href="index.it.html">Indice</a><div class="idioma" role="group" aria-label="Lingua"><a href="17.3-conteiner-lxc.html" hreflang="pt-BR" lang="pt-BR">PT</a><span aria-current="true">IT</span></div></div></div></header>
+<div class="wrap doc"><aside class="lateral" aria-label="Lezioni"><h2>Lezioni</h2><h3>M0 · Laboratorio</h3><ul><li><a href="0.1-montar-o-laboratorio.it.html"><span class="num">0.1</span><span>Allestire il laboratorio</span></a></li><li><a href="0.2-acesso-e-protecao.it.html"><span class="num">0.2</span><span>Accesso e protezione</span></a></li></ul><h3>M1 · Riga di comando</h3><ul><li><a href="1.1-o-que-e-linux.it.html"><span class="num">1.1</span><span>Che cos'è Linux</span></a></li><li><a href="1.2-o-shell-e-a-ajuda.it.html"><span class="num">1.2</span><span>La shell e la guida</span></a></li><li><a href="1.3-caminhos-e-navegacao.it.html"><span class="num">1.3</span><span>Percorsi e navigazione</span></a></li><li><a href="1.4-criar-copiar-mover-e-apagar.it.html"><span class="num">1.4</span><span>Creare, copiare, spostare ed eliminare</span></a></li><li><a href="1.5-ler-e-procurar-texto.it.html"><span class="num">1.5</span><span>Leggere e cercare testo</span></a></li><li><a href="1.6-redirecionamentos-e-pipes.it.html"><span class="num">1.6</span><span>Reindirizzamenti e pipe</span></a></li><li><a href="1.7-arquivar-e-compactar.it.html"><span class="num">1.7</span><span>Archiviare e comprimere</span></a></li><li><a href="1.8-primeiro-script.it.html"><span class="num">1.8</span><span>Primo script</span></a></li><li><a href="1.9-decidir-e-repetir.it.html"><span class="num">1.9</span><span>Decidere e ripetere</span></a></li><li><a href="1.10-software-livre-na-pratica.it.html"><span class="num">1.10</span><span>Il software libero in pratica</span></a></li></ul><h3>M2 · Sistema, utenti e permessi</h3><ul><li><a href="2.1-instalacao-e-provisionamento.it.html"><span class="num">2.1</span><span>Installazione e provisioning</span></a></li><li><a href="2.2-hardware-e-dispositivos.it.html"><span class="num">2.2</span><span>Hardware e dispositivi</span></a></li><li><a href="2.3-processos-e-logs.it.html"><span class="num">2.3</span><span>Processi e log</span></a></li><li><a href="2.4-rede-no-dia-a-dia.it.html"><span class="num">2.4</span><span>La rete di tutti i giorni</span></a></li><li><a href="2.5-acesso-remoto-e-privilegios.it.html"><span class="num">2.5</span><span>Accesso remoto e privilegi</span></a></li><li><a href="2.6-usuarios-e-grupos.it.html"><span class="num">2.6</span><span>Utenti e gruppi</span></a></li><li><a href="2.7-permissoes-e-dono.it.html"><span class="num">2.7</span><span>Permessi e proprietario</span></a></li><li><a href="2.8-diretorios-e-arquivos-especiais.it.html"><span class="num">2.8</span><span>Directory e file speciali</span></a></li></ul><h3>M3 · Testo ed editor</h3><ul><li><a href="3.1-fluxos-a-fundo.it.html"><span class="num">3.1</span><span>I flussi in profondità</span></a></li><li><a href="3.2-filtros-de-texto.it.html"><span class="num">3.2</span><span>Filtri di testo</span></a></li><li><a href="3.3-regex-e-grep.it.html"><span class="num">3.3</span><span>Regex e grep</span></a></li><li><a href="3.4-sed-e-awk.it.html"><span class="num">3.4</span><span>sed e awk</span></a></li><li><a href="3.5-vi-e-vim-de-verdade.it.html"><span class="num">3.5</span><span>vi e vim sul serio</span></a></li></ul><h3>M4 · systemd e boot</h3><ul><li><a href="4.1-como-o-linux-liga.it.html"><span class="num">4.1</span><span>Come si avvia Linux</span></a></li><li><a href="4.2-systemd-servicos-e-units.it.html"><span class="num">4.2</span><span>systemd: servizi e unit</span></a></li><li><a href="4.3-targets-desligar-e-reiniciar.it.html"><span class="num">4.3</span><span>Target: spegnere e riavviare</span></a></li><li><a href="4.4-grub-e-acesso-de-emergencia.it.html"><span class="num">4.4</span><span>GRUB e accesso di emergenza</span></a></li></ul><h3>M5 · Kernel, moduli e VM</h3><ul><li><a href="5.1-hardware-pelo-kernel.it.html"><span class="num">5.1</span><span>L'hardware visto dal kernel</span></a></li><li><a href="5.2-modulos-e-parametros.it.html"><span class="num">5.2</span><span>Moduli e parametri</span></a></li><li><a href="5.3-linux-como-convidado.it.html"><span class="num">5.3</span><span>Linux come guest</span></a></li></ul><h3>M6 · Pacchetti e repository</h3><ul><li><a href="6.1-pacotes-no-debian.it.html"><span class="num">6.1</span><span>Pacchetti su Debian</span></a></li><li><a href="6.2-pacotes-na-rocky.it.html"><span class="num">6.2</span><span>Pacchetti su Rocky</span></a></li><li><a href="6.3-repositorios.it.html"><span class="num">6.3</span><span>Repository</span></a></li><li><a href="6.4-flatpak.it.html"><span class="num">6.4</span><span>Flatpak</span></a></li><li><a href="6.5-bibliotecas-compartilhadas.it.html"><span class="num">6.5</span><span>Librerie condivise</span></a></li></ul><h3>M7 · Processi e prestazioni</h3><ul><li><a href="7.1-processos-e-sinais.it.html"><span class="num">7.1</span><span>Processi e segnali</span></a></li><li><a href="7.2-jobs-e-sessoes.it.html"><span class="num">7.2</span><span>Job e sessioni</span></a></li><li><a href="7.3-prioridade-e-perfis.it.html"><span class="num">7.3</span><span>Priorità e profili</span></a></li></ul><h3>M8 · File a fondo</h3><ul><li><a href="8.1-fhs-e-onde-cada-coisa-mora.it.html"><span class="num">8.1</span><span>FHS e dove sta ogni cosa</span></a></li><li><a href="8.2-find-a-fundo.it.html"><span class="num">8.2</span><span>find a fondo</span></a></li><li><a href="8.3-arquivamento-avancado.it.html"><span class="num">8.3</span><span>Archiviazione avanzata</span></a></li><li><a href="8.4-links.it.html"><span class="num">8.4</span><span>Link</span></a></li><li><a href="8.5-permissoes-avancadas.it.html"><span class="num">8.5</span><span>Permessi avanzati</span></a></li></ul><h3>M9 · Storage</h3><ul><li><a href="9.1-discos-e-layout.it.html"><span class="num">9.1</span><span>Dischi e layout</span></a></li><li><a href="9.2-particionar.it.html"><span class="num">9.2</span><span>Partizionare</span></a></li><li><a href="9.3-sistemas-de-arquivos.it.html"><span class="num">9.3</span><span>File system</span></a></li><li><a href="9.4-montar-e-persistir.it.html"><span class="num">9.4</span><span>Montare e rendere persistente</span></a></li><li><a href="9.5-integridade-e-espaco.it.html"><span class="num">9.5</span><span>Integrità e spazio</span></a></li><li><a href="9.6-lvm.it.html"><span class="num">9.6</span><span>LVM</span></a></li><li><a href="9.7-crescer-sem-destruir.it.html"><span class="num">9.7</span><span>Crescere senza distruggere</span></a></li></ul><h3>M10 · Utenti e accesso privilegiato</h3><ul><li><a href="10.1-contas.it.html"><span class="num">10.1</span><span>Account</span></a></li><li><a href="10.2-senhas-e-validade.it.html"><span class="num">10.2</span><span>Password e scadenza</span></a></li><li><a href="10.3-grupos-e-trabalho-em-equipe.it.html"><span class="num">10.3</span><span>Gruppi e lavoro di squadra</span></a></li><li><a href="10.4-sudo-de-verdade.it.html"><span class="num">10.4</span><span>sudo sul serio</span></a></li></ul><h3>M11 · Rete</h3><ul><li><a href="11.1-tcp-ip-para-quem-administra.it.html"><span class="num">11.1</span><span>TCP/IP per chi amministra</span></a></li><li><a href="11.2-networkmanager-e-nmcli.it.html"><span class="num">11.2</span><span>NetworkManager e nmcli</span></a></li><li><a href="11.3-rede-no-debian.it.html"><span class="num">11.3</span><span>Rete su Debian</span></a></li><li><a href="11.4-nomes-e-resolucao.it.html"><span class="num">11.4</span><span>Nomi e risoluzione</span></a></li><li><a href="11.5-diagnostico-de-rede.it.html"><span class="num">11.5</span><span>Diagnosi di rete</span></a></li></ul><h3>M12 · Sicurezza dell'host</h3><ul><li><a href="12.1-ssh-a-fundo.it.html"><span class="num">12.1</span><span>SSH in dettaglio</span></a></li><li><a href="12.2-firewall.it.html"><span class="num">12.2</span><span>Firewall</span></a></li><li><a href="12.3-selinux-modos-e-contextos.it.html"><span class="num">12.3</span><span>SELinux: modalità e contesti</span></a></li><li><a href="12.4-selinux-portas-e-booleanos.it.html"><span class="num">12.4</span><span>SELinux: porte e booleani</span></a></li><li><a href="12.5-auditoria-e-criptografia.it.html"><span class="num">12.5</span><span>Audit e crittografia</span></a></li></ul><h3>M13 · Archiviazione in rete</h3><ul><li><a href="13.1-servidor-nfs.it.html"><span class="num">13.1</span><span>Server NFS</span></a></li><li><a href="13.2-cliente-nfs.it.html"><span class="num">13.2</span><span>Client NFS</span></a></li><li><a href="13.3-autofs.it.html"><span class="num">13.3</span><span>autofs</span></a></li></ul><h3>M14 · Pianificazione</h3><ul><li><a href="14.1-cron-e-at.it.html"><span class="num">14.1</span><span>cron e at</span></a></li><li><a href="14.2-timers-do-systemd.it.html"><span class="num">14.2</span><span>Timer di systemd</span></a></li><li><a href="14.3-journald-e-rsyslog.it.html"><span class="num">14.3</span><span>journald e rsyslog</span></a></li><li><a href="14.4-hora-certa.it.html"><span class="num">14.4</span><span>L'ora corretta</span></a></li><li><a href="14.5-email-local-e-impressao.it.html"><span class="num">14.5</span><span>E-mail locale e stampa</span></a></li></ul><h3>M15 · Shell e ambiente</h3><ul><li><a href="15.1-ambiente-do-shell.it.html"><span class="num">15.1</span><span>Ambiente della shell</span></a></li><li><a href="15.2-scripts-robustos.it.html"><span class="num">15.2</span><span>Script robusti</span></a></li><li><a href="15.3-scripts-de-administracao.it.html"><span class="num">15.3</span><span>Script di amministrazione</span></a></li><li><a href="15.4-interfaces-graficas.it.html"><span class="num">15.4</span><span>Interfacce grafiche</span></a></li><li><a href="15.5-idioma-teclado-e-fuso.it.html"><span class="num">15.5</span><span>Lingua, tastiera e fuso orario</span></a></li></ul><h3>M16 · Settimana di incidenti su Rocky 10</h3><ul><li><a href="16.1-rocky-10-o-que-muda.it.html"><span class="num">16.1</span><span>Rocky 10: cosa cambia</span></a></li><li><a href="16.2-incidentes-por-area.it.html"><span class="num">16.2</span><span>Incidenti per area</span></a></li><li><a href="16.3-incidente-com-relogio.it.html"><span class="num">16.3</span><span>Incidente con cronometro</span></a></li><li><a href="16.4-correcao-e-reforco.it.html"><span class="num">16.4</span><span>Correzione e rinforzo</span></a></li></ul><h3>M17 · Proxmox in pratica</h3><ul><li><a href="17.1-proxmox-por-dentro.it.html"><span class="num">17.1</span><span>Proxmox dall'interno</span></a></li><li><a href="17.2-vm-pela-linha-de-comando.it.html"><span class="num">17.2</span><span>VM dalla riga di comando</span></a></li><li><a href="17.3-conteiner-lxc.it.html" aria-current="page"><span class="num">17.3</span><span>Container LXC</span></a></li><li><a href="17.4-storage.it.html"><span class="num">17.4</span><span>Storage: capacità, ampliamento e spostamento</span></a></li><li><a href="17.5-rede.it.html"><span class="num">17.5</span><span>Rete: bridge, VLAN, bond e SDN</span></a></li><li><a href="17.6-backup-e-restauracao.it.html"><span class="num">17.6</span><span>Backup e ripristino con PBS</span></a></li><li><a href="17.7-migracao-e-quorum.it.html"><span class="num">17.7</span><span>Migrazione e quorum</span></a></li></ul><h3>M18 · Podman</h3><ul><li><a href="18.1-conteiner-nao-e-vm.it.html"><span class="num">18.1</span><span>Un container non è una VM</span></a></li><li><a href="18.2-rodar-e-persistir.it.html"><span class="num">18.2</span><span>Eseguire e conservare i dati</span></a></li><li><a href="18.3-conteiner-como-servico.it.html"><span class="num">18.3</span><span>Container come servizio</span></a></li><li><a href="18.4-diagnosticar-conteiner-rootless.it.html"><span class="num">18.4</span><span>Diagnosticare un container rootless</span></a></li><li><a href="18.5-construir-imagens.it.html"><span class="num">18.5</span><span>Costruire immagini</span></a></li></ul><h3>M19 · Servizi di rete</h3><ul><li><a href="19.1-dns-autoritativo.it.html"><span class="num">19.1</span><span>DNS autoritativo</span></a></li><li><a href="19.2-dns-recursivo-e-diagnostico.it.html"><span class="num">19.2</span><span>DNS ricorsivo e diagnosi</span></a></li><li><a href="19.3-dhcp.it.html"><span class="num">19.3</span><span>DHCP</span></a></li><li><a href="19.4-servidor-web.it.html"><span class="num">19.4</span><span>Server web: nome, file e risposta</span></a></li><li><a href="19.5-tls-e-proxy-reverso.it.html"><span class="num">19.5</span><span>TLS e reverse proxy: identità prima del lucchetto</span></a></li><li><a href="19.6-samba-a-ponte-windows.it.html"><span class="num">19.6</span><span>Samba: il ponte con il client Windows</span></a></li><li><a href="19.7-postfix-e-correio-local.it.html"><span class="num">19.7</span><span>Postfix e posta locale</span></a></li><li><a href="19.8-dovecot-e-imaps.it.html"><span class="num">19.8</span><span>Dovecot e lettura tramite IMAPS</span></a></li><li><a href="19.9-squid-e-desafio-integrado.it.html"><span class="num">19.9</span><span>Squid e sfida integrata</span></a></li></ul><h3>M20 · Dentro NethServer 8</h3><ul><li><a href="20.1-instalar-nethserver-8.it.html"><span class="num">20.1</span><span>Installare in una VM pulita</span></a></li><li><a href="20.2-cluster-no-e-modulo.it.html"><span class="num">20.2</span><span>Cluster, nodo e modulo</span></a></li><li><a href="20.3-modulo-por-dentro.it.html"><span class="num">20.3</span><span>Dentro un modulo</span></a></li><li><a href="20.4-proxy-e-certificados.it.html"><span class="num">20.4</span><span>Proxy e certificati</span></a></li><li><a href="20.5-dominios-de-usuario.it.html"><span class="num">20.5</span><span>Domini utente: identità con confini</span></a></li><li><a href="20.6-backup-e-restauracao.it.html"><span class="num">20.6</span><span>Backup e ripristino: verificare il ritorno</span></a></li><li><a href="20.7-atualizar-mover-e-falhar.it.html"><span class="num">20.7</span><span>Aggiornare, spostare e guastare con verifica</span></a></li></ul></aside><main id="conteudo" class="aula"><article><h1>Lezione 17.3 · Container LXC</h1>
+<p>Un processo dentro il CT mostra Debian, ma usa il kernel dell’host. In questa lezione crei il CT 212 senza rete attiva, misuri questo confine e impari a entrare nell’ambiente giusto senza considerare il container una piccola VM.</p>
+<blockquote><p><strong>Il cuore di questa lezione:</strong> il CT isola processi e risorse; condivide il kernel e dipende dalla mappatura delle identità.</p></blockquote>
+<div class="tabela"><table><thead><tr><th scope="col">Scheda</th><th scope="col"></th></tr></thead><tbody><tr><td><strong>Modulo</strong></td><td>M17 · Proxmox nella pratica, lezione 3 di 7</td></tr><tr><td><strong>Quando</strong></td><td>Settimana 23</td></tr><tr><td><strong>Alla fine</strong></td><td>Crei un CT non privilegiato, leggi la configurazione e dimostri il kernel condiviso</td></tr><tr><td><strong>Prerequisiti</strong></td><td>17.1 e 17.2; console e inventario dell’host</td></tr><tr><td><strong>Durata</strong></td><td>Da 60 a 90 minuti, oltre al download del template</td></tr><tr><td><strong>Snapshot</strong></td><td><code translate="no">m17a3-inicio</code> e <code translate="no">m17a3-fim</code>, soltanto CT 212</td></tr></tbody></table></div>
+<h2 id="1-riscaldamento">1 · Riscaldamento</h2>
+<p>Rispondi senza consultare. Poi confronta con le soluzioni.</p>
+<ol><li>Il nome di una VM può dimostrare quale sistema è installato?</li>
+<li>Perché l’ID deve essere libero nell’intero cluster, non soltanto su questo nodo?</li>
+<li>Qual è la differenza tra file di template e disco di un’istanza?</li></ol>
+<h2 id="2-perche-conta">2 · Perché conta</h2>
+<p>Un’applicazione funziona in una VM e fallisce in un CT. Chi amministra prova a installare un altro kernel nel container. Il pacchetto cambia, ma la chiamata continua ad arrivare allo stesso kernel dell’host. La correzione è stata applicata al livello sbagliato.</p>
+<p>Un altro caso emerge nel backup: una directory dell’host viene montata nel CT, ma il proprietario sembra strano. I numeri appartengono a spazi di identità diversi. Risolvere concedendo accesso totale nasconderebbe la causa e aumenterebbe il rischio.</p>
+<h2 id="3-modello-mentale">3 · Modello mentale</h2>
+<p>Una VM è una casa con la propria sala macchine. Un CT è un appartamento: possiede stanze e regole, ma condivide l’infrastruttura dell’edificio. Nessuna delle due metafore garantisce un isolamento assoluto.</p>
+<figure><a href="../img/17.3-kernel-compartilhado.it.jpg"><img src="../img/17.3-kernel-compartilhado.it.jpg" alt="Una VM ha un kernel; il CT lo condivide" loading="lazy" decoding="async"></a><figcaption>Condividere il kernel cambia il confine di isolamento.</figcaption></figure>
+<h3 id="ponte-windows">Ponte Windows</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Riferimento</th><th scope="col">Relazione utile, con limite</th></tr></thead><tbody><tr><td>VM su Hyper-V</td><td>Kernel guest distinto dall’host</td></tr><tr><td>Container di processo</td><td>Condivide il kernel; non equivale a una VM</td></tr><tr><td>Account e ACL</td><td>Conta l’identità effettiva; la mappatura del CT aggiunge un livello</td></tr></tbody></table></div>
+<h2 id="4-l-essenziale">4 · L'essenziale</h2>
+<h3 id="il-ct-e-gestito-dallhost">Il CT è gestito dall’host</h3>
+<p>Usa <code translate="no">pct</code> sull’host Proxmox. Dentro il CT amministri lo spazio utente: pacchetti, file e servizi disponibili in quell’ambiente. Il comando dell’host non diventa un comando del Debian del container.</p>
+<p><code translate="no">pct enter</code> apre una shell dentro il CT partendo dall’host. <code translate="no">pct exec</code> esegue un comando delimitato e restituisce il risultato. Identifica sempre dove ti trovi prima di modificare qualsiasi file.</p>
+<h3 id="non-privilegiato-e-la-scelta-iniziale">Non privilegiato è la scelta iniziale</h3>
+<p>Alla creazione usa <code translate="no">unprivileged=1</code>. Il root interno viene mappato su un’identità senza privilegi sull’host. Questo riduce l’impatto di varie classi di guasto, ma non trasforma il kernel condiviso in un confine da VM.</p>
+<p>Non convertire un CT esistente tra privilegiato e non privilegiato modificando una riga. Proprietari del rootfs e mappature devono essere coerenti. Backup, ripristino supportato e verifica appartengono a un piano di modifica dedicato.</p>
+<figure><a href="../img/17.3-identidade-mapeada.it.jpg"><img src="../img/17.3-identidade-mapeada.it.jpg" alt="Root dentro non è root fuori" loading="lazy" decoding="async"></a><figcaption>Nel CT non privilegiato gli ID vengono mappati sull’host.</figcaption></figure>
+<h3 id="due-contenuti-due-domande">Due contenuti, due domande</h3>
+<p>Il template scaricato richiede uno storage che accetti <code translate="no">vztmpl</code>. Il volume di root creato per il CT richiede <code translate="no">rootdir</code>. Uno storage abilitato soltanto per <code translate="no">images</code> non soddisfa automaticamente nessuna delle due esigenze.</p>
+<p>Non modificare la definizione globale di uno storage per adattarla all’esercizio. Scegli un backend già autorizzato, con spazio, contenuto e supporto snapshot adeguati. Se non esiste, ferma la creazione e registra il prerequisito.</p>
+<h3 id="rocky-debian">Rocky × Debian</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Livello</th><th scope="col">VM 211</th><th scope="col">CT 212</th></tr></thead><tbody><tr><td>Spazio utente</td><td>Rocky, dalla 17.2</td><td>Debian 13 del template</td></tr><tr><td>Kernel</td><td>Proprio del guest</td><td>Condiviso con l’host</td></tr><tr><td>Strumento sull’host</td><td><code translate="no">qm</code></td><td><code translate="no">pct</code></td></tr><tr><td>Rete iniziale della lezione</td><td>Mantenuta com’era</td><td>Scheda con link disattivato, senza DHCP</td></tr></tbody></table></div>
+<p>NS8 richiede una VM nel contratto supportato del prodotto. Non provare ad adattare questo CT rimuovendo AppArmor, ampliando capabilities o abilitando risorse arbitrarie per aggirare tale requisito.</p>
+<h3 id="decidi-1">Decidi 1</h3>
+<p>Ti serve un altro kernel per l’applicazione. Qual è la decisione corretta?</p>
+<div class="tabela"><table><thead><tr><th scope="col">A</th><th scope="col">B</th><th scope="col">C</th></tr></thead><tbody><tr><td>Installare il kernel nel CT e riavviare</td><td>Pianificare una VM compatibile</td><td>Rendere il CT privilegiato senza verificare nulla</td></tr></tbody></table></div>
+<h2 id="5-lab-guidato">5 · Lab guidato</h2>
+<p>Tutti i comandi <code translate="no">pct</code>, <code translate="no">pveam</code>, <code translate="no">pvesm</code> e <code translate="no">pvesh</code> di questa lezione girano sull’host di laboratorio autorizzato. Non eseguire la procedura su un host di un cliente. Le VM da 201 a 205 restano intatte.</p>
+<p>Mantieni disponibile la console dell’host. Il CT della lezione resta senza rete attiva: non servono IP, DHCP né accesso esterno per dimostrare il modello. La 17.5 userà la sua scheda sulla rete isolata.</p>
+<h3 id="passo-1-riservare-lid-e-scegliere-gli-storage">Passo 1 · Riservare l’ID e scegliere gli storage</h3>
+<p><strong>Ipotesi:</strong> una ricerca soltanto nell’elenco CT di questo nodo basta per riservare l’ID 212?</p>
+<p>Leggi l’intero inventario e la configurazione dello storage. Non creare il CT se l’ID appartiene già a qualsiasi VM o CT, anche spento o su un altro nodo.</p>
+<pre translate="no"><code class="lang-bash">pvesh get /cluster/resources --type vm
+pvesm status
+cat /etc/pve/storage.cfg
+pct help create</code></pre>
+<p><strong>Output atteso:</strong> storage reali, relativi contenuti e inventario reale. Non esiste un output numerico di esempio da copiare.</p>
+<p><strong>Verifica:</strong> scegli uno storage per i template e uno per il rootfs; possono coincidere se supportano entrambi i contenuti. Il rootfs deve consentire snapshot CT e avere margine per 4 GB di disco e copie.</p>
+<p>Inserisci i nomi letti; non indovinare l’ID dello storage. Queste variabili restano nella sessione dell’host e vanno richieste di nuovo dopo averla chiusa.</p>
+<pre translate="no"><code class="lang-bash">read -r -p 'Storage vztmpl: ' CT_TEMPLATES
+read -r -p 'Storage rootdir: ' CT_STORE
+test -n "$CT_TEMPLATES" &amp;&amp; test -n "$CT_STORE"</code></pre>
+<h3 id="passo-2-scaricare-un-template-dal-catalogo">Passo 2 · Scaricare un template dal catalogo</h3>
+<p><strong>Ipotesi:</strong> il nome di un vecchio template annotato dimostra che il file sia ancora nel catalogo?</p>
+<p>Aggiorna il catalogo sull’host di laboratorio ed elenca la sezione dei sistemi. Scegli il Debian 13 standard per l’architettura dell’host. Copia esattamente il nome elencato, senza inventare revisione o estensione.</p>
+<pre translate="no"><code class="lang-bash">pveam update
+pveam available --section system
+read -r -p 'Template Debian 13 do catalogo: ' CT_TEMPLATE
+test -n "$CT_TEMPLATE" &amp;&amp; pveam download "$CT_TEMPLATES" "$CT_TEMPLATE"
+pveam list "$CT_TEMPLATES"</code></pre>
+<p><strong>Output atteso:</strong> download completato dal gestore e volume del template visibile nell’elenco. In caso di errore di autenticazione, trasferimento o verifica non usare un file parziale.</p>
+<p><strong>Verifica:</strong> annota il volume completo da passare al comando successivo. La sola esistenza del file non sostituisce il successo registrato del download.</p>
+<pre translate="no"><code class="lang-bash">read -r -p 'Volume completo vztmpl listado: ' CT_VOLUME
+test -n "$CT_VOLUME"</code></pre>
+<h3 id="passo-3-creare-il-ct-non-privilegiato">Passo 3 · Creare il CT non privilegiato</h3>
+<p><strong>Ipotesi:</strong> il root interno avrà lo stesso ID effettivo sull’host?</p>
+<p>La guardia seguente rifiuta qualsiasi ID 212 presente nel cluster. Se la query fallisce o avviene una creazione concorrente, fermati; non aggirare mai l’errore con una rimozione forzata.</p>
+<pre translate="no"><code class="lang-bash">set -o pipefail
+pvesh get /cluster/resources --type vm --output-format json |
+  perl -MJSON::PP -0777 -e '$r=decode_json(&lt;&gt;); exit((scalar grep { $_-&gt;{vmid} == 212 } @$r) ? 1 : 0)' &amp;&amp;
+pct create 212 "$CT_VOLUME" --hostname m17-ct --unprivileged 1 \
+  --cores 1 --memory 512 --swap 0 --rootfs "$CT_STORE:4" --features nesting=1 \
+  --net0 name=eth0,bridge=vmbr0,ip=manual,ip6=manual,firewall=1,link_down=1 \
+  --onboot 0 || { printf '%s\n' 'STOP: CT creation failed; do not continue' &gt;&amp;2; exit 1; }
+pct config 212</code></pre>
+<p><strong>Output atteso:</strong> nome corretto, limite di memoria, <code translate="no">unprivileged: 1</code> e scheda con link disattivato. Lo storage del rootfs è quello scelto.</p>
+<p><strong>Verifica:</strong> conferma ID, nome e tutti i campi prima di avviare. Un errore di creazione richiede di leggere l’errore e lo stato parziale, non di ripetere ciecamente la stessa creazione.</p>
+<pre translate="no"><code class="lang-bash">ct_m17_confere() {
+  local esperado="${1:-m17-ct}" config
+  case "$esperado" in m17-ct|m17-ct-errado) ;; *) return 1 ;; esac
+  config=$(pct config 212) || return 1
+  test "$(printf '%s\n' "$config" | sed -n 's/^hostname: //p')" = "$esperado" || return 1
+  test "$(printf '%s\n' "$config" | sed -n 's/^unprivileged: //p')" = '1' || return 1
+}
+ct_m17_confere || exit 1
+pct start 212
+pct status 212
+pct exec 212 -- hostname
+ct_m17_confere || exit 1
+pct snapshot 212 m17a3-inicio</code></pre>
+<p>La funzione conferma nome e modalità non privilegiata prima delle modifiche. Se hai aperto un’altra sessione dell’host, definiscila nuovamente prima di continuare; un controllo fallito richiede di fermarsi e identificare l’oggetto.</p>
+<p>Lo snapshot iniziale si crea dopo la creazione, perché prima il CT non esisteva. Se il backend rifiuta lo snapshot, interrompi le modifiche: risolvi il prerequisito oppure ricrea il banco vuoto su un backend autorizzato.</p>
+<h3 id="passo-4-misurare-kernel-e-identita">Passo 4 · Misurare kernel e identità</h3>
+<p><strong>Ipotesi:</strong> quale lettura deve coincidere tra host e CT e quale deve identificare il Debian interno?</p>
+<p>Sull’host confronta queste tre letture. Il file d’identità interno non deve necessariamente corrispondere a quello dell’host; la release del kernel condiviso corrisponde a quella eseguita dall’host.</p>
+<pre translate="no"><code class="lang-bash">uname -r
+pct exec 212 -- uname -r
+pct exec 212 -- cat /etc/os-release
+pct exec 212 -- id
+pct exec 212 -- cat /proc/self/uid_map</code></pre>
+<p><strong>Output atteso:</strong> kernel condiviso e sistema utente Debian 13. Il root interno ha ID zero nel CT; la mappa mostra la traduzione verso ID esterni.</p>
+<p><strong>Verifica:</strong> spiega le colonne della mappa con la documentazione locale. Non presumere che tutti gli host usino lo stesso inizio intervallo e non riscrivere la mappa per imitare una schermata.</p>
+<h3 id="passo-5-entrare-uscire-e-delimitare-il-comando">Passo 5 · Entrare, uscire e delimitare il comando</h3>
+<p><strong>Ipotesi:</strong> dopo l’uscita dalla shell interna, dove verrà eseguito il prossimo comando?</p>
+<p>Entra dall’host. I comandi tra ingresso e uscita appartengono al CT; la query finale appartiene di nuovo all’host. Non serve alcun pacchetto aggiuntivo.</p>
+<pre translate="no"><code class="lang-bash">pct enter 212
+hostname
+cat /etc/os-release
+exit
+pct status 212</code></pre>
+<p><strong>Output atteso:</strong> la shell ritorna all’host dopo <code translate="no">exit</code>. Il CT resta acceso. Uscire da una sessione non equivale a spegnerne il sistema.</p>
+<p><strong>Verifica:</strong> ripeti una lettura con <code translate="no">pct exec</code> e spiega perché il suo ambito è più semplice da registrare in una procedura automatica.</p>
+<pre translate="no"><code class="lang-bash">pct exec 212 -- sh -c 'printf "HOST=%s\n" "$(hostname)"; id; uname -r'</code></pre>
+<h3 id="passo-6-riavviare-e-verificare-il-confine">Passo 6 · Riavviare e verificare il confine</h3>
+<p><strong>Ipotesi:</strong> riavviare il CT cambia il kernel dell’host?</p>
+<p><strong>Reboot di verifica:</strong> riavvia soltanto il CT 212. Attendi lo stato e ripeti la lettura di kernel, identità e configurazione, sempre dall’host.</p>
+<pre translate="no"><code class="lang-bash">ct_m17_confere || exit 1
+pct reboot 212
+pct status 212
+pct exec 212 -- uname -r
+pct exec 212 -- cat /etc/os-release
+pct config 212</code></pre>
+<p><strong>Output atteso:</strong> CT nuovamente acceso, kernel dell’host e modalità non privilegiata conservati. La scheda resta disattivata, senza acquisire indirizzi.</p>
+<p><strong>Verifica:</strong> confronta con il registro iniziale. Non riavviare l’host per correggere un errore di servizio del CT senza una causa dimostrata.</p>
+<h3 id="decidi-2">Decidi 2</h3>
+<p>Lo storage accetta dischi VM, ma rifiuta il rootfs. Qual è la prossima azione?</p>
+<div class="tabela"><table><thead><tr><th scope="col">A</th><th scope="col">B</th><th scope="col">C</th></tr></thead><tbody><tr><td>Disabilitare l’isolamento del CT</td><td>Modificare globalmente lo storage senza esaminare i consumatori</td><td>Verificare tipo, contenuto e backend autorizzato per rootdir</td></tr></tbody></table></div>
+<h2 id="6-rompi-e-ripara">6 · Rompi e ripara</h2>
+<p>I tre guasti seguenti restano nel CT usa e getta o nel diario. Lo snapshot protegge il CT, non l’intero host. Non toccare file globali di Proxmox.</p>
+<h3 id="guasto-1-query-nel-posto-sbagliato">Guasto 1 · Query nel posto sbagliato</h3>
+<p><strong>Sintomo:</strong> dentro il CT cerchi lo strumento di amministrazione dell’host e non esiste. Riproduci soltanto con una query.</p>
+<pre translate="no"><code class="lang-bash">pct exec 212 -- sh -c 'command -v pct || true'</code></pre>
+<p><strong>Indagine:</strong> confronta hostname, file d’identità e ruolo di ogni ambiente.</p>
+<p><strong>Causa:</strong> un comando del gestore dei container è stato cercato nello spazio utente del container.</p>
+<p><strong>Riparazione:</strong> esci dalla shell interna se ci sei; usa <code translate="no">pct config 212</code> sull’host. Non installare Proxmox dentro il CT per nascondere l’errore di contesto.</p>
+<p><strong>Verifica:</strong> spiega dove è stato eseguito ogni comando e quale identità ha interrogato.</p>
+<p><strong>Prevenzione:</strong> scrivi host o CT nel diario prima del blocco eseguito.</p>
+<h3 id="guasto-2-memoria-configurata-diversa-dal-contratto">Guasto 2 · Memoria configurata diversa dal contratto</h3>
+<p><strong>Sintomo:</strong> la configurazione del CT mostra un altro limite. Introduci soltanto questa differenza nel CT 212.</p>
+<pre translate="no"><code class="lang-bash">ct_m17_confere || exit 1
+pct set 212 --memory 384
+pct config 212</code></pre>
+<p><strong>Indagine:</strong> confronta la configurazione attuale con la scheda di creazione e le letture interne, senza confondere limite e consumo.</p>
+<p><strong>Causa:</strong> il limite di memoria è stato modificato; non ci sono prove di una perdita di memoria.</p>
+<p><strong>Riparazione:</strong> ripristina il valore del contratto senza modificare altri CT.</p>
+<pre translate="no"><code class="lang-bash">ct_m17_confere || exit 1
+pct set 212 --memory 512
+pct config 212</code></pre>
+<p><strong>Verifica:</strong> il limite torna a 512 MB e resta dopo il reboot del CT.</p>
+<p><strong>Prevenzione:</strong> registra limite, utilizzo e fonte della misura in campi separati.</p>
+<h3 id="guasto-3-nome-interno-inatteso">Guasto 3 · Nome interno inatteso</h3>
+<p><strong>Sintomo:</strong> l’identificazione del CT non corrisponde più alla scheda. Applica l’errore soltanto tramite il gestore.</p>
+<pre translate="no"><code class="lang-bash">ct_m17_confere || exit 1
+pct set 212 --hostname m17-ct-errado
+pct config 212
+pct exec 212 -- hostname</code></pre>
+<p><strong>Indagine:</strong> confronta nome configurato e nome osservato. Se la versione o la modalità di avvio richiede un restart, registralo; non inventare una modifica istantanea.</p>
+<p><strong>Causa:</strong> la configurazione d’identità è stata modificata senza cambiare il contenuto del sistema Debian.</p>
+<p><strong>Riparazione:</strong> ripristina il nome previsto e riavvia il CT per confermare lo stato finale.</p>
+<pre translate="no"><code class="lang-bash">ct_m17_confere m17-ct-errado || exit 1
+pct set 212 --hostname m17-ct
+ct_m17_confere || exit 1
+pct reboot 212
+pct exec 212 -- hostname</code></pre>
+<p><strong>Verifica:</strong> il nome osservato torna al contratto. Il nome resta un’etichetta, non una prova di versione o isolamento.</p>
+<p><strong>Prevenzione:</strong> verifica insieme configurazione e osservazione dopo modifiche e riavvii.</p>
+<figure><a href="../img/17.3-storage-e-conteudo.it.jpg"><img src="../img/17.3-storage-e-conteudo.it.jpg" alt="Lo storage deve accettare il contenuto" loading="lazy" decoding="async"></a><figcaption>Template e rootfs hanno tipi di contenuto diversi.</figcaption></figure>
+<h2 id="7-trappole">7 · Trappole</h2>
+<ul><li>Condividere il kernel non significa condividere tutti i file; sono confini diversi.</li>
+<li>Root nel CT non giustifica la mappatura del root dell’host né l’ampliamento dei permessi di directory esterne.</li>
+<li>Un bind mount può portare dati dell’host nell’ambito del CT. Questa lezione non ne crea.</li>
+<li>Non installare pacchetti kernel aspettandoti di cambiare il kernel effettivamente usato dal CT.</li>
+<li>Lo snapshot di un CT non protegge modifiche alla configurazione globale dell’host o del cluster.</li></ul>
+<h2 id="8-quiz">8 · Quiz</h2>
+<ol><li>Quale lettura dimostra il kernel condiviso senza confonderlo con la versione Debian?</li>
+<li>Perché <code translate="no">UID 0</code> dentro il CT non basta per affermare privilegi root sull’host?</li>
+<li>Quale contenuto di storage conserva il template e quale serve il rootfs?</li>
+<li>Quando usi <code translate="no">pct exec</code> invece di mantenere aperta una shell interattiva?</li>
+<li>Perché non abilitare privilegi aggiuntivi per eseguire NS8 in questo CT?</li>
+<li>Cosa devi conservare per continuare la 17.5?</li></ol>
+<h2 id="9-promemoria">9 · Promemoria</h2>
+<div class="tabela"><table><thead><tr><th scope="col">Domanda</th><th scope="col">Lettura sull’host</th></tr></thead><tbody><tr><td>Il CT esiste ed è acceso?</td><td><code translate="no">pct status 212</code></td></tr><tr><td>Cosa ha configurato l’host?</td><td><code translate="no">pct config 212</code></td></tr><tr><td>Quale kernel usa il CT?</td><td><code translate="no">pct exec 212 -- uname -r</code></td></tr><tr><td>Qual è lo spazio utente?</td><td><code translate="no">pct exec 212 -- cat /etc/os-release</code></td></tr><tr><td>Qual è la mappa d’identità?</td><td><code translate="no">pct exec 212 -- cat /proc/self/uid_map</code></td></tr></tbody></table></div>
+<p><strong>Flashcard:</strong> crea da 5 a 10 carte includendo kernel, contesto, contenuto di storage e mappatura. Ripassa a D+1, D+3, D+7 e D+21.</p>
+<h2 id="10-checklist-e-chiusura">10 · Checklist e chiusura</h2>
+<h3 id="pulizia-e-continuita">Pulizia e continuità</h3>
+<p>Ripristina nome e memoria corretti. Conserva il CT 212 senza rete attiva per la 17.5; non distruggerlo qui. Nella 17.5 verrà rimosso dopo aver conservato le prove, liberando l’ID per la prova di ripristino della 17.6.</p>
+<p>Non eliminare il template condiviso soltanto perché hai terminato il download: potrebbe avere consumatori esterni all’esercizio. La lezione non crea storage globali, bind mount né regole firewall.</p>
+<ul><li>[ ] Ho confermato ID e nome del CT usa e getta nel cluster.</li>
+<li>[ ] Ho confrontato kernel e identità senza scambiare i livelli.</li>
+<li>[ ] Ho dimostrato modalità non privilegiata e mappa degli ID.</li>
+<li>[ ] Ho ripristinato i tre guasti e verificato dopo il reboot.</li></ul>
+<pre translate="no"><code class="lang-bash">pct config 212
+ct_m17_confere || exit 1
+pct snapshot 212 m17a3-fim</code></pre>
+<p><strong>Ultimo esercizio:</strong> spiega perché una VM e un CT con lo stesso nome di distribuzione possono avere kernel e confini diversi.</p>
+<h2 id="11-nella-vita-reale">11 · Nella vita reale</h2>
+<p>Su un host autorizzato esegui soltanto inventario: scegli un CT noto e leggi la configurazione senza entrare nei dati degli utenti né modificare limiti. Se non c’è un CT, registra l’assenza; non crearne uno in produzione per completare l’esercizio.</p>
+<p>Confronta la politica d’isolamento con le esigenze dell’applicazione. Una decisione di migrazione deve citare kernel, dispositivi, storage, backup e supporto del fornitore, non soltanto il consumo RAM.</p>
+<h2 id="12-approfondire-quando-vuoi">12 · Approfondire quando vuoi</h2>
+<ul><li><a href="https://pve.proxmox.com/pve-docs/chapter-pct.html">Proxmox: amministrazione dei container</a>.</li>
+<li><a href="https://pve.proxmox.com/pve-docs/pct.1.html">Proxmox: opzioni e comandi pct</a>.</li>
+<li><a href="https://pve.proxmox.com/pve-docs/pveam.1.html">Proxmox: gestore dei template</a>.</li>
+<li><a href="https://docs.nethserver.org/projects/ns8/en/latest/install.html">NethServer 8: requisiti d’installazione</a>.</li></ul>
+<p>Consulta anche la guida installata nella versione del tuo host; determina nomi e opzioni disponibili.</p>
+<pre translate="no"><code class="lang-bash">man pct
+man pveam
+man pvesm</code></pre>
+<p><code translate="no">!explica 17.3 kernel compartilhado, CT não privilegiado e rootfs</code></p>
+<p><code translate="no">!feynman 17.3 vou explicar onde pct roda e como o root interno é mapeado</code></p>
+<p><code translate="no">!quiz 17.3</code></p>
+<h3 id="soluzioni-commentate">Soluzioni commentate</h3>
+<p><strong>Riscaldamento:</strong> il nome è un’etichetta; leggi l’identità del sistema. I VMID appartengono al cluster e possono trovarsi su un altro nodo. Il template è la fonte; il rootfs è il volume creato per un’istanza.</p>
+<p><strong>Decidi 1:</strong> B. Un’altra esigenza di kernel richiede una VM compatibile; modificare lo spazio utente del CT non cambia il kernel condiviso.</p>
+<p><strong>Decidi 2:</strong> C. Verifica backend e contenuto autorizzato; una modifica globale non giustificata coinvolgerebbe altri consumatori.</p>
+<ol><li>Confronta <code translate="no">uname -r</code> sull’host con <code translate="no">pct exec 212 -- uname -r</code>; leggi separatamente l’identità utente con <code translate="no">/etc/os-release</code>.</li>
+<li>Il CT non privilegiato usa una mappa degli ID. Root interno viene tradotto in un’identità esterna senza privilegi; leggi la mappa reale.</li>
+<li><code translate="no">vztmpl</code> conserva file di template; <code translate="no">rootdir</code> serve i volumi dei container. Il tipo di contenuto non elimina la verifica del supporto del backend.</li>
+<li>Quando vuoi un comando delimitato, ritorno osservabile e minor rischio di perdere il contesto. La shell interattiva richiede di confermare ingresso e uscita.</li>
+<li>Il requisito supportato è una VM; ampliare i privilegi non sostituisce il supporto né crea un kernel proprio.</li>
+<li>Il CT 212 corretto, non privilegiato, senza rete attiva, con nome e memoria ripristinati e prova del reboot.</li></ol>
+<p><a href="17.2-vm-pela-linha-de-comando.it.html">← Lezione 17.2 · VM dalla riga di comando</a> · <a href="index.it.html">Indice delle lezioni</a> · <a href="https://github.com/Rodrigoantignani/curso-linux-sysadmin/blob/master/00-plano-do-curso.md">Piano del corso: dalla 17.4 in poi →</a></p>
+</article><nav class="paginas" aria-label="Lezioni"><a class="ant" href="17.2-vm-pela-linha-de-comando.it.html"><small>← Precedente</small>17.2 · VM dalla riga di comando</a><a class="prox" href="17.4-storage.it.html"><small>Successiva →</small>17.4 · Storage: capacità, ampliamento e spostamento</a></nav></main></div>
+<footer><div class="wrap">Generato dal Markdown del corso · Immagini in <code translate="no">img/</code></div></footer>
+</body>
+</html>

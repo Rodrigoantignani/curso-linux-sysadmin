@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light dark">
+<title>17.2 · VM pela linha de comando · Curso Linux Sysadmin</title>
+<link rel="alternate" hreflang="pt-BR" href="17.2-vm-pela-linha-de-comando.html"><link rel="alternate" hreflang="it" href="17.2-vm-pela-linha-de-comando.it.html">
+<style>
+:root{color-scheme:light dark;--bg:#f6f1e7;--card:#fffdf8;--ink:#201c16;--muted:#5e564a;--accent:#9a3412;--accent-2:#1f5f4a;--tint:#efe6d4;--line:#ddd2bc;--code:#f1eadb;--shadow:0 1px 2px rgba(60,40,10,.08);--serif:Georgia,"Iowan Old Style","Palatino Linotype",Palatino,serif;--sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--mono:"Cascadia Code",Consolas,"DejaVu Sans Mono",monospace}
+@media (prefers-color-scheme:dark){:root{--bg:#16130f;--card:#201b15;--ink:#f1eadb;--muted:#b9ad98;--accent:#f0a070;--accent-2:#7fd0b0;--tint:#2a231a;--line:#3d3427;--code:#191510;--shadow:none}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:5.5rem}
+body{margin:0;background:var(--bg);color:var(--ink);font:1rem/1.6 var(--sans)}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--accent-2);outline-offset:2px;border-radius:4px}
+.pular{position:absolute;left:-999px;top:0;background:var(--card);padding:.5rem 1rem;z-index:20}
+.pular:focus{left:.5rem;top:.5rem}
+.wrap{width:100%;max-width:84rem;margin:0 auto;padding-inline:max(1rem,env(safe-area-inset-left))}
+.top{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10;border-top:6px solid var(--accent)}
+.top-in{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding-block:.6rem}
+.titles{min-width:0}
+.marca{margin:0;font:700 clamp(1.15rem,1rem + 1vw,1.6rem)/1.15 var(--serif);letter-spacing:-.01em}
+.marca a{text-decoration:none}
+.marca a:hover{color:var(--accent)}
+.meta{margin:.1rem 0 0;color:var(--muted);font-size:.85rem}
+.acoes{display:flex;align-items:center;gap:.9rem;flex:none}
+.acoes>a{font-size:.9rem;font-weight:600;color:var(--muted);text-decoration:none}
+.acoes>a:hover{color:var(--accent);text-decoration:underline}
+.idioma{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--tint)}
+.idioma>*{padding:.35rem .9rem;font-size:.8rem;font-weight:700;letter-spacing:.06em;text-decoration:none;color:var(--muted);min-width:2.75rem;text-align:center}
+.idioma a:hover{color:var(--accent);text-decoration:underline}
+.idioma span{background:var(--accent);color:#fff}
+@media (prefers-color-scheme:dark){.idioma span{color:#16130f}}
+code{font-family:var(--mono);font-size:.9em;background:var(--tint);padding:.1rem .35rem;border-radius:4px;overflow-wrap:anywhere}
+/* índice */
+.capa{max-width:70rem;padding-block:2rem 3rem}
+.stats{border-left:4px solid var(--accent-2);background:var(--card);border-radius:0 10px 10px 0;padding:1rem 1.25rem;margin:0 0 2.5rem;box-shadow:var(--shadow);color:var(--muted)}
+.stats strong{color:var(--ink)}
+.modulo{display:grid;grid-template-columns:15rem minmax(0,1fr);gap:1rem 2rem;padding:1.75rem 0;border-top:1px solid var(--line)}
+.modulo h2{margin:0;font:700 1.25rem/1.25 var(--serif);align-self:start;position:sticky;top:6rem}
+.mn{display:block;font:700 .8rem var(--mono);letter-spacing:.12em;color:var(--accent);margin-bottom:.25rem}
+.sep{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.modulo ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,17rem),1fr));gap:.75rem}
+.modulo li{margin:0}
+.modulo a{display:flex;gap:.45rem;align-items:baseline;height:100%;padding:.85rem 1rem;background:var(--card);border:1px solid var(--line);border-radius:10px;text-decoration:none;font-weight:600;line-height:1.35;box-shadow:var(--shadow);transition:border-color .15s,transform .15s}
+.modulo a:hover{border-color:var(--accent);color:var(--accent)}
+.num{font:700 .85rem var(--mono);color:var(--accent);white-space:nowrap}
+/* aula */
+.doc{display:grid;grid-template-columns:17rem minmax(0,1fr);gap:2.5rem;align-items:start;padding-block:2rem 3rem}
+.lateral{position:sticky;top:5.5rem;max-height:calc(100vh - 6.5rem);overflow:auto;font-size:.875rem;padding-right:.5rem}
+.lateral h2{margin:0 0 .25rem;font:700 .95rem var(--serif);color:var(--muted)}
+.lateral h3{margin:1rem 0 .25rem;font:700 .75rem var(--mono);letter-spacing:.06em;color:var(--accent)}
+.lateral ul{list-style:none;margin:0;padding:0}
+.lateral a{display:flex;gap:.45rem;padding:.25rem .5rem;border-radius:6px;text-decoration:none;color:var(--muted);line-height:1.3}
+.lateral a:hover{background:var(--tint);color:var(--ink)}
+.lateral a[aria-current]{background:var(--tint);color:var(--ink);font-weight:700;box-shadow:inset 3px 0 0 var(--accent)}
+.lateral .num{font-size:.75rem}
+.aula{min-width:0;max-width:56rem;overflow-wrap:break-word;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:clamp(1.25rem,1rem + 2vw,2.75rem);box-shadow:var(--shadow)}
+.aula h1{margin:0 0 1.5rem;font:700 clamp(1.75rem,1.4rem + 1.6vw,2.5rem)/1.15 var(--serif);letter-spacing:-.015em;color:var(--ink)}
+.aula h2{margin:2.5rem 0 .75rem;padding-top:1.25rem;border-top:1px solid var(--line);font:700 1.5rem/1.25 var(--serif)}
+.aula h3{margin:2rem 0 .5rem;font:700 1.15rem/1.3 var(--serif);color:var(--accent)}
+.aula h4,.aula h5,.aula h6{margin:1.5rem 0 .5rem;font-size:1rem}
+.aula p,.aula ul,.aula ol{margin:1rem 0}
+.aula ul,.aula ol{padding-left:1.5rem}
+.aula li{margin:.35rem 0}
+.aula li>ul,.aula li>ol{margin:.35rem 0}
+.aula a{color:var(--accent);text-underline-offset:2px}
+.aula hr{border:0;border-top:1px solid var(--line);margin:2rem 0}
+.tabela{overflow-x:auto;margin:1.25rem 0;border:1px solid var(--line);border-radius:10px}
+.aula table{width:100%;border-collapse:collapse;font-size:.9rem}
+.aula th,.aula td{padding:.55rem .75rem;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+.aula tr:last-child td{border-bottom:0}
+.aula th{background:var(--tint);font-weight:700}
+.aula pre{background:var(--code);border:1px solid var(--line);border-radius:10px;padding:.9rem 1rem;overflow-x:auto;font:.85rem/1.5 var(--mono);margin:1rem 0;tab-size:4}
+.aula pre code{background:none;padding:0;font-size:inherit;overflow-wrap:normal}
+.aula blockquote{margin:1.25rem 0;padding:.75rem 1.25rem;border-left:4px solid var(--accent-2);background:var(--tint);border-radius:0 10px 10px 0}
+.aula blockquote>:first-child{margin-top:0}
+.aula blockquote>:last-child{margin-bottom:0}
+.aula figure{margin:1.75rem 0;text-align:center}
+.aula figure img{display:block;margin:0 auto;max-width:100%;height:auto;border:1px solid var(--line);border-radius:10px;background:#fff}
+.aula figcaption{margin-top:.5rem;color:var(--muted);font-size:.9rem;font-style:italic}
+.paginas{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:2.5rem;padding-top:1.5rem;border-top:1px solid var(--line)}
+.paginas a{display:block;padding:.75rem 1rem;border:1px solid var(--line);border-radius:10px;text-decoration:none;color:var(--ink);font-weight:600;line-height:1.3}
+.paginas a:hover{border-color:var(--accent);color:var(--accent)}
+.paginas small{display:block;color:var(--muted);font-weight:400}
+.paginas .prox{grid-column:2;text-align:right}
+footer{border-top:1px solid var(--line);padding-block:1.5rem;color:var(--muted);font-size:.85rem;text-align:center}
+@media (hover:hover) and (prefers-reduced-motion:no-preference){.modulo a:hover{transform:translateY(-2px)}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+@media (max-width:980px){.doc{grid-template-columns:minmax(0,1fr);padding-top:1rem}.lateral{position:static;max-height:none;order:2}.aula{max-width:none}}
+@media (max-width:860px){.modulo{grid-template-columns:minmax(0,1fr)}.modulo h2{position:static}.mn{display:inline;margin-right:.5rem}}
+@media (max-width:420px){.meta{display:none}.top-in{gap:.5rem}.acoes{gap:.6rem}.capa{padding-top:1.25rem}.paginas{grid-template-columns:minmax(0,1fr)}.paginas .prox{grid-column:1}}
+@media print{.top,.lateral,.paginas{display:none}.aula{border:0;box-shadow:none;padding:0;max-width:none}.doc{display:block}}
+</style>
+</head>
+<body>
+<a class="pular" href="#conteudo">Pular para o conteúdo</a>
+<header class="top"><div class="wrap top-in"><div class="titles"><p class="marca"><a href="index.html">Curso Linux Sysadmin</a></p><p class="meta">Rodrigo Antignani · Aula 17.2</p></div><div class="acoes"><a href="index.html">Índice</a><div class="idioma" role="group" aria-label="Idioma"><span aria-current="true">PT</span><a href="17.2-vm-pela-linha-de-comando.it.html" hreflang="it" lang="it">IT</a></div></div></div></header>
+<div class="wrap doc"><aside class="lateral" aria-label="Aulas"><h2>Aulas</h2><h3>M0 · Laboratório</h3><ul><li><a href="0.1-montar-o-laboratorio.html"><span class="num">0.1</span><span>Montar o laboratório</span></a></li><li><a href="0.2-acesso-e-protecao.html"><span class="num">0.2</span><span>Acesso e proteção</span></a></li></ul><h3>M1 · Linha de comando</h3><ul><li><a href="1.1-o-que-e-linux.html"><span class="num">1.1</span><span>O que é Linux</span></a></li><li><a href="1.2-o-shell-e-a-ajuda.html"><span class="num">1.2</span><span>O shell e a ajuda</span></a></li><li><a href="1.3-caminhos-e-navegacao.html"><span class="num">1.3</span><span>Caminhos e navegação</span></a></li><li><a href="1.4-criar-copiar-mover-e-apagar.html"><span class="num">1.4</span><span>Criar, copiar, mover e apagar</span></a></li><li><a href="1.5-ler-e-procurar-texto.html"><span class="num">1.5</span><span>Ler e procurar texto</span></a></li><li><a href="1.6-redirecionamentos-e-pipes.html"><span class="num">1.6</span><span>Redirecionamentos e pipes</span></a></li><li><a href="1.7-arquivar-e-compactar.html"><span class="num">1.7</span><span>Arquivar e compactar</span></a></li><li><a href="1.8-primeiro-script.html"><span class="num">1.8</span><span>Primeiro script</span></a></li><li><a href="1.9-decidir-e-repetir.html"><span class="num">1.9</span><span>Decidir e repetir</span></a></li><li><a href="1.10-software-livre-na-pratica.html"><span class="num">1.10</span><span>Software livre na prática</span></a></li></ul><h3>M2 · Sistema, usuários e permissões</h3><ul><li><a href="2.1-instalacao-e-provisionamento.html"><span class="num">2.1</span><span>Instalação e provisionamento</span></a></li><li><a href="2.2-hardware-e-dispositivos.html"><span class="num">2.2</span><span>Hardware e dispositivos</span></a></li><li><a href="2.3-processos-e-logs.html"><span class="num">2.3</span><span>Processos e logs</span></a></li><li><a href="2.4-rede-no-dia-a-dia.html"><span class="num">2.4</span><span>Rede no dia a dia</span></a></li><li><a href="2.5-acesso-remoto-e-privilegios.html"><span class="num">2.5</span><span>Acesso remoto e privilégios</span></a></li><li><a href="2.6-usuarios-e-grupos.html"><span class="num">2.6</span><span>Usuários e grupos</span></a></li><li><a href="2.7-permissoes-e-dono.html"><span class="num">2.7</span><span>Permissões e dono</span></a></li><li><a href="2.8-diretorios-e-arquivos-especiais.html"><span class="num">2.8</span><span>Diretórios e arquivos especiais</span></a></li></ul><h3>M3 · Texto e editor</h3><ul><li><a href="3.1-fluxos-a-fundo.html"><span class="num">3.1</span><span>Fluxos a fundo</span></a></li><li><a href="3.2-filtros-de-texto.html"><span class="num">3.2</span><span>Filtros de texto</span></a></li><li><a href="3.3-regex-e-grep.html"><span class="num">3.3</span><span>Regex e grep</span></a></li><li><a href="3.4-sed-e-awk.html"><span class="num">3.4</span><span>sed e awk</span></a></li><li><a href="3.5-vi-e-vim-de-verdade.html"><span class="num">3.5</span><span>vi e vim de verdade</span></a></li></ul><h3>M4 · systemd e boot</h3><ul><li><a href="4.1-como-o-linux-liga.html"><span class="num">4.1</span><span>Como o Linux liga</span></a></li><li><a href="4.2-systemd-servicos-e-units.html"><span class="num">4.2</span><span>systemd: serviços e units</span></a></li><li><a href="4.3-targets-desligar-e-reiniciar.html"><span class="num">4.3</span><span>Targets: desligar e reiniciar</span></a></li><li><a href="4.4-grub-e-acesso-de-emergencia.html"><span class="num">4.4</span><span>GRUB e acesso de emergência</span></a></li></ul><h3>M5 · Kernel, módulos e VM</h3><ul><li><a href="5.1-hardware-pelo-kernel.html"><span class="num">5.1</span><span>Hardware pelo kernel</span></a></li><li><a href="5.2-modulos-e-parametros.html"><span class="num">5.2</span><span>Módulos e parâmetros</span></a></li><li><a href="5.3-linux-como-convidado.html"><span class="num">5.3</span><span>Linux como convidado</span></a></li></ul><h3>M6 · Pacotes e repositórios</h3><ul><li><a href="6.1-pacotes-no-debian.html"><span class="num">6.1</span><span>Pacotes no Debian</span></a></li><li><a href="6.2-pacotes-na-rocky.html"><span class="num">6.2</span><span>Pacotes na Rocky</span></a></li><li><a href="6.3-repositorios.html"><span class="num">6.3</span><span>Repositórios</span></a></li><li><a href="6.4-flatpak.html"><span class="num">6.4</span><span>Flatpak</span></a></li><li><a href="6.5-bibliotecas-compartilhadas.html"><span class="num">6.5</span><span>Bibliotecas compartilhadas</span></a></li></ul><h3>M7 · Processos e desempenho</h3><ul><li><a href="7.1-processos-e-sinais.html"><span class="num">7.1</span><span>Processos e sinais</span></a></li><li><a href="7.2-jobs-e-sessoes.html"><span class="num">7.2</span><span>Jobs e sessões</span></a></li><li><a href="7.3-prioridade-e-perfis.html"><span class="num">7.3</span><span>Prioridade e perfis</span></a></li></ul><h3>M8 · Arquivos a fundo</h3><ul><li><a href="8.1-fhs-e-onde-cada-coisa-mora.html"><span class="num">8.1</span><span>FHS e onde cada coisa mora</span></a></li><li><a href="8.2-find-a-fundo.html"><span class="num">8.2</span><span>find a fundo</span></a></li><li><a href="8.3-arquivamento-avancado.html"><span class="num">8.3</span><span>Arquivamento avançado</span></a></li><li><a href="8.4-links.html"><span class="num">8.4</span><span>Links</span></a></li><li><a href="8.5-permissoes-avancadas.html"><span class="num">8.5</span><span>Permissões avançadas</span></a></li></ul><h3>M9 · Armazenamento</h3><ul><li><a href="9.1-discos-e-layout.html"><span class="num">9.1</span><span>Discos e layout</span></a></li><li><a href="9.2-particionar.html"><span class="num">9.2</span><span>Particionar</span></a></li><li><a href="9.3-sistemas-de-arquivos.html"><span class="num">9.3</span><span>Sistemas de arquivos</span></a></li><li><a href="9.4-montar-e-persistir.html"><span class="num">9.4</span><span>Montar e persistir</span></a></li><li><a href="9.5-integridade-e-espaco.html"><span class="num">9.5</span><span>Integridade e espaço</span></a></li><li><a href="9.6-lvm.html"><span class="num">9.6</span><span>LVM</span></a></li><li><a href="9.7-crescer-sem-destruir.html"><span class="num">9.7</span><span>Crescer sem destruir</span></a></li></ul><h3>M10 · Usuários e acesso privilegiado</h3><ul><li><a href="10.1-contas.html"><span class="num">10.1</span><span>Contas</span></a></li><li><a href="10.2-senhas-e-validade.html"><span class="num">10.2</span><span>Senhas e validade</span></a></li><li><a href="10.3-grupos-e-trabalho-em-equipe.html"><span class="num">10.3</span><span>Grupos e trabalho em equipe</span></a></li><li><a href="10.4-sudo-de-verdade.html"><span class="num">10.4</span><span>sudo de verdade</span></a></li></ul><h3>M11 · Rede</h3><ul><li><a href="11.1-tcp-ip-para-quem-administra.html"><span class="num">11.1</span><span>TCP/IP para quem administra</span></a></li><li><a href="11.2-networkmanager-e-nmcli.html"><span class="num">11.2</span><span>NetworkManager e nmcli</span></a></li><li><a href="11.3-rede-no-debian.html"><span class="num">11.3</span><span>Rede no Debian</span></a></li><li><a href="11.4-nomes-e-resolucao.html"><span class="num">11.4</span><span>Nomes e resolução</span></a></li><li><a href="11.5-diagnostico-de-rede.html"><span class="num">11.5</span><span>Diagnóstico de rede</span></a></li></ul><h3>M12 · Segurança do host</h3><ul><li><a href="12.1-ssh-a-fundo.html"><span class="num">12.1</span><span>SSH a fundo</span></a></li><li><a href="12.2-firewall.html"><span class="num">12.2</span><span>Firewall</span></a></li><li><a href="12.3-selinux-modos-e-contextos.html"><span class="num">12.3</span><span>SELinux: modos e contextos</span></a></li><li><a href="12.4-selinux-portas-e-booleanos.html"><span class="num">12.4</span><span>SELinux: portas e booleanos</span></a></li><li><a href="12.5-auditoria-e-criptografia.html"><span class="num">12.5</span><span>Auditoria e criptografia</span></a></li></ul><h3>M13 · Armazenamento em rede</h3><ul><li><a href="13.1-servidor-nfs.html"><span class="num">13.1</span><span>Servidor NFS</span></a></li><li><a href="13.2-cliente-nfs.html"><span class="num">13.2</span><span>Cliente NFS</span></a></li><li><a href="13.3-autofs.html"><span class="num">13.3</span><span>autofs</span></a></li></ul><h3>M14 · Agendamento</h3><ul><li><a href="14.1-cron-e-at.html"><span class="num">14.1</span><span>cron e at</span></a></li><li><a href="14.2-timers-do-systemd.html"><span class="num">14.2</span><span>Timers do systemd</span></a></li><li><a href="14.3-journald-e-rsyslog.html"><span class="num">14.3</span><span>journald e rsyslog</span></a></li><li><a href="14.4-hora-certa.html"><span class="num">14.4</span><span>Hora certa</span></a></li><li><a href="14.5-email-local-e-impressao.html"><span class="num">14.5</span><span>E-mail local e impressão</span></a></li></ul><h3>M15 · Shell e ambiente</h3><ul><li><a href="15.1-ambiente-do-shell.html"><span class="num">15.1</span><span>Ambiente do shell</span></a></li><li><a href="15.2-scripts-robustos.html"><span class="num">15.2</span><span>Scripts robustos</span></a></li><li><a href="15.3-scripts-de-administracao.html"><span class="num">15.3</span><span>Scripts de administração</span></a></li><li><a href="15.4-interfaces-graficas.html"><span class="num">15.4</span><span>Interfaces gráficas</span></a></li><li><a href="15.5-idioma-teclado-e-fuso.html"><span class="num">15.5</span><span>Idioma, teclado e fuso</span></a></li></ul><h3>M16 · Semana de incidentes no Rocky 10</h3><ul><li><a href="16.1-rocky-10-o-que-muda.html"><span class="num">16.1</span><span>Rocky 10: o que muda</span></a></li><li><a href="16.2-incidentes-por-area.html"><span class="num">16.2</span><span>Incidentes por área</span></a></li><li><a href="16.3-incidente-com-relogio.html"><span class="num">16.3</span><span>Incidente com relógio</span></a></li><li><a href="16.4-correcao-e-reforco.html"><span class="num">16.4</span><span>Correção e reforço</span></a></li></ul><h3>M17 · Proxmox na prática</h3><ul><li><a href="17.1-proxmox-por-dentro.html"><span class="num">17.1</span><span>Proxmox por dentro</span></a></li><li><a href="17.2-vm-pela-linha-de-comando.html" aria-current="page"><span class="num">17.2</span><span>VM pela linha de comando</span></a></li><li><a href="17.3-conteiner-lxc.html"><span class="num">17.3</span><span>Contêiner LXC</span></a></li><li><a href="17.4-storage.html"><span class="num">17.4</span><span>Storage: capacidade, crescimento e movimento</span></a></li><li><a href="17.5-rede.html"><span class="num">17.5</span><span>Rede: bridge, VLAN, bond e SDN</span></a></li><li><a href="17.6-backup-e-restauracao.html"><span class="num">17.6</span><span>Backup e restauração com PBS</span></a></li><li><a href="17.7-migracao-e-quorum.html"><span class="num">17.7</span><span>Migração e quorum</span></a></li></ul><h3>M18 · Podman</h3><ul><li><a href="18.1-conteiner-nao-e-vm.html"><span class="num">18.1</span><span>Contêiner não é VM</span></a></li><li><a href="18.2-rodar-e-persistir.html"><span class="num">18.2</span><span>Rodar e persistir</span></a></li><li><a href="18.3-conteiner-como-servico.html"><span class="num">18.3</span><span>Contêiner como serviço</span></a></li><li><a href="18.4-diagnosticar-conteiner-rootless.html"><span class="num">18.4</span><span>Diagnosticar contêiner rootless</span></a></li><li><a href="18.5-construir-imagens.html"><span class="num">18.5</span><span>Construir imagens</span></a></li></ul><h3>M19 · Serviços de rede</h3><ul><li><a href="19.1-dns-autoritativo.html"><span class="num">19.1</span><span>DNS autoritativo</span></a></li><li><a href="19.2-dns-recursivo-e-diagnostico.html"><span class="num">19.2</span><span>DNS recursivo e diagnóstico</span></a></li><li><a href="19.3-dhcp.html"><span class="num">19.3</span><span>DHCP</span></a></li><li><a href="19.4-servidor-web.html"><span class="num">19.4</span><span>Servidor web: nome, arquivo e resposta</span></a></li><li><a href="19.5-tls-e-proxy-reverso.html"><span class="num">19.5</span><span>TLS e proxy reverso: identidade antes do cadeado</span></a></li><li><a href="19.6-samba-a-ponte-windows.html"><span class="num">19.6</span><span>Samba: a ponte com o cliente Windows</span></a></li><li><a href="19.7-postfix-e-correio-local.html"><span class="num">19.7</span><span>Postfix e correio local</span></a></li><li><a href="19.8-dovecot-e-imaps.html"><span class="num">19.8</span><span>Dovecot e leitura por IMAPS</span></a></li><li><a href="19.9-squid-e-desafio-integrado.html"><span class="num">19.9</span><span>Squid e desafio integrado</span></a></li></ul><h3>M20 · NethServer 8 por dentro</h3><ul><li><a href="20.1-instalar-nethserver-8.html"><span class="num">20.1</span><span>Instalar em uma VM limpa</span></a></li><li><a href="20.2-cluster-no-e-modulo.html"><span class="num">20.2</span><span>Cluster, nó e módulo</span></a></li><li><a href="20.3-modulo-por-dentro.html"><span class="num">20.3</span><span>Um módulo por dentro</span></a></li><li><a href="20.4-proxy-e-certificados.html"><span class="num">20.4</span><span>Proxy e certificados</span></a></li><li><a href="20.5-dominios-de-usuario.html"><span class="num">20.5</span><span>Domínios de usuário: identidade com fronteiras</span></a></li><li><a href="20.6-backup-e-restauracao.html"><span class="num">20.6</span><span>Backup e restauração: provar o retorno</span></a></li><li><a href="20.7-atualizar-mover-e-falhar.html"><span class="num">20.7</span><span>Atualizar, mover e falhar com prova</span></a></li></ul></aside><main id="conteudo" class="aula"><article><h1>Aula 17.2 · VM pela linha de comando</h1>
+<blockquote><p><strong>O coração desta aula:</strong> transforme uma imagem verificada em template e entregue a identidade ao clone antes do primeiro boot.</p></blockquote>
+<div class="tabela"><table><thead><tr><th scope="col">Ficha</th><th scope="col">Plano de trabalho</th></tr></thead><tbody><tr><td>Módulo</td><td>M17 · Proxmox na prática, aula 2 de 7</td></tr><tr><td>Quando</td><td>Semana 22</td></tr><tr><td>Ao final</td><td>Criar template 210 e clone completo 211 com rede, chave e console conferidos</td></tr><tr><td>Pré-requisitos</td><td>Aula anterior, IDs livres, storage e endereço reservados, chave pública disponível</td></tr><tr><td>Duração</td><td>120–150 minutos, além do download</td></tr><tr><td>Snapshot</td><td>Criar somente na VM 211, depois do primeiro boot validado</td></tr></tbody></table></div>
+<p>A bancada usa template 210 e VM 211; o CT 212 fica reservado para a próxima aula.
+Os nomes são <code translate="no">m17-template</code>, <code translate="no">m17-vm</code> e, mais adiante, <code translate="no">m17-ct</code>.
+Os convidados 201 a 205 continuam intocados.
+Os IDs temporários deste módulo serão liberados na limpeza final antes de seu uso futuro no M24.
+Execute no host apenas os comandos explicitamente indicados; comandos internos têm seu próprio bloco.</p>
+<h2 id="1-aquecimento">1 · Aquecimento</h2>
+<ol><li>Qual a diferença entre baixar uma imagem e verificar sua origem?</li>
+<li>Se o template já foi ligado, que identidades ele pode ter deixado prontas para copiar?</li>
+<li>Uma configuração de rede salva no host prova que o convidado a aplicou?</li></ol>
+<p><strong>Palpite:</strong> o template será ligado em algum momento desta aula?
+Responda antes de abrir o terminal.</p>
+<h2 id="2-por-que-importa">2 · Por que importa</h2>
+<p>Uma VM criada com pressa pode funcionar uma vez e falhar quando você a clona ou migra.
+O problema pode estar na CPU exposta, no disco de boot ou na identidade já gravada na origem.
+Também pode ser um endereço escolhido sem reserva, em conflito com outro equipamento.</p>
+<p>Você vai separar quatro provas: origem da imagem, configuração no host, dados de inicialização e resultado no guest.
+Um comando bem-sucedido em uma camada não substitui a conferência da próxima.
+Ao final, a VM 211 fica disponível para storage, rede e backup nas próximas aulas.</p>
+<h3 id="ponte-windows">Ponte Windows</h3>
+<p>Pense em uma imagem preparada para implantação e em uma instalação já usada por alguém.
+Copiar o disco não garante limpar identidade, endereço e credenciais.
+Aqui usamos uma imagem cloud oficial, preservando seu mecanismo de primeiro boot.</p>
+<h2 id="3-modelo-mental">3 · Modelo mental</h2>
+<figure><a href="../img/17.2-imagem-template-e-clone.jpg"><img src="../img/17.2-imagem-template-e-clone.jpg" alt="Uma origem, duas funções" loading="lazy" decoding="async"></a><figcaption>O template fica parado; o clone recebe a identidade de uso.</figcaption></figure>
+<div class="tabela"><table><thead><tr><th scope="col">Objeto</th><th scope="col">Papel nesta aula</th><th scope="col">O que não fazer</th></tr></thead><tbody><tr><td>Imagem oficial</td><td>Origem verificada do disco</td><td>Substituir por arquivo sem procedência</td></tr><tr><td>Template 210</td><td>Molde desligado e nunca inicializado aqui</td><td>Dar boot para testar</td></tr><tr><td>Clone 211</td><td>Máquina de trabalho com cópia completa</td><td>Usar endereço sem reserva</td></tr><tr><td>Drive de inicialização</td><td>Transporte dos dados do cloud-init</td><td>Confundir com disco do sistema</td></tr></tbody></table></div>
+<p>O clone completo possui volumes próprios; a origem continua parada.
+Isso consome mais espaço que um clone ligado ao disco base, mas simplifica esta bancada.
+As identidades são geradas no primeiro boot do clone a partir de uma origem preparada para isso.
+Não limpe identidades do host nem dos convidados antigos.</p>
+<h2 id="4-o-essencial">4 · O essencial</h2>
+<div class="tabela"><table><thead><tr><th scope="col">Decisão</th><th scope="col">Valor da bancada</th><th scope="col">Razão</th></tr></thead><tbody><tr><td>CPU</td><td><code translate="no">x86-64-v2-AES</code></td><td>Contrato comum entre os nós compatíveis</td></tr><tr><td>Firmware e máquina</td><td><code translate="no">ovmf</code> e <code translate="no">q35</code></td><td>Inicialização UEFI e hardware definido</td></tr><tr><td>Controladora</td><td><code translate="no">virtio-scsi-pci</code></td><td>Disco VirtIO com caminho explícito</td></tr><tr><td>Disco do sistema</td><td><code translate="no">scsi0</code>, pelo menos 20 GiB</td><td>Separar dos discos futuros de exercício</td></tr><tr><td>Storage</td><td><code translate="no">vm-hdd</code>, backend RBD</td><td>Storage já preparado no plano</td></tr><tr><td>Rede inicial</td><td><code translate="no">net0</code>, bridge <code translate="no">vmbr0</code></td><td>Endereço real reservado da bancada</td></tr></tbody></table></div>
+<p>Não substitua o modelo de CPU por passagem direta da CPU do host para contornar a conferência.
+O conjunto completo de recursos deve existir em todos os nós candidatos à migração.
+Conferir somente uma instrução, como AVX2, não valida esse contrato.</p>
+<p>As variáveis de rede serão preenchidas com dados reais fornecidos por quem administra a rede.
+Não há endereço inventado para colar e descobrir depois se estava livre.
+O console deve continuar acessível mesmo quando o SSH ainda não funciona.</p>
+<h2 id="5-lab-guiado">5 · Lab guiado</h2>
+<h3 id="passo-1-conferir-as-condicoes-de-criacao">Passo 1 · Conferir as condições de criação</h3>
+<p><strong>Palpite:</strong> Qual condição ausente impede criar a bancada?</p>
+<p>No host autorizado, repita o inventário de todos os nós.</p>
+<pre translate="no"><code class="lang-bash">pvesh get /cluster/resources --type vm --output-format json-pretty
+pvesm status
+pvesh get /storage/vm-hdd --output-format json-pretty
+ip -br link show vmbr0
+lscpu
+grep '^flags' /proc/cpuinfo | sort -u</code></pre>
+<p><strong>Saída esperada:</strong> IDs 210, 211 e 212 ausentes, bridge existente e storage RBD ativo.
+Confirme conteúdo de disco de VM, espaço disponível e disponibilidade do storage nos nós planejados.
+Se algum ID existe, não continue: a ausência na lista local não basta.
+Não instale nem reconfigure Ceph para fazer esta aula caber em outro ambiente.</p>
+<p>Em cada nó candidato à migração, confira o conjunto básico de x86-64-v2 e AES.
+Além da base x86-64, procure estes recursos em todas as linhas de CPU.</p>
+<pre translate="no"><code class="lang-text">cx16 lahf_lm popcnt pni ssse3 sse4_1 sse4_2 aes</code></pre>
+<p>Use a referência oficial do modelo de CPU e registre cada nó conferido.
+Se o conjunto não está presente, resolva a compatibilidade da bancada antes de criar a VM.
+Confirme também RAM, espaço do host para o download e ausência de outra criação simultânea nesses IDs.</p>
+<p><strong>Verifique:</strong> obtenha a reserva de endereço fora do pool DHCP, gateway e DNS reais.
+Uma tentativa de ping sem resposta não constitui reserva de endereço.
+Tenha uma chave pública do cliente e mantenha a chave privada apenas no cliente.</p>
+<h3 id="passo-2-baixar-e-verificar-a-imagem-oficial">Passo 2 · Baixar e verificar a imagem oficial</h3>
+<p><strong>Palpite:</strong> Um checksum basta para autenticar a origem?</p>
+<p>Use uma pasta nova e exclusiva no host; se ela já existe, pare e examine seu conteúdo.
+Não execute novamente o bloco de criação de pasta sobre um trabalho anterior.</p>
+<pre translate="no"><code class="lang-bash">test ! -e /root/m17-work || exit 1
+install -d -m 0700 /root/m17-work || exit 1
+cd /root/m17-work || exit 1
+pwd</code></pre>
+<p>Só continue se a pasta acabou de ser criada e o caminho exibido é o esperado.
+No diretório oficial, selecione a imagem GenericCloud Base de Rocky 9 para x86_64 com nome versionado.
+Copie o nome exato, sem usar um apelido que possa mudar de conteúdo no futuro.
+Não escolha a imagem de contêiner ou um disco específico de outro provedor.</p>
+<pre translate="no"><code class="lang-bash">BASE='https://dl.rockylinux.org/pub/rocky/9/images/x86_64'
+read -r -p 'Nome versionado oficial da imagem qcow2: ' IMAGE
+case "$IMAGE" in
+  Rocky-9-GenericCloud-Base-*.x86_64.qcow2) ;;
+  *) printf '%s\n' 'Nome inesperado; pare e confira.'; exit 1 ;;
+esac
+test "$IMAGE" != 'Rocky-9-GenericCloud-Base-latest.x86_64.qcow2' || exit 1
+curl --fail --location --remote-name "$BASE/$IMAGE" || exit 1
+curl --fail --location --remote-name "$BASE/$IMAGE.CHECKSUM" || exit 1
+curl --fail --location --remote-name "$BASE/$IMAGE.CHECKSUM.asc" || exit 1
+curl --fail --location --output RPM-GPG-KEY-Rocky-9 \
+  'https://dl.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-9' || exit 1</code></pre>
+<p>Pare se algum download falhar; não reutilize um arquivo incompleto como se fosse imagem válida.
+Compare a impressão digital com a página oficial de chaves por um canal independente do arquivo baixado.
+Para a chave de lançamento Rocky 9 documentada, a impressão é a seguinte.</p>
+<pre translate="no"><code class="lang-text">21CB 256A E16F C54C 6E65 2949 702D 426D 350D 275D</code></pre>
+<p>Se a publicação oficial indicar rotação de chave, interrompa e valide a mudança antes de seguir.</p>
+<pre translate="no"><code class="lang-bash">install -d -m 0700 /root/m17-work/gnupg
+export GNUPGHOME=/root/m17-work/gnupg
+gpg --show-keys --with-fingerprint RPM-GPG-KEY-Rocky-9
+gpg --import RPM-GPG-KEY-Rocky-9 || exit 1
+gpg --verify "$IMAGE.CHECKSUM.asc" "$IMAGE.CHECKSUM" || exit 1
+sha256sum --check "$IMAGE.CHECKSUM" || exit 1
+qemu-img info "$IMAGE" || exit 1</code></pre>
+<p><strong>Saída esperada:</strong> assinatura válida da chave conferida e verificação do arquivo aprovada.
+Aviso de confiança local não substitui a comparação da impressão digital.
+Se o algoritmo indicado no arquivo não for SHA256, use a ferramenta correspondente e registre isso.
+Confira formato e tamanho virtual; esta bancada prevê aumentar o disco para pelo menos 20 GiB.
+Não reduza uma imagem maior para adequá-la ao roteiro.</p>
+<p><strong>Verifique:</strong> guarde nome versionado, checksum conferido e impressão digital no diário.
+Verificação de integridade sem assinatura não prova sozinha a origem do arquivo.</p>
+<h3 id="passo-3-criar-o-template-sem-dar-boot">Passo 3 · Criar o template sem dar boot</h3>
+<p><strong>Palpite:</strong> Por que o template deve continuar desligado?</p>
+<p>Repita a conferência dos IDs imediatamente antes de criar; outra pessoa pode ter usado a reserva.
+Nos comandos seguintes, apenas o objeto 210 é criado ou alterado.</p>
+<pre translate="no"><code class="lang-bash">pvesh get /cluster/resources --type vm --output-format json &gt; /root/m17-work/cluster-before-create.json || exit 1
+python3 - /root/m17-work/cluster-before-create.json &lt;&lt;'PY'
+import json, sys
+items = json.load(open(sys.argv[1]))
+assert not any(int(x.get('vmid', -1)) in (210, 211, 212) for x in items), 'STOP: ID occupied'
+PY
+test "$?" -eq 0 || exit 1
+qm create 210 --name m17-template --memory 2048 --cores 2 \
+  --cpu x86-64-v2-AES --machine q35 --bios ovmf \
+  --scsihw virtio-scsi-pci --net0 virtio,bridge=vmbr0 \
+  --agent enabled=1 --onboot 0 || exit 1
+qm set 210 --efidisk0 vm-hdd:1,efitype=4m,pre-enrolled-keys=1 || exit 1
+qm set 210 --scsi0 "vm-hdd:0,import-from=/root/m17-work/$IMAGE,discard=on" || exit 1
+qm config 210</code></pre>
+<p>Pare e investigue se qualquer comando falhar; não siga para uma configuração parcialmente criada.
+O volume importado deve aparecer em <code translate="no">scsi0</code>; anote seu tamanho atual.
+Somente se ele for menor que 20 GiB, execute o aumento abaixo.</p>
+<pre translate="no"><code class="lang-bash">qm disk resize 210 scsi0 20G || exit 1</code></pre>
+<p>Se já é igual ou maior, pule o aumento e preserve seu tamanho.
+Agora adicione o drive de inicialização e a console serial.</p>
+<pre translate="no"><code class="lang-bash">qm set 210 --ide2 vm-hdd:cloudinit || exit 1
+qm set 210 --boot order=scsi0 || exit 1
+qm set 210 --serial0 socket --vga serial0 || exit 1
+qm config 210
+qm status 210
+qm template 210 || exit 1
+qm config 210</code></pre>
+<p><strong>Saída esperada:</strong> template marcado como tal, desligado, com disco, EFI e drive cloud-init.
+Não ligue o template para conferir a tela; o teste será feito no clone.
+Não injete senha, endereço de trabalho ou chave privada na origem.</p>
+<p><strong>Verifique:</strong> identifique onde a configuração registra firmware, CPU e ordem de boot.
+Se a imagem oficial exigir outra console, consulte sua documentação antes de mudar apenas o clone.</p>
+<h3 id="passo-4-clonar-e-entregar-os-dados-de-primeiro-boot">Passo 4 · Clonar e entregar os dados de primeiro boot</h3>
+<p><strong>Palpite:</strong> O documento gerado prova que o convidado o aplicou?</p>
+<figure><a href="../img/17.2-configurado-e-entregue.jpg"><img src="../img/17.2-configurado-e-entregue.jpg" alt="Salvar não é entregar ao convidado" loading="lazy" decoding="async"></a><figcaption>Confira configuração, drive e primeiro boot da nova VM.</figcaption></figure>
+<p>Copie somente a chave pública do cliente para <code translate="no">/root/m17-work/student.pub</code>.
+Confira a impressão no cliente e no host; elas devem coincidir.</p>
+<pre translate="no"><code class="lang-bash">ssh-keygen -lf /root/m17-work/student.pub
+qm clone 210 211 --name m17-vm --full 1 --storage vm-hdd || exit 1
+test "$(qm config 211 | sed -n 's/^name: //p')" = m17-vm || exit 1
+qm config 211
+read -r -p 'CIDR real reservado para a VM 211: ' VM_CIDR
+read -r -p 'Gateway real da VM 211: ' VM_GW
+read -r -p 'DNS real da VM 211: ' VM_DNS
+: "${VM_CIDR:?}" "${VM_GW:?}" "${VM_DNS:?}"
+qm set 211 --ciuser student --sshkeys /root/m17-work/student.pub || exit 1
+qm set 211 --ipconfig0 "ip=$VM_CIDR,gw=$VM_GW" --nameserver "$VM_DNS" || exit 1
+qm cloudinit update 211 || exit 1
+qm cloudinit dump 211 user
+qm cloudinit dump 211 network
+qm cloudinit dump 211 meta</code></pre>
+<p><strong>Saída esperada:</strong> usuário, chave pública e rede correspondem aos valores reservados.
+Os três documentos não provam que o convidado já os executou.
+Não publique os documentos completos sem revisar seu conteúdo.
+O clone deve continuar desligado até esta conferência terminar.</p>
+<p><strong>Verifique:</strong> o MAC do clone difere do MAC da origem e a chave é a esperada.
+Confira o usuário e a regra de acesso administrativo no documento do usuário.
+Se falta uma condição de acesso, corrija antes de ligar; não invente uma senha padrão.</p>
+<h3 id="passo-5-iniciar-e-conferir-dentro-do-convidado">Passo 5 · Iniciar e conferir dentro do convidado</h3>
+<p><strong>Palpite:</strong> Qual prova precisa ser obtida dentro do convidado?</p>
+<figure><a href="../img/17.2-antes-de-iniciar.jpg"><img src="../img/17.2-antes-de-iniciar.jpg" alt="Confira antes de ligar" loading="lazy" decoding="async"></a><figcaption>Um clone novo precisa de endereço reservado e chave conhecida.</figcaption></figure>
+<p>Mantenha a console do host aberta e abra também a console da VM 211.</p>
+<pre translate="no"><code class="lang-bash">qm start 211
+qm status 211
+qm terminal 211</code></pre>
+<p>A console serial permite acompanhar mensagens sem depender do endereço configurado.
+Ela não elimina a necessidade de credenciais para entrar no sistema.
+No cliente que possui a chave privada, use o IP reservado real para conectar como usuário de estudo.
+Confira a identidade da VM pela console antes de aceitar sua chave SSH.
+No primeiro boot, leia na console serial a impressão digital pública emitida pelo cloud-init e compare algoritmo e hash com o aviso do cliente SSH.
+Se a imagem não emitir a impressão, interrompa o primeiro acesso: peça ao responsável uma leitura autenticada da chave pública pelo console de recuperação ou outro canal independente já confiável.
+A console sem senha inicial serve para observar o boot, não para executar comandos autenticados. Não aceite a chave às cegas nem use a própria conexão ainda não validada como fonte de confiança.
+Após entrar na VM, execute os próximos comandos dentro dela, nunca no host.</p>
+<pre translate="no"><code class="lang-bash">hostnamectl
+sudo cloud-init status --wait --long
+ip -br address
+ip route
+nmcli device status
+cat /var/lib/cloud/data/instance-id
+cat /etc/machine-id
+sudo ssh-keygen -lf /etc/ssh/ssh_host_ed25519_key.pub
+sudo dnf install -y qemu-guest-agent
+sudo systemctl enable --now qemu-guest-agent
+sudo passwd root</code></pre>
+<p>A senha de emergência é definida interativamente dentro do clone; não a registre no material.
+Não habilite login remoto de root por senha como atalho.
+Anote as identidades geradas para comparações futuras, sem copiá-las para outro convidado.
+O término com erro do cloud-init exige investigação do log; não equivale a configuração concluída.</p>
+<p><strong>Verifique:</strong> use a console para confirmar acesso de emergência com a senha recém-definida.
+Saia dessa sessão e volte ao usuário de estudo para continuar.
+No host, consulte o agente somente depois de habilitá-lo dentro do clone.</p>
+<pre translate="no"><code class="lang-bash">qm agent 211 ping
+qm config 211</code></pre>
+<p><strong>Saída esperada:</strong> agente responde; a ficha corresponde à máquina que você acabou de verificar.
+Uma resposta do agente não prova acesso à aplicação nem integridade de backup.</p>
+<h3 id="passo-6-reboot-e-ponto-de-retorno-da-bancada">Passo 6 · Reboot e ponto de retorno da bancada</h3>
+<p><strong>Palpite:</strong> Quais identidades devem persistir no reboot?</p>
+<p>Registre a configuração do clone e as identidades antes do reboot.
+Não inclua senhas nem chave privada nessa evidência.
+Dentro da VM 211, reinicie apenas ela.</p>
+<pre translate="no"><code class="lang-bash">sudo reboot</code></pre>
+<p>Reconecte e confira endereço, rota, agente e identidades.
+Um reboot normal deve preservar as identidades já geradas; não limpe o cloud-init para testar.
+Com a VM saudável, crie no host um ponto de retorno sem memória.</p>
+<pre translate="no"><code class="lang-bash">qm snapshot 211 m17a2-base --description 'M17 VM211 base'
+qm listsnapshot 211</code></pre>
+<p>Se o storage rejeitar snapshot, investigue a capacidade antes das quebras abaixo.
+O snapshot é um apoio de laboratório, não uma cópia independente de segurança.
+O backup e a restauração serão trabalhados na aula própria.</p>
+<p><strong>Saída esperada:</strong> clone saudável após reboot e ponto de retorno listado.</p>
+<p><strong>Verifique:</strong> confira que o clone iniciou com as mesmas identidades e o agente responde.</p>
+<h2 id="6-quebre-e-conserte">6 · Quebre e conserte</h2>
+<p>Altere somente a VM 211 e conserve o template desligado.
+Faça uma quebra de cada vez, com a correção correspondente antes da próxima.</p>
+<h3 id="quebra-1-a-chave-publica-nao-esta-no-caminho-informado">Quebra 1 · A chave pública não está no caminho informado</h3>
+<p><strong>Sintoma:</strong> você quer informar um arquivo que não existe.
+<strong>Investigação:</strong> teste a existência antes de enviar a alteração ao hipervisor.</p>
+<pre translate="no"><code class="lang-bash">test -r /root/m17-work/chave-ausente.pub
+printf 'rc=%s\n' "$?"</code></pre>
+<p><strong>Causa:</strong> o caminho do arquivo foi confundido com a própria chave.
+<strong>Conserto:</strong> confira o arquivo público real e repita a leitura de sua impressão digital.
+<strong>Verifique:</strong> a chave no documento do cloud-init corresponde à chave pública do cliente.
+<strong>Prevenção:</strong> valide o arquivo e nunca copie a chave privada para o host.</p>
+<h3 id="quebra-2-a-ordem-de-boot-aponta-para-o-drive-errado">Quebra 2 · A ordem de boot aponta para o drive errado</h3>
+<p>Desligue o clone de forma limpa pelo sistema interno e confira seu estado no host.
+Não use parada forçada para acelerar esta quebra.</p>
+<pre translate="no"><code class="lang-bash">qm shutdown 211 --timeout 120
+qm status 211</code></pre>
+<p>Somente depois de confirmar que está desligada, altere a ordem e inicie a VM 211.</p>
+<pre translate="no"><code class="lang-bash">qm set 211 --boot order=ide2
+qm start 211</code></pre>
+<p><strong>Sintoma:</strong> o sistema não é carregado a partir do disco esperado.
+<strong>Investigação:</strong> observe a console e compare a ordem de boot com o disco do sistema.
+<strong>Causa:</strong> o drive cloud-init transporta dados; não é o sistema operacional.
+<strong>Conserto:</strong> retorne a VM ao estado desligado pela console do firmware, sem instalação de sistema em execução, e corrija a ordem.
+Se não há opção de desligamento no firmware, uma parada do processo 211 é admissível apenas após confirmar que nenhum sistema iniciou.</p>
+<pre translate="no"><code class="lang-bash">qm set 211 --boot order=scsi0
+qm start 211</code></pre>
+<p><strong>Verifique:</strong> o clone inicia pelo disco correto e as identidades permanecem as mesmas.
+<strong>Prevenção:</strong> confira a ordem antes do primeiro boot; não reinstale um sistema para corrigir uma ordem errada.</p>
+<h3 id="quebra-3-o-agente-foi-habilitado-so-de-um-lado">Quebra 3 · O agente foi habilitado só de um lado</h3>
+<p>Dentro da VM 211, pare temporariamente apenas o agente do convidado.</p>
+<pre translate="no"><code class="lang-bash">sudo systemctl stop qemu-guest-agent</code></pre>
+<p><strong>Sintoma:</strong> a consulta do agente no host falha, embora a console continue funcionando.
+<strong>Investigação:</strong> compare a opção da ficha com o estado do serviço dentro do clone.
+<strong>Causa:</strong> habilitar o canal no hipervisor não mantém o programa interno em execução.
+<strong>Conserto:</strong> inicie novamente o agente dentro da VM.</p>
+<pre translate="no"><code class="lang-bash">sudo systemctl start qemu-guest-agent</code></pre>
+<p><strong>Verifique:</strong> repita no host a consulta de ping do agente da VM 211.
+<strong>Prevenção:</strong> confira a opção do hipervisor e o serviço interno como condições separadas.</p>
+<h2 id="7-armadilhas">7 · Armadilhas</h2>
+<h3 id="decida-1">Decida 1</h3>
+<p>O checksum confere, mas a assinatura não corresponde à chave oficial conferida. Você deve:</p>
+<p>A. Importar porque o arquivo não está corrompido.
+B. Ligar o template para ver se parece legítimo.
+C. Parar e resolver a verificação de origem antes de importar.</p>
+<h3 id="decida-2">Decida 2</h3>
+<p>A rede foi alterada na ficha depois de o cloud-init já concluir o primeiro boot. Você deve:</p>
+<p>A. Verificar o que foi entregue e corrigir a rede pelo console do clone, conforme o sistema interno.
+B. Limpar identidades do host para forçar uma máquina nova.
+C. Garantir que um reboot aplica qualquer alteração automaticamente.</p>
+<h3 id="rocky-debian">Rocky × Debian</h3>
+<p>O agente interno é instalado com o gerenciador de pacotes da imagem escolhida.
+O host Proxmox não recebe comandos de instalação destinados à VM Rocky.
+Não acrescente uma imagem Debian como segundo template só para comparar nesta aula.</p>
+<h2 id="8-quiz">8 · Quiz</h2>
+<ol><li>Por que o template 210 não é iniciado antes da conversão?</li>
+<li>O que a assinatura acrescenta ao checksum?</li>
+<li>Qual a consequência de escolher clone completo?</li>
+<li>Que três conferências separam configuração salva de configuração aplicada?</li>
+<li>Por que uma CPU aceita no nó atual pode impedir migração?</li>
+<li>Uma resposta do agente garante que um backup é restaurável?</li></ol>
+<h2 id="9-lembrete">9 · Lembrete</h2>
+<p><strong>Flashcards:</strong> responda sem consultar os comandos do lab.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Frente</th><th scope="col">Verso</th></tr></thead><tbody><tr><td>Origem</td><td>Assinatura de chave conferida e checksum do arquivo</td></tr><tr><td>Template</td><td>Molde parado, sem primeiro boot realizado aqui</td></tr><tr><td>Clone</td><td>Volumes próprios e identidade de uso gerada nele</td></tr><tr><td>Rede</td><td>Reserva real, dados entregues e resultado observado</td></tr></tbody></table></div>
+<pre translate="no"><code class="lang-text">!explica Por que verificar a assinatura antes de importar uma imagem cloud?
+!feynman Explique template, clone e identidade usando um molde e uma peça nova.
+!quiz Faça perguntas sobre boot, cloud-init e agente sem inventar saídas.</code></pre>
+<h2 id="10-checklist-e-fechamento">10 · Checklist e fechamento</h2>
+<ul><li>[ ] Confirmei IDs livres no cluster e preservei 201 a 205.</li>
+<li>[ ] Validei CPU em todos os nós candidatos e o storage RBD existente.</li>
+<li>[ ] Conferi assinatura, impressão digital e checksum antes da importação.</li>
+<li>[ ] Mantive o template 210 desligado e criei clone completo 211.</li>
+<li>[ ] Conferi rede reservada, chave pública e dados do cloud-init.</li>
+<li>[ ] Confirmei console, agente e identidades após reboot apenas do clone.</li>
+<li>[ ] Corrigi as três quebras e preservei um ponto de retorno.</li></ul>
+<p><strong>Último exercício:</strong> explique a criação a alguém que só tem o inventário e sua evidência reduzida.
+Essa pessoa deve distinguir origem verificada, template, disco do clone e identidade interna.</p>
+<p><strong>Reboot de conferência:</strong> o reboot do passo 6 afetou somente a VM 211.
+Após as quebras, confira novamente seu estado e o agente; não reinicie o host.
+Mantenha template 210, VM 211 e pasta de origem para as próximas aulas.
+Não libere os IDs ainda: a limpeza final será feita depois da entrega do módulo.
+Feche as sessões administrativas extras e preserve apenas as evidências sem segredo.</p>
+<h2 id="11-na-vida-real">11 · Na vida real</h2>
+<p>Escolha uma VM já autorizada apenas para leitura e examine sua ficha.
+Relate firmware, CPU, origem conhecida do disco e mecanismo de inicialização.
+Se a procedência não está registrada, trate isso como informação ausente.
+Não recrie a VM nem modifique seu tipo de CPU para preencher a lacuna do relatório.
+Proponha uma melhoria de documentação antes de propor mudança de infraestrutura.</p>
+<h2 id="12-aprofunde-quando-quiser">12 · Aprofunde quando quiser</h2>
+<ul><li><a href="https://github.com/proxmox/pve-docs/blob/master/qm-cloud-init.adoc">Cloud-init e templates no Proxmox</a>.</li>
+<li><a href="https://github.com/proxmox/pve-docs/blob/master/generated/qm.1-synopsis.adoc">Comandos e modelos de CPU</a>.</li>
+<li><a href="https://dl.rockylinux.org/pub/rocky/9/images/x86_64/">Imagens oficiais Rocky 9</a>.</li>
+<li><a href="https://rockylinux.org/resources/gpg-key-info">Impressões digitais das chaves oficiais</a>.</li>
+<li><a href="https://cloudinit.readthedocs.io/en/stable/reference/yaml_examples/ssh.html">Emissão de chaves SSH na console pelo cloud-init</a>.</li></ul>
+<h3 id="gabarito-comentado">Gabarito comentado</h3>
+<p><strong>Aquecimento 1:</strong> baixar obtém bytes; verificar assinatura e integridade liga esses bytes à origem conferida.
+<strong>Aquecimento 2:</strong> identificador da máquina, chaves do host SSH e estado do cloud-init.
+<strong>Aquecimento 3:</strong> não; é preciso conferir a entrega e o resultado dentro do convidado.
+<strong>Decida 1: C.</strong> Não importe uma origem cuja assinatura ainda não foi validada.
+<strong>Decida 2: A.</strong> A política de execução por instância impede presumir reaplicação completa a cada reboot.
+<strong>Quiz 1:</strong> para preservar o estado preparado da imagem e gerar identidades no clone.
+<strong>Quiz 2:</strong> vincula a lista de somas à chave cuja identidade você conferiu.
+<strong>Quiz 3:</strong> os volumes são independentes do disco base e ocupam espaço próprio.
+<strong>Quiz 4:</strong> ficha no host, documento entregue e estado observado dentro do clone.
+<strong>Quiz 5:</strong> outro nó pode não oferecer as mesmas instruções; o contrato precisa ser comum.
+<strong>Quiz 6:</strong> não; restaurabilidade exige verificar backup e executar uma restauração controlada.</p>
+<p><a href="17.1-proxmox-por-dentro.html">← Aula 17.1 · Proxmox por dentro</a> · <a href="index.html">Índice das aulas</a> · <a href="17.3-conteiner-lxc.html">Aula 17.3 · Contêiner LXC →</a></p>
+</article><nav class="paginas" aria-label="Aulas"><a class="ant" href="17.1-proxmox-por-dentro.html"><small>← Anterior</small>17.1 · Proxmox por dentro</a><a class="prox" href="17.3-conteiner-lxc.html"><small>Próxima →</small>17.3 · Contêiner LXC</a></nav></main></div>
+<footer><div class="wrap">Gerado a partir do Markdown do curso · Imagens em <code translate="no">img/</code></div></footer>
+</body>
+</html>

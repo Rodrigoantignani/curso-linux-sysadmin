@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light dark">
+<title>19.7 · Postfix e posta locale · Corso Linux Sysadmin</title>
+<link rel="alternate" hreflang="pt-BR" href="19.7-postfix-e-correio-local.html"><link rel="alternate" hreflang="it" href="19.7-postfix-e-correio-local.it.html">
+<style>
+:root{color-scheme:light dark;--bg:#f6f1e7;--card:#fffdf8;--ink:#201c16;--muted:#5e564a;--accent:#9a3412;--accent-2:#1f5f4a;--tint:#efe6d4;--line:#ddd2bc;--code:#f1eadb;--shadow:0 1px 2px rgba(60,40,10,.08);--serif:Georgia,"Iowan Old Style","Palatino Linotype",Palatino,serif;--sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--mono:"Cascadia Code",Consolas,"DejaVu Sans Mono",monospace}
+@media (prefers-color-scheme:dark){:root{--bg:#16130f;--card:#201b15;--ink:#f1eadb;--muted:#b9ad98;--accent:#f0a070;--accent-2:#7fd0b0;--tint:#2a231a;--line:#3d3427;--code:#191510;--shadow:none}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:5.5rem}
+body{margin:0;background:var(--bg);color:var(--ink);font:1rem/1.6 var(--sans)}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--accent-2);outline-offset:2px;border-radius:4px}
+.pular{position:absolute;left:-999px;top:0;background:var(--card);padding:.5rem 1rem;z-index:20}
+.pular:focus{left:.5rem;top:.5rem}
+.wrap{width:100%;max-width:84rem;margin:0 auto;padding-inline:max(1rem,env(safe-area-inset-left))}
+.top{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10;border-top:6px solid var(--accent)}
+.top-in{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding-block:.6rem}
+.titles{min-width:0}
+.marca{margin:0;font:700 clamp(1.15rem,1rem + 1vw,1.6rem)/1.15 var(--serif);letter-spacing:-.01em}
+.marca a{text-decoration:none}
+.marca a:hover{color:var(--accent)}
+.meta{margin:.1rem 0 0;color:var(--muted);font-size:.85rem}
+.acoes{display:flex;align-items:center;gap:.9rem;flex:none}
+.acoes>a{font-size:.9rem;font-weight:600;color:var(--muted);text-decoration:none}
+.acoes>a:hover{color:var(--accent);text-decoration:underline}
+.idioma{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--tint)}
+.idioma>*{padding:.35rem .9rem;font-size:.8rem;font-weight:700;letter-spacing:.06em;text-decoration:none;color:var(--muted);min-width:2.75rem;text-align:center}
+.idioma a:hover{color:var(--accent);text-decoration:underline}
+.idioma span{background:var(--accent);color:#fff}
+@media (prefers-color-scheme:dark){.idioma span{color:#16130f}}
+code{font-family:var(--mono);font-size:.9em;background:var(--tint);padding:.1rem .35rem;border-radius:4px;overflow-wrap:anywhere}
+/* índice */
+.capa{max-width:70rem;padding-block:2rem 3rem}
+.stats{border-left:4px solid var(--accent-2);background:var(--card);border-radius:0 10px 10px 0;padding:1rem 1.25rem;margin:0 0 2.5rem;box-shadow:var(--shadow);color:var(--muted)}
+.stats strong{color:var(--ink)}
+.modulo{display:grid;grid-template-columns:15rem minmax(0,1fr);gap:1rem 2rem;padding:1.75rem 0;border-top:1px solid var(--line)}
+.modulo h2{margin:0;font:700 1.25rem/1.25 var(--serif);align-self:start;position:sticky;top:6rem}
+.mn{display:block;font:700 .8rem var(--mono);letter-spacing:.12em;color:var(--accent);margin-bottom:.25rem}
+.sep{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.modulo ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,17rem),1fr));gap:.75rem}
+.modulo li{margin:0}
+.modulo a{display:flex;gap:.45rem;align-items:baseline;height:100%;padding:.85rem 1rem;background:var(--card);border:1px solid var(--line);border-radius:10px;text-decoration:none;font-weight:600;line-height:1.35;box-shadow:var(--shadow);transition:border-color .15s,transform .15s}
+.modulo a:hover{border-color:var(--accent);color:var(--accent)}
+.num{font:700 .85rem var(--mono);color:var(--accent);white-space:nowrap}
+/* aula */
+.doc{display:grid;grid-template-columns:17rem minmax(0,1fr);gap:2.5rem;align-items:start;padding-block:2rem 3rem}
+.lateral{position:sticky;top:5.5rem;max-height:calc(100vh - 6.5rem);overflow:auto;font-size:.875rem;padding-right:.5rem}
+.lateral h2{margin:0 0 .25rem;font:700 .95rem var(--serif);color:var(--muted)}
+.lateral h3{margin:1rem 0 .25rem;font:700 .75rem var(--mono);letter-spacing:.06em;color:var(--accent)}
+.lateral ul{list-style:none;margin:0;padding:0}
+.lateral a{display:flex;gap:.45rem;padding:.25rem .5rem;border-radius:6px;text-decoration:none;color:var(--muted);line-height:1.3}
+.lateral a:hover{background:var(--tint);color:var(--ink)}
+.lateral a[aria-current]{background:var(--tint);color:var(--ink);font-weight:700;box-shadow:inset 3px 0 0 var(--accent)}
+.lateral .num{font-size:.75rem}
+.aula{min-width:0;max-width:56rem;overflow-wrap:break-word;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:clamp(1.25rem,1rem + 2vw,2.75rem);box-shadow:var(--shadow)}
+.aula h1{margin:0 0 1.5rem;font:700 clamp(1.75rem,1.4rem + 1.6vw,2.5rem)/1.15 var(--serif);letter-spacing:-.015em;color:var(--ink)}
+.aula h2{margin:2.5rem 0 .75rem;padding-top:1.25rem;border-top:1px solid var(--line);font:700 1.5rem/1.25 var(--serif)}
+.aula h3{margin:2rem 0 .5rem;font:700 1.15rem/1.3 var(--serif);color:var(--accent)}
+.aula h4,.aula h5,.aula h6{margin:1.5rem 0 .5rem;font-size:1rem}
+.aula p,.aula ul,.aula ol{margin:1rem 0}
+.aula ul,.aula ol{padding-left:1.5rem}
+.aula li{margin:.35rem 0}
+.aula li>ul,.aula li>ol{margin:.35rem 0}
+.aula a{color:var(--accent);text-underline-offset:2px}
+.aula hr{border:0;border-top:1px solid var(--line);margin:2rem 0}
+.tabela{overflow-x:auto;margin:1.25rem 0;border:1px solid var(--line);border-radius:10px}
+.aula table{width:100%;border-collapse:collapse;font-size:.9rem}
+.aula th,.aula td{padding:.55rem .75rem;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+.aula tr:last-child td{border-bottom:0}
+.aula th{background:var(--tint);font-weight:700}
+.aula pre{background:var(--code);border:1px solid var(--line);border-radius:10px;padding:.9rem 1rem;overflow-x:auto;font:.85rem/1.5 var(--mono);margin:1rem 0;tab-size:4}
+.aula pre code{background:none;padding:0;font-size:inherit;overflow-wrap:normal}
+.aula blockquote{margin:1.25rem 0;padding:.75rem 1.25rem;border-left:4px solid var(--accent-2);background:var(--tint);border-radius:0 10px 10px 0}
+.aula blockquote>:first-child{margin-top:0}
+.aula blockquote>:last-child{margin-bottom:0}
+.aula figure{margin:1.75rem 0;text-align:center}
+.aula figure img{display:block;margin:0 auto;max-width:100%;height:auto;border:1px solid var(--line);border-radius:10px;background:#fff}
+.aula figcaption{margin-top:.5rem;color:var(--muted);font-size:.9rem;font-style:italic}
+.paginas{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:2.5rem;padding-top:1.5rem;border-top:1px solid var(--line)}
+.paginas a{display:block;padding:.75rem 1rem;border:1px solid var(--line);border-radius:10px;text-decoration:none;color:var(--ink);font-weight:600;line-height:1.3}
+.paginas a:hover{border-color:var(--accent);color:var(--accent)}
+.paginas small{display:block;color:var(--muted);font-weight:400}
+.paginas .prox{grid-column:2;text-align:right}
+footer{border-top:1px solid var(--line);padding-block:1.5rem;color:var(--muted);font-size:.85rem;text-align:center}
+@media (hover:hover) and (prefers-reduced-motion:no-preference){.modulo a:hover{transform:translateY(-2px)}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+@media (max-width:980px){.doc{grid-template-columns:minmax(0,1fr);padding-top:1rem}.lateral{position:static;max-height:none;order:2}.aula{max-width:none}}
+@media (max-width:860px){.modulo{grid-template-columns:minmax(0,1fr)}.modulo h2{position:static}.mn{display:inline;margin-right:.5rem}}
+@media (max-width:420px){.meta{display:none}.top-in{gap:.5rem}.acoes{gap:.6rem}.capa{padding-top:1.25rem}.paginas{grid-template-columns:minmax(0,1fr)}.paginas .prox{grid-column:1}}
+@media print{.top,.lateral,.paginas{display:none}.aula{border:0;box-shadow:none;padding:0;max-width:none}.doc{display:block}}
+</style>
+</head>
+<body>
+<a class="pular" href="#conteudo">Vai al contenuto</a>
+<header class="top"><div class="wrap top-in"><div class="titles"><p class="marca"><a href="index.it.html">Corso Linux Sysadmin</a></p><p class="meta">Rodrigo Antignani · Lezione 19.7</p></div><div class="acoes"><a href="index.it.html">Indice</a><div class="idioma" role="group" aria-label="Lingua"><a href="19.7-postfix-e-correio-local.html" hreflang="pt-BR" lang="pt-BR">PT</a><span aria-current="true">IT</span></div></div></div></header>
+<div class="wrap doc"><aside class="lateral" aria-label="Lezioni"><h2>Lezioni</h2><h3>M0 · Laboratorio</h3><ul><li><a href="0.1-montar-o-laboratorio.it.html"><span class="num">0.1</span><span>Allestire il laboratorio</span></a></li><li><a href="0.2-acesso-e-protecao.it.html"><span class="num">0.2</span><span>Accesso e protezione</span></a></li></ul><h3>M1 · Riga di comando</h3><ul><li><a href="1.1-o-que-e-linux.it.html"><span class="num">1.1</span><span>Che cos'è Linux</span></a></li><li><a href="1.2-o-shell-e-a-ajuda.it.html"><span class="num">1.2</span><span>La shell e la guida</span></a></li><li><a href="1.3-caminhos-e-navegacao.it.html"><span class="num">1.3</span><span>Percorsi e navigazione</span></a></li><li><a href="1.4-criar-copiar-mover-e-apagar.it.html"><span class="num">1.4</span><span>Creare, copiare, spostare ed eliminare</span></a></li><li><a href="1.5-ler-e-procurar-texto.it.html"><span class="num">1.5</span><span>Leggere e cercare testo</span></a></li><li><a href="1.6-redirecionamentos-e-pipes.it.html"><span class="num">1.6</span><span>Reindirizzamenti e pipe</span></a></li><li><a href="1.7-arquivar-e-compactar.it.html"><span class="num">1.7</span><span>Archiviare e comprimere</span></a></li><li><a href="1.8-primeiro-script.it.html"><span class="num">1.8</span><span>Primo script</span></a></li><li><a href="1.9-decidir-e-repetir.it.html"><span class="num">1.9</span><span>Decidere e ripetere</span></a></li><li><a href="1.10-software-livre-na-pratica.it.html"><span class="num">1.10</span><span>Il software libero in pratica</span></a></li></ul><h3>M2 · Sistema, utenti e permessi</h3><ul><li><a href="2.1-instalacao-e-provisionamento.it.html"><span class="num">2.1</span><span>Installazione e provisioning</span></a></li><li><a href="2.2-hardware-e-dispositivos.it.html"><span class="num">2.2</span><span>Hardware e dispositivi</span></a></li><li><a href="2.3-processos-e-logs.it.html"><span class="num">2.3</span><span>Processi e log</span></a></li><li><a href="2.4-rede-no-dia-a-dia.it.html"><span class="num">2.4</span><span>La rete di tutti i giorni</span></a></li><li><a href="2.5-acesso-remoto-e-privilegios.it.html"><span class="num">2.5</span><span>Accesso remoto e privilegi</span></a></li><li><a href="2.6-usuarios-e-grupos.it.html"><span class="num">2.6</span><span>Utenti e gruppi</span></a></li><li><a href="2.7-permissoes-e-dono.it.html"><span class="num">2.7</span><span>Permessi e proprietario</span></a></li><li><a href="2.8-diretorios-e-arquivos-especiais.it.html"><span class="num">2.8</span><span>Directory e file speciali</span></a></li></ul><h3>M3 · Testo ed editor</h3><ul><li><a href="3.1-fluxos-a-fundo.it.html"><span class="num">3.1</span><span>I flussi in profondità</span></a></li><li><a href="3.2-filtros-de-texto.it.html"><span class="num">3.2</span><span>Filtri di testo</span></a></li><li><a href="3.3-regex-e-grep.it.html"><span class="num">3.3</span><span>Regex e grep</span></a></li><li><a href="3.4-sed-e-awk.it.html"><span class="num">3.4</span><span>sed e awk</span></a></li><li><a href="3.5-vi-e-vim-de-verdade.it.html"><span class="num">3.5</span><span>vi e vim sul serio</span></a></li></ul><h3>M4 · systemd e boot</h3><ul><li><a href="4.1-como-o-linux-liga.it.html"><span class="num">4.1</span><span>Come si avvia Linux</span></a></li><li><a href="4.2-systemd-servicos-e-units.it.html"><span class="num">4.2</span><span>systemd: servizi e unit</span></a></li><li><a href="4.3-targets-desligar-e-reiniciar.it.html"><span class="num">4.3</span><span>Target: spegnere e riavviare</span></a></li><li><a href="4.4-grub-e-acesso-de-emergencia.it.html"><span class="num">4.4</span><span>GRUB e accesso di emergenza</span></a></li></ul><h3>M5 · Kernel, moduli e VM</h3><ul><li><a href="5.1-hardware-pelo-kernel.it.html"><span class="num">5.1</span><span>L'hardware visto dal kernel</span></a></li><li><a href="5.2-modulos-e-parametros.it.html"><span class="num">5.2</span><span>Moduli e parametri</span></a></li><li><a href="5.3-linux-como-convidado.it.html"><span class="num">5.3</span><span>Linux come guest</span></a></li></ul><h3>M6 · Pacchetti e repository</h3><ul><li><a href="6.1-pacotes-no-debian.it.html"><span class="num">6.1</span><span>Pacchetti su Debian</span></a></li><li><a href="6.2-pacotes-na-rocky.it.html"><span class="num">6.2</span><span>Pacchetti su Rocky</span></a></li><li><a href="6.3-repositorios.it.html"><span class="num">6.3</span><span>Repository</span></a></li><li><a href="6.4-flatpak.it.html"><span class="num">6.4</span><span>Flatpak</span></a></li><li><a href="6.5-bibliotecas-compartilhadas.it.html"><span class="num">6.5</span><span>Librerie condivise</span></a></li></ul><h3>M7 · Processi e prestazioni</h3><ul><li><a href="7.1-processos-e-sinais.it.html"><span class="num">7.1</span><span>Processi e segnali</span></a></li><li><a href="7.2-jobs-e-sessoes.it.html"><span class="num">7.2</span><span>Job e sessioni</span></a></li><li><a href="7.3-prioridade-e-perfis.it.html"><span class="num">7.3</span><span>Priorità e profili</span></a></li></ul><h3>M8 · File a fondo</h3><ul><li><a href="8.1-fhs-e-onde-cada-coisa-mora.it.html"><span class="num">8.1</span><span>FHS e dove sta ogni cosa</span></a></li><li><a href="8.2-find-a-fundo.it.html"><span class="num">8.2</span><span>find a fondo</span></a></li><li><a href="8.3-arquivamento-avancado.it.html"><span class="num">8.3</span><span>Archiviazione avanzata</span></a></li><li><a href="8.4-links.it.html"><span class="num">8.4</span><span>Link</span></a></li><li><a href="8.5-permissoes-avancadas.it.html"><span class="num">8.5</span><span>Permessi avanzati</span></a></li></ul><h3>M9 · Storage</h3><ul><li><a href="9.1-discos-e-layout.it.html"><span class="num">9.1</span><span>Dischi e layout</span></a></li><li><a href="9.2-particionar.it.html"><span class="num">9.2</span><span>Partizionare</span></a></li><li><a href="9.3-sistemas-de-arquivos.it.html"><span class="num">9.3</span><span>File system</span></a></li><li><a href="9.4-montar-e-persistir.it.html"><span class="num">9.4</span><span>Montare e rendere persistente</span></a></li><li><a href="9.5-integridade-e-espaco.it.html"><span class="num">9.5</span><span>Integrità e spazio</span></a></li><li><a href="9.6-lvm.it.html"><span class="num">9.6</span><span>LVM</span></a></li><li><a href="9.7-crescer-sem-destruir.it.html"><span class="num">9.7</span><span>Crescere senza distruggere</span></a></li></ul><h3>M10 · Utenti e accesso privilegiato</h3><ul><li><a href="10.1-contas.it.html"><span class="num">10.1</span><span>Account</span></a></li><li><a href="10.2-senhas-e-validade.it.html"><span class="num">10.2</span><span>Password e scadenza</span></a></li><li><a href="10.3-grupos-e-trabalho-em-equipe.it.html"><span class="num">10.3</span><span>Gruppi e lavoro di squadra</span></a></li><li><a href="10.4-sudo-de-verdade.it.html"><span class="num">10.4</span><span>sudo sul serio</span></a></li></ul><h3>M11 · Rete</h3><ul><li><a href="11.1-tcp-ip-para-quem-administra.it.html"><span class="num">11.1</span><span>TCP/IP per chi amministra</span></a></li><li><a href="11.2-networkmanager-e-nmcli.it.html"><span class="num">11.2</span><span>NetworkManager e nmcli</span></a></li><li><a href="11.3-rede-no-debian.it.html"><span class="num">11.3</span><span>Rete su Debian</span></a></li><li><a href="11.4-nomes-e-resolucao.it.html"><span class="num">11.4</span><span>Nomi e risoluzione</span></a></li><li><a href="11.5-diagnostico-de-rede.it.html"><span class="num">11.5</span><span>Diagnosi di rete</span></a></li></ul><h3>M12 · Sicurezza dell'host</h3><ul><li><a href="12.1-ssh-a-fundo.it.html"><span class="num">12.1</span><span>SSH in dettaglio</span></a></li><li><a href="12.2-firewall.it.html"><span class="num">12.2</span><span>Firewall</span></a></li><li><a href="12.3-selinux-modos-e-contextos.it.html"><span class="num">12.3</span><span>SELinux: modalità e contesti</span></a></li><li><a href="12.4-selinux-portas-e-booleanos.it.html"><span class="num">12.4</span><span>SELinux: porte e booleani</span></a></li><li><a href="12.5-auditoria-e-criptografia.it.html"><span class="num">12.5</span><span>Audit e crittografia</span></a></li></ul><h3>M13 · Archiviazione in rete</h3><ul><li><a href="13.1-servidor-nfs.it.html"><span class="num">13.1</span><span>Server NFS</span></a></li><li><a href="13.2-cliente-nfs.it.html"><span class="num">13.2</span><span>Client NFS</span></a></li><li><a href="13.3-autofs.it.html"><span class="num">13.3</span><span>autofs</span></a></li></ul><h3>M14 · Pianificazione</h3><ul><li><a href="14.1-cron-e-at.it.html"><span class="num">14.1</span><span>cron e at</span></a></li><li><a href="14.2-timers-do-systemd.it.html"><span class="num">14.2</span><span>Timer di systemd</span></a></li><li><a href="14.3-journald-e-rsyslog.it.html"><span class="num">14.3</span><span>journald e rsyslog</span></a></li><li><a href="14.4-hora-certa.it.html"><span class="num">14.4</span><span>L'ora corretta</span></a></li><li><a href="14.5-email-local-e-impressao.it.html"><span class="num">14.5</span><span>E-mail locale e stampa</span></a></li></ul><h3>M15 · Shell e ambiente</h3><ul><li><a href="15.1-ambiente-do-shell.it.html"><span class="num">15.1</span><span>Ambiente della shell</span></a></li><li><a href="15.2-scripts-robustos.it.html"><span class="num">15.2</span><span>Script robusti</span></a></li><li><a href="15.3-scripts-de-administracao.it.html"><span class="num">15.3</span><span>Script di amministrazione</span></a></li><li><a href="15.4-interfaces-graficas.it.html"><span class="num">15.4</span><span>Interfacce grafiche</span></a></li><li><a href="15.5-idioma-teclado-e-fuso.it.html"><span class="num">15.5</span><span>Lingua, tastiera e fuso orario</span></a></li></ul><h3>M16 · Settimana di incidenti su Rocky 10</h3><ul><li><a href="16.1-rocky-10-o-que-muda.it.html"><span class="num">16.1</span><span>Rocky 10: cosa cambia</span></a></li><li><a href="16.2-incidentes-por-area.it.html"><span class="num">16.2</span><span>Incidenti per area</span></a></li><li><a href="16.3-incidente-com-relogio.it.html"><span class="num">16.3</span><span>Incidente con cronometro</span></a></li><li><a href="16.4-correcao-e-reforco.it.html"><span class="num">16.4</span><span>Correzione e rinforzo</span></a></li></ul><h3>M17 · Proxmox in pratica</h3><ul><li><a href="17.1-proxmox-por-dentro.it.html"><span class="num">17.1</span><span>Proxmox dall'interno</span></a></li><li><a href="17.2-vm-pela-linha-de-comando.it.html"><span class="num">17.2</span><span>VM dalla riga di comando</span></a></li><li><a href="17.3-conteiner-lxc.it.html"><span class="num">17.3</span><span>Container LXC</span></a></li><li><a href="17.4-storage.it.html"><span class="num">17.4</span><span>Storage: capacità, ampliamento e spostamento</span></a></li><li><a href="17.5-rede.it.html"><span class="num">17.5</span><span>Rete: bridge, VLAN, bond e SDN</span></a></li><li><a href="17.6-backup-e-restauracao.it.html"><span class="num">17.6</span><span>Backup e ripristino con PBS</span></a></li><li><a href="17.7-migracao-e-quorum.it.html"><span class="num">17.7</span><span>Migrazione e quorum</span></a></li></ul><h3>M18 · Podman</h3><ul><li><a href="18.1-conteiner-nao-e-vm.it.html"><span class="num">18.1</span><span>Un container non è una VM</span></a></li><li><a href="18.2-rodar-e-persistir.it.html"><span class="num">18.2</span><span>Eseguire e conservare i dati</span></a></li><li><a href="18.3-conteiner-como-servico.it.html"><span class="num">18.3</span><span>Container come servizio</span></a></li><li><a href="18.4-diagnosticar-conteiner-rootless.it.html"><span class="num">18.4</span><span>Diagnosticare un container rootless</span></a></li><li><a href="18.5-construir-imagens.it.html"><span class="num">18.5</span><span>Costruire immagini</span></a></li></ul><h3>M19 · Servizi di rete</h3><ul><li><a href="19.1-dns-autoritativo.it.html"><span class="num">19.1</span><span>DNS autoritativo</span></a></li><li><a href="19.2-dns-recursivo-e-diagnostico.it.html"><span class="num">19.2</span><span>DNS ricorsivo e diagnosi</span></a></li><li><a href="19.3-dhcp.it.html"><span class="num">19.3</span><span>DHCP</span></a></li><li><a href="19.4-servidor-web.it.html"><span class="num">19.4</span><span>Server web: nome, file e risposta</span></a></li><li><a href="19.5-tls-e-proxy-reverso.it.html"><span class="num">19.5</span><span>TLS e reverse proxy: identità prima del lucchetto</span></a></li><li><a href="19.6-samba-a-ponte-windows.it.html"><span class="num">19.6</span><span>Samba: il ponte con il client Windows</span></a></li><li><a href="19.7-postfix-e-correio-local.it.html" aria-current="page"><span class="num">19.7</span><span>Postfix e posta locale</span></a></li><li><a href="19.8-dovecot-e-imaps.it.html"><span class="num">19.8</span><span>Dovecot e lettura tramite IMAPS</span></a></li><li><a href="19.9-squid-e-desafio-integrado.it.html"><span class="num">19.9</span><span>Squid e sfida integrata</span></a></li></ul><h3>M20 · Dentro NethServer 8</h3><ul><li><a href="20.1-instalar-nethserver-8.it.html"><span class="num">20.1</span><span>Installare in una VM pulita</span></a></li><li><a href="20.2-cluster-no-e-modulo.it.html"><span class="num">20.2</span><span>Cluster, nodo e modulo</span></a></li><li><a href="20.3-modulo-por-dentro.it.html"><span class="num">20.3</span><span>Dentro un modulo</span></a></li><li><a href="20.4-proxy-e-certificados.it.html"><span class="num">20.4</span><span>Proxy e certificati</span></a></li><li><a href="20.5-dominios-de-usuario.it.html"><span class="num">20.5</span><span>Domini utente: identità con confini</span></a></li><li><a href="20.6-backup-e-restauracao.it.html"><span class="num">20.6</span><span>Backup e ripristino: verificare il ritorno</span></a></li><li><a href="20.7-atualizar-mover-e-falhar.it.html"><span class="num">20.7</span><span>Aggiornare, spostare e guastare con verifica</span></a></li></ul></aside><main id="conteudo" class="aula"><article><h1>Lezione 19.7 · Postfix e posta locale</h1>
+<blockquote><p><strong>Il cuore di questa lezione:</strong> accettare una lettera, scegliere il destinatario e consegnarla nella casella sono tre verifiche diverse.</p></blockquote>
+<div class="tabela"><table><thead><tr><th scope="col">Scheda</th><th scope="col">Piano di lavoro</th></tr></thead><tbody><tr><td>Modulo</td><td>M19 · Servizi di rete, lezione 7 di 9</td></tr><tr><td>Quando</td><td>Settimana 27</td></tr><tr><td>Alla fine</td><td>Consegnare posta locale e verificare il rifiuto del relay non autorizzato</td></tr><tr><td>Prerequisiti</td><td>19.1–19.6; VM 204 <code translate="no">srv-deb</code>; DNS <code translate="no">lab.test</code> funzionante</td></tr><tr><td>Durata</td><td>100–140 minuti, oltre alle installazioni</td></tr><tr><td>Snapshot</td><td><code translate="no">m19a7-inicio</code> e <code translate="no">m19a7-fim</code>, VM 204</td></tr></tbody></table></div>
+<p>Esegui nel guest indicato, come <code translate="no">student</code> con <code translate="no">sudo</code>. L’host Proxmox compare soltanto nella sfida esplicitamente indicata. Non adattare gli esempi a un server di produzione.</p>
+<p>Verifica la <a href="https://github.com/Rodrigoantignani/curso-linux-sysadmin/blob/master/GUIA_BANCADA_M19_IT.md">guida comune del laboratorio</a> prima di modificare i servizi; definisce rete, firewall e materiale di fiducia.</p>
+<p>Nomi canonici del modulo: il nome della VM in Proxmox e l’hostname del sistema operativo devono corrispondere al ruolo, prima di eseguire le guardie. Un nome DNS di servizio non cambia l’hostname. Se l’inventario differisce, riconcilialo dalla console prima di proseguire; non ignorare le guardie.</p>
+<div class="tabela"><table><thead><tr><th scope="col">VM</th><th scope="col">Hostname breve</th><th scope="col">Indirizzo isolato</th></tr></thead><tbody><tr><td>201</td><td><code translate="no">rocky-lab</code></td><td><code translate="no">192.0.2.201</code></td></tr><tr><td>202</td><td><code translate="no">debian-lab</code></td><td><code translate="no">192.0.2.202</code></td></tr><tr><td>204</td><td><code translate="no">srv-deb</code></td><td><code translate="no">192.0.2.204</code></td></tr><tr><td>212</td><td><code translate="no">m19-client</code></td><td>DHCP; solo sfida 19.9</td></tr></tbody></table></div>
+<h2 id="1-riscaldamento">1 · Riscaldamento</h2>
+<ol><li>Una risposta SMTP positiva dimostra la lettura da parte dell’utente?</li>
+<li>Il record MX indica direttamente un indirizzo IP?</li>
+<li>Consentire destinatari locali equivale a consentire il relay verso qualsiasi dominio?</li></ol>
+<h2 id="2-perche-conta">2 · Perché conta</h2>
+<p>Un servizio deve inviare un avviso e trovi soltanto una coda in crescita. Separare accettazione, accodamento e consegna evita di attribuire la colpa al client sbagliato.</p>
+<p>Il laboratorio usa soltanto posta locale. Non pubblica MX su Internet e non configura consegna esterna, antispam, reputazione, SPF, DKIM o DMARC. Questi contratti richiedono un altro progetto.</p>
+<p>Lo stesso indirizzo può passare attraverso un alias prima di raggiungere un account Unix. L’alias cambia la destinazione locale; non crea una password né una casella indipendente.</p>
+<h2 id="3-modello-mentale">3 · Modello mentale</h2>
+<figure><a href="../img/19.7-postfix-local.it.jpg"><img src="../img/19.7-postfix-local.it.jpg" alt="Lettera, smistamento e casella" loading="lazy" decoding="async"></a><figcaption>Accettare il messaggio non dimostra che sia arrivato nella casella.</figcaption></figure>
+<div class="tabela"><table><thead><tr><th scope="col">Elemento</th><th scope="col">Che cosa dimostra</th></tr></thead><tbody><tr><td>SMTP</td><td>Trasporto e risposta di accettazione</td></tr><tr><td>MX</td><td>Nome del server di posta del dominio</td></tr><tr><td>queue ID</td><td>Identità locale nella coda di Postfix</td></tr><tr><td>Message-ID</td><td>Intestazione per correlare il contenuto</td></tr><tr><td>alias</td><td>Mappatura del destinatario locale</td></tr><tr><td>Maildir</td><td>Messaggi in file individuali</td></tr></tbody></table></div>
+<h3 id="ponte-windows">Ponte Windows</h3>
+<p>Un client di posta distingue il server di invio dal server di lettura. In questa lezione prepari soltanto la consegna SMTP; la lettura tramite IMAPS arriva nella prossima.</p>
+<h2 id="4-l-essenziale">4 · L'essenziale</h2>
+<p>Il dominio è <code translate="no">lab.test</code>. Il record MX indica <code translate="no">mail.lab.test</code>, il cui record A risolve in <code translate="no">192.0.2.204</code>. Il destinatario della prova sarà <code translate="no">suporte@lab.test</code>.</p>
+<p>Il nuovo utente è <code translate="no">aluno-mail</code>, con casella in <code translate="no">~/Maildir/</code>. Non riutilizzare l’account <code translate="no">student</code>, non copiarne la password e non abilitare l’accesso remoto per l’account di posta.</p>
+<p>La fiducia per il relay comprende soltanto <code translate="no">127.0.0.1/32</code> e <code translate="no">192.0.2.0/24</code>. Il resto del loopback non è attendibile in questa configurazione: permette una prova negativa locale e controllata.</p>
+<p>SMTP ascolta soltanto sul loopback e sull’indirizzo isolato. Senza autenticazione su questa porta, invia soltanto contenuto fittizio del laboratorio; la password dell’utente non partecipa alla prova SMTP.</p>
+<p>Accettare il relay dalla LAN non richiede connettività esterna. Una protezione aggiuntiva impedisce il trasporto SMTP in uscita; si esercita soltanto la consegna locale.</p>
+<h3 id="rocky-debian">Rocky × Debian</h3>
+<p>Il server di questa lezione è Debian 13. Postfix usa parametri simili nelle due famiglie, ma pacchetti, unità, politiche firewall e log vanno verificati sul sistema reale.</p>
+<p>Su Rocky SELinux resta enforcing e il servizio non riceve permessi estesi per compensare un percorso errato. Questa lezione non installa un secondo MTA sulle VM 201 o 202.</p>
+<h2 id="5-lab-guidato">5 · Lab guidato</h2>
+<p>La rete del laboratorio è <code translate="no">192.0.2.0/24</code>, isolata in <code translate="no">vmbr17</code>, senza gateway, NAT o porta fisica. La VM 204 usa <code translate="no">192.0.2.204</code> su questa rete. L’interfaccia di gestione conserva il proprio indirizzo reale e la propria rotta.</p>
+<h3 id="passo-1-verificare-rete-dns-e-assenza-di-altri-mta">Passo 1 · Verificare rete, DNS e assenza di altri MTA</h3>
+<p><strong>Ipotesi:</strong> Un nome risolto dimostra che la porta di posta esiste già?</p>
+<p>Leggi il file di ambiente prima di caricarlo. Se trovi altro oltre alle quattro assegnazioni documentate, fermati. Mantieni la politica firewall già verificata nella 19.1.</p>
+<pre translate="no"><code class="lang-bash">test "$(hostname -s)" = srv-deb || exit 1
+cat /etc/os-release
+test ! -L /etc/m19-lab.env || exit 1
+test "$(stat -c %u:%g:%a /etc/m19-lab.env)" = 0:0:644 || exit 1
+cat /etc/m19-lab.env
+. /etc/m19-lab.env
+test "$LAB_IP" = 192.0.2.204 || exit 1
+test "$LAB_NET" = 192.0.2.0/24 || exit 1
+ip -4 address show dev "$LAB_IF"
+ip -4 route
+dig @192.0.2.204 lab.test MX +noall +answer
+dig @192.0.2.204 mail.lab.test A +short
+dpkg-query -W postfix exim4-daemon-light exim4-daemon-heavy sendmail-bin 2&gt;/dev/null
+sudo ss -ltnp '( sport = :25 )'
+if getent passwd aluno-mail &gt; /dev/null; then exit 1; fi
+sudo nft list ruleset</code></pre>
+<p><strong>Output atteso:</strong> MX verso il nome corretto, A verso l’indirizzo isolato, porta libera e utente assente. L’elenco dei pacchetti può restituire un codice diverso da zero per pacchetti assenti.</p>
+<p><strong>Verifica:</strong> Se esiste già un altro MTA o l’account, fermati e indaga. Non riutilizzarne la configurazione e non rimuovere un altro servizio per liberare la porta.</p>
+<pre translate="no"><code class="lang-bash">mkdir -p "$HOME/m19-lab"
+EVID=$(mktemp -d "$HOME/m19-lab/evidence-19-7.XXXXXX") || exit 1
+ip -4 address &gt; "$EVID/address-before.txt"
+ip -4 route &gt; "$EVID/routes-before.txt"
+sudo nft list ruleset &gt; "$EVID/firewall-before.txt"</code></pre>
+<p>Durante l’installazione scegli <strong>Local only</strong>, con mailname <code translate="no">mail.lab.test</code>; non scegliere <strong>No configuration</strong>, che può lasciare assenti i file richiesti. Il blocco preimposta questi valori e controlla i file prima del backup.</p>
+<h3 id="passo-2-installare-senza-pubblicare-la-configurazione-predefinita">Passo 2 · Installare senza pubblicare la configurazione predefinita</h3>
+<p><strong>Ipotesi:</strong> Installare un pacchetto garantisce che ascolti soltanto sulla rete corretta?</p>
+<p>La VM 204 è stata preparata senza MTA precedente. La maschera temporanea impedisce l’avvio automatico durante l’installazione. Nel dialogo del pacchetto scegli la configurazione locale; quella finale arriva al passo successivo.</p>
+<pre translate="no"><code class="lang-bash">sudo systemctl mask postfix.service postfix@.service
+sudo apt update
+printf '%s\n' 'postfix postfix/main_mailer_type select Local only' 'postfix postfix/mailname string mail.lab.test' | sudo debconf-set-selections || exit 1
+sudo apt install postfix swaks
+systemctl is-enabled postfix.service
+sudo ss -ltnp '( sport = :25 )'
+sudo test ! -e /root/m19-backup-19-7 || exit 1
+sudo install -d -m 0700 /root/m19-backup-19-7
+sudo test -f /etc/postfix/main.cf &amp;&amp; sudo test -f /etc/aliases || exit 1
+sudo cp -a /etc/postfix/main.cf /root/m19-backup-19-7/main.cf
+sudo cp -a /etc/aliases /root/m19-backup-19-7/aliases
+sudo useradd --create-home --shell /usr/sbin/nologin aluno-mail
+sudo install -d -o aluno-mail -g aluno-mail -m 0700   /home/aluno-mail/Maildir /home/aluno-mail/Maildir/cur   /home/aluno-mail/Maildir/new /home/aluno-mail/Maildir/tmp
+getent passwd aluno-mail
+sudo stat -c '%U %G %a %n' /home/aluno-mail/Maildir</code></pre>
+<p><strong>Output atteso:</strong> Pacchetto installato, unità mascherata, nessun listener SMTP e directory appartenenti al nuovo account.</p>
+<p><strong>Verifica:</strong> Non procedere con installazione interrotta o listener inatteso. Conserva il backup fuori dal materiale pubblicato: può contenere parametri privati dell’ambiente.</p>
+<h3 id="passo-3-limitare-identita-ascolto-e-relay">Passo 3 · Limitare identità, ascolto e relay</h3>
+<p><strong>Ipotesi:</strong> Una regola di relay deve autorizzare tutti i client che raggiungono la porta?</p>
+<pre translate="no"><code class="lang-bash">sudo postconf -e 'myhostname = mail.lab.test'
+sudo postconf -e 'mydomain = lab.test'
+sudo postconf -e 'myorigin = $mydomain'
+sudo postconf -e 'mydestination = $myhostname, localhost.$mydomain, localhost, $mydomain'
+sudo postconf -e 'inet_interfaces = 127.0.0.1, 192.0.2.204'
+sudo postconf -e 'inet_protocols = ipv4'
+sudo postconf -e 'mynetworks = 127.0.0.1/32, 192.0.2.0/24'
+sudo postconf -e 'smtpd_relay_restrictions = permit_mynetworks, reject_unauth_destination'
+sudo postconf -e 'relay_domains ='
+sudo postconf -e 'relayhost ='
+sudo postconf -e 'home_mailbox = Maildir/'
+sudo postconf -e 'default_transport = error:external delivery disabled in M19'
+sudo postconf -e 'relay_transport = error:external relay disabled in M19'
+sudo postconf -e 'smtpd_sasl_auth_enable = no'
+sudo postconf -n
+sudo postfix check</code></pre>
+<p><strong>Output atteso:</strong> Identità locale, ascolto limitato e politica esplicita di relay. La validazione deve terminare senza errori prima dell’avvio.</p>
+<p><strong>Verifica:</strong> Il dominio locale resta consegnabile tramite il trasporto locale. I trasporti in uscita bloccati evitano che un messaggio di prova tenti di uscire dall’interfaccia di gestione.</p>
+<p>La prova non implementa submission autenticata né relay verso Internet. Non trasformare l’esempio in un server esterno limitandoti a rimuovere le due protezioni di trasporto.</p>
+<figure><a href="../img/19.7-relay-com-fronteira.it.jpg"><img src="../img/19.7-relay-com-fronteira.it.jpg" alt="Il relay ha un confine" loading="lazy" decoding="async"></a><figcaption>Una rete autorizzata non trasforma il server in un relay aperto.</figcaption></figure>
+<h3 id="passo-4-mappare-lalias-e-avviare-il-servizio">Passo 4 · Mappare l’alias e avviare il servizio</h3>
+<p><strong>Ipotesi:</strong> Modificare il file degli alias aggiorna immediatamente la mappa consultata?</p>
+<pre translate="no"><code class="lang-bash">if sudo grep -qE '^suporte[[:space:]]*:' /etc/aliases; then exit 1; fi
+printf '%s
+' 'suporte: aluno-mail' | sudo tee -a /etc/aliases
+sudo newaliases
+sudo postalias -q suporte hash:/etc/aliases
+sudo postfix check || exit 1
+sudo systemctl unmask postfix.service postfix@.service
+sudo systemctl enable --now postfix.service
+sudo postfix status
+systemctl cat postfix.service
+sudo ss -ltnp '( sport = :25 )'
+sudo postconf mydestination mynetworks inet_interfaces
+sudo journalctl --since '-5 min' --no-pager | grep -F postfix</code></pre>
+<p><strong>Output atteso:</strong> L’alias restituisce il nuovo account. Il processo master ascolta soltanto su <code translate="no">127.0.0.1</code> e <code translate="no">192.0.2.204</code>, porta 25.</p>
+<p><strong>Verifica:</strong> Leggi l’unità della versione installata; l’organizzazione delle istanze è cambiata tra versioni Debian. Usa anche lo stato di Postfix e il listener reale, non soltanto la riga di systemd.</p>
+<p>Se la verifica fallisce, mantieni il servizio mascherato, ripristina i due file dal backup e rigenera la mappa. Non tentare avvii ripetuti per nascondere il problema.</p>
+<h3 id="passo-5-inviare-e-seguire-lo-stesso-messaggio">Passo 5 · Inviare e seguire lo stesso messaggio</h3>
+<p><strong>Ipotesi:</strong> L’identificatore di coda e l’intestazione della lettera sono lo stesso oggetto?</p>
+<p>Sulla VM 202 usa la rete isolata verificata e invia soltanto testo fittizio. Il marcatore è tuo, non un numero di log inventato; conserva il valore per la prossima lezione.</p>
+<pre translate="no"><code class="lang-bash">test "$(hostname -s)" = debian-lab || exit 1
+sudo apt install swaks
+dig @192.0.2.204 lab.test MX +short
+MID="m19-$(date +%s)-$(cat /proc/sys/kernel/random/uuid)@lab.test"
+printf '%s
+' "$MID"
+swaks --server 192.0.2.204 --port 25   --from student@lab.test --to suporte@lab.test   --header "Message-ID: &lt;$MID&gt;" --header 'Subject: M19 prova local'   --body 'Mensagem ficticia para leitura na aula 19.8.'
+printf '%s
+' "$MID" &gt; "$HOME/m19-message-id.txt"</code></pre>
+<p><strong>Output atteso:</strong> Accettazione del messaggio e identificatore reale di coda nella risposta. Copia l’identificatore osservato, senza sostituirlo con un valore di esempio.</p>
+<p><strong>Verifica:</strong> Tornato sulla VM 204, cerca la stessa intestazione, segui la consegna locale e controlla il file del messaggio. Una coda vuota da sola potrebbe anche significare scarto o rifiuto.</p>
+<pre translate="no"><code class="lang-bash">test "$(hostname -s)" = srv-deb || exit 1
+read -r -p 'Message-ID observado: ' MID
+sudo journalctl --since '-15 min' --no-pager | grep -F "$MID"
+sudo postqueue -p
+sudo find /home/aluno-mail/Maildir/new -maxdepth 1 -type f -printf '%f
+'
+sudo grep -rlF -- "$MID" /home/aluno-mail/Maildir/new/
+# Leia apenas o arquivo encontrado; nao publique seu conteudo real.</code></pre>
+<h3 id="passo-6-verificare-il-rifiuto-senza-inviare-posta-esterna">Passo 6 · Verificare il rifiuto senza inviare posta esterna</h3>
+<p><strong>Ipotesi:</strong> Un tentativo dalla stessa LAN dimostra il rifiuto di un’origine non attendibile?</p>
+<p>Questa prova si svolge sulla VM 204. L’origine di loopback scelta non è in <code translate="no">mynetworks</code>; il comando termina al destinatario, prima del corpo. Il dominio riservato evita contatti con un dominio reale.</p>
+<pre translate="no"><code class="lang-bash">swaks --local-interface 127.0.0.2 --server 127.0.0.1 --port 25   --from origem@lab.test --to destinatario@outside.invalid   --quit-after RCPT
+sudo journalctl --since '-5 min' --no-pager | grep -E 'postfix|Relay access denied'
+sudo postqueue -p
+sudo postconf -n &gt; "$EVID/postconf-final.txt"
+sudo ss -ltnp &gt; "$EVID/listeners-final.txt"
+ip -4 route &gt; "$EVID/routes-after.txt"
+diff -u "$EVID/routes-before.txt" "$EVID/routes-after.txt"</code></pre>
+<p><strong>Output atteso:</strong> Rifiuto del relay al comando del destinatario, senza accettazione del corpo né creazione di un messaggio esterno in coda.</p>
+<p><strong>Verifica:</strong> Se l’origine locale non può essere usata, registra la prova come in sospeso e indaga la piattaforma. Non ampliare la rete attendibile per far superare la prova.</p>
+<h3 id="decidi-1-la-coda-e-vuota">Decidi 1 · La coda è vuota</h3>
+<p>A. Concludere che l’utente ha letto. B. Correlare risposta, log e file. C. Riavviare il client finché compare qualcosa.</p>
+<h3 id="decidi-2-il-relay-e-stato-rifiutato">Decidi 2 · Il relay è stato rifiutato</h3>
+<p>A. Verificare origine e destinazione prima di cambiare la politica. B. Disattivare la restrizione. C. Aggiungere tutte le reti private.</p>
+<h2 id="6-rompi-e-ripara">6 · Rompi e ripara</h2>
+<p>Introduci un guasto alla volta e ripristina prima del successivo. Mantieni aperta la sessione di gestione. I difetti seguenti non richiedono di eliminare messaggi, utenti o file di altri servizi.</p>
+<h3 id="guasto-1-alias-senza-mappa-aggiornata">Guasto 1 · Alias senza mappa aggiornata</h3>
+<p><strong>Sintomo:</strong> Il file mostra l’alias, ma la consultazione della mappa non riflette la modifica.</p>
+<p><strong>Indagine:</strong> Confronta il file sorgente con la consultazione della mappa; non inviare decine di lettere per provare.</p>
+<p><strong>Causa:</strong> La mappa compilata non è stata rigenerata dopo la modifica.</p>
+<p><strong>Riparazione:</strong> Rigenera e consulta nuovamente prima di ripetere un unico invio.</p>
+<p><strong>Prevenzione:</strong> Includi la consultazione della mappa nella modifica documentata.</p>
+<p><strong>Verifica:</strong> La consultazione della mappa restituisce l’account locale previsto.</p>
+<pre translate="no"><code class="lang-bash">sudo postalias -q suporte hash:/etc/aliases
+sudo newaliases
+sudo postalias -q suporte hash:/etc/aliases</code></pre>
+<h3 id="guasto-2-dominio-fuori-dalla-consegna-locale">Guasto 2 · Dominio fuori dalla consegna locale</h3>
+<p><strong>Sintomo:</strong> Una lettera del dominio del laboratorio non arriva alla casella e risulta destinazione esterna bloccata.</p>
+<p><strong>Indagine:</strong> Leggi le destinazioni locali effettive e il log del messaggio.</p>
+<p><strong>Causa:</strong> Una modifica dell’esercizio ha rimosso il dominio dalle destinazioni locali.</p>
+<p><strong>Riparazione:</strong> Ripristina la riga verificata del passo 3, controlla e ricarica; invia una nuova lettera con un altro marcatore.</p>
+<p><strong>Prevenzione:</strong> Non compensare rimuovendo la protezione dei trasporti esterni.</p>
+<p><strong>Verifica:</strong> La nuova lettera registra una consegna locale e compare nella casella.</p>
+<pre translate="no"><code class="lang-bash">sudo postconf mydestination default_transport relay_transport
+sudo postfix check &amp;&amp; sudo postfix reload</code></pre>
+<h3 id="guasto-3-casella-con-proprietario-errato">Guasto 3 · Casella con proprietario errato</h3>
+<p><strong>Sintomo:</strong> L’accettazione SMTP avviene, ma la consegna locale registra un permesso negato.</p>
+<p><strong>Indagine:</strong> Controlla soltanto le directory dell’account di laboratorio e il log della consegna.</p>
+<p><strong>Causa:</strong> Una directory specifica di Maildir appartiene a un altro account.</p>
+<p><strong>Riparazione:</strong> Ripristina proprietario e modalità soltanto della directory identificata; non usare permessi universali né modifiche ricorsive su tutte le home.</p>
+<p><strong>Prevenzione:</strong> Crea le tre sottodirectory con il proprietario corretto fin dall’inizio.</p>
+<p><strong>Verifica:</strong> La nuova consegna termina senza errori e la directory mantiene proprietario e modalità limitati.</p>
+<pre translate="no"><code class="lang-bash">sudo namei -l /home/aluno-mail/Maildir/new
+sudo stat -c '%U %G %a %n' /home/aluno-mail/Maildir/{cur,new,tmp}</code></pre>
+<h2 id="7-trappole">7 · Trappole</h2>
+<figure><a href="../img/19.7-seguir-a-mensagem.it.jpg"><img src="../img/19.7-seguir-a-mensagem.it.jpg" alt="Segui l’identità del messaggio" loading="lazy" decoding="async"></a><figcaption>Correla lo stesso messaggio dall’invio alla consegna.</figcaption></figure>
+<ol><li>Il record MX indica un nome, non un testo contenente un IP.</li>
+<li>La fiducia di rete non è autenticazione del mittente.</li>
+<li>Una coda vuota non dimostra da sola lettura né successo.</li>
+<li>Un alias non crea un secondo utente Unix.</li>
+<li>Non cancellare l’intera coda per ripulire un unico errore di prova.</li>
+<li>Anche un comando amministrativo di consultazione richiede il contesto corretto.</li></ol>
+<h2 id="8-quiz">8 · Quiz</h2>
+<ol><li>Quale oggetto permette di correlare il contenuto tra invio e file?</li>
+<li>Perché la prova negativa usa un’origine fuori dalla rete attendibile?</li>
+<li>Che cosa cambia dopo aver modificato l’alias e prima di rigenerare la mappa?</li>
+<li>Quale evidenza distingue accettazione SMTP e consegna locale?</li>
+<li>Perché la protezione del trasporto esterno resta necessaria anche nel laboratorio?</li></ol>
+<h2 id="9-promemoria">9 · Promemoria</h2>
+<pre translate="no"><code class="lang-bash">sudo postconf -n
+sudo postfix check
+sudo postfix status
+sudo postqueue -p
+sudo postalias -q suporte hash:/etc/aliases
+sudo journalctl --since '-15 min' --no-pager | grep -F postfix
+sudo ss -ltnp '( sport = :25 )'</code></pre>
+<p><strong>Flashcard:</strong> Accettazione → responsabilità assunta per l’elaborazione, non lettura.</p>
+<p><strong>Flashcard:</strong> Alias → mappatura di nome, senza password propria.</p>
+<p><strong>Flashcard:</strong> Relay → inoltro verso un altro dominio sotto una politica esplicita.</p>
+<h2 id="10-checklist-e-chiusura">10 · Checklist e chiusura</h2>
+<ul><li>[ ] DNS MX e A verificati sulla rete isolata.</li>
+<li>[ ] Gestione e rotte mantenute.</li>
+<li>[ ] Ascolto limitato e trasporti esterni bloccati.</li>
+<li>[ ] Alias consultato nella mappa effettiva.</li>
+<li>[ ] Un messaggio correlato fino a Maildir.</li>
+<li>[ ] Relay non autorizzato rifiutato prima del corpo.</li>
+<li>[ ] Account di posta ed evidenze conservati per la 19.8.</li></ul>
+<p><strong>Reboot di verifica:</strong> pianifica soltanto la VM 204 quando il laboratorio lo consente. Dopo il riavvio verifica indirizzo isolato, listener, politica e prova funzionale completa; un servizio attivo da solo non conclude la verifica.</p>
+<p>Nella finestra concordata riavvia dal guest; poi riconnettiti tramite la gestione ed esegui le verifiche seguenti.</p>
+<pre translate="no"><code class="lang-bash">sudo systemctl reboot</code></pre>
+<pre translate="no"><code class="lang-bash">sudo postfix status
+sudo postconf inet_interfaces mynetworks
+sudo ss -ltnp '( sport = :25 )'
+sudo postqueue -p</code></pre>
+<p><strong>Ultimo esercizio:</strong> Spiega a una persona dove si trova il messaggio in ogni fase e mostra tre evidenze della stessa lettera.</p>
+<h2 id="11-nella-vita-reale">11 · Nella vita reale</h2>
+<p>In un ambiente reale esegui prima un inventario in sola lettura: domini, destinazioni locali, reti attendibili, autenticazione, trasporto, conservazione e monitoraggio.</p>
+<p>Un problema di reputazione esterna non si risolve ampliando il relay. Un problema di archiviazione non si risolve cancellando un’intera coda senza identificarne i proprietari.</p>
+<h2 id="12-approfondire-quando-vuoi">12 · Approfondire quando vuoi</h2>
+<p><a href="https://www.postfix.org/BASIC_CONFIGURATION_README.html">Postfix · configurazione di base</a> spiega identità, destinazioni e interfacce.</p>
+<p><a href="https://www.postfix.org/STANDARD_CONFIGURATION_README.html">Postfix · esempi di configurazione</a> documenta i limiti del relay.</p>
+<p><a href="https://www.postfix.org/postconf.5.html">Postfix · parametri</a> è il riferimento per consultare i parametri usati.</p>
+<p>I riferimenti sostengono la verifica documentale. I comandi e i risultati della lezione devono essere eseguiti nel tuo laboratorio; questa consegna non registra prove su VM.</p>
+<p>!explica Por que aceitar SMTP, entregar Maildir e ler IMAP sao tres provas diferentes?</p>
+<p>!feynman Explique um alias sem confundi-lo com uma conta de usuario.</p>
+<p>!quiz Crie tres casos de relay e peca origem, destino e regra aplicada.</p>
+<h3 id="soluzioni-commentate">Soluzioni commentate</h3>
+<p>Riscaldamento: no; il record MX indica un nome; consegna locale e relay sono decisioni distinte.</p>
+<p>Decidi 1: B. Risposta, log e file formano una catena; nessuno da solo dimostra la lettura.</p>
+<p>Decidi 2: A. Il rifiuto può essere proprio la protezione desiderata.</p>
+<p>Quiz 1: l’intestazione del messaggio permette di correlare il contenuto; l’identificatore di coda serve all’elaborazione locale.</p>
+<p>Quiz 2: un’origine attendibile non esercita il rifiuto del relay a terzi.</p>
+<p>Quiz 3: cambia il file sorgente, ma la mappa consultata può ancora contenere il valore precedente.</p>
+<p>Quiz 4: log della consegna locale e file nella casella, correlati al messaggio accettato.</p>
+<p>Quiz 5: l’interfaccia di gestione può avere connettività; il laboratorio non autorizza posta esterna attraverso di essa.</p>
+<p>Conserva le evidenze fuori dalla VM prima di terminare. Mantieni i servizi del M19 per le lezioni successive e non ripristinare lo snapshot sopra lavoro successivo.</p>
+<p><a href="19.6-samba-a-ponte-windows.it.html">← Lezione 19.6 · Samba</a> · <a href="index.it.html">Indice delle lezioni</a> · <a href="19.8-dovecot-e-imaps.it.html">Lezione 19.8 · Dovecot →</a></p>
+</article><nav class="paginas" aria-label="Lezioni"><a class="ant" href="19.6-samba-a-ponte-windows.it.html"><small>← Precedente</small>19.6 · Samba: il ponte con il client Windows</a><a class="prox" href="19.8-dovecot-e-imaps.it.html"><small>Successiva →</small>19.8 · Dovecot e lettura tramite IMAPS</a></nav></main></div>
+<footer><div class="wrap">Generato dal Markdown del corso · Immagini in <code translate="no">img/</code></div></footer>
+</body>
+</html>

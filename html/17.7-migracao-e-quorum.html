@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light dark">
+<title>17.7 · Migração e quorum · Curso Linux Sysadmin</title>
+<link rel="alternate" hreflang="pt-BR" href="17.7-migracao-e-quorum.html"><link rel="alternate" hreflang="it" href="17.7-migracao-e-quorum.it.html">
+<style>
+:root{color-scheme:light dark;--bg:#f6f1e7;--card:#fffdf8;--ink:#201c16;--muted:#5e564a;--accent:#9a3412;--accent-2:#1f5f4a;--tint:#efe6d4;--line:#ddd2bc;--code:#f1eadb;--shadow:0 1px 2px rgba(60,40,10,.08);--serif:Georgia,"Iowan Old Style","Palatino Linotype",Palatino,serif;--sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--mono:"Cascadia Code",Consolas,"DejaVu Sans Mono",monospace}
+@media (prefers-color-scheme:dark){:root{--bg:#16130f;--card:#201b15;--ink:#f1eadb;--muted:#b9ad98;--accent:#f0a070;--accent-2:#7fd0b0;--tint:#2a231a;--line:#3d3427;--code:#191510;--shadow:none}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:5.5rem}
+body{margin:0;background:var(--bg);color:var(--ink);font:1rem/1.6 var(--sans)}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--accent-2);outline-offset:2px;border-radius:4px}
+.pular{position:absolute;left:-999px;top:0;background:var(--card);padding:.5rem 1rem;z-index:20}
+.pular:focus{left:.5rem;top:.5rem}
+.wrap{width:100%;max-width:84rem;margin:0 auto;padding-inline:max(1rem,env(safe-area-inset-left))}
+.top{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10;border-top:6px solid var(--accent)}
+.top-in{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding-block:.6rem}
+.titles{min-width:0}
+.marca{margin:0;font:700 clamp(1.15rem,1rem + 1vw,1.6rem)/1.15 var(--serif);letter-spacing:-.01em}
+.marca a{text-decoration:none}
+.marca a:hover{color:var(--accent)}
+.meta{margin:.1rem 0 0;color:var(--muted);font-size:.85rem}
+.acoes{display:flex;align-items:center;gap:.9rem;flex:none}
+.acoes>a{font-size:.9rem;font-weight:600;color:var(--muted);text-decoration:none}
+.acoes>a:hover{color:var(--accent);text-decoration:underline}
+.idioma{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--tint)}
+.idioma>*{padding:.35rem .9rem;font-size:.8rem;font-weight:700;letter-spacing:.06em;text-decoration:none;color:var(--muted);min-width:2.75rem;text-align:center}
+.idioma a:hover{color:var(--accent);text-decoration:underline}
+.idioma span{background:var(--accent);color:#fff}
+@media (prefers-color-scheme:dark){.idioma span{color:#16130f}}
+code{font-family:var(--mono);font-size:.9em;background:var(--tint);padding:.1rem .35rem;border-radius:4px;overflow-wrap:anywhere}
+/* índice */
+.capa{max-width:70rem;padding-block:2rem 3rem}
+.stats{border-left:4px solid var(--accent-2);background:var(--card);border-radius:0 10px 10px 0;padding:1rem 1.25rem;margin:0 0 2.5rem;box-shadow:var(--shadow);color:var(--muted)}
+.stats strong{color:var(--ink)}
+.modulo{display:grid;grid-template-columns:15rem minmax(0,1fr);gap:1rem 2rem;padding:1.75rem 0;border-top:1px solid var(--line)}
+.modulo h2{margin:0;font:700 1.25rem/1.25 var(--serif);align-self:start;position:sticky;top:6rem}
+.mn{display:block;font:700 .8rem var(--mono);letter-spacing:.12em;color:var(--accent);margin-bottom:.25rem}
+.sep{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.modulo ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,17rem),1fr));gap:.75rem}
+.modulo li{margin:0}
+.modulo a{display:flex;gap:.45rem;align-items:baseline;height:100%;padding:.85rem 1rem;background:var(--card);border:1px solid var(--line);border-radius:10px;text-decoration:none;font-weight:600;line-height:1.35;box-shadow:var(--shadow);transition:border-color .15s,transform .15s}
+.modulo a:hover{border-color:var(--accent);color:var(--accent)}
+.num{font:700 .85rem var(--mono);color:var(--accent);white-space:nowrap}
+/* aula */
+.doc{display:grid;grid-template-columns:17rem minmax(0,1fr);gap:2.5rem;align-items:start;padding-block:2rem 3rem}
+.lateral{position:sticky;top:5.5rem;max-height:calc(100vh - 6.5rem);overflow:auto;font-size:.875rem;padding-right:.5rem}
+.lateral h2{margin:0 0 .25rem;font:700 .95rem var(--serif);color:var(--muted)}
+.lateral h3{margin:1rem 0 .25rem;font:700 .75rem var(--mono);letter-spacing:.06em;color:var(--accent)}
+.lateral ul{list-style:none;margin:0;padding:0}
+.lateral a{display:flex;gap:.45rem;padding:.25rem .5rem;border-radius:6px;text-decoration:none;color:var(--muted);line-height:1.3}
+.lateral a:hover{background:var(--tint);color:var(--ink)}
+.lateral a[aria-current]{background:var(--tint);color:var(--ink);font-weight:700;box-shadow:inset 3px 0 0 var(--accent)}
+.lateral .num{font-size:.75rem}
+.aula{min-width:0;max-width:56rem;overflow-wrap:break-word;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:clamp(1.25rem,1rem + 2vw,2.75rem);box-shadow:var(--shadow)}
+.aula h1{margin:0 0 1.5rem;font:700 clamp(1.75rem,1.4rem + 1.6vw,2.5rem)/1.15 var(--serif);letter-spacing:-.015em;color:var(--ink)}
+.aula h2{margin:2.5rem 0 .75rem;padding-top:1.25rem;border-top:1px solid var(--line);font:700 1.5rem/1.25 var(--serif)}
+.aula h3{margin:2rem 0 .5rem;font:700 1.15rem/1.3 var(--serif);color:var(--accent)}
+.aula h4,.aula h5,.aula h6{margin:1.5rem 0 .5rem;font-size:1rem}
+.aula p,.aula ul,.aula ol{margin:1rem 0}
+.aula ul,.aula ol{padding-left:1.5rem}
+.aula li{margin:.35rem 0}
+.aula li>ul,.aula li>ol{margin:.35rem 0}
+.aula a{color:var(--accent);text-underline-offset:2px}
+.aula hr{border:0;border-top:1px solid var(--line);margin:2rem 0}
+.tabela{overflow-x:auto;margin:1.25rem 0;border:1px solid var(--line);border-radius:10px}
+.aula table{width:100%;border-collapse:collapse;font-size:.9rem}
+.aula th,.aula td{padding:.55rem .75rem;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+.aula tr:last-child td{border-bottom:0}
+.aula th{background:var(--tint);font-weight:700}
+.aula pre{background:var(--code);border:1px solid var(--line);border-radius:10px;padding:.9rem 1rem;overflow-x:auto;font:.85rem/1.5 var(--mono);margin:1rem 0;tab-size:4}
+.aula pre code{background:none;padding:0;font-size:inherit;overflow-wrap:normal}
+.aula blockquote{margin:1.25rem 0;padding:.75rem 1.25rem;border-left:4px solid var(--accent-2);background:var(--tint);border-radius:0 10px 10px 0}
+.aula blockquote>:first-child{margin-top:0}
+.aula blockquote>:last-child{margin-bottom:0}
+.aula figure{margin:1.75rem 0;text-align:center}
+.aula figure img{display:block;margin:0 auto;max-width:100%;height:auto;border:1px solid var(--line);border-radius:10px;background:#fff}
+.aula figcaption{margin-top:.5rem;color:var(--muted);font-size:.9rem;font-style:italic}
+.paginas{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:2.5rem;padding-top:1.5rem;border-top:1px solid var(--line)}
+.paginas a{display:block;padding:.75rem 1rem;border:1px solid var(--line);border-radius:10px;text-decoration:none;color:var(--ink);font-weight:600;line-height:1.3}
+.paginas a:hover{border-color:var(--accent);color:var(--accent)}
+.paginas small{display:block;color:var(--muted);font-weight:400}
+.paginas .prox{grid-column:2;text-align:right}
+footer{border-top:1px solid var(--line);padding-block:1.5rem;color:var(--muted);font-size:.85rem;text-align:center}
+@media (hover:hover) and (prefers-reduced-motion:no-preference){.modulo a:hover{transform:translateY(-2px)}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+@media (max-width:980px){.doc{grid-template-columns:minmax(0,1fr);padding-top:1rem}.lateral{position:static;max-height:none;order:2}.aula{max-width:none}}
+@media (max-width:860px){.modulo{grid-template-columns:minmax(0,1fr)}.modulo h2{position:static}.mn{display:inline;margin-right:.5rem}}
+@media (max-width:420px){.meta{display:none}.top-in{gap:.5rem}.acoes{gap:.6rem}.capa{padding-top:1.25rem}.paginas{grid-template-columns:minmax(0,1fr)}.paginas .prox{grid-column:1}}
+@media print{.top,.lateral,.paginas{display:none}.aula{border:0;box-shadow:none;padding:0;max-width:none}.doc{display:block}}
+</style>
+</head>
+<body>
+<a class="pular" href="#conteudo">Pular para o conteúdo</a>
+<header class="top"><div class="wrap top-in"><div class="titles"><p class="marca"><a href="index.html">Curso Linux Sysadmin</a></p><p class="meta">Rodrigo Antignani · Aula 17.7</p></div><div class="acoes"><a href="index.html">Índice</a><div class="idioma" role="group" aria-label="Idioma"><span aria-current="true">PT</span><a href="17.7-migracao-e-quorum.it.html" hreflang="it" lang="it">IT</a></div></div></div></header>
+<div class="wrap doc"><aside class="lateral" aria-label="Aulas"><h2>Aulas</h2><h3>M0 · Laboratório</h3><ul><li><a href="0.1-montar-o-laboratorio.html"><span class="num">0.1</span><span>Montar o laboratório</span></a></li><li><a href="0.2-acesso-e-protecao.html"><span class="num">0.2</span><span>Acesso e proteção</span></a></li></ul><h3>M1 · Linha de comando</h3><ul><li><a href="1.1-o-que-e-linux.html"><span class="num">1.1</span><span>O que é Linux</span></a></li><li><a href="1.2-o-shell-e-a-ajuda.html"><span class="num">1.2</span><span>O shell e a ajuda</span></a></li><li><a href="1.3-caminhos-e-navegacao.html"><span class="num">1.3</span><span>Caminhos e navegação</span></a></li><li><a href="1.4-criar-copiar-mover-e-apagar.html"><span class="num">1.4</span><span>Criar, copiar, mover e apagar</span></a></li><li><a href="1.5-ler-e-procurar-texto.html"><span class="num">1.5</span><span>Ler e procurar texto</span></a></li><li><a href="1.6-redirecionamentos-e-pipes.html"><span class="num">1.6</span><span>Redirecionamentos e pipes</span></a></li><li><a href="1.7-arquivar-e-compactar.html"><span class="num">1.7</span><span>Arquivar e compactar</span></a></li><li><a href="1.8-primeiro-script.html"><span class="num">1.8</span><span>Primeiro script</span></a></li><li><a href="1.9-decidir-e-repetir.html"><span class="num">1.9</span><span>Decidir e repetir</span></a></li><li><a href="1.10-software-livre-na-pratica.html"><span class="num">1.10</span><span>Software livre na prática</span></a></li></ul><h3>M2 · Sistema, usuários e permissões</h3><ul><li><a href="2.1-instalacao-e-provisionamento.html"><span class="num">2.1</span><span>Instalação e provisionamento</span></a></li><li><a href="2.2-hardware-e-dispositivos.html"><span class="num">2.2</span><span>Hardware e dispositivos</span></a></li><li><a href="2.3-processos-e-logs.html"><span class="num">2.3</span><span>Processos e logs</span></a></li><li><a href="2.4-rede-no-dia-a-dia.html"><span class="num">2.4</span><span>Rede no dia a dia</span></a></li><li><a href="2.5-acesso-remoto-e-privilegios.html"><span class="num">2.5</span><span>Acesso remoto e privilégios</span></a></li><li><a href="2.6-usuarios-e-grupos.html"><span class="num">2.6</span><span>Usuários e grupos</span></a></li><li><a href="2.7-permissoes-e-dono.html"><span class="num">2.7</span><span>Permissões e dono</span></a></li><li><a href="2.8-diretorios-e-arquivos-especiais.html"><span class="num">2.8</span><span>Diretórios e arquivos especiais</span></a></li></ul><h3>M3 · Texto e editor</h3><ul><li><a href="3.1-fluxos-a-fundo.html"><span class="num">3.1</span><span>Fluxos a fundo</span></a></li><li><a href="3.2-filtros-de-texto.html"><span class="num">3.2</span><span>Filtros de texto</span></a></li><li><a href="3.3-regex-e-grep.html"><span class="num">3.3</span><span>Regex e grep</span></a></li><li><a href="3.4-sed-e-awk.html"><span class="num">3.4</span><span>sed e awk</span></a></li><li><a href="3.5-vi-e-vim-de-verdade.html"><span class="num">3.5</span><span>vi e vim de verdade</span></a></li></ul><h3>M4 · systemd e boot</h3><ul><li><a href="4.1-como-o-linux-liga.html"><span class="num">4.1</span><span>Como o Linux liga</span></a></li><li><a href="4.2-systemd-servicos-e-units.html"><span class="num">4.2</span><span>systemd: serviços e units</span></a></li><li><a href="4.3-targets-desligar-e-reiniciar.html"><span class="num">4.3</span><span>Targets: desligar e reiniciar</span></a></li><li><a href="4.4-grub-e-acesso-de-emergencia.html"><span class="num">4.4</span><span>GRUB e acesso de emergência</span></a></li></ul><h3>M5 · Kernel, módulos e VM</h3><ul><li><a href="5.1-hardware-pelo-kernel.html"><span class="num">5.1</span><span>Hardware pelo kernel</span></a></li><li><a href="5.2-modulos-e-parametros.html"><span class="num">5.2</span><span>Módulos e parâmetros</span></a></li><li><a href="5.3-linux-como-convidado.html"><span class="num">5.3</span><span>Linux como convidado</span></a></li></ul><h3>M6 · Pacotes e repositórios</h3><ul><li><a href="6.1-pacotes-no-debian.html"><span class="num">6.1</span><span>Pacotes no Debian</span></a></li><li><a href="6.2-pacotes-na-rocky.html"><span class="num">6.2</span><span>Pacotes na Rocky</span></a></li><li><a href="6.3-repositorios.html"><span class="num">6.3</span><span>Repositórios</span></a></li><li><a href="6.4-flatpak.html"><span class="num">6.4</span><span>Flatpak</span></a></li><li><a href="6.5-bibliotecas-compartilhadas.html"><span class="num">6.5</span><span>Bibliotecas compartilhadas</span></a></li></ul><h3>M7 · Processos e desempenho</h3><ul><li><a href="7.1-processos-e-sinais.html"><span class="num">7.1</span><span>Processos e sinais</span></a></li><li><a href="7.2-jobs-e-sessoes.html"><span class="num">7.2</span><span>Jobs e sessões</span></a></li><li><a href="7.3-prioridade-e-perfis.html"><span class="num">7.3</span><span>Prioridade e perfis</span></a></li></ul><h3>M8 · Arquivos a fundo</h3><ul><li><a href="8.1-fhs-e-onde-cada-coisa-mora.html"><span class="num">8.1</span><span>FHS e onde cada coisa mora</span></a></li><li><a href="8.2-find-a-fundo.html"><span class="num">8.2</span><span>find a fundo</span></a></li><li><a href="8.3-arquivamento-avancado.html"><span class="num">8.3</span><span>Arquivamento avançado</span></a></li><li><a href="8.4-links.html"><span class="num">8.4</span><span>Links</span></a></li><li><a href="8.5-permissoes-avancadas.html"><span class="num">8.5</span><span>Permissões avançadas</span></a></li></ul><h3>M9 · Armazenamento</h3><ul><li><a href="9.1-discos-e-layout.html"><span class="num">9.1</span><span>Discos e layout</span></a></li><li><a href="9.2-particionar.html"><span class="num">9.2</span><span>Particionar</span></a></li><li><a href="9.3-sistemas-de-arquivos.html"><span class="num">9.3</span><span>Sistemas de arquivos</span></a></li><li><a href="9.4-montar-e-persistir.html"><span class="num">9.4</span><span>Montar e persistir</span></a></li><li><a href="9.5-integridade-e-espaco.html"><span class="num">9.5</span><span>Integridade e espaço</span></a></li><li><a href="9.6-lvm.html"><span class="num">9.6</span><span>LVM</span></a></li><li><a href="9.7-crescer-sem-destruir.html"><span class="num">9.7</span><span>Crescer sem destruir</span></a></li></ul><h3>M10 · Usuários e acesso privilegiado</h3><ul><li><a href="10.1-contas.html"><span class="num">10.1</span><span>Contas</span></a></li><li><a href="10.2-senhas-e-validade.html"><span class="num">10.2</span><span>Senhas e validade</span></a></li><li><a href="10.3-grupos-e-trabalho-em-equipe.html"><span class="num">10.3</span><span>Grupos e trabalho em equipe</span></a></li><li><a href="10.4-sudo-de-verdade.html"><span class="num">10.4</span><span>sudo de verdade</span></a></li></ul><h3>M11 · Rede</h3><ul><li><a href="11.1-tcp-ip-para-quem-administra.html"><span class="num">11.1</span><span>TCP/IP para quem administra</span></a></li><li><a href="11.2-networkmanager-e-nmcli.html"><span class="num">11.2</span><span>NetworkManager e nmcli</span></a></li><li><a href="11.3-rede-no-debian.html"><span class="num">11.3</span><span>Rede no Debian</span></a></li><li><a href="11.4-nomes-e-resolucao.html"><span class="num">11.4</span><span>Nomes e resolução</span></a></li><li><a href="11.5-diagnostico-de-rede.html"><span class="num">11.5</span><span>Diagnóstico de rede</span></a></li></ul><h3>M12 · Segurança do host</h3><ul><li><a href="12.1-ssh-a-fundo.html"><span class="num">12.1</span><span>SSH a fundo</span></a></li><li><a href="12.2-firewall.html"><span class="num">12.2</span><span>Firewall</span></a></li><li><a href="12.3-selinux-modos-e-contextos.html"><span class="num">12.3</span><span>SELinux: modos e contextos</span></a></li><li><a href="12.4-selinux-portas-e-booleanos.html"><span class="num">12.4</span><span>SELinux: portas e booleanos</span></a></li><li><a href="12.5-auditoria-e-criptografia.html"><span class="num">12.5</span><span>Auditoria e criptografia</span></a></li></ul><h3>M13 · Armazenamento em rede</h3><ul><li><a href="13.1-servidor-nfs.html"><span class="num">13.1</span><span>Servidor NFS</span></a></li><li><a href="13.2-cliente-nfs.html"><span class="num">13.2</span><span>Cliente NFS</span></a></li><li><a href="13.3-autofs.html"><span class="num">13.3</span><span>autofs</span></a></li></ul><h3>M14 · Agendamento</h3><ul><li><a href="14.1-cron-e-at.html"><span class="num">14.1</span><span>cron e at</span></a></li><li><a href="14.2-timers-do-systemd.html"><span class="num">14.2</span><span>Timers do systemd</span></a></li><li><a href="14.3-journald-e-rsyslog.html"><span class="num">14.3</span><span>journald e rsyslog</span></a></li><li><a href="14.4-hora-certa.html"><span class="num">14.4</span><span>Hora certa</span></a></li><li><a href="14.5-email-local-e-impressao.html"><span class="num">14.5</span><span>E-mail local e impressão</span></a></li></ul><h3>M15 · Shell e ambiente</h3><ul><li><a href="15.1-ambiente-do-shell.html"><span class="num">15.1</span><span>Ambiente do shell</span></a></li><li><a href="15.2-scripts-robustos.html"><span class="num">15.2</span><span>Scripts robustos</span></a></li><li><a href="15.3-scripts-de-administracao.html"><span class="num">15.3</span><span>Scripts de administração</span></a></li><li><a href="15.4-interfaces-graficas.html"><span class="num">15.4</span><span>Interfaces gráficas</span></a></li><li><a href="15.5-idioma-teclado-e-fuso.html"><span class="num">15.5</span><span>Idioma, teclado e fuso</span></a></li></ul><h3>M16 · Semana de incidentes no Rocky 10</h3><ul><li><a href="16.1-rocky-10-o-que-muda.html"><span class="num">16.1</span><span>Rocky 10: o que muda</span></a></li><li><a href="16.2-incidentes-por-area.html"><span class="num">16.2</span><span>Incidentes por área</span></a></li><li><a href="16.3-incidente-com-relogio.html"><span class="num">16.3</span><span>Incidente com relógio</span></a></li><li><a href="16.4-correcao-e-reforco.html"><span class="num">16.4</span><span>Correção e reforço</span></a></li></ul><h3>M17 · Proxmox na prática</h3><ul><li><a href="17.1-proxmox-por-dentro.html"><span class="num">17.1</span><span>Proxmox por dentro</span></a></li><li><a href="17.2-vm-pela-linha-de-comando.html"><span class="num">17.2</span><span>VM pela linha de comando</span></a></li><li><a href="17.3-conteiner-lxc.html"><span class="num">17.3</span><span>Contêiner LXC</span></a></li><li><a href="17.4-storage.html"><span class="num">17.4</span><span>Storage: capacidade, crescimento e movimento</span></a></li><li><a href="17.5-rede.html"><span class="num">17.5</span><span>Rede: bridge, VLAN, bond e SDN</span></a></li><li><a href="17.6-backup-e-restauracao.html"><span class="num">17.6</span><span>Backup e restauração com PBS</span></a></li><li><a href="17.7-migracao-e-quorum.html" aria-current="page"><span class="num">17.7</span><span>Migração e quorum</span></a></li></ul><h3>M18 · Podman</h3><ul><li><a href="18.1-conteiner-nao-e-vm.html"><span class="num">18.1</span><span>Contêiner não é VM</span></a></li><li><a href="18.2-rodar-e-persistir.html"><span class="num">18.2</span><span>Rodar e persistir</span></a></li><li><a href="18.3-conteiner-como-servico.html"><span class="num">18.3</span><span>Contêiner como serviço</span></a></li><li><a href="18.4-diagnosticar-conteiner-rootless.html"><span class="num">18.4</span><span>Diagnosticar contêiner rootless</span></a></li><li><a href="18.5-construir-imagens.html"><span class="num">18.5</span><span>Construir imagens</span></a></li></ul><h3>M19 · Serviços de rede</h3><ul><li><a href="19.1-dns-autoritativo.html"><span class="num">19.1</span><span>DNS autoritativo</span></a></li><li><a href="19.2-dns-recursivo-e-diagnostico.html"><span class="num">19.2</span><span>DNS recursivo e diagnóstico</span></a></li><li><a href="19.3-dhcp.html"><span class="num">19.3</span><span>DHCP</span></a></li><li><a href="19.4-servidor-web.html"><span class="num">19.4</span><span>Servidor web: nome, arquivo e resposta</span></a></li><li><a href="19.5-tls-e-proxy-reverso.html"><span class="num">19.5</span><span>TLS e proxy reverso: identidade antes do cadeado</span></a></li><li><a href="19.6-samba-a-ponte-windows.html"><span class="num">19.6</span><span>Samba: a ponte com o cliente Windows</span></a></li><li><a href="19.7-postfix-e-correio-local.html"><span class="num">19.7</span><span>Postfix e correio local</span></a></li><li><a href="19.8-dovecot-e-imaps.html"><span class="num">19.8</span><span>Dovecot e leitura por IMAPS</span></a></li><li><a href="19.9-squid-e-desafio-integrado.html"><span class="num">19.9</span><span>Squid e desafio integrado</span></a></li></ul><h3>M20 · NethServer 8 por dentro</h3><ul><li><a href="20.1-instalar-nethserver-8.html"><span class="num">20.1</span><span>Instalar em uma VM limpa</span></a></li><li><a href="20.2-cluster-no-e-modulo.html"><span class="num">20.2</span><span>Cluster, nó e módulo</span></a></li><li><a href="20.3-modulo-por-dentro.html"><span class="num">20.3</span><span>Um módulo por dentro</span></a></li><li><a href="20.4-proxy-e-certificados.html"><span class="num">20.4</span><span>Proxy e certificados</span></a></li><li><a href="20.5-dominios-de-usuario.html"><span class="num">20.5</span><span>Domínios de usuário: identidade com fronteiras</span></a></li><li><a href="20.6-backup-e-restauracao.html"><span class="num">20.6</span><span>Backup e restauração: provar o retorno</span></a></li><li><a href="20.7-atualizar-mover-e-falhar.html"><span class="num">20.7</span><span>Atualizar, mover e falhar com prova</span></a></li></ul></aside><main id="conteudo" class="aula"><article><h1>Aula 17.7 · Migração e quorum</h1>
+<blockquote><p><strong>O coração desta aula:</strong> migrar exige um destino preparado; apagar exige uma recuperação já demonstrada.</p></blockquote>
+<div class="tabela"><table><thead><tr><th scope="col">Ficha</th><th scope="col">Plano de trabalho</th></tr></thead><tbody><tr><td>Módulo</td><td>M17 · Proxmox na prática, aula 7 de 7</td></tr><tr><td>Quando</td><td>Semana 24</td></tr><tr><td>Ao final</td><td>Avaliar migração e quorum e provar recuperação da bancada</td></tr><tr><td>Pré-requisitos</td><td>Aulas anteriores, PBS-LAB disponível, evidência externa e console</td></tr><tr><td>Duração</td><td>150–210 minutos, além das transferências</td></tr><tr><td>Snapshot</td><td>Preservar o ponto de retorno existente; o desafio exige backup independente</td></tr></tbody></table></div>
+<p>Esta aula fecha o módulo e retoma seu diagnóstico inicial.
+Primeiro você consulta o cluster e, se houver condições reais, migra a VM 211.
+Depois realiza um ensaio de recuperação isolado, com barreiras antes de qualquer exclusão.
+Os convidados 201 a 205 e a bridge isolada permanecem preservados.</p>
+<h2 id="1-aquecimento">1 · Aquecimento</h2>
+<ol><li>Configuração replicada significa que o disco local está disponível no destino?</li>
+<li>Um cluster sem maioria deve aceitar alterações concorrentes dos dois lados?</li>
+<li>Backup concluído basta para autorizar a exclusão da única VM?</li></ol>
+<p>Recupere o plano que você escreveu na primeira aula.
+Sublinhe o que agora consegue provar, em vez de apenas descrever.
+Deixe explícito o que sua bancada não permite executar.</p>
+<h2 id="2-por-que-importa">2 · Por que importa</h2>
+<p>Migração não instala rede, não cria storage e não acrescenta instruções à CPU do destino.
+Ela depende dessas condições já existentes.
+Uma tarefa aceita pode falhar depois por uma condição que você poderia ter conferido antes.</p>
+<p>Quorum protege decisões de configuração; não é um indicador de velocidade da rede.
+Sua ausência exige investigar membros, votos e comunicação.
+Forçar uma maioria não é uma forma didática de reparar o cluster real.</p>
+<p>O fechamento acrescenta outra disciplina: testar a recuperação antes de precisar dela.
+O relatório deve continuar existindo quando o convidado original já não existe.</p>
+<h3 id="ponte-windows">Ponte Windows</h3>
+<p>Mover uma carga entre hosts exige compatibilidade de recursos e conectividade equivalente.
+O nome da rede pode ser igual e representar uma ligação diferente no outro host.
+Você precisa conferir significado e alcance, não somente o rótulo.</p>
+<h2 id="3-modelo-mental">3 · Modelo mental</h2>
+<figure><a href="../img/17.7-mudar-de-host.jpg"><img src="../img/17.7-mudar-de-host.jpg" alt="Mudar de host exige um destino pronto" loading="lazy" decoding="async"></a><figcaption>Migrar a VM não cria a rede nem prepara o outro host.</figcaption></figure>
+<div class="tabela"><table><thead><tr><th scope="col">Condição</th><th scope="col">Evidência</th><th scope="col">Se faltar</th></tr></thead><tbody><tr><td>Destino no mesmo cluster</td><td>Inventário e membros</td><td>Não executar migração</td></tr><tr><td>CPU compatível</td><td>Modelo, fabricante e recursos em ambos</td><td>Resolver antes da tentativa</td></tr><tr><td>Discos compartilhados</td><td>Todos os volumes acessíveis nos dois nós</td><td>Não presumir transferência implícita</td></tr><tr><td>Redes equivalentes</td><td>Bridge, portas e isolamento</td><td>Preparar fora desta operação</td></tr><tr><td>Quorum</td><td>Maioria e comunicação saudáveis</td><td>Investigar somente por leitura</td></tr></tbody></table></div>
+<p>Migração e restauração são operações diferentes.
+Na migração, a propriedade da VM muda dentro do cluster.
+Na restauração, um backup reconstrói discos e configuração em um ID controlado.
+Nenhuma delas autoriza colocar duas identidades iguais na mesma rede.</p>
+<h2 id="4-o-essencial">4 · O essencial</h2>
+<p>Esta aula usa migração convencional dentro do mesmo cluster.
+Não configure migração remota entre clusters nem altere quorum para completar o roteiro.
+Todos os volumes da VM 211 devem estar em storage compartilhado disponível no destino.
+Isso inclui disco do sistema, EFI, cloud-init e o disco de dados acrescentado antes.</p>
+<p>As versões do destino devem ser compatíveis e não anteriores às da origem para a operação planejada.
+Use a matriz e as notas da versão instalada, com o mesmo fabricante de CPU para esta prática.
+Se não consegue demonstrar compatibilidade, escolha o ramo não executado.</p>
+<h3 id="bancada-de-um-unico-no">Bancada de um único nó</h3>
+<p>Você fará as consultas disponíveis e documentará uma migração planejada, não realizada.
+Não invente um destino nem crie um cluster temporário no host para preencher a evidência.
+O ensaio de backup e restauração pode continuar no mesmo nó, se seus pré-requisitos estiverem atendidos.</p>
+<h2 id="5-lab-guiado">5 · Lab guiado</h2>
+<h3 id="passo-1-descobrir-os-membros-e-o-quorum">Passo 1 · Descobrir os membros e o quorum</h3>
+<p><strong>Palpite:</strong> qual consulta diferencia um destino real de um nome escrito no diário?</p>
+<pre translate="no"><code class="lang-bash">pvesh get /nodes --output-format json-pretty
+pvesh get /cluster/resources --type vm --output-format json-pretty
+pvesh get /cluster/status --output-format json-pretty
+pvecm status</code></pre>
+<p><strong>Saída esperada:</strong> membros reais e estado de quorum, quando o nó pertence a um cluster.
+Em um nó independente, a consulta do gerenciador de cluster pode indicar que não há configuração de cluster.
+Registre essa condição; ela não é autorização para criar um cluster.</p>
+<figure><a href="../img/17.7-quorum-protege.jpg"><img src="../img/17.7-quorum-protege.jpg" alt="Quorum protege a decisão do cluster" loading="lazy" decoding="async"></a><figcaption>Sem quorum, investigue a comunicação antes de tentar escrever.</figcaption></figure>
+<p><strong>Verifique:</strong> há pelo menos dois nós reais no mesmo cluster e quorum saudável?
+Se não, marque migração não realizada e pule os comandos de execução do passo 4.
+Não desligue membros, bloqueie comunicação nem altere votos para simular perda de quorum.</p>
+<h3 id="passo-2-conferir-os-recursos-do-destino">Passo 2 · Conferir os recursos do destino</h3>
+<p><strong>Palpite:</strong> uma bridge com o mesmo nome possui necessariamente as mesmas ligações?</p>
+<p>Nos nós de origem e destino, faça apenas as consultas abaixo.</p>
+<pre translate="no"><code class="lang-bash">pveversion -v
+lscpu
+pvesm status
+ip -d link show vmbr0
+ip -d link show vmbr17
+bridge link
+ip -br address show vmbr17</code></pre>
+<p><strong>Saída esperada:</strong> recursos compatíveis e bridge isolada já existente nos dois nós.
+A bridge isolada não recebe IP no host nem porta física, e não deve alcançar a rede de gestão.
+Não crie ou reconfigure a bridge do destino dentro desta tentativa de migração.
+Se ela falta, pare e obtenha a preparação autorizada antes de voltar a este passo.</p>
+<p><strong>Verifique:</strong> fabricante, modelo de CPU exposto, versões, RAM e storage servem ao destino escolhido?
+Repita a conferência completa dos recursos de CPU feita na criação da bancada.
+Registre quais condições foram demonstradas e quais ficaram pendentes.</p>
+<h3 id="passo-3-conferir-a-vm-e-todos-os-volumes">Passo 3 · Conferir a VM e todos os volumes</h3>
+<p><strong>Palpite:</strong> qual disco pequeno costuma ser esquecido em uma avaliação de migração?</p>
+<p>No nó proprietário da VM 211, consulte sua ficha e tarefas atuais.</p>
+<pre translate="no"><code class="lang-bash">qm status 211
+qm config 211
+qm pending 211
+pvenode task list --limit 10</code></pre>
+<p><strong>Saída esperada:</strong> VM da bancada sem outra operação concorrente e sem alteração pendente inexplicada.
+Liste os identificadores de todos os volumes, incluindo EFI, cloud-init e dados.
+Confirme o acesso aos mesmos backends em ambos os nós; não basta o nome estar cadastrado.
+Dispositivo passado diretamente, mídia local ou recurso restrito ao nó exige análise fora deste roteiro.</p>
+<p>Dentro do clone, registre endereço, rota, estado do agente e acesso ao dado da aula de storage.
+Não formate nem substitua o disco de dados para simplificar a lista.</p>
+<p><strong>Verifique:</strong> a ficha identifica <code translate="no">m17-vm</code>, e nenhum volume depende somente da origem?
+Se há tarefa ativa de backup, snapshot ou alteração de disco, espere sua conclusão e reavalie.
+Não remova um bloqueio para forçar concorrência.</p>
+<h3 id="passo-4-migrar-somente-quando-as-condicoes-permitem">Passo 4 · Migrar somente quando as condições permitem</h3>
+<p><strong>Palpite:</strong> que evidência comprova a mudança de proprietário depois da tarefa?</p>
+<p>Execute este bloco apenas no ramo com destino real, quorum e recursos conferidos.
+Leia o nome de um nó que realmente apareceu no inventário e confira antes de confirmar.</p>
+<pre translate="no"><code class="lang-bash">read -r -p 'No de destino real no mesmo cluster: ' DESTINO
+: "${DESTINO:?}"
+test "$(qm config 211 | sed -n 's/^name: //p')" = m17-vm || exit 1
+qm migrate 211 "$DESTINO" --online 1 || exit 1</code></pre>
+<p><strong>Saída esperada:</strong> tarefa concluída sem erro e propriedade da VM no destino.
+Não interprete uma linha de progresso como conclusão final.
+Consulte o inventário do cluster e o log da tarefa que acabou de executar.</p>
+<pre translate="no"><code class="lang-bash">pvesh get /cluster/resources --type vm --output-format json-pretty</code></pre>
+<p>No nó destino, confira a VM pelo ID e pelo nome antes de usar a console.
+Dentro dela, repita as provas de rede, agente e leitura do dado que registrou antes.
+Se a sessão interrompeu, registre duração e sintoma real, sem prometer ausência de interrupção.</p>
+<p><strong>Verifique:</strong> a aplicação ou o dado observado continua acessível no novo proprietário?
+No ramo de um nó, escreva quais condições faltaram e deixe a migração marcada não realizada.
+Não use uma captura de outra bancada como prova da sua.</p>
+<h3 id="passo-5-ensaiar-a-recuperacao-sem-apagar-a-origem">Passo 5 · Ensaiar a recuperação sem apagar a origem</h3>
+<p><strong>Palpite:</strong> o teste de restauração pode revelar algo que o sucesso do backup não revela?</p>
+<figure><a href="../img/17.7-ensaio-de-recuperacao.jpg"><img src="../img/17.7-ensaio-de-recuperacao.jpg" alt="Só apague depois de provar a recuperação" loading="lazy" decoding="async"></a><figcaption>Restaure isolado, confira o resultado e só então autorize a exclusão.</figcaption></figure>
+<p>Use o fluxo da aula anterior para obter backup novo da VM 211 no storage já cadastrado.
+O disco de dados deve estar incluído; confira sua participação na ficha antes de iniciar.</p>
+<pre translate="no"><code class="lang-bash">vzdump 211 --storage PBS-LAB --mode snapshot --remove 0 || exit 1
+pvesm list PBS-LAB --vmid 211</code></pre>
+<p>Selecione o volume exato criado agora; não escolha apenas o primeiro item da lista.
+No PBS, execute a verificação desse backup e espere o resultado final bem-sucedido.
+Se você não tem acesso autorizado ao resultado, pare antes de qualquer exclusão.
+O CT 212 da aula anterior deve já ter sido removido pelo procedimento de limpeza dela.
+Se ainda existe qualquer objeto 212, não o sobrescreva: resolva primeiro sua preservação e limpeza autorizada.</p>
+<pre translate="no"><code class="lang-bash">pvesh get /cluster/resources --type vm --output-format json-pretty
+read -r -p 'Volume exato do backup verificado: ' BACKUP_PREVIO
+: "${BACKUP_PREVIO:?}"
+case "$BACKUP_PREVIO" in PBS-LAB:backup/vm/211/*) ;; *) exit 1 ;; esac
+set -o pipefail
+pvesh get /cluster/resources --type vm --output-format json |
+  perl -MJSON::PP -0777 -e '$r=decode_json(&lt;&gt;); exit((scalar grep { $_-&gt;{vmid} == 212 } @$r) ? 1 : 0)' || exit 1
+pvesm status
+read -r -p 'Storage de imagens autorizado para restore: ' RESTORE_STORE
+: "${RESTORE_STORE:?}"
+qmrestore "$BACKUP_PREVIO" 212 --storage "$RESTORE_STORE" --unique 1 --start 0 || exit 1
+qm set 212 --name m17-restore --onboot 0 || exit 1
+qm config 212</code></pre>
+<p>Antes de iniciar 212, desconecte todas as NICs restauradas na ficha da VM.
+Preserve seus parâmetros e acrescente o estado desconectado; confira cada índice existente.
+Não confunda MAC novo com identidade interna nova; a restauração mantém o conteúdo do backup.
+Use esta função apenas nos dois IDs de restauração da bancada; ela preserva os demais parâmetros de cada NIC.</p>
+<pre translate="no"><code class="lang-bash">desconectar_nics_m17() {
+  local id="$1" nic spec config nome nics
+  case "$id" in 211|212) ;; *) return 1 ;; esac
+  config=$(qm config "$id") || return 1
+  nome=$(printf '%s\n' "$config" | sed -n 's/^name: //p')
+  case "$id:$nome" in 211:m17-vm|212:m17-restore) ;; *) return 1 ;; esac
+  nics=$(printf '%s\n' "$config" | sed -nE 's/^(net[0-9]+): .*/\1/p')
+  test -n "$nics" || return 1
+  while IFS= read -r nic; do
+    spec=$(printf '%s\n' "$config" | sed -n "s/^$nic: //p")
+    spec=$(printf '%s' "$spec" | sed -E 's/,link_down=[01]//g')
+    test -n "$spec" || return 1
+    qm set "$id" "--$nic" "$spec,link_down=1" || return 1
+  done &lt;&lt;&lt; "$nics"
+  config=$(qm config "$id") || return 1
+  printf '%s\n' "$config" | awk '/^net[0-9]+:/ &amp;&amp; $0 !~ /,link_down=1(,|$)/ {bad=1} END {exit bad}' || return 1
+}
+desconectar_nics_m17 212 || { printf '%s\n' 'STOP: isolation failed' &gt;&amp;2; exit 1; }
+qm config 212</code></pre>
+<p>Confira na saída real que cada NIC está desconectada; só depois execute a inicialização.</p>
+<pre translate="no"><code class="lang-bash">desconectar_nics_m17 212 || exit 1
+qm start 212 || exit 1
+qm terminal 212</code></pre>
+<p>Use somente a console para iniciar, entrar e ler o dado restaurado no disco da aula de storage.
+Use a credencial local testada na 17.6, confirme o shell correto e identifique o disco pelo serial <code translate="no">M17DATA</code>. A montagem manual e o hash do arquivo devem coincidir com o diário da 17.4; o marcador da raiz não substitui essa prova.</p>
+<p><strong>Saída esperada:</strong> restauração 212 isolada com sistema e dado conferidos.
+<strong>Verifique:</strong> registre backup, verify, restauração, leitura e isolamento fora dos convidados.
+Sem essa sequência completa, a barreira de exclusão continua fechada.</p>
+<h3 id="passo-6-autorizar-a-preparacao-do-desafio">Passo 6 · Autorizar a preparação do desafio</h3>
+<p><strong>Palpite:</strong> o que precisa sobreviver fora da VM antes de liberar seu ID?</p>
+<p>Conserve o backup prévio, o dado de storage e o relatório externo do passo 5.
+A evidência deve identificar o backup exato e a restauração 212 realmente testada.
+Somente depois dessa prova você pode liberar a VM de exercício e sua restauração temporária.
+Desligue os dois sistemas de forma limpa antes de remover seus objetos.</p>
+<pre translate="no"><code class="lang-bash">qm shutdown 211 --timeout 120
+qm shutdown 212 --timeout 120
+qm status 211
+qm status 212
+qm config 211
+qm config 212</code></pre>
+<p><strong>Saída esperada:</strong> ambos desligados; nomes correspondem exatamente à bancada e à restauração.
+Se o desligamento não concluir, investigue pela console; não force para cumprir o tempo.
+Antes das exclusões, outra pessoa deve conseguir localizar o relatório externo.
+Execute cada comando abaixo somente depois de conferir nome, estado e a prova de recuperação.</p>
+<pre translate="no"><code class="lang-bash">test "$(qm config 211 | sed -n 's/^name: //p')" = 'm17-vm' &amp;&amp; \
+  test "$(qm status 211)" = 'status: stopped' &amp;&amp; qm destroy 211
+test "$(qm config 212 | sed -n 's/^name: //p')" = 'm17-restore' &amp;&amp; \
+  test "$(qm status 212)" = 'status: stopped' &amp;&amp; qm destroy 212</code></pre>
+<p><strong>Verifique:</strong> os IDs 211 e 212 ficaram livres no inventário completo, e 210 continua template desligado.
+Os backups e a bridge isolada não são removidos.
+Se você não concluiu a prova do passo 5, preserve tudo e marque o desafio bloqueado na preparação.</p>
+<h2 id="6-quebre-e-conserte">6 · Quebre e conserte</h2>
+<p>As quebras são decisões sobre a evidência; não provoque falhas no cluster real.</p>
+<h3 id="quebra-1-a-bridge-falta-no-destino">Quebra 1 · A bridge falta no destino</h3>
+<p><strong>Sintoma:</strong> o inventário de rede do destino não contém a bridge isolada.
+<strong>Investigação:</strong> compare bridge, portas e endereços nos dois nós.
+<strong>Causa:</strong> o nome da rede da origem foi tratado como recurso automaticamente criado no destino.
+<strong>Conserto:</strong> suspenda a migração e solicite a preparação autorizada equivalente.
+<strong>Verifique:</strong> repita a consulta depois da preparação; só então reavalie a migração.
+<strong>Prevenção:</strong> rede integra a lista de pré-requisitos, não a lista de reparos após mover.</p>
+<h3 id="quebra-2-a-maioria-nao-esta-disponivel">Quebra 2 · A maioria não está disponível</h3>
+<p><strong>Sintoma:</strong> uma evidência fornecida mostra cluster sem quorum e configuração somente leitura.
+<strong>Investigação:</strong> relacione membros vistos, votos esperados e comunicação registrada.
+<strong>Causa:</strong> a partição observada não reúne as condições para decidir alterações com segurança.
+<strong>Conserto:</strong> preserve a evidência e encaminhe a recuperação da comunicação ao procedimento operacional.
+<strong>Verifique:</strong> só retome alterações quando a condição normal estiver restaurada e documentada.
+<strong>Prevenção:</strong> não altere votos nem remova membros para tornar uma tela verde.</p>
+<h3 id="quebra-3-o-backup-nao-contem-o-dado-esperado">Quebra 3 · O backup não contém o dado esperado</h3>
+<p><strong>Sintoma:</strong> a restauração isolada não apresenta o marcador ou o dado esperado.
+<strong>Investigação:</strong> compare instante do backup, volumes incluídos e caminho conferido.
+<strong>Causa:</strong> pode haver backup antigo, disco excluído ou leitura do lugar errado.
+<strong>Conserto:</strong> preserve a origem e produza novo backup correto antes de repetir a restauração.
+<strong>Verifique:</strong> compare conteúdo e checksum com a evidência externa; só sucesso de tarefa não basta.
+<strong>Prevenção:</strong> leia um dado conhecido na restauração antes de autorizar qualquer exclusão.</p>
+<h2 id="7-armadilhas">7 · Armadilhas</h2>
+<h3 id="decida-1">Decida 1</h3>
+<p>O disco principal é compartilhado, mas EFI está em storage local. Você deve:
+A. Ignorar EFI porque o volume é pequeno.
+B. Tratar a condição como pré-requisito não atendido e preparar o volume pelo procedimento autorizado.
+C. Apagar EFI antes de migrar.</p>
+<h3 id="decida-2">Decida 2</h3>
+<p>O verify terminou bem, mas ninguém iniciou a restauração isolada. Você deve:
+A. Preservar a origem até concluir a prova de restauração e registrar seu resultado fora dela.
+B. Considerar a presença do arquivo equivalente ao teste.
+C. Excluir a origem e descobrir depois.</p>
+<h3 id="rocky-debian">Rocky × Debian</h3>
+<p>O host permanece seguindo o procedimento do hipervisor; o convidado preserva seu próprio sistema.
+Uma migração não converte a distribuição interna nem regenera suas identidades.</p>
+<h2 id="8-quiz">8 · Quiz</h2>
+<ol><li>Quais volumes devem entrar na avaliação de migração?</li>
+<li>O que escrever quando existe apenas um nó?</li>
+<li>Por que o quorum bloqueia escrita em uma partição sem maioria?</li>
+<li>O que um MAC novo não muda em uma restauração?</li>
+<li>Qual evidência deve existir antes de excluir a VM original?</li>
+<li>Por que preservar o bridge isolado no fechamento?</li></ol>
+<h2 id="9-lembrete">9 · Lembrete</h2>
+<p><strong>Flashcards:</strong> relacione decisão e prova.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Frente</th><th scope="col">Verso</th></tr></thead><tbody><tr><td>Migrar</td><td>Destino, CPU, versões, volumes e redes demonstrados</td></tr><tr><td>Sem quorum</td><td>Investigar comunicação sem alterar votos</td></tr><tr><td>Excluir</td><td>Recuperação isolada comprovada e evidência externa</td></tr><tr><td>Restaurar</td><td>Iniciar sem rede conectada até conferir identidade</td></tr></tbody></table></div>
+<pre translate="no"><code class="lang-text">!explica Por que o quorum protege a configuração do cluster?
+!feynman Explique por que mover uma VM não prepara o host de destino.
+!quiz Pergunte sobre recuperação antes de exclusão, uma etapa por vez.</code></pre>
+<h2 id="10-checklist-e-fechamento">10 · Checklist e fechamento</h2>
+<h3 id="desafio-do-modulo-reconstruir-sem-depender-da-origem">Desafio do módulo · Reconstruir sem depender da origem</h3>
+<p>Execute somente se os IDs 211 e 212 ficaram livres após o ensaio comprovado do lab.
+O backup anterior continua preservando os dados das aulas de storage.
+O novo clone deste desafio nasce do template e não contém aquele disco de dados.
+Seu marcador novo será criado no disco do sistema e conferido separadamente.</p>
+<ol><li>Confirme template 210 desligado e IDs 211 e 212 livres no cluster inteiro.</li>
+<li>Crie clone completo 211 e conecte sua única NIC apenas à bridge isolada.
+Volte ao nó proprietário do template 210 antes de clonar. O clone será criado nesse nó; use-o também nas consultas locais e na restauração do desafio. Nesse shell, redefina a função de isolamento do Passo 5 se necessário; confira a bridge isolada, o storage real autorizado e a chave pública antes de criar.</li></ol>
+<pre translate="no"><code class="lang-bash">test "$(qm config 210 | sed -n 's/^name: //p')" = m17-template || exit 1
+test "$(qm config 210 | sed -n 's/^template: //p')" = 1 || exit 1
+test "$(qm status 210)" = 'status: stopped' || exit 1
+set -o pipefail
+pvesh get /cluster/resources --type vm --output-format json |
+  perl -MJSON::PP -0777 -e '$r=decode_json(&lt;&gt;); exit((scalar grep { $_-&gt;{vmid} == 211 || $_-&gt;{vmid} == 212 } @$r) ? 1 : 0)' || exit 1
+pvesm status
+read -r -p 'Storage de imagens autorizado para o clone: ' CLONE_STORE
+: "${CLONE_STORE:?}"
+qm clone 210 211 --name m17-vm --full 1 --storage "$CLONE_STORE" || exit 1
+qm set 211 --net0 virtio,bridge=vmbr17,link_down=1 --onboot 0 || exit 1
+test -s /root/m17-work/student.pub || exit 1
+qm set 211 --ciuser student --sshkeys /root/m17-work/student.pub || exit 1
+qm set 211 --ipconfig0 ip=192.0.2.211/24 || exit 1
+qm set 211 --ciupgrade 0 || exit 1
+qm config 211</code></pre>
+<ol start="3"><li>Defina uma senha temporária de console por entrada interativa, sem colocá-la em linha de comando.
+O comando recebe apenas o hash; a senha não aparece na lista de argumentos nem no histórico.
+Não execute este bloco com rastreamento de comandos habilitado. A atualização de pacotes no primeiro boot está desativada porque a rede é isolada.</li></ol>
+<pre translate="no"><code class="lang-bash">set +x
+read -rs -p 'Senha temporaria forte para console de student: ' M17_SENHA
+printf '\n'
+test -n "$M17_SENHA" || exit 1
+M17_HASH=$(printf '%s\n' "$M17_SENHA" | openssl passwd -6 -stdin) || exit 1
+unset M17_SENHA
+qm set 211 --cipassword "$M17_HASH" || { unset M17_HASH; exit 1; }
+unset M17_HASH
+qm cloudinit update 211 || exit 1
+desconectar_nics_m17 211 || exit 1
+qm start 211 || exit 1
+qm terminal 211</code></pre>
+<p>Entre pela console com o usuário de estudo e a senha recém-definida.
+Não disponibilize essa senha no relatório. A configuração de senha do cloud-init pode habilitar autenticação SSH por senha; por isso o primeiro boot acontece com todas as NICs desconectadas.
+Mantenha os links desconectados durante todo o desafio. Antes de qualquer reconexão futura, configure a política SSH sem senha e confira o resultado efetivo dentro do convidado.</p>
+<pre translate="no"><code class="lang-bash">sudo sshd -T | grep -E '^(passwordauthentication|kbdinteractiveauthentication|pubkeyauthentication) '</code></pre>
+<p>Essa leitura apenas mostra a política; ela não a corrige. Não reconecte enquanto a autenticação por senha não estiver desabilitada e conferida.
+Inicie pela console, confirme o isolamento e crie o marcador dentro do novo clone.</p>
+<pre translate="no"><code class="lang-bash">printf '%s\n' 'M17 recuperacao comprovada' | sudo tee /var/tmp/m17-desafio.txt
+sha256sum /var/tmp/m17-desafio.txt</code></pre>
+<ol start="4"><li>Copie o checksum para seu diário externo; faça backup novo de 211 no PBS-LAB e aguarde o verify correspondente.</li>
+<li>Restaure esse backup em 212, nomeie <code translate="no">m17-restore</code>, deixe todas as NICs desconectadas antes de iniciar e confira o marcador pela console.</li>
+<li>Registre tarefa, volume exato, verify, checksum restaurado e isolamento fora das VMs.</li>
+<li>Só depois da prova, desligue 211, confira o nome e remova apenas a VM 211 com a guarda do lab.</li>
+<li>Restaure o mesmo backup no ID 211 livre, sem iniciar automaticamente.</li></ol>
+<pre translate="no"><code class="lang-bash">read -r -p 'Volume exato do backup do desafio ja verificado e testado: ' BACKUP_DESAFIO
+: "${BACKUP_DESAFIO:?}"
+case "$BACKUP_DESAFIO" in PBS-LAB:backup/vm/211/*) ;; *) exit 1 ;; esac
+pvesh get /cluster/resources --type vm --output-format json |
+  perl -MJSON::PP -0777 -e '$r=decode_json(&lt;&gt;); exit((scalar grep { $_-&gt;{vmid} == 211 } @$r) ? 1 : 0)' || exit 1
+pvesm status
+read -r -p 'Storage de imagens autorizado para restore do desafio: ' RESTORE_STORE
+: "${RESTORE_STORE:?}"
+qmrestore "$BACKUP_DESAFIO" 211 --storage "$RESTORE_STORE" --unique 1 --start 0 || exit 1
+qm set 211 --name m17-vm --onboot 0 || exit 1
+qm config 211</code></pre>
+<p>Desconecte todas as NICs restauradas antes de iniciar 211 e repita a leitura do marcador pela console.
+Reutilize a função do passo 5; se abriu outra sessão de host, defina-a novamente antes de chamar.</p>
+<pre translate="no"><code class="lang-bash">desconectar_nics_m17 211 || { printf '%s\n' 'STOP: isolation failed' &gt;&amp;2; exit 1; }
+qm config 211</code></pre>
+<p>Confira na saída real que todas as NICs continuam desconectadas antes de iniciar.</p>
+<pre translate="no"><code class="lang-bash">desconectar_nics_m17 211 || exit 1
+qm start 211 || exit 1
+qm terminal 211</code></pre>
+<p>Não ligue 211 e 212 à mesma rede para facilitar a comparação.
+O desafio termina quando o checksum coincide e o relatório permite reconstruir a sequência.</p>
+<p><strong>Último exercício:</strong> compare seu diagnóstico inicial com a entrega agora comprovada.
+Separe migração realizada, migração não realizada e recuperação realmente testada.</p>
+<h3 id="verificacao-pontual-sem-interface-web">Verificação pontual sem interface web</h3>
+<p>Para o desafio, use somente terminais, inclusive no PBS. No terminal administrativo autorizado do PBS de laboratório, identifique datastore e namespace reais correspondentes ao storage cadastrado no PVE.
+Não execute este bloco no host PVE nem dentro do convidado. Copie a identidade exata do snapshot recém-criado; não escolha um grupo inteiro.</p>
+<pre translate="no"><code class="lang-bash">read -r -p 'Datastore PBS real do inventario: ' PBS_STORE
+read -r -p 'Namespace PBS autorizado (vazio = raiz): ' PBS_NS
+read -r -p 'Snapshot exato vm/211/data-UTC do backup: ' PBS_SNAP
+: "${PBS_STORE:?}" "${PBS_SNAP:?}"
+case "$PBS_STORE" in *[!A-Za-z0-9_-]*|'') exit 1 ;; esac
+case "$PBS_SNAP" in vm/211/*) ;; *) exit 1 ;; esac
+PBS_EPOCH=$(date -u -d "${PBS_SNAP#vm/211/}" +%s) || exit 1
+PBS_EXTRA=()
+test -z "$PBS_NS" || PBS_EXTRA=(--ns "$PBS_NS")
+proxmox-backup-debug api usage "/admin/datastore/$PBS_STORE/verify" --verbose 1</code></pre>
+<p>Compare tipo, ID, instante UTC e namespace com o backup anotado. Confira a ajuda local; se os parâmetros não correspondem à versão instalada, pare antes da chamada de criação.</p>
+<pre translate="no"><code class="lang-bash">proxmox-backup-debug api create "/admin/datastore/$PBS_STORE/verify" \
+  --backup-type vm --backup-id 211 --backup-time "$PBS_EPOCH" \
+  --ignore-verified false "${PBS_EXTRA[@]}" || exit 1
+read -r -p 'UPID real retornado pela verificacao: ' PBS_UPID
+: "${PBS_UPID:?}"
+proxmox-backup-manager task log "$PBS_UPID"
+proxmox-backup-manager task list --all 1 --output-format json-pretty</code></pre>
+<p>O UPID inicia a observação, não prova a conclusão. Espere o término e leia o log e a tarefa parada correspondente: só aceite conclusão bem-sucedida do snapshot exato. Preserve esse resultado fora das VMs; não use uma verificação antiga ou global como substituta.
+Repita esta verificação pontual para cada backup novo do desafio, antes de restaurar ou liberar a origem. Use autenticação autorizada sem senhas ou tokens nos comandos publicados.</p>
+<h3 id="limpeza-final-da-bancada">Limpeza final da bancada</h3>
+<p>Conserve backups, relatório e dados externos pelo período combinado com quem administra o curso.
+Depois da entrega, desligue 211 e 212 de forma limpa e confira nomes e estados.
+Remova apenas os objetos temporários 211 e 212 com as mesmas guardas do passo 6.
+Antes de remover 210, confirme que é o template desligado desta bancada e que não há clones dependentes.</p>
+<pre translate="no"><code class="lang-bash">test "$(qm config 210 | sed -n 's/^name: //p')" = 'm17-template' &amp;&amp; \
+  test "$(qm config 210 | sed -n 's/^template: //p')" = '1' &amp;&amp; \
+  test "$(qm status 210)" = 'status: stopped' &amp;&amp; qm destroy 210
+pvesh get /cluster/resources --type vm --output-format json-pretty</code></pre>
+<p>Não remova a bridge isolada: ela será reutilizada no M19.
+Os IDs 210 a 212 precisam ficar livres antes do uso previsto no M24.
+Não apague backups ou a pasta de evidências como consequência automática da limpeza das VMs.</p>
+<p><strong>Reboot de conferência:</strong> não reinicie hosts nem membros do cluster para verificar a limpeza.
+A conferência final é o inventário, a ausência dos objetos temporários e a preservação dos existentes.</p>
+<ul><li>[ ] Registrei as condições reais de migração e quorum.</li>
+<li>[ ] Preservei a origem até demonstrar recuperação isolada.</li>
+<li>[ ] Conferi marcador e checksum fora da VM original.</li>
+<li>[ ] Mantive redes restauradas desconectadas até a conferência.</li>
+<li>[ ] Liberei somente os IDs temporários após a entrega.</li>
+<li>[ ] Preservei convidados 201 a 205, bridge e backups.</li></ul>
+<h2 id="11-na-vida-real">11 · Na vida real</h2>
+<p>Produza um parecer de migração sem executar mudança em uma carga real.
+Liste dependências de CPU, versão, volumes, redes e capacidade.
+Acrescente quem autorizaria a janela e como seria demonstrada a recuperação.
+Uma condição desconhecida deve aparecer como pendência, não como aprovação presumida.</p>
+<h2 id="12-aprofunde-quando-quiser">12 · Aprofunde quando quiser</h2>
+<ul><li><a href="https://github.com/proxmox/pve-docs/blob/master/qm.adoc">Migração de VMs</a>.</li>
+<li><a href="https://github.com/proxmox/pve-docs/blob/master/pvecm.adoc">Cluster, membros e quorum</a>.</li>
+<li><a href="https://github.com/proxmox/pve-docs/blob/master/generated/qmrestore.1-synopsis.adoc">Comandos de restauração</a>.</li>
+<li><a href="https://pbs.proxmox.com/docs/command-line-tools.html">API e ferramentas de verificação PBS</a>.</li></ul>
+<h3 id="solucoes-comentadas">Soluções comentadas</h3>
+<p><strong>Aquecimento 1:</strong> não; configuração e bytes do disco possuem mecanismos distintos.
+<strong>Aquecimento 2:</strong> não; decisões concorrentes sem maioria podem produzir estados incompatíveis.
+<strong>Aquecimento 3:</strong> não; restauração isolada, leitura e evidência externa precisam vir antes.
+<strong>Decida 1: B.</strong> O volume pequeno também participa da inicialização e precisa estar disponível.
+<strong>Decida 2: A.</strong> Verify e restauração respondem perguntas diferentes; mantenha a origem.
+<strong>Quiz 1:</strong> todos, incluindo sistema, EFI, cloud-init, dados e qualquer recurso restrito ao nó.
+<strong>Quiz 2:</strong> migração planejada e não realizada, com os pré-requisitos ausentes explícitos.
+<strong>Quiz 3:</strong> para impedir decisões de configuração concorrentes e inconsistentes.
+<strong>Quiz 4:</strong> conteúdo do disco, identificador interno e chaves SSH podem continuar iguais.
+<strong>Quiz 5:</strong> backup exato verificado, restauração isolada testada e dado comparado com evidência externa.
+<strong>Quiz 6:</strong> a rede isolada é infraestrutura preparada para uma prática posterior, fora da limpeza dos convidados.</p>
+<p><a href="17.6-backup-e-restauracao.html">← Aula 17.6 · Backup e restauração</a> · <a href="index.html">Índice das aulas</a> · <a href="https://github.com/Rodrigoantignani/curso-linux-sysadmin/blob/master/00-plano-do-curso.md">Plano do curso: M18 em diante →</a></p>
+</article><nav class="paginas" aria-label="Aulas"><a class="ant" href="17.6-backup-e-restauracao.html"><small>← Anterior</small>17.6 · Backup e restauração com PBS</a><a class="prox" href="18.1-conteiner-nao-e-vm.html"><small>Próxima →</small>18.1 · Contêiner não é VM</a></nav></main></div>
+<footer><div class="wrap">Gerado a partir do Markdown do curso · Imagens em <code translate="no">img/</code></div></footer>
+</body>
+</html>

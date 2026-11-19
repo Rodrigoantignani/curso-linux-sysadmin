@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light dark">
+<title>17.6 · Backup e ripristino con PBS · Corso Linux Sysadmin</title>
+<link rel="alternate" hreflang="pt-BR" href="17.6-backup-e-restauracao.html"><link rel="alternate" hreflang="it" href="17.6-backup-e-restauracao.it.html">
+<style>
+:root{color-scheme:light dark;--bg:#f6f1e7;--card:#fffdf8;--ink:#201c16;--muted:#5e564a;--accent:#9a3412;--accent-2:#1f5f4a;--tint:#efe6d4;--line:#ddd2bc;--code:#f1eadb;--shadow:0 1px 2px rgba(60,40,10,.08);--serif:Georgia,"Iowan Old Style","Palatino Linotype",Palatino,serif;--sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--mono:"Cascadia Code",Consolas,"DejaVu Sans Mono",monospace}
+@media (prefers-color-scheme:dark){:root{--bg:#16130f;--card:#201b15;--ink:#f1eadb;--muted:#b9ad98;--accent:#f0a070;--accent-2:#7fd0b0;--tint:#2a231a;--line:#3d3427;--code:#191510;--shadow:none}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:5.5rem}
+body{margin:0;background:var(--bg);color:var(--ink);font:1rem/1.6 var(--sans)}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--accent-2);outline-offset:2px;border-radius:4px}
+.pular{position:absolute;left:-999px;top:0;background:var(--card);padding:.5rem 1rem;z-index:20}
+.pular:focus{left:.5rem;top:.5rem}
+.wrap{width:100%;max-width:84rem;margin:0 auto;padding-inline:max(1rem,env(safe-area-inset-left))}
+.top{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10;border-top:6px solid var(--accent)}
+.top-in{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding-block:.6rem}
+.titles{min-width:0}
+.marca{margin:0;font:700 clamp(1.15rem,1rem + 1vw,1.6rem)/1.15 var(--serif);letter-spacing:-.01em}
+.marca a{text-decoration:none}
+.marca a:hover{color:var(--accent)}
+.meta{margin:.1rem 0 0;color:var(--muted);font-size:.85rem}
+.acoes{display:flex;align-items:center;gap:.9rem;flex:none}
+.acoes>a{font-size:.9rem;font-weight:600;color:var(--muted);text-decoration:none}
+.acoes>a:hover{color:var(--accent);text-decoration:underline}
+.idioma{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--tint)}
+.idioma>*{padding:.35rem .9rem;font-size:.8rem;font-weight:700;letter-spacing:.06em;text-decoration:none;color:var(--muted);min-width:2.75rem;text-align:center}
+.idioma a:hover{color:var(--accent);text-decoration:underline}
+.idioma span{background:var(--accent);color:#fff}
+@media (prefers-color-scheme:dark){.idioma span{color:#16130f}}
+code{font-family:var(--mono);font-size:.9em;background:var(--tint);padding:.1rem .35rem;border-radius:4px;overflow-wrap:anywhere}
+/* índice */
+.capa{max-width:70rem;padding-block:2rem 3rem}
+.stats{border-left:4px solid var(--accent-2);background:var(--card);border-radius:0 10px 10px 0;padding:1rem 1.25rem;margin:0 0 2.5rem;box-shadow:var(--shadow);color:var(--muted)}
+.stats strong{color:var(--ink)}
+.modulo{display:grid;grid-template-columns:15rem minmax(0,1fr);gap:1rem 2rem;padding:1.75rem 0;border-top:1px solid var(--line)}
+.modulo h2{margin:0;font:700 1.25rem/1.25 var(--serif);align-self:start;position:sticky;top:6rem}
+.mn{display:block;font:700 .8rem var(--mono);letter-spacing:.12em;color:var(--accent);margin-bottom:.25rem}
+.sep{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.modulo ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,17rem),1fr));gap:.75rem}
+.modulo li{margin:0}
+.modulo a{display:flex;gap:.45rem;align-items:baseline;height:100%;padding:.85rem 1rem;background:var(--card);border:1px solid var(--line);border-radius:10px;text-decoration:none;font-weight:600;line-height:1.35;box-shadow:var(--shadow);transition:border-color .15s,transform .15s}
+.modulo a:hover{border-color:var(--accent);color:var(--accent)}
+.num{font:700 .85rem var(--mono);color:var(--accent);white-space:nowrap}
+/* aula */
+.doc{display:grid;grid-template-columns:17rem minmax(0,1fr);gap:2.5rem;align-items:start;padding-block:2rem 3rem}
+.lateral{position:sticky;top:5.5rem;max-height:calc(100vh - 6.5rem);overflow:auto;font-size:.875rem;padding-right:.5rem}
+.lateral h2{margin:0 0 .25rem;font:700 .95rem var(--serif);color:var(--muted)}
+.lateral h3{margin:1rem 0 .25rem;font:700 .75rem var(--mono);letter-spacing:.06em;color:var(--accent)}
+.lateral ul{list-style:none;margin:0;padding:0}
+.lateral a{display:flex;gap:.45rem;padding:.25rem .5rem;border-radius:6px;text-decoration:none;color:var(--muted);line-height:1.3}
+.lateral a:hover{background:var(--tint);color:var(--ink)}
+.lateral a[aria-current]{background:var(--tint);color:var(--ink);font-weight:700;box-shadow:inset 3px 0 0 var(--accent)}
+.lateral .num{font-size:.75rem}
+.aula{min-width:0;max-width:56rem;overflow-wrap:break-word;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:clamp(1.25rem,1rem + 2vw,2.75rem);box-shadow:var(--shadow)}
+.aula h1{margin:0 0 1.5rem;font:700 clamp(1.75rem,1.4rem + 1.6vw,2.5rem)/1.15 var(--serif);letter-spacing:-.015em;color:var(--ink)}
+.aula h2{margin:2.5rem 0 .75rem;padding-top:1.25rem;border-top:1px solid var(--line);font:700 1.5rem/1.25 var(--serif)}
+.aula h3{margin:2rem 0 .5rem;font:700 1.15rem/1.3 var(--serif);color:var(--accent)}
+.aula h4,.aula h5,.aula h6{margin:1.5rem 0 .5rem;font-size:1rem}
+.aula p,.aula ul,.aula ol{margin:1rem 0}
+.aula ul,.aula ol{padding-left:1.5rem}
+.aula li{margin:.35rem 0}
+.aula li>ul,.aula li>ol{margin:.35rem 0}
+.aula a{color:var(--accent);text-underline-offset:2px}
+.aula hr{border:0;border-top:1px solid var(--line);margin:2rem 0}
+.tabela{overflow-x:auto;margin:1.25rem 0;border:1px solid var(--line);border-radius:10px}
+.aula table{width:100%;border-collapse:collapse;font-size:.9rem}
+.aula th,.aula td{padding:.55rem .75rem;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+.aula tr:last-child td{border-bottom:0}
+.aula th{background:var(--tint);font-weight:700}
+.aula pre{background:var(--code);border:1px solid var(--line);border-radius:10px;padding:.9rem 1rem;overflow-x:auto;font:.85rem/1.5 var(--mono);margin:1rem 0;tab-size:4}
+.aula pre code{background:none;padding:0;font-size:inherit;overflow-wrap:normal}
+.aula blockquote{margin:1.25rem 0;padding:.75rem 1.25rem;border-left:4px solid var(--accent-2);background:var(--tint);border-radius:0 10px 10px 0}
+.aula blockquote>:first-child{margin-top:0}
+.aula blockquote>:last-child{margin-bottom:0}
+.aula figure{margin:1.75rem 0;text-align:center}
+.aula figure img{display:block;margin:0 auto;max-width:100%;height:auto;border:1px solid var(--line);border-radius:10px;background:#fff}
+.aula figcaption{margin-top:.5rem;color:var(--muted);font-size:.9rem;font-style:italic}
+.paginas{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:2.5rem;padding-top:1.5rem;border-top:1px solid var(--line)}
+.paginas a{display:block;padding:.75rem 1rem;border:1px solid var(--line);border-radius:10px;text-decoration:none;color:var(--ink);font-weight:600;line-height:1.3}
+.paginas a:hover{border-color:var(--accent);color:var(--accent)}
+.paginas small{display:block;color:var(--muted);font-weight:400}
+.paginas .prox{grid-column:2;text-align:right}
+footer{border-top:1px solid var(--line);padding-block:1.5rem;color:var(--muted);font-size:.85rem;text-align:center}
+@media (hover:hover) and (prefers-reduced-motion:no-preference){.modulo a:hover{transform:translateY(-2px)}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+@media (max-width:980px){.doc{grid-template-columns:minmax(0,1fr);padding-top:1rem}.lateral{position:static;max-height:none;order:2}.aula{max-width:none}}
+@media (max-width:860px){.modulo{grid-template-columns:minmax(0,1fr)}.modulo h2{position:static}.mn{display:inline;margin-right:.5rem}}
+@media (max-width:420px){.meta{display:none}.top-in{gap:.5rem}.acoes{gap:.6rem}.capa{padding-top:1.25rem}.paginas{grid-template-columns:minmax(0,1fr)}.paginas .prox{grid-column:1}}
+@media print{.top,.lateral,.paginas{display:none}.aula{border:0;box-shadow:none;padding:0;max-width:none}.doc{display:block}}
+</style>
+</head>
+<body>
+<a class="pular" href="#conteudo">Vai al contenuto</a>
+<header class="top"><div class="wrap top-in"><div class="titles"><p class="marca"><a href="index.it.html">Corso Linux Sysadmin</a></p><p class="meta">Rodrigo Antignani · Lezione 17.6</p></div><div class="acoes"><a href="index.it.html">Indice</a><div class="idioma" role="group" aria-label="Lingua"><a href="17.6-backup-e-restauracao.html" hreflang="pt-BR" lang="pt-BR">PT</a><span aria-current="true">IT</span></div></div></div></header>
+<div class="wrap doc"><aside class="lateral" aria-label="Lezioni"><h2>Lezioni</h2><h3>M0 · Laboratorio</h3><ul><li><a href="0.1-montar-o-laboratorio.it.html"><span class="num">0.1</span><span>Allestire il laboratorio</span></a></li><li><a href="0.2-acesso-e-protecao.it.html"><span class="num">0.2</span><span>Accesso e protezione</span></a></li></ul><h3>M1 · Riga di comando</h3><ul><li><a href="1.1-o-que-e-linux.it.html"><span class="num">1.1</span><span>Che cos'è Linux</span></a></li><li><a href="1.2-o-shell-e-a-ajuda.it.html"><span class="num">1.2</span><span>La shell e la guida</span></a></li><li><a href="1.3-caminhos-e-navegacao.it.html"><span class="num">1.3</span><span>Percorsi e navigazione</span></a></li><li><a href="1.4-criar-copiar-mover-e-apagar.it.html"><span class="num">1.4</span><span>Creare, copiare, spostare ed eliminare</span></a></li><li><a href="1.5-ler-e-procurar-texto.it.html"><span class="num">1.5</span><span>Leggere e cercare testo</span></a></li><li><a href="1.6-redirecionamentos-e-pipes.it.html"><span class="num">1.6</span><span>Reindirizzamenti e pipe</span></a></li><li><a href="1.7-arquivar-e-compactar.it.html"><span class="num">1.7</span><span>Archiviare e comprimere</span></a></li><li><a href="1.8-primeiro-script.it.html"><span class="num">1.8</span><span>Primo script</span></a></li><li><a href="1.9-decidir-e-repetir.it.html"><span class="num">1.9</span><span>Decidere e ripetere</span></a></li><li><a href="1.10-software-livre-na-pratica.it.html"><span class="num">1.10</span><span>Il software libero in pratica</span></a></li></ul><h3>M2 · Sistema, utenti e permessi</h3><ul><li><a href="2.1-instalacao-e-provisionamento.it.html"><span class="num">2.1</span><span>Installazione e provisioning</span></a></li><li><a href="2.2-hardware-e-dispositivos.it.html"><span class="num">2.2</span><span>Hardware e dispositivi</span></a></li><li><a href="2.3-processos-e-logs.it.html"><span class="num">2.3</span><span>Processi e log</span></a></li><li><a href="2.4-rede-no-dia-a-dia.it.html"><span class="num">2.4</span><span>La rete di tutti i giorni</span></a></li><li><a href="2.5-acesso-remoto-e-privilegios.it.html"><span class="num">2.5</span><span>Accesso remoto e privilegi</span></a></li><li><a href="2.6-usuarios-e-grupos.it.html"><span class="num">2.6</span><span>Utenti e gruppi</span></a></li><li><a href="2.7-permissoes-e-dono.it.html"><span class="num">2.7</span><span>Permessi e proprietario</span></a></li><li><a href="2.8-diretorios-e-arquivos-especiais.it.html"><span class="num">2.8</span><span>Directory e file speciali</span></a></li></ul><h3>M3 · Testo ed editor</h3><ul><li><a href="3.1-fluxos-a-fundo.it.html"><span class="num">3.1</span><span>I flussi in profondità</span></a></li><li><a href="3.2-filtros-de-texto.it.html"><span class="num">3.2</span><span>Filtri di testo</span></a></li><li><a href="3.3-regex-e-grep.it.html"><span class="num">3.3</span><span>Regex e grep</span></a></li><li><a href="3.4-sed-e-awk.it.html"><span class="num">3.4</span><span>sed e awk</span></a></li><li><a href="3.5-vi-e-vim-de-verdade.it.html"><span class="num">3.5</span><span>vi e vim sul serio</span></a></li></ul><h3>M4 · systemd e boot</h3><ul><li><a href="4.1-como-o-linux-liga.it.html"><span class="num">4.1</span><span>Come si avvia Linux</span></a></li><li><a href="4.2-systemd-servicos-e-units.it.html"><span class="num">4.2</span><span>systemd: servizi e unit</span></a></li><li><a href="4.3-targets-desligar-e-reiniciar.it.html"><span class="num">4.3</span><span>Target: spegnere e riavviare</span></a></li><li><a href="4.4-grub-e-acesso-de-emergencia.it.html"><span class="num">4.4</span><span>GRUB e accesso di emergenza</span></a></li></ul><h3>M5 · Kernel, moduli e VM</h3><ul><li><a href="5.1-hardware-pelo-kernel.it.html"><span class="num">5.1</span><span>L'hardware visto dal kernel</span></a></li><li><a href="5.2-modulos-e-parametros.it.html"><span class="num">5.2</span><span>Moduli e parametri</span></a></li><li><a href="5.3-linux-como-convidado.it.html"><span class="num">5.3</span><span>Linux come guest</span></a></li></ul><h3>M6 · Pacchetti e repository</h3><ul><li><a href="6.1-pacotes-no-debian.it.html"><span class="num">6.1</span><span>Pacchetti su Debian</span></a></li><li><a href="6.2-pacotes-na-rocky.it.html"><span class="num">6.2</span><span>Pacchetti su Rocky</span></a></li><li><a href="6.3-repositorios.it.html"><span class="num">6.3</span><span>Repository</span></a></li><li><a href="6.4-flatpak.it.html"><span class="num">6.4</span><span>Flatpak</span></a></li><li><a href="6.5-bibliotecas-compartilhadas.it.html"><span class="num">6.5</span><span>Librerie condivise</span></a></li></ul><h3>M7 · Processi e prestazioni</h3><ul><li><a href="7.1-processos-e-sinais.it.html"><span class="num">7.1</span><span>Processi e segnali</span></a></li><li><a href="7.2-jobs-e-sessoes.it.html"><span class="num">7.2</span><span>Job e sessioni</span></a></li><li><a href="7.3-prioridade-e-perfis.it.html"><span class="num">7.3</span><span>Priorità e profili</span></a></li></ul><h3>M8 · File a fondo</h3><ul><li><a href="8.1-fhs-e-onde-cada-coisa-mora.it.html"><span class="num">8.1</span><span>FHS e dove sta ogni cosa</span></a></li><li><a href="8.2-find-a-fundo.it.html"><span class="num">8.2</span><span>find a fondo</span></a></li><li><a href="8.3-arquivamento-avancado.it.html"><span class="num">8.3</span><span>Archiviazione avanzata</span></a></li><li><a href="8.4-links.it.html"><span class="num">8.4</span><span>Link</span></a></li><li><a href="8.5-permissoes-avancadas.it.html"><span class="num">8.5</span><span>Permessi avanzati</span></a></li></ul><h3>M9 · Storage</h3><ul><li><a href="9.1-discos-e-layout.it.html"><span class="num">9.1</span><span>Dischi e layout</span></a></li><li><a href="9.2-particionar.it.html"><span class="num">9.2</span><span>Partizionare</span></a></li><li><a href="9.3-sistemas-de-arquivos.it.html"><span class="num">9.3</span><span>File system</span></a></li><li><a href="9.4-montar-e-persistir.it.html"><span class="num">9.4</span><span>Montare e rendere persistente</span></a></li><li><a href="9.5-integridade-e-espaco.it.html"><span class="num">9.5</span><span>Integrità e spazio</span></a></li><li><a href="9.6-lvm.it.html"><span class="num">9.6</span><span>LVM</span></a></li><li><a href="9.7-crescer-sem-destruir.it.html"><span class="num">9.7</span><span>Crescere senza distruggere</span></a></li></ul><h3>M10 · Utenti e accesso privilegiato</h3><ul><li><a href="10.1-contas.it.html"><span class="num">10.1</span><span>Account</span></a></li><li><a href="10.2-senhas-e-validade.it.html"><span class="num">10.2</span><span>Password e scadenza</span></a></li><li><a href="10.3-grupos-e-trabalho-em-equipe.it.html"><span class="num">10.3</span><span>Gruppi e lavoro di squadra</span></a></li><li><a href="10.4-sudo-de-verdade.it.html"><span class="num">10.4</span><span>sudo sul serio</span></a></li></ul><h3>M11 · Rete</h3><ul><li><a href="11.1-tcp-ip-para-quem-administra.it.html"><span class="num">11.1</span><span>TCP/IP per chi amministra</span></a></li><li><a href="11.2-networkmanager-e-nmcli.it.html"><span class="num">11.2</span><span>NetworkManager e nmcli</span></a></li><li><a href="11.3-rede-no-debian.it.html"><span class="num">11.3</span><span>Rete su Debian</span></a></li><li><a href="11.4-nomes-e-resolucao.it.html"><span class="num">11.4</span><span>Nomi e risoluzione</span></a></li><li><a href="11.5-diagnostico-de-rede.it.html"><span class="num">11.5</span><span>Diagnosi di rete</span></a></li></ul><h3>M12 · Sicurezza dell'host</h3><ul><li><a href="12.1-ssh-a-fundo.it.html"><span class="num">12.1</span><span>SSH in dettaglio</span></a></li><li><a href="12.2-firewall.it.html"><span class="num">12.2</span><span>Firewall</span></a></li><li><a href="12.3-selinux-modos-e-contextos.it.html"><span class="num">12.3</span><span>SELinux: modalità e contesti</span></a></li><li><a href="12.4-selinux-portas-e-booleanos.it.html"><span class="num">12.4</span><span>SELinux: porte e booleani</span></a></li><li><a href="12.5-auditoria-e-criptografia.it.html"><span class="num">12.5</span><span>Audit e crittografia</span></a></li></ul><h3>M13 · Archiviazione in rete</h3><ul><li><a href="13.1-servidor-nfs.it.html"><span class="num">13.1</span><span>Server NFS</span></a></li><li><a href="13.2-cliente-nfs.it.html"><span class="num">13.2</span><span>Client NFS</span></a></li><li><a href="13.3-autofs.it.html"><span class="num">13.3</span><span>autofs</span></a></li></ul><h3>M14 · Pianificazione</h3><ul><li><a href="14.1-cron-e-at.it.html"><span class="num">14.1</span><span>cron e at</span></a></li><li><a href="14.2-timers-do-systemd.it.html"><span class="num">14.2</span><span>Timer di systemd</span></a></li><li><a href="14.3-journald-e-rsyslog.it.html"><span class="num">14.3</span><span>journald e rsyslog</span></a></li><li><a href="14.4-hora-certa.it.html"><span class="num">14.4</span><span>L'ora corretta</span></a></li><li><a href="14.5-email-local-e-impressao.it.html"><span class="num">14.5</span><span>E-mail locale e stampa</span></a></li></ul><h3>M15 · Shell e ambiente</h3><ul><li><a href="15.1-ambiente-do-shell.it.html"><span class="num">15.1</span><span>Ambiente della shell</span></a></li><li><a href="15.2-scripts-robustos.it.html"><span class="num">15.2</span><span>Script robusti</span></a></li><li><a href="15.3-scripts-de-administracao.it.html"><span class="num">15.3</span><span>Script di amministrazione</span></a></li><li><a href="15.4-interfaces-graficas.it.html"><span class="num">15.4</span><span>Interfacce grafiche</span></a></li><li><a href="15.5-idioma-teclado-e-fuso.it.html"><span class="num">15.5</span><span>Lingua, tastiera e fuso orario</span></a></li></ul><h3>M16 · Settimana di incidenti su Rocky 10</h3><ul><li><a href="16.1-rocky-10-o-que-muda.it.html"><span class="num">16.1</span><span>Rocky 10: cosa cambia</span></a></li><li><a href="16.2-incidentes-por-area.it.html"><span class="num">16.2</span><span>Incidenti per area</span></a></li><li><a href="16.3-incidente-com-relogio.it.html"><span class="num">16.3</span><span>Incidente con cronometro</span></a></li><li><a href="16.4-correcao-e-reforco.it.html"><span class="num">16.4</span><span>Correzione e rinforzo</span></a></li></ul><h3>M17 · Proxmox in pratica</h3><ul><li><a href="17.1-proxmox-por-dentro.it.html"><span class="num">17.1</span><span>Proxmox dall'interno</span></a></li><li><a href="17.2-vm-pela-linha-de-comando.it.html"><span class="num">17.2</span><span>VM dalla riga di comando</span></a></li><li><a href="17.3-conteiner-lxc.it.html"><span class="num">17.3</span><span>Container LXC</span></a></li><li><a href="17.4-storage.it.html"><span class="num">17.4</span><span>Storage: capacità, ampliamento e spostamento</span></a></li><li><a href="17.5-rede.it.html"><span class="num">17.5</span><span>Rete: bridge, VLAN, bond e SDN</span></a></li><li><a href="17.6-backup-e-restauracao.it.html" aria-current="page"><span class="num">17.6</span><span>Backup e ripristino con PBS</span></a></li><li><a href="17.7-migracao-e-quorum.it.html"><span class="num">17.7</span><span>Migrazione e quorum</span></a></li></ul><h3>M18 · Podman</h3><ul><li><a href="18.1-conteiner-nao-e-vm.it.html"><span class="num">18.1</span><span>Un container non è una VM</span></a></li><li><a href="18.2-rodar-e-persistir.it.html"><span class="num">18.2</span><span>Eseguire e conservare i dati</span></a></li><li><a href="18.3-conteiner-como-servico.it.html"><span class="num">18.3</span><span>Container come servizio</span></a></li><li><a href="18.4-diagnosticar-conteiner-rootless.it.html"><span class="num">18.4</span><span>Diagnosticare un container rootless</span></a></li><li><a href="18.5-construir-imagens.it.html"><span class="num">18.5</span><span>Costruire immagini</span></a></li></ul><h3>M19 · Servizi di rete</h3><ul><li><a href="19.1-dns-autoritativo.it.html"><span class="num">19.1</span><span>DNS autoritativo</span></a></li><li><a href="19.2-dns-recursivo-e-diagnostico.it.html"><span class="num">19.2</span><span>DNS ricorsivo e diagnosi</span></a></li><li><a href="19.3-dhcp.it.html"><span class="num">19.3</span><span>DHCP</span></a></li><li><a href="19.4-servidor-web.it.html"><span class="num">19.4</span><span>Server web: nome, file e risposta</span></a></li><li><a href="19.5-tls-e-proxy-reverso.it.html"><span class="num">19.5</span><span>TLS e reverse proxy: identità prima del lucchetto</span></a></li><li><a href="19.6-samba-a-ponte-windows.it.html"><span class="num">19.6</span><span>Samba: il ponte con il client Windows</span></a></li><li><a href="19.7-postfix-e-correio-local.it.html"><span class="num">19.7</span><span>Postfix e posta locale</span></a></li><li><a href="19.8-dovecot-e-imaps.it.html"><span class="num">19.8</span><span>Dovecot e lettura tramite IMAPS</span></a></li><li><a href="19.9-squid-e-desafio-integrado.it.html"><span class="num">19.9</span><span>Squid e sfida integrata</span></a></li></ul><h3>M20 · Dentro NethServer 8</h3><ul><li><a href="20.1-instalar-nethserver-8.it.html"><span class="num">20.1</span><span>Installare in una VM pulita</span></a></li><li><a href="20.2-cluster-no-e-modulo.it.html"><span class="num">20.2</span><span>Cluster, nodo e modulo</span></a></li><li><a href="20.3-modulo-por-dentro.it.html"><span class="num">20.3</span><span>Dentro un modulo</span></a></li><li><a href="20.4-proxy-e-certificados.it.html"><span class="num">20.4</span><span>Proxy e certificati</span></a></li><li><a href="20.5-dominios-de-usuario.it.html"><span class="num">20.5</span><span>Domini utente: identità con confini</span></a></li><li><a href="20.6-backup-e-restauracao.it.html"><span class="num">20.6</span><span>Backup e ripristino: verificare il ritorno</span></a></li><li><a href="20.7-atualizar-mover-e-falhar.it.html"><span class="num">20.7</span><span>Aggiornare, spostare e guastare con verifica</span></a></li></ul></aside><main id="conteudo" class="aula"><article><h1>Lezione 17.6 · Backup e ripristino con PBS</h1>
+<blockquote><p><strong>Il cuore di questa lezione:</strong> produrre un backup della VM 211, verificarne il contenuto e dimostrare il recupero senza mettere in rete una copia con identità duplicata.</p></blockquote>
+<p>Un job verde conferma una fase. La fiducia dipende anche dal trovare la copia, recuperare ciò che conta e registrare quanto tempo è servito.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Scheda</th><th scope="col"></th></tr></thead><tbody><tr><td><strong>Modulo</strong></td><td>M17 · Proxmox nella pratica, lezione 6 di 7</td></tr><tr><td><strong>Quando</strong></td><td>Settimana 23</td></tr><tr><td><strong>Alla fine</strong></td><td>Recuperare un file e una VM isolata da una copia identificata</td></tr><tr><td><strong>Prerequisiti</strong></td><td>17.5 completata; VM 211; ID 212 libero nel cluster; storage <code translate="no">PBS-LAB</code> già predisposto</td></tr><tr><td><strong>Durata</strong></td><td>90–120 minuti, più trasferimento e verifica</td></tr><tr><td><strong>Snapshot</strong></td><td><code translate="no">m17a6-inicio</code> e <code translate="no">m17a6-fim</code> nella VM 211; backup esterno identificato nel diario</td></tr></tbody></table></div>
+<h2 id="1-riscaldamento">1 · Riscaldamento</h2>
+<ol><li>Uno snapshot conservato nello stesso storage risolve la perdita di quello storage?</li>
+<li>La verifica d’integrità dimostra che l’applicazione parte dopo il ripristino?</li>
+<li>Una nuova MAC elimina l’indirizzo IP, il nome e le chiavi SSH presenti sul disco?</li></ol>
+<h2 id="2-perche-conta">2 · Perché conta</h2>
+<p>L’inventario mostra backup recenti, ma nessuno ha provato a recuperare un file. Quando arriva la richiesta, mancano l’identificazione della copia e l’autorizzazione a ripristinare senza sovrascrivere la macchina attuale.</p>
+<p>Proverai i due percorsi: file singolo e macchina completa. L’originale resta acceso; la copia ripristinata parte soltanto senza connettività.</p>
+<p>Questa lezione usa un PBS di laboratorio già registrato. Installare il server, distribuire credenziali e creare politiche globali richiederebbe un altro contratto.</p>
+<h2 id="3-modello-mentale">3 · Modello mentale</h2>
+<p>Pensa a una scatola sigillata. Trasportarla, controllare il sigillo e rimontare l’apparecchio sono operazioni diverse. Una può riuscire e quella successiva fallire.</p>
+<figure><a href="../img/17.6-copia-verificacao-restauracao.it.jpg"><img src="../img/17.6-copia-verificacao-restauracao.it.jpg" alt="Copia, verifica e ripristino" loading="lazy" decoding="async"></a><figcaption>Un backup completato diventa affidabile quando il ripristino funziona.</figcaption></figure>
+<h3 id="ponte-windows">Ponte Windows</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Riferimento</th><th scope="col">Domanda equivalente</th></tr></thead><tbody><tr><td>Recuperare una versione di file</td><td>Quale snapshot contiene il contenuto desiderato?</td></tr><tr><td>Recuperare una macchina intera</td><td>Dove avviare la copia senza sovrascrivere l’originale?</td></tr><tr><td>Cronologia del job</td><td>Il trasferimento è terminato e quale copia ha prodotto?</td></tr><tr><td>Esercitazione di recupero</td><td>Il dato recuperato soddisfa il criterio dell’operazione?</td></tr></tbody></table></div>
+<h2 id="4-l-essenziale">4 · L'essenziale</h2>
+<p>Proxmox VE coordina il backup del guest. PBS conserva i dati e offre verifiche e politiche proprie. Sono servizi con interfacce e responsabilità diverse.</p>
+<p>Una copia incrementale deduplicata rappresenta comunque un punto di recupero completo. La quantità trasferita non è la dimensione logica ripristinabile.</p>
+<p>La modalità di backup deve essere adatta all’applicazione. Per questo banco useremo un arresto controllato e la modalità a macchina ferma, evitando di promettere una coerenza che non abbiamo misurato.</p>
+<p>La conservazione sceglie quali punti mantenere. Prune rimuove riferimenti secondo la politica; garbage collection recupera successivamente i chunk senza riferimenti. Non eseguire nessuna delle due operazioni globalmente per questo esercizio.</p>
+<p>RPO chiede quanti dati si possono perdere; RTO chiede quanto tempo può richiedere il recupero. Un backup recente e un recupero rapido rispondono a domande diverse.</p>
+<p>Se trasformi l’esercitazione in un job pianificato, documentane prima l’ambito. Un job del lab deve selezionare esplicitamente soltanto la VM 211, non tutti i guest o un pool condiviso.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Campo del piano</th><th scope="col">Decisione per questo banco</th></tr></thead><tbody><tr><td>Selezione</td><td>Soltanto VM 211; mai tutti i guest</td></tr><tr><td>Destinazione</td><td><code translate="no">PBS-LAB</code> già autorizzato</td></tr><tr><td>Orario</td><td>Finestra approvata, senza competere con job esistenti</td></tr><tr><td>Conservazione</td><td>Simulare i punti conservati prima di consentire rimozioni</td></tr><tr><td>Verifica</td><td>Esercitazione su file e VM con periodicità e responsabile</td></tr></tbody></table></div>
+<p>Il comando manuale di questa lezione non pianifica job e non autorizza eliminazioni. Una politica futura è una modifica dedicata, da rivedere e simulare prima dell’attivazione.</p>
+<figure><a href="../img/17.6-duas-identidades-na-rede.it.jpg"><img src="../img/17.6-duas-identidades-na-rede.it.jpg" alt="Una MAC nuova non cambia tutto" loading="lazy" decoding="async"></a><figcaption>Cambiare la MAC non cambia le identità dentro il sistema.</figcaption></figure>
+<h3 id="rocky-debian">Rocky × Debian</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Livello</th><th scope="col">Rocky</th><th scope="col">Debian</th></tr></thead><tbody><tr><td>Identità persistente</td><td><code translate="no">machine-id</code>, hostname e chiavi SSH sul disco</td><td>Gli stessi tipi di identità</td></tr><tr><td>Recupero di file</td><td>Confrontare contenuto e permessi</td><td>Confrontare contenuto e permessi</td></tr><tr><td>Recupero di VM</td><td>Verificare boot e servizio previsto</td><td>Verificare boot e servizio previsto</td></tr><tr><td>Sicurezza della copia</td><td>Rete scollegata prima del primo boot</td><td>La stessa regola</td></tr></tbody></table></div>
+<h3 id="decidi-1">Decidi 1</h3>
+<p>Ti serve soltanto un file eliminato ieri. Quale percorso conserva meglio lo stato attuale?</p>
+<div class="tabela"><table><thead><tr><th scope="col">A</th><th scope="col">B</th><th scope="col">C</th></tr></thead><tbody><tr><td>Recuperare il file in una nuova destinazione e confrontarlo</td><td>Ripristinare sopra la VM attuale</td><td>Eliminare la VM prima di cercare la copia</td></tr></tbody></table></div>
+<h2 id="5-lab-guidato">5 · Lab guidato</h2>
+<p>Il CT 212 è stato rimosso alla fine della 17.5. Ora lo stesso numero sarà usato temporaneamente da una VM chiamata <code translate="no">m17-restore</code>. Non supporre che sia libero: controlla il cluster.</p>
+<p>Non usare ripristino forzato, ripristino live o avvio automatico. L’originale 211 non sarà eliminato in questa lezione.</p>
+<h3 id="passo-1-fissare-il-criterio-di-recupero">Passo 1 · Fissare il criterio di recupero</h3>
+<p><strong>Ipotesi:</strong> un file conosciuto permette di distinguere il recupero di una macchina dal semplice avvio di un sistema qualsiasi.</p>
+<p>Nella console della VM 211, conferma il login locale con la credenziale di emergenza definita nella 17.2; poi usa una shell amministrativa per creare il marcatore. Se esiste già, fermati e leggine il contenuto prima di decidere di riutilizzarlo.</p>
+<pre translate="no"><code class="lang-bash">sudo -i
+test ! -e /var/lib/m17/evidencia.txt || exit 1
+install -d -m 0750 /var/lib/m17
+printf '%s\n' 'm17-vm 211: recuperacao ensaiada' &gt; /var/lib/m17/evidencia.txt
+chmod 0640 /var/lib/m17/evidencia.txt
+sha256sum /var/lib/m17/evidencia.txt
+stat -c '%a %U:%G %n' /var/lib/m17/evidencia.txt
+cat /etc/machine-id
+hostnamectl hostname</code></pre>
+<p><strong>Output atteso:</strong> il file contiene una riga; conserva l’hash reale e i metadati nel diario. Non esiste un hash d’esempio da copiare.</p>
+<p>Sull’host, conferma l’origine e salva configurazione e inventario in una cartella privata.</p>
+<pre translate="no"><code class="lang-bash">test "$(qm config 211 | sed -n 's/^name: //p')" = m17-vm || exit 1
+umask 077
+EVID=$(mktemp -d /root/m17a6.XXXXXX)
+qm config 211 &gt; "$EVID/vm211.conf"
+pvesh get /cluster/resources --type vm --output-format json-pretty &gt; "$EVID/inventario-antes.json"
+qm snapshot 211 m17a6-inicio
+pvesm status --storage PBS-LAB
+pvesm status
+cat /etc/pve/storage.cfg
+read -r -p 'Storage de imagens autorizado para restore: ' RESTORE_STORE
+test -n "$RESTORE_STORE" || exit 1
+qm config 211 | grep -E '^(scsi|virtio|sata|ide)[0-9]+:'</code></pre>
+<p><strong>Verifica:</strong> <code translate="no">PBS-LAB</code> è attivo e accetta backup. La destinazione scelta supporta immagini e ha margine per tutti i dischi della copia; usa <code translate="no">vm-hdd</code> se verificato oppure un altro backend reale autorizzato. Includi il disco dati <code translate="no">M17DATA</code> della 17.4: non puoi promettere di recuperare dati esclusi dal backup.</p>
+<h3 id="passo-2-produrre-una-copia-identificabile">Passo 2 · Produrre una copia identificabile</h3>
+<p><strong>Ipotesi:</strong> arrestare in modo controllato e copiare la VM ferma produce un punto conosciuto per questo esercizio.</p>
+<p>Sull’host, elenca prima e dopo. Non aggiungere opzioni di prune o conservazione al comando di questa copia.</p>
+<pre translate="no"><code class="lang-bash">pvesm list PBS-LAB --content backup --vmid 211 &gt; "$EVID/backups-antes.txt"
+qm shutdown 211 --timeout 60
+qm status 211 | grep -qx 'status: stopped' || exit 1
+date -Is &gt; "$EVID/backup-inicio.txt"
+vzdump 211 --storage PBS-LAB --mode stop --remove 0 || exit 1
+date -Is &gt; "$EVID/backup-fim.txt"
+pvesm list PBS-LAB --content backup --vmid 211 | tee "$EVID/backups-depois.txt"
+qm start 211</code></pre>
+<p><strong>Output atteso:</strong> l’attività termina correttamente e compare un volume di backup con una data reale. Se l’attività fallisce, non continuare usando un nome simile.</p>
+<p>Copia l’identificatore completo della nuova riga, non la dimensione o l’identificatore di una copia precedente.</p>
+<pre translate="no"><code class="lang-bash">read -r -p 'Volume ID do backup novo: ' BACKUP
+case "$BACKUP" in PBS-LAB:backup/vm/211/*) ;; *) exit 1 ;; esac
+printf '%s\n' "$BACKUP" &gt; "$EVID/backup-volume.txt"
+pvesm extractconfig "$BACKUP" | tee "$EVID/backup-config.conf"</code></pre>
+<p><strong>Verifica:</strong> la configurazione recuperata appartiene alla VM di origine e include i dischi previsti. Conserva l’orario e il risultato dell’attività.</p>
+<h3 id="passo-3-verificare-sul-server-corretto">Passo 3 · Verificare sul server corretto</h3>
+<p><strong>Ipotesi:</strong> la copia appena creata può essere verificata su PBS senza avviare una verifica globale del datastore.</p>
+<p>Apri l’interfaccia del PBS di laboratorio, non la schermata di rete di Proxmox VE. Nel datastore corrispondente a <code translate="no">PBS-LAB</code>, apri il contenuto e seleziona esattamente lo snapshot della VM 211 annotato.</p>
+<p>Esegui l’azione di verifica di quello snapshot. Conferma l’ambito mostrato prima di iniziare; se l’interfaccia seleziona l’intero datastore, annulla e chiedi all’amministratore PBS l’esecuzione puntuale.</p>
+<p>Registra identificatore dell’attività, snapshot selezionato, conclusione e orario. Non copiare token, password o configurazioni di credenziali nel diario.</p>
+<p><strong>Output atteso:</strong> la verifica del punto scelto termina senza errori. Un risultato precedente di un’altra copia non soddisfa questo passo.</p>
+<p><strong>Verifica:</strong> spiega la differenza fra integrità dei dati conservati e boot funzionante del sistema recuperato. Il secondo non è stato ancora dimostrato.</p>
+<h3 id="passo-4-recuperare-un-file-in-una-nuova-destinazione">Passo 4 · Recuperare un file in una nuova destinazione</h3>
+<p><strong>Ipotesi:</strong> esplorare la copia permette di ottenere il marcatore senza sostituire il file della VM in uso.</p>
+<p>Sull’host di laboratorio, controlla lo strumento. Il repository PBS autorizzato e la sua impronta provengono dall’inventario validato, mai dall’accettazione cieca del certificato.</p>
+<pre translate="no"><code class="lang-bash">command -v proxmox-file-restore
+read -r -p 'Repositorio PBS autorizado: ' PBS_REPOSITORY
+export PBS_REPOSITORY
+SNAPSHOT=${BACKUP#PBS-LAB:backup/}
+printf '%s\n' "$SNAPSHOT"
+proxmox-file-restore list "$SNAPSHOT" / --repository "$PBS_REPOSITORY"</code></pre>
+<p>Autenticati con il meccanismo approvato, senza inserire la password nella riga di comando. Se ci sono namespace o crittografia, usa il namespace e la chiave di recupero autorizzati; senza questi, fermati.</p>
+<p>La radice mostra i file dei dischi. Naviga tramite il nome reale del disco e le partizioni o i volumi visualizzati. Non supporre una partizione fissa o un layout uguale a quello di un’altra VM.</p>
+<pre translate="no"><code class="lang-bash">read -r -p 'Caminho de diretorio exibido: ' DIR_RESTORE
+proxmox-file-restore list "$SNAPSHOT" "$DIR_RESTORE" --repository "$PBS_REPOSITORY"</code></pre>
+<p>Ripeti l’elenco fino a individuare il marcatore nel file system. Copia il percorso virtuale completo visualizzato; comprende il disco e il percorso interno del guest.</p>
+<pre translate="no"><code class="lang-bash">read -r -p 'Caminho completo do arquivo no backup: ' FILE_RESTORE
+DEST=$(mktemp -d /root/m17-file-restore.XXXXXX)
+proxmox-file-restore extract "$SNAPSHOT" "$FILE_RESTORE" - --repository "$PBS_REPOSITORY" --format plain &gt; "$DEST/evidencia.txt"
+RC=$?
+test "$RC" -eq 0 || exit 1
+sha256sum "$DEST/evidencia.txt"
+cat "$DEST/evidencia.txt"
+proxmox-file-restore status</code></pre>
+<p><strong>Output atteso:</strong> contenuto e hash coincidono con quelli registrati nel Passo 1. Il file recuperato si trova in una nuova cartella dell’host.</p>
+<p><strong>Verifica:</strong> questo flusso misura i byte del file. Per restituire il dato all’applicazione, devi ancora pianificare proprietario, modalità, contesto di sicurezza e approvazione del responsabile.</p>
+<h3 id="passo-5-ripristinare-la-macchina-con-tutte-le-schede-scollegate">Passo 5 · Ripristinare la macchina con tutte le schede scollegate</h3>
+<p><strong>Ipotesi:</strong> una VM ripristinata con un altro ID può essere esaminata senza raggiungere la rete dell’originale.</p>
+<p>Sull’host, dimostra che nessun nodo del cluster usa 212. La query deve riuscire prima di fidarti di un risultato vuoto.</p>
+<pre translate="no"><code class="lang-bash">pvesh get /cluster/resources --type vm --output-format json &gt; "$EVID/cluster-pre-restore.json" || exit 1
+python3 - "$EVID/cluster-pre-restore.json" &lt;&lt;'PY' || exit 1
+import json, sys
+items = json.load(open(sys.argv[1]))
+assert not any(int(x.get('vmid', -1)) == 212 for x in items), 'ID 212 ocupado'
+PY
+date -Is &gt; "$EVID/restore-inicio.txt"
+: "${RESTORE_STORE:?}" "${BACKUP:?}"
+qmrestore "$BACKUP" 212 --storage "$RESTORE_STORE" --unique 1 --start 0 || exit 1
+qm status 212 | grep -qx 'status: stopped' || exit 1
+qm set 212 --name m17-restore --onboot 0 || exit 1
+qm config 212 &gt; "$EVID/restore-antes-isolar.conf" || exit 1</code></pre>
+<p>Non avviare ancora. Il nuovo ID e le nuove MAC non dimostrano un cambiamento delle identità interne. Cloud-init può rilevare una nuova istanza e rigenerarne una parte; controlla il risultato dalla console, senza presumere conservazione o rigenerazione.</p>
+<p>Scollega il link di tutte le interfacce ripristinate, compresa quella del segmento isolato. Il ciclo conserva le altre proprietà di ogni scheda.</p>
+<pre translate="no"><code class="lang-bash">while IFS= read -r LINE; do
+    KEY=${LINE%%:*}
+    VALUE=${LINE#*: }
+    VALUE=$(printf '%s' "$VALUE" | sed -E 's/(^|,)link_down=[01](,|$)/\1/; s/,$//')
+    qm set 212 --"$KEY" "$VALUE,link_down=1" || exit 1
+done &lt; &lt;(grep -E '^net[0-9]+:' "$EVID/restore-antes-isolar.conf")
+qm config 212 &gt; "$EVID/restore-isolado.conf" || exit 1
+cat "$EVID/restore-isolado.conf"
+awk '/^net[0-9]+:/ &amp;&amp; $0 !~ /,link_down=1(,|$)/ {bad=1} END {exit bad}' "$EVID/restore-isolado.conf" || exit 1
+qm start 212</code></pre>
+<p><strong>Output atteso:</strong> tutte le righe delle schede mostrano <code translate="no">link_down=1</code>; la VM parte senza connettività. Controllalo prima di premere avvia.</p>
+<p>Dalla console della VM 212, usa la credenziale locale provata prima del backup e una shell amministrativa. Se la VM usa una console seriale, apri la console corrispondente; non configurare una rete per facilitare l’accesso. Leggi il marcatore, l’hash e l’identità.</p>
+<pre translate="no"><code class="lang-bash">cat /var/lib/m17/evidencia.txt
+sha256sum /var/lib/m17/evidencia.txt
+stat -c '%a %U:%G %n' /var/lib/m17/evidencia.txt
+cat /etc/machine-id
+hostnamectl hostname
+ip -br link
+journalctl -b -p err --no-pager
+lsblk -o NAME,TYPE,SIZE,FSTYPE,MOUNTPOINTS,SERIAL
+read -r -p 'Disco restaurado com serial M17DATA: ' LAB_DISK
+test "$(lsblk -dnro SERIAL "$LAB_DISK")" = M17DATA || exit 1
+mount "$LAB_DISK" /mnt/m17-data
+sha256sum /mnt/m17-data/evidence.txt</code></pre>
+<p><strong>Verifica:</strong> il marcatore coincide con l’origine; l’hash del disco dati coincide con il diario della 17.4; il boot arriva al login e gli errori vengono interpretati. Gli errori di rete sono previsti con i cavi scollegati; non nascondere fra essi errori del disco.</p>
+<h3 id="passo-6-registrare-lesercitazione-e-rimuovere-soltanto-la-copia">Passo 6 · Registrare l’esercitazione e rimuovere soltanto la copia</h3>
+<p><strong>Ipotesi:</strong> puoi conservare il risultato senza mantenere due macchine con le stesse identità.</p>
+<p>Esegui questo passo dopo le analisi dei guasti. Copia le osservazioni di noVNC nel diario e registra i tempi reali, inclusi indagine e autenticazione.</p>
+<p>Sull’host, conserva la configurazione finale e conferma nome e ID prima di rimuovere la VM eliminabile.</p>
+<pre translate="no"><code class="lang-bash">date -Is &gt; "$EVID/restore-fim.txt"
+test "$(qm config 212 | sed -n 's/^name: //p')" = m17-restore || exit 1
+qm config 212 &gt; "$EVID/restore-final.conf"
+read -r -p 'Confirmar descarte m17-restore 212: ' CONFIRMA
+test "$CONFIRMA" = 'm17-restore 212' || exit 1
+qm shutdown 212 --timeout 60
+qm status 212 | grep -qx 'status: stopped' || exit 1
+qm destroy 212
+qm status 211
+qm snapshot 211 m17a6-fim
+pvesh get /cluster/resources --type vm</code></pre>
+<p><strong>Output atteso:</strong> VM 212 rimossa; VM 211 e template 210 conservati; il backup identificato resta disponibile.</p>
+<p><strong>Verifica:</strong> non eliminare la copia PBS che servirà nella sfida. Anche il bridge del laboratorio resta per il seguito e per il M19.</p>
+<h3 id="decidi-2">Decidi 2</h3>
+<p>Il ripristino ha generato nuove MAC. Puoi collegare subito la copia alla rete di gestione?</p>
+<div class="tabela"><table><thead><tr><th scope="col">A</th><th scope="col">B</th><th scope="col">C</th></tr></thead><tbody><tr><td>Soltanto se il backup ha meno di un giorno</td><td>No; prima verifica e pianifica le identità interne</td><td>Sì, ogni identità è cambiata</td></tr></tbody></table></div>
+<h2 id="6-rompi-e-ripara">6 · Rompi e ripara</h2>
+<p>I guasti seguenti sono esercizi di decisione e lettura. Non corrompere chunk, eliminare backup o collegare la copia per provocare il problema.</p>
+<h3 id="guasto-1-la-copia-era-di-un-altro-orario">Guasto 1 · La copia era di un altro orario</h3>
+<p><strong>Sintomo:</strong> la VM ripristinata parte, ma non contiene il marcatore appena creato.</p>
+<p><strong>Indagine:</strong> confronta orario del marcatore, conclusione del backup e identificatore completo scelto per il ripristino.</p>
+<pre translate="no"><code class="lang-bash">cat "$EVID/backup-volume.txt"
+cat "$EVID/backup-inicio.txt" "$EVID/backup-fim.txt"
+pvesm list PBS-LAB --content backup --vmid 211</code></pre>
+<p><strong>Causa:</strong> una vecchia copia può essere integra e non contenere comunque la versione necessaria.</p>
+<p><strong>Riparazione:</strong> identifica il punto corretto prima di ripetere il ripristino isolato; non sostituire mai l’originale per verificare una supposizione.</p>
+<p><strong>Verifica:</strong> associa marcatore e snapshot tramite date e contenuto, non soltanto con il numero della VM.</p>
+<p><strong>Prevenzione:</strong> registra il volume completo e il criterio di recupero insieme all’attività.</p>
+<h3 id="guasto-2-il-percorso-virtuale-e-stato-indovinato">Guasto 2 · Il percorso virtuale è stato indovinato</h3>
+<p><strong>Sintomo:</strong> lo strumento elenca lo snapshot, ma non trova il percorso usato per estrarre il file.</p>
+<p><strong>Indagine:</strong> torna alla radice dell’elenco e segui disco, partizione o volume e directory.</p>
+<pre translate="no"><code class="lang-bash">proxmox-file-restore list "$SNAPSHOT" / --repository "$PBS_REPOSITORY"</code></pre>
+<p><strong>Causa:</strong> il percorso di estrazione include l’albero virtuale dei dischi; non è soltanto il percorso assoluto dentro la VM.</p>
+<p><strong>Riparazione:</strong> naviga con i nomi reali. Se esistono crittografia interna o layout non accessibili, usa un ripristino completo isolato e la chiave autorizzata.</p>
+<p><strong>Verifica:</strong> estrai in un’altra nuova destinazione e confronta l’hash. Un file vuoto creato dalla redirezione non significa estrazione riuscita.</p>
+<p><strong>Prevenzione:</strong> conserva la sequenza di navigazione e il codice d’uscita; non copiare percorsi di un’altra installazione.</p>
+<h3 id="guasto-3-il-backup-e-riuscito-ma-la-rete-sarebbe-pericolosa">Guasto 3 · Il backup è riuscito, ma la rete sarebbe pericolosa</h3>
+<p><strong>Sintomo:</strong> il piano di ripristino propone di avviare la copia con lo stesso IP statico dell’originale.</p>
+<p><strong>Indagine:</strong> leggi la configurazione delle schede e l’identità tramite noVNC prima di considerare qualsiasi riconnessione.</p>
+<pre translate="no"><code class="lang-bash">qm config 212 | grep -E '^net[0-9]+:'</code></pre>
+<p><strong>Causa:</strong> il disco ripristinato contiene hostname, profili di rete, machine-id e chiavi. Una nuova MAC non risolve questo insieme.</p>
+<p><strong>Riparazione:</strong> mantieni tutti i link scollegati e verifica il recupero dalla console. Un’eventuale promozione richiede un piano d’identità dedicato.</p>
+<p><strong>Verifica:</strong> tutte le schede della VM 212 restano con <code translate="no">link_down=1</code>. Non basta isolare soltanto la scheda di gestione.</p>
+<p><strong>Prevenzione:</strong> includi l’isolamento prima del boot nella procedura, prima dell’azione di avvio.</p>
+<figure><a href="../img/17.6-reter-verificar-recuperar.it.jpg"><img src="../img/17.6-reter-verificar-recuperar.it.jpg" alt="Conservare non dimostra il recupero" loading="lazy" decoding="async"></a><figcaption>Misura il recupero del file e della macchina con criteri diversi.</figcaption></figure>
+<h2 id="7-trappole">7 · Trappole</h2>
+<ul><li>Un trasferimento piccolo può rappresentare una VM grande grazie alla deduplicazione; la dimensione trasferita non misura la recuperabilità.</li>
+<li>Una politica di conservazione aggressiva può rimuovere l’unico punto che contiene la versione desiderata. Simula e approva l’ambito prima di cambiare politiche.</li>
+<li>Non confondere il nome dello storage in Proxmox VE con il nome reale del datastore in PBS.</li>
+<li>Senza la chiave di crittografia, la presenza dei dati non garantisce accesso al contenuto. Il piano di recupero deve includere custodia e verifica dell’accesso.</li>
+<li>Il cronometro dell’attività non include necessariamente il tempo per trovare credenziali, percorso e autorizzazione. Misura l’intera esercitazione.</li>
+<li>La copia del backup fuori dall’host e una politica d’isolamento di PBS rispondono a rischi che uno snapshot locale non copre.</li></ul>
+<h2 id="8-quiz">8 · Quiz</h2>
+<ol><li>Quale riscontro collega il marcatore al punto di recupero scelto?</li>
+<li>Perché una verifica riuscita non sostituisce il boot della copia?</li>
+<li>Cosa controlli prima di usare l’ID 212?</li>
+<li>Perché estrarre i byte del file non restituisce automaticamente tutti i metadati dell’applicazione?</li>
+<li>Qual è la differenza fra RPO, RTO e politica di conservazione?</li>
+<li>Perché controllare soltanto il marcatore del disco di avvio non dimostra il recupero del disco M17DATA?</li></ol>
+<h2 id="9-promemoria">9 · Promemoria</h2>
+<div class="tabela"><table><thead><tr><th scope="col">Domanda</th><th scope="col">Azione di lettura</th></tr></thead><tbody><tr><td>Quali copie esistono?</td><td><code translate="no">pvesm list PBS-LAB --content backup --vmid 211</code></td></tr><tr><td>Quale configurazione è stata salvata?</td><td><code translate="no">pvesm extractconfig</code> con il volume annotato</td></tr><tr><td>Come esplorare il file?</td><td><code translate="no">proxmox-file-restore list</code> prima di estrarre</td></tr><tr><td>La copia è isolata?</td><td>Tutte le schede mostrano <code translate="no">link_down=1</code></td></tr><tr><td>Per quale punto vale il risultato?</td><td>Volume completo, orario e attività</td></tr></tbody></table></div>
+<p><strong>Flashcard:</strong> il backup trasferisce; verify controlla i dati; il ripristino dimostra l’uso; la conservazione sceglie i punti; RTO misura il recupero; RPO limita la perdita.</p>
+<h2 id="10-checklist-e-chiusura">10 · Checklist e chiusura</h2>
+<ul><li>[ ] Ho registrato contenuto, hash e metadati del marcatore prima della copia.</li>
+<li>[ ] Ho conservato il volume completo e la configurazione estratta.</li>
+<li>[ ] Ho registrato la verifica dello snapshot corretto in PBS.</li>
+<li>[ ] Ho recuperato il file in una nuova destinazione e confrontato i byte.</li>
+<li>[ ] Ho dimostrato che l’ID era libero e scollegato tutti i link prima del primo boot.</li>
+<li>[ ] Ho verificato boot, contenuto ed errori dalla console senza rete.</li>
+<li>[ ] Ho rimosso soltanto la VM temporanea dopo aver conservato i risultati.</li>
+<li>[ ] Ho conservato il backup verificato e la VM originale per la sfida.</li></ul>
+<p><strong>Ultimo esercizio:</strong> scrivi una procedura di recupero con origine, punto, destinazione, isolamento, criterio e responsabile dell’approvazione.</p>
+<p><strong>Reboot di verifica:</strong> il boot della VM 212 isolata è il controllo di questa lezione; non riavviare l’host e non collegare la copia per aggiungere una fase.</p>
+<p>Usa i comandi letterali del DeepTutor e spiega con i dati della tua esercitazione.</p>
+<p><code translate="no">!explica backup verify restauracao</code></p>
+<p><code translate="no">!feynman restaurar sem duplicar identidade</code></p>
+<p><code translate="no">!quiz RPO RTO retencao</code></p>
+<h2 id="11-nella-vita-reale">11 · Nella vita reale</h2>
+<p>Missione di sola lettura: scegli un servizio autorizzato e individua la sua politica di backup, conservazione, archiviazione e l’ultimo test di recupero documentato.</p>
+<p>Registra chi possiede credenziali e chiavi, come ottenere l’approvazione e dove ripristinare senza interferire con la produzione. Non provare password e non avviare job senza autorizzazione.</p>
+<p>Confronta RPO e RTO richiesti con i riscontri disponibili. L’assenza di un’esercitazione è una lacuna da registrare, non un risultato che si possa supporre.</p>
+<h2 id="12-approfondire-quando-vuoi">12 · Approfondire quando vuoi</h2>
+<p>Leggi la <a href="https://github.com/proxmox/pve-docs/blob/master/generated/qmrestore.1-synopsis.adoc">sintassi ufficiale del ripristino delle VM</a>, in particolare destinazione, avvio e generazione delle MAC.</p>
+<p>Consulta il <a href="https://pbs.proxmox.com/docs/command-syntax.html">riferimento ufficiale degli strumenti PBS</a> per esplorazione ed estrazione dei file e il <a href="https://pbs.proxmox.com/docs/backup-client.html">client ufficiale</a> per l’accesso al repository.</p>
+<p>La <a href="https://pbs.proxmox.com/docs/maintenance.html">documentazione di manutenzione di PBS</a> spiega verifica, prune e garbage collection. Sono meccanismi diversi; pianifica separatamente ogni ambito.</p>
+<h2 id="soluzioni-commentate">Soluzioni commentate</h2>
+<p><strong>Riscaldamento 1:</strong> no. La perdita dello storage può coinvolgere dati e snapshot; una copia indipendente risponde a un altro rischio.</p>
+<p><strong>Riscaldamento 2:</strong> no. Integrità dei dati conservati e funzionamento dell’applicazione sono criteri diversi.</p>
+<p><strong>Riscaldamento 3:</strong> no. Questi valori si trovano nel sistema ripristinato e possono restare uguali.</p>
+<p><strong>Decidi 1:</strong> A. Recuperare in una nuova destinazione permette il confronto prima di sostituire qualsiasi dato in uso.</p>
+<p><strong>Decidi 2:</strong> B. Il piano deve trattare indirizzo, hostname e altre identità, oltre alla MAC.</p>
+<p><strong>Quiz 1:</strong> contenuto e hash registrati prima del backup, volume completo e orario del punto scelto.</p>
+<p><strong>Quiz 2:</strong> controlla i dati conservati; avvio e servizio richiedono criteri osservabili nella copia recuperata.</p>
+<p><strong>Quiz 3:</strong> una query riuscita all’inventario del cluster che dimostri l’assenza di VM e CT con quel numero.</p>
+<p><strong>Quiz 4:</strong> il flusso d’uscita semplice consegna il contenuto; proprietario, modalità e contesti richiedono un trattamento esplicito nella destinazione.</p>
+<p><strong>Quiz 5:</strong> RPO limita la perdita dei dati, RTO limita la durata del recupero e la conservazione decide quali punti restano disponibili.</p>
+<p><strong>Quiz 6:</strong> sono volumi diversi. Il backup deve includere il disco dati e il file al suo interno deve essere montato e confrontato con l’hash annotato nella 17.4.</p>
+<p><a href="17.5-rede.it.html">← Lezione 17.5 · Rete</a> · <a href="index.it.html">Indice delle lezioni</a> · <a href="17.7-migracao-e-quorum.it.html">Lezione 17.7 · Migrazione e quorum →</a></p>
+</article><nav class="paginas" aria-label="Lezioni"><a class="ant" href="17.5-rede.it.html"><small>← Precedente</small>17.5 · Rete: bridge, VLAN, bond e SDN</a><a class="prox" href="17.7-migracao-e-quorum.it.html"><small>Successiva →</small>17.7 · Migrazione e quorum</a></nav></main></div>
+<footer><div class="wrap">Generato dal Markdown del corso · Immagini in <code translate="no">img/</code></div></footer>
+</body>
+</html>

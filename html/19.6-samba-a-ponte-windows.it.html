@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light dark">
+<title>19.6 · Samba: il ponte con il client Windows · Corso Linux Sysadmin</title>
+<link rel="alternate" hreflang="pt-BR" href="19.6-samba-a-ponte-windows.html"><link rel="alternate" hreflang="it" href="19.6-samba-a-ponte-windows.it.html">
+<style>
+:root{color-scheme:light dark;--bg:#f6f1e7;--card:#fffdf8;--ink:#201c16;--muted:#5e564a;--accent:#9a3412;--accent-2:#1f5f4a;--tint:#efe6d4;--line:#ddd2bc;--code:#f1eadb;--shadow:0 1px 2px rgba(60,40,10,.08);--serif:Georgia,"Iowan Old Style","Palatino Linotype",Palatino,serif;--sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--mono:"Cascadia Code",Consolas,"DejaVu Sans Mono",monospace}
+@media (prefers-color-scheme:dark){:root{--bg:#16130f;--card:#201b15;--ink:#f1eadb;--muted:#b9ad98;--accent:#f0a070;--accent-2:#7fd0b0;--tint:#2a231a;--line:#3d3427;--code:#191510;--shadow:none}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:5.5rem}
+body{margin:0;background:var(--bg);color:var(--ink);font:1rem/1.6 var(--sans)}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--accent-2);outline-offset:2px;border-radius:4px}
+.pular{position:absolute;left:-999px;top:0;background:var(--card);padding:.5rem 1rem;z-index:20}
+.pular:focus{left:.5rem;top:.5rem}
+.wrap{width:100%;max-width:84rem;margin:0 auto;padding-inline:max(1rem,env(safe-area-inset-left))}
+.top{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10;border-top:6px solid var(--accent)}
+.top-in{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding-block:.6rem}
+.titles{min-width:0}
+.marca{margin:0;font:700 clamp(1.15rem,1rem + 1vw,1.6rem)/1.15 var(--serif);letter-spacing:-.01em}
+.marca a{text-decoration:none}
+.marca a:hover{color:var(--accent)}
+.meta{margin:.1rem 0 0;color:var(--muted);font-size:.85rem}
+.acoes{display:flex;align-items:center;gap:.9rem;flex:none}
+.acoes>a{font-size:.9rem;font-weight:600;color:var(--muted);text-decoration:none}
+.acoes>a:hover{color:var(--accent);text-decoration:underline}
+.idioma{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--tint)}
+.idioma>*{padding:.35rem .9rem;font-size:.8rem;font-weight:700;letter-spacing:.06em;text-decoration:none;color:var(--muted);min-width:2.75rem;text-align:center}
+.idioma a:hover{color:var(--accent);text-decoration:underline}
+.idioma span{background:var(--accent);color:#fff}
+@media (prefers-color-scheme:dark){.idioma span{color:#16130f}}
+code{font-family:var(--mono);font-size:.9em;background:var(--tint);padding:.1rem .35rem;border-radius:4px;overflow-wrap:anywhere}
+/* índice */
+.capa{max-width:70rem;padding-block:2rem 3rem}
+.stats{border-left:4px solid var(--accent-2);background:var(--card);border-radius:0 10px 10px 0;padding:1rem 1.25rem;margin:0 0 2.5rem;box-shadow:var(--shadow);color:var(--muted)}
+.stats strong{color:var(--ink)}
+.modulo{display:grid;grid-template-columns:15rem minmax(0,1fr);gap:1rem 2rem;padding:1.75rem 0;border-top:1px solid var(--line)}
+.modulo h2{margin:0;font:700 1.25rem/1.25 var(--serif);align-self:start;position:sticky;top:6rem}
+.mn{display:block;font:700 .8rem var(--mono);letter-spacing:.12em;color:var(--accent);margin-bottom:.25rem}
+.sep{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.modulo ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,17rem),1fr));gap:.75rem}
+.modulo li{margin:0}
+.modulo a{display:flex;gap:.45rem;align-items:baseline;height:100%;padding:.85rem 1rem;background:var(--card);border:1px solid var(--line);border-radius:10px;text-decoration:none;font-weight:600;line-height:1.35;box-shadow:var(--shadow);transition:border-color .15s,transform .15s}
+.modulo a:hover{border-color:var(--accent);color:var(--accent)}
+.num{font:700 .85rem var(--mono);color:var(--accent);white-space:nowrap}
+/* aula */
+.doc{display:grid;grid-template-columns:17rem minmax(0,1fr);gap:2.5rem;align-items:start;padding-block:2rem 3rem}
+.lateral{position:sticky;top:5.5rem;max-height:calc(100vh - 6.5rem);overflow:auto;font-size:.875rem;padding-right:.5rem}
+.lateral h2{margin:0 0 .25rem;font:700 .95rem var(--serif);color:var(--muted)}
+.lateral h3{margin:1rem 0 .25rem;font:700 .75rem var(--mono);letter-spacing:.06em;color:var(--accent)}
+.lateral ul{list-style:none;margin:0;padding:0}
+.lateral a{display:flex;gap:.45rem;padding:.25rem .5rem;border-radius:6px;text-decoration:none;color:var(--muted);line-height:1.3}
+.lateral a:hover{background:var(--tint);color:var(--ink)}
+.lateral a[aria-current]{background:var(--tint);color:var(--ink);font-weight:700;box-shadow:inset 3px 0 0 var(--accent)}
+.lateral .num{font-size:.75rem}
+.aula{min-width:0;max-width:56rem;overflow-wrap:break-word;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:clamp(1.25rem,1rem + 2vw,2.75rem);box-shadow:var(--shadow)}
+.aula h1{margin:0 0 1.5rem;font:700 clamp(1.75rem,1.4rem + 1.6vw,2.5rem)/1.15 var(--serif);letter-spacing:-.015em;color:var(--ink)}
+.aula h2{margin:2.5rem 0 .75rem;padding-top:1.25rem;border-top:1px solid var(--line);font:700 1.5rem/1.25 var(--serif)}
+.aula h3{margin:2rem 0 .5rem;font:700 1.15rem/1.3 var(--serif);color:var(--accent)}
+.aula h4,.aula h5,.aula h6{margin:1.5rem 0 .5rem;font-size:1rem}
+.aula p,.aula ul,.aula ol{margin:1rem 0}
+.aula ul,.aula ol{padding-left:1.5rem}
+.aula li{margin:.35rem 0}
+.aula li>ul,.aula li>ol{margin:.35rem 0}
+.aula a{color:var(--accent);text-underline-offset:2px}
+.aula hr{border:0;border-top:1px solid var(--line);margin:2rem 0}
+.tabela{overflow-x:auto;margin:1.25rem 0;border:1px solid var(--line);border-radius:10px}
+.aula table{width:100%;border-collapse:collapse;font-size:.9rem}
+.aula th,.aula td{padding:.55rem .75rem;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+.aula tr:last-child td{border-bottom:0}
+.aula th{background:var(--tint);font-weight:700}
+.aula pre{background:var(--code);border:1px solid var(--line);border-radius:10px;padding:.9rem 1rem;overflow-x:auto;font:.85rem/1.5 var(--mono);margin:1rem 0;tab-size:4}
+.aula pre code{background:none;padding:0;font-size:inherit;overflow-wrap:normal}
+.aula blockquote{margin:1.25rem 0;padding:.75rem 1.25rem;border-left:4px solid var(--accent-2);background:var(--tint);border-radius:0 10px 10px 0}
+.aula blockquote>:first-child{margin-top:0}
+.aula blockquote>:last-child{margin-bottom:0}
+.aula figure{margin:1.75rem 0;text-align:center}
+.aula figure img{display:block;margin:0 auto;max-width:100%;height:auto;border:1px solid var(--line);border-radius:10px;background:#fff}
+.aula figcaption{margin-top:.5rem;color:var(--muted);font-size:.9rem;font-style:italic}
+.paginas{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:2.5rem;padding-top:1.5rem;border-top:1px solid var(--line)}
+.paginas a{display:block;padding:.75rem 1rem;border:1px solid var(--line);border-radius:10px;text-decoration:none;color:var(--ink);font-weight:600;line-height:1.3}
+.paginas a:hover{border-color:var(--accent);color:var(--accent)}
+.paginas small{display:block;color:var(--muted);font-weight:400}
+.paginas .prox{grid-column:2;text-align:right}
+footer{border-top:1px solid var(--line);padding-block:1.5rem;color:var(--muted);font-size:.85rem;text-align:center}
+@media (hover:hover) and (prefers-reduced-motion:no-preference){.modulo a:hover{transform:translateY(-2px)}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+@media (max-width:980px){.doc{grid-template-columns:minmax(0,1fr);padding-top:1rem}.lateral{position:static;max-height:none;order:2}.aula{max-width:none}}
+@media (max-width:860px){.modulo{grid-template-columns:minmax(0,1fr)}.modulo h2{position:static}.mn{display:inline;margin-right:.5rem}}
+@media (max-width:420px){.meta{display:none}.top-in{gap:.5rem}.acoes{gap:.6rem}.capa{padding-top:1.25rem}.paginas{grid-template-columns:minmax(0,1fr)}.paginas .prox{grid-column:1}}
+@media print{.top,.lateral,.paginas{display:none}.aula{border:0;box-shadow:none;padding:0;max-width:none}.doc{display:block}}
+</style>
+</head>
+<body>
+<a class="pular" href="#conteudo">Vai al contenuto</a>
+<header class="top"><div class="wrap top-in"><div class="titles"><p class="marca"><a href="index.it.html">Corso Linux Sysadmin</a></p><p class="meta">Rodrigo Antignani · Lezione 19.6</p></div><div class="acoes"><a href="index.it.html">Indice</a><div class="idioma" role="group" aria-label="Lingua"><a href="19.6-samba-a-ponte-windows.html" hreflang="pt-BR" lang="pt-BR">PT</a><span aria-current="true">IT</span></div></div></div></header>
+<div class="wrap doc"><aside class="lateral" aria-label="Lezioni"><h2>Lezioni</h2><h3>M0 · Laboratorio</h3><ul><li><a href="0.1-montar-o-laboratorio.it.html"><span class="num">0.1</span><span>Allestire il laboratorio</span></a></li><li><a href="0.2-acesso-e-protecao.it.html"><span class="num">0.2</span><span>Accesso e protezione</span></a></li></ul><h3>M1 · Riga di comando</h3><ul><li><a href="1.1-o-que-e-linux.it.html"><span class="num">1.1</span><span>Che cos'è Linux</span></a></li><li><a href="1.2-o-shell-e-a-ajuda.it.html"><span class="num">1.2</span><span>La shell e la guida</span></a></li><li><a href="1.3-caminhos-e-navegacao.it.html"><span class="num">1.3</span><span>Percorsi e navigazione</span></a></li><li><a href="1.4-criar-copiar-mover-e-apagar.it.html"><span class="num">1.4</span><span>Creare, copiare, spostare ed eliminare</span></a></li><li><a href="1.5-ler-e-procurar-texto.it.html"><span class="num">1.5</span><span>Leggere e cercare testo</span></a></li><li><a href="1.6-redirecionamentos-e-pipes.it.html"><span class="num">1.6</span><span>Reindirizzamenti e pipe</span></a></li><li><a href="1.7-arquivar-e-compactar.it.html"><span class="num">1.7</span><span>Archiviare e comprimere</span></a></li><li><a href="1.8-primeiro-script.it.html"><span class="num">1.8</span><span>Primo script</span></a></li><li><a href="1.9-decidir-e-repetir.it.html"><span class="num">1.9</span><span>Decidere e ripetere</span></a></li><li><a href="1.10-software-livre-na-pratica.it.html"><span class="num">1.10</span><span>Il software libero in pratica</span></a></li></ul><h3>M2 · Sistema, utenti e permessi</h3><ul><li><a href="2.1-instalacao-e-provisionamento.it.html"><span class="num">2.1</span><span>Installazione e provisioning</span></a></li><li><a href="2.2-hardware-e-dispositivos.it.html"><span class="num">2.2</span><span>Hardware e dispositivi</span></a></li><li><a href="2.3-processos-e-logs.it.html"><span class="num">2.3</span><span>Processi e log</span></a></li><li><a href="2.4-rede-no-dia-a-dia.it.html"><span class="num">2.4</span><span>La rete di tutti i giorni</span></a></li><li><a href="2.5-acesso-remoto-e-privilegios.it.html"><span class="num">2.5</span><span>Accesso remoto e privilegi</span></a></li><li><a href="2.6-usuarios-e-grupos.it.html"><span class="num">2.6</span><span>Utenti e gruppi</span></a></li><li><a href="2.7-permissoes-e-dono.it.html"><span class="num">2.7</span><span>Permessi e proprietario</span></a></li><li><a href="2.8-diretorios-e-arquivos-especiais.it.html"><span class="num">2.8</span><span>Directory e file speciali</span></a></li></ul><h3>M3 · Testo ed editor</h3><ul><li><a href="3.1-fluxos-a-fundo.it.html"><span class="num">3.1</span><span>I flussi in profondità</span></a></li><li><a href="3.2-filtros-de-texto.it.html"><span class="num">3.2</span><span>Filtri di testo</span></a></li><li><a href="3.3-regex-e-grep.it.html"><span class="num">3.3</span><span>Regex e grep</span></a></li><li><a href="3.4-sed-e-awk.it.html"><span class="num">3.4</span><span>sed e awk</span></a></li><li><a href="3.5-vi-e-vim-de-verdade.it.html"><span class="num">3.5</span><span>vi e vim sul serio</span></a></li></ul><h3>M4 · systemd e boot</h3><ul><li><a href="4.1-como-o-linux-liga.it.html"><span class="num">4.1</span><span>Come si avvia Linux</span></a></li><li><a href="4.2-systemd-servicos-e-units.it.html"><span class="num">4.2</span><span>systemd: servizi e unit</span></a></li><li><a href="4.3-targets-desligar-e-reiniciar.it.html"><span class="num">4.3</span><span>Target: spegnere e riavviare</span></a></li><li><a href="4.4-grub-e-acesso-de-emergencia.it.html"><span class="num">4.4</span><span>GRUB e accesso di emergenza</span></a></li></ul><h3>M5 · Kernel, moduli e VM</h3><ul><li><a href="5.1-hardware-pelo-kernel.it.html"><span class="num">5.1</span><span>L'hardware visto dal kernel</span></a></li><li><a href="5.2-modulos-e-parametros.it.html"><span class="num">5.2</span><span>Moduli e parametri</span></a></li><li><a href="5.3-linux-como-convidado.it.html"><span class="num">5.3</span><span>Linux come guest</span></a></li></ul><h3>M6 · Pacchetti e repository</h3><ul><li><a href="6.1-pacotes-no-debian.it.html"><span class="num">6.1</span><span>Pacchetti su Debian</span></a></li><li><a href="6.2-pacotes-na-rocky.it.html"><span class="num">6.2</span><span>Pacchetti su Rocky</span></a></li><li><a href="6.3-repositorios.it.html"><span class="num">6.3</span><span>Repository</span></a></li><li><a href="6.4-flatpak.it.html"><span class="num">6.4</span><span>Flatpak</span></a></li><li><a href="6.5-bibliotecas-compartilhadas.it.html"><span class="num">6.5</span><span>Librerie condivise</span></a></li></ul><h3>M7 · Processi e prestazioni</h3><ul><li><a href="7.1-processos-e-sinais.it.html"><span class="num">7.1</span><span>Processi e segnali</span></a></li><li><a href="7.2-jobs-e-sessoes.it.html"><span class="num">7.2</span><span>Job e sessioni</span></a></li><li><a href="7.3-prioridade-e-perfis.it.html"><span class="num">7.3</span><span>Priorità e profili</span></a></li></ul><h3>M8 · File a fondo</h3><ul><li><a href="8.1-fhs-e-onde-cada-coisa-mora.it.html"><span class="num">8.1</span><span>FHS e dove sta ogni cosa</span></a></li><li><a href="8.2-find-a-fundo.it.html"><span class="num">8.2</span><span>find a fondo</span></a></li><li><a href="8.3-arquivamento-avancado.it.html"><span class="num">8.3</span><span>Archiviazione avanzata</span></a></li><li><a href="8.4-links.it.html"><span class="num">8.4</span><span>Link</span></a></li><li><a href="8.5-permissoes-avancadas.it.html"><span class="num">8.5</span><span>Permessi avanzati</span></a></li></ul><h3>M9 · Storage</h3><ul><li><a href="9.1-discos-e-layout.it.html"><span class="num">9.1</span><span>Dischi e layout</span></a></li><li><a href="9.2-particionar.it.html"><span class="num">9.2</span><span>Partizionare</span></a></li><li><a href="9.3-sistemas-de-arquivos.it.html"><span class="num">9.3</span><span>File system</span></a></li><li><a href="9.4-montar-e-persistir.it.html"><span class="num">9.4</span><span>Montare e rendere persistente</span></a></li><li><a href="9.5-integridade-e-espaco.it.html"><span class="num">9.5</span><span>Integrità e spazio</span></a></li><li><a href="9.6-lvm.it.html"><span class="num">9.6</span><span>LVM</span></a></li><li><a href="9.7-crescer-sem-destruir.it.html"><span class="num">9.7</span><span>Crescere senza distruggere</span></a></li></ul><h3>M10 · Utenti e accesso privilegiato</h3><ul><li><a href="10.1-contas.it.html"><span class="num">10.1</span><span>Account</span></a></li><li><a href="10.2-senhas-e-validade.it.html"><span class="num">10.2</span><span>Password e scadenza</span></a></li><li><a href="10.3-grupos-e-trabalho-em-equipe.it.html"><span class="num">10.3</span><span>Gruppi e lavoro di squadra</span></a></li><li><a href="10.4-sudo-de-verdade.it.html"><span class="num">10.4</span><span>sudo sul serio</span></a></li></ul><h3>M11 · Rete</h3><ul><li><a href="11.1-tcp-ip-para-quem-administra.it.html"><span class="num">11.1</span><span>TCP/IP per chi amministra</span></a></li><li><a href="11.2-networkmanager-e-nmcli.it.html"><span class="num">11.2</span><span>NetworkManager e nmcli</span></a></li><li><a href="11.3-rede-no-debian.it.html"><span class="num">11.3</span><span>Rete su Debian</span></a></li><li><a href="11.4-nomes-e-resolucao.it.html"><span class="num">11.4</span><span>Nomi e risoluzione</span></a></li><li><a href="11.5-diagnostico-de-rede.it.html"><span class="num">11.5</span><span>Diagnosi di rete</span></a></li></ul><h3>M12 · Sicurezza dell'host</h3><ul><li><a href="12.1-ssh-a-fundo.it.html"><span class="num">12.1</span><span>SSH in dettaglio</span></a></li><li><a href="12.2-firewall.it.html"><span class="num">12.2</span><span>Firewall</span></a></li><li><a href="12.3-selinux-modos-e-contextos.it.html"><span class="num">12.3</span><span>SELinux: modalità e contesti</span></a></li><li><a href="12.4-selinux-portas-e-booleanos.it.html"><span class="num">12.4</span><span>SELinux: porte e booleani</span></a></li><li><a href="12.5-auditoria-e-criptografia.it.html"><span class="num">12.5</span><span>Audit e crittografia</span></a></li></ul><h3>M13 · Archiviazione in rete</h3><ul><li><a href="13.1-servidor-nfs.it.html"><span class="num">13.1</span><span>Server NFS</span></a></li><li><a href="13.2-cliente-nfs.it.html"><span class="num">13.2</span><span>Client NFS</span></a></li><li><a href="13.3-autofs.it.html"><span class="num">13.3</span><span>autofs</span></a></li></ul><h3>M14 · Pianificazione</h3><ul><li><a href="14.1-cron-e-at.it.html"><span class="num">14.1</span><span>cron e at</span></a></li><li><a href="14.2-timers-do-systemd.it.html"><span class="num">14.2</span><span>Timer di systemd</span></a></li><li><a href="14.3-journald-e-rsyslog.it.html"><span class="num">14.3</span><span>journald e rsyslog</span></a></li><li><a href="14.4-hora-certa.it.html"><span class="num">14.4</span><span>L'ora corretta</span></a></li><li><a href="14.5-email-local-e-impressao.it.html"><span class="num">14.5</span><span>E-mail locale e stampa</span></a></li></ul><h3>M15 · Shell e ambiente</h3><ul><li><a href="15.1-ambiente-do-shell.it.html"><span class="num">15.1</span><span>Ambiente della shell</span></a></li><li><a href="15.2-scripts-robustos.it.html"><span class="num">15.2</span><span>Script robusti</span></a></li><li><a href="15.3-scripts-de-administracao.it.html"><span class="num">15.3</span><span>Script di amministrazione</span></a></li><li><a href="15.4-interfaces-graficas.it.html"><span class="num">15.4</span><span>Interfacce grafiche</span></a></li><li><a href="15.5-idioma-teclado-e-fuso.it.html"><span class="num">15.5</span><span>Lingua, tastiera e fuso orario</span></a></li></ul><h3>M16 · Settimana di incidenti su Rocky 10</h3><ul><li><a href="16.1-rocky-10-o-que-muda.it.html"><span class="num">16.1</span><span>Rocky 10: cosa cambia</span></a></li><li><a href="16.2-incidentes-por-area.it.html"><span class="num">16.2</span><span>Incidenti per area</span></a></li><li><a href="16.3-incidente-com-relogio.it.html"><span class="num">16.3</span><span>Incidente con cronometro</span></a></li><li><a href="16.4-correcao-e-reforco.it.html"><span class="num">16.4</span><span>Correzione e rinforzo</span></a></li></ul><h3>M17 · Proxmox in pratica</h3><ul><li><a href="17.1-proxmox-por-dentro.it.html"><span class="num">17.1</span><span>Proxmox dall'interno</span></a></li><li><a href="17.2-vm-pela-linha-de-comando.it.html"><span class="num">17.2</span><span>VM dalla riga di comando</span></a></li><li><a href="17.3-conteiner-lxc.it.html"><span class="num">17.3</span><span>Container LXC</span></a></li><li><a href="17.4-storage.it.html"><span class="num">17.4</span><span>Storage: capacità, ampliamento e spostamento</span></a></li><li><a href="17.5-rede.it.html"><span class="num">17.5</span><span>Rete: bridge, VLAN, bond e SDN</span></a></li><li><a href="17.6-backup-e-restauracao.it.html"><span class="num">17.6</span><span>Backup e ripristino con PBS</span></a></li><li><a href="17.7-migracao-e-quorum.it.html"><span class="num">17.7</span><span>Migrazione e quorum</span></a></li></ul><h3>M18 · Podman</h3><ul><li><a href="18.1-conteiner-nao-e-vm.it.html"><span class="num">18.1</span><span>Un container non è una VM</span></a></li><li><a href="18.2-rodar-e-persistir.it.html"><span class="num">18.2</span><span>Eseguire e conservare i dati</span></a></li><li><a href="18.3-conteiner-como-servico.it.html"><span class="num">18.3</span><span>Container come servizio</span></a></li><li><a href="18.4-diagnosticar-conteiner-rootless.it.html"><span class="num">18.4</span><span>Diagnosticare un container rootless</span></a></li><li><a href="18.5-construir-imagens.it.html"><span class="num">18.5</span><span>Costruire immagini</span></a></li></ul><h3>M19 · Servizi di rete</h3><ul><li><a href="19.1-dns-autoritativo.it.html"><span class="num">19.1</span><span>DNS autoritativo</span></a></li><li><a href="19.2-dns-recursivo-e-diagnostico.it.html"><span class="num">19.2</span><span>DNS ricorsivo e diagnosi</span></a></li><li><a href="19.3-dhcp.it.html"><span class="num">19.3</span><span>DHCP</span></a></li><li><a href="19.4-servidor-web.it.html"><span class="num">19.4</span><span>Server web: nome, file e risposta</span></a></li><li><a href="19.5-tls-e-proxy-reverso.it.html"><span class="num">19.5</span><span>TLS e reverse proxy: identità prima del lucchetto</span></a></li><li><a href="19.6-samba-a-ponte-windows.it.html" aria-current="page"><span class="num">19.6</span><span>Samba: il ponte con il client Windows</span></a></li><li><a href="19.7-postfix-e-correio-local.it.html"><span class="num">19.7</span><span>Postfix e posta locale</span></a></li><li><a href="19.8-dovecot-e-imaps.it.html"><span class="num">19.8</span><span>Dovecot e lettura tramite IMAPS</span></a></li><li><a href="19.9-squid-e-desafio-integrado.it.html"><span class="num">19.9</span><span>Squid e sfida integrata</span></a></li></ul><h3>M20 · Dentro NethServer 8</h3><ul><li><a href="20.1-instalar-nethserver-8.it.html"><span class="num">20.1</span><span>Installare in una VM pulita</span></a></li><li><a href="20.2-cluster-no-e-modulo.it.html"><span class="num">20.2</span><span>Cluster, nodo e modulo</span></a></li><li><a href="20.3-modulo-por-dentro.it.html"><span class="num">20.3</span><span>Dentro un modulo</span></a></li><li><a href="20.4-proxy-e-certificados.it.html"><span class="num">20.4</span><span>Proxy e certificati</span></a></li><li><a href="20.5-dominios-de-usuario.it.html"><span class="num">20.5</span><span>Domini utente: identità con confini</span></a></li><li><a href="20.6-backup-e-restauracao.it.html"><span class="num">20.6</span><span>Backup e ripristino: verificare il ritorno</span></a></li><li><a href="20.7-atualizar-mover-e-falhar.it.html"><span class="num">20.7</span><span>Aggiornare, spostare e guastare con verifica</span></a></li></ul></aside><main id="conteudo" class="aula"><article><h1>Lezione 19.6 · Samba: il ponte con il client Windows</h1>
+<blockquote><p><strong>Il cuore di questa lezione:</strong> separare autenticazione Samba, autorizzazione della share e permessi Unix nella verifica di un file condiviso.</p></blockquote>
+<div class="tabela"><table><thead><tr><th scope="col">Scheda</th><th scope="col">Piano di lavoro</th></tr></thead><tbody><tr><td>Modulo</td><td>M19 · Servizi di rete, lezione 6 di 9</td></tr><tr><td>Quando</td><td>Settimana 26</td></tr><tr><td>Alla fine</td><td>separare autenticazione Samba, autorizzazione della share e permessi Unix nella verifica di un file condiviso.</td></tr><tr><td>Prerequisiti</td><td>19.1–19.5; DNS isolato e client autorizzato sulla stessa rete</td></tr><tr><td>Durata</td><td>100–120 minuti</td></tr><tr><td>Snapshot</td><td>Soltanto VM del corso: <code translate="no">m19a6-inicio</code> e <code translate="no">m19a6-fim</code></td></tr></tbody></table></div>
+<p>La VM principale è <code translate="no">204</code>, <code translate="no">srv-deb</code>, Debian 13. L’interfaccia isolata ha <code translate="no">192.0.2.204/24</code> su <code translate="no">vmbr17</code>; l’interfaccia di gestione conserva il proprio indirizzo reale.</p>
+<p>La rete <code translate="no">192.0.2.0/24</code> è stata riservata al lab dopo aver escluso sovrapposizioni con gestione e VPN. Non instradarla verso Internet.</p>
+<p>I blocchi indicano su quale macchina e con quale identità lavorare. Crea lo snapshot prima della modifica e tieni disponibile la console; non eseguire queste operazioni sull’host Proxmox.</p>
+<p>Se trovi una configurazione o un servizio precedente fuori dal percorso, fermati e riconcilia l’inventario. I controlli evitano di sostituire un servizio sconosciuto con una configurazione didattica.</p>
+<p>La VM <code translate="no">204</code> ospita il server principale. Usa la VM <code translate="no">202</code> come client Linux. Il client Windows 11 deve essere una macchina già autorizzata e collegata alla rete isolata; questa lezione non crea un’altra VM.</p>
+<p>Senza quel client Windows completa e registra la verifica Linux; segna la verifica Windows come in sospeso. Non modificare macchine fuori dall’inventario del corso per colmare la lacuna.</p>
+<p>Nomi canonici del modulo: il nome della VM in Proxmox e l’hostname del sistema operativo devono corrispondere al ruolo, prima di eseguire le guardie. Un nome DNS di servizio non cambia l’hostname. Se l’inventario differisce, riconcilialo dalla console prima di proseguire; non ignorare le guardie.</p>
+<div class="tabela"><table><thead><tr><th scope="col">VM</th><th scope="col">Hostname breve</th><th scope="col">Indirizzo isolato</th></tr></thead><tbody><tr><td>201</td><td><code translate="no">rocky-lab</code></td><td><code translate="no">192.0.2.201</code></td></tr><tr><td>202</td><td><code translate="no">debian-lab</code></td><td><code translate="no">192.0.2.202</code></td></tr><tr><td>204</td><td><code translate="no">srv-deb</code></td><td><code translate="no">192.0.2.204</code></td></tr><tr><td>212</td><td><code translate="no">m19-client</code></td><td>DHCP; solo sfida 19.9</td></tr></tbody></table></div>
+<h2 id="1-riscaldamento">1 · Riscaldamento</h2>
+<ol><li>Una password Samba accettata dimostra il permesso di scrittura sulla directory Unix?</li>
+<li>Il nome mostrato nel percorso UNC deve coincidere con il percorso sul disco?</li>
+<li>Quando due programmi usano lo stesso file, le regole di accesso smettono di valere?</li></ol>
+<h2 id="2-perche-conta">2 · Perché conta</h2>
+<p>Il client richiede una cartella tramite il nome della condivisione. Il server autentica un’identità e tenta di accedere a un percorso locale. Ogni fase può rifiutare una richiesta per una ragione diversa.</p>
+<p>Quando la password funziona ma la scrittura fallisce, concedere accesso anonimo sostituisce il problema con un’esposizione. Devi scoprire quale identità abbia raggiunto il file e quale regola l’abbia limitata.</p>
+<h3 id="ponte-windows">Ponte Windows</h3>
+<p>L’unità di rete è una presentazione del client. La share è una definizione del server; il percorso reale e i suoi permessi continuano a esistere su Linux, anche quando Windows mostra una lettera di unità.</p>
+<h2 id="3-modello-mentale">3 · Modello mentale</h2>
+<figure><a href="../img/19.6-duas-identidades-uma-permissao.it.jpg"><img src="../img/19.6-duas-identidades-uma-permissao.it.jpg" alt="Login Samba e accesso al file sono prove diverse" loading="lazy" decoding="async"></a><figcaption>Autenticarsi non concede automaticamente accesso alla directory.</figcaption></figure>
+<p>L’account Unix identifica il proprietario o membro del gruppo locale. Il registro Samba fornisce la credenziale usata nell’autenticazione SMB. L’account di questa lezione non richiede password Unix né login interattivo.</p>
+<p>La share consente soltanto il gruppo dedicato. Dopo questa autorizzazione il file system applica ancora proprietario, gruppo e modo; anche una politica attiva può limitare l’operazione.</p>
+<p>Il bit setgid sulla directory fa ereditare il suo gruppo ai nuovi oggetti. Da solo non concede lettura o scrittura; gli altri bit e la configurazione della share devono essere coerenti.</p>
+<h2 id="4-l-essenziale">4 · L'essenziale</h2>
+<div class="tabela"><table><thead><tr><th scope="col">Livello</th><th scope="col">Oggetto del lab</th></tr></thead><tbody><tr><td>Identità Unix</td><td><code translate="no">aluno19</code></td></tr><tr><td>Gruppo autorizzato</td><td><code translate="no">m19share</code></td></tr><tr><td>Nome SMB</td><td><code translate="no">[curso]</code></td></tr><tr><td>Percorso reale</td><td><code translate="no">/srv/samba/m19-curso</code></td></tr><tr><td>Ingresso di rete</td><td><code translate="no">192.0.2.204:445</code></td></tr></tbody></table></div>
+<h3 id="rocky-debian">Rocky × Debian</h3>
+<p>Su Debian l’unità è <code translate="no">smbd</code>; su Rocky è <code translate="no">smb</code>. La configurazione si trova in <code translate="no">/etc/samba/smb.conf</code> in entrambe le famiglie, ma la politica SELinux richiede attenzione aggiuntiva su Rocky.</p>
+<p>L’installazione principale configura ascolto diretto TCP 445, nomi tramite il DNS del lab e nessuna condivisione anonima. Non abilitare SMB1 né scoperta NetBIOS per risolvere un errore di nome.</p>
+<h3 id="decidi-1">Decidi 1</h3>
+<p>Il login viene accettato e creare un file restituisce accesso negato. Quale indagine aiuta per prima?</p>
+<p>A. Concedere accesso totale a tutti.
+B. Cambiare il nome della VM ed eliminare la password.
+C. Controllare identità, share e permessi del percorso reale.</p>
+<h2 id="5-lab-guidato">5 · Lab guidato</h2>
+<h3 id="passo-1-installare-con-i-servizi-bloccati">Passo 1 · Installare con i servizi bloccati</h3>
+<p><strong>Ipotesi:</strong> Il pacchetto può aprire l’ascolto prima della configurazione limitata?</p>
+<p>Nella VM <code translate="no">204</code>, come root, controlla l’interfaccia e un’installazione nuova. Se uno dei pacchetti o file appartiene già a un altro uso, fermati e revisiona l’inventario.</p>
+<pre translate="no"><code class="lang-bash">set -eu
+test ! -L /etc/m19-lab.env
+test "$(stat -c '%U:%G:%a' /etc/m19-lab.env)" = root:root:644
+cat /etc/m19-lab.env
+. /etc/m19-lab.env
+test "$LAB_IP" = 192.0.2.204
+ip -4 -o address show dev "$LAB_IF" | grep -F '192.0.2.204/24'
+if dpkg-query -W -f='${Status}' samba 2&gt;/dev/null | grep -q 'install ok installed'; then
+  printf '%s\n' 'STOP: Samba already installed' &gt;&amp;2; exit 1
+fi
+test ! -e /etc/samba/smb.conf
+test ! -e /root/m19a6
+for unit in smbd nmbd samba-ad-dc; do
+  test "$(systemctl is-enabled "$unit" 2&gt;/dev/null || true)" != masked
+done
+install -d -m 700 /root/m19a6
+systemctl mask smbd.service nmbd.service samba-ad-dc.service
+apt-get update
+apt-get install -y samba smbclient
+cp -a /etc/samba/smb.conf /root/m19a6/smb.conf.package</code></pre>
+<p><strong>Output atteso:</strong> I servizi di condivisione restano mascherati mentre prepari account, percorso e limitazione dell’ascolto.</p>
+<p><strong>Verifica:</strong> Non confondere il client <code translate="no">smbclient</code> con il server. Uno strumento installato non dimostra che una porta debba già essere aperta.</p>
+<h3 id="passo-2-costruire-gruppo-e-percorso">Passo 2 · Costruire gruppo e percorso</h3>
+<p><strong>Ipotesi:</strong> Il gruppo dei nuovi file deriva soltanto dal nome digitato nel client?</p>
+<pre translate="no"><code class="lang-bash">if getent passwd aluno19 &gt;/dev/null; then
+  printf '%s\n' 'STOP: aluno19 exists' &gt;&amp;2; exit 1
+fi
+if getent group m19share &gt;/dev/null; then
+  printf '%s\n' 'STOP: m19share exists' &gt;&amp;2; exit 1
+fi
+test ! -e /srv/samba/m19-curso
+groupadd m19share
+useradd --no-create-home --shell /usr/sbin/nologin --gid m19share aluno19
+install -d -o root -g m19share -m 2770 /srv/samba/m19-curso
+printf '%s\n' 'M19 Samba: OK' &gt; /srv/samba/m19-curso/leia.txt
+chown root:m19share /srv/samba/m19-curso/leia.txt
+chmod 660 /srv/samba/m19-curso/leia.txt
+id aluno19
+namei -l /srv/samba/m19-curso/leia.txt
+runuser -u aluno19 -- cat /srv/samba/m19-curso/leia.txt</code></pre>
+<p><strong>Output atteso:</strong> L’account Unix appartiene al gruppo dedicato e riesce a leggere il file. La directory ha gruppo <code translate="no">m19share</code> e modo <code translate="no">2770</code>.</p>
+<p><strong>Verifica:</strong> Controlla l’attraversamento delle directory antenate. Non modificare un intero albero precedente per adattarlo a una singola condivisione.</p>
+<h3 id="passo-3-registrare-la-credenziale-samba">Passo 3 · Registrare la credenziale Samba</h3>
+<p><strong>Ipotesi:</strong> Creare l’account Unix ha registrato automaticamente una password SMB?</p>
+<pre translate="no"><code class="lang-bash">smbpasswd -a aluno19
+smbpasswd -e aluno19
+pdbedit -L -u aluno19
+getent passwd aluno19</code></pre>
+<p><strong>Output atteso:</strong> La password viene richiesta in modo interattivo e il registro Samba mostra soltanto l’account previsto. La shell Unix continua a impedire il login interattivo.</p>
+<p><strong>Verifica:</strong> Non scrivere la password negli argomenti del comando, in schermate o nel materiale condiviso. La stessa persona può avere credenziali diverse nei due contesti.</p>
+<h3 id="passo-4-definire-la-share-e-limitare-lascolto">Passo 4 · Definire la share e limitare l’ascolto</h3>
+<p><strong>Ipotesi:</strong> Il nome della share rivela necessariamente il percorso sul disco?</p>
+<figure><a href="../img/19.6-compartilhamento-e-caminho.it.jpg"><img src="../img/19.6-compartilhamento-e-caminho.it.jpg" alt="Il nome della share non è il percorso sul disco" loading="lazy" decoding="async"></a><figcaption>Controlla la definizione della share e i permessi del percorso reale.</figcaption></figure>
+<pre translate="no"><code class="lang-bash">cat &gt; /etc/samba/smb.conf &lt;&lt;EOF
+[global]
+    workgroup = WORKGROUP
+    server role = standalone server
+    security = user
+    map to guest = Never
+    interfaces = 127.0.0.1 $LAB_IP/24
+    bind interfaces only = yes
+    smb ports = 445
+    server min protocol = SMB2_02
+    hosts allow = 127.0.0.1 192.0.2.0/24
+    hosts deny = ALL
+    log file = /var/log/samba/log.%m
+    max log size = 1000
+
+[curso]
+    path = /srv/samba/m19-curso
+    browseable = yes
+    read only = no
+    guest ok = no
+    valid users = @m19share
+    create mask = 0660
+    directory mask = 2770
+    force directory mode = 2000
+EOF
+testparm -s /etc/samba/smb.conf
+systemctl unmask smbd.service
+systemctl enable --now smbd.service
+ss -ltnp '( sport = :445 or sport = :139 )'</code></pre>
+<p><strong>Output atteso:</strong> L’ascolto include loopback e indirizzo isolato sulla 445. Non c’è ascolto sulla 139 né bind sull’indirizzo di gestione.</p>
+<p><strong>Verifica:</strong> Con un firewall precedente autorizza TCP 445 soltanto dalla rete isolata all’indirizzo isolato, secondo il piano della 19.1. Mantieni <code translate="no">nmbd</code> e <code translate="no">samba-ad-dc</code> mascherati su questo server standalone.</p>
+<p>I pacchetti hanno introdotto unità non usate da questo disegno. Registra queste maschere deliberate; non eliminarle nella pulizia finché il lab standalone rimane installato.</p>
+<h3 id="passo-5-dimostrare-lettura-e-scrittura-dal-client">Passo 5 · Dimostrare lettura e scrittura dal client</h3>
+<p><strong>Ipotesi:</strong> Elencare le share dimostra che un file può essere scritto?</p>
+<p>Nella VM <code translate="no">202</code>, come <code translate="no">student</code>, interroga esplicitamente il DNS del lab. La risoluzione di gestione è stata conservata; l’opzione <code translate="no">-I</code> fissa la destinazione SMB senza cambiare il DNS globale. La password verrà richiesta a ogni chiamata.</p>
+<pre translate="no"><code class="lang-bash">sudo apt-get install -y smbclient
+dig @192.0.2.204 smb.lab.test A +short
+install -d -m 700 ~/m19-smb-client
+cd ~/m19-smb-client
+printf '%s\n' 'M19 client: OK' &gt; prova.txt
+smbclient -I 192.0.2.204 -L //smb.lab.test -U aluno19
+smbclient -I 192.0.2.204 //smb.lab.test/curso -U aluno19   -c 'ls; get leia.txt; put prova.txt; get prova.txt retorno.txt'
+cmp prova.txt retorno.txt</code></pre>
+<p><strong>Output atteso:</strong> Il marcatore viene letto, il client scrive il proprio file e la copia restituita è identica. Il solo elenco non sostituisce queste operazioni.</p>
+<p><strong>Verifica:</strong> Nella VM <code translate="no">204</code>, controlla <code translate="no">stat -c '%U:%G %a %n' /srv/samba/m19-curso/prova.txt</code>. Il gruppo deve restare dedicato, senza scrittura per qualsiasi utente.</p>
+<h3 id="passo-6-controllare-il-ponte-windows-e-la-politica">Passo 6 · Controllare il ponte Windows e la politica</h3>
+<p><strong>Ipotesi:</strong> Un client con una sessione precedente può riutilizzare un’identità inattesa?</p>
+<p>Sul Windows 11 già autorizzato interroga esplicitamente il DNS del lab e controlla la rotta isolata. Il mapping tramite IP seguente evita di cambiare il DNS globale; la consultazione precedente continua a verificare il record del nome.</p>
+<pre translate="no"><code class="lang-powershell">Resolve-DnsName smb.lab.test -Server 192.0.2.204
+Test-NetConnection 192.0.2.204 -Port 445
+net use
+net use Z: \\192.0.2.204\curso /user:aluno19 *
+Get-SmbConnection | Select-Object ServerName,ShareName,UserName,Dialect
+Get-Content Z:\leia.txt
+Set-Content -Path Z:\windows19.txt -Value 'M19 Windows: OK'
+Get-Content Z:\windows19.txt</code></pre>
+<p><strong>Output atteso:</strong> L’account autenticato legge e scrive nella share. Se <code translate="no">Z:</code> è già in uso, scegli una lettera libera e adatta soltanto i comandi della tua sessione di lab.</p>
+<p><strong>Verifica:</strong> Registra il dialetto negoziato e l’identità. Non concludere che sia stato usato un account soltanto perché il nome è apparso nella richiesta di password.</p>
+<p>Nel confronto Rocky, soltanto se prepari un server dedicato equivalente, installa <code translate="no">samba</code>, <code translate="no">samba-client</code> e <code translate="no">policycoreutils-python-utils</code>, maschera <code translate="no">smb</code> prima dell’installazione e configura indirizzo e regola limitati prima di avviarlo.</p>
+<pre translate="no"><code class="lang-bash">getenforce
+ls -Zd /srv/samba/m19-curso
+semanage fcontext -l | grep -F '/srv/samba/m19-curso' || true
+semanage fcontext -a -t samba_share_t '/srv/samba/m19-curso(/.*)?'
+restorecon -Rv /srv/samba/m19-curso
+ausearch -m AVC -ts recent</code></pre>
+<p>Esegui il blocco dell’etichetta soltanto sull’albero dedicato creato per il confronto e senza una regola locale precedente. Se la regola esiste, controllala. Non usare uno sblocco globale di tutti i file per Samba.</p>
+<h2 id="6-rompi-e-ripara">6 · Rompi e ripara</h2>
+<p>Annulla il guasto precedente prima di introdurre il successivo. Le prime due prove usano la VM <code translate="no">204</code> come root e il client Linux già autenticato.</p>
+<h3 id="guasto-1-directory-senza-attraversamento-per-il-gruppo">Guasto 1 · Directory senza attraversamento per il gruppo</h3>
+<p><strong>Sintomo:</strong> Applica <code translate="no">chmod 2700 /srv/samba/m19-curso</code>; il login resta possibile, ma l’operazione sulla share fallisce.</p>
+<p><strong>Indagine:</strong> Controlla <code translate="no">id aluno19</code>, il percorso con <code translate="no">namei</code> e il registro del tentativo.</p>
+<p><strong>Causa:</strong> L’account è stato autenticato, ma il gruppo non attraversa la directory.</p>
+<p><strong>Riparazione:</strong> Ripristina <code translate="no">chmod 2770 /srv/samba/m19-curso</code>.</p>
+<p><strong>Verifica:</strong> Ripeti lettura e scrittura; controlla gruppo e modo del nuovo file.</p>
+<p><strong>Prevenzione:</strong> Verifica l’accesso con l’identità del servizio, non soltanto come root.</p>
+<h3 id="guasto-2-share-diretta-a-un-percorso-inesistente">Guasto 2 · Share diretta a un percorso inesistente</h3>
+<p><strong>Sintomo:</strong> Crea una copia di <code translate="no">smb.conf</code> e sostituisci soltanto il percorso della share con <code translate="no">/srv/samba/m19-ausente</code>, che non deve esistere.</p>
+<p><strong>Indagine:</strong> Esegui <code translate="no">testparm</code>, ricarica e confronta il nome della share con il percorso reale.</p>
+<p><strong>Causa:</strong> Una sintassi valida non dimostra esistenza né permessi della directory configurata.</p>
+<p><strong>Riparazione:</strong> Ripristina la copia della configurazione di questa lezione, valida e ricarica <code translate="no">smbd</code>.</p>
+<p><strong>Verifica:</strong> Una nuova connessione del client torna a raggiungere il marcatore.</p>
+<p><strong>Prevenzione:</strong> Controlla la destinazione dopo qualsiasi modifica di percorso o punto di mount.</p>
+<pre translate="no"><code class="lang-bash">test ! -e /srv/samba/m19-ausente
+cp -a /etc/samba/smb.conf /root/m19a6/smb.conf.before-fault
+sed -i 's|path = /srv/samba/m19-curso|path = /srv/samba/m19-ausente|' /etc/samba/smb.conf
+testparm -s /etc/samba/smb.conf
+systemctl reload smbd
+# After observing the failed NEW client connection:
+cp -a /root/m19a6/smb.conf.before-fault /etc/samba/smb.conf
+testparm -s /etc/samba/smb.conf
+systemctl reload smbd</code></pre>
+<h3 id="guasto-3-sessione-windows-con-unaltra-identita">Guasto 3 · Sessione Windows con un’altra identità</h3>
+<p><strong>Sintomo:</strong> Se il client ha già una sessione con un altro utente, il nuovo mapping può rifiutare un’identità diversa. Non creare un altro account per fabbricare questo caso.</p>
+<p><strong>Indagine:</strong> Leggi <code translate="no">net use</code> e <code translate="no">Get-SmbConnection</code> sul client autorizzato.</p>
+<p><strong>Causa:</strong> La sessione esistente appartiene al contesto del client; cambiare la password server non ripulisce quel contesto.</p>
+<p><strong>Riparazione:</strong> Chiudi i file della tua share, controlla <code translate="no">net use Z:</code> ed elimina soltanto il mapping del lab con <code translate="no">net use Z: /delete</code>, se punta davvero a questa share.</p>
+<p><strong>Verifica:</strong> Ricrea la connessione interattiva e controlla l’identità negoziata. Se persiste un’altra sessione in uso, coordinane la chiusura senza eliminarla forzatamente.</p>
+<p><strong>Prevenzione:</strong> Registra i mapping per contesto e non disconnettere mai tutte le condivisioni dell’utente.</p>
+<h2 id="7-trappole">7 · Trappole</h2>
+<figure><a href="../img/19.6-permissao-e-politica-samba.it.jpg"><img src="../img/19.6-permissao-e-politica-samba.it.jpg" alt="Modo e politica devono consentire lo stesso accesso" loading="lazy" decoding="async"></a><figcaption>Amplia soltanto l’accesso necessario nella directory dedicata del lab.</figcaption></figure>
+<p>La share può essere scrivibile mentre la directory resta senza scrittura; può accadere anche il contrario. L’autorizzazione effettiva deve superare tutti i livelli coinvolti nell’operazione.</p>
+<p>La maschera di creazione limita i modi richiesti; non recupera un accesso negato dalla directory né sostituisce la decisione della share. Controlla il risultato reale con un nuovo file.</p>
+<p>L’indirizzo di gestione non deve rispondere a SMB. Conferma questo rifiuto da un client autorizzato a osservare la gestione, senza eseguire scansioni di altre macchine.</p>
+<h3 id="decidi-2">Decidi 2</h3>
+<p>Una directory su Rocky ha modo e gruppo corretti, ma il registro mostra un diniego SELinux sul percorso dedicato. Quale opzione corrisponde al lab?</p>
+<p>A. Permettere a Samba di esportare qualsiasi file del sistema.
+B. Controllare la regola specifica <code translate="no">samba_share_t</code> e riapplicare il contesto persistente.
+C. Disattivare SELinux in modo permanente.</p>
+<h2 id="8-quiz">8 · Quiz</h2>
+<ol><li>Che cosa aggiunge il registro Samba all’account Unix?</li>
+<li>Quale oggetto collega il nome curso alla directory locale?</li>
+<li>Perché una verifica effettuata come root non dimostra l’accesso dell’allievo?</li>
+<li>Quale effetto produce setgid sui nuovi oggetti?</li>
+<li>Quali due verifiche effettui dopo aver corretto la scrittura?</li></ol>
+<p>Dopo le verifiche elimina soltanto <code translate="no">prova.txt</code> e <code translate="no">windows19.txt</code> che hai creato nella share. Conserva marcatore e configurazione per la 19.9; controlla i nomi prima di qualsiasi eliminazione.</p>
+<h2 id="9-promemoria">9 · Promemoria</h2>
+<p><strong>Flashcard:</strong> rispondi ad alta voce senza cercare la riga di comando. Una buona risposta nomina il riscontro che può contraddire la tua ipotesi.</p>
+<ul><li>Il registro Samba offre la credenziale SMB; l’utente Unix resta necessario per l’accesso locale.</li>
+<li>La share associa un nome pubblico al percorso, ma non modifica da sola i permessi Unix.</li>
+<li>Setgid conserva il gruppo dei nuovi oggetti; il modo finale deve ancora essere verificato.</li></ul>
+<p>Usa DeepTutor per giustificare l’ordine delle verifiche con i risultati che hai misurato. Non inviare password, chiavi private o dati di altri utenti.</p>
+<pre translate="no"><code class="lang-text">!explica Separe conta Unix, credencial Samba, share e permissao do caminho.
+!feynman Explique por que login aceito nao garante gravacao no share.
+!quiz Proponha tres recusas SMB e peca a identidade e a regra aplicadas.</code></pre>
+<h2 id="10-checklist-e-chiusura">10 · Checklist e chiusura</h2>
+<ul><li>[ ] So indicare macchina, interfaccia, identità e file responsabile della modifica.</li>
+<li>[ ] Ho registrato ipotesi, risultato osservato e una verifica indipendente.</li>
+<li>[ ] Ho annullato tutti i guasti introdotti e ripetuto l’accesso dal client autorizzato.</li>
+<li>[ ] Ho conservato l’interfaccia di gestione e le protezioni di accesso del sistema.</li></ul>
+<p><strong>Reboot di verifica:</strong> dopo aver corretto i guasti, riavvia soltanto la VM del corso coinvolta. Dalla console controlla l’interfaccia isolata e ripeti la richiesta reale da un’altra VM.</p>
+<p>Uno stato attivo dopo il reboot è soltanto una delle prove. La risposta deve arrivare dall’indirizzo corretto, con il nome corretto e l’identità prevista.</p>
+<p><strong>Ultimo esercizio:</strong> chiudi il terminale usato per configurare. In una nuova sessione ricostruisci il percorso della richiesta usando gli appunti, senza dipendere dalle variabili della sessione precedente.</p>
+<p>La pulizia di questa lezione elimina i file temporanei di prova e ripristina i guasti. Conserva servizi, dati e configurazione dedicati a M19 per la sfida integrata della 19.9.</p>
+<p>Crea <code translate="no">m19a6-fim</code> soltanto dopo la verifica esterna. Annota il punto di ripristino precedente e non ripristinare una VM senza valutare i servizi già usati dalle altre lezioni.</p>
+<h2 id="11-nella-vita-reale">11 · Nella vita reale</h2>
+<p>Missione di osservazione: scegli un servizio già autorizzato e segui una singola richiesta nei registri disponibili, senza modificare configurazione, permessi, utenti o firewall.</p>
+<p>Consegna un disegno con client, nome, indirizzo, processo e file. Segna ciò che hai misurato e ciò che resta un’ipotesi; non trasformare l’assenza di riscontri in un’autorizzazione a modificare.</p>
+<h2 id="12-approfondire-quando-vuoi">12 · Approfondire quando vuoi</h2>
+<p><a href="https://www.samba.org/samba/docs/">Samba · documentazione ufficiale</a></p>
+<p><a href="https://www.samba.org/samba/docs/current/man-html/smb.conf.5.html">Samba · configurazione del server</a></p>
+<p><a href="https://learn.microsoft.com/en-us/powershell/module/smbshare/get-smbconnection">Microsoft · Get-SmbConnection</a></p>
+<p>Consulta anche il manuale installato nella VM: la sintassi della versione presente ha priorità sugli esempi di un’altra distribuzione o edizione.</p>
+<h2 id="soluzioni-commentate">Soluzioni commentate</h2>
+<ol><li>Il registro Samba offre la credenziale SMB; l’utente Unix resta necessario per l’accesso locale.</li>
+<li>La share associa un nome pubblico al percorso, ma non modifica da sola i permessi Unix.</li>
+<li>Setgid conserva il gruppo dei nuovi oggetti; il modo finale deve ancora essere verificato.</li>
+<li>Decidi 1: C. Identità, definizione della share e percorso distinguono i livelli del diniego.</li>
+<li>Decidi 2: B. Il contesto persistente nella directory dedicata conserva l’ambito della protezione.</li>
+<li>Verifica un’operazione consentita e un’altra che deve restare negata; root non rappresenta l’accesso dell’allievo.</li></ol>
+<h3 id="quiz-risposte-per-domanda">Quiz · Risposte per domanda</h3>
+<ol><li>La credenziale SMB viene registrata separatamente; l’account Unix fornisce l’identità locale.</li>
+<li>La definizione <code translate="no">[curso]</code> associa il nome della share al suo parametro di percorso.</li>
+<li>Root ha privilegi diversi; la richiesta Samba usa l’identità Unix autenticata e le politiche applicabili.</li>
+<li>I nuovi oggetti ereditano il gruppo della directory; il modo rimane un’altra verifica.</li>
+<li>Conferma lettura e scrittura autorizzate e controlla che l’accesso anonimo o fuori ambito resti negato.</li></ol>
+<p>La risposta è completa soltanto quando spiega perché l’alternativa scartata non risolve la causa osservata. Se restano possibili due cause, aggiungi una verifica che le distingua.</p>
+<p><a href="index.it.html">← Indice delle lezioni</a> · <a href="https://github.com/Rodrigoantignani/curso-linux-sysadmin/blob/master/00-plano-do-curso.md">Piano del corso →</a></p>
+</article><nav class="paginas" aria-label="Lezioni"><a class="ant" href="19.5-tls-e-proxy-reverso.it.html"><small>← Precedente</small>19.5 · TLS e reverse proxy: identità prima del lucchetto</a><a class="prox" href="19.7-postfix-e-correio-local.it.html"><small>Successiva →</small>19.7 · Postfix e posta locale</a></nav></main></div>
+<footer><div class="wrap">Generato dal Markdown del corso · Immagini in <code translate="no">img/</code></div></footer>
+</body>
+</html>

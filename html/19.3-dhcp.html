@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light dark">
+<title>19.3 · DHCP · Curso Linux Sysadmin</title>
+<link rel="alternate" hreflang="pt-BR" href="19.3-dhcp.html"><link rel="alternate" hreflang="it" href="19.3-dhcp.it.html">
+<style>
+:root{color-scheme:light dark;--bg:#f6f1e7;--card:#fffdf8;--ink:#201c16;--muted:#5e564a;--accent:#9a3412;--accent-2:#1f5f4a;--tint:#efe6d4;--line:#ddd2bc;--code:#f1eadb;--shadow:0 1px 2px rgba(60,40,10,.08);--serif:Georgia,"Iowan Old Style","Palatino Linotype",Palatino,serif;--sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--mono:"Cascadia Code",Consolas,"DejaVu Sans Mono",monospace}
+@media (prefers-color-scheme:dark){:root{--bg:#16130f;--card:#201b15;--ink:#f1eadb;--muted:#b9ad98;--accent:#f0a070;--accent-2:#7fd0b0;--tint:#2a231a;--line:#3d3427;--code:#191510;--shadow:none}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:5.5rem}
+body{margin:0;background:var(--bg);color:var(--ink);font:1rem/1.6 var(--sans)}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--accent-2);outline-offset:2px;border-radius:4px}
+.pular{position:absolute;left:-999px;top:0;background:var(--card);padding:.5rem 1rem;z-index:20}
+.pular:focus{left:.5rem;top:.5rem}
+.wrap{width:100%;max-width:84rem;margin:0 auto;padding-inline:max(1rem,env(safe-area-inset-left))}
+.top{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10;border-top:6px solid var(--accent)}
+.top-in{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding-block:.6rem}
+.titles{min-width:0}
+.marca{margin:0;font:700 clamp(1.15rem,1rem + 1vw,1.6rem)/1.15 var(--serif);letter-spacing:-.01em}
+.marca a{text-decoration:none}
+.marca a:hover{color:var(--accent)}
+.meta{margin:.1rem 0 0;color:var(--muted);font-size:.85rem}
+.acoes{display:flex;align-items:center;gap:.9rem;flex:none}
+.acoes>a{font-size:.9rem;font-weight:600;color:var(--muted);text-decoration:none}
+.acoes>a:hover{color:var(--accent);text-decoration:underline}
+.idioma{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--tint)}
+.idioma>*{padding:.35rem .9rem;font-size:.8rem;font-weight:700;letter-spacing:.06em;text-decoration:none;color:var(--muted);min-width:2.75rem;text-align:center}
+.idioma a:hover{color:var(--accent);text-decoration:underline}
+.idioma span{background:var(--accent);color:#fff}
+@media (prefers-color-scheme:dark){.idioma span{color:#16130f}}
+code{font-family:var(--mono);font-size:.9em;background:var(--tint);padding:.1rem .35rem;border-radius:4px;overflow-wrap:anywhere}
+/* índice */
+.capa{max-width:70rem;padding-block:2rem 3rem}
+.stats{border-left:4px solid var(--accent-2);background:var(--card);border-radius:0 10px 10px 0;padding:1rem 1.25rem;margin:0 0 2.5rem;box-shadow:var(--shadow);color:var(--muted)}
+.stats strong{color:var(--ink)}
+.modulo{display:grid;grid-template-columns:15rem minmax(0,1fr);gap:1rem 2rem;padding:1.75rem 0;border-top:1px solid var(--line)}
+.modulo h2{margin:0;font:700 1.25rem/1.25 var(--serif);align-self:start;position:sticky;top:6rem}
+.mn{display:block;font:700 .8rem var(--mono);letter-spacing:.12em;color:var(--accent);margin-bottom:.25rem}
+.sep{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.modulo ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,17rem),1fr));gap:.75rem}
+.modulo li{margin:0}
+.modulo a{display:flex;gap:.45rem;align-items:baseline;height:100%;padding:.85rem 1rem;background:var(--card);border:1px solid var(--line);border-radius:10px;text-decoration:none;font-weight:600;line-height:1.35;box-shadow:var(--shadow);transition:border-color .15s,transform .15s}
+.modulo a:hover{border-color:var(--accent);color:var(--accent)}
+.num{font:700 .85rem var(--mono);color:var(--accent);white-space:nowrap}
+/* aula */
+.doc{display:grid;grid-template-columns:17rem minmax(0,1fr);gap:2.5rem;align-items:start;padding-block:2rem 3rem}
+.lateral{position:sticky;top:5.5rem;max-height:calc(100vh - 6.5rem);overflow:auto;font-size:.875rem;padding-right:.5rem}
+.lateral h2{margin:0 0 .25rem;font:700 .95rem var(--serif);color:var(--muted)}
+.lateral h3{margin:1rem 0 .25rem;font:700 .75rem var(--mono);letter-spacing:.06em;color:var(--accent)}
+.lateral ul{list-style:none;margin:0;padding:0}
+.lateral a{display:flex;gap:.45rem;padding:.25rem .5rem;border-radius:6px;text-decoration:none;color:var(--muted);line-height:1.3}
+.lateral a:hover{background:var(--tint);color:var(--ink)}
+.lateral a[aria-current]{background:var(--tint);color:var(--ink);font-weight:700;box-shadow:inset 3px 0 0 var(--accent)}
+.lateral .num{font-size:.75rem}
+.aula{min-width:0;max-width:56rem;overflow-wrap:break-word;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:clamp(1.25rem,1rem + 2vw,2.75rem);box-shadow:var(--shadow)}
+.aula h1{margin:0 0 1.5rem;font:700 clamp(1.75rem,1.4rem + 1.6vw,2.5rem)/1.15 var(--serif);letter-spacing:-.015em;color:var(--ink)}
+.aula h2{margin:2.5rem 0 .75rem;padding-top:1.25rem;border-top:1px solid var(--line);font:700 1.5rem/1.25 var(--serif)}
+.aula h3{margin:2rem 0 .5rem;font:700 1.15rem/1.3 var(--serif);color:var(--accent)}
+.aula h4,.aula h5,.aula h6{margin:1.5rem 0 .5rem;font-size:1rem}
+.aula p,.aula ul,.aula ol{margin:1rem 0}
+.aula ul,.aula ol{padding-left:1.5rem}
+.aula li{margin:.35rem 0}
+.aula li>ul,.aula li>ol{margin:.35rem 0}
+.aula a{color:var(--accent);text-underline-offset:2px}
+.aula hr{border:0;border-top:1px solid var(--line);margin:2rem 0}
+.tabela{overflow-x:auto;margin:1.25rem 0;border:1px solid var(--line);border-radius:10px}
+.aula table{width:100%;border-collapse:collapse;font-size:.9rem}
+.aula th,.aula td{padding:.55rem .75rem;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+.aula tr:last-child td{border-bottom:0}
+.aula th{background:var(--tint);font-weight:700}
+.aula pre{background:var(--code);border:1px solid var(--line);border-radius:10px;padding:.9rem 1rem;overflow-x:auto;font:.85rem/1.5 var(--mono);margin:1rem 0;tab-size:4}
+.aula pre code{background:none;padding:0;font-size:inherit;overflow-wrap:normal}
+.aula blockquote{margin:1.25rem 0;padding:.75rem 1.25rem;border-left:4px solid var(--accent-2);background:var(--tint);border-radius:0 10px 10px 0}
+.aula blockquote>:first-child{margin-top:0}
+.aula blockquote>:last-child{margin-bottom:0}
+.aula figure{margin:1.75rem 0;text-align:center}
+.aula figure img{display:block;margin:0 auto;max-width:100%;height:auto;border:1px solid var(--line);border-radius:10px;background:#fff}
+.aula figcaption{margin-top:.5rem;color:var(--muted);font-size:.9rem;font-style:italic}
+.paginas{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:2.5rem;padding-top:1.5rem;border-top:1px solid var(--line)}
+.paginas a{display:block;padding:.75rem 1rem;border:1px solid var(--line);border-radius:10px;text-decoration:none;color:var(--ink);font-weight:600;line-height:1.3}
+.paginas a:hover{border-color:var(--accent);color:var(--accent)}
+.paginas small{display:block;color:var(--muted);font-weight:400}
+.paginas .prox{grid-column:2;text-align:right}
+footer{border-top:1px solid var(--line);padding-block:1.5rem;color:var(--muted);font-size:.85rem;text-align:center}
+@media (hover:hover) and (prefers-reduced-motion:no-preference){.modulo a:hover{transform:translateY(-2px)}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+@media (max-width:980px){.doc{grid-template-columns:minmax(0,1fr);padding-top:1rem}.lateral{position:static;max-height:none;order:2}.aula{max-width:none}}
+@media (max-width:860px){.modulo{grid-template-columns:minmax(0,1fr)}.modulo h2{position:static}.mn{display:inline;margin-right:.5rem}}
+@media (max-width:420px){.meta{display:none}.top-in{gap:.5rem}.acoes{gap:.6rem}.capa{padding-top:1.25rem}.paginas{grid-template-columns:minmax(0,1fr)}.paginas .prox{grid-column:1}}
+@media print{.top,.lateral,.paginas{display:none}.aula{border:0;box-shadow:none;padding:0;max-width:none}.doc{display:block}}
+</style>
+</head>
+<body>
+<a class="pular" href="#conteudo">Pular para o conteúdo</a>
+<header class="top"><div class="wrap top-in"><div class="titles"><p class="marca"><a href="index.html">Curso Linux Sysadmin</a></p><p class="meta">Rodrigo Antignani · Aula 19.3</p></div><div class="acoes"><a href="index.html">Índice</a><div class="idioma" role="group" aria-label="Idioma"><span aria-current="true">PT</span><a href="19.3-dhcp.it.html" hreflang="it" lang="it">IT</a></div></div></div></header>
+<div class="wrap doc"><aside class="lateral" aria-label="Aulas"><h2>Aulas</h2><h3>M0 · Laboratório</h3><ul><li><a href="0.1-montar-o-laboratorio.html"><span class="num">0.1</span><span>Montar o laboratório</span></a></li><li><a href="0.2-acesso-e-protecao.html"><span class="num">0.2</span><span>Acesso e proteção</span></a></li></ul><h3>M1 · Linha de comando</h3><ul><li><a href="1.1-o-que-e-linux.html"><span class="num">1.1</span><span>O que é Linux</span></a></li><li><a href="1.2-o-shell-e-a-ajuda.html"><span class="num">1.2</span><span>O shell e a ajuda</span></a></li><li><a href="1.3-caminhos-e-navegacao.html"><span class="num">1.3</span><span>Caminhos e navegação</span></a></li><li><a href="1.4-criar-copiar-mover-e-apagar.html"><span class="num">1.4</span><span>Criar, copiar, mover e apagar</span></a></li><li><a href="1.5-ler-e-procurar-texto.html"><span class="num">1.5</span><span>Ler e procurar texto</span></a></li><li><a href="1.6-redirecionamentos-e-pipes.html"><span class="num">1.6</span><span>Redirecionamentos e pipes</span></a></li><li><a href="1.7-arquivar-e-compactar.html"><span class="num">1.7</span><span>Arquivar e compactar</span></a></li><li><a href="1.8-primeiro-script.html"><span class="num">1.8</span><span>Primeiro script</span></a></li><li><a href="1.9-decidir-e-repetir.html"><span class="num">1.9</span><span>Decidir e repetir</span></a></li><li><a href="1.10-software-livre-na-pratica.html"><span class="num">1.10</span><span>Software livre na prática</span></a></li></ul><h3>M2 · Sistema, usuários e permissões</h3><ul><li><a href="2.1-instalacao-e-provisionamento.html"><span class="num">2.1</span><span>Instalação e provisionamento</span></a></li><li><a href="2.2-hardware-e-dispositivos.html"><span class="num">2.2</span><span>Hardware e dispositivos</span></a></li><li><a href="2.3-processos-e-logs.html"><span class="num">2.3</span><span>Processos e logs</span></a></li><li><a href="2.4-rede-no-dia-a-dia.html"><span class="num">2.4</span><span>Rede no dia a dia</span></a></li><li><a href="2.5-acesso-remoto-e-privilegios.html"><span class="num">2.5</span><span>Acesso remoto e privilégios</span></a></li><li><a href="2.6-usuarios-e-grupos.html"><span class="num">2.6</span><span>Usuários e grupos</span></a></li><li><a href="2.7-permissoes-e-dono.html"><span class="num">2.7</span><span>Permissões e dono</span></a></li><li><a href="2.8-diretorios-e-arquivos-especiais.html"><span class="num">2.8</span><span>Diretórios e arquivos especiais</span></a></li></ul><h3>M3 · Texto e editor</h3><ul><li><a href="3.1-fluxos-a-fundo.html"><span class="num">3.1</span><span>Fluxos a fundo</span></a></li><li><a href="3.2-filtros-de-texto.html"><span class="num">3.2</span><span>Filtros de texto</span></a></li><li><a href="3.3-regex-e-grep.html"><span class="num">3.3</span><span>Regex e grep</span></a></li><li><a href="3.4-sed-e-awk.html"><span class="num">3.4</span><span>sed e awk</span></a></li><li><a href="3.5-vi-e-vim-de-verdade.html"><span class="num">3.5</span><span>vi e vim de verdade</span></a></li></ul><h3>M4 · systemd e boot</h3><ul><li><a href="4.1-como-o-linux-liga.html"><span class="num">4.1</span><span>Como o Linux liga</span></a></li><li><a href="4.2-systemd-servicos-e-units.html"><span class="num">4.2</span><span>systemd: serviços e units</span></a></li><li><a href="4.3-targets-desligar-e-reiniciar.html"><span class="num">4.3</span><span>Targets: desligar e reiniciar</span></a></li><li><a href="4.4-grub-e-acesso-de-emergencia.html"><span class="num">4.4</span><span>GRUB e acesso de emergência</span></a></li></ul><h3>M5 · Kernel, módulos e VM</h3><ul><li><a href="5.1-hardware-pelo-kernel.html"><span class="num">5.1</span><span>Hardware pelo kernel</span></a></li><li><a href="5.2-modulos-e-parametros.html"><span class="num">5.2</span><span>Módulos e parâmetros</span></a></li><li><a href="5.3-linux-como-convidado.html"><span class="num">5.3</span><span>Linux como convidado</span></a></li></ul><h3>M6 · Pacotes e repositórios</h3><ul><li><a href="6.1-pacotes-no-debian.html"><span class="num">6.1</span><span>Pacotes no Debian</span></a></li><li><a href="6.2-pacotes-na-rocky.html"><span class="num">6.2</span><span>Pacotes na Rocky</span></a></li><li><a href="6.3-repositorios.html"><span class="num">6.3</span><span>Repositórios</span></a></li><li><a href="6.4-flatpak.html"><span class="num">6.4</span><span>Flatpak</span></a></li><li><a href="6.5-bibliotecas-compartilhadas.html"><span class="num">6.5</span><span>Bibliotecas compartilhadas</span></a></li></ul><h3>M7 · Processos e desempenho</h3><ul><li><a href="7.1-processos-e-sinais.html"><span class="num">7.1</span><span>Processos e sinais</span></a></li><li><a href="7.2-jobs-e-sessoes.html"><span class="num">7.2</span><span>Jobs e sessões</span></a></li><li><a href="7.3-prioridade-e-perfis.html"><span class="num">7.3</span><span>Prioridade e perfis</span></a></li></ul><h3>M8 · Arquivos a fundo</h3><ul><li><a href="8.1-fhs-e-onde-cada-coisa-mora.html"><span class="num">8.1</span><span>FHS e onde cada coisa mora</span></a></li><li><a href="8.2-find-a-fundo.html"><span class="num">8.2</span><span>find a fundo</span></a></li><li><a href="8.3-arquivamento-avancado.html"><span class="num">8.3</span><span>Arquivamento avançado</span></a></li><li><a href="8.4-links.html"><span class="num">8.4</span><span>Links</span></a></li><li><a href="8.5-permissoes-avancadas.html"><span class="num">8.5</span><span>Permissões avançadas</span></a></li></ul><h3>M9 · Armazenamento</h3><ul><li><a href="9.1-discos-e-layout.html"><span class="num">9.1</span><span>Discos e layout</span></a></li><li><a href="9.2-particionar.html"><span class="num">9.2</span><span>Particionar</span></a></li><li><a href="9.3-sistemas-de-arquivos.html"><span class="num">9.3</span><span>Sistemas de arquivos</span></a></li><li><a href="9.4-montar-e-persistir.html"><span class="num">9.4</span><span>Montar e persistir</span></a></li><li><a href="9.5-integridade-e-espaco.html"><span class="num">9.5</span><span>Integridade e espaço</span></a></li><li><a href="9.6-lvm.html"><span class="num">9.6</span><span>LVM</span></a></li><li><a href="9.7-crescer-sem-destruir.html"><span class="num">9.7</span><span>Crescer sem destruir</span></a></li></ul><h3>M10 · Usuários e acesso privilegiado</h3><ul><li><a href="10.1-contas.html"><span class="num">10.1</span><span>Contas</span></a></li><li><a href="10.2-senhas-e-validade.html"><span class="num">10.2</span><span>Senhas e validade</span></a></li><li><a href="10.3-grupos-e-trabalho-em-equipe.html"><span class="num">10.3</span><span>Grupos e trabalho em equipe</span></a></li><li><a href="10.4-sudo-de-verdade.html"><span class="num">10.4</span><span>sudo de verdade</span></a></li></ul><h3>M11 · Rede</h3><ul><li><a href="11.1-tcp-ip-para-quem-administra.html"><span class="num">11.1</span><span>TCP/IP para quem administra</span></a></li><li><a href="11.2-networkmanager-e-nmcli.html"><span class="num">11.2</span><span>NetworkManager e nmcli</span></a></li><li><a href="11.3-rede-no-debian.html"><span class="num">11.3</span><span>Rede no Debian</span></a></li><li><a href="11.4-nomes-e-resolucao.html"><span class="num">11.4</span><span>Nomes e resolução</span></a></li><li><a href="11.5-diagnostico-de-rede.html"><span class="num">11.5</span><span>Diagnóstico de rede</span></a></li></ul><h3>M12 · Segurança do host</h3><ul><li><a href="12.1-ssh-a-fundo.html"><span class="num">12.1</span><span>SSH a fundo</span></a></li><li><a href="12.2-firewall.html"><span class="num">12.2</span><span>Firewall</span></a></li><li><a href="12.3-selinux-modos-e-contextos.html"><span class="num">12.3</span><span>SELinux: modos e contextos</span></a></li><li><a href="12.4-selinux-portas-e-booleanos.html"><span class="num">12.4</span><span>SELinux: portas e booleanos</span></a></li><li><a href="12.5-auditoria-e-criptografia.html"><span class="num">12.5</span><span>Auditoria e criptografia</span></a></li></ul><h3>M13 · Armazenamento em rede</h3><ul><li><a href="13.1-servidor-nfs.html"><span class="num">13.1</span><span>Servidor NFS</span></a></li><li><a href="13.2-cliente-nfs.html"><span class="num">13.2</span><span>Cliente NFS</span></a></li><li><a href="13.3-autofs.html"><span class="num">13.3</span><span>autofs</span></a></li></ul><h3>M14 · Agendamento</h3><ul><li><a href="14.1-cron-e-at.html"><span class="num">14.1</span><span>cron e at</span></a></li><li><a href="14.2-timers-do-systemd.html"><span class="num">14.2</span><span>Timers do systemd</span></a></li><li><a href="14.3-journald-e-rsyslog.html"><span class="num">14.3</span><span>journald e rsyslog</span></a></li><li><a href="14.4-hora-certa.html"><span class="num">14.4</span><span>Hora certa</span></a></li><li><a href="14.5-email-local-e-impressao.html"><span class="num">14.5</span><span>E-mail local e impressão</span></a></li></ul><h3>M15 · Shell e ambiente</h3><ul><li><a href="15.1-ambiente-do-shell.html"><span class="num">15.1</span><span>Ambiente do shell</span></a></li><li><a href="15.2-scripts-robustos.html"><span class="num">15.2</span><span>Scripts robustos</span></a></li><li><a href="15.3-scripts-de-administracao.html"><span class="num">15.3</span><span>Scripts de administração</span></a></li><li><a href="15.4-interfaces-graficas.html"><span class="num">15.4</span><span>Interfaces gráficas</span></a></li><li><a href="15.5-idioma-teclado-e-fuso.html"><span class="num">15.5</span><span>Idioma, teclado e fuso</span></a></li></ul><h3>M16 · Semana de incidentes no Rocky 10</h3><ul><li><a href="16.1-rocky-10-o-que-muda.html"><span class="num">16.1</span><span>Rocky 10: o que muda</span></a></li><li><a href="16.2-incidentes-por-area.html"><span class="num">16.2</span><span>Incidentes por área</span></a></li><li><a href="16.3-incidente-com-relogio.html"><span class="num">16.3</span><span>Incidente com relógio</span></a></li><li><a href="16.4-correcao-e-reforco.html"><span class="num">16.4</span><span>Correção e reforço</span></a></li></ul><h3>M17 · Proxmox na prática</h3><ul><li><a href="17.1-proxmox-por-dentro.html"><span class="num">17.1</span><span>Proxmox por dentro</span></a></li><li><a href="17.2-vm-pela-linha-de-comando.html"><span class="num">17.2</span><span>VM pela linha de comando</span></a></li><li><a href="17.3-conteiner-lxc.html"><span class="num">17.3</span><span>Contêiner LXC</span></a></li><li><a href="17.4-storage.html"><span class="num">17.4</span><span>Storage: capacidade, crescimento e movimento</span></a></li><li><a href="17.5-rede.html"><span class="num">17.5</span><span>Rede: bridge, VLAN, bond e SDN</span></a></li><li><a href="17.6-backup-e-restauracao.html"><span class="num">17.6</span><span>Backup e restauração com PBS</span></a></li><li><a href="17.7-migracao-e-quorum.html"><span class="num">17.7</span><span>Migração e quorum</span></a></li></ul><h3>M18 · Podman</h3><ul><li><a href="18.1-conteiner-nao-e-vm.html"><span class="num">18.1</span><span>Contêiner não é VM</span></a></li><li><a href="18.2-rodar-e-persistir.html"><span class="num">18.2</span><span>Rodar e persistir</span></a></li><li><a href="18.3-conteiner-como-servico.html"><span class="num">18.3</span><span>Contêiner como serviço</span></a></li><li><a href="18.4-diagnosticar-conteiner-rootless.html"><span class="num">18.4</span><span>Diagnosticar contêiner rootless</span></a></li><li><a href="18.5-construir-imagens.html"><span class="num">18.5</span><span>Construir imagens</span></a></li></ul><h3>M19 · Serviços de rede</h3><ul><li><a href="19.1-dns-autoritativo.html"><span class="num">19.1</span><span>DNS autoritativo</span></a></li><li><a href="19.2-dns-recursivo-e-diagnostico.html"><span class="num">19.2</span><span>DNS recursivo e diagnóstico</span></a></li><li><a href="19.3-dhcp.html" aria-current="page"><span class="num">19.3</span><span>DHCP</span></a></li><li><a href="19.4-servidor-web.html"><span class="num">19.4</span><span>Servidor web: nome, arquivo e resposta</span></a></li><li><a href="19.5-tls-e-proxy-reverso.html"><span class="num">19.5</span><span>TLS e proxy reverso: identidade antes do cadeado</span></a></li><li><a href="19.6-samba-a-ponte-windows.html"><span class="num">19.6</span><span>Samba: a ponte com o cliente Windows</span></a></li><li><a href="19.7-postfix-e-correio-local.html"><span class="num">19.7</span><span>Postfix e correio local</span></a></li><li><a href="19.8-dovecot-e-imaps.html"><span class="num">19.8</span><span>Dovecot e leitura por IMAPS</span></a></li><li><a href="19.9-squid-e-desafio-integrado.html"><span class="num">19.9</span><span>Squid e desafio integrado</span></a></li></ul><h3>M20 · NethServer 8 por dentro</h3><ul><li><a href="20.1-instalar-nethserver-8.html"><span class="num">20.1</span><span>Instalar em uma VM limpa</span></a></li><li><a href="20.2-cluster-no-e-modulo.html"><span class="num">20.2</span><span>Cluster, nó e módulo</span></a></li><li><a href="20.3-modulo-por-dentro.html"><span class="num">20.3</span><span>Um módulo por dentro</span></a></li><li><a href="20.4-proxy-e-certificados.html"><span class="num">20.4</span><span>Proxy e certificados</span></a></li><li><a href="20.5-dominios-de-usuario.html"><span class="num">20.5</span><span>Domínios de usuário: identidade com fronteiras</span></a></li><li><a href="20.6-backup-e-restauracao.html"><span class="num">20.6</span><span>Backup e restauração: provar o retorno</span></a></li><li><a href="20.7-atualizar-mover-e-falhar.html"><span class="num">20.7</span><span>Atualizar, mover e falhar com prova</span></a></li></ul></aside><main id="conteudo" class="aula"><article><h1>Aula 19.3 · DHCP</h1>
+<blockquote><p><strong>O coração desta aula:</strong> entregue concessões Kea somente na rede isolada e prove endereço, DNS e restauração do cliente.</p></blockquote>
+<div class="tabela"><table><thead><tr><th scope="col">Ficha</th><th scope="col">Plano de trabalho</th></tr></thead><tbody><tr><td>Módulo</td><td>M19 · Serviços de rede, aula 3 de 9</td></tr><tr><td>Quando</td><td>Semana 25</td></tr><tr><td>Ao final</td><td>entregue concessões Kea somente na rede isolada e prove endereço, DNS e restauração do cliente.</td></tr><tr><td>Pré-requisitos</td><td>M17, M18; VMs 201 e 202; usuário student; rede isolada vmbr17</td></tr><tr><td>Duração</td><td>80–110 minutos</td></tr><tr><td>Snapshot</td><td>m19a3-inicio e m19a3-fim; somente VMs indicadas</td></tr></tbody></table></div>
+<p>O nó Proxmox recebe somente comandos identificados como host.</p>
+<p>Os demais comandos pertencem à VM indicada, com Bash e usuário <code translate="no">student</code>.</p>
+<p>Não execute blocos seguintes se uma verificação falhar.</p>
+<p>Guarde a saída real no diário; esta aula não apresenta uma execução já realizada.</p>
+<p>Conclua o <a href="https://github.com/Rodrigoantignani/curso-linux-sysadmin/blob/master/GUIA_BANCADA_M19_PT.md">guia de bancada M19</a> e preserve o DNS da 19.2.</p>
+<p>A VM 202 usa o perfil isolado <code translate="no">m19-isolada</code>, estático <code translate="no">.202/24</code>, separado da gestão.</p>
+<p>Nomes canônicos do módulo: o nome da VM no Proxmox e o hostname do sistema operacional devem corresponder ao papel antes de executar as guardas. Um nome DNS de serviço não muda o hostname. Se o inventário divergir, reconcilie-o pelo console antes de seguir; não ignore as guardas.</p>
+<div class="tabela"><table><thead><tr><th scope="col">VM</th><th scope="col">Hostname curto</th><th scope="col">Endereço isolado</th></tr></thead><tbody><tr><td>201</td><td><code translate="no">rocky-lab</code></td><td><code translate="no">192.0.2.201</code></td></tr><tr><td>202</td><td><code translate="no">debian-lab</code></td><td><code translate="no">192.0.2.202</code></td></tr><tr><td>204</td><td><code translate="no">srv-deb</code></td><td><code translate="no">192.0.2.204</code></td></tr><tr><td>212</td><td><code translate="no">m19-client</code></td><td>DHCP; somente desafio 19.9</td></tr></tbody></table></div>
+<h2 id="1-aquecimento">1 · Aquecimento</h2>
+<ol><li>Por que um servidor DHCP na bridge de gestão pode afetar máquinas que você não administra?</li>
+<li>Uma concessão inclui obrigatoriamente um gateway?</li>
+<li>Quem precisa provar a identidade da interface antes de iniciar Kea?</li></ol>
+<p>Desenhe DORA com as direções das quatro mensagens.</p>
+<p>Marque endereço oferecido, servidor escolhido e confirmação final.</p>
+<h2 id="2-por-que-importa">2 · Por que importa</h2>
+<p>Um endereço manual que funciona pode esconder a ausência de DHCP.</p>
+<p>Uma concessão registrada no servidor pode esconder um cliente que aplicou opções diferentes.</p>
+<p>O lab exige prova dos dois lados e reversão do cliente à base estática.</p>
+<p>Os próximos serviços não devem depender de um endereço temporário obtido por acaso.</p>
+<h3 id="ponte-windows">Ponte Windows</h3>
+<p>Escopo, concessão e reserva descrevem objetos diferentes.</p>
+<p>Uma reserva identifica um cliente; não impede que ele configure manualmente outro endereço fora do seu controle.</p>
+<h2 id="3-modelo-mental">3 · Modelo mental</h2>
+<figure><a href="../img/19.3-conversa-dora.jpg"><img src="../img/19.3-conversa-dora.jpg" alt="Um endereço nasce de uma conversa" loading="lazy" decoding="async"></a><figcaption>A concessão confirma uma conversa; o endereço sozinho não conta toda a história.</figcaption></figure>
+<p>Discover parte do cliente; Offer vem do servidor; Request escolhe a oferta; Ack confirma a concessão.</p>
+<p>NAK e renovação são partes adicionais do protocolo.</p>
+<p>O broadcast alcança o segmento local.</p>
+<p>Neste lab não há relay nem roteador entre o cliente e o servidor.</p>
+<figure><a href="../img/19.3-dhcp-na-rede-certa.jpg"><img src="../img/19.3-dhcp-na-rede-certa.jpg" alt="DHCP fica na rede isolada" loading="lazy" decoding="async"></a><figcaption>Confirme a interface pelo cabo virtual antes de iniciar o servidor.</figcaption></figure>
+<p>Kea escuta somente a interface real correspondente à MAC de net1 da VM 204.</p>
+<p>Nunca use <code translate="no">*</code>, o nome da bridge do host ou a interface da gestão.</p>
+<h2 id="4-o-essencial">4 · O essencial</h2>
+<div class="tabela"><table><thead><tr><th scope="col">Objeto</th><th scope="col">Contrato</th></tr></thead><tbody><tr><td>Servidor</td><td>204 srv-deb; 192.0.2.204/24</td></tr><tr><td>Rede</td><td>vmbr17 isolada; sem porta física ou IP no host</td></tr><tr><td>Pool</td><td>192.0.2.100–192.0.2.149</td></tr><tr><td>DNS</td><td>192.0.2.204</td></tr><tr><td>Domínio</td><td>lab.test</td></tr><tr><td>Gateway</td><td>Nenhum; opção routers ausente</td></tr><tr><td>Cliente</td><td>202 net1; teste temporário; volta a .202</td></tr></tbody></table></div>
+<p>Kea separa servidor, backend de concessões e opções.</p>
+<p>Usaremos DHCPv4 e backend memfile persistente; não precisamos de banco externo nem painel.</p>
+<h3 id="rocky-debian">Rocky × Debian</h3>
+<p>O serviço principal roda em Debian 13 na VM 204.</p>
+<p>A VM 201 pode servir de segundo cliente depois; os nomes de pacote e a política de firewall precisam ser conferidos por distribuição.</p>
+<p>dnsmasq combina funções leves de DHCP e DNS; Kea é um servidor DHCP especializado.</p>
+<p>A comparação é conceitual: não instale um segundo DHCP ativo nesta rede.</p>
+<h3 id="decida-1">Decida 1</h3>
+<p>Você ainda não relacionou a MAC de net1 ao nome no Linux.</p>
+<p>Qual ação cabe?</p>
+<p>A. Usar todas as interfaces por cinco minutos.</p>
+<p>B. Manter Kea mascarado e concluir a identificação.</p>
+<p>C. Escutar em vmbr0 para encontrar o cliente.</p>
+<h2 id="5-lab-guiado">5 · Lab guiado</h2>
+<h3 id="passo-1-conferir-cabo-virtual-e-preservar-o-estado">Passo 1 · Conferir cabo virtual e preservar o estado</h3>
+<p><strong>Palpite:</strong> O nome registrado em um arquivo basta para provar que o cabo virtual não mudou?</p>
+<p>No host compare <code translate="no">qm config 204</code> e <code translate="no">qm config 202</code> com o guia de bancada.</p>
+<p>Confirme net1 somente em vmbr17, sem uplink, sem outro DHCP ativo.</p>
+<p>Não altere as NICs nesta aula.</p>
+<pre translate="no"><code class="lang-bash">qm snapshot 204 m19a3-inicio
+qm snapshot 202 m19a3-inicio</code></pre>
+<p>Na VM 204 verifique arquivo não simbólico, dono e permissões antes de carregar as variáveis locais criadas na 19.1.</p>
+<p>Não carregue arquivos baixados como configuração de shell.</p>
+<pre translate="no"><code class="lang-bash">test ! -L /etc/m19-lab.env || exit 1
+test "$(stat -c %u:%g:%a /etc/m19-lab.env)" = 0:0:644 || exit 1
+cat /etc/m19-lab.env
+. /etc/m19-lab.env
+[[ "$LAB_IF" =~ ^[a-zA-Z][a-zA-Z0-9_-]{0,14}$ ]] || exit 1
+test "$LAB_IP" = 192.0.2.204 || exit 1
+test "$LAB_NET" = 192.0.2.0/24 || exit 1
+ip -br link
+ip -4 address show dev "$LAB_IF"
+ip -4 route
+sudo ss -lunp | grep -E ":67[[:space:]]" || true</code></pre>
+<p>A ausência de socket UDP 67 na VM 204 não prova ausência de outro DHCP no segmento.</p>
+<p>Confirme o inventário de serviços do lab e capture um Discover se houver dúvida.</p>
+<p>Pare se surgir oferta de origem desconhecida.</p>
+<p><strong>Saída esperada:</strong> LAB_IF confere com a MAC real de net1 e tem <code translate="no">.204/24</code>; nenhuma concessão foi iniciada.</p>
+<p><strong>Verifique:</strong> Se houver divergência, corrija a documentação e a interface pelo guia antes de seguir. Não adapte Kea à gestão como atalho.</p>
+<h3 id="passo-2-instalar-mascarado-e-preparar-o-escopo">Passo 2 · Instalar mascarado e preparar o escopo</h3>
+<p><strong>Palpite:</strong> Validar JSON também garante que o socket abrirá na interface correta?</p>
+<pre translate="no"><code class="lang-bash">if dpkg-query -W -f='${Status}' kea-dhcp4-server 2&gt;/dev/null | grep -q "install ok installed"; then exit 1; fi
+sudo systemctl mask kea-dhcp4-server.service
+sudo apt update &amp;&amp; sudo apt install kea-dhcp4-server tcpdump
+sudo cp -a /etc/kea/kea-dhcp4.conf /etc/kea/kea-dhcp4.conf.m19-original
+sudo tee /etc/kea/kea-dhcp4.conf &gt;/dev/null &lt;&lt;EOF
+{
+  "Dhcp4": {
+    "interfaces-config": { "interfaces": [ "$LAB_IF" ] },
+    "lease-database": {
+      "type": "memfile",
+      "persist": true,
+      "name": "/var/lib/kea/kea-leases4.csv"
+    },
+    "valid-lifetime": 600,
+    "renew-timer": 300,
+    "rebind-timer": 450,
+    "subnet4": [ {
+      "id": 19,
+      "subnet": "192.0.2.0/24",
+      "pools": [ { "pool": "192.0.2.100 - 192.0.2.149" } ],
+      "option-data": [
+        { "name": "domain-name-servers", "data": "192.0.2.204" },
+        { "name": "domain-name", "data": "lab.test" }
+      ]
+    } ],
+    "loggers": [ {
+      "name": "kea-dhcp4",
+      "output-options": [ { "output": "stdout" } ],
+      "severity": "INFO"
+    } ]
+  }
+}
+EOF
+sudo chown root:_kea /etc/kea/kea-dhcp4.conf &amp;&amp; sudo chmod 0640 /etc/kea/kea-dhcp4.conf || exit 1
+sudo -u _kea kea-dhcp4 -t /etc/kea/kea-dhcp4.conf || exit 1</code></pre>
+<p>Os tempos acima são parâmetros escolhidos para observar renovação no lab, não durações medidas.</p>
+<p>Não há opção de roteador: o segmento só precisa alcançar serviços locais.</p>
+<p>O validador de Kea 2.6 verifica a configuração, mas não substitui inicialização, sockets, logs e uma concessão real.</p>
+<p>Não edite o CSV de concessões manualmente.</p>
+<p><strong>Saída esperada:</strong> Configuração aceita pelo validador e daemon ainda mascarado. A única interface listada é a identificada pela MAC isolada.</p>
+<p><strong>Verifique:</strong> Leia arquivo completo: pool não inclui servidores estáticos, domínio correto, DNS <code translate="no">.204</code> e nenhuma opção routers.</p>
+<p>O arquivo escrito pelo heredoc deve ser root:_kea 0640. O diretório /etc/kea pode pertencer a _kea:_kea com modo 0750; o perfil AppArmor pode negar dac_override até ao root. Por isso validamos como _kea, conferindo o acesso previsto sem desativar AppArmor. Após alterações e restaurações, preserve dono, grupo e modo.</p>
+<h3 id="passo-3-iniciar-somente-apos-a-prova-da-interface">Passo 3 · Iniciar somente após a prova da interface</h3>
+<p><strong>Palpite:</strong> Um firewall permissivo compensa escutar na interface errada?</p>
+<p>Se há firewall ativo, aplique o procedimento M16 para DHCPv4 somente nessa interface: cliente UDP 68 para servidor UDP 67, incluindo broadcast local.</p>
+<p>Preserve a gestão e a política existente.</p>
+<pre translate="no"><code class="lang-bash">sudo -u _kea kea-dhcp4 -t /etc/kea/kea-dhcp4.conf &amp;&amp; sudo systemctl unmask kea-dhcp4-server.service &amp;&amp; sudo systemctl enable --now kea-dhcp4-server.service
+sudo systemctl --no-pager --full status kea-dhcp4-server
+sudo journalctl -u kea-dhcp4-server -b --no-pager -n 50
+sudo ss -lunp | grep -E ":67[[:space:]]"
+sudo timeout 25 tcpdump -ni "$LAB_IF" -e -vv "udp port 67 or udp port 68"</code></pre>
+<p>Kea pode usar sockets raw; por isso uma única linha de <code translate="no">ss</code> não identifica todo o caminho.</p>
+<p>Compare configuração, log de abertura da interface e captura no dispositivo real.</p>
+<p><strong>Saída esperada:</strong> O daemon inicia sem erro e informa somente a interface isolada. Sem cliente novo, pode não haver DORA durante a captura.</p>
+<p><strong>Verifique:</strong> Se o daemon abrir a interface errada, pare-o imediatamente, mantenha mascarado e corrija a origem. Nunca teste uma oferta na gestão.</p>
+<h3 id="passo-4-pedir-uma-concessao-em-um-perfil-temporario">Passo 4 · Pedir uma concessão em um perfil temporário</h3>
+<p><strong>Palpite:</strong> Trocar o método IPv4 do perfil de gestão seria equivalente a trocar o perfil isolado?</p>
+<p>Na VM 202, mantenha uma sessão SSH pela gestão e o console disponíveis.</p>
+<p>Relacione net1 à MAC, encontre o UUID de <code translate="no">m19-isolada</code> e registre a configuração antes da troca.</p>
+<pre translate="no"><code class="lang-bash">ip -br link
+nmcli -f NAME,UUID,TYPE,DEVICE connection show
+read -r -p "Interface da MAC de net1 da VM 202: " CLIENT_IF
+read -r -p "UUID do perfil m19-isolada: " BASE_UUID
+[[ "$CLIENT_IF" =~ ^[a-zA-Z][a-zA-Z0-9_-]{0,14}$ ]] || exit 1
+[[ "$BASE_UUID" =~ ^[0-9a-fA-F-]{36}$ ]] || exit 1
+test "$(nmcli -g connection.id connection show "$BASE_UUID")" = m19-isolada || exit 1
+nmcli connection show "$BASE_UUID" &gt; ~/m19a3-base-profile.txt
+nmcli -f GENERAL,IP4 device show "$CLIENT_IF"
+ip -4 route</code></pre>
+<p>Confirme perfil estático <code translate="no">.202/24</code>, interface exata e rota padrão somente pela gestão.</p>
+<p>Se não conferirem, volte ao guia.</p>
+<p>Verifique que não existe um perfil antigo chamado <code translate="no">m19-dhcp-test</code>.</p>
+<p>Antes de ativar o perfil, abra uma segunda sessão na VM 204 e repita a captura tcpdump na LAB_IF isolada. Inicie a captura imediatamente antes de nmcli up na VM 202, para que a janela inclua DORA.</p>
+<pre translate="no"><code class="lang-bash">if nmcli -t -f NAME connection show | grep -Fxq m19-dhcp-test; then exit 1; fi
+sudo nmcli connection add type ethernet ifname "$CLIENT_IF" con-name m19-dhcp-test connection.autoconnect no ipv4.method auto ipv4.never-default yes ipv4.dns-priority 200 ipv6.method disabled
+TEST_UUID=$(nmcli -g connection.uuid connection show m19-dhcp-test)
+[[ "$TEST_UUID" =~ ^[0-9a-fA-F-]{36}$ ]] || exit 1
+printf '%s
+%s
+%s
+' "$CLIENT_IF" "$BASE_UUID" "$TEST_UUID" &gt; ~/m19a3-client-state.txt
+sudo nmcli connection up uuid "$TEST_UUID" ifname "$CLIENT_IF"
+nmcli -f GENERAL,IP4,DHCP4 device show "$CLIENT_IF"
+ip -4 route</code></pre>
+<p>Prioridade DNS 200 mantém o DNS de gestão com preferência se sua prioridade for menor, conforme o guia.</p>
+<p>Se a política real divergir, pare e registre antes de ativar; não cause uma troca global de DNS como efeito colateral.</p>
+<p><strong>Saída esperada:</strong> Apenas net1 recebe um endereço do pool; DHCP4 mostra DNS <code translate="no">.204</code> e domínio. A rota padrão de gestão permanece igual.</p>
+<p><strong>Verifique:</strong> Compare MAC do cliente, endereço recebido, servidor DHCP e opções. A seção DHCP4 contém valores reais: não copie uma concessão ilustrativa no diário.</p>
+<h3 id="passo-5-confrontar-cliente-servidor-e-reserva">Passo 5 · Confrontar cliente, servidor e reserva</h3>
+<p><strong>Palpite:</strong> Ver um endereço no cliente prova que veio deste Kea?</p>
+<figure><a href="../img/19.3-concessao-e-evidencia.jpg"><img src="../img/19.3-concessao-e-evidencia.jpg" alt="Concessão precisa de evidência" loading="lazy" decoding="async"></a><figcaption>Compare a concessão no servidor com endereço e DNS recebidos no cliente.</figcaption></figure>
+<p>Na VM 204 leia o journal e as concessões sem alterar o CSV.</p>
+<p>Compare endereço e identidade com os dados reais da VM 202.</p>
+<pre translate="no"><code class="lang-bash">sudo journalctl -u kea-dhcp4-server -b --no-pager -n 80
+sudo head -n 1 /var/lib/kea/kea-leases4.csv
+sudo tail -n 15 /var/lib/kea/kea-leases4.csv</code></pre>
+<p>CSV memfile pode conter várias linhas históricas do mesmo endereço até a limpeza periódica.</p>
+<p>Não conte linhas como se fossem clientes ativos; interprete cabeçalho, identidade e validade da concessão.</p>
+<p>Na VM 202 faça consultas explícitas ao DNS recebido, preservando o resolvedor de gestão.</p>
+<pre translate="no"><code class="lang-bash">dig @192.0.2.204 app.lab.test A
+dig @192.0.2.204 lab.test MX
+ip -4 address show dev "$CLIENT_IF"</code></pre>
+<p>Agora aplique uma reserva controlada para o cliente 202: <code translate="no">.150</code> fica fora do pool dinâmico. Confira no inventário que está livre antes de atribuí-lo.</p>
+<p>Na VM 202 leia a MAC real de net1 com <code translate="no">cat /sys/class/net/"$CLIENT_IF"/address</code>; compare com net1 no nó. Copie somente esse valor no pedido seguinte na VM 204.</p>
+<pre translate="no"><code class="lang-bash">read -r -p "MAC real de net1 da VM 202: " CLIENT_MAC
+[[ "$CLIENT_MAC" =~ ^([0-9a-fA-F]{2}:){5}[0-9a-fA-F]{2}$ ]] || exit 1
+sudo test ! -e /etc/kea/kea-dhcp4.conf.before-reservation || exit 1
+sudo cp -a /etc/kea/kea-dhcp4.conf /etc/kea/kea-dhcp4.conf.before-reservation
+sudo python3 - "$CLIENT_MAC" &lt;&lt;'PY'
+import json,sys
+p="/etc/kea/kea-dhcp4.conf"
+with open(p) as f: c=json.load(f)
+s=c["Dhcp4"]["subnet4"][0]
+assert s["subnet"] == "192.0.2.0/24"
+assert "reservations" not in s
+s["reservations"]=[{"hw-address":sys.argv[1].lower(),"ip-address":"192.0.2.150"}]
+with open(p,"w") as f: json.dump(c,f,indent=2); f.write("\n")
+PY
+sudo -u _kea kea-dhcp4 -t /etc/kea/kea-dhcp4.conf &amp;&amp; sudo systemctl restart kea-dhcp4-server
+sudo journalctl -u kea-dhcp4-server -b --no-pager -n 25</code></pre>
+<p>Se a validação falhar, não reinicie: restaure a cópia anterior e valide novamente. Confira que o arquivo preservou a única interface isolada e que o pool não mudou.</p>
+<p>Na VM 202 reative apenas o perfil temporário; o perfil de gestão continua ativo. Uma nova aquisição deve agora receber <code translate="no">.150</code>, identificado pela MAC real.</p>
+<pre translate="no"><code class="lang-bash">sudo nmcli connection down uuid "$TEST_UUID"
+sudo nmcli connection up uuid "$TEST_UUID" ifname "$CLIENT_IF"
+nmcli -f GENERAL,IP4,DHCP4 device show "$CLIENT_IF"</code></pre>
+<p>Compare a nova concessão nos logs Kea e no cliente. Preserve a reserva para essa MAC; outros clientes continuam usando o pool e no Passo 6 o cliente 202 volta ao estático <code translate="no">.202</code>.</p>
+<p><strong>Saída esperada:</strong> A concessão real tem correspondência entre cliente e servidor. Você distingue pool dinâmico, reserva e endereço estático.</p>
+<p><strong>Verifique:</strong> DNS recebido e resposta correta são provas separadas. Um servidor DHCP pode entregar uma opção sintaticamente válida e semanticamente errada.</p>
+<h3 id="decida-2">Decida 2</h3>
+<p>O endereço está no pool, mas DNS aponta para outro servidor.</p>
+<p>O que fazer?</p>
+<p>A. Comparar opções da concessão, origem da oferta e configuração aplicada.</p>
+<p>B. Dar um gateway qualquer ao cliente.</p>
+<p>C. Aceitar porque obter um endereço prova tudo.</p>
+<h3 id="passo-6-restaurar-o-cliente-e-conferir-o-boot">Passo 6 · Restaurar o cliente e conferir o boot</h3>
+<p><strong>Palpite:</strong> Apagar o perfil temporário garante que o perfil estático voltou a ficar ativo?</p>
+<p>Na mesma sessão Bash da VM 202, use somente os UUIDs registrados.</p>
+<p>Se reconectou, leia o diário e confira cada valor com <code translate="no">nmcli</code> antes de defini-lo; não execute o diário como script.</p>
+<pre translate="no"><code class="lang-bash">test "$(nmcli -g connection.id connection show "$BASE_UUID")" = m19-isolada || exit 1
+test "$(nmcli -g connection.id connection show "$TEST_UUID")" = m19-dhcp-test || exit 1
+sudo nmcli connection up uuid "$BASE_UUID" ifname "$CLIENT_IF"
+nmcli -f GENERAL,IP4 device show "$CLIENT_IF"
+ip -4 route</code></pre>
+<p>Só depois de conferir <code translate="no">.202/24</code> e gestão preservada, remova o perfil temporário pelo UUID exato.</p>
+<p>Nunca use uma remoção por padrão amplo.</p>
+<pre translate="no"><code class="lang-bash">sudo nmcli connection delete uuid "$TEST_UUID"
+dig @192.0.2.204 app.lab.test A
+nmcli -f NAME,UUID,DEVICE connection show --active</code></pre>
+<p><strong>Reboot de conferência:</strong> Reinicie 202 pelo console e prove gestão, perfil estático isolado e DNS explícito. Reinicie 204 separadamente e prove BIND e Kea na interface correta.</p>
+<p>Na VM 204, após o reboot:</p>
+<pre translate="no"><code class="lang-bash">sudo systemctl is-active named kea-dhcp4-server
+sudo -u _kea kea-dhcp4 -t /etc/kea/kea-dhcp4.conf
+sudo journalctl -u kea-dhcp4-server -b --no-pager -n 35
+ip -4 address
+ip -4 route</code></pre>
+<p><strong>Saída esperada:</strong> Kea permanece disponível apenas no isolamento. O cliente 202 terminou estático <code translate="no">.202</code>, pronto para as próximas aulas.</p>
+<p><strong>Verifique:</strong> No host faça os snapshots finais de 204 e 202. Preserve Kea para o desafio 19.9; não crie a VM 212 agora.</p>
+<pre translate="no"><code class="lang-bash">qm snapshot 204 m19a3-fim
+qm snapshot 202 m19a3-fim</code></pre>
+<h2 id="6-quebre-e-conserte">6 · Quebre e conserte</h2>
+<h3 id="quebra-1-json-recusado-antes-de-iniciar">Quebra 1 · JSON recusado antes de iniciar</h3>
+<p><strong>Sintoma:</strong> A cópia de exercício não passa no validador.</p>
+<p><strong>Investigação:</strong> Copie o arquivo para <code translate="no">/tmp/m19-kea-broken.json</code>, remova uma vírgula só nessa cópia e execute <code translate="no">sudo kea-dhcp4 -t /tmp/m19-kea-broken.json</code>.</p>
+<p><strong>Causa:</strong> A estrutura JSON não representa a configuração pretendida.</p>
+<p><strong>Conserto:</strong> Reponha a vírgula na cópia e valide novamente; não carregue o arquivo quebrado no serviço.</p>
+<p><strong>Verifique:</strong> A configuração ativa continua respondendo e a cópia corrigida passa.</p>
+<p><strong>Prevenção:</strong> Valide antes de iniciar ou reiniciar.</p>
+<h3 id="quebra-2-cliente-sem-oferta">Quebra 2 · Cliente sem oferta</h3>
+<p><strong>Sintoma:</strong> O perfil DHCP espera e não recebe endereço.</p>
+<p><strong>Investigação:</strong> Capture na interface isolada; compare Discover, journal Kea, MAC e bridge das duas VMs.</p>
+<p><strong>Causa:</strong> Pode haver cabo virtual errado, interface errada, daemon parado ou filtragem.</p>
+<p><strong>Conserto:</strong> Corrija somente a causa observada. Em interface incerta, pare Kea; nunca abra todas as interfaces.</p>
+<p><strong>Verifique:</strong> Uma oferta do servidor esperado é seguida por Request e Ack.</p>
+<p><strong>Prevenção:</strong> Relacione MAC e dispositivo antes da primeira oferta.</p>
+<h3 id="quebra-3-endereco-certo-dns-errado">Quebra 3 · Endereço certo, DNS errado</h3>
+<p><strong>Sintoma:</strong> O cliente tem endereço do pool, mas os nomes do lab falham.</p>
+<p><strong>Investigação:</strong> Compare opções DHCP4 e consulta explícita ao endereço DNS recebido.</p>
+<p><strong>Causa:</strong> A opção DNS pode estar errada ou o serviço DNS pode estar inacessível.</p>
+<p><strong>Conserto:</strong> Corrija a opção no arquivo conhecido, valide e reinicie Kea somente após verificar a interface; renove o perfil de teste controlado.</p>
+<p><strong>Verifique:</strong> A nova concessão mostra <code translate="no">.204</code> e a consulta explícita responde.</p>
+<p><strong>Prevenção:</strong> Valide opções semânticas além do endereço do pool.</p>
+<h2 id="7-armadilhas">7 · Armadilhas</h2>
+<p>Antes de culpar o serviço, confirme em qual VM, interface e rede você está.</p>
+<p>Uma resposta correta de outro servidor continua sendo a prova errada.</p>
+<p>Um arquivo aceito pelo validador não prova que o processo o carregou.</p>
+<p>Consulte também o estado, os sockets e a resposta do cliente.</p>
+<p>Endereços de documentação usados aqui só pertencem ao segmento segregado.</p>
+<p>Se houver sobreposição com gestão, VPN ou rota existente, pare.</p>
+<h2 id="8-quiz">8 · Quiz</h2>
+<ol><li>Por que não existe opção routers nesta configuração?</li>
+<li>O que distingue Offer de Ack?</li>
+<li>O validador prova a abertura do socket?</li>
+<li>Uma reserva pertence obrigatoriamente ao pool dinâmico?</li>
+<li>Como o cliente deve terminar a aula?</li></ol>
+<p>Responda antes de abrir as soluções.</p>
+<p>Para cada resposta, cite uma observação capaz de refutá-la.</p>
+<h2 id="9-cola">9 · Cola</h2>
+<pre translate="no"><code class="lang-bash">sudo -u _kea kea-dhcp4 -t /etc/kea/kea-dhcp4.conf
+sudo journalctl -u kea-dhcp4-server -b --no-pager -n 40
+ip -4 address
+nmcli -f GENERAL,IP4,DHCP4 device show</code></pre>
+<p><strong>Flashcards:</strong> Qual é o objeto? Quem responde? Qual observação distingue configuração de resultado?</p>
+<p><code translate="no">!explica</code></p>
+<p><code translate="no">!feynman</code></p>
+<p><code translate="no">!quiz</code></p>
+<h2 id="10-checklist-e-fechamento">10 · Checklist e fechamento</h2>
+<ul><li>[ ] MAC e interface real de net1 conferidas antes de iniciar.</li>
+<li>[ ] Kea sozinho no isolamento; nenhum DHCP na gestão.</li>
+<li>[ ] Concessão e DNS comparados nos dois lados.</li>
+<li>[ ] Cliente 202 restaurado ao perfil estático.</li>
+<li>[ ] Kea persistente e VM 212 ainda não criada.</li></ul>
+<p><strong>Último exercício:</strong> Refaça o desenho inicial usando somente evidências registradas no lab. Marque o que ainda não foi provado.</p>
+<p>O snapshot final registra uma etapa coerente; não substitui o backup independente.</p>
+<p>Não apague a VM 204 nem sua rede isolada: as próximas aulas dependem delas.</p>
+<h2 id="11-na-vida-real">11 · Na vida real</h2>
+<p>Missão somente de leitura: em um ambiente autorizado, identifique o servidor consultado, a interface usada e o responsável pela configuração.</p>
+<p>Não altere perfis, portas, concessões ou zonas.</p>
+<p>Entregue três evidências com horário e contexto, uma hipótese e uma limitação.</p>
+<p>Remova dados privados antes de compartilhar o relatório.</p>
+<h2 id="12-aprofundar-quando-quiser">12 · Aprofundar quando quiser</h2>
+<p><a href="https://kea.readthedocs.io/en/kea-2.6.5/arm/dhcp4-srv.html">Kea 2.6: configuração DHCPv4, concessões e reservas</a></p>
+<p><a href="https://packages.debian.org/trixie/kea-dhcp4-server">Debian 13: pacote kea-dhcp4-server</a></p>
+<p><a href="https://networkmanager.dev/docs/api/latest/settings-ipv4.html">NetworkManager: propriedades IPv4</a></p>
+<p>Use a documentação da versão instalada.</p>
+<p>Confirme com o manual local antes de adaptar uma opção de outra versão.</p>
+<h2 id="solucoes-comentadas">Soluções comentadas</h2>
+<p>Aquecimento: broadcast pode alcançar terceiros na mesma rede; gateway é uma opção e não uma obrigação; o operador deve conferir MAC e cabo virtual.</p>
+<p>Decida 1: B.</p>
+<p>Sem prova da interface, o servidor permanece mascarado.</p>
+<p>Decida 2: A.</p>
+<p>Endereço recebido não prova opções corretas nem origem da concessão.</p>
+<p>Quiz 1: o segmento não tem roteador nem precisa de rota padrão.</p>
+<p>Quiz 2: Offer propõe; Ack confirma a concessão solicitada.</p>
+<p>Quiz 3: não; exige início, log da interface e conversa real.</p>
+<p>Quiz 4: não; <code translate="no">.150</code> foi planejado fora do pool e deve estar livre.</p>
+<p>Quiz 5: perfil <code translate="no">m19-isolada</code> estático <code translate="no">.202/24</code>, gestão preservada e perfil temporário removido pelo UUID exato.</p>
+<p><a href="19.2-dns-recursivo-e-diagnostico.html">← Aula 19.2</a> · <a href="index.html">Índice das aulas</a> · <a href="https://github.com/Rodrigoantignani/curso-linux-sysadmin/blob/master/00-plano-do-curso.md">Plano do curso</a></p>
+</article><nav class="paginas" aria-label="Aulas"><a class="ant" href="19.2-dns-recursivo-e-diagnostico.html"><small>← Anterior</small>19.2 · DNS recursivo e diagnóstico</a><a class="prox" href="19.4-servidor-web.html"><small>Próxima →</small>19.4 · Servidor web: nome, arquivo e resposta</a></nav></main></div>
+<footer><div class="wrap">Gerado a partir do Markdown do curso · Imagens em <code translate="no">img/</code></div></footer>
+</body>
+</html>

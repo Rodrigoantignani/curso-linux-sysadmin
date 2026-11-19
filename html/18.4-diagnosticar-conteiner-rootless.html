@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light dark">
+<title>18.4 · Diagnosticar contêiner rootless · Curso Linux Sysadmin</title>
+<link rel="alternate" hreflang="pt-BR" href="18.4-diagnosticar-conteiner-rootless.html"><link rel="alternate" hreflang="it" href="18.4-diagnosticar-conteiner-rootless.it.html">
+<style>
+:root{color-scheme:light dark;--bg:#f6f1e7;--card:#fffdf8;--ink:#201c16;--muted:#5e564a;--accent:#9a3412;--accent-2:#1f5f4a;--tint:#efe6d4;--line:#ddd2bc;--code:#f1eadb;--shadow:0 1px 2px rgba(60,40,10,.08);--serif:Georgia,"Iowan Old Style","Palatino Linotype",Palatino,serif;--sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--mono:"Cascadia Code",Consolas,"DejaVu Sans Mono",monospace}
+@media (prefers-color-scheme:dark){:root{--bg:#16130f;--card:#201b15;--ink:#f1eadb;--muted:#b9ad98;--accent:#f0a070;--accent-2:#7fd0b0;--tint:#2a231a;--line:#3d3427;--code:#191510;--shadow:none}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:5.5rem}
+body{margin:0;background:var(--bg);color:var(--ink);font:1rem/1.6 var(--sans)}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--accent-2);outline-offset:2px;border-radius:4px}
+.pular{position:absolute;left:-999px;top:0;background:var(--card);padding:.5rem 1rem;z-index:20}
+.pular:focus{left:.5rem;top:.5rem}
+.wrap{width:100%;max-width:84rem;margin:0 auto;padding-inline:max(1rem,env(safe-area-inset-left))}
+.top{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10;border-top:6px solid var(--accent)}
+.top-in{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding-block:.6rem}
+.titles{min-width:0}
+.marca{margin:0;font:700 clamp(1.15rem,1rem + 1vw,1.6rem)/1.15 var(--serif);letter-spacing:-.01em}
+.marca a{text-decoration:none}
+.marca a:hover{color:var(--accent)}
+.meta{margin:.1rem 0 0;color:var(--muted);font-size:.85rem}
+.acoes{display:flex;align-items:center;gap:.9rem;flex:none}
+.acoes>a{font-size:.9rem;font-weight:600;color:var(--muted);text-decoration:none}
+.acoes>a:hover{color:var(--accent);text-decoration:underline}
+.idioma{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--tint)}
+.idioma>*{padding:.35rem .9rem;font-size:.8rem;font-weight:700;letter-spacing:.06em;text-decoration:none;color:var(--muted);min-width:2.75rem;text-align:center}
+.idioma a:hover{color:var(--accent);text-decoration:underline}
+.idioma span{background:var(--accent);color:#fff}
+@media (prefers-color-scheme:dark){.idioma span{color:#16130f}}
+code{font-family:var(--mono);font-size:.9em;background:var(--tint);padding:.1rem .35rem;border-radius:4px;overflow-wrap:anywhere}
+/* índice */
+.capa{max-width:70rem;padding-block:2rem 3rem}
+.stats{border-left:4px solid var(--accent-2);background:var(--card);border-radius:0 10px 10px 0;padding:1rem 1.25rem;margin:0 0 2.5rem;box-shadow:var(--shadow);color:var(--muted)}
+.stats strong{color:var(--ink)}
+.modulo{display:grid;grid-template-columns:15rem minmax(0,1fr);gap:1rem 2rem;padding:1.75rem 0;border-top:1px solid var(--line)}
+.modulo h2{margin:0;font:700 1.25rem/1.25 var(--serif);align-self:start;position:sticky;top:6rem}
+.mn{display:block;font:700 .8rem var(--mono);letter-spacing:.12em;color:var(--accent);margin-bottom:.25rem}
+.sep{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.modulo ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,17rem),1fr));gap:.75rem}
+.modulo li{margin:0}
+.modulo a{display:flex;gap:.45rem;align-items:baseline;height:100%;padding:.85rem 1rem;background:var(--card);border:1px solid var(--line);border-radius:10px;text-decoration:none;font-weight:600;line-height:1.35;box-shadow:var(--shadow);transition:border-color .15s,transform .15s}
+.modulo a:hover{border-color:var(--accent);color:var(--accent)}
+.num{font:700 .85rem var(--mono);color:var(--accent);white-space:nowrap}
+/* aula */
+.doc{display:grid;grid-template-columns:17rem minmax(0,1fr);gap:2.5rem;align-items:start;padding-block:2rem 3rem}
+.lateral{position:sticky;top:5.5rem;max-height:calc(100vh - 6.5rem);overflow:auto;font-size:.875rem;padding-right:.5rem}
+.lateral h2{margin:0 0 .25rem;font:700 .95rem var(--serif);color:var(--muted)}
+.lateral h3{margin:1rem 0 .25rem;font:700 .75rem var(--mono);letter-spacing:.06em;color:var(--accent)}
+.lateral ul{list-style:none;margin:0;padding:0}
+.lateral a{display:flex;gap:.45rem;padding:.25rem .5rem;border-radius:6px;text-decoration:none;color:var(--muted);line-height:1.3}
+.lateral a:hover{background:var(--tint);color:var(--ink)}
+.lateral a[aria-current]{background:var(--tint);color:var(--ink);font-weight:700;box-shadow:inset 3px 0 0 var(--accent)}
+.lateral .num{font-size:.75rem}
+.aula{min-width:0;max-width:56rem;overflow-wrap:break-word;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:clamp(1.25rem,1rem + 2vw,2.75rem);box-shadow:var(--shadow)}
+.aula h1{margin:0 0 1.5rem;font:700 clamp(1.75rem,1.4rem + 1.6vw,2.5rem)/1.15 var(--serif);letter-spacing:-.015em;color:var(--ink)}
+.aula h2{margin:2.5rem 0 .75rem;padding-top:1.25rem;border-top:1px solid var(--line);font:700 1.5rem/1.25 var(--serif)}
+.aula h3{margin:2rem 0 .5rem;font:700 1.15rem/1.3 var(--serif);color:var(--accent)}
+.aula h4,.aula h5,.aula h6{margin:1.5rem 0 .5rem;font-size:1rem}
+.aula p,.aula ul,.aula ol{margin:1rem 0}
+.aula ul,.aula ol{padding-left:1.5rem}
+.aula li{margin:.35rem 0}
+.aula li>ul,.aula li>ol{margin:.35rem 0}
+.aula a{color:var(--accent);text-underline-offset:2px}
+.aula hr{border:0;border-top:1px solid var(--line);margin:2rem 0}
+.tabela{overflow-x:auto;margin:1.25rem 0;border:1px solid var(--line);border-radius:10px}
+.aula table{width:100%;border-collapse:collapse;font-size:.9rem}
+.aula th,.aula td{padding:.55rem .75rem;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+.aula tr:last-child td{border-bottom:0}
+.aula th{background:var(--tint);font-weight:700}
+.aula pre{background:var(--code);border:1px solid var(--line);border-radius:10px;padding:.9rem 1rem;overflow-x:auto;font:.85rem/1.5 var(--mono);margin:1rem 0;tab-size:4}
+.aula pre code{background:none;padding:0;font-size:inherit;overflow-wrap:normal}
+.aula blockquote{margin:1.25rem 0;padding:.75rem 1.25rem;border-left:4px solid var(--accent-2);background:var(--tint);border-radius:0 10px 10px 0}
+.aula blockquote>:first-child{margin-top:0}
+.aula blockquote>:last-child{margin-bottom:0}
+.aula figure{margin:1.75rem 0;text-align:center}
+.aula figure img{display:block;margin:0 auto;max-width:100%;height:auto;border:1px solid var(--line);border-radius:10px;background:#fff}
+.aula figcaption{margin-top:.5rem;color:var(--muted);font-size:.9rem;font-style:italic}
+.paginas{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:2.5rem;padding-top:1.5rem;border-top:1px solid var(--line)}
+.paginas a{display:block;padding:.75rem 1rem;border:1px solid var(--line);border-radius:10px;text-decoration:none;color:var(--ink);font-weight:600;line-height:1.3}
+.paginas a:hover{border-color:var(--accent);color:var(--accent)}
+.paginas small{display:block;color:var(--muted);font-weight:400}
+.paginas .prox{grid-column:2;text-align:right}
+footer{border-top:1px solid var(--line);padding-block:1.5rem;color:var(--muted);font-size:.85rem;text-align:center}
+@media (hover:hover) and (prefers-reduced-motion:no-preference){.modulo a:hover{transform:translateY(-2px)}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+@media (max-width:980px){.doc{grid-template-columns:minmax(0,1fr);padding-top:1rem}.lateral{position:static;max-height:none;order:2}.aula{max-width:none}}
+@media (max-width:860px){.modulo{grid-template-columns:minmax(0,1fr)}.modulo h2{position:static}.mn{display:inline;margin-right:.5rem}}
+@media (max-width:420px){.meta{display:none}.top-in{gap:.5rem}.acoes{gap:.6rem}.capa{padding-top:1.25rem}.paginas{grid-template-columns:minmax(0,1fr)}.paginas .prox{grid-column:1}}
+@media print{.top,.lateral,.paginas{display:none}.aula{border:0;box-shadow:none;padding:0;max-width:none}.doc{display:block}}
+</style>
+</head>
+<body>
+<a class="pular" href="#conteudo">Pular para o conteúdo</a>
+<header class="top"><div class="wrap top-in"><div class="titles"><p class="marca"><a href="index.html">Curso Linux Sysadmin</a></p><p class="meta">Rodrigo Antignani · Aula 18.4</p></div><div class="acoes"><a href="index.html">Índice</a><div class="idioma" role="group" aria-label="Idioma"><span aria-current="true">PT</span><a href="18.4-diagnosticar-conteiner-rootless.it.html" hreflang="it" lang="it">IT</a></div></div></div></header>
+<div class="wrap doc"><aside class="lateral" aria-label="Aulas"><h2>Aulas</h2><h3>M0 · Laboratório</h3><ul><li><a href="0.1-montar-o-laboratorio.html"><span class="num">0.1</span><span>Montar o laboratório</span></a></li><li><a href="0.2-acesso-e-protecao.html"><span class="num">0.2</span><span>Acesso e proteção</span></a></li></ul><h3>M1 · Linha de comando</h3><ul><li><a href="1.1-o-que-e-linux.html"><span class="num">1.1</span><span>O que é Linux</span></a></li><li><a href="1.2-o-shell-e-a-ajuda.html"><span class="num">1.2</span><span>O shell e a ajuda</span></a></li><li><a href="1.3-caminhos-e-navegacao.html"><span class="num">1.3</span><span>Caminhos e navegação</span></a></li><li><a href="1.4-criar-copiar-mover-e-apagar.html"><span class="num">1.4</span><span>Criar, copiar, mover e apagar</span></a></li><li><a href="1.5-ler-e-procurar-texto.html"><span class="num">1.5</span><span>Ler e procurar texto</span></a></li><li><a href="1.6-redirecionamentos-e-pipes.html"><span class="num">1.6</span><span>Redirecionamentos e pipes</span></a></li><li><a href="1.7-arquivar-e-compactar.html"><span class="num">1.7</span><span>Arquivar e compactar</span></a></li><li><a href="1.8-primeiro-script.html"><span class="num">1.8</span><span>Primeiro script</span></a></li><li><a href="1.9-decidir-e-repetir.html"><span class="num">1.9</span><span>Decidir e repetir</span></a></li><li><a href="1.10-software-livre-na-pratica.html"><span class="num">1.10</span><span>Software livre na prática</span></a></li></ul><h3>M2 · Sistema, usuários e permissões</h3><ul><li><a href="2.1-instalacao-e-provisionamento.html"><span class="num">2.1</span><span>Instalação e provisionamento</span></a></li><li><a href="2.2-hardware-e-dispositivos.html"><span class="num">2.2</span><span>Hardware e dispositivos</span></a></li><li><a href="2.3-processos-e-logs.html"><span class="num">2.3</span><span>Processos e logs</span></a></li><li><a href="2.4-rede-no-dia-a-dia.html"><span class="num">2.4</span><span>Rede no dia a dia</span></a></li><li><a href="2.5-acesso-remoto-e-privilegios.html"><span class="num">2.5</span><span>Acesso remoto e privilégios</span></a></li><li><a href="2.6-usuarios-e-grupos.html"><span class="num">2.6</span><span>Usuários e grupos</span></a></li><li><a href="2.7-permissoes-e-dono.html"><span class="num">2.7</span><span>Permissões e dono</span></a></li><li><a href="2.8-diretorios-e-arquivos-especiais.html"><span class="num">2.8</span><span>Diretórios e arquivos especiais</span></a></li></ul><h3>M3 · Texto e editor</h3><ul><li><a href="3.1-fluxos-a-fundo.html"><span class="num">3.1</span><span>Fluxos a fundo</span></a></li><li><a href="3.2-filtros-de-texto.html"><span class="num">3.2</span><span>Filtros de texto</span></a></li><li><a href="3.3-regex-e-grep.html"><span class="num">3.3</span><span>Regex e grep</span></a></li><li><a href="3.4-sed-e-awk.html"><span class="num">3.4</span><span>sed e awk</span></a></li><li><a href="3.5-vi-e-vim-de-verdade.html"><span class="num">3.5</span><span>vi e vim de verdade</span></a></li></ul><h3>M4 · systemd e boot</h3><ul><li><a href="4.1-como-o-linux-liga.html"><span class="num">4.1</span><span>Como o Linux liga</span></a></li><li><a href="4.2-systemd-servicos-e-units.html"><span class="num">4.2</span><span>systemd: serviços e units</span></a></li><li><a href="4.3-targets-desligar-e-reiniciar.html"><span class="num">4.3</span><span>Targets: desligar e reiniciar</span></a></li><li><a href="4.4-grub-e-acesso-de-emergencia.html"><span class="num">4.4</span><span>GRUB e acesso de emergência</span></a></li></ul><h3>M5 · Kernel, módulos e VM</h3><ul><li><a href="5.1-hardware-pelo-kernel.html"><span class="num">5.1</span><span>Hardware pelo kernel</span></a></li><li><a href="5.2-modulos-e-parametros.html"><span class="num">5.2</span><span>Módulos e parâmetros</span></a></li><li><a href="5.3-linux-como-convidado.html"><span class="num">5.3</span><span>Linux como convidado</span></a></li></ul><h3>M6 · Pacotes e repositórios</h3><ul><li><a href="6.1-pacotes-no-debian.html"><span class="num">6.1</span><span>Pacotes no Debian</span></a></li><li><a href="6.2-pacotes-na-rocky.html"><span class="num">6.2</span><span>Pacotes na Rocky</span></a></li><li><a href="6.3-repositorios.html"><span class="num">6.3</span><span>Repositórios</span></a></li><li><a href="6.4-flatpak.html"><span class="num">6.4</span><span>Flatpak</span></a></li><li><a href="6.5-bibliotecas-compartilhadas.html"><span class="num">6.5</span><span>Bibliotecas compartilhadas</span></a></li></ul><h3>M7 · Processos e desempenho</h3><ul><li><a href="7.1-processos-e-sinais.html"><span class="num">7.1</span><span>Processos e sinais</span></a></li><li><a href="7.2-jobs-e-sessoes.html"><span class="num">7.2</span><span>Jobs e sessões</span></a></li><li><a href="7.3-prioridade-e-perfis.html"><span class="num">7.3</span><span>Prioridade e perfis</span></a></li></ul><h3>M8 · Arquivos a fundo</h3><ul><li><a href="8.1-fhs-e-onde-cada-coisa-mora.html"><span class="num">8.1</span><span>FHS e onde cada coisa mora</span></a></li><li><a href="8.2-find-a-fundo.html"><span class="num">8.2</span><span>find a fundo</span></a></li><li><a href="8.3-arquivamento-avancado.html"><span class="num">8.3</span><span>Arquivamento avançado</span></a></li><li><a href="8.4-links.html"><span class="num">8.4</span><span>Links</span></a></li><li><a href="8.5-permissoes-avancadas.html"><span class="num">8.5</span><span>Permissões avançadas</span></a></li></ul><h3>M9 · Armazenamento</h3><ul><li><a href="9.1-discos-e-layout.html"><span class="num">9.1</span><span>Discos e layout</span></a></li><li><a href="9.2-particionar.html"><span class="num">9.2</span><span>Particionar</span></a></li><li><a href="9.3-sistemas-de-arquivos.html"><span class="num">9.3</span><span>Sistemas de arquivos</span></a></li><li><a href="9.4-montar-e-persistir.html"><span class="num">9.4</span><span>Montar e persistir</span></a></li><li><a href="9.5-integridade-e-espaco.html"><span class="num">9.5</span><span>Integridade e espaço</span></a></li><li><a href="9.6-lvm.html"><span class="num">9.6</span><span>LVM</span></a></li><li><a href="9.7-crescer-sem-destruir.html"><span class="num">9.7</span><span>Crescer sem destruir</span></a></li></ul><h3>M10 · Usuários e acesso privilegiado</h3><ul><li><a href="10.1-contas.html"><span class="num">10.1</span><span>Contas</span></a></li><li><a href="10.2-senhas-e-validade.html"><span class="num">10.2</span><span>Senhas e validade</span></a></li><li><a href="10.3-grupos-e-trabalho-em-equipe.html"><span class="num">10.3</span><span>Grupos e trabalho em equipe</span></a></li><li><a href="10.4-sudo-de-verdade.html"><span class="num">10.4</span><span>sudo de verdade</span></a></li></ul><h3>M11 · Rede</h3><ul><li><a href="11.1-tcp-ip-para-quem-administra.html"><span class="num">11.1</span><span>TCP/IP para quem administra</span></a></li><li><a href="11.2-networkmanager-e-nmcli.html"><span class="num">11.2</span><span>NetworkManager e nmcli</span></a></li><li><a href="11.3-rede-no-debian.html"><span class="num">11.3</span><span>Rede no Debian</span></a></li><li><a href="11.4-nomes-e-resolucao.html"><span class="num">11.4</span><span>Nomes e resolução</span></a></li><li><a href="11.5-diagnostico-de-rede.html"><span class="num">11.5</span><span>Diagnóstico de rede</span></a></li></ul><h3>M12 · Segurança do host</h3><ul><li><a href="12.1-ssh-a-fundo.html"><span class="num">12.1</span><span>SSH a fundo</span></a></li><li><a href="12.2-firewall.html"><span class="num">12.2</span><span>Firewall</span></a></li><li><a href="12.3-selinux-modos-e-contextos.html"><span class="num">12.3</span><span>SELinux: modos e contextos</span></a></li><li><a href="12.4-selinux-portas-e-booleanos.html"><span class="num">12.4</span><span>SELinux: portas e booleanos</span></a></li><li><a href="12.5-auditoria-e-criptografia.html"><span class="num">12.5</span><span>Auditoria e criptografia</span></a></li></ul><h3>M13 · Armazenamento em rede</h3><ul><li><a href="13.1-servidor-nfs.html"><span class="num">13.1</span><span>Servidor NFS</span></a></li><li><a href="13.2-cliente-nfs.html"><span class="num">13.2</span><span>Cliente NFS</span></a></li><li><a href="13.3-autofs.html"><span class="num">13.3</span><span>autofs</span></a></li></ul><h3>M14 · Agendamento</h3><ul><li><a href="14.1-cron-e-at.html"><span class="num">14.1</span><span>cron e at</span></a></li><li><a href="14.2-timers-do-systemd.html"><span class="num">14.2</span><span>Timers do systemd</span></a></li><li><a href="14.3-journald-e-rsyslog.html"><span class="num">14.3</span><span>journald e rsyslog</span></a></li><li><a href="14.4-hora-certa.html"><span class="num">14.4</span><span>Hora certa</span></a></li><li><a href="14.5-email-local-e-impressao.html"><span class="num">14.5</span><span>E-mail local e impressão</span></a></li></ul><h3>M15 · Shell e ambiente</h3><ul><li><a href="15.1-ambiente-do-shell.html"><span class="num">15.1</span><span>Ambiente do shell</span></a></li><li><a href="15.2-scripts-robustos.html"><span class="num">15.2</span><span>Scripts robustos</span></a></li><li><a href="15.3-scripts-de-administracao.html"><span class="num">15.3</span><span>Scripts de administração</span></a></li><li><a href="15.4-interfaces-graficas.html"><span class="num">15.4</span><span>Interfaces gráficas</span></a></li><li><a href="15.5-idioma-teclado-e-fuso.html"><span class="num">15.5</span><span>Idioma, teclado e fuso</span></a></li></ul><h3>M16 · Semana de incidentes no Rocky 10</h3><ul><li><a href="16.1-rocky-10-o-que-muda.html"><span class="num">16.1</span><span>Rocky 10: o que muda</span></a></li><li><a href="16.2-incidentes-por-area.html"><span class="num">16.2</span><span>Incidentes por área</span></a></li><li><a href="16.3-incidente-com-relogio.html"><span class="num">16.3</span><span>Incidente com relógio</span></a></li><li><a href="16.4-correcao-e-reforco.html"><span class="num">16.4</span><span>Correção e reforço</span></a></li></ul><h3>M17 · Proxmox na prática</h3><ul><li><a href="17.1-proxmox-por-dentro.html"><span class="num">17.1</span><span>Proxmox por dentro</span></a></li><li><a href="17.2-vm-pela-linha-de-comando.html"><span class="num">17.2</span><span>VM pela linha de comando</span></a></li><li><a href="17.3-conteiner-lxc.html"><span class="num">17.3</span><span>Contêiner LXC</span></a></li><li><a href="17.4-storage.html"><span class="num">17.4</span><span>Storage: capacidade, crescimento e movimento</span></a></li><li><a href="17.5-rede.html"><span class="num">17.5</span><span>Rede: bridge, VLAN, bond e SDN</span></a></li><li><a href="17.6-backup-e-restauracao.html"><span class="num">17.6</span><span>Backup e restauração com PBS</span></a></li><li><a href="17.7-migracao-e-quorum.html"><span class="num">17.7</span><span>Migração e quorum</span></a></li></ul><h3>M18 · Podman</h3><ul><li><a href="18.1-conteiner-nao-e-vm.html"><span class="num">18.1</span><span>Contêiner não é VM</span></a></li><li><a href="18.2-rodar-e-persistir.html"><span class="num">18.2</span><span>Rodar e persistir</span></a></li><li><a href="18.3-conteiner-como-servico.html"><span class="num">18.3</span><span>Contêiner como serviço</span></a></li><li><a href="18.4-diagnosticar-conteiner-rootless.html" aria-current="page"><span class="num">18.4</span><span>Diagnosticar contêiner rootless</span></a></li><li><a href="18.5-construir-imagens.html"><span class="num">18.5</span><span>Construir imagens</span></a></li></ul><h3>M19 · Serviços de rede</h3><ul><li><a href="19.1-dns-autoritativo.html"><span class="num">19.1</span><span>DNS autoritativo</span></a></li><li><a href="19.2-dns-recursivo-e-diagnostico.html"><span class="num">19.2</span><span>DNS recursivo e diagnóstico</span></a></li><li><a href="19.3-dhcp.html"><span class="num">19.3</span><span>DHCP</span></a></li><li><a href="19.4-servidor-web.html"><span class="num">19.4</span><span>Servidor web: nome, arquivo e resposta</span></a></li><li><a href="19.5-tls-e-proxy-reverso.html"><span class="num">19.5</span><span>TLS e proxy reverso: identidade antes do cadeado</span></a></li><li><a href="19.6-samba-a-ponte-windows.html"><span class="num">19.6</span><span>Samba: a ponte com o cliente Windows</span></a></li><li><a href="19.7-postfix-e-correio-local.html"><span class="num">19.7</span><span>Postfix e correio local</span></a></li><li><a href="19.8-dovecot-e-imaps.html"><span class="num">19.8</span><span>Dovecot e leitura por IMAPS</span></a></li><li><a href="19.9-squid-e-desafio-integrado.html"><span class="num">19.9</span><span>Squid e desafio integrado</span></a></li></ul><h3>M20 · NethServer 8 por dentro</h3><ul><li><a href="20.1-instalar-nethserver-8.html"><span class="num">20.1</span><span>Instalar em uma VM limpa</span></a></li><li><a href="20.2-cluster-no-e-modulo.html"><span class="num">20.2</span><span>Cluster, nó e módulo</span></a></li><li><a href="20.3-modulo-por-dentro.html"><span class="num">20.3</span><span>Um módulo por dentro</span></a></li><li><a href="20.4-proxy-e-certificados.html"><span class="num">20.4</span><span>Proxy e certificados</span></a></li><li><a href="20.5-dominios-de-usuario.html"><span class="num">20.5</span><span>Domínios de usuário: identidade com fronteiras</span></a></li><li><a href="20.6-backup-e-restauracao.html"><span class="num">20.6</span><span>Backup e restauração: provar o retorno</span></a></li><li><a href="20.7-atualizar-mover-e-falhar.html"><span class="num">20.7</span><span>Atualizar, mover e falhar com prova</span></a></li></ul></aside><main id="conteudo" class="aula"><article><h1>Aula 18.4 · Diagnosticar contêiner rootless</h1>
+<blockquote><p><strong>O coração desta aula:</strong> confirme o dono e relacione configuração, processo, arquivo e evento antes de corrigir o contêiner.</p></blockquote>
+<div class="tabela"><table><thead><tr><th scope="col">Ficha</th><th scope="col">Plano de trabalho</th></tr></thead><tbody><tr><td>Módulo</td><td>M18 · Podman, aula 4 de 5</td></tr><tr><td>Quando</td><td>Semana 25</td></tr><tr><td>Ao final</td><td>Localizar a camada de três falhas sem ampliar privilégios</td></tr><tr><td>Pré-requisitos</td><td>Serviço e conteúdo preservados da 18.3; acesso como dono</td></tr><tr><td>Duração</td><td>80–100 minutos</td></tr><tr><td>Snapshot</td><td><code translate="no">m18a4-inicio</code> e <code translate="no">m18a4-fim</code> somente nas VMs de estudo</td></tr></tbody></table></div>
+<p>A bancada continua no usuário <code translate="no">student</code>, primeiro em <code translate="no">rocky-lab</code> e depois em <code translate="no">debian-lab</code>. Os comandos de Podman são sempre do dono, sem elevação.</p>
+<p>A porta continua no loopback, e o conteúdo permanece fora do contêiner. Não conecte o serviço à rede externa para facilitar o diagnóstico.</p>
+<p>Crie o snapshot da VM antes das quebras e confira o console. Os defeitos são restritos à bancada; nenhum mapa global de usuários será alterado.</p>
+<h2 id="1-aquecimento">1 · Aquecimento</h2>
+<p>Responda antes de consultar a unidade ou o inventário.</p>
+<ol><li>Por que uma lista vazia de contêineres não prova que a máquina não tem contêineres?</li>
+<li>Qual a diferença entre serviço ativo e resposta HTTP válida?</li>
+<li>O número de usuário dentro do contêiner precisa coincidir com o número no host?</li></ol>
+<h2 id="2-por-que-importa">2 · Por que importa</h2>
+<p>Um serviço rootless não aparece no terminal do administrador. A tentativa de recriá-lo em outra conta produz outra cópia, outro storage e outra disputa de porta, sem explicar a primeira falha.</p>
+<p>Outro chamado parece falha de rede: a unidade está ativa, o processo existe, mas a requisição expira. Um processo congelado não é um processo inexistente.</p>
+<p>Você vai manter essas distinções observáveis. O reparo precisa ser menor que o problema e permitir repetir a prova inicial.</p>
+<h3 id="ponte-windows">Ponte Windows</h3>
+<p>Uma ferramenta aberta com outra identidade pode mostrar outro perfil e outro conjunto de recursos. Confirme a identidade efetiva antes de interpretar uma ausência como perda de dados.</p>
+<h2 id="3-modelo-mental">3 · Modelo mental</h2>
+<figure><a href="../img/18.4-o-armario-do-dono.jpg"><img src="../img/18.4-o-armario-do-dono.jpg" alt="Procure no armário do dono" loading="lazy" decoding="async"></a><figcaption>Outro usuário vê outro inventário; confirme o contexto primeiro.</figcaption></figure>
+<p>Cada dono tem seu armário de imagens, contêineres e dados internos de Podman. Usar o nome correto no armário errado continua sendo uma pergunta feita ao lugar errado.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Evidência</th><th scope="col">Pergunta</th></tr></thead><tbody><tr><td>Identidade e ambiente</td><td>Quem está consultando?</td></tr><tr><td>Ficha do contêiner</td><td>O que foi configurado?</td></tr><tr><td>Processos</td><td>O que existe agora?</td></tr><tr><td>Eventos</td><td>O que aconteceu e quando?</td></tr><tr><td>Arquivo montado</td><td>Que dado foi entregue ao processo?</td></tr></tbody></table></div>
+<p>A configuração do serviço pertence ao gerenciador; o estado do contêiner pertence à execução; o conteúdo pertence ao caminho montado. Compare os três.</p>
+<h2 id="4-o-essencial">4 · O essencial</h2>
+<p>O diretório de execução do usuário e o barramento de sua sessão não devem ser inventados para fazer um comando funcionar. Entre diretamente como o dono por um login completo.</p>
+<p>Não use elevação para consultar Podman como se ela mostrasse automaticamente os contêineres do usuário. Isso pode trocar o inventário e produzir outro diagnóstico.</p>
+<p>Os arquivos <code translate="no">/etc/subuid</code> e <code translate="no">/etc/subgid</code> descrevem faixas subordinadas. Ler o mapa é diferente de reatribuir faixas de uma conta em uso.</p>
+<p>Uma mudança global nessas faixas pode tornar o storage existente incoerente. Esta aula não faz essa mudança nem usa limpeza global do armazenamento como conserto.</p>
+<p>O comando <code translate="no">podman unshare</code> abre uma visão no namespace do próprio dono. Ele não fornece root global da VM. Use-o aqui somente para ler o mapa e comparar um arquivo conhecido.</p>
+<h3 id="rocky-debian">Rocky × Debian</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Leitura</th><th scope="col">Rocky</th><th scope="col">Debian</th></tr></thead><tbody><tr><td>Acesso ao arquivo</td><td>Modo, dono e SELinux ativo</td><td>Modo, dono e controles ativos</td></tr><tr><td>Journal do usuário</td><td>Contexto do dono</td><td>Contexto do dono</td></tr><tr><td>Faixas subordinadas</td><td>Ler, não reassinar cegamente</td><td>Ler, não reassinar cegamente</td></tr></tbody></table></div>
+<h3 id="decida-1">Decida 1</h3>
+<p>O inventário está vazio num terminal que não pertence ao dono. O primeiro passo é:</p>
+<p>A. Recriar o serviço com privilégios globais.
+B. Apagar os diretórios de storage que parecem antigos.
+C. Confirmar identidade, contexto e VM, depois consultar como dono.</p>
+<h2 id="5-lab-guiado">5 · Lab guiado</h2>
+<h3 id="passo-1-fixar-o-contexto-e-o-limite-da-mudanca">Passo 1 · Fixar o contexto e o limite da mudança</h3>
+<p><strong>Palpite:</strong> qual informação precisa vir antes do nome do contêiner numa investigação rootless?</p>
+<pre translate="no"><code class="lang-bash">test "$(id -un)" = student || exit 1
+test "$(id -u)" -ne 0 || exit 1
+test -z "${CONTAINER_HOST-}${CONTAINER_CONNECTION-}" || exit 1
+test "$(podman info --format '{{.Host.Security.Rootless}}')" = true || exit 1
+case "$(hostname -s)" in rocky-lab|debian-lab) ;; *) exit 1 ;; esac
+id
+printf 'HOME=%s\nXDG_RUNTIME_DIR=%s\n' "$HOME" "$XDG_RUNTIME_DIR"
+podman info --format '{{.Host.Security.Rootless}} {{.Store.GraphRoot}}'
+systemctl --user status m18-web.service --no-pager
+loginctl show-user student --all -p Linger -p Sessions</code></pre>
+<p><strong>Saída esperada:</strong> dono correto, inventário rootless e serviço conhecido. Um erro de conexão ao gerenciador é evidência de contexto, não motivo para criar outro serviço.</p>
+<p><strong>Verifique:</strong> escreva nome da VM, usuário, horário e recurso. Se um deles está incerto, pare antes das quebras.</p>
+<h3 id="passo-2-ler-a-configuracao-real">Passo 2 · Ler a configuração real</h3>
+<p><strong>Palpite:</strong> um nome conhecido garante imagem, rótulo e montagem corretos?</p>
+<pre translate="no"><code class="lang-bash">podman inspect m18-web --format '{{index .Config.Labels "io.course.module"}}'
+podman inspect m18-web --format '{{.ImageName}}'
+podman inspect m18-web --format '{{json .State}}'
+podman inspect m18-web --format '{{json .Mounts}}'
+podman port m18-web
+systemctl --user cat m18-web.service</code></pre>
+<p><strong>Saída esperada:</strong> rótulo M18, imagem por referência conhecida, estado real, montagem do site e porta no loopback. Não publique uma ficha completa se ela contiver ambiente com segredos.</p>
+<p><strong>Verifique:</strong> a fonte do volume é o diretório persistente esperado, não uma pasta parecida nem o conteúdo interno da imagem. Compare com a fonte Quadlet.</p>
+<h3 id="passo-3-relacionar-processos-e-eventos">Passo 3 · Relacionar processos e eventos</h3>
+<p><strong>Palpite:</strong> o usuário mostrado no processo interno precisa ter o mesmo número na visão da VM?</p>
+<figure><a href="../img/18.4-quatro-evidencias.jpg"><img src="../img/18.4-quatro-evidencias.jpg" alt="Uma falha pede evidências diferentes" loading="lazy" decoding="async"></a><figcaption>Relacione configuração, processo e evento antes de corrigir.</figcaption></figure>
+<pre translate="no"><code class="lang-bash">podman top m18-web user huser pid hpid args
+podman logs --timestamps --tail 30 m18-web
+sudo journalctl _UID="$(id -u student)" _SYSTEMD_USER_UNIT=m18-web.service -b --no-pager -n 40
+systemctl --user show m18-web.service -p ActiveState -p SubState -p Result -p NRestarts
+curl --max-time 3 --fail --silent --show-error http://127.0.0.1:18080/</code></pre>
+<p><strong>Saída esperada:</strong> processos reais e registros do intervalo atual. Os campos de usuário do host e do contêiner podem diferir pelo mapeamento.</p>
+<p><strong>Verifique:</strong> relacione o momento da requisição com os eventos. Ausência de uma linha de aplicação não prova que nunca houve falha; confira intervalo, origem do log e retenção.</p>
+<h3 id="passo-4-ler-o-mapa-sem-mudar-a-identidade">Passo 4 · Ler o mapa sem mudar a identidade</h3>
+<p><strong>Palpite:</strong> a mesma propriedade numérica de um arquivo pode aparecer com outro número em outro namespace?</p>
+<figure><a href="../img/18.4-identidade-na-fronteira.jpg"><img src="../img/18.4-identidade-na-fronteira.jpg" alt="O número muda com a fronteira" loading="lazy" decoding="async"></a><figcaption>Leia o mapa antes de alterar o proprietário do arquivo.</figcaption></figure>
+<pre translate="no"><code class="lang-bash">awk -F: '$1=="student" {print}' /etc/subuid /etc/subgid
+command -v newuidmap newgidmap
+podman unshare cat /proc/self/uid_map /proc/self/gid_map
+stat -c '%u:%g %a %n' "$HOME/m18-lab/site/index.html"
+podman unshare stat -c '%u:%g %a %n' "$HOME/m18-lab/site/index.html"</code></pre>
+<p><strong>Saída esperada:</strong> faixas reais do dono e uma tradução observável no mapa. Não copie números de outra máquina para tentar igualar a saída.</p>
+<p><strong>Verifique:</strong> explique início, faixa e quantidade usando o mapa que você leu. Se faltar faixa ou helper, preserve o storage e trate a correção como mudança administrativa planejada.</p>
+<h3 id="passo-5-separar-permissao-rotulo-e-montagem">Passo 5 · Separar permissão, rótulo e montagem</h3>
+<p><strong>Palpite:</strong> negar leitura por modo Unix é a mesma coisa que uma negação do SELinux?</p>
+<pre translate="no"><code class="lang-bash">namei -l "$HOME/m18-lab/site/index.html"
+ls -ldZ "$HOME/m18-lab/site"
+ls -lZ "$HOME/m18-lab/site/index.html"
+podman exec m18-web id
+podman exec m18-web sh -c 'test -r /usr/share/nginx/html/index.html'
+printf 'rc=%s\n' "$?"</code></pre>
+<p><strong>Saída esperada:</strong> o documento é legível pela identidade efetiva da aplicação. Um campo de contexto vazio ou indisponível exige interpretar os controles ativos da distribuição, não desabilitá-los.</p>
+<p>No Rocky com SELinux ativo, procure uma negação no intervalo do sintoma pelo procedimento de auditoria já estudado, se houver. Não fabrique uma negação quando a causa está no modo do arquivo.</p>
+<p><strong>Verifique:</strong> a montagem permanece somente leitura no contêiner. Torná-la gravável não é um conserto para uma aplicação que só precisa ler o site.</p>
+<h3 id="passo-6-escrever-uma-conclusao-reproduzivel">Passo 6 · Escrever uma conclusão reproduzível</h3>
+<p><strong>Palpite:</strong> quantas saídas sem contexto equivalem a uma conclusão demonstrada?</p>
+<p>Complete o quadro com o seu caso real. Registre apenas o necessário e preserve o horário.</p>
+<div class="tabela"><table><thead><tr><th scope="col">Campo</th><th scope="col">Sua evidência</th></tr></thead><tbody><tr><td>Contexto</td><td>VM, dono e gerenciador</td></tr><tr><td>Configuração</td><td>Imagem, porta e montagem</td></tr><tr><td>Execução</td><td>Estado e processos</td></tr><tr><td>Evento</td><td>Instante e mensagem relevante</td></tr><tr><td>Dado</td><td>Caminho e leitura pelo processo</td></tr><tr><td>Limite</td><td>O que ainda não foi demonstrado</td></tr></tbody></table></div>
+<p><strong>Saída esperada:</strong> outra pessoa entende a hipótese e consegue repetir uma consulta curta que a testa.</p>
+<p><strong>Verifique:</strong> sua conclusão não depende de segredo, captura antiga ou número de UID presumido. Use esse quadro antes de cada reparo abaixo.</p>
+<h2 id="6-quebre-e-conserte">6 · Quebre e conserte</h2>
+<p>Faça uma quebra por vez e restaure antes da próxima. As guardas recusam um nome sem o rótulo da bancada. Se uma guarda falhar, pare; não remova recursos para fazê-la passar.</p>
+<pre translate="no"><code class="lang-bash">assert_m18() {
+  test "$(id -un)" = student || return 1
+  test -z "${CONTAINER_HOST-}${CONTAINER_CONNECTION-}" || return 1
+  test "$(podman info --format '{{.Host.Security.Rootless}}')" = true || return 1
+  test "$(podman inspect m18-web --format '{{index .Config.Labels "io.course.module"}}')" = M18 || return 1
+}
+assert_m18 || exit 1
+UNIT="$HOME/.config/containers/systemd/m18-web.container"
+test -f "$UNIT" &amp;&amp; test -O "$UNIT" || exit 1
+test -f "$HOME/m18-lab/site/index.html" &amp;&amp; test -O "$HOME/m18-lab/site/index.html" || exit 1
+test ! -e "$HOME/m18-lab/m18a4.container.good" || exit 1
+cp -- "$UNIT" "$HOME/m18-lab/m18a4.container.good" || exit 1</code></pre>
+<h3 id="quebra-1-documento-sem-leitura-para-a-aplicacao">Quebra 1 · Documento sem leitura para a aplicação</h3>
+<p><strong>Sintoma:</strong> o site deixa de entregar o documento, embora o serviço permaneça ativo.</p>
+<pre translate="no"><code class="lang-bash">assert_m18 || exit 1
+chmod 0600 "$HOME/m18-lab/site/index.html"
+curl --max-time 3 --fail http://127.0.0.1:18080/
+podman logs --tail 20 m18-web
+podman exec m18-web id</code></pre>
+<p><strong>Investigação:</strong> compare dono e modo do documento com o usuário da aplicação. A resposta pode indicar acesso negado; registre a mensagem real e não atribua automaticamente ao firewall.</p>
+<p><strong>Causa:</strong> o arquivo ficou legível somente para o dono externo, enquanto a aplicação não usa essa identidade no namespace.</p>
+<p><strong>Conserto:</strong> restaure o modo de leitura previsto, sem conceder escrita e sem trocar o dono globalmente.</p>
+<pre translate="no"><code class="lang-bash">chmod 0644 "$HOME/m18-lab/site/index.html"
+podman exec m18-web sh -c 'test -r /usr/share/nginx/html/index.html'
+curl --retry 10 --retry-delay 1 --retry-all-errors --max-time 5 --fail http://127.0.0.1:18080/</code></pre>
+<p><strong>Verifique:</strong> o mesmo documento volta a responder, com o volume ainda somente leitura.</p>
+<p><strong>Prevenção:</strong> compare a identidade do processo antes de ampliar modos ou mudar rótulos.</p>
+<h3 id="quebra-2-processo-congelado">Quebra 2 · Processo congelado</h3>
+<p><strong>Sintoma:</strong> há processo e serviço ativo, mas o cliente não obtém resposta dentro do prazo.</p>
+<pre translate="no"><code class="lang-bash">assert_m18 || exit 1
+podman pause m18-web || exit 1
+podman inspect m18-web --format '{{.State.Status}} {{.State.Paused}}'
+systemctl --user is-active m18-web.service
+curl --max-time 3 --fail http://127.0.0.1:18080/</code></pre>
+<p>Se a versão ou o ambiente recusar pausa rootless, registre o impedimento e não aplique alterações globais para forçar a simulação. A bancada Quadlet exige cgroup v2, mas capacidades locais ainda precisam ser conferidas.</p>
+<p><strong>Investigação:</strong> compare estado do contêiner, estado do gerenciador e prazo do cliente.</p>
+<p><strong>Causa:</strong> a execução foi pausada; a existência do processo não demonstra progresso.</p>
+<p><strong>Conserto:</strong> retome somente o contêiner rotulado do exercício.</p>
+<pre translate="no"><code class="lang-bash">assert_m18 || exit 1
+podman unpause m18-web || exit 1
+podman inspect m18-web --format '{{.State.Paused}}'
+curl --max-time 3 --fail http://127.0.0.1:18080/</code></pre>
+<p><strong>Verifique:</strong> a pausa foi removida e a requisição volta a concluir.</p>
+<p><strong>Prevenção:</strong> tenha uma prova de resposta da aplicação além da existência de PID e unidade.</p>
+<h3 id="quebra-3-comando-de-aplicacao-substituido">Quebra 3 · Comando de aplicação substituído</h3>
+<p><strong>Sintoma:</strong> o serviço tenta reiniciar, mas o processo principal termina em vez de servir HTTP.</p>
+<pre translate="no"><code class="lang-bash">assert_m18 || exit 1
+systemctl --user stop m18-web.service
+sed -i '/^LogDriver=/a Exec=/bin/sh -c "exit 23"' "$UNIT"
+systemctl --user daemon-reload
+systemctl --user start m18-web.service
+sudo journalctl _UID="$(id -u student)" _SYSTEMD_USER_UNIT=m18-web.service -b --no-pager -n 35
+systemctl --user show m18-web.service -p Result -p NRestarts
+systemctl --user stop m18-web.service</code></pre>
+<p><strong>Investigação:</strong> compare o comando na fonte e na unidade gerada com a causa de saída registrada. O número de reinícios depende do momento observado; não há contagem fixa para copiar.</p>
+<p><strong>Causa:</strong> um comando substituto encerra deliberadamente o processo; a política de restart não corrige um comando incorreto.</p>
+<p><strong>Conserto:</strong> restaure a fonte conhecida, recarregue e limpe apenas o estado de falha dessa unidade.</p>
+<pre translate="no"><code class="lang-bash">cp -- "$HOME/m18-lab/m18a4.container.good" "$UNIT" || exit 1
+systemctl --user daemon-reload
+systemctl --user reset-failed m18-web.service
+systemctl --user start m18-web.service || exit 1
+curl --retry 10 --retry-delay 1 --retry-all-errors --max-time 5 --fail http://127.0.0.1:18080/</code></pre>
+<p><strong>Verifique:</strong> o comando original voltou e o site entrega o conteúdo persistente.</p>
+<p><strong>Prevenção:</strong> leia a primeira causa relevante da saída, não apenas a última tentativa de reinício.</p>
+<h2 id="7-armadilhas">7 · Armadilhas</h2>
+<p>Não altere as faixas subordinadas de uma conta para fazer uma saída numérica parecer com a apostila. A tradução real é o objeto do estudo.</p>
+<p>Não use limpeza global, remoção de todos os contêineres ou mudança de usuário como primeiro reparo. Você perderia o contexto que precisa explicar.</p>
+<p>Evite consultar apenas o último contêiner criado. Uma seleção explícita por nome, identidade e rótulo reduz o risco de investigar outro recurso.</p>
+<h3 id="decida-2">Decida 2</h3>
+<p>A aplicação não lê o documento, mas o administrador consegue lê-lo no terminal. Qual prova falta?</p>
+<p>A. Leitura pela identidade e montagem efetivas da aplicação.
+B. Desativação dos controles de segurança.
+C. Permissão de escrita total para todos.</p>
+<h2 id="8-quiz">8 · Quiz</h2>
+<ol><li>Por que consultar outro usuário pode mostrar outro inventário?</li>
+<li>O que os campos de usuário do host e do contêiner ajudam a distinguir?</li>
+<li>Qual a diferença entre arquivo ilegível por modo e negação de um controle adicional?</li>
+<li>Por que serviço ativo não garante progresso da aplicação?</li>
+<li>Por que mudar faixas subordinadas de uma conta existente exige um plano?</li>
+<li>Qual evidência permite repetir o diagnóstico depois do reboot?</li></ol>
+<h2 id="9-lembrete">9 · Lembrete</h2>
+<div class="tabela"><table><thead><tr><th scope="col">Camada</th><th scope="col">Consulta curta</th></tr></thead><tbody><tr><td>Dono</td><td><code translate="no">id</code></td></tr><tr><td>Ficha</td><td><code translate="no">podman inspect m18-web</code></td></tr><tr><td>Processos</td><td><code translate="no">podman top m18-web user huser pid hpid args</code></td></tr><tr><td>Evento</td><td><code translate="no">sudo journalctl _UID="$(id -u student)" _SYSTEMD_USER_UNIT=m18-web.service -b</code></td></tr><tr><td>Mapa</td><td><code translate="no">podman unshare cat /proc/self/uid_map</code></td></tr></tbody></table></div>
+<p><strong>Flashcards:</strong> prepare cartões sobre contexto, faixa subordinada, dono efetivo, pausa e causa de saída. Revise em D+1, D+3, D+7 e D+21.</p>
+<pre translate="no"><code class="lang-text">!explica 18.4 contexto do dono, logs, inspect, top e unshare
+!feynman 18.4 vou explicar por que processo existente pode nao responder
+!quiz 18.4</code></pre>
+<h2 id="10-checklist-e-fechamento">10 · Checklist e fechamento</h2>
+<p>Restaure o documento em modo de leitura previsto, retire a pausa e confirme a fonte original. Preserve o site, o serviço e linger para a continuidade do módulo.</p>
+<p>Não remova o inventário de imagens nem os backups privados das fontes como efeito automático desta limpeza. Registre quais cópias foram criadas para não confundi-las com configuração ativa.</p>
+<p><strong>Reboot de conferência:</strong> após corrigir as três quebras, repita o ensaio da 18.3: somente a VM, observação administrativa antes do login do dono e resposta no loopback.</p>
+<pre translate="no"><code class="lang-bash">case "$(hostname -s)" in rocky-lab|debian-lab) ;; *) exit 1 ;; esac
+sudo reboot</code></pre>
+<p>Depois da evidência sem login, entre novamente como dono e compare a configuração e o conteúdo com seu registro inicial. Não use uma consulta de outro boot como se fosse atual.</p>
+<pre translate="no"><code class="lang-bash">systemctl --user is-active m18-web.service
+podman inspect m18-web --format '{{.State.Paused}} {{.State.Status}}'
+podman port m18-web
+curl --retry 10 --retry-delay 1 --retry-all-errors --max-time 5 --fail http://127.0.0.1:18080/
+sha256sum "$HOME/m18-lab/site/index.html"</code></pre>
+<ul><li>[ ] Confirmei VM, dono e contexto.</li>
+<li>[ ] Relacionei estado, processo e evento.</li>
+<li>[ ] Li o mapa sem alterar faixas globais.</li>
+<li>[ ] Separei modo de arquivo e controles adicionais.</li>
+<li>[ ] Corrigi os três defeitos e conferi após reboot.</li>
+<li>[ ] Preservei o serviço para a próxima aula.</li></ul>
+<p><strong>Último exercício:</strong> entregue um relato de seis linhas com contexto, hipótese, consulta, observação, reparo e limite da conclusão. Cada linha precisa se apoiar numa evidência real.</p>
+<p>Crie o snapshot de fim apenas com a bancada saudável e o diário atualizado. O snapshot não demonstra por si só que a causa foi compreendida.</p>
+<h2 id="11-na-vida-real">11 · Na vida real</h2>
+<p>Com autorização, leia a documentação de operação de um serviço rootless. Identifique dono, origem da imagem, caminho do dado e fonte de logs. Não plante nenhum defeito fora da bancada.</p>
+<p>Proponha uma consulta curta para cada lacuna encontrada. Se a informação contém segredo, peça uma versão reduzida em vez de copiar o ambiente inteiro para o relatório.</p>
+<h2 id="12-aprofunde-quando-quiser">12 · Aprofunde quando quiser</h2>
+<ul><li><a href="https://docs.podman.io/en/latest/markdown/podman-top.1.html">Leitura de processos e identidades</a>.</li>
+<li><a href="https://docs.podman.io/en/latest/markdown/podman-unshare.1.html">Namespace do usuário e unshare</a>.</li>
+<li><a href="https://docs.podman.io/en/latest/markdown/podman-inspect.1.html">Inspeção de contêineres</a>.</li>
+<li><a href="https://docs.podman.io/en/latest/markdown/podman-systemd.unit.5.html">Quadlet e gerenciador do usuário</a>.</li></ul>
+<p>Use a documentação da versão instalada para interpretar os campos disponíveis. Um campo ausente exige adaptar a leitura, não inventar uma saída de referência.</p>
+<h3 id="solucoes-comentadas">Soluções comentadas</h3>
+<p><strong>Aquecimento:</strong> cada dono pode possuir outro inventário; serviço ativo não implica resposta válida; namespaces traduzem números de identidade.</p>
+<p><strong>Decida 1: C.</strong> A ausência só é interpretável depois de saber quem consultou e onde.</p>
+<p><strong>Decida 2: A.</strong> A leitura do administrador não representa automaticamente a leitura da aplicação.</p>
+<p><strong>Quiz 1:</strong> Porque armazenamento e recursos rootless pertencem ao contexto de cada dono.</p>
+<p><strong>Quiz 2:</strong> A identidade efetiva do processo nas duas visões e a tradução que precisa ser explicada pelo mapa.</p>
+<p><strong>Quiz 3:</strong> Modo, dono e controles adicionais são verificações independentes; uma hipótese não substitui a evidência da outra.</p>
+<p><strong>Quiz 4:</strong> O processo pode estar pausado ou não fazer progresso, embora o gerenciador continue considerando a unidade ativa.</p>
+<p><strong>Quiz 5:</strong> Porque dados existentes podem depender do mapa anterior; a mudança precisa considerar migração e recuperação.</p>
+<p><strong>Quiz 6:</strong> VM, dono, boot, horário, configuração, dado e resultado observável permitem repetir a hipótese.</p>
+<p><a href="18.3-conteiner-como-servico.html">← Aula18.3 · Contêiner como serviço</a> · <a href="index.html">Índice das aulas</a> · <a href="18.5-construir-imagens.html">Aula18.5 · Construir imagens →</a></p>
+</article><nav class="paginas" aria-label="Aulas"><a class="ant" href="18.3-conteiner-como-servico.html"><small>← Anterior</small>18.3 · Contêiner como serviço</a><a class="prox" href="18.5-construir-imagens.html"><small>Próxima →</small>18.5 · Construir imagens</a></nav></main></div>
+<footer><div class="wrap">Gerado a partir do Markdown do curso · Imagens em <code translate="no">img/</code></div></footer>
+</body>
+</html>

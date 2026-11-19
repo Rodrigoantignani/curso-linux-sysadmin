@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light dark">
+<title>14.3 · journald e rsyslog · Corso Linux Sysadmin</title>
+<link rel="alternate" hreflang="pt-BR" href="14.3-journald-e-rsyslog.html"><link rel="alternate" hreflang="it" href="14.3-journald-e-rsyslog.it.html">
+<style>
+:root{color-scheme:light dark;--bg:#f6f1e7;--card:#fffdf8;--ink:#201c16;--muted:#5e564a;--accent:#9a3412;--accent-2:#1f5f4a;--tint:#efe6d4;--line:#ddd2bc;--code:#f1eadb;--shadow:0 1px 2px rgba(60,40,10,.08);--serif:Georgia,"Iowan Old Style","Palatino Linotype",Palatino,serif;--sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--mono:"Cascadia Code",Consolas,"DejaVu Sans Mono",monospace}
+@media (prefers-color-scheme:dark){:root{--bg:#16130f;--card:#201b15;--ink:#f1eadb;--muted:#b9ad98;--accent:#f0a070;--accent-2:#7fd0b0;--tint:#2a231a;--line:#3d3427;--code:#191510;--shadow:none}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:5.5rem}
+body{margin:0;background:var(--bg);color:var(--ink);font:1rem/1.6 var(--sans)}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--accent-2);outline-offset:2px;border-radius:4px}
+.pular{position:absolute;left:-999px;top:0;background:var(--card);padding:.5rem 1rem;z-index:20}
+.pular:focus{left:.5rem;top:.5rem}
+.wrap{width:100%;max-width:84rem;margin:0 auto;padding-inline:max(1rem,env(safe-area-inset-left))}
+.top{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10;border-top:6px solid var(--accent)}
+.top-in{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding-block:.6rem}
+.titles{min-width:0}
+.marca{margin:0;font:700 clamp(1.15rem,1rem + 1vw,1.6rem)/1.15 var(--serif);letter-spacing:-.01em}
+.marca a{text-decoration:none}
+.marca a:hover{color:var(--accent)}
+.meta{margin:.1rem 0 0;color:var(--muted);font-size:.85rem}
+.acoes{display:flex;align-items:center;gap:.9rem;flex:none}
+.acoes>a{font-size:.9rem;font-weight:600;color:var(--muted);text-decoration:none}
+.acoes>a:hover{color:var(--accent);text-decoration:underline}
+.idioma{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--tint)}
+.idioma>*{padding:.35rem .9rem;font-size:.8rem;font-weight:700;letter-spacing:.06em;text-decoration:none;color:var(--muted);min-width:2.75rem;text-align:center}
+.idioma a:hover{color:var(--accent);text-decoration:underline}
+.idioma span{background:var(--accent);color:#fff}
+@media (prefers-color-scheme:dark){.idioma span{color:#16130f}}
+code{font-family:var(--mono);font-size:.9em;background:var(--tint);padding:.1rem .35rem;border-radius:4px;overflow-wrap:anywhere}
+/* índice */
+.capa{max-width:70rem;padding-block:2rem 3rem}
+.stats{border-left:4px solid var(--accent-2);background:var(--card);border-radius:0 10px 10px 0;padding:1rem 1.25rem;margin:0 0 2.5rem;box-shadow:var(--shadow);color:var(--muted)}
+.stats strong{color:var(--ink)}
+.modulo{display:grid;grid-template-columns:15rem minmax(0,1fr);gap:1rem 2rem;padding:1.75rem 0;border-top:1px solid var(--line)}
+.modulo h2{margin:0;font:700 1.25rem/1.25 var(--serif);align-self:start;position:sticky;top:6rem}
+.mn{display:block;font:700 .8rem var(--mono);letter-spacing:.12em;color:var(--accent);margin-bottom:.25rem}
+.sep{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.modulo ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,17rem),1fr));gap:.75rem}
+.modulo li{margin:0}
+.modulo a{display:flex;gap:.45rem;align-items:baseline;height:100%;padding:.85rem 1rem;background:var(--card);border:1px solid var(--line);border-radius:10px;text-decoration:none;font-weight:600;line-height:1.35;box-shadow:var(--shadow);transition:border-color .15s,transform .15s}
+.modulo a:hover{border-color:var(--accent);color:var(--accent)}
+.num{font:700 .85rem var(--mono);color:var(--accent);white-space:nowrap}
+/* aula */
+.doc{display:grid;grid-template-columns:17rem minmax(0,1fr);gap:2.5rem;align-items:start;padding-block:2rem 3rem}
+.lateral{position:sticky;top:5.5rem;max-height:calc(100vh - 6.5rem);overflow:auto;font-size:.875rem;padding-right:.5rem}
+.lateral h2{margin:0 0 .25rem;font:700 .95rem var(--serif);color:var(--muted)}
+.lateral h3{margin:1rem 0 .25rem;font:700 .75rem var(--mono);letter-spacing:.06em;color:var(--accent)}
+.lateral ul{list-style:none;margin:0;padding:0}
+.lateral a{display:flex;gap:.45rem;padding:.25rem .5rem;border-radius:6px;text-decoration:none;color:var(--muted);line-height:1.3}
+.lateral a:hover{background:var(--tint);color:var(--ink)}
+.lateral a[aria-current]{background:var(--tint);color:var(--ink);font-weight:700;box-shadow:inset 3px 0 0 var(--accent)}
+.lateral .num{font-size:.75rem}
+.aula{min-width:0;max-width:56rem;overflow-wrap:break-word;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:clamp(1.25rem,1rem + 2vw,2.75rem);box-shadow:var(--shadow)}
+.aula h1{margin:0 0 1.5rem;font:700 clamp(1.75rem,1.4rem + 1.6vw,2.5rem)/1.15 var(--serif);letter-spacing:-.015em;color:var(--ink)}
+.aula h2{margin:2.5rem 0 .75rem;padding-top:1.25rem;border-top:1px solid var(--line);font:700 1.5rem/1.25 var(--serif)}
+.aula h3{margin:2rem 0 .5rem;font:700 1.15rem/1.3 var(--serif);color:var(--accent)}
+.aula h4,.aula h5,.aula h6{margin:1.5rem 0 .5rem;font-size:1rem}
+.aula p,.aula ul,.aula ol{margin:1rem 0}
+.aula ul,.aula ol{padding-left:1.5rem}
+.aula li{margin:.35rem 0}
+.aula li>ul,.aula li>ol{margin:.35rem 0}
+.aula a{color:var(--accent);text-underline-offset:2px}
+.aula hr{border:0;border-top:1px solid var(--line);margin:2rem 0}
+.tabela{overflow-x:auto;margin:1.25rem 0;border:1px solid var(--line);border-radius:10px}
+.aula table{width:100%;border-collapse:collapse;font-size:.9rem}
+.aula th,.aula td{padding:.55rem .75rem;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+.aula tr:last-child td{border-bottom:0}
+.aula th{background:var(--tint);font-weight:700}
+.aula pre{background:var(--code);border:1px solid var(--line);border-radius:10px;padding:.9rem 1rem;overflow-x:auto;font:.85rem/1.5 var(--mono);margin:1rem 0;tab-size:4}
+.aula pre code{background:none;padding:0;font-size:inherit;overflow-wrap:normal}
+.aula blockquote{margin:1.25rem 0;padding:.75rem 1.25rem;border-left:4px solid var(--accent-2);background:var(--tint);border-radius:0 10px 10px 0}
+.aula blockquote>:first-child{margin-top:0}
+.aula blockquote>:last-child{margin-bottom:0}
+.aula figure{margin:1.75rem 0;text-align:center}
+.aula figure img{display:block;margin:0 auto;max-width:100%;height:auto;border:1px solid var(--line);border-radius:10px;background:#fff}
+.aula figcaption{margin-top:.5rem;color:var(--muted);font-size:.9rem;font-style:italic}
+.paginas{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:2.5rem;padding-top:1.5rem;border-top:1px solid var(--line)}
+.paginas a{display:block;padding:.75rem 1rem;border:1px solid var(--line);border-radius:10px;text-decoration:none;color:var(--ink);font-weight:600;line-height:1.3}
+.paginas a:hover{border-color:var(--accent);color:var(--accent)}
+.paginas small{display:block;color:var(--muted);font-weight:400}
+.paginas .prox{grid-column:2;text-align:right}
+footer{border-top:1px solid var(--line);padding-block:1.5rem;color:var(--muted);font-size:.85rem;text-align:center}
+@media (hover:hover) and (prefers-reduced-motion:no-preference){.modulo a:hover{transform:translateY(-2px)}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+@media (max-width:980px){.doc{grid-template-columns:minmax(0,1fr);padding-top:1rem}.lateral{position:static;max-height:none;order:2}.aula{max-width:none}}
+@media (max-width:860px){.modulo{grid-template-columns:minmax(0,1fr)}.modulo h2{position:static}.mn{display:inline;margin-right:.5rem}}
+@media (max-width:420px){.meta{display:none}.top-in{gap:.5rem}.acoes{gap:.6rem}.capa{padding-top:1.25rem}.paginas{grid-template-columns:minmax(0,1fr)}.paginas .prox{grid-column:1}}
+@media print{.top,.lateral,.paginas{display:none}.aula{border:0;box-shadow:none;padding:0;max-width:none}.doc{display:block}}
+</style>
+</head>
+<body>
+<a class="pular" href="#conteudo">Vai al contenuto</a>
+<header class="top"><div class="wrap top-in"><div class="titles"><p class="marca"><a href="index.it.html">Corso Linux Sysadmin</a></p><p class="meta">Rodrigo Antignani · Lezione 14.3</p></div><div class="acoes"><a href="index.it.html">Indice</a><div class="idioma" role="group" aria-label="Lingua"><a href="14.3-journald-e-rsyslog.html" hreflang="pt-BR" lang="pt-BR">PT</a><span aria-current="true">IT</span></div></div></div></header>
+<div class="wrap doc"><aside class="lateral" aria-label="Lezioni"><h2>Lezioni</h2><h3>M0 · Laboratorio</h3><ul><li><a href="0.1-montar-o-laboratorio.it.html"><span class="num">0.1</span><span>Allestire il laboratorio</span></a></li><li><a href="0.2-acesso-e-protecao.it.html"><span class="num">0.2</span><span>Accesso e protezione</span></a></li></ul><h3>M1 · Riga di comando</h3><ul><li><a href="1.1-o-que-e-linux.it.html"><span class="num">1.1</span><span>Che cos'è Linux</span></a></li><li><a href="1.2-o-shell-e-a-ajuda.it.html"><span class="num">1.2</span><span>La shell e la guida</span></a></li><li><a href="1.3-caminhos-e-navegacao.it.html"><span class="num">1.3</span><span>Percorsi e navigazione</span></a></li><li><a href="1.4-criar-copiar-mover-e-apagar.it.html"><span class="num">1.4</span><span>Creare, copiare, spostare ed eliminare</span></a></li><li><a href="1.5-ler-e-procurar-texto.it.html"><span class="num">1.5</span><span>Leggere e cercare testo</span></a></li><li><a href="1.6-redirecionamentos-e-pipes.it.html"><span class="num">1.6</span><span>Reindirizzamenti e pipe</span></a></li><li><a href="1.7-arquivar-e-compactar.it.html"><span class="num">1.7</span><span>Archiviare e comprimere</span></a></li><li><a href="1.8-primeiro-script.it.html"><span class="num">1.8</span><span>Primo script</span></a></li><li><a href="1.9-decidir-e-repetir.it.html"><span class="num">1.9</span><span>Decidere e ripetere</span></a></li><li><a href="1.10-software-livre-na-pratica.it.html"><span class="num">1.10</span><span>Il software libero in pratica</span></a></li></ul><h3>M2 · Sistema, utenti e permessi</h3><ul><li><a href="2.1-instalacao-e-provisionamento.it.html"><span class="num">2.1</span><span>Installazione e provisioning</span></a></li><li><a href="2.2-hardware-e-dispositivos.it.html"><span class="num">2.2</span><span>Hardware e dispositivi</span></a></li><li><a href="2.3-processos-e-logs.it.html"><span class="num">2.3</span><span>Processi e log</span></a></li><li><a href="2.4-rede-no-dia-a-dia.it.html"><span class="num">2.4</span><span>La rete di tutti i giorni</span></a></li><li><a href="2.5-acesso-remoto-e-privilegios.it.html"><span class="num">2.5</span><span>Accesso remoto e privilegi</span></a></li><li><a href="2.6-usuarios-e-grupos.it.html"><span class="num">2.6</span><span>Utenti e gruppi</span></a></li><li><a href="2.7-permissoes-e-dono.it.html"><span class="num">2.7</span><span>Permessi e proprietario</span></a></li><li><a href="2.8-diretorios-e-arquivos-especiais.it.html"><span class="num">2.8</span><span>Directory e file speciali</span></a></li></ul><h3>M3 · Testo ed editor</h3><ul><li><a href="3.1-fluxos-a-fundo.it.html"><span class="num">3.1</span><span>I flussi in profondità</span></a></li><li><a href="3.2-filtros-de-texto.it.html"><span class="num">3.2</span><span>Filtri di testo</span></a></li><li><a href="3.3-regex-e-grep.it.html"><span class="num">3.3</span><span>Regex e grep</span></a></li><li><a href="3.4-sed-e-awk.it.html"><span class="num">3.4</span><span>sed e awk</span></a></li><li><a href="3.5-vi-e-vim-de-verdade.it.html"><span class="num">3.5</span><span>vi e vim sul serio</span></a></li></ul><h3>M4 · systemd e boot</h3><ul><li><a href="4.1-como-o-linux-liga.it.html"><span class="num">4.1</span><span>Come si avvia Linux</span></a></li><li><a href="4.2-systemd-servicos-e-units.it.html"><span class="num">4.2</span><span>systemd: servizi e unit</span></a></li><li><a href="4.3-targets-desligar-e-reiniciar.it.html"><span class="num">4.3</span><span>Target: spegnere e riavviare</span></a></li><li><a href="4.4-grub-e-acesso-de-emergencia.it.html"><span class="num">4.4</span><span>GRUB e accesso di emergenza</span></a></li></ul><h3>M5 · Kernel, moduli e VM</h3><ul><li><a href="5.1-hardware-pelo-kernel.it.html"><span class="num">5.1</span><span>L'hardware visto dal kernel</span></a></li><li><a href="5.2-modulos-e-parametros.it.html"><span class="num">5.2</span><span>Moduli e parametri</span></a></li><li><a href="5.3-linux-como-convidado.it.html"><span class="num">5.3</span><span>Linux come guest</span></a></li></ul><h3>M6 · Pacchetti e repository</h3><ul><li><a href="6.1-pacotes-no-debian.it.html"><span class="num">6.1</span><span>Pacchetti su Debian</span></a></li><li><a href="6.2-pacotes-na-rocky.it.html"><span class="num">6.2</span><span>Pacchetti su Rocky</span></a></li><li><a href="6.3-repositorios.it.html"><span class="num">6.3</span><span>Repository</span></a></li><li><a href="6.4-flatpak.it.html"><span class="num">6.4</span><span>Flatpak</span></a></li><li><a href="6.5-bibliotecas-compartilhadas.it.html"><span class="num">6.5</span><span>Librerie condivise</span></a></li></ul><h3>M7 · Processi e prestazioni</h3><ul><li><a href="7.1-processos-e-sinais.it.html"><span class="num">7.1</span><span>Processi e segnali</span></a></li><li><a href="7.2-jobs-e-sessoes.it.html"><span class="num">7.2</span><span>Job e sessioni</span></a></li><li><a href="7.3-prioridade-e-perfis.it.html"><span class="num">7.3</span><span>Priorità e profili</span></a></li></ul><h3>M8 · File a fondo</h3><ul><li><a href="8.1-fhs-e-onde-cada-coisa-mora.it.html"><span class="num">8.1</span><span>FHS e dove sta ogni cosa</span></a></li><li><a href="8.2-find-a-fundo.it.html"><span class="num">8.2</span><span>find a fondo</span></a></li><li><a href="8.3-arquivamento-avancado.it.html"><span class="num">8.3</span><span>Archiviazione avanzata</span></a></li><li><a href="8.4-links.it.html"><span class="num">8.4</span><span>Link</span></a></li><li><a href="8.5-permissoes-avancadas.it.html"><span class="num">8.5</span><span>Permessi avanzati</span></a></li></ul><h3>M9 · Storage</h3><ul><li><a href="9.1-discos-e-layout.it.html"><span class="num">9.1</span><span>Dischi e layout</span></a></li><li><a href="9.2-particionar.it.html"><span class="num">9.2</span><span>Partizionare</span></a></li><li><a href="9.3-sistemas-de-arquivos.it.html"><span class="num">9.3</span><span>File system</span></a></li><li><a href="9.4-montar-e-persistir.it.html"><span class="num">9.4</span><span>Montare e rendere persistente</span></a></li><li><a href="9.5-integridade-e-espaco.it.html"><span class="num">9.5</span><span>Integrità e spazio</span></a></li><li><a href="9.6-lvm.it.html"><span class="num">9.6</span><span>LVM</span></a></li><li><a href="9.7-crescer-sem-destruir.it.html"><span class="num">9.7</span><span>Crescere senza distruggere</span></a></li></ul><h3>M10 · Utenti e accesso privilegiato</h3><ul><li><a href="10.1-contas.it.html"><span class="num">10.1</span><span>Account</span></a></li><li><a href="10.2-senhas-e-validade.it.html"><span class="num">10.2</span><span>Password e scadenza</span></a></li><li><a href="10.3-grupos-e-trabalho-em-equipe.it.html"><span class="num">10.3</span><span>Gruppi e lavoro di squadra</span></a></li><li><a href="10.4-sudo-de-verdade.it.html"><span class="num">10.4</span><span>sudo sul serio</span></a></li></ul><h3>M11 · Rete</h3><ul><li><a href="11.1-tcp-ip-para-quem-administra.it.html"><span class="num">11.1</span><span>TCP/IP per chi amministra</span></a></li><li><a href="11.2-networkmanager-e-nmcli.it.html"><span class="num">11.2</span><span>NetworkManager e nmcli</span></a></li><li><a href="11.3-rede-no-debian.it.html"><span class="num">11.3</span><span>Rete su Debian</span></a></li><li><a href="11.4-nomes-e-resolucao.it.html"><span class="num">11.4</span><span>Nomi e risoluzione</span></a></li><li><a href="11.5-diagnostico-de-rede.it.html"><span class="num">11.5</span><span>Diagnosi di rete</span></a></li></ul><h3>M12 · Sicurezza dell'host</h3><ul><li><a href="12.1-ssh-a-fundo.it.html"><span class="num">12.1</span><span>SSH in dettaglio</span></a></li><li><a href="12.2-firewall.it.html"><span class="num">12.2</span><span>Firewall</span></a></li><li><a href="12.3-selinux-modos-e-contextos.it.html"><span class="num">12.3</span><span>SELinux: modalità e contesti</span></a></li><li><a href="12.4-selinux-portas-e-booleanos.it.html"><span class="num">12.4</span><span>SELinux: porte e booleani</span></a></li><li><a href="12.5-auditoria-e-criptografia.it.html"><span class="num">12.5</span><span>Audit e crittografia</span></a></li></ul><h3>M13 · Archiviazione in rete</h3><ul><li><a href="13.1-servidor-nfs.it.html"><span class="num">13.1</span><span>Server NFS</span></a></li><li><a href="13.2-cliente-nfs.it.html"><span class="num">13.2</span><span>Client NFS</span></a></li><li><a href="13.3-autofs.it.html"><span class="num">13.3</span><span>autofs</span></a></li></ul><h3>M14 · Pianificazione</h3><ul><li><a href="14.1-cron-e-at.it.html"><span class="num">14.1</span><span>cron e at</span></a></li><li><a href="14.2-timers-do-systemd.it.html"><span class="num">14.2</span><span>Timer di systemd</span></a></li><li><a href="14.3-journald-e-rsyslog.it.html" aria-current="page"><span class="num">14.3</span><span>journald e rsyslog</span></a></li><li><a href="14.4-hora-certa.it.html"><span class="num">14.4</span><span>L'ora corretta</span></a></li><li><a href="14.5-email-local-e-impressao.it.html"><span class="num">14.5</span><span>E-mail locale e stampa</span></a></li></ul><h3>M15 · Shell e ambiente</h3><ul><li><a href="15.1-ambiente-do-shell.it.html"><span class="num">15.1</span><span>Ambiente della shell</span></a></li><li><a href="15.2-scripts-robustos.it.html"><span class="num">15.2</span><span>Script robusti</span></a></li><li><a href="15.3-scripts-de-administracao.it.html"><span class="num">15.3</span><span>Script di amministrazione</span></a></li><li><a href="15.4-interfaces-graficas.it.html"><span class="num">15.4</span><span>Interfacce grafiche</span></a></li><li><a href="15.5-idioma-teclado-e-fuso.it.html"><span class="num">15.5</span><span>Lingua, tastiera e fuso orario</span></a></li></ul><h3>M16 · Settimana di incidenti su Rocky 10</h3><ul><li><a href="16.1-rocky-10-o-que-muda.it.html"><span class="num">16.1</span><span>Rocky 10: cosa cambia</span></a></li><li><a href="16.2-incidentes-por-area.it.html"><span class="num">16.2</span><span>Incidenti per area</span></a></li><li><a href="16.3-incidente-com-relogio.it.html"><span class="num">16.3</span><span>Incidente con cronometro</span></a></li><li><a href="16.4-correcao-e-reforco.it.html"><span class="num">16.4</span><span>Correzione e rinforzo</span></a></li></ul><h3>M17 · Proxmox in pratica</h3><ul><li><a href="17.1-proxmox-por-dentro.it.html"><span class="num">17.1</span><span>Proxmox dall'interno</span></a></li><li><a href="17.2-vm-pela-linha-de-comando.it.html"><span class="num">17.2</span><span>VM dalla riga di comando</span></a></li><li><a href="17.3-conteiner-lxc.it.html"><span class="num">17.3</span><span>Container LXC</span></a></li><li><a href="17.4-storage.it.html"><span class="num">17.4</span><span>Storage: capacità, ampliamento e spostamento</span></a></li><li><a href="17.5-rede.it.html"><span class="num">17.5</span><span>Rete: bridge, VLAN, bond e SDN</span></a></li><li><a href="17.6-backup-e-restauracao.it.html"><span class="num">17.6</span><span>Backup e ripristino con PBS</span></a></li><li><a href="17.7-migracao-e-quorum.it.html"><span class="num">17.7</span><span>Migrazione e quorum</span></a></li></ul><h3>M18 · Podman</h3><ul><li><a href="18.1-conteiner-nao-e-vm.it.html"><span class="num">18.1</span><span>Un container non è una VM</span></a></li><li><a href="18.2-rodar-e-persistir.it.html"><span class="num">18.2</span><span>Eseguire e conservare i dati</span></a></li><li><a href="18.3-conteiner-como-servico.it.html"><span class="num">18.3</span><span>Container come servizio</span></a></li><li><a href="18.4-diagnosticar-conteiner-rootless.it.html"><span class="num">18.4</span><span>Diagnosticare un container rootless</span></a></li><li><a href="18.5-construir-imagens.it.html"><span class="num">18.5</span><span>Costruire immagini</span></a></li></ul><h3>M19 · Servizi di rete</h3><ul><li><a href="19.1-dns-autoritativo.it.html"><span class="num">19.1</span><span>DNS autoritativo</span></a></li><li><a href="19.2-dns-recursivo-e-diagnostico.it.html"><span class="num">19.2</span><span>DNS ricorsivo e diagnosi</span></a></li><li><a href="19.3-dhcp.it.html"><span class="num">19.3</span><span>DHCP</span></a></li><li><a href="19.4-servidor-web.it.html"><span class="num">19.4</span><span>Server web: nome, file e risposta</span></a></li><li><a href="19.5-tls-e-proxy-reverso.it.html"><span class="num">19.5</span><span>TLS e reverse proxy: identità prima del lucchetto</span></a></li><li><a href="19.6-samba-a-ponte-windows.it.html"><span class="num">19.6</span><span>Samba: il ponte con il client Windows</span></a></li><li><a href="19.7-postfix-e-correio-local.it.html"><span class="num">19.7</span><span>Postfix e posta locale</span></a></li><li><a href="19.8-dovecot-e-imaps.it.html"><span class="num">19.8</span><span>Dovecot e lettura tramite IMAPS</span></a></li><li><a href="19.9-squid-e-desafio-integrado.it.html"><span class="num">19.9</span><span>Squid e sfida integrata</span></a></li></ul><h3>M20 · Dentro NethServer 8</h3><ul><li><a href="20.1-instalar-nethserver-8.it.html"><span class="num">20.1</span><span>Installare in una VM pulita</span></a></li><li><a href="20.2-cluster-no-e-modulo.it.html"><span class="num">20.2</span><span>Cluster, nodo e modulo</span></a></li><li><a href="20.3-modulo-por-dentro.it.html"><span class="num">20.3</span><span>Dentro un modulo</span></a></li><li><a href="20.4-proxy-e-certificados.it.html"><span class="num">20.4</span><span>Proxy e certificati</span></a></li><li><a href="20.5-dominios-de-usuario.it.html"><span class="num">20.5</span><span>Domini utente: identità con confini</span></a></li><li><a href="20.6-backup-e-restauracao.it.html"><span class="num">20.6</span><span>Backup e ripristino: verificare il ritorno</span></a></li><li><a href="20.7-atualizar-mover-e-falhar.it.html"><span class="num">20.7</span><span>Aggiornare, spostare e guastare con verifica</span></a></li></ul></aside><main id="conteudo" class="aula"><article><h1>Lezione 14.3 · journald e rsyslog</h1>
+<p>Il lavoro pianificato è fallito e ha lasciato un messaggio. Ora devi trovarlo, sapere se sopravvivrà al reboot e controllare la crescita del file di testo. Journal, inoltro e rotazione hanno funzioni distinte. Verificherai ciascuna senza cancellare registri reali.</p>
+<blockquote><p><strong>Il cuore di questa lezione:</strong> cerca l'evento nella fonte giusta, conferma la persistenza e verifica la rotazione soltanto sul file dedicato. Il resto è approfondimento.</p></blockquote>
+<div class="tabela"><table><thead><tr><th scope="col">Scheda</th><th scope="col"></th></tr></thead><tbody><tr><td><strong>Modulo</strong></td><td>M14 · Pianificazione, log e ora, lezione 3 di 5</td></tr><tr><td><strong>Quando</strong></td><td>Settimana 20</td></tr><tr><td><strong>Alla fine</strong></td><td>Filtri eventi, dimostri un journal persistente e ruoti un log dedicato con stato separato</td></tr><tr><td><strong>Prerequisiti</strong></td><td>Lezione 14.2, <code translate="no">sudo</code>, SSH e snapshot sulle VM del corso</td></tr><tr><td><strong>Durata</strong></td><td>Circa 90 minuti</td></tr><tr><td><strong>Snapshot</strong></td><td><code translate="no">m14a3-inicio</code> e <code translate="no">m14a3-fim</code> sulle VM 201 e 202</td></tr></tbody></table></div>
+<h2 id="1-riscaldamento">1 · Riscaldamento</h2>
+<p>Rispondi prima di cercare i file.</p>
+<ol><li>Dove ha lasciato il risultato il servizio oneshot nella 14.2?</li>
+<li>Qual è la differenza tra processo attivo e attività completata correttamente?</li>
+<li>Perché un file grande non va cancellato senza identificarne il produttore?</li></ol>
+<h2 id="2-perche-conta">2 · Perché conta</h2>
+<p>Un incidente è avvenuto prima del reboot, ma cerchi soltanto con <code translate="no">journalctl -b</code>. Quel filtro mostra il boot attuale. Su un'altra macchina il journal era volatile e i dati precedenti non esistono più. La stessa schermata vuota può avere cause diverse.</p>
+<p>Un'altra segnalazione riguarda il disco pieno. Eliminare un file aperto non garantisce di liberarne lo spazio. Scopri prima chi scrive; poi applica la rotazione corretta, con riapertura da parte del produttore.</p>
+<h2 id="3-modello-mentale">3 · Modello mentale</h2>
+<p>Il journal è un archivio di registri strutturati della portineria. rsyslog può ricevere messaggi e distribuirli in file di testo. logrotate organizza i volumi di quei file, ma non produce una copia esterna di ripristino.</p>
+<pre translate="no"><code class="lang-text">evento -&gt; journald -&gt; journal
+ingresso rsyslog -&gt; file -&gt; logrotate</code></pre>
+<figure><a href="../img/14.3-do-evento-ao-arquivo.it.jpg"><img src="../img/14.3-do-evento-ao-arquivo.it.jpg" alt="Un evento, destinazioni diverse" loading="lazy" decoding="async"></a><figcaption>Il journal e il file di testo sono archivi diversi.</figcaption></figure>
+<h3 id="ponte-windows">Ponte Windows</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Concetto</th><th scope="col">Linux</th></tr></thead><tbody><tr><td>Visualizzatore e filtri degli eventi</td><td><code translate="no">journalctl</code></td></tr><tr><td>Origine di un evento</td><td>Unità, identificatore e campi del journal</td></tr><tr><td>File testuale dell'applicazione</td><td>Output dedicato o azione rsyslog</td></tr><tr><td>Politica di dimensione e conservazione</td><td>Configurazione dell'archiviazione e logrotate</td></tr></tbody></table></div>
+<h2 id="4-l-essenziale">4 · L'essenziale</h2>
+<h3 id="i-filtri-fanno-parte-della-domanda">I filtri fanno parte della domanda</h3>
+<p><code translate="no">-b</code> seleziona il boot, <code translate="no">-u</code> l'unità, <code translate="no">-t</code> l'identificatore e <code translate="no">-p</code> la priorità. Un filtro di priorità include quelle più gravi fino al livello scelto; non significa soltanto quel livello.</p>
+<pre translate="no"><code class="lang-bash">sudo journalctl --list-boots
+sudo journalctl -b -p warning --no-pager
+sudo journalctl -t m14a3 --since '-10 minutes' --no-pager</code></pre>
+<p>Una ricerca vuota dimostra soltanto che nessun registro visibile corrispondeva ai filtri in quell'archivio. Controlla intervallo, boot, priorità e accesso prima di concludere che l'evento non sia esistito.</p>
+<h3 id="persistenza">Persistenza</h3>
+<p>Con archiviazione volatile il journal usa <code translate="no">/run/log/journal</code>. Con persistenza usa <code translate="no">/var/log/journal</code>. <code translate="no">Storage=auto</code> dipende dall'esistenza della struttura persistente; <code translate="no">Storage=persistent</code> richiede esplicitamente quell'archivio.</p>
+<figure><a href="../img/14.3-volatil-e-persistente.it.jpg"><img src="../img/14.3-volatil-e-persistente.it.jpg" alt="Dove risiede il journal" loading="lazy" decoding="async"></a><figcaption>La persistenza va verificata dopo il reboot.</figcaption></figure>
+<h3 id="rsyslog-e-il-suo-produttore">rsyslog e il suo produttore</h3>
+<p>Una regola di output agisce soltanto sui messaggi arrivati a rsyslog. Controlla l'ingresso configurato. Non caricare un'altra copia di un modulo di ingresso soltanto perché un file di output è rimasto vuoto.</p>
+<h3 id="rotazione-e-riapertura">Rotazione e riapertura</h3>
+<p>Rinominare il file attivo non cambia automaticamente il descrittore aperto dal produttore. La procedura deve creare il nuovo file e farlo riaprire al produttore. Il lab usa una regola dedicata, conservazione breve e stato separato per non forzare la rotazione dei log reali.</p>
+<figure><a href="../img/14.3-rotacao-nao-e-backup.it.jpg"><img src="../img/14.3-rotacao-nao-e-backup.it.jpg" alt="Ruotare significa gestire lo spazio" loading="lazy" decoding="async"></a><figcaption>La rotazione limita i file; il backup richiede un'altra copia recuperabile.</figcaption></figure>
+<h3 id="rocky-debian">Rocky × Debian</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Voce</th><th scope="col">Rocky 9</th><th scope="col">Debian 13</th></tr></thead><tbody><tr><td>Journal</td><td>systemd-journald</td><td>systemd-journald</td></tr><tr><td>rsyslog</td><td>Può essere già installato</td><td>Può non essere installato</td></tr><tr><td>Log testuali comuni</td><td><code translate="no">/var/log/messages</code>, <code translate="no">/var/log/secure</code></td><td>Dipendono da rsyslog e dalle regole installate</td></tr><tr><td>Rotazione</td><td>Controlla la pianificazione installata</td><td>Controlla la pianificazione installata</td></tr></tbody></table></div>
+<h2 id="5-lab-guidato">5 · Lab guidato</h2>
+<p>In questa lezione la persistenza del journal verrà mantenuta come configurazione finale del laboratorio. I registri precedenti non verranno cancellati. La pulizia rimuove soltanto inoltro e rotazione dei file di esercizio.</p>
+<h3 id="passo-1-proteggere-e-inventariare">Passo 1 · Proteggere e inventariare</h3>
+<p><strong>Ipotesi:</strong> un'installazione Debian senza syslog testuale è necessariamente priva di registri?</p>
+<p>Sull'host Proxmox:</p>
+<pre translate="no"><code class="lang-bash">qm snapshot 201 m14a3-inicio
+qm snapshot 202 m14a3-inicio</code></pre>
+<p>Sulle due VM conferma i percorsi assenti e conserva la configurazione effettiva prima di modificare.</p>
+<pre translate="no"><code class="lang-bash">test ! -e "$HOME/m14a3"
+mkdir -m 700 "$HOME/m14a3"
+systemd-analyze cat-config systemd/journald.conf &gt; "$HOME/m14a3/journald.inicio"
+sudo test ! -e /etc/systemd/journald.conf.d/60-m14a3.conf
+sudo test ! -e /etc/rsyslog.d/30-m14a3.conf
+sudo test ! -e /etc/logrotate.d/m14a3
+sudo test ! -e /var/log/m14a3
+sudo test ! -e /var/lib/logrotate/m14a3.status
+sudo journalctl --disk-usage</code></pre>
+<p><strong>Output atteso:</strong> percorsi di esercizio liberi e inventario reale dell'archivio.</p>
+<p><strong>Verifica:</strong> conserva file e regole esistenti; se una configurazione successiva sostituisce la nuova opzione, indaga la precedenza invece di sovrascriverla.</p>
+<h3 id="passo-2-marcare-e-filtrare-eventi">Passo 2 · Marcare e filtrare eventi</h3>
+<p><strong>Ipotesi:</strong> un evento informativo compare in una ricerca che richiede warning e livelli più gravi?</p>
+<pre translate="no"><code class="lang-bash">logger -t m14a3 -p user.info 'M14A3 informational event'
+logger -t m14a3 -p user.warning 'M14A3 warning event'
+sudo journalctl -b -t m14a3 --since '-5 minutes' --no-pager
+sudo journalctl -b -t m14a3 -p warning --since '-5 minutes' --no-pager</code></pre>
+<p><strong>Output atteso:</strong> la prima ricerca mostra i due eventi; la seconda seleziona il warning, oltre a qualsiasi evento più grave con lo stesso identificatore.</p>
+<p><strong>Verifica:</strong> controlla testo e orario reali. Non usare l'identificatore di un altro servizio per simulare evidenze.</p>
+<h3 id="passo-3-rendere-persistente-il-journal">Passo 3 · Rendere persistente il journal</h3>
+<p><strong>Ipotesi:</strong> salvare l'opzione dimostra già che l'evento sopravvivrà al boot?</p>
+<pre translate="no"><code class="lang-bash">sudo install -d /etc/systemd/journald.conf.d
+sudo tee /etc/systemd/journald.conf.d/60-m14a3.conf &gt; /dev/null &lt;&lt;'EOF'
+[Journal]
+Storage=persistent
+EOF
+sudo mkdir -p /var/log/journal
+sudo systemd-tmpfiles --create --prefix /var/log/journal
+sudo systemctl restart systemd-journald
+sudo journalctl --flush
+systemd-analyze cat-config systemd/journald.conf
+logger -t m14a3 'M14A3 before reboot'
+sudo systemctl reboot</code></pre>
+<p>Dopo esserti ricollegato:</p>
+<pre translate="no"><code class="lang-bash">sudo journalctl --list-boots
+sudo journalctl -b -1 -t m14a3 --no-pager</code></pre>
+<p><strong>Output atteso:</strong> il messaggio precedente compare nel boot precedente. L'opzione finale effettiva deve essere persistente.</p>
+<p><strong>Verifica:</strong> non cancellare directory del journal per verificare o pulire. I dati reali appartengono alla storia dell'host.</p>
+<h3 id="decidi-1">Decidi 1</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Opzione</th><th scope="col">La ricerca del boot attuale è vuota</th></tr></thead><tbody><tr><td>A</td><td>Cancellare il journal e ripetere</td></tr><tr><td>B</td><td>Concludere che l'evento non sia mai esistito</td></tr><tr><td>C</td><td>Controllare boot, intervallo, priorità e accesso</td></tr></tbody></table></div>
+<p>Scegli C. La ricerca può avere escluso proprio l'evento.</p>
+<h3 id="passo-4-creare-un-output-testuale-dedicato">Passo 4 · Creare un output testuale dedicato</h3>
+<p><strong>Ipotesi:</strong> una regola di output agisce su eventi che non sono arrivati a rsyslog?</p>
+<p>Su Rocky installa <code translate="no">sudo dnf install -y rsyslog logrotate</code>; su Debian <code translate="no">sudo apt install -y rsyslog logrotate</code>. Mantieni rsyslog standard del lab come gestore della raccolta testuale, senza un altro raccoglitore concorrente.</p>
+<pre translate="no"><code class="lang-bash">sudo systemctl enable --now rsyslog
+ps -o user= -C rsyslogd</code></pre>
+<p>Annota l'utente reale del processo e imposta le variabili seguenti con quel valore, senza presumere che si chiami <code translate="no">syslog</code>.</p>
+<pre translate="no"><code class="lang-bash">read -r -p 'rsyslog process user: ' LOGUSER
+id "$LOGUSER"
+LOGGROUP=$(id -gn "$LOGUSER")
+sudo install -d -m 755 -o "$LOGUSER" -g "$LOGGROUP" /var/log/m14a3
+sudo install -m 640 -o "$LOGUSER" -g "$LOGGROUP" /dev/null /var/log/m14a3/events.log
+sudo tee /etc/rsyslog.d/30-m14a3.conf &gt; /dev/null &lt;&lt;'EOF'
+if $programname == 'm14a3' then {
+    action(type="omfile" file="/var/log/m14a3/events.log")
+}
+EOF
+sudo rsyslogd -N1
+sudo systemctl restart rsyslog
+logger -t m14a3 'M14A3 text route'
+sudo tail /var/log/m14a3/events.log</code></pre>
+<p>Su Rocky conferma i contesti con <code translate="no">sudo restorecon -R /var/log/m14a3</code> prima di verificare la scrittura.</p>
+<p><strong>Output atteso:</strong> la validazione passa e il messaggio arriva al file. Le altre destinazioni esistenti non sono state interrotte con una regola di arresto.</p>
+<p><strong>Verifica:</strong> se il messaggio esiste nel journal ma non nel testo, controlla l'ingresso rsyslog installato e i suoi messaggi di errore. Non inventare una consegna né duplicare i moduli di ingresso.</p>
+<h3 id="passo-5-ruotare-soltanto-il-file-di-esercizio">Passo 5 · Ruotare soltanto il file di esercizio</h3>
+<p><strong>Ipotesi:</strong> dopo la rinomina, chi deve riaprire il nome attivo?</p>
+<p>Mantieni <code translate="no">LOGUSER</code> e <code translate="no">LOGGROUP</code> impostati per il processo verificato.</p>
+<pre translate="no"><code class="lang-bash">sudo tee /etc/logrotate.d/m14a3 &gt; /dev/null &lt;&lt;EOF
+/var/log/m14a3/events.log {
+    size 1
+    rotate 2
+    missingok
+    notifempty
+    compress
+    delaycompress
+    create 0640 $LOGUSER $LOGGROUP
+    sharedscripts
+    postrotate
+        /usr/bin/systemctl kill -s HUP rsyslog.service
+    endscript
+}
+EOF
+sudo logrotate -d -s /var/lib/logrotate/m14a3.status /etc/logrotate.d/m14a3
+sudo logrotate -f -s /var/lib/logrotate/m14a3.status /etc/logrotate.d/m14a3
+logger -t m14a3 'M14A3 after rotation'
+sudo ls -l /var/log/m14a3
+sudo tail /var/log/m14a3/events.log</code></pre>
+<p><strong>Output atteso:</strong> il file precedente diventa <code translate="no">.1</code>, un nuovo file attivo riceve il messaggio e la compressione è rinviata per consentire l'osservazione. La regola ruota soltanto quel file.</p>
+<p><strong>Verifica:</strong> stato separato e argomento di file singolo evitano di forzare le regole degli altri servizi.</p>
+<h3 id="decidi-2">Decidi 2</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Opzione</th><th scope="col">Verificare la rotazione nel laboratorio</th></tr></thead><tbody><tr><td>A</td><td>Usare una regola dedicata e un file di stato separato</td></tr><tr><td>B</td><td>Cancellare il file attivo</td></tr><tr><td>C</td><td>Forzare tutta la configurazione globale</td></tr></tbody></table></div>
+<p>Scegli A. L'esercizio non deve modificare la conservazione degli altri log.</p>
+<h3 id="passo-6-verificare-la-raccolta-dopo-il-reboot">Passo 6 · Verificare la raccolta dopo il reboot</h3>
+<p><strong>Ipotesi:</strong> un file conservato dimostra che il raccoglitore sia tornato?</p>
+<pre translate="no"><code class="lang-bash">sudo systemctl reboot</code></pre>
+<p>Dopo esserti ricollegato:</p>
+<pre translate="no"><code class="lang-bash">systemctl is-active rsyslog
+logger -t m14a3 'M14A3 current boot'
+sudo journalctl -b -t m14a3 --no-pager
+sudo tail /var/log/m14a3/events.log</code></pre>
+<p><strong>Output atteso:</strong> nuovo evento nel boot attuale e nel file testuale tramite il percorso configurato.</p>
+<p><strong>Verifica:</strong> distingui il contenuto precedente conservato da un messaggio realmente nuovo.</p>
+<h2 id="6-rompi-e-ripara">6 · Rompi e ripara</h2>
+<h3 id="guasto-1-filtro-che-esclude-il-messaggio">Guasto 1 · Filtro che esclude il messaggio</h3>
+<p><strong>Sintomo:</strong> il messaggio informativo non compare nella ricerca di warning.</p>
+<p><strong>Indagine:</strong> invia un evento informativo e confronta ricerche con e senza priorità.</p>
+<pre translate="no"><code class="lang-bash">logger -t m14a3 -p user.info 'M14A3 filter test'
+sudo journalctl -b -t m14a3 -p warning --since '-2 minutes' --no-pager
+sudo journalctl -b -t m14a3 --since '-2 minutes' --no-pager</code></pre>
+<p><strong>Causa:</strong> la selezione ha escluso il livello informativo.</p>
+<p><strong>Riparazione:</strong> usa il filtro corrispondente alla domanda senza modificare l'archivio.</p>
+<p><strong>Verifica:</strong> la seconda ricerca mostra l'evento.</p>
+<p><strong>Prevenzione:</strong> annota i filtri insieme alla conclusione.</p>
+<h3 id="guasto-2-identificatore-diverso">Guasto 2 · Identificatore diverso</h3>
+<p><strong>Sintomo:</strong> l'evento arriva al journal, ma non alla regola del file dedicato.</p>
+<p><strong>Indagine:</strong> invia con un identificatore diverso dal filtro.</p>
+<pre translate="no"><code class="lang-bash">logger -t m14a3-other 'M14A3 different tag'
+sudo journalctl -b -t m14a3-other --no-pager
+sudo tail /var/log/m14a3/events.log</code></pre>
+<p><strong>Causa:</strong> la regola accetta <code translate="no">m14a3</code>, non <code translate="no">m14a3-other</code>.</p>
+<p><strong>Riparazione:</strong> invia l'identificatore previsto invece di ampliare il filtro a tutto.</p>
+<p><strong>Verifica:</strong> <code translate="no">logger -t m14a3 'M14A3 corrected tag'</code> torna alla destinazione dedicata.</p>
+<p><strong>Prevenzione:</strong> controlla i campi usati dalla regola, non soltanto il testo del messaggio.</p>
+<h3 id="guasto-3-file-precedente-ancora-aperto">Guasto 3 · File precedente ancora aperto</h3>
+<p><strong>Sintomo:</strong> dopo una rotazione senza riapertura il messaggio continua verso il file rinominato.</p>
+<p><strong>Indagine:</strong> rimuovi soltanto il comando di riapertura dalla regola dedicata e forza una rotazione di quel file.</p>
+<pre translate="no"><code class="lang-bash">sudo cp -a /etc/logrotate.d/m14a3 "$HOME/m14a3/logrotate.good"
+sudo sed -i '\@/usr/bin/systemctl kill -s HUP rsyslog.service@d' /etc/logrotate.d/m14a3
+sudo logrotate -f -s /var/lib/logrotate/m14a3.status /etc/logrotate.d/m14a3
+logger -t m14a3 'M14A3 old descriptor'
+sudo tail /var/log/m14a3/events.log.1</code></pre>
+<p><strong>Causa:</strong> il produttore ha mantenuto aperto il descrittore precedente.</p>
+<p><strong>Riparazione:</strong> ripristina la regola dedicata e richiedi la riapertura.</p>
+<pre translate="no"><code class="lang-bash">sudo cp -a "$HOME/m14a3/logrotate.good" /etc/logrotate.d/m14a3
+sudo systemctl kill -s HUP rsyslog.service
+logger -t m14a3 'M14A3 reopened'</code></pre>
+<p><strong>Verifica:</strong> l'ultimo messaggio entra nel nome attivo.</p>
+<p><strong>Prevenzione:</strong> includi la riapertura appropriata al produttore nella procedura di rotazione.</p>
+<h3 id="pulizia">Pulizia</h3>
+<p>Conserva il risultato e rimuovi soltanto regole e file di esercizio. La persistenza del journal resta intenzionalmente configurata.</p>
+<pre translate="no"><code class="lang-bash">sudo journalctl -t m14a3 --no-pager &gt; "$HOME/m14a3/journal.txt"
+sudo rm -f /etc/rsyslog.d/30-m14a3.conf /etc/logrotate.d/m14a3
+sudo rsyslogd -N1
+sudo systemctl restart rsyslog
+sudo rm -f /var/log/m14a3/events.log /var/log/m14a3/events.log.1 /var/log/m14a3/events.log.2.gz /var/lib/logrotate/m14a3.status
+sudo rmdir /var/log/m14a3</code></pre>
+<p>Se decidi di ripristinare l'opzione di archiviazione, rimuovi soltanto <code translate="no">/etc/systemd/journald.conf.d/60-m14a3.conf</code> e riavvia journald. Conserva i dati: con <code translate="no">Storage=auto</code> la directory esistente può ancora mantenere la persistenza. Non cancellare journal per ottenere uno stato visivamente vuoto.</p>
+<h2 id="7-trappole">7 · Trappole</h2>
+<div class="tabela"><table><thead><tr><th scope="col">Errore</th><th scope="col">Che cosa fare</th><th scope="col">Motivo</th></tr></thead><tbody><tr><td>Ricerca vuota significa assenza dell'evento</td><td>Rivedere filtri e archivio</td><td>La domanda può escludere il registro</td></tr><tr><td>Ogni journal è testuale</td><td>Identificare l'archivio</td><td>Il journal è strutturato</td></tr><tr><td>Rotazione significa backup</td><td>Verificare una copia separata ripristinabile</td><td>La conservazione locale non protegge dalla perdita dell'host</td></tr></tbody></table></div>
+<h2 id="8-quiz">8 · Quiz</h2>
+<ol><li>Che cosa seleziona <code translate="no">-b -1</code>?</li>
+<li>Il filtro warning include livelli più gravi?</li>
+<li>Come dimostri la persistenza?</li>
+<li>Perché la regola rsyslog può non ricevere un evento?</li>
+<li>Perché riaprire dopo la rotazione?</li>
+<li>Perché usare uno stato separato nel test di logrotate?</li></ol>
+<h2 id="9-promemoria">9 · Promemoria</h2>
+<div class="tabela"><table><thead><tr><th scope="col">Operazione</th><th scope="col">Comando</th></tr></thead><tbody><tr><td>Elencare i boot</td><td><code translate="no">sudo journalctl --list-boots</code></td></tr><tr><td>Eventi dedicati</td><td><code translate="no">sudo journalctl -t m14a3</code></td></tr><tr><td>Validare rsyslog</td><td><code translate="no">sudo rsyslogd -N1</code></td></tr><tr><td>Simulare la rotazione</td><td><code translate="no">sudo logrotate -d /etc/logrotate.d/m14a3</code></td></tr></tbody></table></div>
+<p><strong>Flashcard:</strong> crea cinque schede su boot, priorità, persistenza, ingresso e riapertura. Ripassa a D+1, D+3, D+7 e D+21.</p>
+<h2 id="10-checklist-e-chiusura">10 · Checklist e chiusura</h2>
+<ul><li>[ ] Ho trovato eventi con filtri spiegati.</li>
+<li>[ ] Ho dimostrato la persistenza dopo il reboot.</li>
+<li>[ ] Ho ruotato soltanto il file dedicato e conservato i journal reali.</li></ul>
+<p><strong>Ultimo esercizio:</strong> descrivi come distinguere evento inesistente, filtro errato e archiviazione volatile.</p>
+<p><strong>Reboot di verifica:</strong> riavvia le due VM dopo la pulizia; conferma journal persistente e assenza della regola testuale di esercizio.</p>
+<pre translate="no"><code class="lang-bash">sudo systemctl reboot</code></pre>
+<p>Sull'host Proxmox:</p>
+<pre translate="no"><code class="lang-bash">qm snapshot 201 m14a3-fim
+qm snapshot 202 m14a3-fim</code></pre>
+<h2 id="11-nella-vita-reale">11 · Nella vita reale</h2>
+<p>Su un host autorizzato leggi la configurazione del journal, il suo uso del disco e le regole di un log noto. Non forzare rotazioni, non riavviare la raccolta e non cancellare dati in questa missione. Indica chi produce, dove archivia e come il produttore riapre il file.</p>
+<h2 id="12-approfondire-quando-vuoi">12 · Approfondire quando vuoi</h2>
+<ul><li><a href="https://manpages.debian.org/trixie/systemd/journald.conf.5.en.html">journald.conf(5)</a> e <a href="https://manpages.debian.org/trixie/systemd/journalctl.1.en.html">journalctl(1)</a>: archiviazione e ricerca.</li>
+<li><a href="https://www.rsyslog.com/doc/configuration/filters.html">Filtri rsyslog</a> e <a href="https://manpages.debian.org/trixie/logrotate/logrotate.8.en.html">logrotate(8)</a>: selezione e rotazione.</li></ul>
+<p><strong>DeepTutor</strong> (http://10.1.0.149:3782, KB "Curso Linux Sysadmin"):</p>
+<ul><li><code translate="no">!explica Separe armazenamento do journal, encaminhamento rsyslog e rotação de arquivos.</code></li>
+<li><code translate="no">!feynman Vou explicar por que uma consulta vazia não comprova ausência do evento. Critique minha explicação.</code></li>
+<li><code translate="no">!quiz Crie seis incidentes de logs sem apagar registros reais.</code></li></ul>
+<h2 id="soluzioni-commentate">Soluzioni commentate</h2>
+<h3 id="riscaldamento">Riscaldamento</h3>
+<ol><li>Nel journal dell'unità, oltre allo stato prodotto dal lavoro.</li>
+<li>Un processo può essere attivo senza aver completato l'attività; un oneshot può terminare e restare inattivo.</li>
+<li>Il produttore può mantenere il file aperto e continuare a occupare spazio.</li></ol>
+<h3 id="quiz">Quiz</h3>
+<ol><li>Il boot precedente disponibile nell'archivio.</li>
+<li>Sì; seleziona warning e livelli più gravi.</li>
+<li>Registra un messaggio prima, riavvia e consulta il boot precedente.</li>
+<li>Ingresso assente, filtro diverso oppure errore nell'azione, tra le evidenze da esaminare.</li>
+<li>Il descrittore può continuare a puntare al file rinominato.</li>
+<li>Per non modificare la cronologia di rotazione degli altri log.</li></ol>
+<p><a href="14.2-timers-do-systemd.it.html">← Lezione 14.2 · Timer di systemd</a> · <a href="index.it.html">Indice delle lezioni</a> · <a href="https://github.com/Rodrigoantignani/curso-linux-sysadmin/blob/master/00-plano-do-curso.md">Piano del corso: dalla 14.4 in poi →</a></p>
+</article><nav class="paginas" aria-label="Lezioni"><a class="ant" href="14.2-timers-do-systemd.it.html"><small>← Precedente</small>14.2 · Timer di systemd</a><a class="prox" href="14.4-hora-certa.it.html"><small>Successiva →</small>14.4 · L'ora corretta</a></nav></main></div>
+<footer><div class="wrap">Generato dal Markdown del corso · Immagini in <code translate="no">img/</code></div></footer>
+</body>
+</html>

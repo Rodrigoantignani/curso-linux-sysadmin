@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light dark">
+<title>19.1 · DNS autoritativo · Corso Linux Sysadmin</title>
+<link rel="alternate" hreflang="pt-BR" href="19.1-dns-autoritativo.html"><link rel="alternate" hreflang="it" href="19.1-dns-autoritativo.it.html">
+<style>
+:root{color-scheme:light dark;--bg:#f6f1e7;--card:#fffdf8;--ink:#201c16;--muted:#5e564a;--accent:#9a3412;--accent-2:#1f5f4a;--tint:#efe6d4;--line:#ddd2bc;--code:#f1eadb;--shadow:0 1px 2px rgba(60,40,10,.08);--serif:Georgia,"Iowan Old Style","Palatino Linotype",Palatino,serif;--sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--mono:"Cascadia Code",Consolas,"DejaVu Sans Mono",monospace}
+@media (prefers-color-scheme:dark){:root{--bg:#16130f;--card:#201b15;--ink:#f1eadb;--muted:#b9ad98;--accent:#f0a070;--accent-2:#7fd0b0;--tint:#2a231a;--line:#3d3427;--code:#191510;--shadow:none}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:5.5rem}
+body{margin:0;background:var(--bg);color:var(--ink);font:1rem/1.6 var(--sans)}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--accent-2);outline-offset:2px;border-radius:4px}
+.pular{position:absolute;left:-999px;top:0;background:var(--card);padding:.5rem 1rem;z-index:20}
+.pular:focus{left:.5rem;top:.5rem}
+.wrap{width:100%;max-width:84rem;margin:0 auto;padding-inline:max(1rem,env(safe-area-inset-left))}
+.top{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10;border-top:6px solid var(--accent)}
+.top-in{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding-block:.6rem}
+.titles{min-width:0}
+.marca{margin:0;font:700 clamp(1.15rem,1rem + 1vw,1.6rem)/1.15 var(--serif);letter-spacing:-.01em}
+.marca a{text-decoration:none}
+.marca a:hover{color:var(--accent)}
+.meta{margin:.1rem 0 0;color:var(--muted);font-size:.85rem}
+.acoes{display:flex;align-items:center;gap:.9rem;flex:none}
+.acoes>a{font-size:.9rem;font-weight:600;color:var(--muted);text-decoration:none}
+.acoes>a:hover{color:var(--accent);text-decoration:underline}
+.idioma{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--tint)}
+.idioma>*{padding:.35rem .9rem;font-size:.8rem;font-weight:700;letter-spacing:.06em;text-decoration:none;color:var(--muted);min-width:2.75rem;text-align:center}
+.idioma a:hover{color:var(--accent);text-decoration:underline}
+.idioma span{background:var(--accent);color:#fff}
+@media (prefers-color-scheme:dark){.idioma span{color:#16130f}}
+code{font-family:var(--mono);font-size:.9em;background:var(--tint);padding:.1rem .35rem;border-radius:4px;overflow-wrap:anywhere}
+/* índice */
+.capa{max-width:70rem;padding-block:2rem 3rem}
+.stats{border-left:4px solid var(--accent-2);background:var(--card);border-radius:0 10px 10px 0;padding:1rem 1.25rem;margin:0 0 2.5rem;box-shadow:var(--shadow);color:var(--muted)}
+.stats strong{color:var(--ink)}
+.modulo{display:grid;grid-template-columns:15rem minmax(0,1fr);gap:1rem 2rem;padding:1.75rem 0;border-top:1px solid var(--line)}
+.modulo h2{margin:0;font:700 1.25rem/1.25 var(--serif);align-self:start;position:sticky;top:6rem}
+.mn{display:block;font:700 .8rem var(--mono);letter-spacing:.12em;color:var(--accent);margin-bottom:.25rem}
+.sep{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.modulo ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,17rem),1fr));gap:.75rem}
+.modulo li{margin:0}
+.modulo a{display:flex;gap:.45rem;align-items:baseline;height:100%;padding:.85rem 1rem;background:var(--card);border:1px solid var(--line);border-radius:10px;text-decoration:none;font-weight:600;line-height:1.35;box-shadow:var(--shadow);transition:border-color .15s,transform .15s}
+.modulo a:hover{border-color:var(--accent);color:var(--accent)}
+.num{font:700 .85rem var(--mono);color:var(--accent);white-space:nowrap}
+/* aula */
+.doc{display:grid;grid-template-columns:17rem minmax(0,1fr);gap:2.5rem;align-items:start;padding-block:2rem 3rem}
+.lateral{position:sticky;top:5.5rem;max-height:calc(100vh - 6.5rem);overflow:auto;font-size:.875rem;padding-right:.5rem}
+.lateral h2{margin:0 0 .25rem;font:700 .95rem var(--serif);color:var(--muted)}
+.lateral h3{margin:1rem 0 .25rem;font:700 .75rem var(--mono);letter-spacing:.06em;color:var(--accent)}
+.lateral ul{list-style:none;margin:0;padding:0}
+.lateral a{display:flex;gap:.45rem;padding:.25rem .5rem;border-radius:6px;text-decoration:none;color:var(--muted);line-height:1.3}
+.lateral a:hover{background:var(--tint);color:var(--ink)}
+.lateral a[aria-current]{background:var(--tint);color:var(--ink);font-weight:700;box-shadow:inset 3px 0 0 var(--accent)}
+.lateral .num{font-size:.75rem}
+.aula{min-width:0;max-width:56rem;overflow-wrap:break-word;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:clamp(1.25rem,1rem + 2vw,2.75rem);box-shadow:var(--shadow)}
+.aula h1{margin:0 0 1.5rem;font:700 clamp(1.75rem,1.4rem + 1.6vw,2.5rem)/1.15 var(--serif);letter-spacing:-.015em;color:var(--ink)}
+.aula h2{margin:2.5rem 0 .75rem;padding-top:1.25rem;border-top:1px solid var(--line);font:700 1.5rem/1.25 var(--serif)}
+.aula h3{margin:2rem 0 .5rem;font:700 1.15rem/1.3 var(--serif);color:var(--accent)}
+.aula h4,.aula h5,.aula h6{margin:1.5rem 0 .5rem;font-size:1rem}
+.aula p,.aula ul,.aula ol{margin:1rem 0}
+.aula ul,.aula ol{padding-left:1.5rem}
+.aula li{margin:.35rem 0}
+.aula li>ul,.aula li>ol{margin:.35rem 0}
+.aula a{color:var(--accent);text-underline-offset:2px}
+.aula hr{border:0;border-top:1px solid var(--line);margin:2rem 0}
+.tabela{overflow-x:auto;margin:1.25rem 0;border:1px solid var(--line);border-radius:10px}
+.aula table{width:100%;border-collapse:collapse;font-size:.9rem}
+.aula th,.aula td{padding:.55rem .75rem;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+.aula tr:last-child td{border-bottom:0}
+.aula th{background:var(--tint);font-weight:700}
+.aula pre{background:var(--code);border:1px solid var(--line);border-radius:10px;padding:.9rem 1rem;overflow-x:auto;font:.85rem/1.5 var(--mono);margin:1rem 0;tab-size:4}
+.aula pre code{background:none;padding:0;font-size:inherit;overflow-wrap:normal}
+.aula blockquote{margin:1.25rem 0;padding:.75rem 1.25rem;border-left:4px solid var(--accent-2);background:var(--tint);border-radius:0 10px 10px 0}
+.aula blockquote>:first-child{margin-top:0}
+.aula blockquote>:last-child{margin-bottom:0}
+.aula figure{margin:1.75rem 0;text-align:center}
+.aula figure img{display:block;margin:0 auto;max-width:100%;height:auto;border:1px solid var(--line);border-radius:10px;background:#fff}
+.aula figcaption{margin-top:.5rem;color:var(--muted);font-size:.9rem;font-style:italic}
+.paginas{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:2.5rem;padding-top:1.5rem;border-top:1px solid var(--line)}
+.paginas a{display:block;padding:.75rem 1rem;border:1px solid var(--line);border-radius:10px;text-decoration:none;color:var(--ink);font-weight:600;line-height:1.3}
+.paginas a:hover{border-color:var(--accent);color:var(--accent)}
+.paginas small{display:block;color:var(--muted);font-weight:400}
+.paginas .prox{grid-column:2;text-align:right}
+footer{border-top:1px solid var(--line);padding-block:1.5rem;color:var(--muted);font-size:.85rem;text-align:center}
+@media (hover:hover) and (prefers-reduced-motion:no-preference){.modulo a:hover{transform:translateY(-2px)}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+@media (max-width:980px){.doc{grid-template-columns:minmax(0,1fr);padding-top:1rem}.lateral{position:static;max-height:none;order:2}.aula{max-width:none}}
+@media (max-width:860px){.modulo{grid-template-columns:minmax(0,1fr)}.modulo h2{position:static}.mn{display:inline;margin-right:.5rem}}
+@media (max-width:420px){.meta{display:none}.top-in{gap:.5rem}.acoes{gap:.6rem}.capa{padding-top:1.25rem}.paginas{grid-template-columns:minmax(0,1fr)}.paginas .prox{grid-column:1}}
+@media print{.top,.lateral,.paginas{display:none}.aula{border:0;box-shadow:none;padding:0;max-width:none}.doc{display:block}}
+</style>
+</head>
+<body>
+<a class="pular" href="#conteudo">Vai al contenuto</a>
+<header class="top"><div class="wrap top-in"><div class="titles"><p class="marca"><a href="index.it.html">Corso Linux Sysadmin</a></p><p class="meta">Rodrigo Antignani · Lezione 19.1</p></div><div class="acoes"><a href="index.it.html">Indice</a><div class="idioma" role="group" aria-label="Lingua"><a href="19.1-dns-autoritativo.html" hreflang="pt-BR" lang="pt-BR">PT</a><span aria-current="true">IT</span></div></div></div></header>
+<div class="wrap doc"><aside class="lateral" aria-label="Lezioni"><h2>Lezioni</h2><h3>M0 · Laboratorio</h3><ul><li><a href="0.1-montar-o-laboratorio.it.html"><span class="num">0.1</span><span>Allestire il laboratorio</span></a></li><li><a href="0.2-acesso-e-protecao.it.html"><span class="num">0.2</span><span>Accesso e protezione</span></a></li></ul><h3>M1 · Riga di comando</h3><ul><li><a href="1.1-o-que-e-linux.it.html"><span class="num">1.1</span><span>Che cos'è Linux</span></a></li><li><a href="1.2-o-shell-e-a-ajuda.it.html"><span class="num">1.2</span><span>La shell e la guida</span></a></li><li><a href="1.3-caminhos-e-navegacao.it.html"><span class="num">1.3</span><span>Percorsi e navigazione</span></a></li><li><a href="1.4-criar-copiar-mover-e-apagar.it.html"><span class="num">1.4</span><span>Creare, copiare, spostare ed eliminare</span></a></li><li><a href="1.5-ler-e-procurar-texto.it.html"><span class="num">1.5</span><span>Leggere e cercare testo</span></a></li><li><a href="1.6-redirecionamentos-e-pipes.it.html"><span class="num">1.6</span><span>Reindirizzamenti e pipe</span></a></li><li><a href="1.7-arquivar-e-compactar.it.html"><span class="num">1.7</span><span>Archiviare e comprimere</span></a></li><li><a href="1.8-primeiro-script.it.html"><span class="num">1.8</span><span>Primo script</span></a></li><li><a href="1.9-decidir-e-repetir.it.html"><span class="num">1.9</span><span>Decidere e ripetere</span></a></li><li><a href="1.10-software-livre-na-pratica.it.html"><span class="num">1.10</span><span>Il software libero in pratica</span></a></li></ul><h3>M2 · Sistema, utenti e permessi</h3><ul><li><a href="2.1-instalacao-e-provisionamento.it.html"><span class="num">2.1</span><span>Installazione e provisioning</span></a></li><li><a href="2.2-hardware-e-dispositivos.it.html"><span class="num">2.2</span><span>Hardware e dispositivi</span></a></li><li><a href="2.3-processos-e-logs.it.html"><span class="num">2.3</span><span>Processi e log</span></a></li><li><a href="2.4-rede-no-dia-a-dia.it.html"><span class="num">2.4</span><span>La rete di tutti i giorni</span></a></li><li><a href="2.5-acesso-remoto-e-privilegios.it.html"><span class="num">2.5</span><span>Accesso remoto e privilegi</span></a></li><li><a href="2.6-usuarios-e-grupos.it.html"><span class="num">2.6</span><span>Utenti e gruppi</span></a></li><li><a href="2.7-permissoes-e-dono.it.html"><span class="num">2.7</span><span>Permessi e proprietario</span></a></li><li><a href="2.8-diretorios-e-arquivos-especiais.it.html"><span class="num">2.8</span><span>Directory e file speciali</span></a></li></ul><h3>M3 · Testo ed editor</h3><ul><li><a href="3.1-fluxos-a-fundo.it.html"><span class="num">3.1</span><span>I flussi in profondità</span></a></li><li><a href="3.2-filtros-de-texto.it.html"><span class="num">3.2</span><span>Filtri di testo</span></a></li><li><a href="3.3-regex-e-grep.it.html"><span class="num">3.3</span><span>Regex e grep</span></a></li><li><a href="3.4-sed-e-awk.it.html"><span class="num">3.4</span><span>sed e awk</span></a></li><li><a href="3.5-vi-e-vim-de-verdade.it.html"><span class="num">3.5</span><span>vi e vim sul serio</span></a></li></ul><h3>M4 · systemd e boot</h3><ul><li><a href="4.1-como-o-linux-liga.it.html"><span class="num">4.1</span><span>Come si avvia Linux</span></a></li><li><a href="4.2-systemd-servicos-e-units.it.html"><span class="num">4.2</span><span>systemd: servizi e unit</span></a></li><li><a href="4.3-targets-desligar-e-reiniciar.it.html"><span class="num">4.3</span><span>Target: spegnere e riavviare</span></a></li><li><a href="4.4-grub-e-acesso-de-emergencia.it.html"><span class="num">4.4</span><span>GRUB e accesso di emergenza</span></a></li></ul><h3>M5 · Kernel, moduli e VM</h3><ul><li><a href="5.1-hardware-pelo-kernel.it.html"><span class="num">5.1</span><span>L'hardware visto dal kernel</span></a></li><li><a href="5.2-modulos-e-parametros.it.html"><span class="num">5.2</span><span>Moduli e parametri</span></a></li><li><a href="5.3-linux-como-convidado.it.html"><span class="num">5.3</span><span>Linux come guest</span></a></li></ul><h3>M6 · Pacchetti e repository</h3><ul><li><a href="6.1-pacotes-no-debian.it.html"><span class="num">6.1</span><span>Pacchetti su Debian</span></a></li><li><a href="6.2-pacotes-na-rocky.it.html"><span class="num">6.2</span><span>Pacchetti su Rocky</span></a></li><li><a href="6.3-repositorios.it.html"><span class="num">6.3</span><span>Repository</span></a></li><li><a href="6.4-flatpak.it.html"><span class="num">6.4</span><span>Flatpak</span></a></li><li><a href="6.5-bibliotecas-compartilhadas.it.html"><span class="num">6.5</span><span>Librerie condivise</span></a></li></ul><h3>M7 · Processi e prestazioni</h3><ul><li><a href="7.1-processos-e-sinais.it.html"><span class="num">7.1</span><span>Processi e segnali</span></a></li><li><a href="7.2-jobs-e-sessoes.it.html"><span class="num">7.2</span><span>Job e sessioni</span></a></li><li><a href="7.3-prioridade-e-perfis.it.html"><span class="num">7.3</span><span>Priorità e profili</span></a></li></ul><h3>M8 · File a fondo</h3><ul><li><a href="8.1-fhs-e-onde-cada-coisa-mora.it.html"><span class="num">8.1</span><span>FHS e dove sta ogni cosa</span></a></li><li><a href="8.2-find-a-fundo.it.html"><span class="num">8.2</span><span>find a fondo</span></a></li><li><a href="8.3-arquivamento-avancado.it.html"><span class="num">8.3</span><span>Archiviazione avanzata</span></a></li><li><a href="8.4-links.it.html"><span class="num">8.4</span><span>Link</span></a></li><li><a href="8.5-permissoes-avancadas.it.html"><span class="num">8.5</span><span>Permessi avanzati</span></a></li></ul><h3>M9 · Storage</h3><ul><li><a href="9.1-discos-e-layout.it.html"><span class="num">9.1</span><span>Dischi e layout</span></a></li><li><a href="9.2-particionar.it.html"><span class="num">9.2</span><span>Partizionare</span></a></li><li><a href="9.3-sistemas-de-arquivos.it.html"><span class="num">9.3</span><span>File system</span></a></li><li><a href="9.4-montar-e-persistir.it.html"><span class="num">9.4</span><span>Montare e rendere persistente</span></a></li><li><a href="9.5-integridade-e-espaco.it.html"><span class="num">9.5</span><span>Integrità e spazio</span></a></li><li><a href="9.6-lvm.it.html"><span class="num">9.6</span><span>LVM</span></a></li><li><a href="9.7-crescer-sem-destruir.it.html"><span class="num">9.7</span><span>Crescere senza distruggere</span></a></li></ul><h3>M10 · Utenti e accesso privilegiato</h3><ul><li><a href="10.1-contas.it.html"><span class="num">10.1</span><span>Account</span></a></li><li><a href="10.2-senhas-e-validade.it.html"><span class="num">10.2</span><span>Password e scadenza</span></a></li><li><a href="10.3-grupos-e-trabalho-em-equipe.it.html"><span class="num">10.3</span><span>Gruppi e lavoro di squadra</span></a></li><li><a href="10.4-sudo-de-verdade.it.html"><span class="num">10.4</span><span>sudo sul serio</span></a></li></ul><h3>M11 · Rete</h3><ul><li><a href="11.1-tcp-ip-para-quem-administra.it.html"><span class="num">11.1</span><span>TCP/IP per chi amministra</span></a></li><li><a href="11.2-networkmanager-e-nmcli.it.html"><span class="num">11.2</span><span>NetworkManager e nmcli</span></a></li><li><a href="11.3-rede-no-debian.it.html"><span class="num">11.3</span><span>Rete su Debian</span></a></li><li><a href="11.4-nomes-e-resolucao.it.html"><span class="num">11.4</span><span>Nomi e risoluzione</span></a></li><li><a href="11.5-diagnostico-de-rede.it.html"><span class="num">11.5</span><span>Diagnosi di rete</span></a></li></ul><h3>M12 · Sicurezza dell'host</h3><ul><li><a href="12.1-ssh-a-fundo.it.html"><span class="num">12.1</span><span>SSH in dettaglio</span></a></li><li><a href="12.2-firewall.it.html"><span class="num">12.2</span><span>Firewall</span></a></li><li><a href="12.3-selinux-modos-e-contextos.it.html"><span class="num">12.3</span><span>SELinux: modalità e contesti</span></a></li><li><a href="12.4-selinux-portas-e-booleanos.it.html"><span class="num">12.4</span><span>SELinux: porte e booleani</span></a></li><li><a href="12.5-auditoria-e-criptografia.it.html"><span class="num">12.5</span><span>Audit e crittografia</span></a></li></ul><h3>M13 · Archiviazione in rete</h3><ul><li><a href="13.1-servidor-nfs.it.html"><span class="num">13.1</span><span>Server NFS</span></a></li><li><a href="13.2-cliente-nfs.it.html"><span class="num">13.2</span><span>Client NFS</span></a></li><li><a href="13.3-autofs.it.html"><span class="num">13.3</span><span>autofs</span></a></li></ul><h3>M14 · Pianificazione</h3><ul><li><a href="14.1-cron-e-at.it.html"><span class="num">14.1</span><span>cron e at</span></a></li><li><a href="14.2-timers-do-systemd.it.html"><span class="num">14.2</span><span>Timer di systemd</span></a></li><li><a href="14.3-journald-e-rsyslog.it.html"><span class="num">14.3</span><span>journald e rsyslog</span></a></li><li><a href="14.4-hora-certa.it.html"><span class="num">14.4</span><span>L'ora corretta</span></a></li><li><a href="14.5-email-local-e-impressao.it.html"><span class="num">14.5</span><span>E-mail locale e stampa</span></a></li></ul><h3>M15 · Shell e ambiente</h3><ul><li><a href="15.1-ambiente-do-shell.it.html"><span class="num">15.1</span><span>Ambiente della shell</span></a></li><li><a href="15.2-scripts-robustos.it.html"><span class="num">15.2</span><span>Script robusti</span></a></li><li><a href="15.3-scripts-de-administracao.it.html"><span class="num">15.3</span><span>Script di amministrazione</span></a></li><li><a href="15.4-interfaces-graficas.it.html"><span class="num">15.4</span><span>Interfacce grafiche</span></a></li><li><a href="15.5-idioma-teclado-e-fuso.it.html"><span class="num">15.5</span><span>Lingua, tastiera e fuso orario</span></a></li></ul><h3>M16 · Settimana di incidenti su Rocky 10</h3><ul><li><a href="16.1-rocky-10-o-que-muda.it.html"><span class="num">16.1</span><span>Rocky 10: cosa cambia</span></a></li><li><a href="16.2-incidentes-por-area.it.html"><span class="num">16.2</span><span>Incidenti per area</span></a></li><li><a href="16.3-incidente-com-relogio.it.html"><span class="num">16.3</span><span>Incidente con cronometro</span></a></li><li><a href="16.4-correcao-e-reforco.it.html"><span class="num">16.4</span><span>Correzione e rinforzo</span></a></li></ul><h3>M17 · Proxmox in pratica</h3><ul><li><a href="17.1-proxmox-por-dentro.it.html"><span class="num">17.1</span><span>Proxmox dall'interno</span></a></li><li><a href="17.2-vm-pela-linha-de-comando.it.html"><span class="num">17.2</span><span>VM dalla riga di comando</span></a></li><li><a href="17.3-conteiner-lxc.it.html"><span class="num">17.3</span><span>Container LXC</span></a></li><li><a href="17.4-storage.it.html"><span class="num">17.4</span><span>Storage: capacità, ampliamento e spostamento</span></a></li><li><a href="17.5-rede.it.html"><span class="num">17.5</span><span>Rete: bridge, VLAN, bond e SDN</span></a></li><li><a href="17.6-backup-e-restauracao.it.html"><span class="num">17.6</span><span>Backup e ripristino con PBS</span></a></li><li><a href="17.7-migracao-e-quorum.it.html"><span class="num">17.7</span><span>Migrazione e quorum</span></a></li></ul><h3>M18 · Podman</h3><ul><li><a href="18.1-conteiner-nao-e-vm.it.html"><span class="num">18.1</span><span>Un container non è una VM</span></a></li><li><a href="18.2-rodar-e-persistir.it.html"><span class="num">18.2</span><span>Eseguire e conservare i dati</span></a></li><li><a href="18.3-conteiner-como-servico.it.html"><span class="num">18.3</span><span>Container come servizio</span></a></li><li><a href="18.4-diagnosticar-conteiner-rootless.it.html"><span class="num">18.4</span><span>Diagnosticare un container rootless</span></a></li><li><a href="18.5-construir-imagens.it.html"><span class="num">18.5</span><span>Costruire immagini</span></a></li></ul><h3>M19 · Servizi di rete</h3><ul><li><a href="19.1-dns-autoritativo.it.html" aria-current="page"><span class="num">19.1</span><span>DNS autoritativo</span></a></li><li><a href="19.2-dns-recursivo-e-diagnostico.it.html"><span class="num">19.2</span><span>DNS ricorsivo e diagnosi</span></a></li><li><a href="19.3-dhcp.it.html"><span class="num">19.3</span><span>DHCP</span></a></li><li><a href="19.4-servidor-web.it.html"><span class="num">19.4</span><span>Server web: nome, file e risposta</span></a></li><li><a href="19.5-tls-e-proxy-reverso.it.html"><span class="num">19.5</span><span>TLS e reverse proxy: identità prima del lucchetto</span></a></li><li><a href="19.6-samba-a-ponte-windows.it.html"><span class="num">19.6</span><span>Samba: il ponte con il client Windows</span></a></li><li><a href="19.7-postfix-e-correio-local.it.html"><span class="num">19.7</span><span>Postfix e posta locale</span></a></li><li><a href="19.8-dovecot-e-imaps.it.html"><span class="num">19.8</span><span>Dovecot e lettura tramite IMAPS</span></a></li><li><a href="19.9-squid-e-desafio-integrado.it.html"><span class="num">19.9</span><span>Squid e sfida integrata</span></a></li></ul><h3>M20 · Dentro NethServer 8</h3><ul><li><a href="20.1-instalar-nethserver-8.it.html"><span class="num">20.1</span><span>Installare in una VM pulita</span></a></li><li><a href="20.2-cluster-no-e-modulo.it.html"><span class="num">20.2</span><span>Cluster, nodo e modulo</span></a></li><li><a href="20.3-modulo-por-dentro.it.html"><span class="num">20.3</span><span>Dentro un modulo</span></a></li><li><a href="20.4-proxy-e-certificados.it.html"><span class="num">20.4</span><span>Proxy e certificati</span></a></li><li><a href="20.5-dominios-de-usuario.it.html"><span class="num">20.5</span><span>Domini utente: identità con confini</span></a></li><li><a href="20.6-backup-e-restauracao.it.html"><span class="num">20.6</span><span>Backup e ripristino: verificare il ritorno</span></a></li><li><a href="20.7-atualizar-mover-e-falhar.it.html"><span class="num">20.7</span><span>Aggiornare, spostare e guastare con verifica</span></a></li></ul></aside><main id="conteudo" class="aula"><article><h1>Lezione 19.1 · DNS autoritativo</h1>
+<blockquote><p><strong>Il cuore di questa lezione:</strong> crea la VM 204 e verifica risposte A, MX e PTR nella rete isolata.</p></blockquote>
+<div class="tabela"><table><thead><tr><th scope="col">Scheda</th><th scope="col">Piano di lavoro</th></tr></thead><tbody><tr><td>Modulo</td><td>M19 · Servizi di rete, lezione 1 di 9</td></tr><tr><td>Quando</td><td>Settimana 25</td></tr><tr><td>Alla fine</td><td>crea la VM 204 e verifica risposte A, MX e PTR nella rete isolata.</td></tr><tr><td>Prerequisiti</td><td>M17, M18; VM 201 e 202; utente student; rete isolata vmbr17</td></tr><tr><td>Durata</td><td>150–180 minuti</td></tr><tr><td>Snapshot</td><td>m19a1-inicio e m19a1-fim; solo VM indicate</td></tr></tbody></table></div>
+<p>Il nodo Proxmox riceve solo i comandi indicati come host.</p>
+<p>Gli altri appartengono alla VM specificata, con Bash e utente <code translate="no">student</code>.</p>
+<p>Non eseguire i blocchi successivi se una verifica fallisce.</p>
+<p>Conserva l’output reale nel diario; questa lezione non presenta un’esecuzione già effettuata.</p>
+<p>Prima delle query dai client, completa la <a href="https://github.com/Rodrigoantignani/curso-linux-sysadmin/blob/master/GUIA_BANCADA_M19_IT.md">guida del banco M19</a> per le schede isolate delle VM 201 e 202; la creazione della VM 204 resta in questa lezione.</p>
+<p>Nomi canonici del modulo: il nome della VM in Proxmox e l’hostname del sistema operativo devono corrispondere al ruolo, prima di eseguire le guardie. Un nome DNS di servizio non cambia l’hostname. Se l’inventario differisce, riconcilialo dalla console prima di proseguire; non ignorare le guardie.</p>
+<div class="tabela"><table><thead><tr><th scope="col">VM</th><th scope="col">Hostname breve</th><th scope="col">Indirizzo isolato</th></tr></thead><tbody><tr><td>201</td><td><code translate="no">rocky-lab</code></td><td><code translate="no">192.0.2.201</code></td></tr><tr><td>202</td><td><code translate="no">debian-lab</code></td><td><code translate="no">192.0.2.202</code></td></tr><tr><td>204</td><td><code translate="no">srv-deb</code></td><td><code translate="no">192.0.2.204</code></td></tr><tr><td>212</td><td><code translate="no">m19-client</code></td><td>DHCP; solo sfida 19.9</td></tr></tbody></table></div>
+<h2 id="1-riscaldamento">1 · Riscaldamento</h2>
+<ol><li>Qual è la differenza fra l’indirizzo usato per amministrare una VM e quello su cui un servizio risponde al lab?</li>
+<li>Interrogare un nome dimostra automaticamente che la ricerca inversa funziona?</li>
+<li>Come dimostreresti che la VM 204 è libera nell’intero cluster?</li></ol>
+<p>Disegna la VM 204 con due schede.</p>
+<p>Segna l’unico segmento su cui il DNS deve ascoltare e lascia fuori la gestione.</p>
+<h2 id="2-perche-conta">2 · Perché conta</h2>
+<p>Un servizio di posta deve trovare la destinazione MX e verificare i nomi associati agli indirizzi.</p>
+<p>Un solo record A non risponde a queste domande.</p>
+<p>La VM 204 sosterrà i prossimi servizi.</p>
+<p>Crearla verificando identità, disco e rete evita di trascinare un errore di base per tutto il modulo.</p>
+<h3 id="ponte-windows">Ponte Windows</h3>
+<p>Una zona DNS resta un insieme di record autoritativi.</p>
+<p>Il client può interrogare direttamente questo server senza renderlo il resolver predefinito dell’intera macchina.</p>
+<h2 id="3-modello-mentale">3 · Modello mentale</h2>
+<figure><a href="../img/19.1-duas-placas-dois-escopos.it.jpg"><img src="../img/19.1-duas-placas-dois-escopos.it.jpg" alt="Due schede, due ambiti" loading="lazy" decoding="async"></a><figcaption>La gestione resta separata dalla rete in cui il servizio risponde.</figcaption></figure>
+<p>La gestione usa la rete reale esistente.</p>
+<p>La scheda isolata usa <code translate="no">192.0.2.204/24</code>, senza gateway; <code translate="no">vmbr17</code> non ha porta fisica, IP sull’host, router o NAT.</p>
+<p>Il prefisso <code translate="no">192.0.2.0/24</code> è didattico e resta rigorosamente segregato.</p>
+<p>Prima di assegnarlo, verifica sovrapposizioni con rotte, gestione e VPN su tutte le macchine coinvolte.</p>
+<figure><a href="../img/19.1-zona-direta-e-reversa.it.jpg"><img src="../img/19.1-zona-direta-e-reversa.it.jpg" alt="Nome e indirizzo richiedono verifiche diverse" loading="lazy" decoding="async"></a><figcaption>La zona diretta risponde al nome; quella inversa risponde all’indirizzo.</figcaption></figure>
+<p>Il server è autorità per <code translate="no">lab.test</code> e per l’inversa <code translate="no">2.0.192.in-addr.arpa</code>.</p>
+<p>Un PTR non nasce automaticamente da un A.</p>
+<h3 id="rocky-debian">Rocky × Debian</h3>
+<p>Il server della lezione è Debian 13; Rocky 201 resta un client del segmento isolato.</p>
+<p>I nomi dei servizi e i percorsi BIND possono cambiare fra distribuzioni: non copiare quelli del server Debian sul client Rocky.</p>
+<h2 id="4-l-essenziale">4 · L'essenziale</h2>
+<div class="tabela"><table><thead><tr><th scope="col">Oggetto</th><th scope="col">Contratto</th></tr></thead><tbody><tr><td>204 srv-deb</td><td>Debian 13; 2 vCPU; 2 GiB; disco 20 GiB su vm-hdd</td></tr><tr><td>Firmware</td><td>q35; OVMF; x86-64-v2-AES; QGA</td></tr><tr><td>net0</td><td>vmbr0; gestione reale riservata fuori dal pool DHCP reale</td></tr><tr><td>net1</td><td>vmbr17; 192.0.2.204/24; senza gateway</td></tr><tr><td>Client</td><td>201 = 192.0.2.201; 202 = 192.0.2.202</td></tr><tr><td>Servizio</td><td>TCP e UDP 53; solo loopback e scheda isolata</td></tr></tbody></table></div>
+<p>L’host deve avere <code translate="no">vm-hdd</code> già verificato nel M17 e uno storage di file che accetti ISO.</p>
+<p>Non inventare uno storage locale e non creare la VM su un ID occupato.</p>
+<h3 id="decidi-1">Decidi 1</h3>
+<p>La VM 204 compare come CT su un altro nodo.</p>
+<p>Che cosa fai?</p>
+<p>A. Creare 204 sul nodo attuale perché il tipo è diverso.</p>
+<p>B. Eliminare il CT per liberare il numero.</p>
+<p>C. Fermarti e riconciliare l’inventario prima di creare.</p>
+<h2 id="5-lab-guidato">5 · Lab guidato</h2>
+<h3 id="passo-1-creare-la-base-da-unorigine-verificabile">Passo 1 · Creare la base da un’origine verificabile</h3>
+<p><strong>Ipotesi:</strong> Una ISO che si avvia dimostra già l’autenticità dell’origine?</p>
+<p>Nella VM 202, usa la pagina ufficiale Debian delle immagini DVD amd64 per scegliere la versione 13 disponibile.</p>
+<p>Copia URL versionato e nome reale del DVD-1; non usare un nome o hash illustrativo.</p>
+<pre translate="no"><code class="lang-bash">sudo apt update &amp;&amp; sudo apt install curl gpgv debian-keyring
+mkdir -p ~/m19-iso &amp;&amp; cd ~/m19-iso
+read -r -p "URL versionada iso-dvd: " ISO_BASE
+read -r -p "Nome Debian 13 amd64 DVD-1: " ISO_FILE
+[[ "$ISO_BASE" == https://cdimage.debian.org/debian-cd/*/amd64/iso-dvd ]] || exit 1
+[[ "$ISO_FILE" =~ ^debian-13[.][0-9]+[.][0-9]+-amd64-DVD-1[.]iso$ ]] || exit 1
+for f in "$ISO_FILE" SHA512SUMS SHA512SUMS.sign; do
+  curl -fLO "$ISO_BASE/$f" || exit 1
+done
+gpgv --keyring /usr/share/keyrings/debian-role-keys.pgp SHA512SUMS.sign SHA512SUMS || exit 1
+awk -v f="$ISO_FILE" '$2==f || $2=="*"f {print}' SHA512SUMS &gt; chosen.sha512
+test "$(wc -l &lt; chosen.sha512)" -eq 1 || exit 1
+sha512sum -c chosen.sha512 || exit 1</code></pre>
+<p>Se la chiave di firma vigente manca nel keyring aggiornato, fermati e segui la pagina Debian di verifica per autenticare la chiave.</p>
+<p>Non ignorare mai una firma errata e non importare una chiave casuale per proseguire.</p>
+<p>Trasferisci il DVD verificato allo storage ISO del nodo tramite il flusso autorizzato.</p>
+<p>Sull’host, trova il volume con <code translate="no">pvesm list</code>, copia l’identificatore completo e confronta il suo SHA512 con quello verificato nella VM 202.</p>
+<pre translate="no"><code class="lang-bash">pvesm status
+read -r -p "Storage ISO existente: " ISO_STORAGE
+pvesm list "$ISO_STORAGE" --content iso
+read -r -p "Volume completo do DVD verificado: " ISO_VOLUME
+ISO_PATH=$(pvesm path "$ISO_VOLUME") || exit 1
+test -f "$ISO_PATH" || exit 1
+sha512sum "$ISO_PATH"
+pvesh get /cluster/resources --type vm --output-format json &gt; /tmp/m19-resources.json
+python3 -c 'import json; assert not any(x["vmid"]==204 for x in json.load(open("/tmp/m19-resources.json")))' || exit 1
+ip -4 route show table all
+ip -d link show vmbr17
+ip -br address show dev vmbr17
+pvesm status --storage vm-hdd</code></pre>
+<p>Conferma bridge senza uplink e senza indirizzo sull’host, rotte senza conflitti e hash identico.</p>
+<p>Registra nodo, storage, nome completo, hash e <code translate="no">ISO_VOLUME</code> nel diario <code translate="no">~/m19-operador.env</code>; non caricarlo come codice.</p>
+<p>Conserva il DVD per la sfida 19.9.</p>
+<pre translate="no"><code class="lang-bash">qm create 204 --name srv-deb --machine q35 --bios ovmf --cpu x86-64-v2-AES --cores 2 --memory 2048 --agent enabled=1 --scsihw virtio-scsi-single --scsi0 vm-hdd:20 --efidisk0 vm-hdd:1,efitype=4m,pre-enrolled-keys=1 --net0 virtio,bridge=vmbr0 --net1 virtio,bridge=vmbr17 --ide2 "$ISO_VOLUME",media=cdrom --boot order=ide2 || exit 1
+qm config 204</code></pre>
+<p>Solo dopo una creazione senza errori, apri la console 204 e avvia l’installazione manuale dal DVD.</p>
+<p>Scegli solo il disco vuoto da 20 GiB della nuova VM.</p>
+<p>Se disco o identità differiscono, fermati.</p>
+<p>Configura solo la scheda corrispondente alla MAC di net0 nella gestione: indirizzo reale riservato, maschera, gateway e DNS autorizzati.</p>
+<p>Imposta hostname <code translate="no">srv-deb</code>, utente <code translate="no">student</code> e password root di emergenza custodita fuori dal materiale.</p>
+<p>Seleziona server SSH e utilità standard, senza ambiente grafico.</p>
+<p>Lascia net1 non configurata nell’installer.</p>
+<p>Completa sul disco della VM ed entra nella console come root.</p>
+<pre translate="no"><code class="lang-bash">apt update &amp;&amp; apt install sudo qemu-guest-agent ifupdown openssh-server || exit 1
+usermod -aG sudo student
+systemctl enable --now qemu-guest-agent
+sshd -T | grep -E '^(permitrootlogin|passwordauthentication) '</code></pre>
+<p>Richiedi accesso SSH con chiave di <code translate="no">student</code>, verificato in una seconda sessione, e root con password solo dalla console; applica la procedura SSH del M15 se necessario.</p>
+<p>Non chiudere la sessione di emergenza prima della verifica.</p>
+<p>Torna al terminale root del nodo Proxmox prima del blocco seguente.</p>
+<pre translate="no"><code class="lang-bash">qm set 204 --agent enabled=1 --boot order=scsi0
+qm agent 204 ping
+qm snapshot 204 m19a1-inicio</code></pre>
+<p><strong>Output atteso:</strong> Una VM nuova installata e amministrabile; nessun DNS o DHCP avviato. QGA risponde solo dopo l’installazione dell’agente e l’attivazione del canale.</p>
+<p><strong>Verifica:</strong> Confronta MAC, gestione riservata, avvio dal disco e spazio libero. Non usare NetworkManager sulla VM 204.</p>
+<h3 id="passo-2-collegare-solo-la-scheda-isolata">Passo 2 · Collegare solo la scheda isolata</h3>
+<p><strong>Ipotesi:</strong> Il secondo nome mostrato da <code translate="no">ip link</code> è necessariamente net1?</p>
+<p>Sull’host leggi la MAC di net1 con <code translate="no">qm config 204</code>.</p>
+<p>Nella VM 204 confrontala con <code translate="no">ip -br link</code>, esamina rotte e configurazione ifupdown esistente.</p>
+<p>Fermati se il prefisso isolato confligge con rotte di gestione o VPN.</p>
+<pre translate="no"><code class="lang-bash">ip -br link
+ip -4 route show table all
+cat /etc/network/interfaces
+sudo grep -R -n . /etc/network/interfaces.d/
+read -r -p "Interface da MAC de net1: " LAB_IF
+[[ "$LAB_IF" =~ ^[a-zA-Z][a-zA-Z0-9_-]{0,14}$ ]] || exit 1
+ip link show dev "$LAB_IF" || exit 1
+grep -Eq '^[[:space:]]*source(-directory)?[[:space:]]+/etc/network/interfaces.d/' /etc/network/interfaces || exit 1
+sudo test ! -e /etc/network/interfaces.d/m19-lab || exit 1
+sudo test ! -L /etc/network/interfaces.d/m19-lab || exit 1
+sudo test ! -e /etc/m19-lab.env || exit 1</code></pre>
+<p>Prima di scrivere, conferma che nessuna definizione esistente amministri questa interfaccia.</p>
+<p>Se esiste, riconcilia la configurazione; non sovrascrivere il file.</p>
+<p>Net0 resta intatta.</p>
+<pre translate="no"><code class="lang-bash">printf 'auto %s
+iface %s inet static
+    address 192.0.2.204/24
+    pre-up /usr/sbin/sysctl -w net.ipv6.conf.%s.disable_ipv6=1
+' "$LAB_IF" "$LAB_IF" "$LAB_IF" | sudo tee /etc/network/interfaces.d/m19-lab
+printf 'LAB_IF=%q
+LAB_IP=%q
+LAB_NET=%q
+LAB_DOMAIN=%q
+' "$LAB_IF" 192.0.2.204 192.0.2.0/24 lab.test | sudo tee /etc/m19-lab.env
+sudo chown root:root /etc/m19-lab.env /etc/network/interfaces.d/m19-lab
+sudo chmod 0644 /etc/m19-lab.env /etc/network/interfaces.d/m19-lab
+sudo ifup "$LAB_IF"
+ip -4 address show dev "$LAB_IF"
+ip -4 route</code></pre>
+<p><strong>Output atteso:</strong> L’interfaccia isolata ha <code translate="no">.204/24</code>; solo la gestione ha una rotta predefinita. IPv6 è disattivato solo su questa interfaccia.</p>
+<p><strong>Verifica:</strong> Dalla scheda isolata della VM 202 già configurata nel M17, verifica la raggiungibilità di <code translate="no">.204</code>. Se necessario, ripristina <code translate="no">.202/24</code> nel suo profilo isolato con la procedura dei profili del M11, mai su net0.</p>
+<h3 id="passo-3-installare-senza-esporre-il-servizio-sulla-gestione">Passo 3 · Installare senza esporre il servizio sulla gestione</h3>
+<p><strong>Ipotesi:</strong> Il pacchetto può avviare il demone prima che tu imposti le interfacce?</p>
+<p>Nella VM 204 appena creata, conferma che BIND non sia già installato.</p>
+<p>La maschera prima dell’installazione impedisce l’avvio con la configurazione predefinita.</p>
+<pre translate="no"><code class="lang-bash">if dpkg-query -W -f='${Status}' bind9 2&gt;/dev/null | grep -q "install ok installed"; then exit 1; fi
+sudo systemctl mask named.service
+sudo apt update &amp;&amp; sudo apt install bind9 bind9-utils dnsutils
+sudo cp -a /etc/bind/named.conf.options /etc/bind/named.conf.options.m19-original
+sudo cp -a /etc/bind/named.conf.local /etc/bind/named.conf.local.m19-original
+sudo tee /etc/bind/named.conf.options &gt;/dev/null &lt;&lt;'EOF'
+acl m19_trusted { 127.0.0.1; 192.0.2.0/24; };
+options {
+    directory "/var/cache/bind";
+    listen-on { 127.0.0.1; 192.0.2.204; };
+    listen-on-v6 { none; };
+    allow-query { m19_trusted; };
+    allow-transfer { none; };
+    recursion no;
+    dnssec-validation auto;
+};
+EOF
+sudo install -d -o root -g bind -m 0750 /etc/bind/m19
+sudo tee /etc/bind/named.conf.local &gt;/dev/null &lt;&lt;'EOF'
+zone "lab.test" { type primary; file "/etc/bind/m19/db.lab.test"; };
+zone "2.0.192.in-addr.arpa" { type primary; file "/etc/bind/m19/db.192.0.2"; };
+EOF</code></pre>
+<p><strong>Output atteso:</strong> Servizio ancora mascherato; le opzioni limitano socket e query, senza ricorsione.</p>
+<p><strong>Verifica:</strong> Se host o VM hanno un firewall attivo, segui M16 per consentire TCP/UDP 53 solo dalla rete isolata; conserva politica e gestione. Non disattivare il firewall come diagnosi.</p>
+<p>Mascherare una unità prima di installare il pacchetto può mostrare un avviso che la unità non esiste ancora: è previsto se la maschera viene creata correttamente. Controlla comunque il risultato e l’assenza di listener; vale anche per Kea, Postfix, Dovecot e Squid.</p>
+<h3 id="passo-4-scrivere-due-zone-indipendenti">Passo 4 · Scrivere due zone indipendenti</h3>
+<p><strong>Ipotesi:</strong> Senza punto finale, <code translate="no">mail.lab.test</code> resta un nome assoluto dentro la zona?</p>
+<pre translate="no"><code class="lang-bash">sudo tee /etc/bind/m19/db.lab.test &gt;/dev/null &lt;&lt;'EOF'
+$TTL 300
+@ IN SOA ns.lab.test. hostmaster.lab.test. (
+  2026111701 3600 900 604800 300 )
+@ IN NS ns.lab.test.
+@ IN MX 10 mail.lab.test.
+ns IN A 192.0.2.204
+srv-deb IN A 192.0.2.204
+mail IN A 192.0.2.204
+web IN A 192.0.2.204
+www IN A 192.0.2.204
+proxy IN A 192.0.2.204
+smb IN A 192.0.2.204
+app IN A 192.0.2.201
+rocky IN A 192.0.2.201
+debian IN A 192.0.2.202
+EOF
+sudo tee /etc/bind/m19/db.192.0.2 &gt;/dev/null &lt;&lt;'EOF'
+$TTL 300
+@ IN SOA ns.lab.test. hostmaster.lab.test. (
+  2026111701 3600 900 604800 300 )
+@ IN NS ns.lab.test.
+204 IN PTR srv-deb.lab.test.
+201 IN PTR rocky.lab.test.
+202 IN PTR debian.lab.test.
+EOF
+sudo chown root:bind /etc/bind/m19/db.lab.test /etc/bind/m19/db.192.0.2
+sudo chmod 0640 /etc/bind/m19/db.lab.test /etc/bind/m19/db.192.0.2
+sudo named-checkconf &amp;&amp; sudo named-checkzone lab.test /etc/bind/m19/db.lab.test &amp;&amp; sudo named-checkzone 2.0.192.in-addr.arpa /etc/bind/m19/db.192.0.2</code></pre>
+<p><strong>Output atteso:</strong> I validatori terminano con successo; il seriale è un valore scelto per il file, non un output osservato.</p>
+<p><strong>Verifica:</strong> Controlla ogni A, la destinazione MX e i tre PTR. La prossima modifica a una zona richiede un seriale maggiore in quella zona.</p>
+<h3 id="passo-5-caricare-e-interrogare-il-server-giusto">Passo 5 · Caricare e interrogare il server giusto</h3>
+<p><strong>Ipotesi:</strong> L’opzione che sceglie il server in <code translate="no">dig</code> modifica il DNS globale del client?</p>
+<figure><a href="../img/19.1-validar-carregar-consultar.it.jpg"><img src="../img/19.1-validar-carregar-consultar.it.jpg" alt="Validare, caricare e interrogare" loading="lazy" decoding="async"></a><figcaption>Un file valido deve ancora essere caricato e rispondere correttamente.</figcaption></figure>
+<pre translate="no"><code class="lang-bash">sudo systemctl unmask named.service
+sudo systemctl enable --now named.service
+sudo systemctl --no-pager --full status named
+sudo ss -lntup | grep ":53"
+sudo journalctl -u named -b --no-pager -n 30
+dig @192.0.2.204 app.lab.test A +norecurse
+dig @192.0.2.204 lab.test MX +norecurse
+dig @192.0.2.204 -x 192.0.2.204 +norecurse
+dig @192.0.2.204 lab.test AXFR</code></pre>
+<p><strong>Output atteso:</strong> Le query dalla VM 202 ricevono A <code translate="no">.201</code>, MX <code translate="no">10 mail.lab.test.</code> e PTR <code translate="no">srv-deb.lab.test.</code> con flag AA; AXFR non è autorizzato.</p>
+<p><strong>Verifica:</strong> Una riga nel journal non basta: verifica socket solo sugli indirizzi consentiti e ripeti A via TCP con <code translate="no">dig @192.0.2.204 app.lab.test A +tcp</code>.</p>
+<h3 id="decidi-2">Decidi 2</h3>
+<p>A funziona; PTR restituisce NXDOMAIN.</p>
+<p>Quale ipotesi spiega meglio?</p>
+<p>A. La zona inversa o il PTR non è stato caricato correttamente.</p>
+<p>B. MX crea l’inversa solo dopo un reboot.</p>
+<p>C. Il client deve eliminare tutti i profili di rete.</p>
+<h3 id="passo-6-verificare-la-persistenza-e-conservare-la-base">Passo 6 · Verificare la persistenza e conservare la base</h3>
+<p><strong>Ipotesi:</strong> Una risposta prima del reboot garantisce che net1 e BIND torneranno?</p>
+<p><strong>Reboot di verifica:</strong> Riavvia solo la VM 204, con console disponibile. Non riavviare il nodo. Riapri SSH di gestione e ripeti le query dalla VM 202.</p>
+<pre translate="no"><code class="lang-bash">sudo systemctl reboot</code></pre>
+<p>Dopo la riconnessione alla VM 204:</p>
+<pre translate="no"><code class="lang-bash">ip -4 address
+ip -4 route
+sudo systemctl is-active named
+sudo ss -lntup | grep ":53"
+dig @192.0.2.204 lab.test MX +norecurse</code></pre>
+<p><strong>Output atteso:</strong> Gestione conservata, <code translate="no">.204/24</code> persistente e risposte autoritative dopo l’avvio.</p>
+<p><strong>Verifica:</strong> Sull’host, crea <code translate="no">qm snapshot 204 m19a1-fim</code> solo dopo tutte le verifiche. Conserva ISO, diario e zone per le prossime lezioni.</p>
+<h2 id="6-rompi-e-ripara">6 · Rompi e ripara</h2>
+<h3 id="guasto-1-nome-relativo-duplicato">Guasto 1 · Nome relativo duplicato</h3>
+<p><strong>Sintomo:</strong> MX punta a un nome che termina due volte con <code translate="no">lab.test</code>.</p>
+<p><strong>Indagine:</strong> Leggi la destinazione completa con <code translate="no">dig @192.0.2.204 lab.test MX</code>.</p>
+<p><strong>Causa:</strong> Manca il punto finale di un nome assoluto nel file.</p>
+<p><strong>Riparazione:</strong> In una copia di esercizio confronta i due formati; correggi l’originale, incrementa il seriale, valida e ricarica con <code translate="no">sudo rndc reload</code>.</p>
+<p><strong>Verifica:</strong> La destinazione MX ora è esattamente <code translate="no">mail.lab.test.</code>.</p>
+<p><strong>Prevenzione:</strong> Controlla i nomi assoluti prima di caricare.</p>
+<h3 id="guasto-2-zona-valida-risposta-precedente">Guasto 2 · Zona valida, risposta precedente</h3>
+<p><strong>Sintomo:</strong> Il file cambia, la risposta autoritativa no.</p>
+<p><strong>Indagine:</strong> Confronta seriale nel file e <code translate="no">dig @192.0.2.204 lab.test SOA +norecurse</code>.</p>
+<p><strong>Causa:</strong> Manca la ricarica oppure la nuova zona è stata rifiutata.</p>
+<p><strong>Riparazione:</strong> Valida entrambe le zone, ricarica e leggi il journal.</p>
+<p><strong>Verifica:</strong> SOA e query al record mostrano la versione prevista.</p>
+<p><strong>Prevenzione:</strong> Usa validare, caricare e interrogare come tre verifiche distinte.</p>
+<h3 id="guasto-3-domanda-al-server-sbagliato">Guasto 3 · Domanda al server sbagliato</h3>
+<p><strong>Sintomo:</strong> Il sistema non risolve <code translate="no">app.lab.test</code>, ma la query esplicita funziona.</p>
+<p><strong>Indagine:</strong> Confronta <code translate="no">getent hosts app.lab.test</code> con <code translate="no">dig @192.0.2.204 app.lab.test A</code>.</p>
+<p><strong>Causa:</strong> Il resolver predefinito della gestione non conosce la zona del lab.</p>
+<p><strong>Riparazione:</strong> Mantieni la query esplicita in questa lezione; non riconfigurare la gestione per nascondere la differenza.</p>
+<p><strong>Verifica:</strong> Annota quale server ha risposto in ciascuno strumento.</p>
+<p><strong>Prevenzione:</strong> Registra sempre il percorso della domanda.</p>
+<p>Con <code translate="no">recursion no</code>, alcuni ambienti possono registrare messaggi di priming come FORMERR o non-improving referral. Non usarli da soli per diagnosticare un errore della zona locale: confronta configurazione, stato e risposte A/MX/PTR con AA. Timeout, errori di caricamento della zona o risposte locali errate richiedono indagine.</p>
+<h2 id="7-trappole">7 · Trappole</h2>
+<p>Prima di accusare il servizio, verifica VM, interfaccia e rete.</p>
+<p>Una risposta corretta di un altro server resta la verifica sbagliata.</p>
+<p>Un file accettato dal validatore non dimostra che il processo lo abbia caricato.</p>
+<p>Controlla anche stato, socket e risposta del client.</p>
+<p>Gli indirizzi di documentazione usati qui appartengono solo al segmento segregato.</p>
+<p>Se si sovrappongono a gestione, VPN o rotte esistenti, fermati.</p>
+<h2 id="8-quiz">8 · Quiz</h2>
+<ol><li>Perché A non dimostra PTR?</li>
+<li>Che cosa dimostra AA?</li>
+<li>Perché verificare TCP oltre a UDP 53?</li>
+<li>Quale verifica collega il DVD all’origine?</li></ol>
+<p>Rispondi prima di aprire le soluzioni.</p>
+<p>Per ogni risposta, indica un’osservazione capace di smentirla.</p>
+<h2 id="9-promemoria">9 · Promemoria</h2>
+<pre translate="no"><code class="lang-bash">sudo named-checkconf
+sudo named-checkzone lab.test /etc/bind/m19/db.lab.test
+dig @192.0.2.204 lab.test MX +norecurse
+dig @192.0.2.204 -x 192.0.2.204 +norecurse</code></pre>
+<p><strong>Flashcard:</strong> Qual è l’oggetto? Chi risponde? Quale osservazione distingue configurazione e risultato?</p>
+<p><code translate="no">!explica</code></p>
+<p><code translate="no">!feynman</code></p>
+<p><code translate="no">!quiz</code></p>
+<h2 id="10-checklist-e-chiusura">10 · Checklist e chiusura</h2>
+<ul><li>[ ] 204 creata solo con ID libero e DVD autenticato.</li>
+<li>[ ] Net0 conservata; net1 segregata e persistente.</li>
+<li>[ ] A, MX, PTR, AA e TCP verificati dalla VM 202.</li>
+<li>[ ] Ricorsione disattivata; socket fuori dalla gestione.</li>
+<li>[ ] Diario ISO disponibile per 19.9.</li></ul>
+<p><strong>Ultimo esercizio:</strong> Rifai il disegno iniziale usando solo riscontri registrati nel lab. Segna ciò che non hai ancora dimostrato.</p>
+<p>Lo snapshot finale registra una fase coerente; non sostituisce il backup indipendente.</p>
+<p>Non eliminare la VM 204 né la rete isolata: servono alle prossime lezioni.</p>
+<h2 id="11-nella-vita-reale">11 · Nella vita reale</h2>
+<p>Missione di sola lettura: in un ambiente autorizzato, identifica server interrogato, interfaccia usata e responsabile della configurazione.</p>
+<p>Non modificare profili, porte, lease o zone.</p>
+<p>Consegna tre riscontri con ora e contesto, un’ipotesi e un limite.</p>
+<p>Rimuovi i dati privati prima di condividere il rapporto.</p>
+<h2 id="12-approfondire-quando-vuoi">12 · Approfondire quando vuoi</h2>
+<p><a href="https://www.debian.org/CD/verify">Debian: verificare immagini e firme</a></p>
+<p><a href="https://bind9.readthedocs.io/en/stable/reference.html">BIND: configurazione e controlli di accesso</a></p>
+<p><a href="https://packages.debian.org/trixie/amd64/bind9/filelist">Debian 13: file del pacchetto BIND</a></p>
+<p>Usa la documentazione della versione installata.</p>
+<p>Controlla il manuale locale prima di adattare un’opzione di un’altra versione.</p>
+<h2 id="soluzioni-commentate">Soluzioni commentate</h2>
+<p>Riscaldamento: gestione e servizio hanno ambiti diversi; A e PTR appartengono a zone indipendenti; l’inventario deve includere VM e CT del cluster.</p>
+<p>Decidi 1: C.</p>
+<p>Un ID occupato non può essere riutilizzato senza riconciliare l’inventario.</p>
+<p>Decidi 2: A.</p>
+<p>A non crea né convalida l’inversa.</p>
+<p>Quiz 1: sono record e zone distinti; interrogali entrambi.</p>
+<p>Quiz 2: AA indica una risposta autoritativa per la domanda.</p>
+<p>Quiz 3: DNS usa anche TCP; un blocco può comparire solo su quel trasporto.</p>
+<p>Quiz 4: firma autenticata del manifesto più SHA512 della ISO corrispondente.</p>
+<p><a href="18.5-construir-imagens.it.html">← Lezione 18.5 · Costruire immagini</a> · <a href="index.it.html">Indice delle lezioni</a> · <a href="https://github.com/Rodrigoantignani/curso-linux-sysadmin/blob/master/00-plano-do-curso.md">Piano del corso</a></p>
+</article><nav class="paginas" aria-label="Lezioni"><a class="ant" href="18.5-construir-imagens.it.html"><small>← Precedente</small>18.5 · Costruire immagini</a><a class="prox" href="19.2-dns-recursivo-e-diagnostico.it.html"><small>Successiva →</small>19.2 · DNS ricorsivo e diagnosi</a></nav></main></div>
+<footer><div class="wrap">Generato dal Markdown del corso · Immagini in <code translate="no">img/</code></div></footer>
+</body>
+</html>

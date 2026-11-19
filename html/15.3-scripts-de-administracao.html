@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light dark">
+<title>15.3 · Scripts de administração · Curso Linux Sysadmin</title>
+<link rel="alternate" hreflang="pt-BR" href="15.3-scripts-de-administracao.html"><link rel="alternate" hreflang="it" href="15.3-scripts-de-administracao.it.html">
+<style>
+:root{color-scheme:light dark;--bg:#f6f1e7;--card:#fffdf8;--ink:#201c16;--muted:#5e564a;--accent:#9a3412;--accent-2:#1f5f4a;--tint:#efe6d4;--line:#ddd2bc;--code:#f1eadb;--shadow:0 1px 2px rgba(60,40,10,.08);--serif:Georgia,"Iowan Old Style","Palatino Linotype",Palatino,serif;--sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--mono:"Cascadia Code",Consolas,"DejaVu Sans Mono",monospace}
+@media (prefers-color-scheme:dark){:root{--bg:#16130f;--card:#201b15;--ink:#f1eadb;--muted:#b9ad98;--accent:#f0a070;--accent-2:#7fd0b0;--tint:#2a231a;--line:#3d3427;--code:#191510;--shadow:none}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:5.5rem}
+body{margin:0;background:var(--bg);color:var(--ink);font:1rem/1.6 var(--sans)}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--accent-2);outline-offset:2px;border-radius:4px}
+.pular{position:absolute;left:-999px;top:0;background:var(--card);padding:.5rem 1rem;z-index:20}
+.pular:focus{left:.5rem;top:.5rem}
+.wrap{width:100%;max-width:84rem;margin:0 auto;padding-inline:max(1rem,env(safe-area-inset-left))}
+.top{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10;border-top:6px solid var(--accent)}
+.top-in{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding-block:.6rem}
+.titles{min-width:0}
+.marca{margin:0;font:700 clamp(1.15rem,1rem + 1vw,1.6rem)/1.15 var(--serif);letter-spacing:-.01em}
+.marca a{text-decoration:none}
+.marca a:hover{color:var(--accent)}
+.meta{margin:.1rem 0 0;color:var(--muted);font-size:.85rem}
+.acoes{display:flex;align-items:center;gap:.9rem;flex:none}
+.acoes>a{font-size:.9rem;font-weight:600;color:var(--muted);text-decoration:none}
+.acoes>a:hover{color:var(--accent);text-decoration:underline}
+.idioma{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--tint)}
+.idioma>*{padding:.35rem .9rem;font-size:.8rem;font-weight:700;letter-spacing:.06em;text-decoration:none;color:var(--muted);min-width:2.75rem;text-align:center}
+.idioma a:hover{color:var(--accent);text-decoration:underline}
+.idioma span{background:var(--accent);color:#fff}
+@media (prefers-color-scheme:dark){.idioma span{color:#16130f}}
+code{font-family:var(--mono);font-size:.9em;background:var(--tint);padding:.1rem .35rem;border-radius:4px;overflow-wrap:anywhere}
+/* índice */
+.capa{max-width:70rem;padding-block:2rem 3rem}
+.stats{border-left:4px solid var(--accent-2);background:var(--card);border-radius:0 10px 10px 0;padding:1rem 1.25rem;margin:0 0 2.5rem;box-shadow:var(--shadow);color:var(--muted)}
+.stats strong{color:var(--ink)}
+.modulo{display:grid;grid-template-columns:15rem minmax(0,1fr);gap:1rem 2rem;padding:1.75rem 0;border-top:1px solid var(--line)}
+.modulo h2{margin:0;font:700 1.25rem/1.25 var(--serif);align-self:start;position:sticky;top:6rem}
+.mn{display:block;font:700 .8rem var(--mono);letter-spacing:.12em;color:var(--accent);margin-bottom:.25rem}
+.sep{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.modulo ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,17rem),1fr));gap:.75rem}
+.modulo li{margin:0}
+.modulo a{display:flex;gap:.45rem;align-items:baseline;height:100%;padding:.85rem 1rem;background:var(--card);border:1px solid var(--line);border-radius:10px;text-decoration:none;font-weight:600;line-height:1.35;box-shadow:var(--shadow);transition:border-color .15s,transform .15s}
+.modulo a:hover{border-color:var(--accent);color:var(--accent)}
+.num{font:700 .85rem var(--mono);color:var(--accent);white-space:nowrap}
+/* aula */
+.doc{display:grid;grid-template-columns:17rem minmax(0,1fr);gap:2.5rem;align-items:start;padding-block:2rem 3rem}
+.lateral{position:sticky;top:5.5rem;max-height:calc(100vh - 6.5rem);overflow:auto;font-size:.875rem;padding-right:.5rem}
+.lateral h2{margin:0 0 .25rem;font:700 .95rem var(--serif);color:var(--muted)}
+.lateral h3{margin:1rem 0 .25rem;font:700 .75rem var(--mono);letter-spacing:.06em;color:var(--accent)}
+.lateral ul{list-style:none;margin:0;padding:0}
+.lateral a{display:flex;gap:.45rem;padding:.25rem .5rem;border-radius:6px;text-decoration:none;color:var(--muted);line-height:1.3}
+.lateral a:hover{background:var(--tint);color:var(--ink)}
+.lateral a[aria-current]{background:var(--tint);color:var(--ink);font-weight:700;box-shadow:inset 3px 0 0 var(--accent)}
+.lateral .num{font-size:.75rem}
+.aula{min-width:0;max-width:56rem;overflow-wrap:break-word;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:clamp(1.25rem,1rem + 2vw,2.75rem);box-shadow:var(--shadow)}
+.aula h1{margin:0 0 1.5rem;font:700 clamp(1.75rem,1.4rem + 1.6vw,2.5rem)/1.15 var(--serif);letter-spacing:-.015em;color:var(--ink)}
+.aula h2{margin:2.5rem 0 .75rem;padding-top:1.25rem;border-top:1px solid var(--line);font:700 1.5rem/1.25 var(--serif)}
+.aula h3{margin:2rem 0 .5rem;font:700 1.15rem/1.3 var(--serif);color:var(--accent)}
+.aula h4,.aula h5,.aula h6{margin:1.5rem 0 .5rem;font-size:1rem}
+.aula p,.aula ul,.aula ol{margin:1rem 0}
+.aula ul,.aula ol{padding-left:1.5rem}
+.aula li{margin:.35rem 0}
+.aula li>ul,.aula li>ol{margin:.35rem 0}
+.aula a{color:var(--accent);text-underline-offset:2px}
+.aula hr{border:0;border-top:1px solid var(--line);margin:2rem 0}
+.tabela{overflow-x:auto;margin:1.25rem 0;border:1px solid var(--line);border-radius:10px}
+.aula table{width:100%;border-collapse:collapse;font-size:.9rem}
+.aula th,.aula td{padding:.55rem .75rem;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+.aula tr:last-child td{border-bottom:0}
+.aula th{background:var(--tint);font-weight:700}
+.aula pre{background:var(--code);border:1px solid var(--line);border-radius:10px;padding:.9rem 1rem;overflow-x:auto;font:.85rem/1.5 var(--mono);margin:1rem 0;tab-size:4}
+.aula pre code{background:none;padding:0;font-size:inherit;overflow-wrap:normal}
+.aula blockquote{margin:1.25rem 0;padding:.75rem 1.25rem;border-left:4px solid var(--accent-2);background:var(--tint);border-radius:0 10px 10px 0}
+.aula blockquote>:first-child{margin-top:0}
+.aula blockquote>:last-child{margin-bottom:0}
+.aula figure{margin:1.75rem 0;text-align:center}
+.aula figure img{display:block;margin:0 auto;max-width:100%;height:auto;border:1px solid var(--line);border-radius:10px;background:#fff}
+.aula figcaption{margin-top:.5rem;color:var(--muted);font-size:.9rem;font-style:italic}
+.paginas{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:2.5rem;padding-top:1.5rem;border-top:1px solid var(--line)}
+.paginas a{display:block;padding:.75rem 1rem;border:1px solid var(--line);border-radius:10px;text-decoration:none;color:var(--ink);font-weight:600;line-height:1.3}
+.paginas a:hover{border-color:var(--accent);color:var(--accent)}
+.paginas small{display:block;color:var(--muted);font-weight:400}
+.paginas .prox{grid-column:2;text-align:right}
+footer{border-top:1px solid var(--line);padding-block:1.5rem;color:var(--muted);font-size:.85rem;text-align:center}
+@media (hover:hover) and (prefers-reduced-motion:no-preference){.modulo a:hover{transform:translateY(-2px)}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+@media (max-width:980px){.doc{grid-template-columns:minmax(0,1fr);padding-top:1rem}.lateral{position:static;max-height:none;order:2}.aula{max-width:none}}
+@media (max-width:860px){.modulo{grid-template-columns:minmax(0,1fr)}.modulo h2{position:static}.mn{display:inline;margin-right:.5rem}}
+@media (max-width:420px){.meta{display:none}.top-in{gap:.5rem}.acoes{gap:.6rem}.capa{padding-top:1.25rem}.paginas{grid-template-columns:minmax(0,1fr)}.paginas .prox{grid-column:1}}
+@media print{.top,.lateral,.paginas{display:none}.aula{border:0;box-shadow:none;padding:0;max-width:none}.doc{display:block}}
+</style>
+</head>
+<body>
+<a class="pular" href="#conteudo">Pular para o conteúdo</a>
+<header class="top"><div class="wrap top-in"><div class="titles"><p class="marca"><a href="index.html">Curso Linux Sysadmin</a></p><p class="meta">Rodrigo Antignani · Aula 15.3</p></div><div class="acoes"><a href="index.html">Índice</a><div class="idioma" role="group" aria-label="Idioma"><span aria-current="true">PT</span><a href="15.3-scripts-de-administracao.it.html" hreflang="it" lang="it">IT</a></div></div></div></header>
+<div class="wrap doc"><aside class="lateral" aria-label="Aulas"><h2>Aulas</h2><h3>M0 · Laboratório</h3><ul><li><a href="0.1-montar-o-laboratorio.html"><span class="num">0.1</span><span>Montar o laboratório</span></a></li><li><a href="0.2-acesso-e-protecao.html"><span class="num">0.2</span><span>Acesso e proteção</span></a></li></ul><h3>M1 · Linha de comando</h3><ul><li><a href="1.1-o-que-e-linux.html"><span class="num">1.1</span><span>O que é Linux</span></a></li><li><a href="1.2-o-shell-e-a-ajuda.html"><span class="num">1.2</span><span>O shell e a ajuda</span></a></li><li><a href="1.3-caminhos-e-navegacao.html"><span class="num">1.3</span><span>Caminhos e navegação</span></a></li><li><a href="1.4-criar-copiar-mover-e-apagar.html"><span class="num">1.4</span><span>Criar, copiar, mover e apagar</span></a></li><li><a href="1.5-ler-e-procurar-texto.html"><span class="num">1.5</span><span>Ler e procurar texto</span></a></li><li><a href="1.6-redirecionamentos-e-pipes.html"><span class="num">1.6</span><span>Redirecionamentos e pipes</span></a></li><li><a href="1.7-arquivar-e-compactar.html"><span class="num">1.7</span><span>Arquivar e compactar</span></a></li><li><a href="1.8-primeiro-script.html"><span class="num">1.8</span><span>Primeiro script</span></a></li><li><a href="1.9-decidir-e-repetir.html"><span class="num">1.9</span><span>Decidir e repetir</span></a></li><li><a href="1.10-software-livre-na-pratica.html"><span class="num">1.10</span><span>Software livre na prática</span></a></li></ul><h3>M2 · Sistema, usuários e permissões</h3><ul><li><a href="2.1-instalacao-e-provisionamento.html"><span class="num">2.1</span><span>Instalação e provisionamento</span></a></li><li><a href="2.2-hardware-e-dispositivos.html"><span class="num">2.2</span><span>Hardware e dispositivos</span></a></li><li><a href="2.3-processos-e-logs.html"><span class="num">2.3</span><span>Processos e logs</span></a></li><li><a href="2.4-rede-no-dia-a-dia.html"><span class="num">2.4</span><span>Rede no dia a dia</span></a></li><li><a href="2.5-acesso-remoto-e-privilegios.html"><span class="num">2.5</span><span>Acesso remoto e privilégios</span></a></li><li><a href="2.6-usuarios-e-grupos.html"><span class="num">2.6</span><span>Usuários e grupos</span></a></li><li><a href="2.7-permissoes-e-dono.html"><span class="num">2.7</span><span>Permissões e dono</span></a></li><li><a href="2.8-diretorios-e-arquivos-especiais.html"><span class="num">2.8</span><span>Diretórios e arquivos especiais</span></a></li></ul><h3>M3 · Texto e editor</h3><ul><li><a href="3.1-fluxos-a-fundo.html"><span class="num">3.1</span><span>Fluxos a fundo</span></a></li><li><a href="3.2-filtros-de-texto.html"><span class="num">3.2</span><span>Filtros de texto</span></a></li><li><a href="3.3-regex-e-grep.html"><span class="num">3.3</span><span>Regex e grep</span></a></li><li><a href="3.4-sed-e-awk.html"><span class="num">3.4</span><span>sed e awk</span></a></li><li><a href="3.5-vi-e-vim-de-verdade.html"><span class="num">3.5</span><span>vi e vim de verdade</span></a></li></ul><h3>M4 · systemd e boot</h3><ul><li><a href="4.1-como-o-linux-liga.html"><span class="num">4.1</span><span>Como o Linux liga</span></a></li><li><a href="4.2-systemd-servicos-e-units.html"><span class="num">4.2</span><span>systemd: serviços e units</span></a></li><li><a href="4.3-targets-desligar-e-reiniciar.html"><span class="num">4.3</span><span>Targets: desligar e reiniciar</span></a></li><li><a href="4.4-grub-e-acesso-de-emergencia.html"><span class="num">4.4</span><span>GRUB e acesso de emergência</span></a></li></ul><h3>M5 · Kernel, módulos e VM</h3><ul><li><a href="5.1-hardware-pelo-kernel.html"><span class="num">5.1</span><span>Hardware pelo kernel</span></a></li><li><a href="5.2-modulos-e-parametros.html"><span class="num">5.2</span><span>Módulos e parâmetros</span></a></li><li><a href="5.3-linux-como-convidado.html"><span class="num">5.3</span><span>Linux como convidado</span></a></li></ul><h3>M6 · Pacotes e repositórios</h3><ul><li><a href="6.1-pacotes-no-debian.html"><span class="num">6.1</span><span>Pacotes no Debian</span></a></li><li><a href="6.2-pacotes-na-rocky.html"><span class="num">6.2</span><span>Pacotes na Rocky</span></a></li><li><a href="6.3-repositorios.html"><span class="num">6.3</span><span>Repositórios</span></a></li><li><a href="6.4-flatpak.html"><span class="num">6.4</span><span>Flatpak</span></a></li><li><a href="6.5-bibliotecas-compartilhadas.html"><span class="num">6.5</span><span>Bibliotecas compartilhadas</span></a></li></ul><h3>M7 · Processos e desempenho</h3><ul><li><a href="7.1-processos-e-sinais.html"><span class="num">7.1</span><span>Processos e sinais</span></a></li><li><a href="7.2-jobs-e-sessoes.html"><span class="num">7.2</span><span>Jobs e sessões</span></a></li><li><a href="7.3-prioridade-e-perfis.html"><span class="num">7.3</span><span>Prioridade e perfis</span></a></li></ul><h3>M8 · Arquivos a fundo</h3><ul><li><a href="8.1-fhs-e-onde-cada-coisa-mora.html"><span class="num">8.1</span><span>FHS e onde cada coisa mora</span></a></li><li><a href="8.2-find-a-fundo.html"><span class="num">8.2</span><span>find a fundo</span></a></li><li><a href="8.3-arquivamento-avancado.html"><span class="num">8.3</span><span>Arquivamento avançado</span></a></li><li><a href="8.4-links.html"><span class="num">8.4</span><span>Links</span></a></li><li><a href="8.5-permissoes-avancadas.html"><span class="num">8.5</span><span>Permissões avançadas</span></a></li></ul><h3>M9 · Armazenamento</h3><ul><li><a href="9.1-discos-e-layout.html"><span class="num">9.1</span><span>Discos e layout</span></a></li><li><a href="9.2-particionar.html"><span class="num">9.2</span><span>Particionar</span></a></li><li><a href="9.3-sistemas-de-arquivos.html"><span class="num">9.3</span><span>Sistemas de arquivos</span></a></li><li><a href="9.4-montar-e-persistir.html"><span class="num">9.4</span><span>Montar e persistir</span></a></li><li><a href="9.5-integridade-e-espaco.html"><span class="num">9.5</span><span>Integridade e espaço</span></a></li><li><a href="9.6-lvm.html"><span class="num">9.6</span><span>LVM</span></a></li><li><a href="9.7-crescer-sem-destruir.html"><span class="num">9.7</span><span>Crescer sem destruir</span></a></li></ul><h3>M10 · Usuários e acesso privilegiado</h3><ul><li><a href="10.1-contas.html"><span class="num">10.1</span><span>Contas</span></a></li><li><a href="10.2-senhas-e-validade.html"><span class="num">10.2</span><span>Senhas e validade</span></a></li><li><a href="10.3-grupos-e-trabalho-em-equipe.html"><span class="num">10.3</span><span>Grupos e trabalho em equipe</span></a></li><li><a href="10.4-sudo-de-verdade.html"><span class="num">10.4</span><span>sudo de verdade</span></a></li></ul><h3>M11 · Rede</h3><ul><li><a href="11.1-tcp-ip-para-quem-administra.html"><span class="num">11.1</span><span>TCP/IP para quem administra</span></a></li><li><a href="11.2-networkmanager-e-nmcli.html"><span class="num">11.2</span><span>NetworkManager e nmcli</span></a></li><li><a href="11.3-rede-no-debian.html"><span class="num">11.3</span><span>Rede no Debian</span></a></li><li><a href="11.4-nomes-e-resolucao.html"><span class="num">11.4</span><span>Nomes e resolução</span></a></li><li><a href="11.5-diagnostico-de-rede.html"><span class="num">11.5</span><span>Diagnóstico de rede</span></a></li></ul><h3>M12 · Segurança do host</h3><ul><li><a href="12.1-ssh-a-fundo.html"><span class="num">12.1</span><span>SSH a fundo</span></a></li><li><a href="12.2-firewall.html"><span class="num">12.2</span><span>Firewall</span></a></li><li><a href="12.3-selinux-modos-e-contextos.html"><span class="num">12.3</span><span>SELinux: modos e contextos</span></a></li><li><a href="12.4-selinux-portas-e-booleanos.html"><span class="num">12.4</span><span>SELinux: portas e booleanos</span></a></li><li><a href="12.5-auditoria-e-criptografia.html"><span class="num">12.5</span><span>Auditoria e criptografia</span></a></li></ul><h3>M13 · Armazenamento em rede</h3><ul><li><a href="13.1-servidor-nfs.html"><span class="num">13.1</span><span>Servidor NFS</span></a></li><li><a href="13.2-cliente-nfs.html"><span class="num">13.2</span><span>Cliente NFS</span></a></li><li><a href="13.3-autofs.html"><span class="num">13.3</span><span>autofs</span></a></li></ul><h3>M14 · Agendamento</h3><ul><li><a href="14.1-cron-e-at.html"><span class="num">14.1</span><span>cron e at</span></a></li><li><a href="14.2-timers-do-systemd.html"><span class="num">14.2</span><span>Timers do systemd</span></a></li><li><a href="14.3-journald-e-rsyslog.html"><span class="num">14.3</span><span>journald e rsyslog</span></a></li><li><a href="14.4-hora-certa.html"><span class="num">14.4</span><span>Hora certa</span></a></li><li><a href="14.5-email-local-e-impressao.html"><span class="num">14.5</span><span>E-mail local e impressão</span></a></li></ul><h3>M15 · Shell e ambiente</h3><ul><li><a href="15.1-ambiente-do-shell.html"><span class="num">15.1</span><span>Ambiente do shell</span></a></li><li><a href="15.2-scripts-robustos.html"><span class="num">15.2</span><span>Scripts robustos</span></a></li><li><a href="15.3-scripts-de-administracao.html" aria-current="page"><span class="num">15.3</span><span>Scripts de administração</span></a></li><li><a href="15.4-interfaces-graficas.html"><span class="num">15.4</span><span>Interfaces gráficas</span></a></li><li><a href="15.5-idioma-teclado-e-fuso.html"><span class="num">15.5</span><span>Idioma, teclado e fuso</span></a></li></ul><h3>M16 · Semana de incidentes no Rocky 10</h3><ul><li><a href="16.1-rocky-10-o-que-muda.html"><span class="num">16.1</span><span>Rocky 10: o que muda</span></a></li><li><a href="16.2-incidentes-por-area.html"><span class="num">16.2</span><span>Incidentes por área</span></a></li><li><a href="16.3-incidente-com-relogio.html"><span class="num">16.3</span><span>Incidente com relógio</span></a></li><li><a href="16.4-correcao-e-reforco.html"><span class="num">16.4</span><span>Correção e reforço</span></a></li></ul><h3>M17 · Proxmox na prática</h3><ul><li><a href="17.1-proxmox-por-dentro.html"><span class="num">17.1</span><span>Proxmox por dentro</span></a></li><li><a href="17.2-vm-pela-linha-de-comando.html"><span class="num">17.2</span><span>VM pela linha de comando</span></a></li><li><a href="17.3-conteiner-lxc.html"><span class="num">17.3</span><span>Contêiner LXC</span></a></li><li><a href="17.4-storage.html"><span class="num">17.4</span><span>Storage: capacidade, crescimento e movimento</span></a></li><li><a href="17.5-rede.html"><span class="num">17.5</span><span>Rede: bridge, VLAN, bond e SDN</span></a></li><li><a href="17.6-backup-e-restauracao.html"><span class="num">17.6</span><span>Backup e restauração com PBS</span></a></li><li><a href="17.7-migracao-e-quorum.html"><span class="num">17.7</span><span>Migração e quorum</span></a></li></ul><h3>M18 · Podman</h3><ul><li><a href="18.1-conteiner-nao-e-vm.html"><span class="num">18.1</span><span>Contêiner não é VM</span></a></li><li><a href="18.2-rodar-e-persistir.html"><span class="num">18.2</span><span>Rodar e persistir</span></a></li><li><a href="18.3-conteiner-como-servico.html"><span class="num">18.3</span><span>Contêiner como serviço</span></a></li><li><a href="18.4-diagnosticar-conteiner-rootless.html"><span class="num">18.4</span><span>Diagnosticar contêiner rootless</span></a></li><li><a href="18.5-construir-imagens.html"><span class="num">18.5</span><span>Construir imagens</span></a></li></ul><h3>M19 · Serviços de rede</h3><ul><li><a href="19.1-dns-autoritativo.html"><span class="num">19.1</span><span>DNS autoritativo</span></a></li><li><a href="19.2-dns-recursivo-e-diagnostico.html"><span class="num">19.2</span><span>DNS recursivo e diagnóstico</span></a></li><li><a href="19.3-dhcp.html"><span class="num">19.3</span><span>DHCP</span></a></li><li><a href="19.4-servidor-web.html"><span class="num">19.4</span><span>Servidor web: nome, arquivo e resposta</span></a></li><li><a href="19.5-tls-e-proxy-reverso.html"><span class="num">19.5</span><span>TLS e proxy reverso: identidade antes do cadeado</span></a></li><li><a href="19.6-samba-a-ponte-windows.html"><span class="num">19.6</span><span>Samba: a ponte com o cliente Windows</span></a></li><li><a href="19.7-postfix-e-correio-local.html"><span class="num">19.7</span><span>Postfix e correio local</span></a></li><li><a href="19.8-dovecot-e-imaps.html"><span class="num">19.8</span><span>Dovecot e leitura por IMAPS</span></a></li><li><a href="19.9-squid-e-desafio-integrado.html"><span class="num">19.9</span><span>Squid e desafio integrado</span></a></li></ul><h3>M20 · NethServer 8 por dentro</h3><ul><li><a href="20.1-instalar-nethserver-8.html"><span class="num">20.1</span><span>Instalar em uma VM limpa</span></a></li><li><a href="20.2-cluster-no-e-modulo.html"><span class="num">20.2</span><span>Cluster, nó e módulo</span></a></li><li><a href="20.3-modulo-por-dentro.html"><span class="num">20.3</span><span>Um módulo por dentro</span></a></li><li><a href="20.4-proxy-e-certificados.html"><span class="num">20.4</span><span>Proxy e certificados</span></a></li><li><a href="20.5-dominios-de-usuario.html"><span class="num">20.5</span><span>Domínios de usuário: identidade com fronteiras</span></a></li><li><a href="20.6-backup-e-restauracao.html"><span class="num">20.6</span><span>Backup e restauração: provar o retorno</span></a></li><li><a href="20.7-atualizar-mover-e-falhar.html"><span class="num">20.7</span><span>Atualizar, mover e falhar com prova</span></a></li></ul></aside><main id="conteudo" class="aula"><article><h1>Aula 15.3 · Scripts de administração</h1>
+<p>No Windows, uma consulta remota também precisa separar inventário, autenticação e resultado de cada host. Você vai montar um coletor Bash que usa SSH apenas para leitura nas duas VMs do curso. Uma falha será registrada sem apagar os resultados da outra máquina.</p>
+<blockquote><p><strong>Núcleo desta aula:</strong> inventário fechado, identidade do host conferida, comando remoto somente de leitura e status por host. O resto é aprofundamento.</p></blockquote>
+<div class="tabela"><table><thead><tr><th scope="col">Ficha</th><th scope="col"></th></tr></thead><tbody><tr><td><strong>Módulo</strong></td><td>M15 · Shell e ambiente, aula 3 de 5</td></tr><tr><td><strong>Quando</strong></td><td>Semana 20</td></tr><tr><td><strong>Ao final</strong></td><td>Você coleta dados dos dois hosts autorizados e preserva erros individuais</td></tr><tr><td><strong>Pré-requisitos</strong></td><td>Aulas 12.1, 15.1 e 15.2; SSH, chaves e noVNC nas VMs do curso</td></tr><tr><td><strong>Tempo</strong></td><td>Cerca de 90 minutos</td></tr><tr><td><strong>Snapshots</strong></td><td><code translate="no">m15a3-inicio</code> e <code translate="no">m15a3-fim</code> nas VMs 201 e 202</td></tr></tbody></table></div>
+<h2 id="1-aquecimento">1 · Aquecimento</h2>
+<ol><li>Qual é a diferença entre a chave do host e a chave do usuário no SSH?</li>
+<li>Por que stdout, stderr e código de saída precisam ser registrados separadamente?</li>
+<li>Uma pipeline que termina em <code translate="no">awk</code> preserva automaticamente a falha anterior?</li></ol>
+<h2 id="2-por-que-importa">2 · Por que importa</h2>
+<p>Um relatório de vários servidores omite justamente a máquina que não respondeu. O arquivo final parece saudável porque contém apenas sucessos. Você vai registrar o inventário inteiro, inclusive falhas de transporte e de comando, para não confundir ausência de dado com saúde.</p>
+<p>O coletor será a Rocky. Os alvos são somente <code translate="no">rocky-lab</code> e <code translate="no">debian-lab</code>, nos IPs do curso. A consulta roda como <code translate="no">student</code>, sem <code translate="no">sudo</code>, sem encaminhar agente e sem instalar um agente nos alvos.</p>
+<h2 id="3-modelo-mental">3 · Modelo mental</h2>
+<p>O inventário é a lista de prédios onde a equipe pode entrar. O SSH confere a portaria e apresenta a autorização do usuário. A ordem de serviço só pede observações. O relatório mantém uma ficha para cada prédio, mesmo quando a visita falha.</p>
+<pre translate="no"><code class="lang-text">inventário fechado -&gt; SSH verificado -&gt; consulta de leitura
+        |                  |                  |
+      host A             host B         resultado ou erro</code></pre>
+<figure><a href="../img/15.3-inventario-fechado.jpg"><img src="../img/15.3-inventario-fechado.jpg" alt="A lista define o alcance" loading="lazy" decoding="async"></a><figcaption>Consulte somente os hosts autorizados do inventário.</figcaption></figure>
+<h3 id="ponte-windows">Ponte Windows</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Ideia</th><th scope="col">Neste lab</th><th scope="col">Limite</th></tr></thead><tbody><tr><td>Inventário remoto</td><td>Lista fixa de dois aliases</td><td>Não descobrir hosts varrendo a rede</td></tr><tr><td>Autenticação do destino</td><td><code translate="no">known_hosts</code> privado</td><td>Conferir impressão digital no console</td></tr><tr><td>Consulta remota</td><td>Bash por SSH</td><td>Somente leitura e sem privilégio elevado</td></tr></tbody></table></div>
+<h2 id="4-o-essencial">4 · O essencial</h2>
+<h3 id="alvo-faz-parte-do-contrato">Alvo faz parte do contrato</h3>
+<p>O coletor não aceita nomes arbitrários na linha de comando. A lista contém somente as VMs 201 e 202. Alterar essa lista é uma mudança de escopo, não uma simples preferência de execução.</p>
+<h3 id="host-conhecido-antes-da-coleta">Host conhecido antes da coleta</h3>
+<p><code translate="no">StrictHostKeyChecking yes</code> rejeita um host cuja chave não foi previamente conferida. <code translate="no">BatchMode yes</code> impede perguntas interativas durante o lote. Não use aceitação automática de chaves como correção de autenticação.</p>
+<figure><a href="../img/15.3-identidade-antes-do-dado.jpg"><img src="../img/15.3-identidade-antes-do-dado.jpg" alt="Confirme o host antes do relatório" loading="lazy" decoding="async"></a><figcaption>A chave do host precisa ser conhecida antes da coleta.</figcaption></figure>
+<h3 id="resultado-por-host">Resultado por host</h3>
+<p>Cada consulta gera arquivos próprios de stdout e stderr. O status final do coletor é <code translate="no">0</code> quando todos responderam e <code translate="no">1</code> quando pelo menos um falhou. O status individual guarda a informação de transporte ou do comando remoto.</p>
+<p>O SSH normalmente usa <code translate="no">255</code> para seus erros de conexão e autenticação. O limite externo de tempo pode devolver <code translate="no">124</code>. Não transforme todos esses códigos em “servidor desligado”.</p>
+<figure><a href="../img/15.3-erro-por-host.jpg"><img src="../img/15.3-erro-por-host.jpg" alt="Falha de um host não apaga os outros" loading="lazy" decoding="async"></a><figcaption>Registre o resultado de cada host e o status geral.</figcaption></figure>
+<h3 id="rocky-debian">Rocky × Debian</h3>
+<div class="tabela"><table><thead><tr><th scope="col">Item</th><th scope="col">Rocky 9</th><th scope="col">Debian 13</th></tr></thead><tbody><tr><td>Papel principal</td><td>Coletor e alvo <code translate="no">10.1.0.51</code></td><td>Alvo <code translate="no">10.1.0.52</code></td></tr><tr><td>Consulta local equivalente</td><td>Bash, <code translate="no">df</code>, <code translate="no">free</code> e <code translate="no">uname</code></td><td>Bash, <code translate="no">df</code>, <code translate="no">free</code> e <code translate="no">uname</code></td></tr><tr><td>Privilégio remoto</td><td><code translate="no">student</code>, sem <code translate="no">sudo</code></td><td><code translate="no">student</code>, sem <code translate="no">sudo</code></td></tr></tbody></table></div>
+<h2 id="5-lab-guiado">5 · Lab guiado</h2>
+<p>As chaves existentes do Windows continuam intactas. Você cria uma chave exclusiva na Rocky e autoriza apenas sua parte pública nos dois alvos. Faça essa preparação por noVNC, sem encaminhamento do agente do Windows.</p>
+<h3 id="passo-1-proteger-e-preparar-os-registros">Passo 1 · Proteger e preparar os registros</h3>
+<p><strong>Palpite:</strong> uma falha em um alvo deveria apagar o registro do alvo que respondeu?</p>
+<p>No host Proxmox:</p>
+<pre translate="no"><code class="lang-bash">qm snapshot 201 m15a3-inicio
+qm snapshot 202 m15a3-inicio</code></pre>
+<p>Nas duas VMs, confirme que a pasta não existia antes de criá-la.</p>
+<pre translate="no"><code class="lang-bash">test ! -e "$HOME/m15a3"
+mkdir -m 700 "$HOME/m15a3"
+command -v bash ssh ssh-keygen df free uname
+ssh-keygen -lf /etc/ssh/ssh_host_ed25519_key.pub</code></pre>
+<p><strong>Saída esperada:</strong> ferramentas disponíveis e impressão digital pública de cada host. Guarde essas duas impressões obtidas diretamente do console para compará-las na primeira conexão.</p>
+<p><strong>Verifique:</strong> os IPs continuam sendo os do curso e a sessão SSH normal do Windows funciona. Não copie nenhuma chave privada existente.</p>
+<h3 id="passo-2-autorizar-uma-chave-exclusiva">Passo 2 · Autorizar uma chave exclusiva</h3>
+<p><strong>Palpite:</strong> o arquivo público permite autenticar sem possuir a chave privada correspondente?</p>
+<p>Na Rocky, gere a chave do coletor com passphrase interativa.</p>
+<pre translate="no"><code class="lang-bash">ssh-keygen -t ed25519 -a 64 -f "$HOME/m15a3/id_ed25519" -C m15a3-collector
+ssh-keygen -lf "$HOME/m15a3/id_ed25519.pub"
+cat "$HOME/m15a3/id_ed25519.pub"</code></pre>
+<p>Copie somente a linha pública. No noVNC de cada VM, cole-a ao ser solicitado pelo comando seguinte. Confira a impressão digital antes de acrescentá-la ao acesso de <code translate="no">student</code>.</p>
+<pre translate="no"><code class="lang-bash">read -r -p 'Public key: ' LAB_PUBKEY
+printf '%s\n' "$LAB_PUBKEY" &gt; "$HOME/m15a3/authorized.pub"
+ssh-keygen -lf "$HOME/m15a3/authorized.pub"</code></pre>
+<p>Depois da conferência, em cada alvo, use a pasta SSH já correta do M0. Não substitua seu conteúdo.</p>
+<pre translate="no"><code class="lang-bash">test -d "$HOME/.ssh"
+test -f "$HOME/.ssh/authorized_keys" || install -m 0600 /dev/null "$HOME/.ssh/authorized_keys"
+cp -p "$HOME/.ssh/authorized_keys" "$HOME/m15a3/authorized_keys.inicio"
+grep -qxF -f "$HOME/m15a3/authorized.pub" "$HOME/.ssh/authorized_keys" || cat "$HOME/m15a3/authorized.pub" &gt;&gt; "$HOME/.ssh/authorized_keys"</code></pre>
+<p><strong>Saída esperada:</strong> apenas a linha pública do exercício foi acrescentada; as autorizações anteriores continuam presentes.</p>
+<p><strong>Verifique:</strong> a impressão digital da linha em cada alvo é igual à da chave pública criada na Rocky. A chave privada ficou na Rocky.</p>
+<h3 id="passo-3-conferir-os-hosts-e-usar-agente-local">Passo 3 · Conferir os hosts e usar agente local</h3>
+<p><strong>Palpite:</strong> desativar a conferência do host simplifica a coleta sem perder uma garantia de segurança?</p>
+<p>Na Rocky, crie a configuração privada. Ela não modifica <code translate="no">~/.ssh/config</code>.</p>
+<pre translate="no"><code class="lang-bash">cat &gt; "$HOME/m15a3/ssh_config" &lt;&lt;'EOF'
+Host rocky-lab
+    HostName 10.1.0.51
+Host debian-lab
+    HostName 10.1.0.52
+Host *
+    User student
+    Port 22
+    IdentityFile ~/m15a3/id_ed25519
+    IdentitiesOnly yes
+    UserKnownHostsFile ~/m15a3/known_hosts
+    GlobalKnownHostsFile /dev/null
+    HostKeyAlgorithms ssh-ed25519
+    StrictHostKeyChecking yes
+    ForwardAgent no
+    RequestTTY no
+    ConnectTimeout 3
+    ConnectionAttempts 1
+EOF
+ssh-agent /bin/bash --noprofile --norc</code></pre>
+<p>No novo shell filho, carregue a chave e confira a primeira conexão de cada host. A pergunta interativa só pode ser aceita se a impressão digital coincidir com a observada no console.</p>
+<pre translate="no"><code class="lang-bash">ssh-add "$HOME/m15a3/id_ed25519"
+ssh -F "$HOME/m15a3/ssh_config" -o StrictHostKeyChecking=ask rocky-lab true
+ssh -F "$HOME/m15a3/ssh_config" -o StrictHostKeyChecking=ask debian-lab true</code></pre>
+<p><strong>Saída esperada:</strong> as duas conexões verificadas executam apenas <code translate="no">true</code>. O agente pertence à sessão filha e não é encaminhado aos alvos.</p>
+<p><strong>Verifique:</strong> execute as duas conexões sem a exceção interativa e com <code translate="no">-o BatchMode=yes</code>. Ambas devem terminar com status <code translate="no">0</code>. Continue os passos seguintes nesse shell filho.</p>
+<h3 id="decida-1">Decida 1</h3>
+<p>Uma chave do host mudou inesperadamente. O que fazer antes de rodar o lote?</p>
+<div class="tabela"><table><thead><tr><th scope="col">Opção</th><th scope="col">Ação</th></tr></thead><tbody><tr><td>A</td><td>Ignorar a identidade para terminar rápido</td></tr><tr><td>B</td><td>Conferir o host pelo console e investigar a mudança</td></tr><tr><td>C</td><td>Copiar a chave privada do servidor</td></tr></tbody></table></div>
+<p>Escolha B. Um relatório não vale se você não sabe qual host respondeu.</p>
+<h3 id="passo-4-definir-a-consulta-de-leitura">Passo 4 · Definir a consulta de leitura</h3>
+<p><strong>Palpite:</strong> formatar a saída de <code translate="no">df</code> impede que uma falha dele seja mascarada pelo último filtro?</p>
+<p>Na Rocky, escreva a consulta que será enviada ao Bash remoto.</p>
+<pre translate="no"><code class="lang-bash">cat &gt; "$HOME/m15a3/query.sh" &lt;&lt;'EOF'
+#!/bin/bash
+set -u
+set -o pipefail
+export LC_ALL=C
+printf 'kernel='
+uname -r || exit 3
+df -P / | awk 'NR==2 {printf "disk_used=%s\n", $5}' || exit 3
+free -m | awk '/^Mem:/ {printf "memory_available_mb=%s\n", $7}' || exit 3
+EOF
+/bin/bash -n "$HOME/m15a3/query.sh"
+/bin/bash "$HOME/m15a3/query.sh"</code></pre>
+<p><strong>Saída esperada:</strong> dados reais da Rocky em campos fixos, sem números inventados. A mesma consulta funciona localmente na Debian e deve ser revisada ali antes do lote.</p>
+<p><strong>Verifique:</strong> confirme que o arquivo só consulta kernel, uso do disco e memória. Não há instalação, mudança de configuração ou comando com <code translate="no">sudo</code>.</p>
+<h3 id="passo-5-coletar-os-dois-resultados">Passo 5 · Coletar os dois resultados</h3>
+<p><strong>Palpite:</strong> se a Debian falhar, o coletor ainda deve preservar a resposta da Rocky?</p>
+<pre translate="no"><code class="lang-bash">cat &gt; "$HOME/m15a3/coletar.sh" &lt;&lt;'EOF'
+#!/bin/bash
+set -u
+base=$HOME/m15a3
+set -o pipefail
+[[ $# -eq 0 ]] || { printf 'no arguments allowed\n' &gt;&amp;2; exit 2; }
+/bin/bash -n "$base/query.sh" || exit 2
+run=$(mktemp -d "$base/run.XXXXXX") || exit 3
+printf 'report_dir=%s\n' "$run"
+failed=0
+for host in rocky-lab debian-lab; do
+    if timeout 12 ssh -F "$base/ssh_config" -o BatchMode=yes "$host" /bin/bash -s &lt; "$base/query.sh" &gt; "$run/$host.txt" 2&gt; "$run/$host.err"; then
+        rc=0
+    else
+        rc=$?
+        failed=1
+    fi
+    printf 'host=%s status=%s\n' "$host" "$rc" | tee -a "$run/status.txt" || exit 3
+done
+exit "$failed"
+EOF
+chmod 0700 "$HOME/m15a3/coletar.sh"
+/bin/bash -n "$HOME/m15a3/coletar.sh"
+"$HOME/m15a3/coletar.sh"
+printf 'collector_status=%s\n' "$?"</code></pre>
+<p><strong>Saída esperada:</strong> pasta nova de resultados, uma linha de status para cada host e código geral <code translate="no">0</code> se os dois responderem. Cada execução conserva sua própria pasta.</p>
+<p><strong>Verifique:</strong> abra apenas os arquivos da pasta recém-informada. Não misture resultados antigos e atuais. Confira dados e arquivos de erro separadamente.</p>
+<h3 id="decida-2">Decida 2</h3>
+<p>Um alvo não entregou dados. Qual registro mantém o significado do relatório?</p>
+<div class="tabela"><table><thead><tr><th scope="col">Opção</th><th scope="col">Ação</th></tr></thead><tbody><tr><td>A</td><td>Inventar o último valor conhecido como se fosse atual</td></tr><tr><td>B</td><td>Omitir o host e mostrar só os sucessos</td></tr><tr><td>C</td><td>Guardar status, erro e ausência de dado para esse host</td></tr></tbody></table></div>
+<p>Escolha C. Ausência de dado precisa ficar visível.</p>
+<h3 id="passo-6-conferir-o-escopo-e-a-repeticao">Passo 6 · Conferir o escopo e a repetição</h3>
+<p><strong>Palpite:</strong> repetir uma coleta de leitura deveria mudar o uso do disco de um alvo por instalação de pacotes?</p>
+<pre translate="no"><code class="lang-bash">"$HOME/m15a3/coletar.sh"
+printf 'collector_status=%s\n' "$?"
+ssh -F "$HOME/m15a3/ssh_config" -o BatchMode=yes rocky-lab 'id -un'
+ssh -F "$HOME/m15a3/ssh_config" -o BatchMode=yes debian-lab 'id -un'</code></pre>
+<p><strong>Saída esperada:</strong> outra pasta de resultados e usuário remoto <code translate="no">student</code> nos dois hosts. Os números de memória podem variar entre consultas.</p>
+<p><strong>Verifique:</strong> o inventário do script tem só os dois aliases aprovados. A leitura usa o mesmo conteúdo de consulta nas duas famílias.</p>
+<h2 id="6-quebre-e-conserte">6 · Quebre e conserte</h2>
+<h3 id="quebra-1-host-ainda-nao-conhecido">Quebra 1 · Host ainda não conhecido</h3>
+<p>Na Rocky, preserve a lista privada e retire apenas o registro da Debian nessa cópia de exercício.</p>
+<pre translate="no"><code class="lang-bash">cp -p "$HOME/m15a3/known_hosts" "$HOME/m15a3/known_hosts.valid"
+ssh-keygen -R 10.1.0.52 -f "$HOME/m15a3/known_hosts"
+"$HOME/m15a3/coletar.sh"
+printf 'collector_status=%s\n' "$?"</code></pre>
+<p><strong>Sintoma:</strong> a Rocky responde e a Debian falha na conferência de identidade; o lote termina com <code translate="no">1</code>.</p>
+<p><strong>Investigação:</strong> leia o stderr da Debian na pasta nova e compare os dois status.</p>
+<p><strong>Causa:</strong> o modo estrito não permite confiar silenciosamente em um host desconhecido.</p>
+<p><strong>Conserto:</strong> restaure somente a lista privada previamente conferida.</p>
+<pre translate="no"><code class="lang-bash">cp -p "$HOME/m15a3/known_hosts.valid" "$HOME/m15a3/known_hosts"</code></pre>
+<p><strong>Verifique:</strong> os dois alvos voltam a responder sem desativar a conferência de identidade.</p>
+<p><strong>Prevenção:</strong> confirme chaves antes do lote e registre a origem da impressão digital.</p>
+<h3 id="quebra-2-chave-indisponivel-no-agente">Quebra 2 · Chave indisponível no agente</h3>
+<p><strong>Sintoma:</strong> após retirar a chave do agente local, o lote não pode pedir a passphrase interativamente.</p>
+<p><strong>Investigação:</strong> retire somente a chave do exercício e confira o erro produzido.</p>
+<pre translate="no"><code class="lang-bash">ssh-add -d "$HOME/m15a3/id_ed25519"
+"$HOME/m15a3/coletar.sh"</code></pre>
+<p><strong>Causa:</strong> a chave privada cifrada não está pronta para assinatura no agente; <code translate="no">BatchMode</code> impede perguntas durante o lote.</p>
+<p><strong>Conserto:</strong> carregue novamente a chave com <code translate="no">ssh-add</code>, digitando a passphrase só no diálogo.</p>
+<p><strong>Verifique:</strong> o coletor volta a responder nos dois hosts sem encaminhar o agente.</p>
+<p><strong>Prevenção:</strong> separe a preparação de credenciais da execução não interativa do relatório.</p>
+<h3 id="quebra-3-consulta-falha-no-alvo">Quebra 3 · Consulta falha no alvo</h3>
+<p>Preserve a consulta válida e troque apenas uma opção de leitura na cópia do lab.</p>
+<pre translate="no"><code class="lang-bash">cp "$HOME/m15a3/query.sh" "$HOME/m15a3/query.valid.sh"
+sed -i 's/df -P/df --m15-invalid/' "$HOME/m15a3/query.sh"
+"$HOME/m15a3/coletar.sh"</code></pre>
+<p><strong>Sintoma:</strong> o SSH funciona, mas os comandos remotos retornam <code translate="no">3</code>; o coletor resume falha geral com <code translate="no">1</code>.</p>
+<p><strong>Investigação:</strong> leia stdout parcial e stderr de cada host. O erro aconteceu no comando de leitura, não na identidade do host.</p>
+<p><strong>Causa:</strong> a opção inventada é inválida e a consulta preserva a falha da pipeline.</p>
+<p><strong>Conserto:</strong> restaure a consulta local validada antes de enviar outra coleta.</p>
+<pre translate="no"><code class="lang-bash">cp "$HOME/m15a3/query.valid.sh" "$HOME/m15a3/query.sh"
+/bin/bash -n "$HOME/m15a3/query.sh"</code></pre>
+<p><strong>Verifique:</strong> os dois hosts voltam a produzir todos os campos previstos.</p>
+<p><strong>Prevenção:</strong> valide o conteúdo da consulta nas duas famílias antes de ampliar o inventário.</p>
+<h3 id="limpeza">Limpeza</h3>
+<p>Em cada alvo, retire somente a linha pública acrescentada pelo exercício. Não restaure cegamente o arquivo inteiro, pois outras autorizações podem ter sido acrescentadas depois. Faça a limpeza sem edição concorrente de outro administrador.</p>
+<pre translate="no"><code class="lang-bash">if test -s "$HOME/m15a3/authorized.pub" &amp;&amp; ssh-keygen -lf "$HOME/m15a3/authorized.pub"; then
+    cp -p "$HOME/.ssh/authorized_keys" "$HOME/.ssh/authorized_keys.m15a3.tmp" &amp;&amp;
+    awk 'NR==FNR {drop[$0]=1; next} !($0 in drop)' "$HOME/m15a3/authorized.pub" "$HOME/.ssh/authorized_keys" &gt; "$HOME/.ssh/authorized_keys.m15a3.tmp" &amp;&amp;
+    mv -- "$HOME/.ssh/authorized_keys.m15a3.tmp" "$HOME/.ssh/authorized_keys"
+else
+    printf 'cleanup stopped: invalid public key\n' &gt;&amp;2
+fi</code></pre>
+<p>Confirme que a linha removida era só a chave do lab e que o acesso original do Windows continua funcionando. No coletor, saia do shell filho com <code translate="no">exit</code>; o agente iniciado para ele termina. Guarde o material privado sem exportar chave privada.</p>
+<h2 id="7-armadilhas">7 · Armadilhas</h2>
+<div class="tabela"><table><thead><tr><th scope="col">Erro comum</th><th scope="col">O que fazer</th><th scope="col">Por quê</th></tr></thead><tbody><tr><td>Aceitar qualquer chave no lote</td><td>Conferir pelo console antes</td><td>Autentica o destino da consulta</td></tr><tr><td>Omitir o host sem resposta</td><td>Registrar erro e status</td><td>Ausência de dado não é sucesso</td></tr><tr><td>Encaminhar agente para facilitar</td><td>Manter assinatura no coletor</td><td>O alvo não precisa usar seu agente</td></tr><tr><td>Transformar relatório em varredura</td><td>Manter inventário fechado</td><td>O alcance precisa de autorização</td></tr></tbody></table></div>
+<h2 id="8-quiz">8 · Quiz</h2>
+<ol><li>Qual chave privada precisa ficar no coletor?</li>
+<li>Por que conferir a impressão digital pelo console?</li>
+<li>O que <code translate="no">BatchMode</code> evita durante o lote?</li>
+<li>Se o SSH retorna <code translate="no">3</code> do comando remoto, isso significa o mesmo que <code translate="no">255</code>?</li>
+<li>Por que usar uma pasta nova para cada execução?</li>
+<li>Por que a limpeza remove só a linha pública exata do exercício?</li></ol>
+<h2 id="9-cola">9 · Cola</h2>
+<div class="tabela"><table><thead><tr><th scope="col">Tarefa</th><th scope="col">Comando</th></tr></thead><tbody><tr><td>Validar a consulta</td><td><code translate="no">/bin/bash -n "$HOME/m15a3/query.sh"</code></td></tr><tr><td>Identidade do cliente</td><td><code translate="no">ssh-keygen -lf "$HOME/m15a3/id_ed25519.pub"</code></td></tr><tr><td>Identidade do host</td><td><code translate="no">ssh-keygen -lf /etc/ssh/ssh_host_ed25519_key.pub</code></td></tr><tr><td>Consulta do lote</td><td><code translate="no">"$HOME/m15a3/coletar.sh"</code></td></tr></tbody></table></div>
+<p><strong>Flashcards:</strong> crie cinco cartões sobre inventário, identidade, agente local, erro remoto e status geral. Revise em D+1, D+3, D+7 e D+21.</p>
+<h2 id="10-checklist-e-fechamento">10 · Checklist e fechamento</h2>
+<ul><li>[ ] Consultei somente as VMs 201 e 202.</li>
+<li>[ ] Conferi as chaves dos dois hosts pelo console.</li>
+<li>[ ] Preservei sucesso e falha em arquivos separados por host.</li>
+<li>[ ] Retirei só a autorização temporária do lab e encerrei seu agente.</li></ul>
+<p><strong>Último exercício:</strong> explique um relatório parcial sem chamar todos os hosts de “indisponíveis”. Identifique a evidência que diferencia transporte de comando remoto.</p>
+<p><strong>Reboot de conferência:</strong> após a limpeza, reinicie as duas VMs, uma por vez. Confirme o acesso original do Windows e a ausência de agente do lab. Os relatórios privados permanecem; a autorização temporária não deve voltar.</p>
+<p>No host Proxmox:</p>
+<pre translate="no"><code class="lang-bash">qm snapshot 201 m15a3-fim
+qm snapshot 202 m15a3-fim</code></pre>
+<h2 id="11-na-vida-real">11 · Na vida real</h2>
+<p>Revise, somente por leitura, um inventário e uma consulta autorizada. Não execute uma coleta nova em produção nesta missão. Identifique quais hosts estão aprovados, como suas identidades são conferidas e onde falhas aparecem.</p>
+<p>O relatório distingue dados antigos e atuais? Há um host silenciosamente omitido? As credenciais ficam no coletor correto e fora dos relatórios?</p>
+<h2 id="12-aprofundar-quando-quiser">12 · Aprofundar quando quiser</h2>
+<ul><li><a href="https://manpages.debian.org/trixie/openssh-client/ssh.1.en.html">ssh</a>, <a href="https://manpages.debian.org/trixie/openssh-client/ssh_config.5.en.html">ssh_config</a> e <a href="https://manpages.debian.org/trixie/openssh-client/ssh-agent.1.en.html">ssh-agent</a>: identidade, modo de lote e agente com comando filho.</li>
+<li><a href="https://www.gnu.org/software/coreutils/manual/html_node/timeout-invocation.html">timeout</a> e <a href="https://www.gnu.org/software/bash/manual/bash.html">Bash</a>: tempo limitado, heredoc, redirecionamentos e códigos.</li></ul>
+<p><strong>DeepTutor</strong> (http://10.1.0.149:3782, KB "Curso Linux Sysadmin"):</p>
+<ul><li><code translate="no">!explica Compare erro de identidade do host, chave do usuário indisponível e comando remoto que falhou.</code></li>
+<li><code translate="no">!feynman Vou explicar por que um relatório deve mostrar também o host que não respondeu. Critique.</code></li>
+<li><code translate="no">!quiz Crie seis incidentes de coleta SSH somente de leitura em rocky-lab e debian-lab.</code></li></ul>
+<h2 id="gabarito-comentado">Gabarito comentado</h2>
+<h3 id="aquecimento">Aquecimento</h3>
+<ol><li>A chave do host autentica o destino; a chave do usuário autoriza o acesso da conta.</li>
+<li>Dado, diagnóstico e resultado operacional têm usos diferentes e não devem se esconder mutuamente.</li>
+<li>Não. A consulta usa <code translate="no">pipefail</code> e tratamento explícito para preservar essa falha.</li></ol>
+<h3 id="quiz">Quiz</h3>
+<ol><li>A chave exclusiva do usuário coletor, protegida por passphrase.</li>
+<li>Para comparar com uma fonte que não dependa da mesma conexão ainda não confiável.</li>
+<li>Perguntas de autenticação e interação que fariam o lote esperar pelo operador.</li>
+<li>Não. Neste contrato, <code translate="no">3</code> indica falha de processamento remoto; <code translate="no">255</code> normalmente indica erro do SSH.</li>
+<li>Para não sobrescrever a evidência anterior nem confundir momentos diferentes.</li>
+<li>Para preservar autorizações legítimas que não pertencem ao exercício.</li></ol>
+<p><a href="15.2-scripts-robustos.html">← Aula 15.2 · Scripts robustos</a> · <a href="index.html">Índice de aulas</a> · <a href="https://github.com/Rodrigoantignani/curso-linux-sysadmin/blob/master/00-plano-do-curso.md">Plano do curso: 15.4 em diante →</a></p>
+</article><nav class="paginas" aria-label="Aulas"><a class="ant" href="15.2-scripts-robustos.html"><small>← Anterior</small>15.2 · Scripts robustos</a><a class="prox" href="15.4-interfaces-graficas.html"><small>Próxima →</small>15.4 · Interfaces gráficas</a></nav></main></div>
+<footer><div class="wrap">Gerado a partir do Markdown do curso · Imagens em <code translate="no">img/</code></div></footer>
+</body>
+</html>

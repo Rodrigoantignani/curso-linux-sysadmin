@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light dark">
+<title>20.2 · Cluster, nodo e modulo · Corso Linux Sysadmin</title>
+<link rel="alternate" hreflang="pt-BR" href="20.2-cluster-no-e-modulo.html"><link rel="alternate" hreflang="it" href="20.2-cluster-no-e-modulo.it.html">
+<style>
+:root{color-scheme:light dark;--bg:#f6f1e7;--card:#fffdf8;--ink:#201c16;--muted:#5e564a;--accent:#9a3412;--accent-2:#1f5f4a;--tint:#efe6d4;--line:#ddd2bc;--code:#f1eadb;--shadow:0 1px 2px rgba(60,40,10,.08);--serif:Georgia,"Iowan Old Style","Palatino Linotype",Palatino,serif;--sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--mono:"Cascadia Code",Consolas,"DejaVu Sans Mono",monospace}
+@media (prefers-color-scheme:dark){:root{--bg:#16130f;--card:#201b15;--ink:#f1eadb;--muted:#b9ad98;--accent:#f0a070;--accent-2:#7fd0b0;--tint:#2a231a;--line:#3d3427;--code:#191510;--shadow:none}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:5.5rem}
+body{margin:0;background:var(--bg);color:var(--ink);font:1rem/1.6 var(--sans)}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--accent-2);outline-offset:2px;border-radius:4px}
+.pular{position:absolute;left:-999px;top:0;background:var(--card);padding:.5rem 1rem;z-index:20}
+.pular:focus{left:.5rem;top:.5rem}
+.wrap{width:100%;max-width:84rem;margin:0 auto;padding-inline:max(1rem,env(safe-area-inset-left))}
+.top{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10;border-top:6px solid var(--accent)}
+.top-in{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding-block:.6rem}
+.titles{min-width:0}
+.marca{margin:0;font:700 clamp(1.15rem,1rem + 1vw,1.6rem)/1.15 var(--serif);letter-spacing:-.01em}
+.marca a{text-decoration:none}
+.marca a:hover{color:var(--accent)}
+.meta{margin:.1rem 0 0;color:var(--muted);font-size:.85rem}
+.acoes{display:flex;align-items:center;gap:.9rem;flex:none}
+.acoes>a{font-size:.9rem;font-weight:600;color:var(--muted);text-decoration:none}
+.acoes>a:hover{color:var(--accent);text-decoration:underline}
+.idioma{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--tint)}
+.idioma>*{padding:.35rem .9rem;font-size:.8rem;font-weight:700;letter-spacing:.06em;text-decoration:none;color:var(--muted);min-width:2.75rem;text-align:center}
+.idioma a:hover{color:var(--accent);text-decoration:underline}
+.idioma span{background:var(--accent);color:#fff}
+@media (prefers-color-scheme:dark){.idioma span{color:#16130f}}
+code{font-family:var(--mono);font-size:.9em;background:var(--tint);padding:.1rem .35rem;border-radius:4px;overflow-wrap:anywhere}
+/* índice */
+.capa{max-width:70rem;padding-block:2rem 3rem}
+.stats{border-left:4px solid var(--accent-2);background:var(--card);border-radius:0 10px 10px 0;padding:1rem 1.25rem;margin:0 0 2.5rem;box-shadow:var(--shadow);color:var(--muted)}
+.stats strong{color:var(--ink)}
+.modulo{display:grid;grid-template-columns:15rem minmax(0,1fr);gap:1rem 2rem;padding:1.75rem 0;border-top:1px solid var(--line)}
+.modulo h2{margin:0;font:700 1.25rem/1.25 var(--serif);align-self:start;position:sticky;top:6rem}
+.mn{display:block;font:700 .8rem var(--mono);letter-spacing:.12em;color:var(--accent);margin-bottom:.25rem}
+.sep{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.modulo ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,17rem),1fr));gap:.75rem}
+.modulo li{margin:0}
+.modulo a{display:flex;gap:.45rem;align-items:baseline;height:100%;padding:.85rem 1rem;background:var(--card);border:1px solid var(--line);border-radius:10px;text-decoration:none;font-weight:600;line-height:1.35;box-shadow:var(--shadow);transition:border-color .15s,transform .15s}
+.modulo a:hover{border-color:var(--accent);color:var(--accent)}
+.num{font:700 .85rem var(--mono);color:var(--accent);white-space:nowrap}
+/* aula */
+.doc{display:grid;grid-template-columns:17rem minmax(0,1fr);gap:2.5rem;align-items:start;padding-block:2rem 3rem}
+.lateral{position:sticky;top:5.5rem;max-height:calc(100vh - 6.5rem);overflow:auto;font-size:.875rem;padding-right:.5rem}
+.lateral h2{margin:0 0 .25rem;font:700 .95rem var(--serif);color:var(--muted)}
+.lateral h3{margin:1rem 0 .25rem;font:700 .75rem var(--mono);letter-spacing:.06em;color:var(--accent)}
+.lateral ul{list-style:none;margin:0;padding:0}
+.lateral a{display:flex;gap:.45rem;padding:.25rem .5rem;border-radius:6px;text-decoration:none;color:var(--muted);line-height:1.3}
+.lateral a:hover{background:var(--tint);color:var(--ink)}
+.lateral a[aria-current]{background:var(--tint);color:var(--ink);font-weight:700;box-shadow:inset 3px 0 0 var(--accent)}
+.lateral .num{font-size:.75rem}
+.aula{min-width:0;max-width:56rem;overflow-wrap:break-word;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:clamp(1.25rem,1rem + 2vw,2.75rem);box-shadow:var(--shadow)}
+.aula h1{margin:0 0 1.5rem;font:700 clamp(1.75rem,1.4rem + 1.6vw,2.5rem)/1.15 var(--serif);letter-spacing:-.015em;color:var(--ink)}
+.aula h2{margin:2.5rem 0 .75rem;padding-top:1.25rem;border-top:1px solid var(--line);font:700 1.5rem/1.25 var(--serif)}
+.aula h3{margin:2rem 0 .5rem;font:700 1.15rem/1.3 var(--serif);color:var(--accent)}
+.aula h4,.aula h5,.aula h6{margin:1.5rem 0 .5rem;font-size:1rem}
+.aula p,.aula ul,.aula ol{margin:1rem 0}
+.aula ul,.aula ol{padding-left:1.5rem}
+.aula li{margin:.35rem 0}
+.aula li>ul,.aula li>ol{margin:.35rem 0}
+.aula a{color:var(--accent);text-underline-offset:2px}
+.aula hr{border:0;border-top:1px solid var(--line);margin:2rem 0}
+.tabela{overflow-x:auto;margin:1.25rem 0;border:1px solid var(--line);border-radius:10px}
+.aula table{width:100%;border-collapse:collapse;font-size:.9rem}
+.aula th,.aula td{padding:.55rem .75rem;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+.aula tr:last-child td{border-bottom:0}
+.aula th{background:var(--tint);font-weight:700}
+.aula pre{background:var(--code);border:1px solid var(--line);border-radius:10px;padding:.9rem 1rem;overflow-x:auto;font:.85rem/1.5 var(--mono);margin:1rem 0;tab-size:4}
+.aula pre code{background:none;padding:0;font-size:inherit;overflow-wrap:normal}
+.aula blockquote{margin:1.25rem 0;padding:.75rem 1.25rem;border-left:4px solid var(--accent-2);background:var(--tint);border-radius:0 10px 10px 0}
+.aula blockquote>:first-child{margin-top:0}
+.aula blockquote>:last-child{margin-bottom:0}
+.aula figure{margin:1.75rem 0;text-align:center}
+.aula figure img{display:block;margin:0 auto;max-width:100%;height:auto;border:1px solid var(--line);border-radius:10px;background:#fff}
+.aula figcaption{margin-top:.5rem;color:var(--muted);font-size:.9rem;font-style:italic}
+.paginas{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:2.5rem;padding-top:1.5rem;border-top:1px solid var(--line)}
+.paginas a{display:block;padding:.75rem 1rem;border:1px solid var(--line);border-radius:10px;text-decoration:none;color:var(--ink);font-weight:600;line-height:1.3}
+.paginas a:hover{border-color:var(--accent);color:var(--accent)}
+.paginas small{display:block;color:var(--muted);font-weight:400}
+.paginas .prox{grid-column:2;text-align:right}
+footer{border-top:1px solid var(--line);padding-block:1.5rem;color:var(--muted);font-size:.85rem;text-align:center}
+@media (hover:hover) and (prefers-reduced-motion:no-preference){.modulo a:hover{transform:translateY(-2px)}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+@media (max-width:980px){.doc{grid-template-columns:minmax(0,1fr);padding-top:1rem}.lateral{position:static;max-height:none;order:2}.aula{max-width:none}}
+@media (max-width:860px){.modulo{grid-template-columns:minmax(0,1fr)}.modulo h2{position:static}.mn{display:inline;margin-right:.5rem}}
+@media (max-width:420px){.meta{display:none}.top-in{gap:.5rem}.acoes{gap:.6rem}.capa{padding-top:1.25rem}.paginas{grid-template-columns:minmax(0,1fr)}.paginas .prox{grid-column:1}}
+@media print{.top,.lateral,.paginas{display:none}.aula{border:0;box-shadow:none;padding:0;max-width:none}.doc{display:block}}
+</style>
+</head>
+<body>
+<a class="pular" href="#conteudo">Vai al contenuto</a>
+<header class="top"><div class="wrap top-in"><div class="titles"><p class="marca"><a href="index.it.html">Corso Linux Sysadmin</a></p><p class="meta">Rodrigo Antignani · Lezione 20.2</p></div><div class="acoes"><a href="index.it.html">Indice</a><div class="idioma" role="group" aria-label="Lingua"><a href="20.2-cluster-no-e-modulo.html" hreflang="pt-BR" lang="pt-BR">PT</a><span aria-current="true">IT</span></div></div></div></header>
+<div class="wrap doc"><aside class="lateral" aria-label="Lezioni"><h2>Lezioni</h2><h3>M0 · Laboratorio</h3><ul><li><a href="0.1-montar-o-laboratorio.it.html"><span class="num">0.1</span><span>Allestire il laboratorio</span></a></li><li><a href="0.2-acesso-e-protecao.it.html"><span class="num">0.2</span><span>Accesso e protezione</span></a></li></ul><h3>M1 · Riga di comando</h3><ul><li><a href="1.1-o-que-e-linux.it.html"><span class="num">1.1</span><span>Che cos'è Linux</span></a></li><li><a href="1.2-o-shell-e-a-ajuda.it.html"><span class="num">1.2</span><span>La shell e la guida</span></a></li><li><a href="1.3-caminhos-e-navegacao.it.html"><span class="num">1.3</span><span>Percorsi e navigazione</span></a></li><li><a href="1.4-criar-copiar-mover-e-apagar.it.html"><span class="num">1.4</span><span>Creare, copiare, spostare ed eliminare</span></a></li><li><a href="1.5-ler-e-procurar-texto.it.html"><span class="num">1.5</span><span>Leggere e cercare testo</span></a></li><li><a href="1.6-redirecionamentos-e-pipes.it.html"><span class="num">1.6</span><span>Reindirizzamenti e pipe</span></a></li><li><a href="1.7-arquivar-e-compactar.it.html"><span class="num">1.7</span><span>Archiviare e comprimere</span></a></li><li><a href="1.8-primeiro-script.it.html"><span class="num">1.8</span><span>Primo script</span></a></li><li><a href="1.9-decidir-e-repetir.it.html"><span class="num">1.9</span><span>Decidere e ripetere</span></a></li><li><a href="1.10-software-livre-na-pratica.it.html"><span class="num">1.10</span><span>Il software libero in pratica</span></a></li></ul><h3>M2 · Sistema, utenti e permessi</h3><ul><li><a href="2.1-instalacao-e-provisionamento.it.html"><span class="num">2.1</span><span>Installazione e provisioning</span></a></li><li><a href="2.2-hardware-e-dispositivos.it.html"><span class="num">2.2</span><span>Hardware e dispositivi</span></a></li><li><a href="2.3-processos-e-logs.it.html"><span class="num">2.3</span><span>Processi e log</span></a></li><li><a href="2.4-rede-no-dia-a-dia.it.html"><span class="num">2.4</span><span>La rete di tutti i giorni</span></a></li><li><a href="2.5-acesso-remoto-e-privilegios.it.html"><span class="num">2.5</span><span>Accesso remoto e privilegi</span></a></li><li><a href="2.6-usuarios-e-grupos.it.html"><span class="num">2.6</span><span>Utenti e gruppi</span></a></li><li><a href="2.7-permissoes-e-dono.it.html"><span class="num">2.7</span><span>Permessi e proprietario</span></a></li><li><a href="2.8-diretorios-e-arquivos-especiais.it.html"><span class="num">2.8</span><span>Directory e file speciali</span></a></li></ul><h3>M3 · Testo ed editor</h3><ul><li><a href="3.1-fluxos-a-fundo.it.html"><span class="num">3.1</span><span>I flussi in profondità</span></a></li><li><a href="3.2-filtros-de-texto.it.html"><span class="num">3.2</span><span>Filtri di testo</span></a></li><li><a href="3.3-regex-e-grep.it.html"><span class="num">3.3</span><span>Regex e grep</span></a></li><li><a href="3.4-sed-e-awk.it.html"><span class="num">3.4</span><span>sed e awk</span></a></li><li><a href="3.5-vi-e-vim-de-verdade.it.html"><span class="num">3.5</span><span>vi e vim sul serio</span></a></li></ul><h3>M4 · systemd e boot</h3><ul><li><a href="4.1-como-o-linux-liga.it.html"><span class="num">4.1</span><span>Come si avvia Linux</span></a></li><li><a href="4.2-systemd-servicos-e-units.it.html"><span class="num">4.2</span><span>systemd: servizi e unit</span></a></li><li><a href="4.3-targets-desligar-e-reiniciar.it.html"><span class="num">4.3</span><span>Target: spegnere e riavviare</span></a></li><li><a href="4.4-grub-e-acesso-de-emergencia.it.html"><span class="num">4.4</span><span>GRUB e accesso di emergenza</span></a></li></ul><h3>M5 · Kernel, moduli e VM</h3><ul><li><a href="5.1-hardware-pelo-kernel.it.html"><span class="num">5.1</span><span>L'hardware visto dal kernel</span></a></li><li><a href="5.2-modulos-e-parametros.it.html"><span class="num">5.2</span><span>Moduli e parametri</span></a></li><li><a href="5.3-linux-como-convidado.it.html"><span class="num">5.3</span><span>Linux come guest</span></a></li></ul><h3>M6 · Pacchetti e repository</h3><ul><li><a href="6.1-pacotes-no-debian.it.html"><span class="num">6.1</span><span>Pacchetti su Debian</span></a></li><li><a href="6.2-pacotes-na-rocky.it.html"><span class="num">6.2</span><span>Pacchetti su Rocky</span></a></li><li><a href="6.3-repositorios.it.html"><span class="num">6.3</span><span>Repository</span></a></li><li><a href="6.4-flatpak.it.html"><span class="num">6.4</span><span>Flatpak</span></a></li><li><a href="6.5-bibliotecas-compartilhadas.it.html"><span class="num">6.5</span><span>Librerie condivise</span></a></li></ul><h3>M7 · Processi e prestazioni</h3><ul><li><a href="7.1-processos-e-sinais.it.html"><span class="num">7.1</span><span>Processi e segnali</span></a></li><li><a href="7.2-jobs-e-sessoes.it.html"><span class="num">7.2</span><span>Job e sessioni</span></a></li><li><a href="7.3-prioridade-e-perfis.it.html"><span class="num">7.3</span><span>Priorità e profili</span></a></li></ul><h3>M8 · File a fondo</h3><ul><li><a href="8.1-fhs-e-onde-cada-coisa-mora.it.html"><span class="num">8.1</span><span>FHS e dove sta ogni cosa</span></a></li><li><a href="8.2-find-a-fundo.it.html"><span class="num">8.2</span><span>find a fondo</span></a></li><li><a href="8.3-arquivamento-avancado.it.html"><span class="num">8.3</span><span>Archiviazione avanzata</span></a></li><li><a href="8.4-links.it.html"><span class="num">8.4</span><span>Link</span></a></li><li><a href="8.5-permissoes-avancadas.it.html"><span class="num">8.5</span><span>Permessi avanzati</span></a></li></ul><h3>M9 · Storage</h3><ul><li><a href="9.1-discos-e-layout.it.html"><span class="num">9.1</span><span>Dischi e layout</span></a></li><li><a href="9.2-particionar.it.html"><span class="num">9.2</span><span>Partizionare</span></a></li><li><a href="9.3-sistemas-de-arquivos.it.html"><span class="num">9.3</span><span>File system</span></a></li><li><a href="9.4-montar-e-persistir.it.html"><span class="num">9.4</span><span>Montare e rendere persistente</span></a></li><li><a href="9.5-integridade-e-espaco.it.html"><span class="num">9.5</span><span>Integrità e spazio</span></a></li><li><a href="9.6-lvm.it.html"><span class="num">9.6</span><span>LVM</span></a></li><li><a href="9.7-crescer-sem-destruir.it.html"><span class="num">9.7</span><span>Crescere senza distruggere</span></a></li></ul><h3>M10 · Utenti e accesso privilegiato</h3><ul><li><a href="10.1-contas.it.html"><span class="num">10.1</span><span>Account</span></a></li><li><a href="10.2-senhas-e-validade.it.html"><span class="num">10.2</span><span>Password e scadenza</span></a></li><li><a href="10.3-grupos-e-trabalho-em-equipe.it.html"><span class="num">10.3</span><span>Gruppi e lavoro di squadra</span></a></li><li><a href="10.4-sudo-de-verdade.it.html"><span class="num">10.4</span><span>sudo sul serio</span></a></li></ul><h3>M11 · Rete</h3><ul><li><a href="11.1-tcp-ip-para-quem-administra.it.html"><span class="num">11.1</span><span>TCP/IP per chi amministra</span></a></li><li><a href="11.2-networkmanager-e-nmcli.it.html"><span class="num">11.2</span><span>NetworkManager e nmcli</span></a></li><li><a href="11.3-rede-no-debian.it.html"><span class="num">11.3</span><span>Rete su Debian</span></a></li><li><a href="11.4-nomes-e-resolucao.it.html"><span class="num">11.4</span><span>Nomi e risoluzione</span></a></li><li><a href="11.5-diagnostico-de-rede.it.html"><span class="num">11.5</span><span>Diagnosi di rete</span></a></li></ul><h3>M12 · Sicurezza dell'host</h3><ul><li><a href="12.1-ssh-a-fundo.it.html"><span class="num">12.1</span><span>SSH in dettaglio</span></a></li><li><a href="12.2-firewall.it.html"><span class="num">12.2</span><span>Firewall</span></a></li><li><a href="12.3-selinux-modos-e-contextos.it.html"><span class="num">12.3</span><span>SELinux: modalità e contesti</span></a></li><li><a href="12.4-selinux-portas-e-booleanos.it.html"><span class="num">12.4</span><span>SELinux: porte e booleani</span></a></li><li><a href="12.5-auditoria-e-criptografia.it.html"><span class="num">12.5</span><span>Audit e crittografia</span></a></li></ul><h3>M13 · Archiviazione in rete</h3><ul><li><a href="13.1-servidor-nfs.it.html"><span class="num">13.1</span><span>Server NFS</span></a></li><li><a href="13.2-cliente-nfs.it.html"><span class="num">13.2</span><span>Client NFS</span></a></li><li><a href="13.3-autofs.it.html"><span class="num">13.3</span><span>autofs</span></a></li></ul><h3>M14 · Pianificazione</h3><ul><li><a href="14.1-cron-e-at.it.html"><span class="num">14.1</span><span>cron e at</span></a></li><li><a href="14.2-timers-do-systemd.it.html"><span class="num">14.2</span><span>Timer di systemd</span></a></li><li><a href="14.3-journald-e-rsyslog.it.html"><span class="num">14.3</span><span>journald e rsyslog</span></a></li><li><a href="14.4-hora-certa.it.html"><span class="num">14.4</span><span>L'ora corretta</span></a></li><li><a href="14.5-email-local-e-impressao.it.html"><span class="num">14.5</span><span>E-mail locale e stampa</span></a></li></ul><h3>M15 · Shell e ambiente</h3><ul><li><a href="15.1-ambiente-do-shell.it.html"><span class="num">15.1</span><span>Ambiente della shell</span></a></li><li><a href="15.2-scripts-robustos.it.html"><span class="num">15.2</span><span>Script robusti</span></a></li><li><a href="15.3-scripts-de-administracao.it.html"><span class="num">15.3</span><span>Script di amministrazione</span></a></li><li><a href="15.4-interfaces-graficas.it.html"><span class="num">15.4</span><span>Interfacce grafiche</span></a></li><li><a href="15.5-idioma-teclado-e-fuso.it.html"><span class="num">15.5</span><span>Lingua, tastiera e fuso orario</span></a></li></ul><h3>M16 · Settimana di incidenti su Rocky 10</h3><ul><li><a href="16.1-rocky-10-o-que-muda.it.html"><span class="num">16.1</span><span>Rocky 10: cosa cambia</span></a></li><li><a href="16.2-incidentes-por-area.it.html"><span class="num">16.2</span><span>Incidenti per area</span></a></li><li><a href="16.3-incidente-com-relogio.it.html"><span class="num">16.3</span><span>Incidente con cronometro</span></a></li><li><a href="16.4-correcao-e-reforco.it.html"><span class="num">16.4</span><span>Correzione e rinforzo</span></a></li></ul><h3>M17 · Proxmox in pratica</h3><ul><li><a href="17.1-proxmox-por-dentro.it.html"><span class="num">17.1</span><span>Proxmox dall'interno</span></a></li><li><a href="17.2-vm-pela-linha-de-comando.it.html"><span class="num">17.2</span><span>VM dalla riga di comando</span></a></li><li><a href="17.3-conteiner-lxc.it.html"><span class="num">17.3</span><span>Container LXC</span></a></li><li><a href="17.4-storage.it.html"><span class="num">17.4</span><span>Storage: capacità, ampliamento e spostamento</span></a></li><li><a href="17.5-rede.it.html"><span class="num">17.5</span><span>Rete: bridge, VLAN, bond e SDN</span></a></li><li><a href="17.6-backup-e-restauracao.it.html"><span class="num">17.6</span><span>Backup e ripristino con PBS</span></a></li><li><a href="17.7-migracao-e-quorum.it.html"><span class="num">17.7</span><span>Migrazione e quorum</span></a></li></ul><h3>M18 · Podman</h3><ul><li><a href="18.1-conteiner-nao-e-vm.it.html"><span class="num">18.1</span><span>Un container non è una VM</span></a></li><li><a href="18.2-rodar-e-persistir.it.html"><span class="num">18.2</span><span>Eseguire e conservare i dati</span></a></li><li><a href="18.3-conteiner-como-servico.it.html"><span class="num">18.3</span><span>Container come servizio</span></a></li><li><a href="18.4-diagnosticar-conteiner-rootless.it.html"><span class="num">18.4</span><span>Diagnosticare un container rootless</span></a></li><li><a href="18.5-construir-imagens.it.html"><span class="num">18.5</span><span>Costruire immagini</span></a></li></ul><h3>M19 · Servizi di rete</h3><ul><li><a href="19.1-dns-autoritativo.it.html"><span class="num">19.1</span><span>DNS autoritativo</span></a></li><li><a href="19.2-dns-recursivo-e-diagnostico.it.html"><span class="num">19.2</span><span>DNS ricorsivo e diagnosi</span></a></li><li><a href="19.3-dhcp.it.html"><span class="num">19.3</span><span>DHCP</span></a></li><li><a href="19.4-servidor-web.it.html"><span class="num">19.4</span><span>Server web: nome, file e risposta</span></a></li><li><a href="19.5-tls-e-proxy-reverso.it.html"><span class="num">19.5</span><span>TLS e reverse proxy: identità prima del lucchetto</span></a></li><li><a href="19.6-samba-a-ponte-windows.it.html"><span class="num">19.6</span><span>Samba: il ponte con il client Windows</span></a></li><li><a href="19.7-postfix-e-correio-local.it.html"><span class="num">19.7</span><span>Postfix e posta locale</span></a></li><li><a href="19.8-dovecot-e-imaps.it.html"><span class="num">19.8</span><span>Dovecot e lettura tramite IMAPS</span></a></li><li><a href="19.9-squid-e-desafio-integrado.it.html"><span class="num">19.9</span><span>Squid e sfida integrata</span></a></li></ul><h3>M20 · Dentro NethServer 8</h3><ul><li><a href="20.1-instalar-nethserver-8.it.html"><span class="num">20.1</span><span>Installare in una VM pulita</span></a></li><li><a href="20.2-cluster-no-e-modulo.it.html" aria-current="page"><span class="num">20.2</span><span>Cluster, nodo e modulo</span></a></li><li><a href="20.3-modulo-por-dentro.it.html"><span class="num">20.3</span><span>Dentro un modulo</span></a></li><li><a href="20.4-proxy-e-certificados.it.html"><span class="num">20.4</span><span>Proxy e certificati</span></a></li><li><a href="20.5-dominios-de-usuario.it.html"><span class="num">20.5</span><span>Domini utente: identità con confini</span></a></li><li><a href="20.6-backup-e-restauracao.it.html"><span class="num">20.6</span><span>Backup e ripristino: verificare il ritorno</span></a></li><li><a href="20.7-atualizar-mover-e-falhar.it.html"><span class="num">20.7</span><span>Aggiornare, spostare e guastare con verifica</span></a></li></ul></aside><main id="conteudo" class="aula"><article><h1>Lezione 20.2 · Cluster, nodo e modulo</h1>
+<blockquote><p><strong>Il cuore di questa lezione:</strong> localizzare un’istanza reale e distinguere controllo, esecuzione e identità.</p></blockquote>
+<div class="tabela"><table><thead><tr><th scope="col">Scheda</th><th scope="col">Piano di lavoro</th></tr></thead><tbody><tr><td>Modulo</td><td>M20 · Dentro NethServer 8, lezione 2 di 7</td></tr><tr><td>Quando</td><td>Settimana 27</td></tr><tr><td>Alla fine</td><td>localizzare un’istanza reale e distinguere controllo, esecuzione e identità.</td></tr><tr><td>Prerequisiti</td><td>M18 e M19 corretti; inventario e accesso alla console autorizzati</td></tr><tr><td>Durata</td><td>90–120 minuti, oltre ai download</td></tr><tr><td>Snapshot</td><td>m20a2-inicio e m20a2-fim; solo VM 240</td></tr></tbody></table></div>
+<p>La VM <code translate="no">240</code>, <code translate="no">ns8-1</code>, è il primo nodo; la VM <code translate="no">241</code>, <code translate="no">ns8-2</code>, entra soltanto nella 20.7. Nome della VM, hostname, ID del nodo e ID dell’applicazione sono campi diversi.</p>
+<p>I comandi Proxmox sono indicati come HOST. I comandi NS8 usano Bash come root nella VM, dopo <code translate="no">sudo -i</code>; non sono comandi per l’host di virtualizzazione.</p>
+<p>Usa la <a href="https://github.com/Rodrigoantignani/curso-linux-sysadmin/blob/master/GUIA_BANCADA_M20_IT.md">Guida del laboratorio M20</a>. L’indirizzo isolato della 240 è <code translate="no">192.0.2.240</code>; la gestione ha un indirizzo reale riservato e accesso a Internet.</p>
+<p>Non eseguire il blocco successivo se una guardia fallisce. Gli output attesi qui sotto non dichiarano un laboratorio già eseguito.</p>
+<h2 id="1-riscaldamento">1 · Riscaldamento</h2>
+<ol><li>Il numero della VM è necessariamente il numero del nodo NS8?</li>
+<li>Un nome descrittivo identifica permanentemente i dati di un’applicazione?</li>
+<li>Se due schermate mostrano la stessa etichetta, hai già dimostrato che mostrano la stessa istanza?</li></ol>
+<h2 id="2-perche-conta">2 · Perché conta</h2>
+<p>Un’applicazione può avere nome descrittivo, ID interno, UUID e nodo associato. Mescolarli ti porta a cercare log nell’utente sbagliato o ad agire su un’altra istanza.</p>
+<p>In questa lezione installiamo una sola DokuWiki di laboratorio. Rimane la stessa applicazione nelle lezioni successive; non creeremo una copia per ogni comando dimostrativo.</p>
+<h3 id="ponte-windows">Ponte Windows</h3>
+<p>Un’etichetta del server in una console non equivale al SID di un account né al GUID di un oggetto. Anche qui separiamo presentazione, identità e luogo d’esecuzione.</p>
+<h2 id="3-modello-mentale">3 · Modello mentale</h2>
+<figure><a href="../img/20.2-cluster-no-e-instancia.it.jpg"><img src="../img/20.2-cluster-no-e-instancia.it.jpg" alt="Un cluster può iniziare con un nodo" loading="lazy" decoding="async"></a><figcaption>Il ruolo di leader non trasforma l’ID del nodo nell’ID dell’applicazione.</figcaption></figure>
+<p>Il leader ospita il pannello di amministrazione del cluster. Il nodo esegue i componenti che gli sono stati assegnati; un’istanza raccoglie le risorse dell’applicazione scelta.</p>
+<p>Esiste ancora soltanto la VM 240. Perciò applicazione e controllo si trovano nello stesso luogo, ma questo non rende equivalenti i loro identificatori.</p>
+<figure><a href="../img/20.2-redis-e-agentes.it.jpg"><img src="../img/20.2-redis-e-agentes.it.jpg" alt="La configurazione passa dagli agenti" loading="lazy" decoding="async"></a><figcaption>Redis conserva lo stato e trasporta messaggi; l’agente esegue l’azione nel proprio contesto.</figcaption></figure>
+<p>Redis partecipa alla configurazione e alla comunicazione fra agenti. L’agente dell’istanza riceve un’azione e lavora nel proprio contesto, che può includere un utente Unix rootless.</p>
+<p>Leggere lo stato non autorizza a modificare il database. Questa lezione usa soltanto query Redis limitate, senza riversare variabili che possono contenere segreti.</p>
+<h2 id="4-l-essenziale">4 · L'essenziale</h2>
+<div class="tabela"><table><thead><tr><th scope="col">Identificatore</th><th scope="col">Chi lo assegna</th><th scope="col">Domanda a cui risponde</th></tr></thead><tbody><tr><td>VMID 240</td><td>Proxmox</td><td>Quale macchina virtuale?</td></tr><tr><td>NODE_ID</td><td>NS8</td><td>Quale nodo del cluster?</td></tr><tr><td>MODULE_ID</td><td>NS8</td><td>Quale istanza di applicazione?</td></tr><tr><td>MODULE_UUID</td><td>NS8</td><td>Quale identità di applicazione nel controllo?</td></tr><tr><td>Etichetta</td><td>Operatore nel pannello</td><td>Come presentare l’istanza?</td></tr></tbody></table></div>
+<h3 id="rocky-debian">Rocky × Debian</h3>
+<p>I due nodi previsti per questo modulo usano Rocky 9. L’identità NS8 non si deduce dal gestore dei pacchetti né dalla distribuzione.</p>
+<p>Il comando Podman di root mostra lo storage di root. Per un’applicazione rootless entra nel contesto con <code translate="no">runagent</code>, senza creare una seconda installazione parallela.</p>
+<h3 id="decidi-1">Decidi 1</h3>
+<p>Il pannello chiama l’applicazione M20 wiki. Quale valore va in runagent -m?</p>
+<p>A. L’etichetta descrittiva, compresi gli spazi.</p>
+<p>B. Il MODULE_ID reale dell’istanza, confermato nell’inventario.</p>
+<p>C. Il VMID 240.</p>
+<h2 id="5-lab-guidato">5 · Lab guidato</h2>
+<h3 id="passo-1-controllare-chi-gestisce-il-controllo">Passo 1 · Controllare chi gestisce il controllo</h3>
+<p><strong>Ipotesi:</strong> L’ID del primo nodo va copiato da un esempio?</p>
+<pre translate="no"><code class="lang-bash">sudo -i
+test "$(id -u)" -eq 0 || exit 1
+test "$(hostname -s)" = ns8-1 || exit 1
+test -f /root/m20-lab/operador.env &amp;&amp; test ! -L /root/m20-lab/operador.env || exit 1
+test "$(stat -c '%U:%G:%a' /root/m20-lab/operador.env)" = root:root:600 || exit 1
+cat /root/m20-lab/operador.env
+. /root/m20-lab/operador.env
+test "$NS8_IP" = 192.0.2.240 || exit 1
+test "$NS8_FQDN" = ns8-1.lab.test || exit 1
+NODE_NOW=$(redis-cli --raw HGET cluster/environment NODE_ID) || exit 1
+test "$NODE_NOW" = "$NODE_ID" || exit 1
+redis-cli PING
+redis-cli ROLE
+runagent -l</code></pre>
+<p>Nel pannello aperto tramite il percorso della guida, consulta Nodes e controlla FQDN, nodo e risorse. L’etichetta Node non è il VMID dell’hypervisor.</p>
+<p><strong>Output atteso:</strong> Il ruolo di leader, l’ID nel file e il nodo del pannello corrispondono alla VM 240.</p>
+<p><strong>Verifica:</strong> Se l’ID letto è diverso, fermati: un file d’inventario di un altro laboratorio non autorizza comandi su questa macchina.</p>
+<h3 id="passo-2-scegliere-unorigine-dellapplicazione">Passo 2 · Scegliere un’origine dell’applicazione</h3>
+<p><strong>Ipotesi:</strong> Il catalogo mostra soltanto applicazioni già installate?</p>
+<p>Apri Settings e Software repositories. Abilita il repository <code translate="no">nethforge</code> già presente, inizialmente disattivato. Aggiorna i metadati e torna al Software center.</p>
+<p>Individua DokuWiki. Apri i dettagli, controlla origine, versione disponibile e documentazione. Non usare un’immagine dal nome simile trovata con una ricerca fuori dal catalogo.</p>
+<p>Registra che questa applicazione è mantenuta nel repository della comunità. La scelta di aggiornamento e supporto deve considerare quell’origine, non solo il disegno della scheda.</p>
+<p>Non aggiungere un repository di test né cambiare la priorità di altri repository per completare questo esercizio. Se la scheda non appare, indaga metadati, DNS e accesso esterno.</p>
+<p><strong>Output atteso:</strong> DokuWiki disponibile dall’origine pianificata e non ancora installata da questo passo.</p>
+<p><strong>Verifica:</strong> Il registro distingue disponibile da installato; conserva versione e data osservate, senza inventare un numero fisso.</p>
+<h3 id="passo-3-installare-una-sola-istanza-sul-nodo-corretto">Passo 3 · Installare una sola istanza sul nodo corretto</h3>
+<p><strong>Ipotesi:</strong> Fare clic due volte su installa ripete soltanto la verifica?</p>
+<p>Prima di installare cerca istanze DokuWiki esistenti nel pannello. Se c’è un’istanza non prevista, riconcilia l’inventario; non sostituirla né crearne un’altra per tentativi.</p>
+<p>Sull’HOST controlla la VM 240 e crea lo snapshot della finestra prima dell’installazione. Torna poi alla sessione root della VM per i comandi NS8.</p>
+<pre translate="no"><code class="lang-bash">test "$(qm config 240 | sed -n 's/^name: //p')" = ns8-1 || exit 1
+qm snapshot 240 m20a2-inicio || exit 1</code></pre>
+<p>Nel Software center installa DokuWiki sul nodo reale controllato nel Passo 1. Attendi il completamento dell’attività e apri l’istanza creata; non confondere un download in corso con un’applicazione pronta.</p>
+<pre translate="no"><code class="lang-bash">test "$(id -u)" -eq 0 || exit 1
+test "$(hostname -s)" = ns8-1 || exit 1
+test ! -L /root/m20-lab/operador.env || exit 1
+test "$(stat -c '%U:%G:%a' /root/m20-lab/operador.env)" = root:root:600 || exit 1
+. /root/m20-lab/operador.env
+runagent -l
+read -r -p 'Actual DokuWiki MODULE_ID: ' MODULE_ID
+[[ "$MODULE_ID" =~ ^dokuwiki[0-9]+$ ]] || exit 1
+test "$(redis-cli --raw HEXISTS cluster/module_uuid "$MODULE_ID")" = 1 || exit 1
+MODULE_NODE=$(redis-cli --raw HGET cluster/module_node "$MODULE_ID") || exit 1
+test "$MODULE_NODE" = "$NODE_ID" || exit 1
+MODULE_UUID=$(redis-cli --raw HGET cluster/module_uuid "$MODULE_ID") || exit 1
+[[ "$MODULE_UUID" =~ ^[0-9a-fA-F-]{36}$ ]] || exit 1
+getent passwd "$MODULE_ID" || exit 1</code></pre>
+<p><strong>Output atteso:</strong> Un’istanza reale, collegata al nodo previsto, con UUID e utente Unix identificati.</p>
+<p><strong>Verifica:</strong> Copia l’ID osservato, non un nome d’esempio. Se formato o posizione sono diversi, fermati e controlla versione installata e pannello.</p>
+<h3 id="passo-4-configurare-la-wiki-senza-mescolare-gli-account">Passo 4 · Configurare la wiki senza mescolare gli account</h3>
+<p><strong>Ipotesi:</strong> L’amministratore del pannello NS8 è automaticamente l’amministratore della wiki?</p>
+<p>Nella configurazione dell’istanza usa host <code translate="no">wiki.lab.test</code>, nome <code translate="no">M20 Lab</code>, utente amministrativo <code translate="no">wikiadmin</code>, nome visualizzato <code translate="no">Lab Admin</code> e contatto fittizio <code translate="no">wiki-admin@lab.test</code>. Imposta una password esclusiva nel modulo.</p>
+<p>Non abilitare Let’s Encrypt per <code translate="no">.test</code>. Attiva l’opzione di reindirizzamento HTTP verso HTTPS e salva. La 20.4 installerà la fiducia TLS privata appropriata per quel nome.</p>
+<p>L’account della wiki è locale all’applicazione; non confonderlo con student, root, l’utente Unix dell’istanza o l’amministratore del cluster. I domini degli utenti entrano nella 20.5.</p>
+<pre translate="no"><code class="lang-bash">getent ahostsv4 wiki.lab.test
+curl --retry 10 --retry-delay 1 --retry-all-errors --max-time 5   --fail --silent --show-error --head http://wiki.lab.test/
+openssl s_client -connect 127.0.0.1:443 -servername wiki.lab.test   -showcerts &lt; /dev/null 2&gt;/dev/null |   openssl x509 -noout -subject -issuer -dates -fingerprint -sha256</code></pre>
+<p>La query HTTP usa soltanto HEAD e non invia credenziali. Controlla la destinazione del reindirizzamento. Nel browser tramite la guida confronta l’impronta del certificato della wiki con la console prima di qualsiasi login, come nell’accesso iniziale della 20.1.</p>
+<p><strong>Output atteso:</strong> Attività di configurazione completata, host corretto e reindirizzamento verso HTTPS.</p>
+<p><strong>Verifica:</strong> Il primo accesso TLS è un’eccezione puntuale di questo laboratorio dopo la verifica dell’identità; non è una dichiarazione di fiducia pubblica. Non inviare password via HTTP.</p>
+<h3 id="passo-5-collegare-lidentita-al-contesto-del-modulo">Passo 5 · Collegare l’identità al contesto del modulo</h3>
+<p><strong>Ipotesi:</strong> Podman eseguito come root vede necessariamente i container rootless della wiki?</p>
+<figure><a href="../img/20.2-nome-id-e-uuid.it.jpg"><img src="../img/20.2-nome-id-e-uuid.it.jpg" alt="Nome, ID e UUID non sono sinonimi" loading="lazy" decoding="async"></a><figcaption>Registra l’identità osservata prima di indagare, spostare o ripristinare.</figcaption></figure>
+<pre translate="no"><code class="lang-bash">runagent -m "$MODULE_ID" printenv MODULE_ID AGENT_ID
+runagent -m "$MODULE_ID" id
+runagent -m "$MODULE_ID" podman ps
+runagent -m "$MODULE_ID" systemctl --user --type=service --state=running --no-pager
+test ! -e /root/m20-lab/operador.before-20-2.env || exit 1
+cp -a /root/m20-lab/operador.env /root/m20-lab/operador.before-20-2.env
+ENV_NEW=$(mktemp /root/m20-lab/operador.XXXXXX) || exit 1
+printf 'NS8_IP=%q
+NS8_FQDN=%q
+WIKI_FQDN=%q
+NODE_ID=%q
+VPN_CIDR=%q
+MODULE_ID=%q
+MODULE_UUID=%q
+'   "$NS8_IP" "$NS8_FQDN" "$WIKI_FQDN" "$NODE_ID" "$VPN_CIDR"   "$MODULE_ID" "$MODULE_UUID" &gt; "$ENV_NEW"
+chmod 0600 "$ENV_NEW"
+mv -f "$ENV_NEW" /root/m20-lab/operador.env
+stat -c '%U:%G:%a %n' /root/m20-lab/operador.env</code></pre>
+<p>Le query printenv richiedono soltanto due variabili d’identità. Non sostituirle con un dump completo dell’ambiente, che può contenere credenziali interne.</p>
+<p>Il file dell’operatore contiene soltanto riferimenti senza segreti. La copia precedente conserva lo stato prima di aggiungere l’identità dell’applicazione.</p>
+<p><strong>Output atteso:</strong> Contesto del modulo, utente, container e servizi corrispondono all’istanza reale.</p>
+<p><strong>Verifica:</strong> Se il comando dipende da un’altra istanza o non trova l’utente, fermati. Non aggiungere sudo dentro runagent per fabbricare un risultato.</p>
+<h3 id="passo-6-confrontare-pannello-e-terminale-dopo-una-modifica-delletichetta">Passo 6 · Confrontare pannello e terminale dopo una modifica dell’etichetta</h3>
+<p><strong>Ipotesi:</strong> Un’etichetta nuova crea una nuova applicazione?</p>
+<p>Nel pannello registra l’etichetta attuale e cambia soltanto l’etichetta descrittiva dell’istanza in <code translate="no">M20 wiki</code>. Non usare l’opzione di clonazione né cambiare FQDN in questo esercizio.</p>
+<pre translate="no"><code class="lang-bash">test "$(redis-cli --raw HGET cluster/module_node "$MODULE_ID")" = "$NODE_ID" || exit 1
+test "$(redis-cli --raw HGET cluster/module_uuid "$MODULE_ID")" = "$MODULE_UUID" || exit 1
+runagent -l
+runagent -m "$MODULE_ID" podman ps
+redis-cli PING
+systemctl status agent@cluster.service agent@node.service --no-pager</code></pre>
+<p>Confronta la posizione del modulo nel pannello con ID e UUID del registro. La modifica dell’etichetta non autorizza a cambiare un utente Unix né una chiave Redis.</p>
+<p><strong>Output atteso:</strong> Etichetta aggiornata, stessa identità e stesso nodo; non è stata creata una seconda istanza.</p>
+<p><strong>Verifica:</strong> Conserva il registro per le lezioni successive. Nella 20.3 verrà creata una pagina fittizia per seguire i dati; nella 20.6 ci sarà una verifica di ripristino.</p>
+<h3 id="decidi-2">Decidi 2</h3>
+<p>Il pannello risponde, ma il comando nel contesto di un’altra istanza non mostra la wiki. Quale conclusione è valida?</p>
+<p>A. È necessario eliminare il database Redis.</p>
+<p>B. Podman ha perso tutti i container.</p>
+<p>C. Il test ha interrogato un altro contesto; conferma MODULE_ID e nodo prima di agire.</p>
+<h2 id="6-rompi-e-ripara">6 · Rompi e ripara</h2>
+<h3 id="guasto-1-id-inesistente">Guasto 1 · ID inesistente</h3>
+<p><strong>Sintomo:</strong> Un riferimento di prova non appartiene al cluster.</p>
+<p><strong>Indagine:</strong> Controlla l’assenza con HEXISTS prima del comando e mantieni l’azione soltanto di lettura.</p>
+<p><strong>Causa:</strong> Il nome di una famiglia di applicazioni non identifica un’istanza reale.</p>
+<p><strong>Riparazione:</strong> Torna al MODULE_ID registrato e conferma di nuovo il collegamento al nodo.</p>
+<p><strong>Prevenzione:</strong> Convalida l’identità prima di qualsiasi comando di arresto, rimozione o ripristino.</p>
+<p><strong>Verifica:</strong> Il contesto reale risponde e il riferimento assente viene rifiutato.</p>
+<pre translate="no"><code class="lang-bash">M20_MISSING=dokuwiki999999
+test "$(redis-cli --raw HEXISTS cluster/module_uuid "$M20_MISSING")" = 0 || exit 1
+if runagent -m "$M20_MISSING" podman ps; then
+  printf '%s
+' 'STOP: unexpected existing context' &gt;&amp;2
+  exit 1
+fi
+runagent -m "$MODULE_ID" podman ps</code></pre>
+<h3 id="guasto-2-etichetta-confusa-con-lidentita">Guasto 2 · Etichetta confusa con l’identità</h3>
+<p><strong>Sintomo:</strong> Dopo aver cambiato l’etichetta nel pannello, una vecchia annotazione sembra riferirsi a un’altra applicazione.</p>
+<p><strong>Indagine:</strong> Confronta etichetta precedente, MODULE_ID, UUID e nodo; non rinominare file di sistema.</p>
+<p><strong>Causa:</strong> La presentazione è cambiata, ma l’oggetto tecnico non è stato sostituito.</p>
+<p><strong>Riparazione:</strong> Aggiorna l’etichetta nel diario o ripristina soltanto l’etichetta precedente dal pannello.</p>
+<p><strong>Prevenzione:</strong> Registra sempre ID e UUID accanto al nome leggibile da una persona.</p>
+<p><strong>Verifica:</strong> Lo stesso UUID e lo stesso nodo restano associati al MODULE_ID.</p>
+<h3 id="guasto-3-account-della-wiki-nel-pannello-del-cluster">Guasto 3 · Account della wiki nel pannello del cluster</h3>
+<p><strong>Sintomo:</strong> Un solo tentativo di accedere al pannello NS8 con wikiadmin viene rifiutato.</p>
+<p><strong>Indagine:</strong> Conferma quale URL e quale insieme di account usa il modulo; non ripetere tentativi di password.</p>
+<p><strong>Causa:</strong> Amministratore dell’applicazione e amministratore del cluster appartengono ad ambiti distinti.</p>
+<p><strong>Riparazione:</strong> Usa l’amministratore del cluster per il pannello NS8 e l’account locale soltanto per la wiki.</p>
+<p><strong>Prevenzione:</strong> Conserva credenziali separate e non uguagliare le password fra quei ruoli.</p>
+<p><strong>Verifica:</strong> Ogni account funziona soltanto nell’ambito previsto, tramite HTTPS con identità verificata.</p>
+<h2 id="7-trappole">7 · Trappole</h2>
+<p>Non concludere dall’icona verde di una schermata. Confronta identità, attività completata e risposta funzionale lungo il percorso usato dal client.</p>
+<p>Lo snapshot dell’intera VM aiuta a tornare indietro da una prova locale, ma non sostituisce il backup dell’applicazione e della configurazione del cluster.</p>
+<p>Una password o un token non appartiene al diario pubblicato. Registra nomi, orari e risultati; conserva i segreti separatamente.</p>
+<h2 id="8-quiz">8 · Quiz</h2>
+<ol><li>Perché il VMID non è il NODE_ID?</li>
+<li>Che cosa distingue etichetta, MODULE_ID e UUID?</li>
+<li>Qual è il ruolo di Redis in questo modello?</li>
+<li>Perché non usare podman di root per concludere che la wiki è scomparsa?</li>
+<li>Cambiare l’etichetta descrittiva deve cambiare l’UUID?</li></ol>
+<h2 id="9-promemoria">9 · Promemoria</h2>
+<pre translate="no"><code class="lang-bash">runagent -l
+redis-cli PING
+redis-cli ROLE
+redis-cli HGET cluster/environment NODE_ID
+redis-cli HGET cluster/module_node "$MODULE_ID"
+redis-cli HGET cluster/module_uuid "$MODULE_ID"</code></pre>
+<p><strong>Flashcard:</strong> Cluster → controllo; nodo → posizione; istanza → applicazione identificata.</p>
+<p><strong>Flashcard:</strong> UUID → segui l’identità; conferma ID e nodo dopo uno spostamento o ripristino.</p>
+<h2 id="10-checklist-e-chiusura">10 · Checklist e chiusura</h2>
+<ul><li>[ ] Una sola DokuWiki installata dall’origine scelta.</li>
+<li>[ ] Pannello e terminale concordano su identità e nodo.</li>
+<li>[ ] Inventario root:root 0600, senza password né token.</li>
+<li>[ ] Nessuna modifica manuale di Redis, utente del modulo o file generato.</li>
+<li>[ ] Wiki conservata per la 20.3 e il backup futuro.</li></ul>
+<p><strong>Reboot di verifica:</strong> Nella finestra concordata, riavvia soltanto la VM 240 e riconnettiti dalla gestione. Non riavviare l’host Proxmox.</p>
+<pre translate="no"><code class="lang-bash">systemctl reboot</code></pre>
+<p>Dopo il ritorno, usa nuovamente la sessione root nella VM corretta e ripeti la verifica:</p>
+<pre translate="no"><code class="lang-bash">test "$(id -u)" -eq 0 || exit 1
+test "$(hostname -s)" = ns8-1 || exit 1
+ip -br -4 address
+ip -4 route
+getent ahostsv4 ns8-1.lab.test
+runagent -l
+systemctl --failed --no-pager</code></pre>
+<p>Apri di nuovo il pannello per nome, controlla il nodo e verifica l’applicazione se è già installata. Un servizio avviato non dimostra identità TLS né contenuto corretto.</p>
+<p><strong>Ultimo esercizio:</strong> Spiega dal terminale quale istanza è stata installata e su quale nodo funziona, senza mostrare segreti.</p>
+<h2 id="11-nella-vita-reale">11 · Nella vita reale</h2>
+<p>In un ambiente reale, ottieni inventario e referente prima di qualsiasi modifica. In questa missione leggi soltanto versioni, risoluzione dei nomi e stato; non installare, fermare o rimuovere applicazioni.</p>
+<p>Registra tre riscontri senza credenziali e una domanda che richiede ancora conferma. Il limite di ciò che sai fa parte della diagnosi.</p>
+<h2 id="12-approfondire-quando-vuoi">12 · Approfondire quando vuoi</h2>
+<p><a href="https://docs.nethserver.org/docs/administrator-manual/installation/software_center">NS8: Software center</a></p>
+<p><a href="https://docs.nethserver.org/docs/administrator-manual/nethforge/dokuwiki">NS8: DokuWiki</a></p>
+<p><a href="https://nethserver.github.io/ns8-core/core/agents/">NS8: agenti</a></p>
+<p><a href="https://nethserver.github.io/ns8-core/core/database/">NS8: database e chiavi d’identità</a></p>
+<p><a href="https://nethserver.github.io/ns8-core/core/filesystem/">NS8: file e contesti</a></p>
+<p>Usa la documentazione della versione installata e registra quando è stata consultata. Le etichette del pannello possono cambiare; la verifica tecnica resta l’identità e il comportamento osservati.</p>
+<pre translate="no"><code class="lang-text">!explica
+!feynman
+!quiz</code></pre>
+<p>Usa i tre prompt per spiegare il percorso, insegnarlo con parole tue e verificare le decisioni. Non incollare password, token o contenuti privati.</p>
+<h2 id="soluzioni-commentate">Soluzioni commentate</h2>
+<p>Riscaldamento: gli ID sono assegnati da sistemi diversi; il nome descrittivo è presentazione; schermate uguali richiedono di confrontare identità e nodo.</p>
+<p>Decidi 1: B. runagent richiede l’ID interno reale, non l’etichetta né il numero Proxmox.</p>
+<p>Decidi 2: C. Una query in un altro contesto non dimostra perdita di dati nell’istanza bersaglio.</p>
+<p>Quiz 1: Proxmox identifica la VM, mentre NS8 assegna il nodo all’interno del proprio cluster.</p>
+<p>Quiz 2: l’etichetta presenta; MODULE_ID seleziona il contesto; UUID segue l’identità nel piano di controllo.</p>
+<p>Quiz 3: conserva la configurazione e partecipa allo scambio di attività ed eventi fra componenti; non è solo cache dell’applicazione.</p>
+<p>Quiz 4: storage e gestori utente sono distinti; consulta il contesto rootless dell’istanza reale.</p>
+<p>Quiz 5: no; in questa prova cambia soltanto la presentazione. Dopo uno spostamento o ripristino riscopri i collegamenti reali anziché presumere continuità dal nome.</p>
+<p><a href="20.1-instalar-nethserver-8.it.html">← Lezione 20.1 · Installare NS8</a> · <a href="index.it.html">Indice delle lezioni</a> · <a href="https://github.com/Rodrigoantignani/curso-linux-sysadmin/blob/master/00-plano-do-curso.md">Piano del corso</a></p>
+</article><nav class="paginas" aria-label="Lezioni"><a class="ant" href="20.1-instalar-nethserver-8.it.html"><small>← Precedente</small>20.1 · Installare in una VM pulita</a><a class="prox" href="20.3-modulo-por-dentro.it.html"><small>Successiva →</small>20.3 · Dentro un modulo</a></nav></main></div>
+<footer><div class="wrap">Generato dal Markdown del corso · Immagini in <code translate="no">img/</code></div></footer>
+</body>
+</html>
