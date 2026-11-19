@@ -192,6 +192,9 @@ Se è attivo un task di backup, snapshot o modifica del disco, attendine la conc
 Non rimuovere un blocco per forzare la concorrenza.</p>
 <h3 id="passo-4-migrare-soltanto-quando-le-condizioni-lo-permettono">Passo 4 · Migrare soltanto quando le condizioni lo permettono</h3>
 <p><strong>Ipotesi:</strong> quale prova dimostra il cambio di proprietario dopo il task?</p>
+<p>Prima di migrare, conferma che <strong>nessun disco sia su storage locale e nessun <code translate="no">unusedN</code> sia locale</strong>. Controlla anche EFI, cloud-init e supporti ISO. Se esiste una dipendenza locale, non eseguire la migrazione: torna al rientro sullo storage condiviso della 17.4. Non cancellare un <code translate="no">unusedN</code> per superare il controllo.</p>
+<pre translate="no"><code class="lang-bash">qm config 211 | grep -E '^((ide|sata|scsi|virtio)[0-9]+|efidisk0|tpmstate0|unused[0-9]+):'
+pvesm status</code></pre>
 <p>Esegui questo blocco soltanto nel ramo con destinazione reale, quorum e risorse controllati.
 Leggi il nome di un nodo realmente comparso nell'inventario e controlla prima di confermare.</p>
 <pre translate="no"><code class="lang-bash">read -r -p 'No de destino real no mesmo cluster: ' DESTINO
@@ -286,7 +289,7 @@ Esegui ogni comando seguente soltanto dopo aver controllato nome, stato e prova 
 test "$(qm config 212 | sed -n 's/^name: //p')" = 'm17-restore' &amp;&amp; \
   test "$(qm status 212)" = 'status: stopped' &amp;&amp; qm destroy 212</code></pre>
 <p><strong>Verifica:</strong> gli ID 211 e 212 risultano liberi nell'inventario completo, e 210 rimane un template spento.
-I backup e il bridge isolato non vengono rimossi.
+In questa fase conserva backup e bridge: la sfida qui sotto usa ancora questa rete. La rimozione della bridge avviene soltanto nella pulizia finale, dopo tutti i guest temporanei.
 Se non hai concluso la prova del passo 5, conserva tutto e segna la sfida bloccata nella preparazione.</p>
 <h2 id="6-rompi-e-ripara">6 · Rompi e ripara</h2>
 <p>I guasti sono decisioni sulle prove; non provocare guasti sul cluster reale.</p>
@@ -446,8 +449,28 @@ Prima di rimuovere 210, conferma che è il template spento di questo laboratorio
   test "$(qm config 210 | sed -n 's/^template: //p')" = '1' &amp;&amp; \
   test "$(qm status 210)" = 'status: stopped' &amp;&amp; qm destroy 210
 pvesh get /cluster/resources --type vm --output-format json-pretty</code></pre>
-<p>Non rimuovere il bridge isolato: sarà riutilizzato nel M19.
-Gli ID da 210 a 212 devono rimanere liberi prima dell'uso previsto nel M24.
+<p>Dopo la sfida, esegui la pulizia qui sotto <strong>su ogni nodo</strong>, dalla console amministrativa autorizzata. Rimuove la bridge soltanto quando non ci sono porte collegate <strong>né configurazioni di guest che la usino ancora</strong>. Se il controllo rifiuta, conserva la rete e indaga; non scollegare un altro esercizio per liberare la pulizia. Non eseguire un ricaricamento globale della rete.</p>
+<pre translate="no"><code class="lang-bash">m17_retirar_bridge() {
+  [ -f /etc/network/interfaces.d/m17-lab ] || return 0
+  [ -d /sys/class/net/vmbr17/bridge ] || return 1
+  if [ -n "$(ls -A /sys/class/net/vmbr17/brif)" ]; then
+    printf '%s\n' 'Ci sono porte collegate; conserva la bridge.'; return 1
+  fi
+  local refs rc backup
+  refs=$(grep -rsE 'bridge=vmbr17([,[:space:]]|$)' /etc/pve/nodes); rc=$?
+  [ "$rc" -le 1 ] || return 1
+  if [ -n "$refs" ]; then printf '%s\n' "$refs"; return 1; fi
+  grep -Eq '^[[:space:]]*bridge-ports[[:space:]]+none[[:space:]]*$' /etc/network/interfaces.d/m17-lab || return 1
+  install -d -m 0700 /root/m17-work || return 1
+  backup="/root/m17-work/m17-lab.removida.$(date +%Y%m%d%H%M%S)"
+  [ ! -e "$backup" ] || return 1
+  ifdown vmbr17 || return 1
+  mv /etc/network/interfaces.d/m17-lab "$backup" || return 1
+  if ip link show vmbr17 &gt;/dev/null 2&gt;&amp;1; then return 1; fi
+  printf '%s\n' 'Bridge rimossa; configurazione conservata nel diario dell’host.'
+}
+m17_retirar_bridge</code></pre>
+<p>Gli ID da 210 a 212 restano liberi nell’inventario dopo la consegna e la pulizia autorizzata.
 Non eliminare backup o cartella delle prove come conseguenza automatica della pulizia delle VM.</p>
 <p><strong>Reboot di verifica:</strong> non riavviare host o membri del cluster per verificare la pulizia.
 Il controllo finale consiste nell'inventario, nell'assenza degli oggetti temporanei e nella conservazione di quelli esistenti.</p>
@@ -456,7 +479,7 @@ Il controllo finale consiste nell'inventario, nell'assenza degli oggetti tempora
 <li>[ ] Ho controllato marcatore e checksum fuori dalla VM originale.</li>
 <li>[ ] Ho mantenuto scollegate le reti ripristinate fino al controllo.</li>
 <li>[ ] Ho liberato soltanto gli ID temporanei dopo la consegna.</li>
-<li>[ ] Ho preservato guest da 201 a 205, bridge e backup.</li></ul>
+<li>[ ] Ho preservato i guest da 201 a 205 e i backup; ho rimosso soltanto le bridge libere dell’esercizio su tutti i nodi.</li></ul>
 <h2 id="11-nella-vita-reale">11 · Nella vita reale</h2>
 <p>Produci una valutazione di migrazione senza eseguire modifiche su un carico reale.
 Elenca dipendenze di CPU, versione, volumi, reti e capacità.
@@ -478,7 +501,7 @@ Una condizione sconosciuta deve comparire come punto in sospeso, non come approv
 <strong>Quiz 3:</strong> per impedire decisioni di configurazione concorrenti e incoerenti.
 <strong>Quiz 4:</strong> contenuto del disco, identificatore interno e chiavi SSH possono rimanere uguali.
 <strong>Quiz 5:</strong> backup esatto verificato, ripristino isolato provato e dato confrontato con prova esterna.
-<strong>Quiz 6:</strong> la rete isolata è infrastruttura preparata per una pratica successiva, fuori dalla pulizia dei guest.</p>
+<strong>Quiz 6:</strong> conserva la rete mentre la sfida o un’altra configurazione la usa; poi rimuovi soltanto le bridge libere, su tutti i nodi, con i controlli della pulizia finale.</p>
 <p><a href="17.6-backup-e-restauracao.it.html">← Lezione 17.6 · Backup e ripristino</a> · <a href="index.it.html">Indice delle lezioni</a> · <a href="https://github.com/Rodrigoantignani/curso-linux-sysadmin/blob/master/00-plano-do-curso.md">Piano del corso: da M18 in poi →</a></p>
 </article><nav class="paginas" aria-label="Lezioni"><a class="ant" href="17.6-backup-e-restauracao.it.html"><small>← Precedente</small>17.6 · Backup e ripristino con PBS</a><a class="prox" href="18.1-conteiner-nao-e-vm.it.html"><small>Successiva →</small>18.1 · Un container non è una VM</a></nav></main></div>
 <footer><div class="wrap">Generato dal Markdown del corso · Immagini in <code translate="no">img/</code></div></footer>

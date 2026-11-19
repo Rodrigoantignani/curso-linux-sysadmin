@@ -156,6 +156,7 @@ ip route show table all
 ip route get 192.0.2.211
 ip route get 192.0.2.212</code></pre>
 <p><strong>Verifique:</strong> a rota atual até esses endereços não é uma rede local já configurada. Uma rota padrão existente não é, sozinha, uma sobreposição.</p>
+<p>A bridge é um recurso local do host. Antes deste passo, liste todos os nós com <code translate="no">pvecm nodes</code>. Repita os dois blocos de criação abaixo no console de <strong>cada nó</strong>, inclusive os possíveis destinos da 17.7, usando exatamente <code translate="no">/etc/network/interfaces.d/m17-lab</code>. Não basta criar no proprietário atual da VM.</p>
 <h3 id="passo-2-criar-somente-a-bridge-nova">Passo 2 · Criar somente a bridge nova</h3>
 <p><strong>Palpite:</strong> o host inclui arquivos adicionais, usa <code translate="no">ifupdown2</code> e não tem uma interface chamada <code translate="no">vmbr17</code>.</p>
 <p>No host, leia o arquivo principal. A inclusão ativa precisa abranger exatamente o novo arquivo; comentário não conta.</p>
@@ -181,6 +182,9 @@ ifup vmbr17
 ip -br address show vmbr17
 bridge link show master vmbr17</code></pre>
 <p><strong>Verifique:</strong> a bridge existe sem endereço; ainda não há portas de convidados. Não execute uma recarga global nem desligue outra bridge.</p>
+<p>Antes de conectar os convidados, confira o resultado em cada nó e registre seus nomes no diário. Uma bridge isolada com o mesmo nome em dois hosts não cria um enlace entre eles: na 17.7 ela permite iniciar a VM no destino, mas não estende automaticamente a LAN isolada entre nós.</p>
+<pre translate="no"><code class="lang-bash">hostname -s
+ip -br link show vmbr17</code></pre>
 <h3 id="passo-3-acrescentar-interfaces-sem-tocar-na-gestao">Passo 3 · Acrescentar interfaces sem tocar na gestão</h3>
 <p><strong>Palpite:</strong> acrescentar <code translate="no">net1</code> mantém <code translate="no">net0</code> intacta.</p>
 <p>Desligue os dois convidados de modo controlado antes da alteração. Se o desligamento não terminar, investigue pelo console; não force por conveniência.</p>

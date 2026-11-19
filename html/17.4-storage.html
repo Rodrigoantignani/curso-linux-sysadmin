@@ -243,8 +243,12 @@ qm config 211
 qm help disk move</code></pre>
 <p><strong>Sem segundo storage:</strong> registre a origem real, a capacidade e quais requisitos faltam; explique onde mudaria a referência. Não execute o bloco de movimento e marque a prática como não realizada.</p>
 <p><strong>Com segundo storage:</strong> registre o volume de origem e digite em <code translate="no">TARGET_STORE</code> o identificador do destino, diferente da origem. Se snapshots impedirem a operação, pare; não apague sua proteção para forçar a cópia.</p>
+<p>Antes de mover, guarde <code translate="no">M17_SHARED_STORE</code> no diário e confirme em <code translate="no">pvesm status</code> que a origem é o storage compartilhado do lab (Ceph RBD no desenho do curso). Se a origem for local, pare e reconcilie o inventário. As variáveis permanecem no mesmo terminal; não invente a origem ao voltar.</p>
 <p>Na VM, desmonte a pasta; no host, desligue e confirme a parada. Execute o bloco somente depois da validação do destino e do backup do Passo 4.</p>
-<pre translate="no"><code class="lang-bash">read -r TARGET_STORE
+<pre translate="no"><code class="lang-bash">M17_SHARED_VOLUME=$(qm config 211 | sed -n 's/^scsi1: \([^,]*\).*/\1/p')
+M17_SHARED_STORE=${M17_SHARED_VOLUME%%:*}
+pvesm status --storage "$M17_SHARED_STORE"
+read -r TARGET_STORE
 qm shutdown 211 --timeout 120
 qm status 211</code></pre>
 <pre translate="no"><code class="lang-bash">test -n "$TARGET_STORE" &amp;&amp;
@@ -256,6 +260,17 @@ qm config 211</code></pre>
 <p><strong>Saída esperada:</strong> a tarefa conclui, <code translate="no">scsi1</code> aponta para o destino e o serial permanece. A origem preservada aparece como volume não usado; ela ainda ocupa espaço.</p>
 <p><strong>Verifique:</strong> compare as referências completas, confirme os discos protegidos do Passo 1 e confira a prova dentro da VM após iniciar. Se não executou o movimento, registre honestamente essa limitação.</p>
 <p>A origem antiga fica preservada para revisão; este roteiro não manda excluir volumes não usados. Remover um deles pode apagar fisicamente seus dados.</p>
+<p>Depois de observar o disco no destino local e registrar a prova, devolva <code translate="no">scsi1</code> à origem compartilhada antes da 17.5. A VM continua desligada. <code translate="no">--delete 1</code> remove somente a cópia de origem desta segunda transferência após concluí-la; não é um comando para apagar volumes <code translate="no">unusedN</code>.</p>
+<pre translate="no"><code class="lang-bash">m17_devolver_disco() {
+  [ -n "$M17_SHARED_STORE" ] || return 1
+  [ "$(qm config 211 | sed -n 's/^name: //p')" = m17-vm ] || return 1
+  [ "$(qm status 211)" = "status: stopped" ] || return 1
+  qm config 211 | grep '^scsi1:' | grep -q 'serial=M17DATA' || return 1
+  qm disk move 211 scsi1 "$M17_SHARED_STORE" --delete 1 || return 1
+  qm config 211
+}
+m17_devolver_disco</code></pre>
+<p>Confira todas as linhas de discos, incluindo EFI, cloud-init e <code translate="no">unusedN</code>: nenhum volume pode permanecer em storage local para a migração ensinada na 17.7. Se a primeira transferência preservou uma cópia antiga compartilhada, registre-a sem apagá-la por nome presumido. Os snapshots seguintes serão feitos apenas depois deste retorno.</p>
 <h3 id="passo-6-reboot-e-conferencia-completa">Passo 6 · Reboot e conferência completa</h3>
 <p><strong>Palpite:</strong> depois do reboot, a falta de montagem significa perda dos dados?</p>
 <p>No host, inicie a VM caso esteja parada; se já estiver ativa, faça reboot limpo. Não reinicie o nó Proxmox.</p>

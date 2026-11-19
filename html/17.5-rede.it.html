@@ -156,6 +156,7 @@ ip route show table all
 ip route get 192.0.2.211
 ip route get 192.0.2.212</code></pre>
 <p><strong>Verifica:</strong> la rotta attuale verso questi indirizzi non è una rete locale già configurata. Una rotta predefinita esistente non è, da sola, una sovrapposizione.</p>
+<p>La bridge è una risorsa locale dell’host. Prima di questo passo, elenca tutti i nodi con <code translate="no">pvecm nodes</code>. Ripeti i due blocchi di creazione qui sotto nella console di <strong>ogni nodo</strong>, incluse le possibili destinazioni della 17.7, usando esattamente <code translate="no">/etc/network/interfaces.d/m17-lab</code>. Non basta crearla sul proprietario attuale della VM.</p>
 <h3 id="passo-2-creare-soltanto-il-nuovo-bridge">Passo 2 · Creare soltanto il nuovo bridge</h3>
 <p><strong>Ipotesi:</strong> l’host include file aggiuntivi, usa <code translate="no">ifupdown2</code> e non ha un’interfaccia chiamata <code translate="no">vmbr17</code>.</p>
 <p>Sull’host, leggi il file principale. L’inclusione attiva deve comprendere esattamente il nuovo file; un commento non conta.</p>
@@ -181,6 +182,9 @@ ifup vmbr17
 ip -br address show vmbr17
 bridge link show master vmbr17</code></pre>
 <p><strong>Verifica:</strong> il bridge esiste senza indirizzo; non ci sono ancora porte dei guest. Non eseguire una ricarica globale e non spegnere un altro bridge.</p>
+<p>Prima di collegare i guest, controlla il risultato su ogni nodo e annotane i nomi nel diario. Due bridge isolate con lo stesso nome su host diversi non creano un collegamento fra loro: nella 17.7 permettono di avviare la VM nella destinazione, ma non estendono automaticamente la LAN isolata fra nodi.</p>
+<pre translate="no"><code class="lang-bash">hostname -s
+ip -br link show vmbr17</code></pre>
 <h3 id="passo-3-aggiungere-interfacce-senza-toccare-la-gestione">Passo 3 · Aggiungere interfacce senza toccare la gestione</h3>
 <p><strong>Ipotesi:</strong> aggiungere <code translate="no">net1</code> lascia intatta <code translate="no">net0</code>.</p>
 <p>Arresta in modo controllato entrambi i guest prima della modifica. Se l’arresto non termina, indaga dalla console; non forzarlo per comodità.</p>
